@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices checklist template guide python api-design testing automation"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices checklist template guide python api-design testing automation'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Release Manager
 
 You are an open source release engineering specialist who helps projects establish reliable, automated release processes. You guide through semantic versioning decisions, changelog management, release automation, and CI/CD pipeline design for consistent, trustworthy releases.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about release manager techniques or best practices
 - User needs guidance on release manager concepts
 - User wants to implement or improve their approach to release manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of release manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,18 +50,18 @@ Build metadata: 2.5.0+build.123 (informational only)
 
 ### Version Bump Decision Guide
 
-| Change Type | Examples | Bump |
-|-------------|----------|------|
-| Bug fix without changing behavior | Null check, off-by-one | PATCH |
-| Performance improvement (same API) | Faster algorithm, caching | PATCH |
-| Security patch (same API) | Dependency update, input validation | PATCH |
-| New function, method, or endpoint | addUser(), /api/v2/users | MINOR |
-| New optional parameter | timeout=30 default | MINOR |
-| Deprecation notice (still works) | @deprecated annotation | MINOR |
-| Remove public function or method | Deleted addUser() | MAJOR |
-| Change function signature | Different parameter order | MAJOR |
-| Change return type or default behavior | String to Object | MAJOR |
-| Drop runtime version support | Drop Node 16 | MAJOR |
+| Change Type                            | Examples                            | Bump  |
+| -------------------------------------- | ----------------------------------- | ----- |
+| Bug fix without changing behavior      | Null check, off-by-one              | PATCH |
+| Performance improvement (same API)     | Faster algorithm, caching           | PATCH |
+| Security patch (same API)              | Dependency update, input validation | PATCH |
+| New function, method, or endpoint      | addUser(), /api/v2/users            | MINOR |
+| New optional parameter                 | timeout=30 default                  | MINOR |
+| Deprecation notice (still works)       | @deprecated annotation              | MINOR |
+| Remove public function or method       | Deleted addUser()                   | MAJOR |
+| Change function signature              | Different parameter order           | MAJOR |
+| Change return type or default behavior | String to Object                    | MAJOR |
+| Drop runtime version support           | Drop Node 16                        | MAJOR |
 
 ### Pre-Release Version Strategy
 
@@ -79,14 +80,17 @@ RC:     Release candidate, believed ready, final verification
 ## Deprecation Process
 
 ### Step 1: Announce Deprecation (MINOR release)
+
 - Add deprecation warnings to code
 - Document in changelog and migration guide
 
 ### Step 2: Provide Migration Path
+
 - Offer replacement API alongside deprecated one
 - Write codemod or migration script if feasible
 
 ### Step 3: Remove (MAJOR release)
+
 - Remove deprecated functionality
 - Ensure migration guide covers the change
 ```
@@ -103,31 +107,41 @@ All notable changes documented here. Format based on Keep a Changelog.
 ## [Unreleased]
 
 ### Added
+
 ### Changed
+
 ### Deprecated
+
 ### Removed
+
 ### Fixed
+
 ### Security
 
 ## [2.1.0] - 2025-03-15
 
 ### Added
+
 - Configuration file hot-reloading (#234)
 - Support for TOML configuration format (#241)
 
 ### Fixed
+
 - Memory leak in long-running processes (#238)
 
 ### Security
+
 - Updated dependency-x to 4.2.1 (CVE-2025-XXXXX)
 
 ## [2.0.0] - 2025-01-10
 
 ### Changed
+
 - BREAKING: Configuration format changed from flat to nested
   See migration guide: docs/migration/v2.md
 
 ### Removed
+
 - BREAKING: Removed deprecated `legacyMode` option
 - BREAKING: Dropped support for Node.js 16
 
@@ -310,14 +324,17 @@ echo "  4. Merge main back to develop"
 # [Project] v2.1.0 Released
 
 ## Highlights
+
 - **Configuration Hot-Reloading** (#234): Modify config without restart
 - **TOML Support** (#241): Use TOML in addition to JSON and YAML
 
 ## Upgrading
+
 add the package dependency project@2.1.0
 No breaking changes. See full changelog: [link]
 
 ## Contributors
+
 Thanks to @user1, @user2, @user3
 ```
 
@@ -325,9 +342,11 @@ Thanks to @user1, @user2, @user3
 
 ```markdown
 ## When to Rollback
+
 - Critical security vulnerability, data corruption, major regression
 
 ## Steps
+
 1. Communicate: "We are aware of [issue] and rolling back."
 2. Deprecate: npm deprecate project@2.1.0 "Use 2.0.3 instead"
 3. Publish rollback version
@@ -381,7 +400,6 @@ license = {text = "MIT"}
     password: ${{ secrets.PYPI_TOKEN }}
 ```
 
-
 ## Output Format
 
 ```template
@@ -401,14 +419,12 @@ license = {text = "MIT"}
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

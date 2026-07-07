@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing writing template"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing writing template'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Content Brief
 
 ## When to Use
@@ -413,15 +414,15 @@ Create a practical how-to guide for B2B email marketing that differentiates on s
 
 ### Target Audience
 
-| Attribute              | Detail                                                                                                         |
-|------------------------|----------------------------------------------------------------------------------------------------------------|
-| Role / Job title       | Marketing Manager or Demand Generation Manager                                                                 |
-| Company context        | B2B SaaS company, 50-300 employees, funded or bootstrapped but resource-constrained                           |
-| Experience with topic  | Intermediate -- has sent email campaigns before, may use a basic ESP, is not getting the results they expected |
-| Emotional state        | Mildly frustrated -- knows email should work better but is not sure where the breakdown is                    |
-| What they already know | Open rates, subject line optimization, list segmentation basics, CAN-SPAM compliance                          |
-| What they need to learn | Why B2B email behaves differently from B2C and what to change in their current program                        |
-| Key question           | "What specifically should I do differently to make our B2B email program perform better?"                      |
+| Attribute               | Detail                                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Role / Job title        | Marketing Manager or Demand Generation Manager                                                                 |
+| Company context         | B2B SaaS company, 50-300 employees, funded or bootstrapped but resource-constrained                            |
+| Experience with topic   | Intermediate -- has sent email campaigns before, may use a basic ESP, is not getting the results they expected |
+| Emotional state         | Mildly frustrated -- knows email should work better but is not sure where the breakdown is                     |
+| What they already know  | Open rates, subject line optimization, list segmentation basics, CAN-SPAM compliance                           |
+| What they need to learn | Why B2B email behaves differently from B2C and what to change in their current program                         |
+| Key question            | "What specifically should I do differently to make our B2B email program perform better?"                      |
 
 ---
 
@@ -433,23 +434,23 @@ Create a practical how-to guide for B2B email marketing that differentiates on s
 
 **Competing content analysis:**
 
-| Competitor Article                              | What it does well                                               | What it misses / leaves open                                                             |
-|-------------------------------------------------|-----------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| Generic "B2B email best practices" listicle     | Covers fundamentals well: segmentation, subject lines, timing  | Treats B2B and B2C email identically; no buying cycle integration                        |
-| ESP vendor blog post (general market)           | Strong on technical deliverability (SPF, DKIM, DMARC)          | Zero guidance on content strategy for multi-stakeholder buying decisions                 |
-| "Email marketing tips" roundup                  | Good diversity of tactical advice                               | 28 disconnected tips with no framework; SaaS marketer cannot prioritize what to do first |
+| Competitor Article                          | What it does well                                             | What it misses / leaves open                                                             |
+| ------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Generic "B2B email best practices" listicle | Covers fundamentals well: segmentation, subject lines, timing | Treats B2B and B2C email identically; no buying cycle integration                        |
+| ESP vendor blog post (general market)       | Strong on technical deliverability (SPF, DKIM, DMARC)         | Zero guidance on content strategy for multi-stakeholder buying decisions                 |
+| "Email marketing tips" roundup              | Good diversity of tactical advice                             | 28 disconnected tips with no framework; SaaS marketer cannot prioritize what to do first |
 
 ---
 
 ### Voice and Tone
 
-| Element           | Guideline                                                                                                       |
-|-------------------|-----------------------------------------------------------------------------------------------------------------|
-| Register          | Conversational professional (3/5) -- peer-to-peer, the tone of a senior colleague, not a vendor selling a tool |
-| Person            | Second person ("your email program," "your buyers") throughout                                                  |
-| Sentence length   | 15-20 word average; max 30 words; short sentences for key claims ("That metric does not predict revenue.")      |
-| Vocabulary        | Use: "buying committee," "revenue impact," "multi-threaded outreach." Avoid: "blast," "nurture drip," "leverage" |
-| Reading level     | Flesch-Kincaid Grade 11-12 (professional audience, no padding or over-explanation)                             |
+| Element           | Guideline                                                                                                                              |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Register          | Conversational professional (3/5) -- peer-to-peer, the tone of a senior colleague, not a vendor selling a tool                         |
+| Person            | Second person ("your email program," "your buyers") throughout                                                                         |
+| Sentence length   | 15-20 word average; max 30 words; short sentences for key claims ("That metric does not predict revenue.")                             |
+| Vocabulary        | Use: "buying committee," "revenue impact," "multi-threaded outreach." Avoid: "blast," "nurture drip," "leverage"                       |
+| Reading level     | Flesch-Kincaid Grade 11-12 (professional audience, no padding or over-explanation)                                                     |
 | Tone prohibitions | Do NOT hedge every recommendation with "it depends." Do NOT open with a statistic. Do NOT use rhetorical questions as section headers. |
 
 ---
@@ -463,103 +464,112 @@ Create a practical how-to guide for B2B email marketing that differentiates on s
 
 **H2: Why B2B Email Is a Different Game Than B2C** (~280 words | ~16% of total)
 
-*Section purpose:* Establish the core reframe -- B2C email metrics mislead B2B marketers -- so that the reader accepts the new framework before encountering it.
-*What to cover:*
+_Section purpose:_ Establish the core reframe -- B2C email metrics mislead B2B marketers -- so that the reader accepts the new framework before encountering it.
+_What to cover:_
+
 - B2C email optimizes for individual consumer action within 24-72 hours; B2B email moves a buying committee over 30-120 days -- two completely different optimization targets
 - The three B2B-specific signals that matter more than open rate: reply rate, forwarding rate (multi-threading indicator), and meeting-to-close rate from email-sourced opportunities
 - Why applying a 20% open rate benchmark from B2C to B2B leads to false confidence: a B2B email read by 4 people in a buying committee may show as one open
 
-*Evidence required:* One industry statistic on average B2B sales cycle length (cite Gartner or Forrester; do not invent -- if unavailable, use "research from major analyst firms"). One concrete example comparing a B2C and B2B email campaign result using the same metric.
-*Do NOT include:* Deliverability mechanics (SPF, DKIM) -- that belongs in a technical deliverability guide, not a best practices post for marketing managers.
+_Evidence required:_ One industry statistic on average B2B sales cycle length (cite Gartner or Forrester; do not invent -- if unavailable, use "research from major analyst firms"). One concrete example comparing a B2C and B2B email campaign result using the same metric.
+_Do NOT include:_ Deliverability mechanics (SPF, DKIM) -- that belongs in a technical deliverability guide, not a best practices post for marketing managers.
 
 ---
 
 **H2: The Four Pillars of High-Performing B2B Email Programs** (~150 words | ~8% of total)
 
-*Section purpose:* Introduce the framework structure that organizes the rest of the piece, so the reader has a mental map before the detailed sections begin.
-*What to cover:*
+_Section purpose:_ Introduce the framework structure that organizes the rest of the piece, so the reader has a mental map before the detailed sections begin.
+_What to cover:_
+
 - Name the four pillars: Segmentation by buying stage, Content aligned to committee role, Cadence built around sales cycle length, and Measurement tied to pipeline contribution
 - One sentence per pillar explaining what it does and why it matters
 - Brief framing note: most email programs are strong on one pillar and weak on the other three
 
-*Evidence required:* No external citation needed here -- this is the piece's proprietary framework. Present it as such.
-*Do NOT include:* Detail on any individual pillar -- that is what H2 Sections 3-6 exist for. Keep this orientation tight.
+_Evidence required:_ No external citation needed here -- this is the piece's proprietary framework. Present it as such.
+_Do NOT include:_ Detail on any individual pillar -- that is what H2 Sections 3-6 exist for. Keep this orientation tight.
 
 ---
 
 **H2: Pillar 1 -- Segmentation by Buying Stage, Not by Job Title** (~280 words | ~16% of total)
 
-*Section purpose:* Replace the default "segment by persona" instinct with a buying-stage segmentation model that produces more relevant email content.
-*What to cover:*
+_Section purpose:_ Replace the default "segment by persona" instinct with a buying-stage segmentation model that produces more relevant email content.
+_What to cover:_
+
 - Three buying stages for B2B SaaS: Problem Aware (knows they have an issue, not actively shopping), Solution Aware (evaluating options), and Decision Stage (shortlisting vendors) -- and what each stage's email content goal is
 - Why job-title segmentation alone fails: a CFO and a VP of Engineering at the same buying-stage are better served by the same stage-appropriate content than by role-specific content with the wrong timing
 - Practical instruction: how to assign buying stage to contacts using behavioral signals (page visits, content downloads, sales touchpoints) rather than manual qualification
 
-*Evidence required:* A brief example: "A contact who downloaded your pricing page three times in two weeks is decision-stage, regardless of their job title. Sending them an educational overview email at that moment loses the deal."
-*Do NOT include:* Specific CRM or MAP tool recommendations -- keep tool-agnostic.
+_Evidence required:_ A brief example: "A contact who downloaded your pricing page three times in two weeks is decision-stage, regardless of their job title. Sending them an educational overview email at that moment loses the deal."
+_Do NOT include:_ Specific CRM or MAP tool recommendations -- keep tool-agnostic.
 
-  **H3: The Stage-Content Matrix**
-  - Present a simple 3x3 table: Buying Stage (rows) × Content Goal / Email Type / Success Signal (columns)
-  - This gives the writer a structural element that will also function as a featured snippet candidate
+**H3: The Stage-Content Matrix**
+
+- Present a simple 3x3 table: Buying Stage (rows) × Content Goal / Email Type / Success Signal (columns)
+- This gives the writer a structural element that will also function as a featured snippet candidate
 
 ---
 
 **H2: Pillar 2 -- Content That Addresses the Buying Committee, Not Just the Champion** (~280 words | ~16% of total)
 
-*Section purpose:* Teach the marketer to think about email content as material that their champion will forward, not just read themselves.
-*What to cover:*
+_Section purpose:_ Teach the marketer to think about email content as material that their champion will forward, not just read themselves.
+_What to cover:_
+
 - The B2B email reality: your contact forwards your email to 2-4 colleagues before a purchase decision; your email must survive being read without context by someone who has never heard of your company
 - Three content elements that make emails forwardable: a concrete business case (not a product feature), a clear "why now" trigger, and a referenceable resource (a one-pager, a ROI calculator, a case study) the champion can share
 - How to write the subject line for the champion, not the committee: the champion's goal is internal credibility, not just information
 
-*Evidence required:* Research from Gartner or similar on the number of stakeholders involved in B2B SaaS purchase decisions (the 6-10 stakeholders finding is well-established; verify the current figure). One specific example of a "forwardable" vs. "non-forwardable" email comparison.
-*Do NOT include:* Advice on email design or HTML rendering -- that is a deliverability and design topic, not a content strategy topic.
+_Evidence required:_ Research from Gartner or similar on the number of stakeholders involved in B2B SaaS purchase decisions (the 6-10 stakeholders finding is well-established; verify the current figure). One specific example of a "forwardable" vs. "non-forwardable" email comparison.
+_Do NOT include:_ Advice on email design or HTML rendering -- that is a deliverability and design topic, not a content strategy topic.
 
 ---
 
 **H2: Pillar 3 -- Cadence Built Around Sales Cycle Length, Not Batch-and-Blast Schedules** (~250 words | ~14% of total)
 
-*Section purpose:* Replace arbitrary send frequency (weekly newsletter) with a cadence logic tied to the actual length of the buyer's decision timeline.
-*What to cover:*
+_Section purpose:_ Replace arbitrary send frequency (weekly newsletter) with a cadence logic tied to the actual length of the buyer's decision timeline.
+_What to cover:_
+
 - The mismatch between a 90-day sales cycle and a weekly email cadence: weekly sends create noise, not momentum
 - A cadence framework: map email touchpoints to decision milestones rather than calendar dates. Example: send at initial engagement, at the 30-day re-engagement point, immediately after any behavioral trigger (pricing page visit, demo request), and 7 days before a trial end date
 - The right send volume for B2B: typically 4-8 emails over a 60-90 day prospect journey, not 12 weekly sends
 
-*Evidence required:* A worked example cadence timeline for a 90-day sales cycle (week 1 / week 4 / week 8 / week 12 with email type for each). This is original; the writer constructs it from the guidance above.
-*Do NOT include:* Send-time optimization advice (Tuesday morning vs. Thursday afternoon); this is a B2C tactic with minimal impact on B2B sales cycle-driven cadence.
+_Evidence required:_ A worked example cadence timeline for a 90-day sales cycle (week 1 / week 4 / week 8 / week 12 with email type for each). This is original; the writer constructs it from the guidance above.
+_Do NOT include:_ Send-time optimization advice (Tuesday morning vs. Thursday afternoon); this is a B2C tactic with minimal impact on B2B sales cycle-driven cadence.
 
 ---
 
 **H2: Pillar 4 -- Measuring Email Performance Against Pipeline, Not Vanity Metrics** (~200 words | ~11% of total)
 
-*Section purpose:* Give the reader a concrete measurement framework they can implement immediately, replacing open rate as the primary KPI.
-*What to cover:*
+_Section purpose:_ Give the reader a concrete measurement framework they can implement immediately, replacing open rate as the primary KPI.
+_What to cover:_
+
 - The three metrics that connect email to revenue: email-sourced pipeline (deals where email was the first meaningful touchpoint), email-influenced pipeline (deals where email accelerated a deal already in progress), and meeting-booked rate from email sequences
 - How to calculate email-sourced pipeline attribution: a straightforward methodology using UTM parameters plus CRM opportunity source fields
 - What to stop measuring: open rate as a primary KPI (especially post-iOS 15 Mail Privacy Protection, which inflates open rates artificially)
 
-*Evidence required:* Reference to iOS 15 Mail Privacy Protection's impact on open rate reliability (well-established; do not cite a date-specific statistic, as the impact is ongoing). One benchmark: a realistic email-sourced pipeline contribution percentage for a well-run B2B SaaS email program (5-15% of pipeline is a defensible range; verify before publishing).
-*Do NOT include:* Detailed instructions on CRM configuration -- link to documentation instead.
+_Evidence required:_ Reference to iOS 15 Mail Privacy Protection's impact on open rate reliability (well-established; do not cite a date-specific statistic, as the impact is ongoing). One benchmark: a realistic email-sourced pipeline contribution percentage for a well-run B2B SaaS email program (5-15% of pipeline is a defensible range; verify before publishing).
+_Do NOT include:_ Detailed instructions on CRM configuration -- link to documentation instead.
 
 ---
 
 **H2: Putting It Together -- Your 30-Day B2B Email Audit** (~200 words | ~11% of total)
 
-*Section purpose:* Give the reader an immediate action plan so the piece ends with momentum, not just insight.
-*What to cover:*
+_Section purpose:_ Give the reader an immediate action plan so the piece ends with momentum, not just insight.
+_What to cover:_
+
 - Week 1: Audit current segmentation -- are contacts bucketed by buying stage or by persona?
 - Week 2: Review last 10 sent emails -- do they serve the buying committee or only the champion? Would they survive being forwarded without context?
 - Week 3: Map cadence to sales cycle -- does send frequency match the 60-90 day decision timeline?
 - Week 4: Reset the measurement dashboard -- remove open rate as primary KPI, add pipeline contribution
 
-*Evidence required:* None -- this is a synthesis section. The writer pulls from the framework already introduced.
-*Do NOT include:* New concepts not introduced in prior sections. This is a consolidation section, not a place to introduce additional advice.
+_Evidence required:_ None -- this is a synthesis section. The writer pulls from the framework already introduced.
+_Do NOT include:_ New concepts not introduced in prior sections. This is a consolidation section, not a place to introduce additional advice.
 
 ---
 
-*Word count verification:* 280 + 150 + 280 + 280 + 250 + 200 + 200 = 1,640 words / 1,800 target = 91% ✓ (within 10% tolerance; writer should expand the pillar sections with additional examples)
+_Word count verification:_ 280 + 150 + 280 + 280 + 250 + 200 + 200 = 1,640 words / 1,800 target = 91% ✓ (within 10% tolerance; writer should expand the pillar sections with additional examples)
 
 **CTA placement:**
+
 - Mid-piece (after Pillar 2 section): Soft CTA -- "Download the B2B Email Content Matrix" (a one-page PDF of the stage-content table). Suggested text: "We've turned this matrix into a one-page reference you can share with your team. [Download it here]."
 - End of piece: Hard CTA -- Demo request. Suggested text: "If you're ready to automate the cadence logic described above, [see how our platform handles it] in a 20-minute walkthrough."
 
@@ -567,35 +577,39 @@ Create a practical how-to guide for B2B email marketing that differentiates on s
 
 ### SEO Requirements
 
-| Element                  | Target / Instruction                                                                                           |
-|--------------------------|----------------------------------------------------------------------------------------------------------------|
-| Primary keyword          | b2b email marketing best practices                                                                             |
-| Keyword placement        | H1 (first 5 words), first H2 or within first 100 words of body, 0.5-1% density (~9-18 mentions in 1,800 words)|
-| Secondary keywords       | b2b email marketing strategy / email marketing for saas / b2b email campaigns / email open rate benchmarks b2b |
-| Search intent            | Informational with commercial undertone (reader is learning; secondary intent is evaluating tools)             |
-| Featured snippet target  | Yes -- the Stage-Content Matrix table in Pillar 1's H3 section; format it as a clean markdown table           |
-| Meta description         | "B2B email marketing requires a different playbook than B2C. Here's the 4-pillar framework SaaS marketing teams use to connect email to pipeline." (155 characters) |
-| Title tag                | B2B Email Marketing Best Practices: A Framework for SaaS Teams (62 characters)                                |
-| Internal links           | Email automation features page → "automate the cadence logic"; Pricing page → "see our plans"; Case study → anchor text matches company or outcome |
-| External links           | 2-3 external citations: analyst data on buying committee size, iOS 15 privacy impact source, one academic or industry research source on email cadence |
+| Element                 | Target / Instruction                                                                                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary keyword         | b2b email marketing best practices                                                                                                                                  |
+| Keyword placement       | H1 (first 5 words), first H2 or within first 100 words of body, 0.5-1% density (~9-18 mentions in 1,800 words)                                                      |
+| Secondary keywords      | b2b email marketing strategy / email marketing for saas / b2b email campaigns / email open rate benchmarks b2b                                                      |
+| Search intent           | Informational with commercial undertone (reader is learning; secondary intent is evaluating tools)                                                                  |
+| Featured snippet target | Yes -- the Stage-Content Matrix table in Pillar 1's H3 section; format it as a clean markdown table                                                                 |
+| Meta description        | "B2B email marketing requires a different playbook than B2C. Here's the 4-pillar framework SaaS marketing teams use to connect email to pipeline." (155 characters) |
+| Title tag               | B2B Email Marketing Best Practices: A Framework for SaaS Teams (62 characters)                                                                                      |
+| Internal links          | Email automation features page → "automate the cadence logic"; Pricing page → "see our plans"; Case study → anchor text matches company or outcome                  |
+| External links          | 2-3 external citations: analyst data on buying committee size, iOS 15 privacy impact source, one academic or industry research source on email cadence              |
 
 ---
 
 ### Reference Materials
 
 **Competitive content (analyze, do not copy):**
+
 - Top-ranking "B2B email marketing best practices" listicle (check current SERP): Match its comprehensive structure and readable formatting. Exceed it by adding the pillar framework and pipeline measurement section, which no current top-3 result includes. Do NOT replicate its mix of B2C and B2B advice -- the differentiation depends on B2B specificity throughout.
 - ESP vendor blog post in top 5 results: It is technically strong on deliverability. Do not compete on that ground -- the technical reader is not this piece's audience. Ignore deliverability mechanics entirely.
 
 **Data and statistics to cite:**
+
 - Buying committee size in B2B SaaS purchases: Gartner research on average number of stakeholders (6-10); verify current year's figure. Use in Pillar 2 section.
 - iOS 15 Mail Privacy Protection's inflation of open rates: Reference the policy change (September 2021, ongoing); source from Apple documentation or major email industry publication. Use in Pillar 4 section.
 - B2B sales cycle length benchmark: Use a current analyst source; 30-120 days is the defensible range for SaaS mid-market deals. Use in Introduction.
 
 **Internal knowledge sources:**
+
 - Product team contact (confirm name before assigning): Can speak to how the platform handles buying-stage segmentation and cadence automation. Use for fact-checking only -- do not quote in the piece.
 - Existing customer case study (confirm availability): If a customer result on email-sourced pipeline attribution exists, include it in the Pillar 4 section as a real-world example. This would be the piece's strongest evidence.
 
 **Content to NOT duplicate:**
+
 - "Email Deliverability Guide" (confirm URL): Covers SPF, DKIM, DMARC in depth. This piece must link to it in the Pillar 3 section and explicitly defer technical deliverability questions there -- do not re-explain deliverability concepts.
 - "Email Subject Line Best Practices" (confirm URL): If this exists

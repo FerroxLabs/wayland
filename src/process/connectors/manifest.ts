@@ -44,10 +44,7 @@ export async function readManifest(manifestPath: string): Promise<FluxManifest> 
 }
 
 /** Look up the receipt for a single tool, if present. */
-export async function getReceipt(
-  manifestPath: string,
-  tool: string,
-): Promise<InstallReceipt | undefined> {
+export async function getReceipt(manifestPath: string, tool: string): Promise<InstallReceipt | undefined> {
   const manifest = await readManifest(manifestPath);
   return manifest.tools[tool];
 }

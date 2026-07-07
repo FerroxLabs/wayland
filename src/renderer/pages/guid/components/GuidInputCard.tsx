@@ -151,7 +151,9 @@ const GuidInputCard: React.FC<GuidInputCardProps> = ({
         >
           <div className='flex items-start min-w-0 flex-1 gap-8px'>
             <FolderOpen
-              className='mt-1px flex-shrink-0' size={16} color={iconColors.secondary}
+              className='mt-1px flex-shrink-0'
+              size={16}
+              color={iconColors.secondary}
               style={{ lineHeight: 0 }}
             />
             <Tooltip content={dir} position='top' disabled={isMobile}>

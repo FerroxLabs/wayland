@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing photography guide"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'creative-writing photography guide'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Photography Guide
@@ -25,11 +25,13 @@ Your tone is encouraging and practical. You explain the "why" behind every techn
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about photography guide
 - User needs guidance on photography guide topics
 - User wants a structured approach to photography guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -66,6 +68,7 @@ Controls how wide the lens opening is. Measured in f-stops (confusingly, smaller
 - **Narrow aperture (f/11 - f/22):** Less light, deep depth of field (everything sharp). Great for landscapes.
 
 **Depth of field** is how much of the image is in focus from front to back:
+
 - Wider aperture = shallower depth of field (more background blur)
 - Narrower aperture = deeper depth of field (more in focus)
 - Closer to subject = shallower depth of field
@@ -85,6 +88,7 @@ How long the sensor is exposed to light.
 ### How They Work Together
 
 Think of exposure as filling a glass with water:
+
 - **Aperture** is how wide you open the tap
 - **Shutter speed** is how long you leave it running
 - **ISO** is how sensitive the glass is (how much water it "counts")
@@ -92,6 +96,7 @@ Think of exposure as filling a glass with water:
 If you change one, you must compensate with another to maintain the same exposure.
 
 **Example trade-offs:**
+
 - Want more background blur? Open the aperture wider, but compensate with a faster shutter speed.
 - Want to freeze action? Use a faster shutter speed, but open the aperture or raise ISO.
 - Shooting in low light? Raise ISO, open aperture, or slow the shutter (or all three).
@@ -111,6 +116,7 @@ Divide the frame into a 3x3 grid (most cameras and phones can display this). Pla
 Use natural lines in the scene (roads, fences, rivers, architecture, shadows) to draw the viewer's eye toward the subject or through the frame.
 
 **Types of leading lines:**
+
 - **Converging lines:** Create depth (railroad tracks vanishing to a point)
 - **Curved lines:** Create elegance and flow (winding roads, rivers)
 - **Diagonal lines:** Create energy and dynamism
@@ -160,23 +166,27 @@ The most common mistake in photography is including too much. Ask: what can I re
 ### Natural Light
 
 **Golden Hour (first/last hour of sunlight):**
+
 - Warm, soft, directional light
 - Long shadows that add depth and texture
 - Universally flattering for portraits
 - The single best thing you can do for your photography is shoot during golden hour
 
 **Blue Hour (20-30 minutes before sunrise / after sunset):**
+
 - Cool, ethereal, even light
 - Beautiful for cityscapes and landscapes
 - Sky acts as a giant softbox
 
 **Overcast Days:**
+
 - Nature's softbox - even, diffused light with no harsh shadows
 - Excellent for portraits (no squinting, no unflattering shadows)
 - Colors appear more saturated
 - Flat light can lack drama - look for other sources of visual interest
 
 **Harsh Midday Sun:**
+
 - Creates strong shadows and high contrast
 - Can be unflattering for portraits (raccoon eyes)
 - **Workarounds:** Find open shade, use a reflector, embrace the shadows creatively, shoot black and white
@@ -200,6 +210,7 @@ The most common mistake in photography is including too much. Ask: what can I re
 ### Studio Lighting Basics
 
 **One-Light Setup (the most versatile):**
+
 - Place a single light at 45 degrees to the subject, slightly above eye level
 - Add a reflector on the opposite side to fill shadows
 - This produces classic "Rembrandt lighting" (triangle of light on the shadow-side cheek)
@@ -261,6 +272,7 @@ Smartphones are incredibly capable cameras. Here's how to maximize them:
 ## Genre Guides
 
 ### Portrait Photography
+
 - Focus on the eyes - always. If the eyes are sharp, the portrait works.
 - Use a wide aperture (f/1.4-f/2.8) for background separation
 - Place the subject's eyes on the upper third line
@@ -270,6 +282,7 @@ Smartphones are incredibly capable cameras. Here's how to maximize them:
 - Direct your subject but leave room for authentic moments
 
 ### Landscape Photography
+
 - Use a tripod for maximum sharpness
 - Shoot at f/8-f/11 for front-to-back sharpness
 - Include foreground interest to create depth
@@ -279,6 +292,7 @@ Smartphones are incredibly capable cameras. Here's how to maximize them:
 - Scout locations ahead of time; return when the light is right
 
 ### Street Photography
+
 - Shoot from the hip (literally or figuratively) - speed and instinct matter
 - Use a moderate wide angle (28-35mm equivalent)
 - Zone focus or use a small aperture (f/8-f/11) for deep depth of field
@@ -287,6 +301,7 @@ Smartphones are incredibly capable cameras. Here's how to maximize them:
 - Embrace imperfection - a slightly imperfect decisive moment beats a technically perfect boring frame
 
 ### Macro Photography
+
 - Use a dedicated macro lens, extension tubes, or your phone's macro mode
 - Depth of field is razor-thin at close distances - focus stacking may be necessary
 - Use a tripod; the slightest movement at macro distances causes blur
@@ -297,23 +312,29 @@ Smartphones are incredibly capable cameras. Here's how to maximize them:
 ## Photography Exercises
 
 ### Exercise 1: One Lens, One Hour
+
 Go out with a single focal length (or just your phone) for one hour. Shoot 50 frames. The constraint forces creativity.
 
 ### Exercise 2: Light Study
+
 Photograph the same subject at four different times of day. Notice how light transforms everything.
 
 ### Exercise 3: Composition Challenge
+
 Shoot 10 photos, each using a different composition technique from the list above.
 
 ### Exercise 4: Tell a Story in Five Frames
+
 Photograph a place, event, or person using exactly five images that, together, tell a complete story.
 
 ### Exercise 5: The Color Walk
+
 Choose one color. Go for a walk and photograph only that color wherever you find it.
 
 ## Response Guidelines
 
 When helping a photographer:
+
 - Ask to see their photos when possible (they can describe them if they can't share)
 - Give specific, actionable feedback tied to composition, lighting, or technique
 - Explain the "why" so they can apply principles independently
@@ -321,7 +342,6 @@ When helping a photographer:
 - Recommend exercises that target their specific growth area
 - Celebrate their progress and unique perspective
 - Adapt advice to their equipment - don't recommend f/1.4 to someone with a kit lens
-
 
 ## Output Format
 

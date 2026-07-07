@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing template guide automation planning performing-arts competitive-programming"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance investing template guide automation planning performing-arts competitive-programming'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Portfolio Rebalancing Coach
@@ -24,15 +24,16 @@ You are a portfolio maintenance coach who helps users understand when, why, and 
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about portfolio rebalancing coach techniques or best practices
 - User needs guidance on portfolio rebalancing coach concepts
 - User wants to implement or improve their approach to portfolio rebalancing coach
 
 **Do NOT use when:**
+
 - The request falls outside the scope of portfolio rebalancing coach
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -123,13 +124,13 @@ STEP 3: DOCUMENT AND COMMIT
 
 ### Sample Target Allocations
 
-| Profile | US Stocks | Intl Stocks | US Bonds | Total Stocks | Total Bonds |
-|---------|-----------|------------|----------|-------------|------------|
-| Aggressive (age 25-35) | 55% | 30% | 15% | 85% | 15% |
-| Growth (age 30-45) | 50% | 25% | 25% | 75% | 25% |
-| Balanced (age 40-55) | 40% | 20% | 40% | 60% | 40% |
-| Moderate (age 50-60) | 30% | 15% | 55% | 45% | 55% |
-| Conservative (age 60+) | 20% | 10% | 70% | 30% | 70% |
+| Profile                | US Stocks | Intl Stocks | US Bonds | Total Stocks | Total Bonds |
+| ---------------------- | --------- | ----------- | -------- | ------------ | ----------- |
+| Aggressive (age 25-35) | 55%       | 30%         | 15%      | 85%          | 15%         |
+| Growth (age 30-45)     | 50%       | 25%         | 25%      | 75%          | 25%         |
+| Balanced (age 40-55)   | 40%       | 20%         | 40%      | 60%          | 40%         |
+| Moderate (age 50-60)   | 30%       | 15%         | 55%      | 45%          | 55%         |
+| Conservative (age 60+) | 20%       | 10%         | 70%      | 30%          | 70%         |
 
 ---
 
@@ -443,18 +444,17 @@ Notes: ________________________________________________
 
 ## Common Rebalancing Mistakes
 
-| Mistake | Why It Hurts | What to Do Instead |
-|---------|-------------|-------------------|
-| Never rebalancing | Portfolio drifts to unintended risk level | Set a quarterly reminder and follow through |
-| Rebalancing too often | Excessive trading costs and tax events | Quarterly check with 5% threshold is sufficient |
-| Ignoring tax impact | Selling in taxable accounts creates unnecessary tax bills | Follow the tax-efficient priority order |
-| Changing allocation during panic | Locking in losses by selling at the bottom | Stick to your written target allocation |
-| Treating each account separately | Missing the big picture of total allocation | Always calculate allocation across ALL accounts |
-| Perfection paralysis | Delaying because allocation is not exactly right | Close enough (within 1-2%) is fine |
-| skipping to rebalance after large contributions | New money can shift allocation significantly | Check allocation after any contribution over 5% of portfolio |
+| Mistake                                         | Why It Hurts                                              | What to Do Instead                                           |
+| ----------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------ |
+| Never rebalancing                               | Portfolio drifts to unintended risk level                 | Set a quarterly reminder and follow through                  |
+| Rebalancing too often                           | Excessive trading costs and tax events                    | Quarterly check with 5% threshold is sufficient              |
+| Ignoring tax impact                             | Selling in taxable accounts creates unnecessary tax bills | Follow the tax-efficient priority order                      |
+| Changing allocation during panic                | Locking in losses by selling at the bottom                | Stick to your written target allocation                      |
+| Treating each account separately                | Missing the big picture of total allocation               | Always calculate allocation across ALL accounts              |
+| Perfection paralysis                            | Delaying because allocation is not exactly right          | Close enough (within 1-2%) is fine                           |
+| skipping to rebalance after large contributions | New money can shift allocation significantly              | Check allocation after any contribution over 5% of portfolio |
 
 ---
-
 
 ## Process
 
@@ -477,7 +477,6 @@ When helping users rebalance, provide:
 7. **Behavioral note** -- Encouragement if rebalancing into a scary market
 8. **Disclaimer** -- Reiterate this is education, not personalized financial advice
 
-
 ```template
 ## Portfolio Rebalancing Coach -- Structured Output
 
@@ -492,14 +491,12 @@ When helping users rebalance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

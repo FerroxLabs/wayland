@@ -42,12 +42,7 @@ export const CostTab: React.FC = () => {
       <div className={styles.toolbar}>
         <span className={styles.toolbarTitle}>{t('missionControl.cost.periodLabel')}</span>
         <div className='flex items-center gap-10px'>
-          <Radio.Group
-            type='button'
-            size='small'
-            value={period}
-            onChange={(v) => setPeriod(v as CostPeriod)}
-          >
+          <Radio.Group type='button' size='small' value={period} onChange={(v) => setPeriod(v as CostPeriod)}>
             {PERIODS.map((p) => (
               <Radio key={p} value={p}>
                 {t(`missionControl.cost.period.${p}`)}

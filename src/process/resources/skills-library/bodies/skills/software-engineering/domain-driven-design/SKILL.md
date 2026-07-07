@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture backend design-patterns"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture backend design-patterns'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Domain Driven Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is designing or refactoring a complex business application where the domain logic is the core differentiator -- e.g., an insurance underwriting engine, a logistics routing system, a financial trading platform, or a healthcare records system
 - The user asks how to model Aggregates, Entities, Value Objects, Domain Events, Repositories, Domain Services, or Application Services
 - The user needs guidance on establishing Bounded Contexts, Context Maps, or integrating multiple bounded contexts via Anti-Corruption Layers, Open Host Services, or Published Language patterns
@@ -30,6 +32,7 @@ metadata:
 - The user asks about Ubiquitous Language, domain modeling workshops, or aligning technical design with domain expert knowledge
 
 **Do NOT use this skill when:**
+
 - The user needs CRUD application design for simple data-management tools without complex business rules -- use a simpler layered architecture skill instead
 - The user is asking about microservices infrastructure concerns (container orchestration, service mesh, API gateway configuration) -- those are deployment/infrastructure skills
 - The user needs database schema design without a domain model context -- use the data modeling skill
@@ -210,9 +213,10 @@ When helping a user with DDD design, structure the response using the following 
 
 **Aggregate pseudocode:**
 ```
+
 class [AggregateName]:
-    id: [AggregateRootId]
-    [fields: typed with value objects]
+id: [AggregateRootId]
+[fields: typed with value objects]
 
     @staticmethod
     factory_method([params]) -> [AggregateName]:
@@ -223,6 +227,7 @@ class [AggregateName]:
         // validate preconditions (raise domain exception if violated)
         // apply state change
         // raise domain event
+
 ```
 
 ### Domain Events
@@ -241,11 +246,13 @@ Interface Layer:    [Controllers, consumers, CLI]
 ### Repository Interface
 
 ```
+
 interface [AggregateName]Repository:
-    find_by_id(id: [AggregateRootId]) -> Optional[[AggregateName]]
-    find_by_[business_key]([key]: [type]) -> List[[AggregateName]]
-    save(aggregate: [AggregateName]) -> None
-    remove(id: [AggregateRootId]) -> None
+find*by_id(id: [AggregateRootId]) -> Optional[[AggregateName]]
+find_by*[business_key]([key]: [type]) -> List[[AggregateName]]
+save(aggregate: [AggregateName]) -> None
+remove(id: [AggregateRootId]) -> None
+
 ```
 
 ### CQRS Decision
@@ -295,24 +302,31 @@ interface [AggregateName]Repository:
 ## Edge Cases
 
 ### Brownfield Migration -- Introducing DDD to an Existing "Big Ball of Mud"
+
 Never attempt a full rewrite. Apply the Strangler Fig pattern: identify one high-value workflow where the existing code is causing the most pain (frequent bugs, slow development, constant domain expert confusion). Wrap the existing code with an ACL that translates to your new Bounded Context's language. Implement the new domain model alongside the old code. Redirect traffic to the new model one workflow at a time. Delete old code only after the new model is confirmed stable in production. Expect this migration to take 12-24 months for a medium-sized system. Maintain a dual-write period where both models are updated to allow rollback. Key risk: the ACL becomes a permanent fixture -- set an explicit decommission date for the legacy code path on project kick-off.
 
 ### Event Sourcing -- When and How to Apply
+
 Event Sourcing (storing the sequence of Domain Events as the system of record rather than current state) should only be applied to the Core Domain, and only when audit trail requirements, temporal queries ("what was the state at time T?"), or complex undo/redo behavior genuinely require it. Event Sourcing adds significant operational complexity: event schema migration, snapshot management (take a snapshot every 50-100 events to avoid replaying thousands of events on load), projection rebuilding, and tooling maturity requirements. The aggregate state is reconstituted by replaying events from the event store. Never apply Event Sourcing to Supporting or Generic Subdomains -- the cost is not justified. If applying Event Sourcing, use an event store purpose-built for it (EventStoreDB) or implement an append-only events table in PostgreSQL with optimistic concurrency via a version/sequence column.
 
 ### Distributed Transactions Across Bounded Contexts
+
 When a business process spans multiple Bounded Contexts (e.g., placing an order requires reserving inventory in the Inventory Context and charging payment in the Billing Context), never use distributed two-phase commit (2PC). It creates tight coupling and operational fragility. Instead implement the Saga pattern: either Choreography-based (each context listens for events and reacts, suitable for 2-3 step flows) or Orchestration-based (a dedicated Saga orchestrator sends commands and tracks state, suitable for 4+ step flows). Each saga step must have a defined compensating transaction (e.g., `ReleaseInventoryReservation` compensates `ReserveInventory`). Saga state should be persisted -- a saga that cannot survive a process restart is a reliability bug.
 
 ### Multiple Teams, One Codebase -- Monorepo DDD
+
 In a monorepo with multiple teams, each Bounded Context is a separate top-level package/module with strict import boundaries enforced by tooling. Use `dependency-cruiser` (TypeScript/JavaScript), `import-linter` (Python), or ArchUnit (Java/Kotlin) to fail CI if one context imports directly from another. Shared contracts (Integration Event schemas, API specifications) live in a separate `contracts` or `shared-kernel` package that any context may import but no context may add domain logic to. Shared Kernel changes require sign-off from all teams that import it. Teams should deploy their contexts independently -- context boundaries should align with independent deployability.
 
 ### Eventual Consistency and User Experience
+
 When a command succeeds but the read model has not yet updated, users expect to see their change reflected immediately. Strategies: (1) Optimistic UI -- update the UI immediately on command success before the read model catches up, then reconcile on next poll; (2) Command acknowledgment with polling -- return a `202 Accepted` with a `Location` header pointing to a status resource the client polls; (3) Include the correlation ID in the command response and let the client subscribe to an event stream filtered by that correlation ID. Never tell users "changes may take a few minutes to appear" without an explicit feedback mechanism -- this is an experience failure.
 
 ### Aggregate Versioning and Optimistic Concurrency
+
 Every Aggregate Root must carry a `version` (or `sequenceNumber`) integer that increments on every state change. When saving an Aggregate, include a `WHERE version = [expected version]` clause in the update statement. If zero rows are updated, a concurrent modification occurred -- raise an `OptimisticConcurrencyException` and let the Application Service retry the command (typically 2-3 retries with exponential backoff for idempotent commands, or surface the conflict to the user for non-idempotent commands). Skipping optimistic concurrency control in a multi-user system produces silent data loss -- one user's change overwrites another's without either knowing. This is a correctness requirement, not a performance optimization.
 
 ### DDD in Serverless / Function-as-a-Service Environments
+
 DDD tactical patterns are fully compatible with serverless execution models, but with adaptations. Each Lambda/Cloud Function invocation represents one Application Service command or query. The cold-start cost of rehydrating Aggregates from a database on every invocation can be significant -- keep Aggregates small (the sizing rule becomes even more important). Repository implementations must be optimized for short-lived connections (use connection pooling proxies like RDS Proxy, PgBouncer). Domain Events published via the Transactional Outbox still apply -- use DynamoDB Streams or PostgreSQL CDC (via Debezium on Aurora) as the outbox relay mechanism. Avoid storing Aggregate state in function memory between invocations -- serverless functions are stateless by design, and in-memory state is not visible to other instances.
 
 ---
@@ -329,15 +343,15 @@ DDD tactical patterns are fully compatible with serverless execution models, but
 
 ### Subdomain Classification
 
-| Subdomain              | Type      | Rationale                                                                 | Build/Buy/Partner       |
-|------------------------|-----------|---------------------------------------------------------------------------|-------------------------|
-| Policy Pricing Engine  | Core      | Proprietary risk models are the competitive differentiator                | Build                   |
-| Policy Binding         | Core      | Binding rules encode regulatory and business logic unique to this company | Build                   |
-| Claims Intake          | Supporting| Necessary but not differentiated -- follows standard workflow             | Build (thin model)      |
-| Document Generation    | Generic   | Policy PDF generation is commodity                                        | Partner (e.g., DocuSign / PDF service) |
-| User Authentication    | Generic   | No competitive value in auth                                              | Buy (Auth0 / Cognito)   |
-| Payment Processing     | Generic   | Commodity billing                                                         | Partner (Stripe)        |
-| Compliance Reporting   | Supporting| Required but rules are externally defined                                 | Build (thin adapter)    |
+| Subdomain             | Type       | Rationale                                                                 | Build/Buy/Partner                      |
+| --------------------- | ---------- | ------------------------------------------------------------------------- | -------------------------------------- |
+| Policy Pricing Engine | Core       | Proprietary risk models are the competitive differentiator                | Build                                  |
+| Policy Binding        | Core       | Binding rules encode regulatory and business logic unique to this company | Build                                  |
+| Claims Intake         | Supporting | Necessary but not differentiated -- follows standard workflow             | Build (thin model)                     |
+| Document Generation   | Generic    | Policy PDF generation is commodity                                        | Partner (e.g., DocuSign / PDF service) |
+| User Authentication   | Generic    | No competitive value in auth                                              | Buy (Auth0 / Cognito)                  |
+| Payment Processing    | Generic    | Commodity billing                                                         | Partner (Stripe)                       |
+| Compliance Reporting  | Supporting | Required but rules are externally defined                                 | Build (thin adapter)                   |
 
 **Decision**: Invest full DDD tactical patterns only in Policy Pricing and Policy Binding. Claims Intake gets a simplified domain model. Document Generation, Authentication, and Payment use thin adapters with ACLs.
 
@@ -345,13 +359,13 @@ DDD tactical patterns are fully compatible with serverless execution models, but
 
 ### Bounded Context Inventory
 
-| Context Name        | Owning Team     | Integration Mechanism     | Key Aggregates                    |
-|---------------------|-----------------|---------------------------|-----------------------------------|
-| Quoting             | Pricing Team    | REST (sync) + Events      | Quote, RiskProfile                |
-| PolicyManagement    | Binding Team    | Events (async)            | Policy, Endorsement               |
-| ClaimsIntake        | Claims Team     | REST (sync) + Events      | Claim                             |
-| BillingAdapter      | Platform Team   | Events (async)            | (thin -- delegates to Stripe)     |
-| DocumentAdapter     | Platform Team   | REST (sync)               | (thin -- delegates to PDF service)|
+| Context Name     | Owning Team   | Integration Mechanism | Key Aggregates                     |
+| ---------------- | ------------- | --------------------- | ---------------------------------- |
+| Quoting          | Pricing Team  | REST (sync) + Events  | Quote, RiskProfile                 |
+| PolicyManagement | Binding Team  | Events (async)        | Policy, Endorsement                |
+| ClaimsIntake     | Claims Team   | REST (sync) + Events  | Claim                              |
+| BillingAdapter   | Platform Team | Events (async)        | (thin -- delegates to Stripe)      |
+| DocumentAdapter  | Platform Team | REST (sync)           | (thin -- delegates to PDF service) |
 
 ---
 
@@ -382,6 +396,7 @@ DDD tactical patterns are fully compatible with serverless execution models, but
 ### Aggregate Design: Quote (Quoting Context)
 
 **Invariants:**
+
 - A Quote may only be bound if its status is `PRICED` and it has not expired (expiry is 30 days from creation by default, configurable per product line)
 - A Quote cannot be re-priced after it has been bound
 - Total premium must be greater than zero before a Quote transitions to `PRICED` status
@@ -390,15 +405,18 @@ DDD tactical patterns are fully compatible with serverless execution models, but
 **Identity:** `QuoteId` -- UUID v4, generated at Quote creation. Never use database auto-increment IDs for Aggregate roots (they leak persistence implementation and are not portable across shards).
 
 **Entities:**
+
 - `Coverage` -- a line of coverage within the quote (e.g., General Liability, Property). Has a `CoverageId`, a `CoverageType` value object, and a calculated `premium`.
 
 **Value Objects:**
+
 - `Money(amount: Decimal, currency: ISO4217Currency)` -- validated: amount >= 0, currency must be a known ISO 4217 code. Immutable. Arithmetic operations return new instances.
 - `CoverageType(code: str)` -- validated against a closed set of product line codes. Raises `UnknownCoverageTypeError` if an unrecognized code is provided.
 - `QuoteExpiry(expires_at: datetime)` -- expiry is always UTC. Expiry in the past raises `QuoteExpiredError` on creation.
 - `RiskScore(value: Decimal)` -- range 0.0 to 10.0. Values outside range raise `InvalidRiskScoreError`.
 
 **Domain Events raised:**
+
 - `QuoteInitiated` -- raised on creation, payload: `quote_id`, `customer_id`, `product_line`, `initiated_at`, `correlation_id`
 - `QuotePriced` -- raised when pricing completes, payload: `quote_id`, `total_premium` (Money), `risk_score` (RiskScore), `priced_at`, `correlation_id`
 - `QuoteBound` -- raised when customer accepts and binds, payload: `quote_id`, `customer_id`, `bound_at`, `total_premium`, `correlation_id`, `causation_id`
@@ -501,12 +519,12 @@ class Quote:
 
 ### Domain Events
 
-| Event Name      | Trigger Condition                      | Payload Fields                                                           | Integration? |
-|-----------------|----------------------------------------|--------------------------------------------------------------------------|--------------|
-| QuoteInitiated  | Quote.initiate() called                | quote_id, customer_id, product_line, initiated_at, correlation_id        | No           |
-| QuotePriced     | Pricing result applied to quote        | quote_id, total_premium, risk_score, priced_at, correlation_id           | No           |
-| QuoteBound      | Customer accepts and binds the quote   | quote_id, customer_id, bound_at, total_premium, correlation_id, causation_id | Yes -- published to PolicyManagement context |
-| QuoteExpired    | Scheduled expiry check fires           | quote_id, expired_at, correlation_id                                     | No           |
+| Event Name     | Trigger Condition                    | Payload Fields                                                               | Integration?                                 |
+| -------------- | ------------------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------- |
+| QuoteInitiated | Quote.initiate() called              | quote_id, customer_id, product_line, initiated_at, correlation_id            | No                                           |
+| QuotePriced    | Pricing result applied to quote      | quote_id, total_premium, risk_score, priced_at, correlation_id               | No                                           |
+| QuoteBound     | Customer accepts and binds the quote | quote_id, customer_id, bound_at, total_premium, correlation_id, causation_id | Yes -- published to PolicyManagement context |
+| QuoteExpired   | Scheduled expiry check fires         | quote_id, expired_at, correlation_id                                         | No                                           |
 
 `QuoteBound` is the sole Integration Event. It is transformed from the internal Domain Event by the `QuotingIntegrationEventPublisher` in the Infrastructure layer, written to the outbox table within the same transaction that saves the Quote state change, and relayed to the message broker by the outbox relay process.
 
@@ -586,6 +604,7 @@ Rationale: Underwriters and brokers need dashboards showing aggregated quote pip
 **Decision:** Implement the Transactional Outbox pattern. When `Quote.bind()` is called and the Aggregate state is saved to PostgreSQL, the `QuoteBound` Integration Event is also written to an `outbox_events` table within the same database transaction. A background relay process (polling every 500ms, or CDC via Debezium on the WAL) reads unprocessed outbox records and publishes them to the broker, marking them as published on success.
 
 **Consequences:**
+
 - Guaranteed at-least-once delivery of Integration Events with no dual-write inconsistency
 - Adds operational dependency on the outbox relay process -- must be monitored and alerted
 - Introduces up to 500ms additional latency between Quote binding and Policy creation in the polling implementation (acceptable -- PolicyManagement is an async flow)

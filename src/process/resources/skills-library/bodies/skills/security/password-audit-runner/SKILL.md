@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart security checklist cloud testing email"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart security checklist cloud testing email'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Password Audit Runner
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to systematically audit all their passwords across personal or professional accounts and needs a structured methodology to follow from start to finish
 - A user has just learned their email appeared in a data breach notification and needs to know exactly which accounts to prioritize, in what order, and how to remediate the exposure
 - A user is setting up a password manager for the first time and needs to migrate credentials, establish a master password, configure 2FA, and create a secure ongoing maintenance routine
@@ -29,6 +31,7 @@ metadata:
 - A user wants to evaluate the security posture of a shared household's digital accounts (family members, roommates) and establish shared standards without paranoia
 
 **Do NOT use when:**
+
 - The user is asking about enterprise identity and access management (IAM), Active Directory, LDAP, SSO federation, or privileged access management -- those require a dedicated IAM audit skill
 - The user needs a penetration testing or red team methodology to actively crack or enumerate passwords in a controlled environment -- that is a separate offensive security skill
 - The user is asking about API key rotation, service account credential management, or secrets management in CI/CD pipelines -- use a secrets management skill instead
@@ -366,6 +369,7 @@ This is a sensitive and legally complex scenario.
 **Output:**
 
 ## PASSWORD AUDIT REPORT
+
 Generated: [Today's Date]
 Audit Level: Level 1 -- Reactive Breach Response (escalating to Level 2 once immediate threat contained)
 User Context: Personal
@@ -386,9 +390,9 @@ This is a 2-hour response situation. We will address it in priority order.
 
 ### BREACH EXPOSURE SUMMARY
 
-| Email Address        | Breach Source     | Breach Date | Data Exposed               | Password Reuse Risk | Status     |
-|----------------------|-------------------|-------------|----------------------------|---------------------|------------|
-| yourname@gmail.com   | [Breach from bank notification] | Recent | Email, likely hashed password | CRITICAL -- reused on bank | PENDING |
+| Email Address      | Breach Source                   | Breach Date | Data Exposed                  | Password Reuse Risk        | Status  |
+| ------------------ | ------------------------------- | ----------- | ----------------------------- | -------------------------- | ------- |
+| yourname@gmail.com | [Breach from bank notification] | Recent      | Email, likely hashed password | CRITICAL -- reused on bank | PENDING |
 
 **Next action:** Go to haveibeenpwned.com now and type your email address. Screenshot or copy the full list of all breaches shown. You may find additional breaches you were not notified about.
 
@@ -433,14 +437,14 @@ Given your situation (no existing manager, one confirmed breach, multiple accoun
 
 ### ACCOUNT INVENTORY (Preliminary -- Expand After Immediate Response Complete)
 
-| Account             | Tier     | Password Same as Breached? | 2FA Status  | Priority      |
-|---------------------|----------|-----------------------------|-------------|---------------|
-| Gmail (primary)     | Tier 1   | YES -- confirmed reuse      | None        | CRITICAL      |
-| Bank account        | Tier 1   | YES -- confirmed reuse      | Unknown     | CRITICAL      |
-| Other email accounts| Tier 1   | Likely -- check now         | Unknown     | HIGH          |
-| Amazon / Apple Pay  | Tier 2   | Possibly -- check           | Unknown     | HIGH          |
-| Social media        | Tier 2   | Possibly -- check           | Unknown     | HIGH          |
-| All other accounts  | Various  | Unknown                     | Unknown     | After Tier 1  |
+| Account              | Tier    | Password Same as Breached? | 2FA Status | Priority     |
+| -------------------- | ------- | -------------------------- | ---------- | ------------ |
+| Gmail (primary)      | Tier 1  | YES -- confirmed reuse     | None       | CRITICAL     |
+| Bank account         | Tier 1  | YES -- confirmed reuse     | Unknown    | CRITICAL     |
+| Other email accounts | Tier 1  | Likely -- check now        | Unknown    | HIGH         |
+| Amazon / Apple Pay   | Tier 2  | Possibly -- check          | Unknown    | HIGH         |
+| Social media         | Tier 2  | Possibly -- check          | Unknown    | HIGH         |
+| All other accounts   | Various | Unknown                    | Unknown    | After Tier 1 |
 
 **After completing Steps 1-3 above:** Work through the remaining account inventory using the Bitwarden Security Report (available in the Bitwarden web vault under "Reports") to identify any remaining reused or weak passwords.
 
@@ -458,12 +462,12 @@ Credentials Imported: [After browser export and import]
 
 ### 2FA STATUS SUMMARY
 
-| Account         | Current 2FA    | Target 2FA   | Status      |
-|-----------------|----------------|--------------|-------------|
-| Gmail           | None           | TOTP app     | ACTION NOW  |
-| Bank Account    | Unknown        | TOTP app     | ACTION NOW  |
-| Bitwarden       | None           | TOTP app     | ACTION TODAY|
-| Amazon          | Unknown        | TOTP app     | This week   |
+| Account      | Current 2FA | Target 2FA | Status       |
+| ------------ | ----------- | ---------- | ------------ |
+| Gmail        | None        | TOTP app   | ACTION NOW   |
+| Bank Account | Unknown     | TOTP app   | ACTION NOW   |
+| Bitwarden    | None        | TOTP app   | ACTION TODAY |
+| Amazon       | Unknown     | TOTP app   | This week    |
 
 ---
 
@@ -478,6 +482,7 @@ Action Required: Call your phone carrier's customer service line (number on your
 ### MAINTENANCE SCHEDULE
 
 After completing immediate response:
+
 - Quarterly check: Re-run HIBP on your email, review Bitwarden security report, update any flagged items. Set a calendar reminder for 3 months from today.
 - Annual audit: Full account inventory refresh. Set a calendar reminder for 12 months from today.
 - HIBP monitoring: Register your email address at haveibeenpwned.com to receive automatic alerts for future breaches.

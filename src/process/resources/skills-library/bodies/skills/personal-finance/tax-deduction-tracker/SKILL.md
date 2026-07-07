@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tax-planning personal-finance planning"
-  category: "personal-finance"
-  subcategory: "tax-planning"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tax-planning personal-finance planning'
+  category: 'personal-finance'
+  subcategory: 'tax-planning'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Tax Deduction Tracker
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to set up a system to track tax deductions throughout the year
 - User asks what expenses might be deductible
 - User needs to organize documentation for tax-deductible expenses
@@ -36,6 +37,7 @@ metadata:
 - User asks how to document expenses for tax purposes
 
 **Do NOT use this skill when:**
+
 - User wants to file their taxes (use `tax-filing-prep`)
 - User needs to estimate quarterly tax payments (use `quarterly-tax-estimator`)
 - User wants to understand tax-advantaged accounts (use `tax-advantaged-optimizer`)
@@ -224,6 +226,7 @@ Deduction limit: [JURISDICTION: verify current cap or threshold]
 ## Tax Deduction Tracking System
 
 ### Your Profile
+
 - Filing type: Self-employed
 - Deduction approach: Self-employment deductions are separate from itemized vs. standard decision
 - Standard deduction for comparison: [JURISDICTION: verify current standard deduction for your filing status]
@@ -232,66 +235,73 @@ Deduction limit: [JURISDICTION: verify current cap or threshold]
 ### Business Expense Tracker
 
 #### Home Office
+
 What qualifies: [JURISDICTION: verify home office qualification rules -- typically requires regular and exclusive use for business]
 Documentation needed: Home square footage, office square footage, utility bills, mortgage/rent payments
 Deduction limit: [JURISDICTION: verify -- may use simplified or actual expense method]
 
-| Date | Expense Type | Description | Amount | Receipt | Notes |
-|------|-------------|-------------|-------:|---------|-------|
-| Monthly | Rent/Mortgage | Proportional share | $[amount] | [ ] | [office sqft / total sqft] |
-| Monthly | Utilities | Proportional share | $[amount] | [ ] | Electric, internet, heat |
-| | | | | [ ] | |
-| **Category Total** | | | **$0.00** | | |
+| Date               | Expense Type  | Description        |    Amount | Receipt | Notes                      |
+| ------------------ | ------------- | ------------------ | --------: | ------- | -------------------------- |
+| Monthly            | Rent/Mortgage | Proportional share | $[amount] | [ ]     | [office sqft / total sqft] |
+| Monthly            | Utilities     | Proportional share | $[amount] | [ ]     | Electric, internet, heat   |
+|                    |               |                    |           | [ ]     |                            |
+| **Category Total** |               |                    | **$0.00** |         |                            |
 
 #### Vehicle/Mileage for Business
+
 What qualifies: [JURISDICTION: verify -- miles driven for business purposes, not commuting]
 Documentation needed: Mileage log with date, destination, business purpose, miles driven
 Method: [JURISDICTION: verify standard mileage rate OR actual expense method]
 
-| Date | Destination | Business Purpose | Miles | Rate | Amount |
-|------|------------|-----------------|------:|------|-------:|
-| | | | | [JURISDICTION: verify rate] | |
-| **Category Total** | | | **0** | | **$0.00** |
+| Date               | Destination | Business Purpose | Miles | Rate                        |    Amount |
+| ------------------ | ----------- | ---------------- | ----: | --------------------------- | --------: |
+|                    |             |                  |       | [JURISDICTION: verify rate] |           |
+| **Category Total** |             |                  | **0** |                             | **$0.00** |
 
 #### Business Supplies and Equipment
-| Date | Vendor | Description | Amount | Receipt | Notes |
-|------|--------|-------------|-------:|---------|-------|
-| | | | | [ ] | |
-| **Category Total** | | | **$0.00** | | |
+
+| Date               | Vendor | Description |    Amount | Receipt | Notes |
+| ------------------ | ------ | ----------- | --------: | ------- | ----- |
+|                    |        |             |           | [ ]     |       |
+| **Category Total** |        |             | **$0.00** |         |       |
 
 #### Professional Development
-| Date | Provider | Description | Amount | Receipt | Notes |
-|------|---------|-------------|-------:|---------|-------|
-| | | Courses, books, conferences | | [ ] | |
-| **Category Total** | | | **$0.00** | | |
+
+| Date               | Provider | Description                 |    Amount | Receipt | Notes |
+| ------------------ | -------- | --------------------------- | --------: | ------- | ----- |
+|                    |          | Courses, books, conferences |           | [ ]     |       |
+| **Category Total** |          |                             | **$0.00** |         |       |
 
 #### Other Business Expenses
+
 Software subscriptions, professional memberships, insurance, marketing, legal/accounting fees.
 
-| Date | Vendor | Category | Amount | Receipt | Notes |
-|------|--------|----------|-------:|---------|-------|
-| | | | | [ ] | |
-| **Category Total** | | | **$0.00** | | |
+| Date               | Vendor | Category |    Amount | Receipt | Notes |
+| ------------------ | ------ | -------- | --------: | ------- | ----- |
+|                    |        |          |           | [ ]     |       |
+| **Category Total** |        |          | **$0.00** |         |       |
 
 ### Personal Deduction Tracker (Itemized)
 
-| Category | YTD Total | Documentation Status |
-|----------|----------:|---------------------|
-| Medical (above AGI threshold) | $0.00 | |
-| Charitable contributions | $0.00 | |
-| State/local taxes | $0.00 | [JURISDICTION: verify SALT cap] |
-| Mortgage interest | $0.00 | |
-| **Total Personal Deductions** | **$0.00** | |
+| Category                      | YTD Total | Documentation Status            |
+| ----------------------------- | --------: | ------------------------------- |
+| Medical (above AGI threshold) |     $0.00 |                                 |
+| Charitable contributions      |     $0.00 |                                 |
+| State/local taxes             |     $0.00 | [JURISDICTION: verify SALT cap] |
+| Mortgage interest             |     $0.00 |                                 |
+| **Total Personal Deductions** | **$0.00** |                                 |
 
 Standard deduction comparison: [JURISDICTION: verify for your filing status]
 
 ### Review Schedule
+
 - [ ] Weekly: Log mileage and new expenses, capture receipts immediately
 - [ ] Monthly: Reconcile against bank/credit card statements, total home office expenses
 - [ ] Quarterly: Review totals for estimated tax payments (use `quarterly-tax-estimator`)
 - [ ] Year-end: Final reconciliation, prepare totals for tax filing
 
 ### Documentation Checklist
+
 - [ ] Home office measurements recorded (office square footage and total square footage)
 - [ ] Mileage log maintained with date, destination, purpose, and miles for every trip
 - [ ] All business receipts digitized and filed by category
@@ -301,6 +311,7 @@ Standard deduction comparison: [JURISDICTION: verify for your filing status]
 - [ ] Charitable donation acknowledgment letters collected
 
 ### Important Reminders
+
 - Self-employment deductions reduce both income tax AND self-employment tax
 - Verify all rules at your jurisdiction's official tax authority -- rules change annually
 - Keep records for [JURISDICTION: verify required retention period] years

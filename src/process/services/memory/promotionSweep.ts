@@ -68,8 +68,7 @@ function loadSettings(): SweepSettings {
     const parsed = JSON.parse(raw) as Partial<SweepSettings>;
     return {
       threshold: typeof parsed.threshold === 'number' ? parsed.threshold : 90,
-      autoPromoteEnabled:
-        typeof parsed.autoPromoteEnabled === 'boolean' ? parsed.autoPromoteEnabled : true,
+      autoPromoteEnabled: typeof parsed.autoPromoteEnabled === 'boolean' ? parsed.autoPromoteEnabled : true,
     };
   } catch {
     return { threshold: 90, autoPromoteEnabled: true };

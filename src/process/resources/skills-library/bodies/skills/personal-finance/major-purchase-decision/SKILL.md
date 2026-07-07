@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance budgeting decision-making analysis planning"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance budgeting decision-making analysis planning'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Major Purchase Decision Framework
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User is considering a large purchase and wants help deciding
 - User asks whether they should buy something expensive
 - User wants a framework for evaluating a significant spending decision
@@ -36,6 +37,7 @@ metadata:
 - User wants to understand the true cost of a major purchase including financing and opportunity cost
 
 **Do NOT use this skill when:**
+
 - User is buying a home (use `home-buying-checklist` for the process, `mortgage-comparison` for financing)
 - User is buying or leasing a car (use `car-buying-analysis`)
 - User is comparing insurance policies (use `insurance-comparison`)
@@ -59,7 +61,7 @@ metadata:
 
    **Test 2: Impact on Monthly Budget**
    - If financing: what is the monthly payment?
-   - Monthly payment as percentage of take-home income: _____%
+   - Monthly payment as percentage of take-home income: **\_**%
    - Does this payment fit within the user's budget without cutting essential categories?
    - Does the user have existing debt payments that constrain capacity?
 
@@ -70,17 +72,18 @@ metadata:
 
 3. **Evaluate Needs vs. Wants.** Help the user classify the purchase:
 
-   | Classification | Definition | Examples |
-   |---------------|-----------|---------|
-   | Need | Required for basic function, safety, or livelihood | Replacing a broken appliance, work equipment, transportation |
-   | Strong want | Significantly improves quality of life or enables important goals | Upgrade that saves time daily, equipment for a serious hobby |
-   | Nice-to-have | Enjoyable but life functions fine without it | Latest model when current works, luxury upgrade |
+   | Classification | Definition                                                        | Examples                                                     |
+   | -------------- | ----------------------------------------------------------------- | ------------------------------------------------------------ |
+   | Need           | Required for basic function, safety, or livelihood                | Replacing a broken appliance, work equipment, transportation |
+   | Strong want    | Significantly improves quality of life or enables important goals | Upgrade that saves time daily, equipment for a serious hobby |
+   | Nice-to-have   | Enjoyable but life functions fine without it                      | Latest model when current works, luxury upgrade              |
 
    The classification does not determine the decision -- strong wants are valid reasons to spend. But it does affect how to weight urgency and alternatives.
 
 4. **Calculate the True Cost.** Go beyond the sticker price:
 
    **Financing Cost:**
+
    ```
    If paying with credit card or loan:
    Total interest = Total payments - Principal
@@ -88,11 +91,13 @@ metadata:
    ```
 
    **Opportunity Cost:**
+
    ```
    If this money were saved/invested instead:
    Future value = Purchase amount * (1 + assumed annual rate)^years
    Opportunity cost = Future value - Purchase amount
    ```
+
    This shows what the money could become. It is not a reason to never buy anything -- it is a factor to weigh.
 
    **Ongoing Costs:**
@@ -101,6 +106,7 @@ metadata:
    - Total cost of ownership = Purchase price + Financing + Ongoing costs over ownership period
 
    **Cost Per Use (if applicable):**
+
    ```
    Estimated uses over lifetime = ____
    Cost per use = Total cost of ownership / Total uses
@@ -115,15 +121,15 @@ metadata:
 
 6. **Build the Decision Matrix.** Score each option across weighted criteria:
 
-   | Criterion | Weight (user assigns) | Buy Now | Buy Later | Alternative | Skip |
-   |-----------|----------------------|---------|-----------|-------------|------|
-   | Meets core need | [1-5] | [1-5] | [1-5] | [1-5] | [1-5] |
-   | Affordability | [1-5] | [1-5] | [1-5] | [1-5] | [1-5] |
-   | Timing advantage | [1-5] | [1-5] | [1-5] | [1-5] | [1-5] |
-   | Total cost | [1-5] | [1-5] | [1-5] | [1-5] | [1-5] |
-   | Risk/regret | [1-5] | [1-5] | [1-5] | [1-5] | [1-5] |
+   | Criterion        | Weight (user assigns) | Buy Now | Buy Later | Alternative | Skip  |
+   | ---------------- | --------------------- | ------- | --------- | ----------- | ----- |
+   | Meets core need  | [1-5]                 | [1-5]   | [1-5]     | [1-5]       | [1-5] |
+   | Affordability    | [1-5]                 | [1-5]   | [1-5]     | [1-5]       | [1-5] |
+   | Timing advantage | [1-5]                 | [1-5]   | [1-5]     | [1-5]       | [1-5] |
+   | Total cost       | [1-5]                 | [1-5]   | [1-5]     | [1-5]       | [1-5] |
+   | Risk/regret      | [1-5]                 | [1-5]   | [1-5]     | [1-5]       | [1-5] |
 
-   Weighted score = Sum of (Weight * Score) for each option.
+   Weighted score = Sum of (Weight \* Score) for each option.
 
 7. **Present the analysis without a recommendation.** Show all the data and let the user decide.
 
@@ -239,65 +245,68 @@ $[total cost] / [estimated uses] = $[cost per use]
 ## Major Purchase Decision Analysis
 
 ### The Purchase
+
 - Item: Standing desk setup (motorized desk + accessories)
 - Total price: $2,500 (confirm if this includes tax and delivery)
 - Financing method: [Cash? Credit? Payment plan? Please specify]
 
 ### Affordability Check
 
-| Test | Your Numbers | Status |
-|------|-------------|--------|
-| Cash available after purchase | $[savings] - $2,500 = $[remaining] | [Fill in -- is remaining above your emergency fund target?] |
-| Monthly payment (if financed) | $[amount if applicable] | [X]% of take-home income |
-| 30-day rule | [Have you wanted this for 30+ days?] | [Fill in] |
-| Budget impact | [Does this fit without cutting essentials?] | [Fill in] |
+| Test                          | Your Numbers                                | Status                                                      |
+| ----------------------------- | ------------------------------------------- | ----------------------------------------------------------- |
+| Cash available after purchase | $[savings] - $2,500 = $[remaining]          | [Fill in -- is remaining above your emergency fund target?] |
+| Monthly payment (if financed) | $[amount if applicable]                     | [X]% of take-home income                                    |
+| 30-day rule                   | [Have you wanted this for 30+ days?]        | [Fill in]                                                   |
+| Budget impact                 | [Does this fit without cutting essentials?] | [Fill in]                                                   |
 
 ### Needs vs. Wants Classification
+
 Classification: **Strong Want** -- Your current desk works but is not ergonomic. An ergonomic setup for full-time home work improves daily comfort and may prevent long-term health issues. This is not a basic need (you have a desk) but it is a quality-of-life investment tied to your livelihood.
 
 ### True Cost Calculation
 
-| Component | Amount |
-|-----------|-------:|
-| Purchase price | $2,500 |
-| Financing interest | $[0 if cash, calculate if financed] |
-| Ongoing costs (minimal for a desk) | ~$0/year |
-| **Total cost of ownership** | **$2,500** |
+| Component                          |                              Amount |
+| ---------------------------------- | ----------------------------------: |
+| Purchase price                     |                              $2,500 |
+| Financing interest                 | $[0 if cash, calculate if financed] |
+| Ongoing costs (minimal for a desk) |                            ~$0/year |
+| **Total cost of ownership**        |                          **$2,500** |
 
 **Opportunity Cost:** $2,500 invested at 6% (as an example scenario, not a prediction) for 5 years:
-$2,500 * (1.06)^5 = $3,345 -- a difference of $845
+$2,500 \* (1.06)^5 = $3,345 -- a difference of $845
 
 **Cost Per Use:**
-Working from home ~250 days/year * 5+ years = 1,250+ uses
+Working from home ~250 days/year \* 5+ years = 1,250+ uses
 $2,500 / 1,250 = **$2.00 per workday**
 
 ### Alternatives Explored
 
-| Option | Estimated Cost | Meets Need? | Tradeoffs |
-|--------|------:|-------------|-----------|
-| New standing desk ($2,500) | $2,500 | Yes | Full features, warranty |
-| Used/refurbished standing desk | $800-1,500 | Likely | May lack warranty, fewer features |
-| Standing desk converter (sits on current desk) | $200-500 | Partially | Less range of motion, smaller surface |
-| DIY standing desk modification | $50-200 | Partially | Not motorized, less adjustable |
-| Ergonomic accessories for current desk (monitor arm, keyboard tray, mat) | $200-400 | Partially | Addresses some ergonomic issues without a new desk |
-| Keep current setup | $0 | No ergonomic improvement | No cost, no change |
+| Option                                                                   | Estimated Cost | Meets Need?              | Tradeoffs                                          |
+| ------------------------------------------------------------------------ | -------------: | ------------------------ | -------------------------------------------------- |
+| New standing desk ($2,500)                                               |         $2,500 | Yes                      | Full features, warranty                            |
+| Used/refurbished standing desk                                           |     $800-1,500 | Likely                   | May lack warranty, fewer features                  |
+| Standing desk converter (sits on current desk)                           |       $200-500 | Partially                | Less range of motion, smaller surface              |
+| DIY standing desk modification                                           |        $50-200 | Partially                | Not motorized, less adjustable                     |
+| Ergonomic accessories for current desk (monitor arm, keyboard tray, mat) |       $200-400 | Partially                | Addresses some ergonomic issues without a new desk |
+| Keep current setup                                                       |             $0 | No ergonomic improvement | No cost, no change                                 |
 
 ### Decision Matrix
 
 You assign the weights (1-5) based on what matters most to you:
 
-| Criterion | Weight | Buy $2,500 | Used ~$1,200 | Converter ~$350 | Keep Current |
-|-----------|:------:|:----------:|:------------:|:---------------:|:------------:|
-| Meets ergonomic need | [you] | 5 | 4 | 3 | 1 |
-| Affordability | [you] | 2 | 3 | 5 | 5 |
-| Timing (need it now?) | [you] | 5 | 3 | 5 | 5 |
-| Total cost | [you] | 1 | 3 | 4 | 5 |
-| Risk of regret | [you] | 4 | 3 | 3 | 2 |
-| **Weighted Total** | | **[calculate]** | **[calculate]** | **[calculate]** | **[calculate]** |
+| Criterion             | Weight |   Buy $2,500    |  Used ~$1,200   | Converter ~$350 |  Keep Current   |
+| --------------------- | :----: | :-------------: | :-------------: | :-------------: | :-------------: |
+| Meets ergonomic need  | [you]  |        5        |        4        |        3        |        1        |
+| Affordability         | [you]  |        2        |        3        |        5        |        5        |
+| Timing (need it now?) | [you]  |        5        |        3        |        5        |        5        |
+| Total cost            | [you]  |        1        |        3        |        4        |        5        |
+| Risk of regret        | [you]  |        4        |        3        |        3        |        2        |
+| **Weighted Total**    |        | **[calculate]** | **[calculate]** | **[calculate]** | **[calculate]** |
 
 Fill in your weights, multiply each weight by the score, and sum to find the highest-scoring option.
 
 ### Summary
+
 - Total cost: $2,500 (or less with alternatives)
 - Cost per workday: $2.00 over 5 years of daily use
 - Your current desk works -- this is an upgrade, not a replacement of a broken item
@@ -305,6 +314,7 @@ Fill in your weights, multiply each weight by the score, and sum to find the hig
 - The decision depends on how you weight ergonomic improvement against cost
 
 ### Next Steps
+
 - [ ] Complete the affordability check with your actual savings numbers
 - [ ] Assign your weights in the decision matrix and calculate scores
 - [ ] If considering alternatives: research specific used or converter options

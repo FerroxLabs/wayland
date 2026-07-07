@@ -191,9 +191,9 @@ export class WorkflowSessionRepository {
    * just to take `.length`.
    */
   countActive(): number {
-    const row = this.driver
-      .prepare(`SELECT COUNT(*) AS n FROM workflow_sessions WHERE status = 'active'`)
-      .get() as { n: number } | undefined;
+    const row = this.driver.prepare(`SELECT COUNT(*) AS n FROM workflow_sessions WHERE status = 'active'`).get() as
+      | { n: number }
+      | undefined;
     return row?.n ?? 0;
   }
 

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan curriculum step-by-step"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan curriculum step-by-step'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Educator Objectives
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when an educator is designing instruction and needs formally written, measurable learning objectives -- not vague goals or activity descriptions.
 
 **Trigger scenarios:**
+
 - An educator says "I need learning objectives for my lesson on [topic]" or "help me write learning outcomes for my syllabus"
 - A teacher presents vague goals like "students should understand fractions" and needs them converted into measurable, assessable form
 - An instructor wants to align existing objectives to Bloom's taxonomy and verify they span appropriate cognitive levels
@@ -31,6 +33,7 @@ Use this skill when an educator is designing instruction and needs formally writ
 - An educator is splitting a vague unit goal into layered lesson objectives that show a coherent learning progression
 
 **Do NOT use when:**
+
 - The user is a student writing their own personal learning goals -- use `learning-objectives` instead
 - The request is for a complete lesson plan including procedures, materials, and timing -- use `lesson-plan-design` instead (objectives produced here can be inserted into that skill's output)
 - The request is for course-wide curriculum mapping across units and standards -- use `curriculum-mapping` instead
@@ -74,16 +77,17 @@ Every objective must contain all four ABCD components on every write. No excepti
 
 Full verb bank by Bloom's level:
 
-| Bloom's Level | High-Frequency Verbs | Verbs to Use Carefully | Banned Verbs |
-|---|---|---|---|
-| Remember | list, name, recall, identify, match, state, define, recognize, label | describe (use at Understand) | know, memorize (not measurable as written) |
-| Understand | explain, summarize, paraphrase, classify, interpret, predict (simple), illustrate, give examples of | understand (not a behavior), comprehend | appreciate, grasp, be aware of |
-| Apply | solve, demonstrate, calculate, use, complete, execute, implement, sketch, produce (simple) | apply (too vague alone -- pair with content) | practice (not measurable as written) |
-| Analyze | compare, contrast, differentiate, examine, categorize, deconstruct, distinguish, organize, map, break down | analyze (too vague alone -- specify what is being analyzed) | look at, explore |
-| Evaluate | judge, evaluate, critique, justify, defend, assess, argue, prioritize, rank, recommend | evaluate (specify criteria) | think about, consider |
-| Create | design, construct, compose, develop, formulate, propose, produce (complex), write, plan, invent, synthesize | create (too vague alone -- specify the artifact) | make, do |
+| Bloom's Level | High-Frequency Verbs                                                                                        | Verbs to Use Carefully                                      | Banned Verbs                               |
+| ------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------ |
+| Remember      | list, name, recall, identify, match, state, define, recognize, label                                        | describe (use at Understand)                                | know, memorize (not measurable as written) |
+| Understand    | explain, summarize, paraphrase, classify, interpret, predict (simple), illustrate, give examples of         | understand (not a behavior), comprehend                     | appreciate, grasp, be aware of             |
+| Apply         | solve, demonstrate, calculate, use, complete, execute, implement, sketch, produce (simple)                  | apply (too vague alone -- pair with content)                | practice (not measurable as written)       |
+| Analyze       | compare, contrast, differentiate, examine, categorize, deconstruct, distinguish, organize, map, break down  | analyze (too vague alone -- specify what is being analyzed) | look at, explore                           |
+| Evaluate      | judge, evaluate, critique, justify, defend, assess, argue, prioritize, rank, recommend                      | evaluate (specify criteria)                                 | think about, consider                      |
+| Create        | design, construct, compose, develop, formulate, propose, produce (complex), write, plan, invent, synthesize | create (too vague alone -- specify the artifact)            | make, do                                   |
 
 **C -- Condition:** The learning context, materials provided, or constraints under which the behavior is performed. Common condition types:
+
 - Materials provided: "given a periodic table," "using a provided data set," "with access to a calculator"
 - Prior activity: "after reading the primary source document," "following the lab procedure"
 - Setting: "in a Socratic seminar," "during a timed assessment," "working independently"
@@ -92,6 +96,7 @@ Full verb bank by Bloom's level:
 The Condition component is the most frequently omitted. If the behavior is the same in any context, a Condition is still useful -- it specifies the assessment scenario and prevents ambiguity about what "doing" the skill looks like.
 
 **D -- Degree:** The measurable performance standard. Must be specific enough that two different evaluators would reach the same judgment. Weak degrees say "accurately" or "correctly" -- these push the standard back into subjective territory. Strong degrees specify:
+
 - Quantity: "identifying at least 3 of 4 MAIN causes," "listing all 8 planets in order," "correctly solving at least 4 of 5 problems"
 - Quality rubric threshold: "earning a score of 3 or higher on the argument rubric," "meeting the Proficient standard on the district writing rubric"
 - Accuracy rate: "with at least 80% accuracy," "making no more than 2 errors"
@@ -122,6 +127,7 @@ If the educator provided a standards framework, map each objective to the most s
 Order objectives from lower to higher cognitive demand within the lesson or unit. This is not merely cosmetic -- it reflects the intended instructional sequence and shows that foundational knowledge (Remember, Understand) must precede application and analysis.
 
 Sequencing rules:
+
 - Never place an Analyze or Evaluate objective before the Understand objectives that build the conceptual foundation
 - Within the same Bloom's level, sequence from simpler to more complex content
 - For units, identify which objectives are prerequisites for others and make that dependency explicit in the Learning Progression narrative
@@ -133,14 +139,14 @@ For every objective, identify the most appropriate assessment method. Assessment
 
 Match assessment method to Bloom's level:
 
-| Bloom's Level | Appropriate Formative Methods | Appropriate Summative Methods |
-|---|---|---|
-| Remember | flashcard check, matching quiz, fill-in-the-blank | multiple choice, short answer recall |
-| Understand | exit ticket (explain in own words), graphic organizer, annotation | short answer, concept map, quiz |
-| Apply | worked problem set, lab procedure execution, demonstration | problem set, performance task, simulation |
-| Analyze | compare/contrast chart, sorting task, case study analysis | analytical essay, structured comparison, case analysis |
-| Evaluate | Socratic seminar, debate, written argument | argumentative essay, recommendation memo, critique |
-| Create | draft artifact, design proposal, prototype | project, portfolio, original composition |
+| Bloom's Level | Appropriate Formative Methods                                     | Appropriate Summative Methods                          |
+| ------------- | ----------------------------------------------------------------- | ------------------------------------------------------ |
+| Remember      | flashcard check, matching quiz, fill-in-the-blank                 | multiple choice, short answer recall                   |
+| Understand    | exit ticket (explain in own words), graphic organizer, annotation | short answer, concept map, quiz                        |
+| Apply         | worked problem set, lab procedure execution, demonstration        | problem set, performance task, simulation              |
+| Analyze       | compare/contrast chart, sorting task, case study analysis         | analytical essay, structured comparison, case analysis |
+| Evaluate      | Socratic seminar, debate, written argument                        | argumentative essay, recommendation memo, critique     |
+| Create        | draft artifact, design proposal, prototype                        | project, portfolio, original composition               |
 
 Flag mismatches: if an educator's intended assessment (e.g., multiple choice only) cannot adequately measure their Evaluate-level objective, note this explicitly and suggest a supplementary method.
 
@@ -279,13 +285,13 @@ After writing all objectives, check for these systemic issues and flag them in a
 
 Educators in social-emotional learning (SEL), ethics, health education, and civic education frequently need affective domain objectives. Use Krathwohl's affective taxonomy (1964), which is a separate hierarchy from Bloom's cognitive taxonomy:
 
-| Affective Level | Description | Sample Verbs |
-|---|---|---|
-| Receiving | Willingness to attend to a stimulus | listen, attend, be present, notice |
-| Responding | Actively participating or reacting | participate, comply, discuss, answer |
-| Valuing | Attaching worth or commitment to a belief | argue for, defend, explain the importance of |
-| Organizing | Comparing and synthesizing values into a system | compare values, formulate a position, weigh priorities |
-| Characterizing | Acting consistently with an internalized value | exemplify, demonstrate consistently, integrate into practice |
+| Affective Level | Description                                     | Sample Verbs                                                 |
+| --------------- | ----------------------------------------------- | ------------------------------------------------------------ |
+| Receiving       | Willingness to attend to a stimulus             | listen, attend, be present, notice                           |
+| Responding      | Actively participating or reacting              | participate, comply, discuss, answer                         |
+| Valuing         | Attaching worth or commitment to a belief       | argue for, defend, explain the importance of                 |
+| Organizing      | Comparing and synthesizing values into a system | compare values, formulate a position, weigh priorities       |
+| Characterizing  | Acting consistently with an internalized value  | exemplify, demonstrate consistently, integrate into practice |
 
 Assessment strategies for affective objectives are observation-based: participation rubrics, structured reflection journals, behavior logs, and self-assessment scales. Alert the educator that affective objectives are harder to grade objectively and suggest formative (not high-stakes summative) assessment for Receiving and Responding levels.
 
@@ -293,13 +299,13 @@ Assessment strategies for affective objectives are observation-based: participat
 
 Use Dave's or Simpson's psychomotor taxonomy for PE, lab science, music performance, CTE, nursing clinical skills, and fine arts:
 
-| Psychomotor Level | Description | Sample Verbs |
-|---|---|---|
-| Imitation | Copying a demonstrated movement | imitate, replicate, follow a model |
-| Manipulation | Reproducing a skill from instruction | perform, execute, carry out |
-| Precision | Executing skill with accuracy and economy | demonstrate with accuracy, perform independently |
-| Articulation | Combining skills smoothly | coordinate, integrate, adapt the technique |
-| Naturalization | Automatic, expert-level performance | perform fluently, demonstrate mastery |
+| Psychomotor Level | Description                               | Sample Verbs                                     |
+| ----------------- | ----------------------------------------- | ------------------------------------------------ |
+| Imitation         | Copying a demonstrated movement           | imitate, replicate, follow a model               |
+| Manipulation      | Reproducing a skill from instruction      | perform, execute, carry out                      |
+| Precision         | Executing skill with accuracy and economy | demonstrate with accuracy, perform independently |
+| Articulation      | Combining skills smoothly                 | coordinate, integrate, adapt the technique       |
+| Naturalization    | Automatic, expert-level performance       | perform fluently, demonstrate mastery            |
 
 Degree components for psychomotor objectives must reference observable performance criteria: "pipetting 1.0 mL volumes within ±0.05 mL of target," "playing the assigned 32-bar passage at 120 BPM with no more than 2 missed notes," "suturing the wound closure using the mattress stitch with no deviation from sterile field protocol."
 
@@ -346,10 +352,10 @@ In all decomposition cases, produce a mapping that shows which original goal eac
 
 When objectives span two or more subject areas (e.g., a science-ELA unit on climate change), write separate objective sets per discipline and then produce an integration table:
 
-| Objective | Primary Discipline | Secondary Discipline | Integration Point |
-|---|---|---|---|
-| Analyze climate data sets to identify 3 trends | Science (NGSS) | Math (CCSS) | Data literacy bridges both |
-| Write an evidence-based argument on a climate policy | ELA (CCSS.W) | Science (NGSS practices) | Argumentation from evidence |
+| Objective                                            | Primary Discipline | Secondary Discipline     | Integration Point           |
+| ---------------------------------------------------- | ------------------ | ------------------------ | --------------------------- |
+| Analyze climate data sets to identify 3 trends       | Science (NGSS)     | Math (CCSS)              | Data literacy bridges both  |
+| Write an evidence-based argument on a climate policy | ELA (CCSS.W)       | Science (NGSS practices) | Argumentation from evidence |
 
 This prevents the common error of writing a single objective that tries to assess two disciplines simultaneously -- which produces an objective no teacher can score independently.
 
@@ -373,39 +379,39 @@ This prevents the common error of writing a single objective that tries to asses
 
 ### Conversion from Vague Goals
 
-| Original Vague Goal | Problem with Original | Converted Measurable Objective |
-|---|---|---|
-| "Understand the stages of mitosis" | "Understand" is not measurable; no Condition or Degree specified | See Objectives 1 and 2 below |
-| "Know the difference between mitosis and meiosis" | "Know" is not an observable behavior; "the difference" is vague -- which differences? | See Objective 4 below |
-| "Appreciate why cell division matters for cancer" | "Appreciate" is an affective verb (Krathwohl) that cannot be assessed as written; "matters" has no cognitive level or criterion | See Objective 6 below |
+| Original Vague Goal                               | Problem with Original                                                                                                           | Converted Measurable Objective |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| "Understand the stages of mitosis"                | "Understand" is not measurable; no Condition or Degree specified                                                                | See Objectives 1 and 2 below   |
+| "Know the difference between mitosis and meiosis" | "Know" is not an observable behavior; "the difference" is vague -- which differences?                                           | See Objective 4 below          |
+| "Appreciate why cell division matters for cancer" | "Appreciate" is an affective verb (Krathwohl) that cannot be assessed as written; "matters" has no cognitive level or criterion | See Objective 6 below          |
 
 ---
 
 ### Objectives
 
-| # | Bloom's Level | Full Objective (ABCD) | Standard Code |
-|---|---|---|---|
-| 1 | Remember | Students will be able to **list** the four stages of mitosis (prophase, metaphase, anaphase, telophase) in sequence, given a blank diagram of a dividing cell, naming all four stages correctly with no sequencing errors. | HS-LS1-4 |
-| 2 | Understand | Students will be able to **describe** the key chromosomal events occurring during each stage of mitosis -- using annotated diagrams provided in the lab workbook -- correctly explaining the primary event of each stage (chromosome condensation, alignment, separation, and cytokinesis) in 1-2 sentences per stage. | HS-LS1-4 |
-| 3 | Apply | Students will be able to **identify** the stage of mitosis occurring in a set of 10 microscope slide images of onion root tip cells, correctly classifying at least 8 of 10 images to the appropriate stage. | HS-LS1-4 |
-| 4 | Analyze | Students will be able to **compare** mitosis and meiosis by constructing a comparison table that differentiates the two processes across at least 5 of the following 7 dimensions: purpose, number of divisions, number of daughter cells produced, genetic outcome (identical vs. varied), ploidy of daughter cells, occurrence of crossing over, and cell types produced. | HS-LS3-2 |
-| 5 | Analyze | Students will be able to **explain** how errors in cell division (nondisjunction during meiosis, failure of checkpoints during mitosis) produce chromosomal abnormalities or uncontrolled cell growth, citing at least one specific example of each error type using correct terminology. | HS-LS3-2 |
-| 6 | Evaluate | Students will be able to **evaluate** the claim that cancer is fundamentally a disease of cell division by writing a structured argument -- using evidence from at least 3 unit resources (readings, data sets, case studies) -- that includes a claim, at least 2 pieces of evidence, and a warrant connecting each piece of evidence to the claim, earning a score of 3 or higher on the district evidence-based argument rubric. | HS-LS1-1 |
-| 7 | Create | Students will be able to **design** an annotated diagram or physical model of the cell cycle that correctly represents all phases of interphase and mitosis, includes labels for at least 6 distinct events or structures (e.g., DNA replication, spindle formation, sister chromatids, cleavage furrow), and includes a written caption explaining how disruption at one checkpoint could lead to uncontrolled division. | HS-LS1-4 |
+| #   | Bloom's Level | Full Objective (ABCD)                                                                                                                                                                                                                                                                                                                                                                                                               | Standard Code |
+| --- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| 1   | Remember      | Students will be able to **list** the four stages of mitosis (prophase, metaphase, anaphase, telophase) in sequence, given a blank diagram of a dividing cell, naming all four stages correctly with no sequencing errors.                                                                                                                                                                                                          | HS-LS1-4      |
+| 2   | Understand    | Students will be able to **describe** the key chromosomal events occurring during each stage of mitosis -- using annotated diagrams provided in the lab workbook -- correctly explaining the primary event of each stage (chromosome condensation, alignment, separation, and cytokinesis) in 1-2 sentences per stage.                                                                                                              | HS-LS1-4      |
+| 3   | Apply         | Students will be able to **identify** the stage of mitosis occurring in a set of 10 microscope slide images of onion root tip cells, correctly classifying at least 8 of 10 images to the appropriate stage.                                                                                                                                                                                                                        | HS-LS1-4      |
+| 4   | Analyze       | Students will be able to **compare** mitosis and meiosis by constructing a comparison table that differentiates the two processes across at least 5 of the following 7 dimensions: purpose, number of divisions, number of daughter cells produced, genetic outcome (identical vs. varied), ploidy of daughter cells, occurrence of crossing over, and cell types produced.                                                         | HS-LS3-2      |
+| 5   | Analyze       | Students will be able to **explain** how errors in cell division (nondisjunction during meiosis, failure of checkpoints during mitosis) produce chromosomal abnormalities or uncontrolled cell growth, citing at least one specific example of each error type using correct terminology.                                                                                                                                           | HS-LS3-2      |
+| 6   | Evaluate      | Students will be able to **evaluate** the claim that cancer is fundamentally a disease of cell division by writing a structured argument -- using evidence from at least 3 unit resources (readings, data sets, case studies) -- that includes a claim, at least 2 pieces of evidence, and a warrant connecting each piece of evidence to the claim, earning a score of 3 or higher on the district evidence-based argument rubric. | HS-LS1-1      |
+| 7   | Create        | Students will be able to **design** an annotated diagram or physical model of the cell cycle that correctly represents all phases of interphase and mitosis, includes labels for at least 6 distinct events or structures (e.g., DNA replication, spindle formation, sister chromatids, cleavage furrow), and includes a written caption explaining how disruption at one checkpoint could lead to uncontrolled division.           | HS-LS1-4      |
 
 ---
 
 ### Bloom's Coverage Summary
 
 | Bloom's Level | Count | Objective Numbers |
-|---|---|---|
-| Remember | 1 | #1 |
-| Understand | 1 | #2 |
-| Apply | 1 | #3 |
-| Analyze | 2 | #4, #5 |
-| Evaluate | 1 | #6 |
-| Create | 1 | #7 |
-| **Total** | **7** | |
+| ------------- | ----- | ----------------- |
+| Remember      | 1     | #1                |
+| Understand    | 1     | #2                |
+| Apply         | 1     | #3                |
+| Analyze       | 2     | #4, #5            |
+| Evaluate      | 1     | #6                |
+| Create        | 1     | #7                |
+| **Total**     | **7** |                   |
 
 **Cognitive Range:** Remember → Create (all six levels represented)
 **Recommended range for this scope:** A 5-day unit for 10th grade biology should span at least 3 Bloom's levels and include at least one Evaluate or Create objective. This set spans all 6 levels, which is appropriate for a unit that culminates in a project.
@@ -423,6 +429,7 @@ This prevents the common error of writing a single objective that tries to asses
 - **Day 5 (Objective 7):** The Create objective is a culminating task requiring all prior objectives as its foundation. Students cannot design a correct, annotated model unless they can recall stages, describe events, apply identification skills, compare the two processes, explain errors, and evaluate significance.
 
 **Prerequisite map:**
+
 - Obj 1 → required before Obj 2, 3, 4, 7
 - Obj 2 → required before Obj 3, 4, 5, 7
 - Obj 3 → enriches but not strictly required for Obj 6 or 7
@@ -433,29 +440,29 @@ This prevents the common error of writing a single objective that tries to asses
 
 ### Assessment Alignment
 
-| Objective | Bloom's Level | Suggested Assessment Method | Format | Timing |
-|---|---|---|---|---|
-| 1 | Remember | Blank cell division diagram -- students label all 4 stages in sequence | Formative (collected) | End of Day 1 |
-| 2 | Understand | Annotated diagram with 1-2 sentence descriptions per stage | Formative (collected) | End of Day 1 |
-| 3 | Apply | Microscope slide identification task (10 onion root tip images, multiple choice + short justification) | Formative (scored) | Day 2 lab |
-| 4 | Analyze | Mitosis vs. meiosis comparison table with 5-7 dimensions completed | Formative (scored with checklist) | End of Day 3 |
-| 5 | Analyze | Short constructed response: describe one mitosis error and one meiosis error, each with a named example | Formative (scored with 4-point rubric) | Day 4 warm-up |
-| 6 | Evaluate | Evidence-based argument paragraph scored on district argument rubric | Summative (graded) | End of Day 4 |
-| 7 | Create | Annotated diagram or physical model with written caption -- scored on a 3-criteria rubric (accuracy of labels, completeness of events, quality of caption explanation) | Summative (graded) | Day 5 / due end of unit |
+| Objective | Bloom's Level | Suggested Assessment Method                                                                                                                                            | Format                                 | Timing                  |
+| --------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----------------------- |
+| 1         | Remember      | Blank cell division diagram -- students label all 4 stages in sequence                                                                                                 | Formative (collected)                  | End of Day 1            |
+| 2         | Understand    | Annotated diagram with 1-2 sentence descriptions per stage                                                                                                             | Formative (collected)                  | End of Day 1            |
+| 3         | Apply         | Microscope slide identification task (10 onion root tip images, multiple choice + short justification)                                                                 | Formative (scored)                     | Day 2 lab               |
+| 4         | Analyze       | Mitosis vs. meiosis comparison table with 5-7 dimensions completed                                                                                                     | Formative (scored with checklist)      | End of Day 3            |
+| 5         | Analyze       | Short constructed response: describe one mitosis error and one meiosis error, each with a named example                                                                | Formative (scored with 4-point rubric) | Day 4 warm-up           |
+| 6         | Evaluate      | Evidence-based argument paragraph scored on district argument rubric                                                                                                   | Summative (graded)                     | End of Day 4            |
+| 7         | Create        | Annotated diagram or physical model with written caption -- scored on a 3-criteria rubric (accuracy of labels, completeness of events, quality of caption explanation) | Summative (graded)                     | Day 5 / due end of unit |
 
 ---
 
 ### ABCD Checklist (Self-Verification)
 
-| Objective | Audience ✓ | Measurable Verb ✓ | Condition ✓ | Degree ✓ | Measurability Test ✓ |
-|---|---|---|---|---|---|
-| 1 | ✓ (SWBAT) | ✓ (list) | ✓ (given a blank diagram) | ✓ (all 4, no sequencing errors) | ✓ |
-| 2 | ✓ | ✓ (describe) | ✓ (using annotated diagrams in workbook) | ✓ (1-2 sentences per stage, primary event correct) | ✓ |
-| 3 | ✓ | ✓ (identify) | ✓ (set of 10 microscope images) | ✓ (at least 8 of 10 correct) | ✓ |
-| 4 | ✓ | ✓ (compare) | ✓ (constructing a comparison table) | ✓ (at least 5 of 7 specified dimensions) | ✓ |
-| 5 | ✓ | ✓ (explain) | ✓ (implied: from unit instruction and resources) | ✓ (one specific example per error type, correct terminology) | ✓ |
-| 6 | ✓ | ✓ (evaluate) | ✓ (using at least 3 unit resources) | ✓ (claim + 2 evidence + warrant; score ≥3 on district rubric) | ✓ |
-| 7 | ✓ | ✓ (design) | ✓ (annotated diagram or physical model) | ✓ (6+ labeled elements, written caption, checkpoint disruption addressed) | ✓ |
+| Objective | Audience ✓ | Measurable Verb ✓ | Condition ✓                                      | Degree ✓                                                                  | Measurability Test ✓ |
+| --------- | ---------- | ----------------- | ------------------------------------------------ | ------------------------------------------------------------------------- | -------------------- |
+| 1         | ✓ (SWBAT)  | ✓ (list)          | ✓ (given a blank diagram)                        | ✓ (all 4, no sequencing errors)                                           | ✓                    |
+| 2         | ✓          | ✓ (describe)      | ✓ (using annotated diagrams in workbook)         | ✓ (1-2 sentences per stage, primary event correct)                        | ✓                    |
+| 3         | ✓          | ✓ (identify)      | ✓ (set of 10 microscope images)                  | ✓ (at least 8 of 10 correct)                                              | ✓                    |
+| 4         | ✓          | ✓ (compare)       | ✓ (constructing a comparison table)              | ✓ (at least 5 of 7 specified dimensions)                                  | ✓                    |
+| 5         | ✓          | ✓ (explain)       | ✓ (implied: from unit instruction and resources) | ✓ (one specific example per error type, correct terminology)              | ✓                    |
+| 6         | ✓          | ✓ (evaluate)      | ✓ (using at least 3 unit resources)              | ✓ (claim + 2 evidence + warrant; score ≥3 on district rubric)             | ✓                    |
+| 7         | ✓          | ✓ (design)        | ✓ (annotated diagram or physical model)          | ✓ (6+ labeled elements, written caption, checkpoint disruption addressed) | ✓                    |
 
 ---
 
@@ -463,14 +470,14 @@ This prevents the common error of writing a single objective that tries to asses
 
 Use this reference when modifying or extending the objectives above:
 
-| Bloom's Level | Action Verbs (domain-specific for biology) | Question Stems for Assessments |
-|---|---|---|
-| Remember | list, name, label, match, state, identify, define, recognize | Name the four stages of... What is the function of...? List the parts of... |
-| Understand | describe, explain, summarize, interpret, classify, give an example of | Explain how... What happens during...? Describe the relationship between... |
-| Apply | identify in a new context, use a procedure, calculate, demonstrate, execute | Identify the stage shown in this image. Calculate the number of cells produced. |
-| Analyze | compare, contrast, differentiate, examine, map, categorize, break down | How does mitosis differ from meiosis? What are the consequences of a spindle failure? |
-| Evaluate | assess, evaluate, justify, defend, argue, recommend | Is the claim that cancer is a division disease well-supported? Which evidence is strongest? |
-| Create | design, construct, develop, produce, compose, propose, model | Design a diagram that shows... Develop a model that explains... |
+| Bloom's Level | Action Verbs (domain-specific for biology)                                  | Question Stems for Assessments                                                              |
+| ------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Remember      | list, name, label, match, state, identify, define, recognize                | Name the four stages of... What is the function of...? List the parts of...                 |
+| Understand    | describe, explain, summarize, interpret, classify, give an example of       | Explain how... What happens during...? Describe the relationship between...                 |
+| Apply         | identify in a new context, use a procedure, calculate, demonstrate, execute | Identify the stage shown in this image. Calculate the number of cells produced.             |
+| Analyze       | compare, contrast, differentiate, examine, map, categorize, break down      | How does mitosis differ from meiosis? What are the consequences of a spindle failure?       |
+| Evaluate      | assess, evaluate, justify, defend, argue, recommend                         | Is the claim that cancer is a division disease well-supported? Which evidence is strongest? |
+| Create        | design, construct, develop, produce, compose, propose, model                | Design a diagram that shows... Develop a model that explains...                             |
 
 ---
 

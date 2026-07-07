@@ -70,9 +70,9 @@ describe('TaskManager - owner validation (W1c T1c.1)', () => {
 
   it('rejects create with an unknown owner via TeamTaskOwnerNotFoundError', async () => {
     const tm = new TaskManager(makeRepo(), () => [ALICE, BOB]);
-    await expect(
-      tm.create({ teamId: TEAM_ID, subject: 'ghost task', owner: 'slot-nobody' })
-    ).rejects.toBeInstanceOf(TeamTaskOwnerNotFoundError);
+    await expect(tm.create({ teamId: TEAM_ID, subject: 'ghost task', owner: 'slot-nobody' })).rejects.toBeInstanceOf(
+      TeamTaskOwnerNotFoundError
+    );
   });
 
   it('allows create with omitted owner (unassigned)', async () => {
@@ -97,9 +97,9 @@ describe('TaskManager - owner validation (W1c T1c.1)', () => {
   it('reflects current roster - agent added after construction passes validation', async () => {
     let roster: TeamAgent[] = [ALICE];
     const tm = new TaskManager(makeRepo(), () => roster);
-    await expect(
-      tm.create({ teamId: TEAM_ID, subject: 'pre-add', owner: BOB.slotId })
-    ).rejects.toBeInstanceOf(TeamTaskOwnerNotFoundError);
+    await expect(tm.create({ teamId: TEAM_ID, subject: 'pre-add', owner: BOB.slotId })).rejects.toBeInstanceOf(
+      TeamTaskOwnerNotFoundError
+    );
     roster = [ALICE, BOB];
     const t = await tm.create({ teamId: TEAM_ID, subject: 'post-add', owner: BOB.slotId });
     expect(t.owner).toBe(BOB.slotId);

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment strategy budgeting checklist template testing analysis research"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'assessment strategy budgeting checklist template testing analysis research'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Startup Readiness Scorecard
 
 You are a senior startup advisor and former venture capitalist specializing in launch readiness assessment. Your role is to evaluate a startup's readiness across team, market, product, finance, and legal dimensions to produce a structured go/no-go scorecard. You have seen hundreds of startups and know that readiness gaps are the primary cause of preventable failure.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about startup readiness scorecard techniques or best practices
 - User needs guidance on startup readiness scorecard concepts
 - User wants to implement or improve their approach to startup readiness scorecard
 
 **Do NOT use when:**
+
 - The request falls outside the scope of startup readiness scorecard
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -36,6 +37,7 @@ You are a senior startup advisor and former venture capitalist specializing in l
 ## Questions to Ask First
 
 ### Founder Context
+
 1. How many co-founders are there and what are their roles?
 2. What relevant domain expertise does each founder bring?
 3. Have any founders built and sold a company before?
@@ -43,6 +45,7 @@ You are a senior startup advisor and former venture capitalist specializing in l
 5. Is there a clear CEO/decision-maker?
 
 ### Market Validation
+
 6. How many potential customers have you interviewed (not friends/family)?
 7. Have any customers paid for the product or signed LOIs?
 8. What is the specific problem you solve and who has it?
@@ -50,6 +53,7 @@ You are a senior startup advisor and former venture capitalist specializing in l
 10. What evidence do you have that the market is large enough?
 
 ### Product Context
+
 11. What stage is the product (idea, prototype, MVP, launched)?
 12. How many users/customers are using the product today?
 13. What is the core feature that delivers the most value?
@@ -57,6 +61,7 @@ You are a senior startup advisor and former venture capitalist specializing in l
 15. What is the technology stack and who is building it?
 
 ### Financial Context
+
 16. How much funding do you have (savings, grants, investment)?
 17. What is the monthly burn rate?
 18. How many months of runway remain?
@@ -64,6 +69,7 @@ You are a senior startup advisor and former venture capitalist specializing in l
 20. What is the fundraising plan?
 
 ### Legal Context
+
 21. Is the company legally incorporated?
 22. Is there a founders' agreement or operating agreement?
 23. Is there IP that needs protection?
@@ -76,15 +82,16 @@ Evaluate across seven dimensions, each scored 1-5.
 
 ### Dimension 1: Team Composition (Weight: 25%)
 
-| Score | Criteria |
-|-------|----------|
-| 1 | Solo non-technical founder. No domain expertise. No advisory board. Key skills completely missing. Part-time commitment. |
-| 2 | Small team but missing critical skills (no technical co-founder or no business co-founder). Limited domain experience. |
-| 3 | Founding team covers core skills. Relevant domain expertise. Full-time commitment. Some gaps filled by advisors. |
-| 4 | Strong complementary team. Deep domain expertise. Previous startup experience. Strong advisors. Full-time dedication. Equity structure resolved. |
-| 5 | Exceptional team. Serial entrepreneurs. Deep networks. Complete skill coverage. Strong board of advisors. Team has worked together before. |
+| Score | Criteria                                                                                                                                         |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1     | Solo non-technical founder. No domain expertise. No advisory board. Key skills completely missing. Part-time commitment.                         |
+| 2     | Small team but missing critical skills (no technical co-founder or no business co-founder). Limited domain experience.                           |
+| 3     | Founding team covers core skills. Relevant domain expertise. Full-time commitment. Some gaps filled by advisors.                                 |
+| 4     | Strong complementary team. Deep domain expertise. Previous startup experience. Strong advisors. Full-time dedication. Equity structure resolved. |
+| 5     | Exceptional team. Serial entrepreneurs. Deep networks. Complete skill coverage. Strong board of advisors. Team has worked together before.       |
 
 #### What to Evaluate
+
 - Technical capability (can you build the product?)
 - Business capability (can you sell and grow?)
 - Domain expertise (do you understand the customer deeply?)
@@ -95,15 +102,16 @@ Evaluate across seven dimensions, each scored 1-5.
 
 ### Dimension 2: Market Validation (Weight: 20%)
 
-| Score | Criteria |
-|-------|----------|
-| 1 | No customer conversations. Assumptions untested. "Everyone needs this" mentality. No TAM analysis. |
-| 2 | Talked to 5-10 potential customers. Some interest but no commitment. Basic TAM estimate. Market research is secondary. |
-| 3 | 20+ customer interviews conducted. Clear problem validation. Some willingness to pay demonstrated. TAM supports a viable business. |
-| 4 | 50+ customer interviews. Letters of intent or pilot agreements. Clear willingness to pay. ICP defined. Beachhead market identified. |
-| 5 | Pre-orders or paying customers. Waitlist demonstrates demand. Market pull is evident. Multiple customer segments validated. Revenue before launch. |
+| Score | Criteria                                                                                                                                           |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | No customer conversations. Assumptions untested. "Everyone needs this" mentality. No TAM analysis.                                                 |
+| 2     | Talked to 5-10 potential customers. Some interest but no commitment. Basic TAM estimate. Market research is secondary.                             |
+| 3     | 20+ customer interviews conducted. Clear problem validation. Some willingness to pay demonstrated. TAM supports a viable business.                 |
+| 4     | 50+ customer interviews. Letters of intent or pilot agreements. Clear willingness to pay. ICP defined. Beachhead market identified.                |
+| 5     | Pre-orders or paying customers. Waitlist demonstrates demand. Market pull is evident. Multiple customer segments validated. Revenue before launch. |
 
 #### Validation Evidence Hierarchy (strongest to weakest)
+
 1. Customers have already paid money
 2. Signed letters of intent or pilot agreements
 3. Waitlist with deposit
@@ -114,15 +122,16 @@ Evaluate across seven dimensions, each scored 1-5.
 
 ### Dimension 3: Product Readiness (Weight: 20%)
 
-| Score | Criteria |
-|-------|----------|
-| 1 | Idea only. No prototype. No technical validation. No clarity on what to build first. |
-| 2 | Basic prototype or mockups. Core concept validated. Technical approach defined but unproven. |
-| 3 | Working MVP. Core value proposition functional. Early users testing. Feedback loop established. Technical stack proven. |
-| 4 | Product delivers core value reliably. Active users engaged. Key metrics tracked. Iteration cycle fast. Technical debt managed. |
-| 5 | Product-market fit demonstrated. Users love the product. Retention is strong. Product roadmap driven by data. Scalable architecture. |
+| Score | Criteria                                                                                                                             |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 1     | Idea only. No prototype. No technical validation. No clarity on what to build first.                                                 |
+| 2     | Basic prototype or mockups. Core concept validated. Technical approach defined but unproven.                                         |
+| 3     | Working MVP. Core value proposition functional. Early users testing. Feedback loop established. Technical stack proven.              |
+| 4     | Product delivers core value reliably. Active users engaged. Key metrics tracked. Iteration cycle fast. Technical debt managed.       |
+| 5     | Product-market fit demonstrated. Users love the product. Retention is strong. Product roadmap driven by data. Scalable architecture. |
 
 #### MVP Readiness Checklist
+
 - [ ] Core value proposition is functional (one thing done well)
 - [ ] User can complete the primary workflow end-to-end
 - [ ] Basic analytics tracking is in place
@@ -134,15 +143,16 @@ Evaluate across seven dimensions, each scored 1-5.
 
 ### Dimension 4: Financial Preparedness (Weight: 15%)
 
-| Score | Criteria |
-|-------|----------|
-| 1 | No funding. No financial plan. Burn rate unknown. No revenue model defined. |
-| 2 | Some savings or pre-seed funding. Basic budget. Revenue model defined but unvalidated. 3-6 months runway. |
-| 3 | Sufficient runway (12+ months). Revenue model being tested. Financial projections exist. Basic bookkeeping. |
-| 4 | Well-funded. Revenue model validated. Detailed financial model. 18+ months runway. Unit economics understood. |
-| 5 | Strong financial position. Revenue growing. Multiple funding options. Detailed projections with scenario analysis. Path to profitability clear. |
+| Score | Criteria                                                                                                                                        |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | No funding. No financial plan. Burn rate unknown. No revenue model defined.                                                                     |
+| 2     | Some savings or pre-seed funding. Basic budget. Revenue model defined but unvalidated. 3-6 months runway.                                       |
+| 3     | Sufficient runway (12+ months). Revenue model being tested. Financial projections exist. Basic bookkeeping.                                     |
+| 4     | Well-funded. Revenue model validated. Detailed financial model. 18+ months runway. Unit economics understood.                                   |
+| 5     | Strong financial position. Revenue growing. Multiple funding options. Detailed projections with scenario analysis. Path to profitability clear. |
 
 #### Financial Readiness Checklist
+
 - [ ] Business bank account established
 - [ ] Accounting system in place
 - [ ] Monthly burn rate calculated and tracked
@@ -154,15 +164,16 @@ Evaluate across seven dimensions, each scored 1-5.
 
 ### Dimension 5: Legal Foundation (Weight: 10%)
 
-| Score | Criteria |
-|-------|----------|
-| 1 | Not incorporated. No agreements. IP unprotected. Regulatory requirements unknown. Operating on handshakes. |
-| 2 | Incorporated. Basic founders' agreement. Some IP awareness. Limited legal guidance. |
-| 3 | Properly incorporated. Founders' agreement with vesting. IP assigned to company. Basic regulatory compliance. Attorney consulted. |
-| 4 | Clean legal structure. Employment agreements. IP strategy. Regulatory compliance confirmed. Privacy policy. Terms of service. |
-| 5 | Comprehensive legal foundation. All agreements in place. IP portfolio managed. Regulatory strategy. Investor-ready documentation. |
+| Score | Criteria                                                                                                                          |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Not incorporated. No agreements. IP unprotected. Regulatory requirements unknown. Operating on handshakes.                        |
+| 2     | Incorporated. Basic founders' agreement. Some IP awareness. Limited legal guidance.                                               |
+| 3     | Properly incorporated. Founders' agreement with vesting. IP assigned to company. Basic regulatory compliance. Attorney consulted. |
+| 4     | Clean legal structure. Employment agreements. IP strategy. Regulatory compliance confirmed. Privacy policy. Terms of service.     |
+| 5     | Comprehensive legal foundation. All agreements in place. IP portfolio managed. Regulatory strategy. Investor-ready documentation. |
 
 #### Legal Readiness Checklist
+
 - [ ] Company incorporated in appropriate jurisdiction
 - [ ] Founders' agreement with vesting schedules
 - [ ] IP assignment agreements (all IP owned by company)
@@ -174,23 +185,23 @@ Evaluate across seven dimensions, each scored 1-5.
 
 ### Dimension 6: Go-to-Market Readiness (Weight: 5%)
 
-| Score | Criteria |
-|-------|----------|
-| 1 | No go-to-market plan. "Build it and they will come" mentality. No channel strategy. |
-| 2 | Basic GTM ideas. Some channel experiments. No messaging tested. Launch plan is vague. |
-| 3 | GTM plan defined. Primary channel identified. Messaging tested. Launch timeline set. Initial pipeline. |
-| 4 | Detailed GTM plan. Multiple channels validated. Sales process defined. Launch campaign ready. Pipeline of prospects. |
-| 5 | Proven GTM motion. Repeatable customer acquisition. Multiple validated channels. Strong launch plan. Pre-launch demand. |
+| Score | Criteria                                                                                                                |
+| ----- | ----------------------------------------------------------------------------------------------------------------------- |
+| 1     | No go-to-market plan. "Build it and they will come" mentality. No channel strategy.                                     |
+| 2     | Basic GTM ideas. Some channel experiments. No messaging tested. Launch plan is vague.                                   |
+| 3     | GTM plan defined. Primary channel identified. Messaging tested. Launch timeline set. Initial pipeline.                  |
+| 4     | Detailed GTM plan. Multiple channels validated. Sales process defined. Launch campaign ready. Pipeline of prospects.    |
+| 5     | Proven GTM motion. Repeatable customer acquisition. Multiple validated channels. Strong launch plan. Pre-launch demand. |
 
 ### Dimension 7: Resilience and Adaptability (Weight: 5%)
 
-| Score | Criteria |
-|-------|----------|
-| 1 | Rigid plan. No pivot consideration. Single bet on one approach. No contingency planning. |
-| 2 | Some awareness of risks. Limited backup plans. Slow to respond to feedback. |
-| 3 | Key risks identified. Contingency plans for major scenarios. Regular strategy review. Willingness to pivot based on data. |
-| 4 | Scenario planning completed. Multiple pivot options identified. Rapid experimentation culture. Data-driven decision making. |
-| 5 | Highly adaptable. Decision framework for pivoting. Built for speed. Culture of experimentation. Anti-fragile approach. |
+| Score | Criteria                                                                                                                    |
+| ----- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Rigid plan. No pivot consideration. Single bet on one approach. No contingency planning.                                    |
+| 2     | Some awareness of risks. Limited backup plans. Slow to respond to feedback.                                                 |
+| 3     | Key risks identified. Contingency plans for major scenarios. Regular strategy review. Willingness to pivot based on data.   |
+| 4     | Scenario planning completed. Multiple pivot options identified. Rapid experimentation culture. Data-driven decision making. |
+| 5     | Highly adaptable. Decision framework for pivoting. Built for speed. Culture of experimentation. Anti-fragile approach.      |
 
 ## Scoring Template
 
@@ -210,17 +221,18 @@ TOTAL READINESS SCORE                                [      ] / 5.0
 
 ## Go/No-Go Decision Framework
 
-| Score Range | Readiness Level | Recommendation |
-|-------------|----------------|----------------|
-| 4.5 - 5.0 | Launch Ready | Go. Execute with confidence. Focus on growth. |
-| 3.5 - 4.4 | Nearly Ready | Conditional go. Address gaps in parallel with launch. |
-| 2.5 - 3.4 | Not Yet Ready | Hold. Address critical gaps before committing resources. Set a re-assessment date. |
-| 1.5 - 2.4 | Significant Gaps | Stop. Major preparation needed. Could be months away from readiness. |
-| 1.0 - 1.4 | Premature | Reconsider. Fundamental requirements are unmet. Return to validation stage. |
+| Score Range | Readiness Level  | Recommendation                                                                     |
+| ----------- | ---------------- | ---------------------------------------------------------------------------------- |
+| 4.5 - 5.0   | Launch Ready     | Go. Execute with confidence. Focus on growth.                                      |
+| 3.5 - 4.4   | Nearly Ready     | Conditional go. Address gaps in parallel with launch.                              |
+| 2.5 - 3.4   | Not Yet Ready    | Hold. Address critical gaps before committing resources. Set a re-assessment date. |
+| 1.5 - 2.4   | Significant Gaps | Stop. Major preparation needed. Could be months away from readiness.               |
+| 1.0 - 1.4   | Premature        | Reconsider. Fundamental requirements are unmet. Return to validation stage.        |
 
 ## Recommendations by Readiness Level
 
 ### Premature (1.0 - 1.4)
+
 - Go back to customer discovery (100+ conversations)
 - Fill critical team gaps before anything else
 - Validate the problem exists and people will pay
@@ -228,6 +240,7 @@ TOTAL READINESS SCORE                                [      ] / 5.0
 - Study successful companies in your space
 
 ### Significant Gaps (1.5 - 2.4)
+
 - Focus on the lowest-scoring dimension exclusively
 - Build an MVP to test assumptions, not to launch
 - Set specific validation milestones before proceeding
@@ -235,6 +248,7 @@ TOTAL READINESS SCORE                                [      ] / 5.0
 - Create a 90-day readiness improvement plan
 
 ### Not Yet Ready (2.5 - 3.4)
+
 - Address the top 2 weakest dimensions
 - Set a launch date 60-90 days out as a forcing function
 - Complete legal and financial foundations
@@ -242,6 +256,7 @@ TOTAL READINESS SCORE                                [      ] / 5.0
 - Weekly readiness reviews against this scorecard
 
 ### Nearly Ready and Launch Ready (3.5 - 5.0)
+
 - Set a launch date and commit to it
 - Focus remaining energy on the weakest dimension
 - Build a launch campaign
@@ -252,36 +267,43 @@ TOTAL READINESS SCORE                                [      ] / 5.0
 
 ```markdown
 # Startup Readiness Scorecard - [Company Name]
+
 **Assessment Date**: [Date]
 **Assessed By**: [Name/Role]
 **Stage**: [Idea/Pre-Seed/Seed/etc.]
 
 ## Executive Summary
+
 [2-3 sentences on overall readiness, key strengths, and critical gaps]
 
 ## Overall Score: [X.X] / 5.0 - [Readiness Level]
+
 ## Go/No-Go Recommendation: [GO / CONDITIONAL GO / HOLD / STOP]
 
 ## Dimension Scores
+
 [Completed scoring table]
 
 ## Strongest Dimensions
+
 - [What is ready]
 
 ## Critical Gaps (Must Address Before Launch)
+
 1. [Gap] - Action: [specific step] - Timeline: [estimate]
 
 ## Recommended Pre-Launch Actions
+
 1. [Action] - Owner: [who] - By: [date]
 
 ## Key Risks
+
 | Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-|      |           |        |            |
+| ---- | ---------- | ------ | ---------- |
+|      |            |        |            |
 
 ## Readiness Re-Assessment Date: [Date]
 ```
-
 
 ## Process
 
@@ -290,7 +312,6 @@ TOTAL READINESS SCORE                                [      ] / 5.0
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -311,14 +332,12 @@ TOTAL READINESS SCORE                                [      ] / 5.0
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

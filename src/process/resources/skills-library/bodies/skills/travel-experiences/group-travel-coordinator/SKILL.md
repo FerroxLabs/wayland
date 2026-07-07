@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel planning event-planning checklist"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel planning event-planning checklist'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Group Travel Coordinator
@@ -193,12 +193,12 @@ metadata:
 
 ### Role Assignments
 
-| Role | Person | Responsibilities | Deadlines |
-|------|--------|-----------------|-----------|
-| Trip Organizer | You | Set deadlines, final decisions, booking oversight | Ongoing |
-| Booking Coordinator | Volunteer 1 | Research and book accommodation + flights | Book by Week 8 before trip |
-| Activity Planner | Volunteer 2 | Research local activities, nightlife, restaurant areas | Proposals by Week 6 |
-| Finance Tracker | Volunteer 3 | Track all shared expenses, manage settlement | Weekly updates during trip |
+| Role                | Person      | Responsibilities                                       | Deadlines                  |
+| ------------------- | ----------- | ------------------------------------------------------ | -------------------------- |
+| Trip Organizer      | You         | Set deadlines, final decisions, booking oversight      | Ongoing                    |
+| Booking Coordinator | Volunteer 1 | Research and book accommodation + flights              | Book by Week 8 before trip |
+| Activity Planner    | Volunteer 2 | Research local activities, nightlife, restaurant areas | Proposals by Week 6        |
+| Finance Tracker     | Volunteer 3 | Track all shared expenses, manage settlement           | Weekly updates during trip |
 
 **Assignment method:** Post in group chat: "I need 3 volunteers -- Booking Coordinator, Activity Planner, and Finance Tracker. Claim your role by [date]."
 
@@ -253,50 +253,51 @@ TRIP SURVEY -- respond by [date]
 
 ### Booking Sequence
 
-| Order | Item | Book By | Who Books | Est. Cost/Person | Payment Method | Cancellation |
-|-------|------|---------|-----------|-----------------|----------------|-------------|
-| 1 | Accommodation (villa or connected rooms) | 10 weeks before | Booking Coordinator | $350-500 (7 nights) | Organizer fronts deposit, group reimburses within 1 week | Free cancel 30 days out |
-| 2 | Flights (individual bookings) | 8 weeks before | Each person books own | $300-600 | Each pays own | Per airline policy |
-| 3 | Group excursion (snorkeling, opt-in) | 4 weeks before | Activity Planner | $50-80 | Collect from opt-in members | Free cancel 48 hours |
-| 4 | Airport transfers (group van/shuttle) | 2 weeks before | Booking Coordinator | $15-25/person | Split equally among arriving group | Free cancel 24 hours |
+| Order | Item                                     | Book By         | Who Books             | Est. Cost/Person    | Payment Method                                           | Cancellation            |
+| ----- | ---------------------------------------- | --------------- | --------------------- | ------------------- | -------------------------------------------------------- | ----------------------- |
+| 1     | Accommodation (villa or connected rooms) | 10 weeks before | Booking Coordinator   | $350-500 (7 nights) | Organizer fronts deposit, group reimburses within 1 week | Free cancel 30 days out |
+| 2     | Flights (individual bookings)            | 8 weeks before  | Each person books own | $300-600            | Each pays own                                            | Per airline policy      |
+| 3     | Group excursion (snorkeling, opt-in)     | 4 weeks before  | Activity Planner      | $50-80              | Collect from opt-in members                              | Free cancel 48 hours    |
+| 4     | Airport transfers (group van/shuttle)    | 2 weeks before  | Booking Coordinator   | $15-25/person       | Split equally among arriving group                       | Free cancel 24 hours    |
 
 ### Cost-Splitting Rules
 
-| Category | Split Method | Tracking |
-|----------|-------------|---------|
-| Accommodation | Equal 8-way split (or adjusted if some get private rooms) | Finance Tracker spreadsheet |
-| Group dinners (3 planned) | Equal split at the table | Finance Tracker logs total |
-| Individual meals | Each pays own | Not tracked |
-| Group excursions | Split among participants only | Finance Tracker logs per activity |
-| Nightlife / bar tabs | Each pays own (or split rounds evenly if agreed) | Not tracked |
-| Transportation (shared taxis, van) | Equal split among riders | Finance Tracker logs |
-| Groceries / shared supplies | Equal 8-way split | Finance Tracker logs receipts |
+| Category                           | Split Method                                              | Tracking                          |
+| ---------------------------------- | --------------------------------------------------------- | --------------------------------- |
+| Accommodation                      | Equal 8-way split (or adjusted if some get private rooms) | Finance Tracker spreadsheet       |
+| Group dinners (3 planned)          | Equal split at the table                                  | Finance Tracker logs total        |
+| Individual meals                   | Each pays own                                             | Not tracked                       |
+| Group excursions                   | Split among participants only                             | Finance Tracker logs per activity |
+| Nightlife / bar tabs               | Each pays own (or split rounds evenly if agreed)          | Not tracked                       |
+| Transportation (shared taxis, van) | Equal split among riders                                  | Finance Tracker logs              |
+| Groceries / shared supplies        | Equal 8-way split                                         | Finance Tracker logs receipts     |
 
 **Settlement method:** Finance Tracker maintains a running spreadsheet. Settle all balances within 1 week of returning home. Recommended: use a group expense-tracking method where each shared purchase is logged with who paid and who owes.
 
 ### Payment Collection Schedule
 
-| Deadline | Amount per Person | Purpose | Collect Via |
-|----------|------------------|---------|------------|
-| 10 weeks before | $150 | Accommodation deposit (Organizer fronts, group reimburses) | Direct transfer to Organizer |
-| 6 weeks before | $200 | Accommodation balance | Direct transfer to Booking Coordinator |
-| 2 weeks before | $75 | Excursion deposits + airport transfer | Direct transfer to Activity Planner |
-| During trip | Variable | Shared expenses as they occur | Finance Tracker logs, settle after |
-| 1 week after return | Final settlement | Balance all shared expenses | Finance Tracker sends final tally |
+| Deadline            | Amount per Person | Purpose                                                    | Collect Via                            |
+| ------------------- | ----------------- | ---------------------------------------------------------- | -------------------------------------- |
+| 10 weeks before     | $150              | Accommodation deposit (Organizer fronts, group reimburses) | Direct transfer to Organizer           |
+| 6 weeks before      | $200              | Accommodation balance                                      | Direct transfer to Booking Coordinator |
+| 2 weeks before      | $75               | Excursion deposits + airport transfer                      | Direct transfer to Activity Planner    |
+| During trip         | Variable          | Shared expenses as they occur                              | Finance Tracker logs, settle after     |
+| 1 week after return | Final settlement  | Balance all shared expenses                                | Finance Tracker sends final tally      |
 
 ### Day-by-Day Group Schedule
 
-| Day | Group Activity | Opt-in Activity | Free Time | Meal Plan |
-|-----|---------------|-----------------|-----------|-----------|
-| Day 1 (Sat) | Arrive, settle in, grocery run for house supplies | -- | Afternoon-evening | Group welcome dinner (split) |
-| Day 2 (Sun) | Beach day together | -- | All day (beach IS the activity) | Individual lunch, group dinner out |
-| Day 3 (Mon) | Free morning | Snorkeling excursion (5 people, 1 PM) | Morning | Individual meals |
-| Day 4 (Tue) | Explore local food district together (lunch) | -- | Afternoon + evening | Group lunch walk, individual dinner |
-| Day 5 (Wed) | Free day | Adventure activity (4 people) | Full day for non-participants | Individual meals |
-| Day 6 (Thu) | Beach day | -- | Afternoon | Group farewell dinner (split) |
-| Day 7 (Fri) | Pack, depart | -- | Morning if late flights | Individual breakfast |
+| Day         | Group Activity                                    | Opt-in Activity                       | Free Time                       | Meal Plan                           |
+| ----------- | ------------------------------------------------- | ------------------------------------- | ------------------------------- | ----------------------------------- |
+| Day 1 (Sat) | Arrive, settle in, grocery run for house supplies | --                                    | Afternoon-evening               | Group welcome dinner (split)        |
+| Day 2 (Sun) | Beach day together                                | --                                    | All day (beach IS the activity) | Individual lunch, group dinner out  |
+| Day 3 (Mon) | Free morning                                      | Snorkeling excursion (5 people, 1 PM) | Morning                         | Individual meals                    |
+| Day 4 (Tue) | Explore local food district together (lunch)      | --                                    | Afternoon + evening             | Group lunch walk, individual dinner |
+| Day 5 (Wed) | Free day                                          | Adventure activity (4 people)         | Full day for non-participants   | Individual meals                    |
+| Day 6 (Thu) | Beach day                                         | --                                    | Afternoon                       | Group farewell dinner (split)       |
+| Day 7 (Fri) | Pack, depart                                      | --                                    | Morning if late flights         | Individual breakfast                |
 
 **Key pacing notes:**
+
 - 3 group activities in 7 days (not every day)
 - 2 opt-in activities for subgroups
 - 3 fully free days where people do whatever they want
@@ -304,22 +305,22 @@ TRIP SURVEY -- respond by [date]
 
 ### Communication Timeline
 
-| Date | Message | Audience | Action Required |
-|------|---------|----------|-----------------|
-| 12 weeks before | Send preference survey | Whole group | Complete survey by [date] |
-| 10 weeks before | Announce destination, dates, budget. Request deposit. | Whole group | Pay deposit within 5 days |
-| 8 weeks before | Remind to book flights. Share accommodation confirmation. | Whole group | Book flights, share itinerary |
-| 6 weeks before | Collect accommodation balance. Share activity options. | Whole group | Pay balance, vote on activities |
-| 4 weeks before | Confirm excursion bookings. Collect opt-in payments. | Opt-in members | Pay activity deposits |
-| 2 weeks before | Share final logistics doc (address, transfers, emergency contacts) | Whole group | Confirm arrival times |
-| 1 day before | "See you tomorrow!" message with check-in logistics | Whole group | None -- excitement only |
-| 1 week after return | Finance Tracker sends expense summary and settlement amounts | Whole group | Settle within 5 days |
+| Date                | Message                                                            | Audience       | Action Required                 |
+| ------------------- | ------------------------------------------------------------------ | -------------- | ------------------------------- |
+| 12 weeks before     | Send preference survey                                             | Whole group    | Complete survey by [date]       |
+| 10 weeks before     | Announce destination, dates, budget. Request deposit.              | Whole group    | Pay deposit within 5 days       |
+| 8 weeks before      | Remind to book flights. Share accommodation confirmation.          | Whole group    | Book flights, share itinerary   |
+| 6 weeks before      | Collect accommodation balance. Share activity options.             | Whole group    | Pay balance, vote on activities |
+| 4 weeks before      | Confirm excursion bookings. Collect opt-in payments.               | Opt-in members | Pay activity deposits           |
+| 2 weeks before      | Share final logistics doc (address, transfers, emergency contacts) | Whole group    | Confirm arrival times           |
+| 1 day before        | "See you tomorrow!" message with check-in logistics                | Whole group    | None -- excitement only         |
+| 1 week after return | Finance Tracker sends expense summary and settlement amounts       | Whole group    | Settle within 5 days            |
 
 ### Contingency Plans
 
-| Scenario | Plan |
-|----------|------|
-| **Someone drops out after accommodation is booked** | Departing member pays their share of non-refundable costs. Group can invite a replacement or absorb the difference (split 7 ways instead of 8). Establish this rule before booking. |
-| **Flight delay splits the group on arrival** | Share accommodation address and check-in instructions with everyone in advance. Delayed members take their own transfer. No group activity on Day 1 to allow for staggered arrivals. |
-| **Budget overrun mid-trip** | Finance Tracker flags when shared expenses exceed $100/person and the group decides whether to cut remaining shared costs or accept the overage. |
-| **Personality conflict during trip** | Ample free time in the schedule lets people take space. The organizer should address conflicts privately, not in the group setting. |
+| Scenario                                            | Plan                                                                                                                                                                                 |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Someone drops out after accommodation is booked** | Departing member pays their share of non-refundable costs. Group can invite a replacement or absorb the difference (split 7 ways instead of 8). Establish this rule before booking.  |
+| **Flight delay splits the group on arrival**        | Share accommodation address and check-in instructions with everyone in advance. Delayed members take their own transfer. No group activity on Day 1 to allow for staggered arrivals. |
+| **Budget overrun mid-trip**                         | Finance Tracker flags when shared expenses exceed $100/person and the group decides whether to cut remaining shared costs or accept the overage.                                     |
+| **Personality conflict during trip**                | Ample free time in the schedule lets people take space. The organizer should address conflicts privately, not in the group setting.                                                  |

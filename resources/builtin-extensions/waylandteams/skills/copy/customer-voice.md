@@ -4,7 +4,7 @@
 
 ## When to use
 
-Use any time you are about to write a headline, hero, CTA, email body, ad, landing section, or rewrite. Use *before* drafting, not after. If a teammate hands you a brief without customer voice, run this mode first and report back.
+Use any time you are about to write a headline, hero, CTA, email body, ad, landing section, or rewrite. Use _before_ drafting, not after. If a teammate hands you a brief without customer voice, run this mode first and report back.
 
 Trigger phrases that should activate this mode:
 
@@ -25,7 +25,7 @@ If voice has already been mined (Research has posted quotes to `TEAM_MEMORY.md`,
 4. DMs, comment threads, community posts from the target audience.
 5. User-interview notes with verbatim quotes.
 
-If the user has nothing, ask one question: *"Can you tell me one sentence a real customer has said about why they bought (or almost did not buy)?"* That one sentence is the seed.
+If the user has nothing, ask one question: _"Can you tell me one sentence a real customer has said about why they bought (or almost did not buy)?"_ That one sentence is the seed.
 
 **2. Extract verbatim.** Read the source material. Pull **exact phrases** — not paraphrases. Tag each pull with the emotion or job it expresses:
 
@@ -39,7 +39,7 @@ Aim for 5–15 pulls. More if the source is long. Group them in `TEAM_MEMORY.md`
 **3. Decide: ship raw or translate.** Two cases.
 
 - **Ship raw** when the customer phrase is already concrete, specific, and stage-appropriate. Customers describe their own pain better than you can. ("I was drowning in tabs" beats any rewrite.) Use the phrase verbatim in the headline, hook, or hero subline.
-- **Translate** when the phrase is too narrow (one customer's idiom), too long, or wrong-stage (e.g., a product-aware phrase used in an unaware-audience asset). Keep the *structure* and *emotional register*; tighten the wording. Never rewrite into corporate voice — that is the failure mode this mode prevents.
+- **Translate** when the phrase is too narrow (one customer's idiom), too long, or wrong-stage (e.g., a product-aware phrase used in an unaware-audience asset). Keep the _structure_ and _emotional register_; tighten the wording. Never rewrite into corporate voice — that is the failure mode this mode prevents.
 
 **4. Cross-check against Brand.** If Brand has posted voice constraints in `TEAM_MEMORY.md`, run the chosen phrase past those constraints. If a verbatim phrase violates a banned-word rule, surface the tension to the user rather than silently rewriting.
 
@@ -63,9 +63,11 @@ Aim for 5–15 pulls. More if the source is long. Group them in `TEAM_MEMORY.md`
 **Brief:** "Write a headline for our project-management app. Audience: solo founders."
 
 **Before** (written from your head):
-> *Streamline your workflow. Built for ambitious founders.*
+
+> _Streamline your workflow. Built for ambitious founders._
 
 **After** (using a verbatim pull from three founder interviews):
-> *Stop ending every Friday with the same six tabs open.*
+
+> _Stop ending every Friday with the same six tabs open._
 
 The pain phrase did the work. Three founders said versions of "I keep the same six tabs open all week" in interviews. The verbatim phrase is more specific than any synonym you would have written, and it lands inside the reader's head — not next to it.

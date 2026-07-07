@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "kotlin testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'kotlin testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Kotlin Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is building or maintaining a Kotlin project (JVM, Android, Multiplatform) and wants to write better tests -- unit, integration, or end-to-end
 - The user asks about test organization, naming conventions, coroutine testing, or Kotlin-specific DSL patterns for tests
 - The user wants to apply TDD in Kotlin and needs guidance on how to structure test-first workflows with Kotlin idioms
@@ -30,6 +32,7 @@ metadata:
 - The user wants to implement property-based testing in Kotlin using Kotest or kotlinx-fuzzer
 
 **Do NOT use this skill when:**
+
 - The user is asking about Android UI testing with Espresso or Compose -- check the Android UI testing skill in the mobile subcategory
 - The user needs CI/CD pipeline configuration for running Kotlin tests -- check the CI/CD pipeline skill
 - The user is asking about performance profiling or benchmarking (JMH) -- check the JVM performance skill
@@ -70,6 +73,7 @@ Choose the test framework stack based on the context assessment, then apply cons
   - No MockK in native targets -- use interface fakes and test doubles instead
 
 - **Dependency configuration (Gradle Kotlin DSL):**
+
   ```kotlin
   dependencies {
       testImplementation("io.kotest:kotest-assertions-core:5.8.0")
@@ -101,6 +105,7 @@ Consistent structure is the foundation of a maintainable test suite:
 Kotlin enables several testing patterns that are impossible or verbose in Java. Apply these consistently:
 
 - **Data class test fixtures with factory functions:** Never construct domain objects inline in every test. Create `TestFixtures.kt` files with factory functions that provide sensible defaults and accept only what needs to vary:
+
   ```kotlin
   fun aUser(
       id: UserId = UserId("test-user-1"),
@@ -108,9 +113,11 @@ Kotlin enables several testing patterns that are impossible or verbose in Java. 
       role: Role = Role.MEMBER
   ): User = User(id = id, email = email, role = role)
   ```
+
   Call sites become: `aUser(role = Role.ADMIN)` -- readable and minimal.
 
 - **Subject Under Test (SUT) initialization with `lateinit var`:** In JUnit 5, use `@BeforeEach` to construct the SUT fresh for each test. Never use class-level `val` for mutable fakes -- this causes test pollution:
+
   ```kotlin
   private lateinit var sut: PaymentProcessor
   private val paymentGateway = mockk<PaymentGateway>()
@@ -125,6 +132,7 @@ Kotlin enables several testing patterns that are impossible or verbose in Java. 
 - **Kotest assertion extensions over assertEquals:** Prefer `result.shouldBe(expected)`, `list.shouldContainExactly(...)`, `exception.shouldHaveMessage("...")` over JUnit-style assertions. They produce better failure messages and read like specifications.
 
 - **Sealed class exhaustive testing:** When a function returns a sealed class, test every branch. Use `when` expressions in test assertions to enforce exhaustiveness at compile time:
+
   ```kotlin
   val result = sut.process(payment)
   result.shouldBeInstanceOf<PaymentResult.Success>()
@@ -133,6 +141,7 @@ Kotlin enables several testing patterns that are impossible or verbose in Java. 
   ```
 
 - **Extension functions for repeated assertion logic:** If the same multi-step assertion appears in 3+ tests, extract it into a local extension function:
+
   ```kotlin
   private fun PaymentResult.shouldBeSuccessfulWith(amount: Money) {
       this.shouldBeInstanceOf<PaymentResult.Success>()
@@ -147,6 +156,7 @@ Kotlin enables several testing patterns that are impossible or verbose in Java. 
 Coroutine testing is the most common source of flaky or incorrect Kotlin tests. Apply these patterns without exception:
 
 - **Always use `runTest` from `kotlinx-coroutines-test`:** Never use `runBlocking` in tests. `runTest` is coroutine-test-aware, skips virtual time delays, and fails fast on uncaught exceptions. `runBlocking` hides timing bugs and produces slow tests:
+
   ```kotlin
   @Test
   fun `should emit loading then success`() = runTest {
@@ -156,6 +166,7 @@ Coroutine testing is the most common source of flaky or incorrect Kotlin tests. 
   ```
 
 - **Testing `Flow` with `turbine`:** Add the `app.cash.turbine:turbine` library. It provides a coroutine-aware Flow testing DSL that eliminates the need for `toList()` hacks or manual `Job` cancellation:
+
   ```kotlin
   @Test
   fun `should emit three state transitions`() = runTest {
@@ -168,6 +179,7 @@ Coroutine testing is the most common source of flaky or incorrect Kotlin tests. 
   ```
 
 - **Virtual time control with `TestCoroutineScheduler`:** Use `advanceTimeBy()` or `advanceUntilIdle()` to control timing without real delays. Tests with `delay(5000)` in production code should still complete in milliseconds:
+
   ```kotlin
   @Test
   fun `should retry after 3 seconds`() = runTest {
@@ -177,6 +189,7 @@ Coroutine testing is the most common source of flaky or incorrect Kotlin tests. 
   ```
 
 - **`MockK` coroutine support:** Use `coEvery`, `coVerify`, and `coAnswers` for suspending functions. Using `every` on a `suspend fun` will compile but fail at runtime:
+
   ```kotlin
   coEvery { paymentGateway.charge(any()) } returns ChargeResult.Success
   coVerify(exactly = 1) { paymentGateway.charge(payment) }
@@ -345,6 +358,7 @@ src/
 ### Kotlin Multiplatform Tests with No MockK
 
 MockK does not support Kotlin/Native targets. When writing shared tests in `commonTest`:
+
 - Use hand-written fake implementations of interfaces instead of mocks. This is the correct approach regardless of MockK availability -- it forces better interface design.
 - Keep `expect`/`actual` test helpers for platform-specific behavior (e.g., file system access, clock).
 - Use `kotlin.test.assertEquals` or Kotest's multiplatform assertions artifact (`kotest-assertions-core` published with KMP targets).
@@ -354,15 +368,18 @@ MockK does not support Kotlin/Native targets. When writing shared tests in `comm
 ### Testing Kotlin `object` and `companion object`
 
 MockK can mock Kotlin `object` singletons using `mockkObject()`, but this requires careful teardown:
+
 ```kotlin
 @BeforeEach fun setUp() { mockkObject(Analytics) }
 @AfterEach fun tearDown() { unmockkObject(Analytics) }
 ```
+
 Forgetting `unmockkObject` causes the mock to persist across tests in the JVM process, creating cross-test contamination that is extremely difficult to debug. Consider this a red flag in design -- if you need to mock a singleton, the singleton should be refactored to a scoped dependency. Use `mockkObject` only as a migration aid on legacy code.
 
 ### Testing Classes with Inline Functions and Reified Type Parameters
 
 MockK cannot mock inline functions or intercept reified type calls because they are inlined at the call site. If a collaborator uses `inline reified` functions:
+
 - Wrap the inline call in a non-inline function in the production class so the wrapper can be tested via the SUT.
 - Test the inline function's behavior directly with unit tests on the function itself rather than trying to mock it.
 - Consider using a fake implementation of the surrounding interface rather than mocking the specific class with inline functions.
@@ -370,6 +387,7 @@ MockK cannot mock inline functions or intercept reified type calls because they 
 ### Flaky Tests in Coroutine-Heavy Code
 
 If coroutine tests are intermittently failing:
+
 1. First, check that `runTest` is used everywhere -- a single `runBlocking` in a shared helper can corrupt the test coroutine context.
 2. Check for `GlobalScope` usage in production code -- coroutines launched in `GlobalScope` are not controlled by `TestCoroutineScheduler` and execute on real time.
 3. Check for dispatcher hardcoding (`Dispatchers.Default` without injection) -- these escape the test dispatcher's control.
@@ -379,6 +397,7 @@ If coroutine tests are intermittently failing:
 ### Legacy Java Tests Being Migrated to Kotlin
 
 When converting a Java/JUnit 4 test suite to Kotlin/JUnit 5:
+
 - Convert test files incrementally, one class at a time. Do not mass-convert with IntelliJ's Java-to-Kotlin converter on test files -- it produces valid Kotlin but does not apply idiomatic Kotlin patterns.
 - Replace `@Rule` with JUnit 5 extensions (`@ExtendWith`). The `TemporaryFolder` rule becomes `@TempDir`.
 - Replace `@RunWith(MockitoJUnitRunner::class)` with `@ExtendWith(MockKExtension::class)` and replace all Mockito stubs with MockK equivalents.
@@ -388,6 +407,7 @@ When converting a Java/JUnit 4 test suite to Kotlin/JUnit 5:
 ### Testing Kotlin DSL Builders
 
 When production code exposes a DSL (builder pattern with lambda receivers), test both the DSL interface and the resulting built object:
+
 ```kotlin
 @Test
 fun `should build valid report configuration from DSL`() {
@@ -401,13 +421,15 @@ fun `should build valid report configuration from DSL`() {
     config.isValid() shouldBe true
 }
 ```
+
 Also test the DSL with missing required fields to confirm it throws `IllegalStateException` with a clear message, not `NullPointerException`. DSL builders that produce invalid state silently are a common source of production bugs.
 
 ### High-Volume Integration Test Suites with Testcontainers
 
 When a module has 50+ integration tests all requiring a database container:
+
 - Use a companion object or `object` with `@BeforeAll` (JUnit 5 `PER_CLASS` lifecycle) to share a single container instance across all tests in a class.
-- For sharing a container across multiple test classes, use the `Singleton Container` pattern -- a Kotlin `object` that starts the container lazily and registers a JVM shutdown hook for cleanup. This reduces test suite startup time from O(n_classes * startup_time) to O(1 * startup_time).
+- For sharing a container across multiple test classes, use the `Singleton Container` pattern -- a Kotlin `object` that starts the container lazily and registers a JVM shutdown hook for cleanup. This reduces test suite startup time from O(n_classes _ startup_time) to O(1 _ startup_time).
 - Configure Testcontainers with `withReuse(true)` during local development only (controlled by an environment variable). Never enable container reuse in CI -- it causes state leakage between pipeline runs.
 - Use `@Transactional` with `Rollback` or truncate tables in `@AfterEach` to ensure test isolation. Never rely on test execution order for database state cleanup.
 
@@ -422,6 +444,7 @@ When a module has 50+ integration tests all requiring a database container:
 ## Kotlin Testing Assessment: SubscriptionRenewalService
 
 ### Context Summary
+
 - Kotlin target: JVM
 - Test framework: None currently → JUnit 5 + Kotest assertions + MockK + kotlinx-coroutines-test
 - Coroutines: Yes -- `suspend fun` on primary method, coroutine-aware mocking required
@@ -430,13 +453,13 @@ When a module has 50+ integration tests all requiring a database container:
 
 ### Framework Stack Decision
 
-| Concern           | Chosen Tool               | Rationale                                                   |
-|-------------------|---------------------------|-------------------------------------------------------------|
-| Test runner       | JUnit 5                   | Supports `@Nested`, backtick names, lifecycle control       |
-| Assertions        | Kotest assertions         | `shouldBe`, `shouldBeInstanceOf` fit sealed class branches  |
-| Mocking           | MockK                     | `coEvery`/`coVerify` for suspend functions                  |
-| Coroutine testing | kotlinx-coroutines-test   | `runTest` + virtual time, no real delays in tests           |
-| Flow testing      | N/A for this class        | No Flow emitted from this method                            |
+| Concern           | Chosen Tool             | Rationale                                                  |
+| ----------------- | ----------------------- | ---------------------------------------------------------- |
+| Test runner       | JUnit 5                 | Supports `@Nested`, backtick names, lifecycle control      |
+| Assertions        | Kotest assertions       | `shouldBe`, `shouldBeInstanceOf` fit sealed class branches |
+| Mocking           | MockK                   | `coEvery`/`coVerify` for suspend functions                 |
+| Coroutine testing | kotlinx-coroutines-test | `runTest` + virtual time, no real delays in tests          |
+| Flow testing      | N/A for this class      | No Flow emitted from this method                           |
 
 ### Dependency Configuration (build.gradle.kts)
 

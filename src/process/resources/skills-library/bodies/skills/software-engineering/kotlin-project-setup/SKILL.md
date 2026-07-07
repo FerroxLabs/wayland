@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "kotlin best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'kotlin best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Kotlin Project Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is initializing a new Kotlin project and needs to choose between Gradle (Kotlin DSL), Maven, or other build tooling with proper Kotlin compiler plugin configuration
 - The user wants to set up a production-ready Kotlin project with proper multimodule structure, code quality gates, coroutines support, and serialization
 - The user is migrating a Java project to Kotlin and needs guidance on coexistence configuration, `@JvmStatic`, `@JvmOverloads`, and incremental migration strategy
@@ -29,6 +31,7 @@ metadata:
 - The user wants to configure the Kotlin compiler for strict null safety, progressive mode, or specific JVM target bytecode version
 
 **Do NOT use this skill when:**
+
 - The user needs help with Kotlin syntax, language features, or algorithms -- those are language learning questions, not project setup
 - The user is configuring Android-specific concerns like Gradle AGP versioning, ProGuard/R8 rules, or Android SDK targets -- check the android-project-setup skill
 - The user needs Kotlin Multiplatform project scaffolding with shared modules for iOS/Android -- check the kotlin-multiplatform skill if available
@@ -323,30 +326,39 @@ When helping a user set up a Kotlin project, provide output in this structure:
 ## Edge Cases
 
 ### Kotlin 2.0 K2 Compiler Plugin Incompatibility
+
 If any annotation processor or compiler plugin in the dependency list does not support K2 (check the plugin's changelog for "K2 support" or "Kotlin 2.0 compatible"), the build will fail with `This version of the kotlin-plugin requires the K2 compiler` or produce incorrect output silently. **Handling:** Add `kotlin.experimental.tryK2=true` to `gradle.properties` first and run `./gradlew build --info` to check plugin compatibility before fully committing to Kotlin 2.0. If a plugin is incompatible, either: (a) find the K2-compatible version, (b) temporarily disable that specific plugin's compilation integration, or (c) stay on Kotlin 1.9.x until the plugin is updated. For kapt specifically, K2 kapt is available as `kotlin.kapt.use.k2=true` but is still experimental -- prefer migrating to KSP instead.
 
 ### Java/Kotlin Mixed Source Project Migration
+
 When converting an existing Java project to Kotlin incrementally, the `java` and `kotlin` source directories must coexist. **Handling:** Add `kotlin("jvm")` plugin alongside any existing `java` plugin. Configure `sourceSets.main.kotlin.srcDirs` to include both `src/main/kotlin` and `src/main/java` if you want Kotlin to process Java sources for type resolution. Use `@JvmStatic` on companion object methods called from Java, `@JvmOverloads` for Kotlin default parameter functions called from Java, and `@JvmField` for constants. Critical: Kotlin sees Java nullability through `@Nullable`/`@NonNull` annotations (hence the importance of `-Xjsr305=strict`). Platform types (types from Java without annotations) are `T!` in Kotlin -- treat every platform type as potentially null until the Java code is annotated.
 
 ### Gradle Configuration Cache Incompatibility with Specific Plugins
+
 Configuration cache (`org.gradle.configuration-cache=true`) breaks plugins that use `Project` instance at execution time, access task outputs during configuration, or use deprecated APIs. When enabling it, run `./gradlew --configuration-cache build` and check for `configuration cache problems` in the output. **Handling:** Common offenders are older versions of the Docker plugin, some code generation plugins, and custom `buildSrc` code that holds task references. Fix by: upgrading the plugin to a CC-compatible version, using `@Internal` task property annotations correctly, or adding the plugin to a configuration cache exclusion list as a temporary measure. Do not disable configuration cache globally for one non-compliant plugin -- isolate the non-compliant task and run it separately.
 
 ### Multimodule Build with Shared Kotlin Version
+
 In a multimodule project where some modules are libraries used by other modules, the Kotlin stdlib version must be consistent across all modules. **Handling:** Define the Kotlin version exclusively in the root `libs.versions.toml` and apply the Kotlin plugin via a convention plugin in `build-logic`. Never hardcode the Kotlin version string in a module's `build.gradle.kts`. Use `kotlin("stdlib")` without a version when the BOM or version catalog manages the version. Apply `platform(kotlin("bom"))` in projects where the Kotlin version must be enforced transitively:
+
 ```kotlin
 implementation(platform("org.jetbrains.kotlin:kotlin-bom:${libs.versions.kotlin.get()}"))
 ```
 
 ### Coroutines and `suspend` Functions in Spring Boot or JPA Context
+
 When using coroutines with Spring Boot, Spring's transaction management and security context propagation do not work with `suspend` functions by default. **Handling:** Use `kotlinx-coroutines-reactor` for Spring WebFlux integration. For Spring MVC (blocking), use `runBlocking {}` only at the outermost controller layer, never inside service or repository layers. For Spring Security context in coroutines, use `SecurityContext` with `ReactorContextWebFilter`. For Spring Data JPA with coroutines, repositories must use `@Transactional` with a coroutine-aware transaction manager -- do not call `suspend` JPA operations from a coroutine that doesn't have a `Dispatchers.IO` context, as JPA blocks threads.
 
 ### Deterministic Snapshot/Version Handling in CI
+
 Kotlin snapshot versions (`2.1.0-SNAPSHOT`) are sometimes referenced in tutorials and documentation. **Handling:** Never use snapshot versions in production projects. Snapshots are published to the Kotlin bootstrap Maven repository, not Maven Central, and can change without notice, causing irreproducible builds. If you need a pre-release, use the RC or beta releases from Maven Central (e.g., `2.1.0-RC`). If a team member's `~/.gradle/caches` has a snapshot cached, it may differ from a fresh CI environment, causing "works on my machine" failures. Enforce `--refresh-dependencies` in CI for any snapshot dependency if one accidentally slips through.
 
 ### `OptIn` and Experimental API Management
+
 Kotlin's experimental/opt-in API system (formerly `@Experimental`) is commonly misunderstood. Using any kotlinx.coroutines experimental API, Flow operators marked `@FlowPreview`, or custom `@RequiresOptIn` annotations without proper opt-in causes compile errors. **Handling:** Use `@OptIn(ExperimentalCoroutinesApi::class)` at the call site for specific functions. For project-wide opt-in (e.g., you're using many coroutines experimental APIs), add to compiler args: `-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi`. For your own library code, mark experimental APIs with `@RequiresOptIn(level = RequiresOptIn.Level.ERROR)` to force callers to explicitly acknowledge the instability. Never add a blanket `-opt-in=kotlin.RequiresOptIn` that suppresses all opt-in requirements without per-API review.
 
 ### Windows Build Environment
+
 Kotlin/Gradle builds on Windows have known friction points. **Handling:** Use WSL2 for development whenever possible -- Gradle's file system watching and incremental compilation work significantly better on Linux (EXT4) than Windows NTFS. If native Windows is required: set `GRADLE_USER_HOME` to a short path (e.g., `C:\gradle`) to avoid Windows MAX_PATH (260 characters) issues with deeply nested Gradle cache directories. Enable long path support via Group Policy or `git config core.longpaths true`. Configure antivirus exclusions for the Gradle cache and build directories -- real-time AV scanning of `.class` files during compilation is a major performance killer (can increase build times by 40-100%).
 
 ---
@@ -360,6 +372,7 @@ Kotlin/Gradle builds on Windows have known friction points. **Handling:** Use WS
 ## Kotlin Project Setup Plan
 
 ### Target Context
+
 - Platform: JVM
 - Runtime/Framework: Ktor 2.3.x (coroutines-native, no Spring)
 - Kotlin Version: 2.0.21
@@ -370,20 +383,21 @@ Kotlin/Gradle builds on Windows have known friction points. **Handling:** Use WS
 
 ### Decision Matrix
 
-| Concern | Choice | Rationale |
-|---|---|---|
-| Build system | Gradle 8.10 with Kotlin DSL | Type-safe config, Kotlin 2.0 support, KSP-ready |
-| Dependency versions | `libs.versions.toml` version catalog | Single source of truth, IDE completion |
-| Formatting | ktlint 1.3.x (official style) | Automated, pre-commit enforced |
-| Static analysis | detekt 1.23.x with type resolution | Complexity/coupling detection |
-| HTTP framework | Ktor 2.3.x | Lightweight, coroutines-native, minimal reflection |
-| Async | kotlinx.coroutines 1.8.1 | Structured concurrency, Ktor native |
-| Serialization | kotlinx.serialization JSON | Reflection-free, Ktor Content Negotiation |
-| Testing | JUnit 5 + MockK + Kotest + Ktor testApplication | Idiomatic Kotlin, suspend-function testing |
-| Java nullability | -Xjsr305=strict | Future-proofs any Java interop |
-| Containerization | Ktor `shadowJar` plugin + multi-stage Dockerfile | Minimal image, fat JAR for K8s |
+| Concern             | Choice                                           | Rationale                                          |
+| ------------------- | ------------------------------------------------ | -------------------------------------------------- |
+| Build system        | Gradle 8.10 with Kotlin DSL                      | Type-safe config, Kotlin 2.0 support, KSP-ready    |
+| Dependency versions | `libs.versions.toml` version catalog             | Single source of truth, IDE completion             |
+| Formatting          | ktlint 1.3.x (official style)                    | Automated, pre-commit enforced                     |
+| Static analysis     | detekt 1.23.x with type resolution               | Complexity/coupling detection                      |
+| HTTP framework      | Ktor 2.3.x                                       | Lightweight, coroutines-native, minimal reflection |
+| Async               | kotlinx.coroutines 1.8.1                         | Structured concurrency, Ktor native                |
+| Serialization       | kotlinx.serialization JSON                       | Reflection-free, Ktor Content Negotiation          |
+| Testing             | JUnit 5 + MockK + Kotest + Ktor testApplication  | Idiomatic Kotlin, suspend-function testing         |
+| Java nullability    | -Xjsr305=strict                                  | Future-proofs any Java interop                     |
+| Containerization    | Ktor `shadowJar` plugin + multi-stage Dockerfile | Minimal image, fat JAR for K8s                     |
 
 ### File Listing
+
 - `settings.gradle.kts` -- project name and plugin management
 - `build.gradle.kts` -- all build configuration
 - `gradle/libs.versions.toml` -- all version pinning
@@ -823,22 +837,26 @@ ENTRYPOINT ["java", \
 ### Next Steps
 
 1. **Initialize the Gradle wrapper:**
+
    ```bash
    gradle wrapper --gradle-version=8.10.2 --distribution-type=bin
    ```
 
 2. **Generate the detekt baseline config:**
+
    ```bash
    ./gradlew detektGenerateConfig
    # Then review and tune config/detekt/detekt.yml
    ```
 
 3. **Install the pre-commit hook for ktlint:**
+
    ```bash
    ./gradlew addKtlintCheckGitPreCommitHook
    ```
 
 4. **Verify the full quality gate passes before the first feature commit:**
+
    ```bash
    ./gradlew check
    ```

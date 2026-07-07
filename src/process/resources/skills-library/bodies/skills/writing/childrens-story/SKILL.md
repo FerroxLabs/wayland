@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing beginner-friendly"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'creative-writing writing beginner-friendly'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Children's Story
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write a children's story, kids' book, bedtime story, or picture book text for any age from infant through roughly age 12
 - The user wants to create a read-aloud story for a specific occasion -- bedtime, classroom, family gathering, or a birthday gift
 - The user wants to write a personalized story featuring a specific child's name, interests, or real-life situation
@@ -29,6 +31,7 @@ metadata:
 - The user wants a story with an embedded learning goal -- counting, letters, colors, emotional vocabulary -- and needs it embedded in narrative rather than drilled as a worksheet
 
 **Do NOT use this skill when:**
+
 - The user wants fiction for ages 13+ (use `short-story-writing` with YA parameters -- YA has distinct conventions around voice, interiority, and stakes)
 - The user wants educational content, lesson plans, or structured learning activities for children (use `lesson-plan-design` -- the distinction is narrative story vs. instructional sequence)
 - The user wants adult fiction that uses a childlike aesthetic, fairy-tale frame, or whimsical voice (use `short-story-writing` -- Alice in Wonderland for adults is not a children's book)
@@ -46,6 +49,7 @@ metadata:
 Children's literature is not a single genre. It is a family of distinct formats with different word counts, sentence structures, vocabulary ceilings, narrative complexity levels, and physical formats. Before writing a single word, establish the target.
 
 **Age-format matrix:**
+
 - **Board book (0-3 years):** 50-150 words total. One concept per spread. Repetition is the entire structure. No plot required -- rhythm, sensory language, and a reassuring resolution are enough. Sentences: 4-6 words. Vocabulary: the most common 500 English words.
 - **Picture book (3-7 years):** 300-1,000 words. The industry-standard sweet spot is 500-800 words. The text and illustrations are co-equal storytellers -- the text never describes what the illustration will show. Read-aloud performance is a primary consideration. Sentence variety is crucial: short punchy sentences for comic timing and drama, longer flowing sentences for warmth and description.
 - **Early reader / beginning chapter book (5-8 years):** 1,500-5,000 words. Short chapters of 200-500 words each. Simple sentence structure with controlled vocabulary, but the protagonist faces genuine emotional stakes. The child is reading independently for the first time and needs frequent wins -- short chapters, white space, illustrations every 3-5 pages.
@@ -53,6 +57,7 @@ Children's literature is not a single genre. It is a family of distinct formats 
 - **Middle grade (8-12 years):** 25,000-50,000 words for a full novel. If writing an opening chapter, target 2,000-4,000 words. Middle grade can handle complex themes -- identity, loyalty, loss, injustice -- but the protagonist must be active, not passive. First person and close third person are both standard. Unlike YA, the themes resolve with some degree of hope; total bleakness is a category violation.
 
 **Reading context questions to ask or infer:**
+
 - Will this be read aloud by an adult to a child, or read independently by the child? (Aloud: prioritize rhythm, performance, and illustration partnership. Independent: prioritize vocabulary accessibility and pacing control.)
 - Is this for a specific child? (Get the name, age, interests, and one concrete real-life detail to anchor the personalization.)
 - Is there a specific occasion? (Bedtime: settling energy, sensory comfort, calm resolution. First day of school: anxiety acknowledgment, brave agency, hopeful ending.)
@@ -65,6 +70,7 @@ The single most common failure in children's stories is a weak or absent structu
 
 **Picture book architecture (the four-spread rule):**
 A standard 32-page picture book has roughly 14 spreads of actual story content (accounting for front matter, title page, and end pages). The structure breaks down as:
+
 - Spreads 1-2: Establish the world, the protagonist, and the protagonist's normal (the "ordinary world")
 - Spread 3: Introduce the problem, want, or inciting disruption -- fast, within the first 150 words
 - Spreads 4-10: Complication, attempts, escalation -- typically three attempts or encounters (the "rule of three" is not arbitrary; it satisfies pattern recognition in young readers)
@@ -72,18 +78,21 @@ A standard 32-page picture book has roughly 14 spreads of actual story content (
 - Spreads 13-14: Resolution and a "new normal" that is different from the opening -- show what changed
 
 **Early reader chapter structure:**
+
 - Chapter 1: Protagonist, their world, their want, and the problem that disrupts it -- end the chapter on a micro-cliffhanger or unresolved question
 - Chapters 2-4: Attempts, failures, and complications -- each chapter has a mini-arc of its own
 - Chapter 5-6: Crisis point and the protagonist's key decision
 - Final chapter: Resolution, and a beat that shows the character has changed
 
 **Middle grade opening chapter goals:**
+
 - Establish voice in the first paragraph -- middle grade readers select books by reading the first page
 - Introduce the protagonist in action or dialogue, not in a mirror or waking up from a dream
 - Plant the central story question within the first 1,000 words
 - End the chapter with a disruption to the protagonist's status quo that makes the reader turn the page
 
 **Structural traps to avoid:**
+
 - Starting with weather, waking up, or a character describing themselves in a mirror (all three are so common they signal amateur writing)
 - Spending more than 20% of a picture book on setup before the problem appears
 - Resolving the conflict off-page (the protagonist must be present for and active in the resolution)
@@ -96,11 +105,13 @@ A standard 32-page picture book has roughly 14 spreads of actual story content (
 Children identify with protagonists, not plots. The protagonist is the engine of everything. Weak protagonists produce weak stories regardless of how clever the plot is.
 
 **The three-part protagonist test:**
+
 1. **Clear want:** The protagonist must want something specific and concrete. "Mia wants to find the lost puppy before dark" is a want. "Mia is a curious girl who loves animals" is a character description, not a want.
 2. **Clear obstacle:** Something or someone must stand between the protagonist and the want. The obstacle should be specific, not vague. "Her legs were too short to reach the fence latch" is more powerful than "it was hard."
 3. **Moment of choice:** The protagonist must make a decision that changes the trajectory of the story. The decision should cost something -- even small stories need the protagonist to risk something (embarrassment, failure, losing a friend's approval). Without cost, there is no stakes; without stakes, there is no story.
 
 **Age-appropriate agency:**
+
 - Ages 3-5: The protagonist solves problems with curiosity, kindness, or cleverness -- never with adult intervention alone
 - Ages 6-8: The protagonist can fail, feel bad about failing, and try again -- resilience as active choice, not passive recovery
 - Ages 9-12: The protagonist can make morally complex choices, face consequences, and grow -- the resolution need not be tidy, but it must be honest
@@ -115,6 +126,7 @@ Animal protagonists (bears, rabbits, dragons, foxes) are common in picture books
 Vocabulary calibration is one of the most technically demanding aspects of children's writing. The goal is not to write simply -- it is to write at the exact right level of complexity, which is more difficult than writing at any level above it.
 
 **Sentence structure by age:**
+
 - **Board book:** Subject-verb-object with minimal modification. "The dog jumps. The dog jumps high. The dog jumps over the moon." Repetition with one variable changed each time.
 - **Picture book:** Mix of very short (3-5 word) sentences for impact and longer (12-18 word) sentences for flow. Never two long sentences back-to-back in a picture book. Sentence variety IS the rhythm.
 - **Early reader:** Short paragraphs of 2-4 sentences. Sentence length averages 8-12 words. Dialogue is punctuated carefully because new readers are learning punctuation conventions from fiction.
@@ -124,12 +136,14 @@ Vocabulary calibration is one of the most technically demanding aspects of child
 One or two vocabulary words per spread (in a picture book) or per page (in a chapter book) can be above the expected reading level, provided the surrounding context makes the meaning clear. "The old tree was gnarled and knotted, its branches twisted like fingers reaching for the sky" teaches "gnarled" through context. Reaching words encountered in a rich narrative context are retained at far higher rates than words drilled in vocabulary lists.
 
 **Vocabulary to actively avoid by format:**
+
 - Board book: abstract concepts (freedom, justice, memory), negations ("not angry" -- say "calm"), conditional tenses ("if you had been there")
 - Picture book: latinate vocabulary without context, adult emotional vocabulary (grief, anxiety, melancholy), narrative distance language ("the protagonist felt")
 - Early reader: passive voice constructions, flashbacks without clear "then/now" anchors, interior monologue longer than two sentences without a scene anchor
 
 **Read-aloud optimization (picture books specifically):**
 Reading aloud is a performance. The text must support the performer -- the adult reading to the child. This means:
+
 - Vary sentence length to create natural breath patterns and dramatic pauses
 - Repeat key phrases across the book -- these become the moments children chant along, which is the deepest form of engagement
 - Use onomatopoeia deliberately -- "CRASH" and "shhhhh" and "kerplunk" are not childish; they are precisely calibrated sensory anchors
@@ -146,6 +160,7 @@ Children's literature fails at the theme level more reliably than at any other l
 If you can remove the final paragraph and the story still communicates its meaning, the theme is embedded correctly. If removing the final paragraph makes the story meaningless, the theme is being carried by the ending rather than the story.
 
 **How theme actually works in children's literature:**
+
 - Theme lives in the protagonist's journey -- what they want, what they risk, what they discover, and how they change
 - The theme is never stated; it is experienced
 - Multiple readers should be able to name the theme slightly differently and all be correct ("it's about courage" and "it's about trusting yourself" and "it's about trying again" can all be true of the same story)
@@ -155,6 +170,7 @@ If you can remove the final paragraph and the story still communicates its meani
 Children's literature handles these better than adult literature in one specific way: it stays close to the concrete, physical, sensory level of experience rather than the abstract emotional or philosophical level. A picture book about grief is not about grief -- it is about the specific smell of a grandmother's house and the particular way her chair looks empty now. The abstract emotion is accessed through the specific detail, never the other way around.
 
 Rules for difficult themes:
+
 - Never lie to children about hard realities -- false comfort ("the dog went to a farm") damages trust and confuses children
 - Name the difficult thing honestly but with appropriate emotional framing ("Grandpa died. That means we won't see him anymore, and that is very sad.")
 - Give the child protagonist something they can DO -- a concrete action, however small, that represents agency in the face of something uncontrollable
@@ -167,12 +183,14 @@ Rules for difficult themes:
 With architecture designed, protagonist built, and theme calibrated, write the draft. The following techniques separate strong children's writing from weak:
 
 **Picture book specific techniques:**
+
 - **The double-page spread as a unit:** Every spread should have one image worth illustrating. If you cannot name what the illustrator would draw on a given spread, the text may be too dense or too abstract.
 - **Page turn tension:** The text at the bottom of a right-hand page should create a micro-question that the turn of the page answers. This is the engine of picture book pacing and the reason children demand "one more page."
 - **Text placement and illustration whitespace:** Leave room in the text for the illustration to add information. If the text says "it was the biggest, messiest, most terrifying thing Jonah had ever seen," do not also describe it -- let the illustration describe it.
 - **Dialogue as revelation:** In picture books, dialogue should reveal character AND advance plot simultaneously. Every line of dialogue is working double duty.
 
 **Early reader / chapter book techniques:**
+
 - **Chapter-ending hooks:** End every chapter with an unanswered question, an unexpected arrival, or a revelation that reframes what came before. The hook does not need to be dramatic -- "But when Zoe turned around, the footprints were gone" is sufficient.
 - **White space as pacing:** Short paragraphs, double-spacing between dialogue exchanges, and single-line paragraphs for emphasis are tools of pacing in early reader formats, not signs of thin writing.
 - **Chapter titles:** Chapter titles in early readers and chapter books are part of the reading experience. They should be intriguing without being spoilers. "Chapter 3: The Worst Lunch of Zoe's Entire Life" is better than "Chapter 3: Problems at School."
@@ -181,6 +199,7 @@ With architecture designed, protagonist built, and theme calibrated, write the d
 Rhyming picture books are the most commercially requested format and the most technically demanding to execute well. The failure rate in submission piles at major publishers is overwhelmingly concentrated in forced or imperfect rhyme.
 
 Rules for rhyming picture books:
+
 - Perfect rhyme only -- near-rhyme (moon/soon is fine; moon/home is not) breaks the spell
 - Consistent meter throughout -- if you establish an anapestic tetrameter in stanza one, you must maintain it through the entire book
 - The story logic must drive the rhyme, never the reverse -- if the rhyme forces an unnatural word order or a word that doesn't fit the story, the solution is to rewrite the couplet, not to keep the awkward rhyme
@@ -336,11 +355,11 @@ Some users request a 200-word picture book or a 100-word bedtime story. At these
 
 ## Nimbus Can't Rain
 
-*Format: Picture book*
-*Target age: 4-7 years | Word count: ~520*
-*Theme: The thing that makes you different becomes the thing you're for*
-*Tone: Warm-funny, gently encouraging*
-*Read-aloud: Yes -- anapestic bounce with refrain*
+_Format: Picture book_
+_Target age: 4-7 years | Word count: ~520_
+_Theme: The thing that makes you different becomes the thing you're for_
+_Tone: Warm-funny, gently encouraging_
+_Read-aloud: Yes -- anapestic bounce with refrain_
 
 ---
 
@@ -371,11 +390,11 @@ The rain wouldn't come from his small fluffy chest.
 
 Just bubbles.
 
-*Tiny, shining, wobbling bubbles.*
+_Tiny, shining, wobbling bubbles._
 
 They drifted away on the warm morning air.
 Nimbus watched sadly.
-That wasn't rain. That wasn't even *close* to rain.
+That wasn't rain. That wasn't even _close_ to rain.
 That was BUBBLES.
 
 ---
@@ -401,7 +420,7 @@ He held his breath in.
 
 And then -- very quietly --
 out came a...
-*bubble.*
+_bubble._
 
 Then ten.
 
@@ -451,8 +470,8 @@ They reached up their arms toward the bright open blue.
 
 **[Spread 10]**
 
-And Nimbus thought: *Well.*
-*I've got bubbles to spare.*
+And Nimbus thought: _Well._
+_I've got bubbles to spare._
 He puffed up and breathed out
 his bubbles on air.
 
@@ -470,7 +489,7 @@ And the children went: "AHHHH."
 The biggest and shiniest floated most far.
 
 Nimbus watched all of it.
-*Nimbus made that.*
+_Nimbus made that._
 Not rain. Something better.
 (Well. Different from that.)
 
@@ -494,7 +513,7 @@ look high in the sky where the big clouds all rain.
 That small fluffy one?
 
 That's young Nimbus.
-*Again.*
+_Again._
 
 ---
 
@@ -510,13 +529,15 @@ don't mind.
 ### Story Notes
 
 **Read-aloud performance notes:**
+
 - The meter is predominantly anapestic tetrameter (da-da-DUM da-da-DUM da-da-DUM da-da-DUM) -- light and bouncy, naturally comic. Read it with a gentle swing, not a gallop.
-- Spreads 3 and 5 break the rhyme intentionally to land the comedy: "That wasn't rain. That wasn't even *close* to rain. That was BUBBLES." Read this with a flat, deadpan beat after the pause -- the comedy lives in the anti-climax.
+- Spreads 3 and 5 break the rhyme intentionally to land the comedy: "That wasn't rain. That wasn't even _close_ to rain. That was BUBBLES." Read this with a flat, deadpan beat after the pause -- the comedy lives in the anti-climax.
 - "TRY HARDER" and "TRY LOUDER" (spreads 4 and 12) are refrain echoes -- slightly different the second time, which invites children who remember spread 4 to notice the change. Invite children to shout those lines back.
 - The children in spreads 8-9 shouting "OHHH" and "AHHHH" and "MORE!" are natural participation moments -- pause and let the reading-along child fill them in.
 - The final spread is two lines with white space between them. Read it slowly. Let the quiet land.
 
 **Illustration opportunities:**
+
 - Spread 1: Nimbus visually smaller and fluffier than all surrounding clouds -- visual comedy in the scale contrast
 - Spread 3 (the bubble reveal): Close-up of Nimbus with a single wobbly bubble emerging, his expression somewhere between horrified and resigned. The bubble should be luminous -- this is the visual the whole book points back to.
 - Spread 5: The sequential attempt -- Nimbus's face going through rumbling exertion, ending in a tiny constellation of bubbles. Visual comedy in the contrast between effort and result.
@@ -528,6 +549,7 @@ don't mind.
 The theme -- the thing that makes you different becomes the thing you are for -- is never stated. It is demonstrated through the contrast between Nimbus trying to be a "normal" cloud (spreads 2-6, where he is small and sad) and Nimbus doing the thing he actually does (spreads 8-13, where he is purposeful and celebrated). The pivot is self-initiated: Nimbus chooses to release the bubbles after seeing the children, rather than being told to or helped by a mentor figure. His agency is complete. The other clouds' repeated "TRY HARDER" appears twice -- once as a source of shame, once as irrelevant background noise Nimbus has moved past. The reader feels this shift without being told about it.
 
 **Rhyme/meter notes:**
+
 - Base meter: anapestic tetrameter (two unstressed syllables followed by one stressed, four times per line): "high in the SKY where the WIND likes to PLAY"
 - Deliberate prose breaks at spreads 3, 5, and the final spread -- these are not errors; they are strategic drops out of meter to land emotional beats (the bubble reveal, the final comedy beat, and the quiet closing). The contrast between the bouncy rhyme and the flat prose makes the prose land harder.
 - All rhymes are perfect rhymes (play/sway, rain/again, roar/more, etc.). No near-rhymes used.

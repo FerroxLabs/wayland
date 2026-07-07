@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "branding design template"
-  category: "design-creative"
-  subcategory: "graphic-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'branding design template'
+  category: 'design-creative'
+  subcategory: 'graphic-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Logo Design Brief
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to create a logo brief, logo design specification, or logo creative brief for a designer, agency, or freelancer
 - The user wants to explore which logo type (wordmark, lettermark, symbol, combination, emblem, dynamic mark) is appropriate for their brand situation
 - The user needs to define clear visual direction options before commissioning logo design work -- they are pre-production, not mid-revision
@@ -29,6 +31,7 @@ metadata:
 - The user wants to define what their logo must NOT look like -- competitor differentiation, avoided associations, forbidden visual clichés for their industry
 
 **Do NOT use when:**
+
 - The user wants a full brand identity system including typography scale, photography style, tone of voice, and brand guidelines document -- use `brand-identity-brief`
 - The user wants to generate or select a specific color palette with hex values, tints, shades, and accessibility contrast ratios -- use `color-palette-design`
 - The user wants to design a set of interface icons, product icons, or system icons for a UI -- use `icon-design-guide`
@@ -445,29 +448,29 @@ The brief must specify: (1) the minimum embroidery size (typically cap logo at 8
 
 ### 1. Brand Context
 
-| Field                  | Details                                                                     |
-|------------------------|-----------------------------------------------------------------------------|
-| Brand name             | Meridian (no preferred short form identified; single word is a strength)    |
-| Industry / sector      | B2B financial data analytics -- SaaS                                        |
-| Competitive set        | Bloomberg, Refinitiv, Tableau, Domo, Sisense                                |
-| Brand stage            | Launch                                                                      |
-| Personality adjectives | Authoritative, precise, modern, trusted                                     |
+| Field                  | Details                                                                                                                                                            |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Brand name             | Meridian (no preferred short form identified; single word is a strength)                                                                                           |
+| Industry / sector      | B2B financial data analytics -- SaaS                                                                                                                               |
+| Competitive set        | Bloomberg, Refinitiv, Tableau, Domo, Sisense                                                                                                                       |
+| Brand stage            | Launch                                                                                                                                                             |
+| Personality adjectives | Authoritative, precise, modern, trusted                                                                                                                            |
 | Target audience        | CFOs and financial controllers at mid-market companies (100-2,000 employees), 38-55, analytically trained, skeptical of marketing excess, values signal over noise |
-| Emotional response     | Confidence -- "this tool has been built by people who understand my world"  |
-| Key message            | Financial data intelligence that is rigorous, fast, and genuinely actionable|
-| Hard constraints       | Must work at conference booth scale (2m+ banner); must include a responsive mark for web app use (favicon and 48px header) |
+| Emotional response     | Confidence -- "this tool has been built by people who understand my world"                                                                                         |
+| Key message            | Financial data intelligence that is rigorous, fast, and genuinely actionable                                                                                       |
+| Hard constraints       | Must work at conference booth scale (2m+ banner); must include a responsive mark for web app use (favicon and 48px header)                                         |
 
 ---
 
 ### 2. Competitive Visual Analysis
 
-| Competitor   | Logo Type         | Primary Color         | Shape Language         | Clichés to Avoid             |
-|--------------|-------------------|-----------------------|------------------------|------------------------------|
-| Bloomberg    | Wordmark          | Black and orange      | Rectangular, industrial| Orange + black combination   |
-| Refinitiv    | Combination       | Dark teal             | Abstract angular       | Dark teal with angular mark  |
-| Tableau      | Combination       | Blue and orange       | Cross/grid pattern     | 4-square or grid pattern     |
-| Domo         | Wordmark          | Black + lime green    | All-lowercase, minimal | Lime green, all-lowercase    |
-| Sisense       | Combination       | Blue + yellow         | Circular, fragment     | Circular fragment marks      |
+| Competitor | Logo Type   | Primary Color      | Shape Language          | Clichés to Avoid            |
+| ---------- | ----------- | ------------------ | ----------------------- | --------------------------- |
+| Bloomberg  | Wordmark    | Black and orange   | Rectangular, industrial | Orange + black combination  |
+| Refinitiv  | Combination | Dark teal          | Abstract angular        | Dark teal with angular mark |
+| Tableau    | Combination | Blue and orange    | Cross/grid pattern      | 4-square or grid pattern    |
+| Domo       | Wordmark    | Black + lime green | All-lowercase, minimal  | Lime green, all-lowercase   |
+| Sisense    | Combination | Blue + yellow      | Circular, fragment      | Circular fragment marks     |
 
 **Category visual conventions:** Combination marks or wordmarks dominate; blue (in the #0050AA range) is the overwhelmingly dominant primary color; abstract or geometric marks are preferred over pictorial; sans-serif wordmarks at medium weight are near-universal. Most competitors communicate competence through restraint -- they do not use playful geometry or personality-forward marks.
 
@@ -482,6 +485,7 @@ The brief must specify: (1) the minimum embroidery size (typically cap logo at 8
 **Alternative:** Wordmark only with a custom letterform modification -- if the chosen designer has strong typographic skills and the brand team prefers maximal simplicity, a precision-crafted wordmark with a modified letter (the "i" dot replaced with a data point glyph, or the "M" modified to embed a subtle angular direction indicator) can carry the brand without a separate symbol. This works particularly well for the web app context where the wordmark alone in the navigation bar is clean and uncluttered.
 
 **Responsive mark strategy:**
+
 - Full form: Symbol + "Meridian" wordmark (horizontal, website, decks, signage)
 - Compact form: Symbol alone (web app navigation bar at 40-48px, co-branding)
 - Mark only: Symbol simplified or "M" monogram (favicon, app icon, 24px contexts)
@@ -492,54 +496,54 @@ The brief must specify: (1) the minimum embroidery size (typically cap logo at 8
 
 #### Direction A: The Meridian Line
 
-| Parameter           | Specification                                                                                  |
-|---------------------|------------------------------------------------------------------------------------------------|
-| Concept             | A vertical line intersected by a precise horizontal arc -- a literal meridian (the geographic/astronomical line of maximum altitude), evoking precision measurement, north-south orientation, and the moment of "true position." |
-| Visual category     | Geometric abstract                                                                             |
-| Symbolic content    | The meridian as a precision measurement instrument -- calibrated, definitive, reliable. Secondary: the intersection point as the "signal" in financial noise. Moderately abstract -- recognizable as a coordinate or measurement mark to analytically trained audiences. |
-| Primary shapes      | 2 (vertical line + arc/partial circle)                                                         |
-| Complexity          | Simple (2 shapes, precise proportion is the craft)                                             |
-| Line treatment      | Outline only (stroke, no fill) -- precision is communicated through line, not mass             |
-| Stroke weight       | Regular to bold (2-3pt equivalent) -- thin enough to feel precise; thick enough to survive 16px favicon rendering |
-| Geometric character | Mixed -- the vertical line is hard angular; the arc is curved. This contrast communicates both structure (the line) and intelligence (the arc). |
-| Personality fit     | Authoritative (the precision of a measurement instrument); Precise (exact geometric construction with defined proportions); Modern (minimal, line-based, no decorative elements); Trusted (the measurement metaphor implies accuracy and reliability) |
-| Breakpoint behavior | At compact/mark-only: retain both elements -- they are already minimal. Favicon: render the intersection as a bold crosshair-style mark, removing the arc curve in favor of a simplified cross with a single distinctive angle indicator |
-| Strengths           | Directly embeds the brand name's meaning into the mark -- name and symbol reinforce each other. Scales excellently due to minimal line count. Feels precise and sophisticated without being cold. Differentiates strongly from circular and grid-based competitor marks. |
+| Parameter           | Specification                                                                                                                                                                                                                                                                          |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Concept             | A vertical line intersected by a precise horizontal arc -- a literal meridian (the geographic/astronomical line of maximum altitude), evoking precision measurement, north-south orientation, and the moment of "true position."                                                       |
+| Visual category     | Geometric abstract                                                                                                                                                                                                                                                                     |
+| Symbolic content    | The meridian as a precision measurement instrument -- calibrated, definitive, reliable. Secondary: the intersection point as the "signal" in financial noise. Moderately abstract -- recognizable as a coordinate or measurement mark to analytically trained audiences.               |
+| Primary shapes      | 2 (vertical line + arc/partial circle)                                                                                                                                                                                                                                                 |
+| Complexity          | Simple (2 shapes, precise proportion is the craft)                                                                                                                                                                                                                                     |
+| Line treatment      | Outline only (stroke, no fill) -- precision is communicated through line, not mass                                                                                                                                                                                                     |
+| Stroke weight       | Regular to bold (2-3pt equivalent) -- thin enough to feel precise; thick enough to survive 16px favicon rendering                                                                                                                                                                      |
+| Geometric character | Mixed -- the vertical line is hard angular; the arc is curved. This contrast communicates both structure (the line) and intelligence (the arc).                                                                                                                                        |
+| Personality fit     | Authoritative (the precision of a measurement instrument); Precise (exact geometric construction with defined proportions); Modern (minimal, line-based, no decorative elements); Trusted (the measurement metaphor implies accuracy and reliability)                                  |
+| Breakpoint behavior | At compact/mark-only: retain both elements -- they are already minimal. Favicon: render the intersection as a bold crosshair-style mark, removing the arc curve in favor of a simplified cross with a single distinctive angle indicator                                               |
+| Strengths           | Directly embeds the brand name's meaning into the mark -- name and symbol reinforce each other. Scales excellently due to minimal line count. Feels precise and sophisticated without being cold. Differentiates strongly from circular and grid-based competitor marks.               |
 | Risks               | Line-only marks can feel thin and fragile in embroidery or at very small sizes -- the stroke weight must be specified with minimum reproduction size in mind. The concept is somewhat literal, which limits future brand extension if Meridian expands beyond its current positioning. |
-| Differentiation     | No major competitor uses a line/arc construction in this space. The geometric precision signals analytical rigor without imitating the "data = colorful bars" visual language common in BI tools. |
+| Differentiation     | No major competitor uses a line/arc construction in this space. The geometric precision signals analytical rigor without imitating the "data = colorful bars" visual language common in BI tools.                                                                                      |
 
 ---
 
 #### Direction B: Ascending Data Point
 
-| Parameter           | Specification                                                                                  |
-|---------------------|------------------------------------------------------------------------------------------------|
-| Concept             | Three points arranged in a precise ascending diagonal -- the simplest possible representation of a positive trend line, abstracted to its minimum form. The rightmost (highest) point is differentiated -- slightly larger, or offset in the secondary color -- representing the "now" data point. |
-| Visual category     | Geometric abstract with data visualization reference                                           |
-| Symbolic content    | Financial data trend -- but abstracted far enough that it reads as a symbol of forward motion and precision rather than a literal chart element. The three-point structure also evokes a constellation, linking to the brand name's astronomical register. |
-| Primary shapes      | 3 (three circles or squares of defined size in a precise diagonal arrangement)                 |
-| Complexity          | Simple (3 shapes; proportional precision is the craft)                                         |
-| Line treatment      | Filled shapes (circles or squares), no stroke. Clean, bold, flat.                              |
-| Stroke weight       | No stroke -- this is a filled mark. Shape size and spacing define the visual weight.            |
-| Geometric character | Geometric -- either perfectly circular or perfectly square dots; the diagonal must be at precisely 30-45 degrees for visual balance |
-| Personality fit     | Precise (perfectly geometric dots at exact proportions); Modern (minimal, flat, systematic); Authoritative (simplicity reads as confidence); Trusted (upward trend = positive outcome for the user's financial data) |
-| Breakpoint behavior | Compact: use all three dots, they are already compact. Mark-only: the three dots reduce beautifully to a favicon -- they must fill the 16x16 square with legible spacing. Single-color: all three dots in black. |
-| Strengths           | Immediately communicates data and trend-analysis to a financially trained audience. Extremely versatile -- scales from 16px favicon to 2m banner without modification. Works in all color variants natively. App icon version is strong -- three dots on a dark brand-color background is a clear, distinctive mark. |
+| Parameter           | Specification                                                                                                                                                                                                                                                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Concept             | Three points arranged in a precise ascending diagonal -- the simplest possible representation of a positive trend line, abstracted to its minimum form. The rightmost (highest) point is differentiated -- slightly larger, or offset in the secondary color -- representing the "now" data point.                                                     |
+| Visual category     | Geometric abstract with data visualization reference                                                                                                                                                                                                                                                                                                   |
+| Symbolic content    | Financial data trend -- but abstracted far enough that it reads as a symbol of forward motion and precision rather than a literal chart element. The three-point structure also evokes a constellation, linking to the brand name's astronomical register.                                                                                             |
+| Primary shapes      | 3 (three circles or squares of defined size in a precise diagonal arrangement)                                                                                                                                                                                                                                                                         |
+| Complexity          | Simple (3 shapes; proportional precision is the craft)                                                                                                                                                                                                                                                                                                 |
+| Line treatment      | Filled shapes (circles or squares), no stroke. Clean, bold, flat.                                                                                                                                                                                                                                                                                      |
+| Stroke weight       | No stroke -- this is a filled mark. Shape size and spacing define the visual weight.                                                                                                                                                                                                                                                                   |
+| Geometric character | Geometric -- either perfectly circular or perfectly square dots; the diagonal must be at precisely 30-45 degrees for visual balance                                                                                                                                                                                                                    |
+| Personality fit     | Precise (perfectly geometric dots at exact proportions); Modern (minimal, flat, systematic); Authoritative (simplicity reads as confidence); Trusted (upward trend = positive outcome for the user's financial data)                                                                                                                                   |
+| Breakpoint behavior | Compact: use all three dots, they are already compact. Mark-only: the three dots reduce beautifully to a favicon -- they must fill the 16x16 square with legible spacing. Single-color: all three dots in black.                                                                                                                                       |
+| Strengths           | Immediately communicates data and trend-analysis to a financially trained audience. Extremely versatile -- scales from 16px favicon to 2m banner without modification. Works in all color variants natively. App icon version is strong -- three dots on a dark brand-color background is a clear, distinctive mark.                                   |
 | Risks               | Dot/data-point marks are used in some analytics tools -- must be differentiated through precise proportion, spacing, and color. The ascending trend is a positive visual metaphor, but explicitly tying the brand's mark to "up and to the right" means a down market context could create uncomfortable visual dissonance for finance-sector clients. |
-| Differentiation     | None of the identified competitors use a three-point ascending abstract mark. The primary color differentiation (deep navy/slate rather than the category-standard blue) will further separate this from any similar marks in adjacent spaces. |
+| Differentiation     | None of the identified competitors use a three-point ascending abstract mark. The primary color differentiation (deep navy/slate rather than the category-standard blue) will further separate this from any similar marks in adjacent spaces.                                                                                                         |
 
 ---
 
 #### Direction C: Precision Frame
 
-| Parameter           | Specification                                                                                  |
-|---------------------|------------------------------------------------------------------------------------------------|
+| Parameter           | Specification                                                                                                                                                                                                                                                                                                           |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Concept             | A partial square -- three sides of a square frame, open on the right side -- evoking a measuring instrument's corner bracket, a data table cell corner, or a targeting reticle. The open right side implies forward motion and incompleteness-as-invitation: the picture is not yet full because the data keeps coming. |
-| Visual category     | Geometric abstract with negative space                                                         |
-| Symbolic content    | Precision measurement, data containment (a frame holds data; a spreadsheet cell is a frame), and forward motion (the open right side). Less directly financial than Direction B, but more conceptually sophisticated. The missing fourth side rewards attention and creates a memorable "gap." |
-| Primary shapes      | 1 (three lines forming three sides of a square, constructed as a single continuous path or as three separate strokes -- the corner precision matters greatly) |
-| Complexity          | Simple (1-2 strokes/paths)                                                                     |
-| Line treatment      | Outline only (stroke), no fill. The mark is pure line -- the enclosed space is negative space.  |
-| Stroke weight       | Bold (3pt+ equivalent) -- the partial frame must have visual mass to read at small sizes. A thin-stroke frame disappears. |
-| Geometric character | Sharply angular -- 90-degree corners, precise horizontal and vertical lines. No curves.         |
-| Personality fit     | Precise (the 90-degree angle is the sharpest possible geometric statement); Authoritative (a frame implies containment, structure, control); Modern (negative space usage is a contemporary design approach); Trusted (structural geometry reads as stable and
+| Visual category     | Geometric abstract with negative space                                                                                                                                                                                                                                                                                  |
+| Symbolic content    | Precision measurement, data containment (a frame holds data; a spreadsheet cell is a frame), and forward motion (the open right side). Less directly financial than Direction B, but more conceptually sophisticated. The missing fourth side rewards attention and creates a memorable "gap."                          |
+| Primary shapes      | 1 (three lines forming three sides of a square, constructed as a single continuous path or as three separate strokes -- the corner precision matters greatly)                                                                                                                                                           |
+| Complexity          | Simple (1-2 strokes/paths)                                                                                                                                                                                                                                                                                              |
+| Line treatment      | Outline only (stroke), no fill. The mark is pure line -- the enclosed space is negative space.                                                                                                                                                                                                                          |
+| Stroke weight       | Bold (3pt+ equivalent) -- the partial frame must have visual mass to read at small sizes. A thin-stroke frame disappears.                                                                                                                                                                                               |
+| Geometric character | Sharply angular -- 90-degree corners, precise horizontal and vertical lines. No curves.                                                                                                                                                                                                                                 |
+| Personality fit     | Precise (the 90-degree angle is the sharpest possible geometric statement); Authoritative (a frame implies containment, structure, control); Modern (negative space usage is a contemporary design approach); Trusted (structural geometry reads as stable and                                                          |

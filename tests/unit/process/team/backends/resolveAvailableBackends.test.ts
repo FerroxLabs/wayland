@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  recommendBackend,
-  resolveAvailableBackends,
-} from '@process/team/backends/resolveAvailableBackends';
+import { recommendBackend, resolveAvailableBackends } from '@process/team/backends/resolveAvailableBackends';
 
 describe('resolveAvailableBackends', () => {
   it('includes detected CLIs plus wayland-core fallback', () => {

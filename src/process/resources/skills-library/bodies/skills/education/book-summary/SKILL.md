@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills note-taking research step-by-step"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills note-taking research step-by-step'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Book Summary
 
 ## When to Use
@@ -349,30 +350,35 @@ Kahneman argues that human judgment and decision-making are systematically biase
 
 **Idea 1: System 1 and System 2 are not equal partners -- System 1 drives most decisions and convinces us we were thinking deliberately**
 System 1 operates continuously and automatically, generating impressions, intuitions, and intentions without effort or conscious awareness. System 2 is capable of careful reasoning but is lazy -- it endorses System 1's outputs without review unless explicitly prompted to override them. The dangerous implication is not that we sometimes act on instinct, but that we then construct post-hoc rational justifications that feel to us like the actual cause of our decision.
+
 - **Author's evidence:** Kahneman describes experiments showing that people solving easy multiplication problems (2 × 2) show no pupil dilation; solving hard ones (17 × 24) produces measurable physiological effort -- demonstrating that cognitive load is real and costly, not a metaphor. He also cites decades of dual-process research across multiple laboratories.
 - **Evidence quality:** Strong -- this is the empirical foundation of dual-process theory with independent replication across research groups
 - **Source location:** Part I, Chapters 1-3
 
 **Idea 2: Cognitive biases are not random errors -- they are predictable, systematic misfirings of heuristics that usually work**
 Heuristics are mental shortcuts that produce correct answers most of the time at low cognitive cost. The availability heuristic (judging probability by how easily examples come to mind), the representativeness heuristic (judging category membership by resemblance to a prototype), and anchoring (adjusting from an initial value insufficiently) are not signs of stupidity -- they are efficient tools that create specific, exploitable blind spots.
+
 - **Author's evidence:** The Linda problem (a feminist bank teller is judged more probable than "bank teller" despite the logical impossibility) demonstrates representativeness overriding simple probability. Anchoring is demonstrated by showing that arbitrary numbers -- a randomly spun wheel's result -- shift subsequent numerical estimates by research subjects.
 - **Evidence quality:** Strong for the existence of the biases; Moderate for the magnitude of effects in real-world conditions
 - **Source location:** Part II, Chapters 11-14
 
 **Idea 3: We have two distinct "selves" -- the experiencing self and the remembering self -- and they measure welfare differently with incompatible metrics**
 The experiencing self lives moment to moment; the remembering self constructs a narrative retrospectively. The remembering self follows the peak-end rule: it evaluates an experience by averaging its most intense moment and its final moment, ignoring duration entirely. This means a longer painful experience with a gentle ending is remembered as less bad than a shorter painful experience ending at peak pain -- a result verified in colonoscopy patients and cold-water experiments.
+
 - **Author's evidence:** The cold-hand experiment: subjects kept their hand in painfully cold water for 60 seconds, then in slightly less cold water for an additional 30 seconds. The majority chose to repeat the longer trial. They preferred more total pain because the ending was less bad.
 - **Evidence quality:** Strong for the laboratory demonstration; the ecological validity to high-stakes life decisions is compelling but extrapolated
 - **Source location:** Part V, Chapters 35-38
 
 **Idea 4: Regression to the mean is the single most underappreciated statistical phenomenon in human judgment, and its misunderstanding produces entire management and training philosophies built on false causation**
 When performance is variable around a true mean, extreme performances -- high or low -- will be followed by more average performances simply by statistical necessity. When a flight instructor praises excellent landings and the next landing is average, the praise "didn't help." When they punish a terrible landing and the next is better, the punishment "worked." This creates a systematic illusion that punishment is more effective than reward -- an artifact of regression that has no causal mechanism.
+
 - **Author's evidence:** Israeli Air Force flight instructor anecdote, developed into a rigorous explanation of why the illusion is nearly universal in supervisory and coaching contexts
 - **Evidence quality:** Moderate -- the statistical argument is airtight; the generalization to all supervisory contexts is presented more confidently than the evidence supports
 - **Source location:** Chapter 17
 
 **Idea 5: Loss aversion is approximately twice as powerful as equivalent gain -- this asymmetry distorts every domain of negotiation, risk, and evaluation**
 Losses and gains of equal magnitude produce different levels of emotional response; losing $100 is felt roughly twice as intensely as gaining $100 is enjoyed. This asymmetry, combined with the endowment effect (we value things more once we own them) and status quo bias (we prefer whatever the default is), produces predictable irrationality in choices involving trade-offs.
+
 - **Author's evidence:** Prospect theory (developed with Amos Tversky, for which Kahneman received the Nobel Prize in Economics) is the formal model; multiple gambling experiments demonstrate the 2:1 loss-gain ratio
 - **Evidence quality:** Strong -- this is among the most replicated findings in behavioral economics
 - **Source location:** Part IV, Chapters 26-29
@@ -382,13 +388,13 @@ Losses and gains of equal magnitude produce different levels of emotional respon
 ### Notable Quotes
 
 1. "Nothing in life is as important as you think it is, while you are thinking about it." -- Kahneman (p. 402)
-   *Why this matters:* This is the focusing illusion -- the mechanism by which asking "How happy would you be if you lived in California?" produces systematically inflated answers because the question directs attention to California and away from the 99% of life that is the same everywhere. For survey design, this quote is a direct warning about question-order effects.
+   _Why this matters:_ This is the focusing illusion -- the mechanism by which asking "How happy would you be if you lived in California?" produces systematically inflated answers because the question directs attention to California and away from the 99% of life that is the same everywhere. For survey design, this quote is a direct warning about question-order effects.
 
 2. "A reliable way to make people believe in falsehoods is frequent repetition, because familiarity is not easily distinguished from truth." -- Kahneman (p. 62)
-   *Why this matters:* The cognitive ease heuristic is the mechanism here -- fluent, familiar stimuli are processed with less friction and that frictionlessness is misread as truth. This is one of the most practically significant findings in the book for any professional working with how people process information.
+   _Why this matters:_ The cognitive ease heuristic is the mechanism here -- fluent, familiar stimuli are processed with less friction and that frictionlessness is misread as truth. This is one of the most practically significant findings in the book for any professional working with how people process information.
 
 3. "The confidence that individuals have in their beliefs depends mostly on the quality of the story they can tell about what they see, even if they see little." -- Kahneman (p. 201)
-   *Why this matters:* WYSIATI -- What You See Is All There Is -- is Kahneman's label for System 1's tendency to build a coherent story from available evidence without registering the absence of evidence. This is the structural root of overconfidence and a direct challenge to how qualitative research findings get interpreted.
+   _Why this matters:_ WYSIATI -- What You See Is All There Is -- is Kahneman's label for System 1's tendency to build a coherent story from available evidence without registering the absence of evidence. This is the structural root of overconfidence and a direct challenge to how qualitative research findings get interpreted.
 
 ---
 
@@ -404,13 +410,13 @@ Losses and gains of equal magnitude produce different levels of emotional respon
 
 ### Intellectual Connections
 
-| Relationship | Book / Theory / Author | Explanation |
-|---|---|---|
-| Builds on | Prospect Theory -- Kahneman & Tversky (1979) | The book is the popular synthesis of this foundational academic work |
-| Agrees with / Expands | Nudge -- Thaler & Sunstein | Both books share the assumption that defaults and framing powerfully shape choice; Kahneman provides the cognitive mechanism Nudge takes as given |
-| Argues against (partially) | Sources of Power -- Gary Klein | Klein argues expert intuition is far more reliable than Kahneman's framework suggests; Kahneman acknowledges the tension and proposes a synthesis (SEEDS model) but the debate is unresolved |
-| Challenged by | Replication crisis in social psychology (post-2011) | Several experiments cited in the book -- particularly priming studies in Part I -- have failed to replicate at scale; readers should hold the priming chapter's claims more loosely than the core System 1/System 2 framework |
-| Strengthened by | The Undoing Project -- Michael Lewis | Lewis's narrative account of the Kahneman-Tversky collaboration provides biographical context that illuminates why the research program took the shape it did |
+| Relationship               | Book / Theory / Author                              | Explanation                                                                                                                                                                                                                   |
+| -------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Builds on                  | Prospect Theory -- Kahneman & Tversky (1979)        | The book is the popular synthesis of this foundational academic work                                                                                                                                                          |
+| Agrees with / Expands      | Nudge -- Thaler & Sunstein                          | Both books share the assumption that defaults and framing powerfully shape choice; Kahneman provides the cognitive mechanism Nudge takes as given                                                                             |
+| Argues against (partially) | Sources of Power -- Gary Klein                      | Klein argues expert intuition is far more reliable than Kahneman's framework suggests; Kahneman acknowledges the tension and proposes a synthesis (SEEDS model) but the debate is unresolved                                  |
+| Challenged by              | Replication crisis in social psychology (post-2011) | Several experiments cited in the book -- particularly priming studies in Part I -- have failed to replicate at scale; readers should hold the priming chapter's claims more loosely than the core System 1/System 2 framework |
+| Strengthened by            | The Undoing Project -- Michael Lewis                | Lewis's narrative account of the Kahneman-Tversky collaboration provides biographical context that illuminates why the research program took the shape it did                                                                 |
 
 **Reading order recommendation:** Foundational -- read this before Nudge, Predictably Irrational, or any applied behavioral economics text; they all assume this framework
 
@@ -422,15 +428,15 @@ Losses and gains of equal magnitude produce different levels of emotional respon
 
 1. **Availability heuristic → User interview design → Do not ask "Can you think of a time when...?" as the first question in a usability session**
    That framing activates System 1 retrieval and surfaces salient (recent, emotionally intense) memories rather than representative experiences. Instead, start with behavioral observation ("Show me how you'd do X") before asking for retrospective recall.
-   *Timeline:* Revise the opening question in the standard user interview guide before the next round of sessions (this week)
+   _Timeline:_ Revise the opening question in the standard user interview guide before the next round of sessions (this week)
 
 2. **Peak-end rule → Usability test debrief design → Engineer the final task and closing moment of every test session deliberately**
    Participants' recall of the session -- and thus their willingness to participate again, and the valence of their verbal feedback -- will be shaped disproportionately by how the session ended. End on a task the participant feels competent completing, not the most difficult task. This is not deception -- it is recognition of how memory works.
-   *Timeline:* Restructure the task order in the current study protocol before fieldwork begins next sprint
+   _Timeline:_ Restructure the task order in the current study protocol before fieldwork begins next sprint
 
 3. **WYSIATI (What You See Is All There Is) → Findings synthesis meetings → Institute a formal "what did we NOT observe?" checkpoint in every synthesis session**
    Synthesis meetings naturally converge on patterns in collected data and structurally ignore data not collected. Build in a 10-minute standing agenda item: "What would change our interpretation if we had collected it?" This operationalizes Kahneman's warning about coherent narratives built from insufficient evidence.
-   *Timeline:* Propose this as a standing agenda item at the next research team retrospective
+   _Timeline:_ Propose this as a standing agenda item at the next research team retrospective
 
 **Where I disagree:** Kahneman sometimes writes as though System 2 override is reliably available if we just slow down and try harder. In practice, cognitive depletion, time pressure, and organizational incentives make System 2 engagement genuinely unavailable in many professional contexts. The application of this book to organizational UX research practice must account for the fact that individual bias awareness has limited impact without structural changes to research processes.
 
@@ -457,12 +463,12 @@ Answer these without looking at the summary:
 
 ### Review Schedule (Spaced Repetition)
 
-| Review | Timing | Focus |
-|---|---|---|
-| Review 1 | 1 day after creating summary | Re-read full summary; confirm thesis recall |
-| Review 2 | 4 days after Review 1 | Cover Key Ideas -- recall from memory, then check; has Application Note 1 been implemented? |
-| Review 3 | 12 days after Review 2 | Cover Application Notes -- which have been implemented? What has been learned from the implementation? |
-| Review 4 | 30 days after Review 3 | Full pass -- update application notes based on actual experience in sessions |
+| Review   | Timing                       | Focus                                                                                                  |
+| -------- | ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Review 1 | 1 day after creating summary | Re-read full summary; confirm thesis recall                                                            |
+| Review 2 | 4 days after Review 1        | Cover Key Ideas -- recall from memory, then check; has Application Note 1 been implemented?            |
+| Review 3 | 12 days after Review 2       | Cover Application Notes -- which have been implemented? What has been learned from the implementation? |
+| Review 4 | 30 days after Review 3       | Full pass -- update application notes based on actual experience in sessions                           |
 
 ### Next Processing Steps
 

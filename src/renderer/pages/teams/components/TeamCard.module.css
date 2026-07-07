@@ -14,7 +14,11 @@
   border-radius: 12px;
   background: var(--color-bg-2);
   cursor: pointer;
-  transition: border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
   min-height: 104px;
   text-align: left;
   user-select: none;

@@ -154,14 +154,12 @@ export class WhisperLocal {
           binary = await runtime.acquireBinary();
         } catch {
           throw new WhisperLocalUnavailableError(
-            'STT_WHISPER_LOCAL_UNAVAILABLE: whisper.cpp binary could not be acquired',
+            'STT_WHISPER_LOCAL_UNAVAILABLE: whisper.cpp binary could not be acquired'
           );
         }
       }
       if (!binary) {
-        throw new WhisperLocalUnavailableError(
-          'STT_WHISPER_LOCAL_UNAVAILABLE: whisper.cpp binary is not installed',
-        );
+        throw new WhisperLocalUnavailableError('STT_WHISPER_LOCAL_UNAVAILABLE: whisper.cpp binary is not installed');
       }
     }
     const modelPath = runtime.resolveModel(model);

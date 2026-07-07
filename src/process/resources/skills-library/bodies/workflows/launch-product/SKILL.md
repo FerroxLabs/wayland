@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy marketing sales entrepreneurship planning step-by-step"
-  category: "business-operations"
-  depends: "market-research-brief prd-writing go-to-market-strategy product-launch-checklist sales-playbook-section marketing-analytics-report ab-test-design"
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy marketing sales entrepreneurship planning step-by-step'
+  category: 'business-operations'
+  depends: 'market-research-brief prd-writing go-to-market-strategy product-launch-checklist sales-playbook-section marketing-analytics-report ab-test-design'
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Launch a Product
@@ -207,6 +207,7 @@ When this workflow is complete, the user will have:
 ## Product Launch Plan: DesignFlow
 
 ### Market Research Summary
+
 - **Target Segment:** Remote design teams at companies with 10-100 employees, currently using generic PM tools (Asana, Monday) that lack design-specific workflows
 - **Market Size:** SAM of 45,000 design teams in the target company size range
 - **Competitive Position:** Niche alternative to generic PM tools; competes on design workflow specificity rather than feature breadth
@@ -214,6 +215,7 @@ When this workflow is complete, the user will have:
 - **Invalidated Assumptions:** Initial assumption that freelance designers are a target segment was invalidated -- freelancers prefer lightweight tools with no team overhead
 
 ### Product Definition
+
 - **Launch Scope:** Design review workflows, asset handoff tracking, team dashboard (3 must-have features from beta feedback)
 - **Success Metrics:**
   - 200 signups by week 2 post-launch
@@ -222,35 +224,40 @@ When this workflow is complete, the user will have:
 - **Launch Criteria:** All 3 core features stable, onboarding flow tested with 10 beta users, pricing page live
 
 ### Go-to-Market Strategy
+
 - **Positioning:** "Project management built for how design teams actually work"
 - **Primary Channel:** Design community content (Dribbble, Figma Community, design Slack groups) -- low cost, high intent audience
 - **Pricing:** $12/user/month (positioned below Asana Business at $25, above free tools)
 - **Launch Timeline:** Pre-launch weeks 1-4 (beta testimonials, waitlist, content) | Launch day week 5 | Post-launch weeks 6-8
 
 ### Launch Checklist Status
+
 - Pre-launch: 18/18 tasks complete (landing page, email sequences, 5 beta testimonials, 3 community posts scheduled)
 - Launch day: Scheduled for Monday 9 AM ET
 - Post-launch: 12 tasks queued (follow-up emails, design community AMAs, beta user referral program)
 
 ### Sales Enablement
+
 - **Elevator Pitch:** "DesignFlow is project management built for design teams -- design reviews, asset handoffs, and creative sprints in one tool, at half the price of generic PM software."
 - **Top Objections Addressed:** 5 (switching cost, Figma integration, team size limits, data migration, pricing vs free alternatives)
 - **Competitive Comparisons:** 3 competitors covered (Asana, Monday, Linear)
 
 ### Analytics Report (Week 2)
+
 - **Overall:** On track -- signups ahead of target, activation below target
 - **Key Metrics vs Target:**
-  | Metric                    | Target | Actual | Status |
+  | Metric | Target | Actual | Status |
   |---------------------------|--------|--------|--------|
-  | Signups (week 2)          | 200    | 247    | Met    |
-  | Activated teams (week 2)  | 25     | 18     | Behind |
-  | Design community referrals| 50     | 72     | Met    |
+  | Signups (week 2) | 200 | 247 | Met |
+  | Activated teams (week 2) | 25 | 18 | Behind |
+  | Design community referrals| 50 | 72 | Met |
 - **Best Channel:** Figma Community post (4.2% signup conversion rate)
 - **Worst Channel:** Twitter/X ads (0.3% conversion -- paused spend)
 
 ### Post-Launch Experiments
-| Priority | Experiment                    | Hypothesis                                         | Impact | Status  |
-|----------|------------------------------|-----------------------------------------------------|--------|---------|
-| 1        | Onboarding flow simplification| Reducing setup steps from 7 to 4 increases activation by 30% | High   | Running |
-| 2        | Community-led demo sessions   | Live demos convert 3x better than self-serve trial  | High   | Planned |
-| 3        | Annual pricing option         | Offering 20% annual discount increases trial-to-paid by 5pp | Medium | Planned |
+
+| Priority | Experiment                     | Hypothesis                                                   | Impact | Status  |
+| -------- | ------------------------------ | ------------------------------------------------------------ | ------ | ------- |
+| 1        | Onboarding flow simplification | Reducing setup steps from 7 to 4 increases activation by 30% | High   | Running |
+| 2        | Community-led demo sessions    | Live demos convert 3x better than self-serve trial           | High   | Planned |
+| 3        | Annual pricing option          | Offering 20% annual discount increases trial-to-paid by 5pp  | Medium | Planned |

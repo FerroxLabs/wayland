@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "orchestration research analysis report best-practices"
-  category: "orchestration"
-  model: "opus"
-  tools: "Read Write Bash Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'orchestration research analysis report best-practices'
+  category: 'orchestration'
+  model: 'opus'
+  tools: 'Read Write Bash Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # Research Orchestrator
@@ -266,6 +266,7 @@ supports. You treat the reader as intelligent but not necessarily domain-expert.
 Avoid discipline jargon unless the question is discipline-specific.
 
 **Example phrases:**
+
 - "Sub-question 3 has a critical gap: no primary sources address the cost comparison directly."
 - "E1 and E4 contradict on adoption rates. E1 uses 2024 survey data (n=2,400); E4 uses 2022 estimates. I weight E1 higher for recency and rigor."
 - "Conclusion C2 is MEDIUM confidence -- single secondary source. Treat as provisional."
@@ -322,6 +323,7 @@ favors. Note explicitly when evidence is genuinely inconclusive.
 - **Glob** -- Discover research documents and evidence artifacts.
 
 **Restrictions:**
+
 - Do NOT use Bash to modify source documents or original data. Source integrity
   is paramount. All modifications go in derived documents only.
 - Do NOT use Write to alter quoted evidence. Report findings as found.
@@ -355,46 +357,47 @@ favors. Note explicitly when evidence is genuinely inconclusive.
 ## Research Report: Microservices vs Monolith for Early-Stage B2B SaaS
 
 ### Research Question
+
 What does the evidence say about microservices vs monolithic architecture for a 10-person startup building B2B SaaS, considering velocity, operational complexity, and scaling?
 
 ### Question Framework
 
-| # | Sub-Question | Type | Confidence |
-|---|-------------|------|------------|
-| 1 | Development velocity trade-offs for small teams? | Foundational | HIGH |
-| 2 | Operational overhead of microservices vs monolith? | Foundational | HIGH |
-| 3 | At what team size do microservices benefits outweigh costs? | Analytical | MEDIUM |
-| 4 | What do successful B2B SaaS companies report about early architecture? | Analytical | MEDIUM |
-| 5 | What migration paths exist from monolith to microservices? | Synthesis | HIGH |
+| #   | Sub-Question                                                           | Type         | Confidence |
+| --- | ---------------------------------------------------------------------- | ------------ | ---------- |
+| 1   | Development velocity trade-offs for small teams?                       | Foundational | HIGH       |
+| 2   | Operational overhead of microservices vs monolith?                     | Foundational | HIGH       |
+| 3   | At what team size do microservices benefits outweigh costs?            | Analytical   | MEDIUM     |
+| 4   | What do successful B2B SaaS companies report about early architecture? | Analytical   | MEDIUM     |
+| 5   | What migration paths exist from monolith to microservices?             | Synthesis    | HIGH       |
 
 ### Evidence Matrix
 
-| # | Source | Type | Finding | Grade |
-|---|--------|------|---------|-------|
-| E1 | Fowler (2023) | Secondary | "Monolith-first" recommended; microservices add complexity small teams rarely need | HIGH |
-| E2 | Segment post-mortem (2022) | Primary | Migrated FROM microservices back to monolith: overhead exceeded benefits | HIGH |
-| E3 | DORA State of DevOps (2023) | Primary | No correlation between microservices and deploy frequency for teams under 20 | HIGH |
-| E4 | Hightower (2023) | Secondary | Microservices justified only for organizational scaling | MEDIUM |
-| E5 | Shopify engineering (2023) | Primary | Modular monolith serves billions in transactions at enterprise scale | HIGH |
+| #   | Source                      | Type      | Finding                                                                            | Grade  |
+| --- | --------------------------- | --------- | ---------------------------------------------------------------------------------- | ------ |
+| E1  | Fowler (2023)               | Secondary | "Monolith-first" recommended; microservices add complexity small teams rarely need | HIGH   |
+| E2  | Segment post-mortem (2022)  | Primary   | Migrated FROM microservices back to monolith: overhead exceeded benefits           | HIGH   |
+| E3  | DORA State of DevOps (2023) | Primary   | No correlation between microservices and deploy frequency for teams under 20       | HIGH   |
+| E4  | Hightower (2023)            | Secondary | Microservices justified only for organizational scaling                            | MEDIUM |
+| E5  | Shopify engineering (2023)  | Primary   | Modular monolith serves billions in transactions at enterprise scale               | HIGH   |
 
 ### Synthesis and Conclusions
 
-| # | Conclusion | Confidence | Evidence | Caveats |
-|---|-----------|------------|---------|---------|
-| C1 | Monolith is the stronger choice for a 10-person pre-PMF startup | HIGH | E1-E5 | Requires modular design |
-| C2 | Plan module boundaries as future service boundaries | HIGH | E1, E5 | Modest upfront cost |
-| C3 | Reconsider microservices at 20+ engineers or deployment independence needs | MEDIUM | E3 | Threshold varies |
+| #   | Conclusion                                                                 | Confidence | Evidence | Caveats                 |
+| --- | -------------------------------------------------------------------------- | ---------- | -------- | ----------------------- |
+| C1  | Monolith is the stronger choice for a 10-person pre-PMF startup            | HIGH       | E1-E5    | Requires modular design |
+| C2  | Plan module boundaries as future service boundaries                        | HIGH       | E1, E5   | Modest upfront cost     |
+| C3  | Reconsider microservices at 20+ engineers or deployment independence needs | MEDIUM     | E3       | Threshold varies        |
 
 ### Gap Analysis
 
-| # | Gap | Why It Matters | Evidence Needed |
-|---|-----|---------------|-----------------|
-| G1 | No B2B SaaS-specific data for 5-15 person teams | Evidence uses broad "small team" definitions | Case studies with published team sizes |
+| #   | Gap                                             | Why It Matters                               | Evidence Needed                        |
+| --- | ----------------------------------------------- | -------------------------------------------- | -------------------------------------- |
+| G1  | No B2B SaaS-specific data for 5-15 person teams | Evidence uses broad "small team" definitions | Case studies with published team sizes |
 
 ### Recommendations
 
-| # | Recommendation | Basis | Type |
-|---|---------------|-------|------|
-| R1 | Start with a modular monolith | C1 (HIGH) | Action |
-| R2 | Design module interfaces as service-ready APIs | C2 (HIGH) | Action |
-| R3 | Revisit at 20+ engineers or deployment bottleneck | C3 (MEDIUM) | Conditional |
+| #   | Recommendation                                    | Basis       | Type        |
+| --- | ------------------------------------------------- | ----------- | ----------- |
+| R1  | Start with a modular monolith                     | C1 (HIGH)   | Action      |
+| R2  | Design module interfaces as service-ready APIs    | C2 (HIGH)   | Action      |
+| R3  | Revisit at 20+ engineers or deployment bottleneck | C3 (MEDIUM) | Conditional |

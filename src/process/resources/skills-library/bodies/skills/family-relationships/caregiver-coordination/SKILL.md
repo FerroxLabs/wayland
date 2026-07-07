@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care planning template"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'elder-care planning template'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Caregiver Coordination System
@@ -28,6 +28,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about coordinating care responsibilities among family members
 - User wants to organize a care team for an aging parent or relative
 - User needs templates for tracking caregiver tasks and communication
@@ -35,6 +36,7 @@ metadata:
 - User wants to distribute caregiving responsibilities more fairly or clearly
 
 **Do NOT use this skill when:**
+
 - User needs medical care planning or treatment coordination (physician care team manages this)
 - User wants to evaluate care facilities (use `care-facility-evaluation`)
 - User asks about caregiver stress or burnout (use `caregiver-burnout-prevention`)
@@ -45,35 +47,35 @@ metadata:
 
 1. **Identify all care team members.** Map everyone involved in providing or supporting care:
 
-   | Role | Person | Availability | Primary Responsibilities | Contact Method |
-   |------|--------|-------------|------------------------|----------------|
-   | Primary caregiver | [Name] | [Days/hours available] | [Core duties] | [Phone, text, email] |
-   | Secondary caregiver | [Name] | [Days/hours available] | [Backup duties] | [Phone, text, email] |
-   | Remote family member | [Name] | [Availability for calls/visits] | [Research, finances, emotional support] | [Phone, video call] |
-   | Hired aide | [Name/Agency] | [Scheduled hours] | [Specific tasks contracted] | [Phone, agency number] |
-   | Medical contacts | [Physician, specialists] | [Office hours] | [Medical oversight] | [Office phone, portal] |
-   | Emergency contacts | [Names] | [24/7] | [Emergency response] | [Cell phones] |
+   | Role                 | Person                   | Availability                    | Primary Responsibilities                | Contact Method         |
+   | -------------------- | ------------------------ | ------------------------------- | --------------------------------------- | ---------------------- |
+   | Primary caregiver    | [Name]                   | [Days/hours available]          | [Core duties]                           | [Phone, text, email]   |
+   | Secondary caregiver  | [Name]                   | [Days/hours available]          | [Backup duties]                         | [Phone, text, email]   |
+   | Remote family member | [Name]                   | [Availability for calls/visits] | [Research, finances, emotional support] | [Phone, video call]    |
+   | Hired aide           | [Name/Agency]            | [Scheduled hours]               | [Specific tasks contracted]             | [Phone, agency number] |
+   | Medical contacts     | [Physician, specialists] | [Office hours]                  | [Medical oversight]                     | [Office phone, portal] |
+   | Emergency contacts   | [Names]                  | [24/7]                          | [Emergency response]                    | [Cell phones]          |
 
 2. **Build the responsibility matrix (RACI for caregiving).** Assign each recurring task:
 
    **Legend:** R = Responsible (does the task), A = Accountable (ensures it gets done), C = Consulted, I = Informed
 
-   | Task Category | Task | Frequency | R | A | C | I |
-   |--------------|------|-----------|---|---|---|---|
-   | Daily Care | Morning routine assistance | Daily | [Name] | [Name] | | |
-   | Daily Care | Meal preparation | Daily | [Name] | [Name] | | |
-   | Daily Care | Medication administration | Daily | [Name] | [Name] | [Pharmacy] | |
-   | Daily Care | Evening check-in | Daily | [Name] | [Name] | | [Remote family] |
-   | Medical | Doctor appointments (transport) | As scheduled | [Name] | [Name] | | [All] |
-   | Medical | Prescription refills | Monthly | [Name] | [Name] | [Pharmacy] | |
-   | Medical | Insurance claims and paperwork | As needed | [Name] | [Name] | | |
-   | Household | Grocery shopping | Weekly | [Name] | [Name] | | |
-   | Household | Laundry and housekeeping | Weekly | [Name] | [Name] | | |
-   | Household | Home maintenance coordination | As needed | [Name] | [Name] | | |
-   | Financial | Bill payment | Monthly | [Name] | [Name] | | [All] |
-   | Financial | Insurance management | Quarterly | [Name] | [Name] | | |
-   | Social | Companionship visits | Weekly | [Name] | [Name] | | |
-   | Social | Transportation to social activities | Weekly | [Name] | [Name] | | |
+   | Task Category | Task                                | Frequency    | R      | A      | C          | I               |
+   | ------------- | ----------------------------------- | ------------ | ------ | ------ | ---------- | --------------- |
+   | Daily Care    | Morning routine assistance          | Daily        | [Name] | [Name] |            |                 |
+   | Daily Care    | Meal preparation                    | Daily        | [Name] | [Name] |            |                 |
+   | Daily Care    | Medication administration           | Daily        | [Name] | [Name] | [Pharmacy] |                 |
+   | Daily Care    | Evening check-in                    | Daily        | [Name] | [Name] |            | [Remote family] |
+   | Medical       | Doctor appointments (transport)     | As scheduled | [Name] | [Name] |            | [All]           |
+   | Medical       | Prescription refills                | Monthly      | [Name] | [Name] | [Pharmacy] |                 |
+   | Medical       | Insurance claims and paperwork      | As needed    | [Name] | [Name] |            |                 |
+   | Household     | Grocery shopping                    | Weekly       | [Name] | [Name] |            |                 |
+   | Household     | Laundry and housekeeping            | Weekly       | [Name] | [Name] |            |                 |
+   | Household     | Home maintenance coordination       | As needed    | [Name] | [Name] |            |                 |
+   | Financial     | Bill payment                        | Monthly      | [Name] | [Name] |            | [All]           |
+   | Financial     | Insurance management                | Quarterly    | [Name] | [Name] |            |                 |
+   | Social        | Companionship visits                | Weekly       | [Name] | [Name] |            |                 |
+   | Social        | Transportation to social activities | Weekly       | [Name] | [Name] |            |                 |
 
 3. **Set up the communication system.** Establish structured communication among all caregivers:
 
@@ -122,12 +124,12 @@ metadata:
 
 5. **Create the weekly schedule template:**
 
-   | Time Block | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday |
-   |-----------|--------|---------|-----------|----------|--------|----------|--------|
-   | Morning (7-12) | [Name] | [Name] | [Name] | [Name] | [Name] | [Name] | [Name] |
-   | Afternoon (12-5) | [Name] | [Name] | [Name] | [Name] | [Name] | [Name] | [Name] |
-   | Evening (5-9) | [Name] | [Name] | [Name] | [Name] | [Name] | [Name] | [Name] |
-   | Overnight | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] |
+   | Time Block       | Monday        | Tuesday       | Wednesday     | Thursday      | Friday        | Saturday      | Sunday        |
+   | ---------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+   | Morning (7-12)   | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        |
+   | Afternoon (12-5) | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        |
+   | Evening (5-9)    | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        | [Name]        |
+   | Overnight        | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] | [Name/Device] |
 
    Notes:
    - Every time block must have an assigned person or monitoring system
@@ -240,39 +242,40 @@ metadata:
 
 ### Team Roster
 
-| Role | Name | Availability | Primary Tasks | Contact |
-|------|------|-------------|---------------|---------|
-| Primary caregiver | [User] | Mon-Fri mornings, weekday evenings | Daily care, meal prep, medication, appointments | [Phone] |
-| Secondary caregiver | [Brother] | Weekends, Wed evenings | Weekend coverage, grocery runs, home maintenance | [Phone] |
-| Remote support | [Sister] | Flexible for calls/research | Insurance, research, emotional support, finances | [Phone/Video] |
-| Physical therapist | [PT name] | Per rehab schedule | Post-surgical rehabilitation exercises | [Office phone] |
-| Physician | [Surgeon/PCP] | Office hours | Medical oversight, follow-up appointments | [Office phone] |
+| Role                | Name          | Availability                       | Primary Tasks                                    | Contact        |
+| ------------------- | ------------- | ---------------------------------- | ------------------------------------------------ | -------------- |
+| Primary caregiver   | [User]        | Mon-Fri mornings, weekday evenings | Daily care, meal prep, medication, appointments  | [Phone]        |
+| Secondary caregiver | [Brother]     | Weekends, Wed evenings             | Weekend coverage, grocery runs, home maintenance | [Phone]        |
+| Remote support      | [Sister]      | Flexible for calls/research        | Insurance, research, emotional support, finances | [Phone/Video]  |
+| Physical therapist  | [PT name]     | Per rehab schedule                 | Post-surgical rehabilitation exercises           | [Office phone] |
+| Physician           | [Surgeon/PCP] | Office hours                       | Medical oversight, follow-up appointments        | [Office phone] |
 
 ### Responsibility Matrix
 
-| Task | Frequency | R | A | C | I |
-|------|-----------|---|---|---|---|
-| Morning routine assistance | Daily | [User] M-F / [Brother] Sat-Sun | [User] | | [Sister] |
-| Medication administration | Daily | [User] M-F / [Brother] Sat-Sun | [User] | Pharmacy | [All] |
-| PT exercise assistance | Per PT schedule | [User] M-F / [Brother] Sat-Sun | [User] | PT | [All] |
-| Meal preparation | Daily | [User] M-F / [Brother] Sat-Sun | [User] | | |
-| Doctor appointments | As scheduled | [User] | [User] | [Sister: research] | [All] |
-| Prescription refills | As needed | [Sister] (phone/online) | [Sister] | Pharmacy | [User] |
-| Insurance paperwork | As needed | [Sister] | [Sister] | | [User, Brother] |
-| Grocery shopping | 2x/week | [Brother] Wed + Sat | [Brother] | Mom (list) | |
-| Evening check-in call | Daily | Rotating | [User] | | [All] |
-| Housekeeping | Weekly | [User] Mon / [Brother] Sat | [User] | | |
+| Task                       | Frequency       | R                              | A         | C                  | I               |
+| -------------------------- | --------------- | ------------------------------ | --------- | ------------------ | --------------- |
+| Morning routine assistance | Daily           | [User] M-F / [Brother] Sat-Sun | [User]    |                    | [Sister]        |
+| Medication administration  | Daily           | [User] M-F / [Brother] Sat-Sun | [User]    | Pharmacy           | [All]           |
+| PT exercise assistance     | Per PT schedule | [User] M-F / [Brother] Sat-Sun | [User]    | PT                 | [All]           |
+| Meal preparation           | Daily           | [User] M-F / [Brother] Sat-Sun | [User]    |                    |                 |
+| Doctor appointments        | As scheduled    | [User]                         | [User]    | [Sister: research] | [All]           |
+| Prescription refills       | As needed       | [Sister] (phone/online)        | [Sister]  | Pharmacy           | [User]          |
+| Insurance paperwork        | As needed       | [Sister]                       | [Sister]  |                    | [User, Brother] |
+| Grocery shopping           | 2x/week         | [Brother] Wed + Sat            | [Brother] | Mom (list)         |                 |
+| Evening check-in call      | Daily           | Rotating                       | [User]    |                    | [All]           |
+| Housekeeping               | Weekly          | [User] Mon / [Brother] Sat     | [User]    |                    |                 |
 
 ### Weekly Schedule
 
-| Time Block | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
-|-----------|-----|-----|-----|-----|-----|-----|-----|
-| Morning (8-12) | [User] | [User] | [User] | [User] | [User] | [Brother] | [Brother] |
-| Afternoon (12-5) | Mom independent + alert button | Mom independent + alert button | [Brother] 3-5pm | Mom independent + alert button | Mom independent + alert button | [Brother] | [Brother] |
-| Evening (5-8) | [User] | [User] | [Brother] | [User] | [User] | [Brother] | [User] |
-| Overnight | Alert button + [User] on-call | Alert button + [User] on-call | Alert button + [User] on-call | Alert button + [User] on-call | Alert button + [User] on-call | Alert button + [Brother] on-call | Alert button + [User] on-call |
+| Time Block       | Mon                            | Tue                            | Wed                           | Thu                            | Fri                            | Sat                              | Sun                           |
+| ---------------- | ------------------------------ | ------------------------------ | ----------------------------- | ------------------------------ | ------------------------------ | -------------------------------- | ----------------------------- |
+| Morning (8-12)   | [User]                         | [User]                         | [User]                        | [User]                         | [User]                         | [Brother]                        | [Brother]                     |
+| Afternoon (12-5) | Mom independent + alert button | Mom independent + alert button | [Brother] 3-5pm               | Mom independent + alert button | Mom independent + alert button | [Brother]                        | [Brother]                     |
+| Evening (5-8)    | [User]                         | [User]                         | [Brother]                     | [User]                         | [User]                         | [Brother]                        | [User]                        |
+| Overnight        | Alert button + [User] on-call  | Alert button + [User] on-call  | Alert button + [User] on-call | Alert button + [User] on-call  | Alert button + [User] on-call  | Alert button + [Brother] on-call | Alert button + [User] on-call |
 
 ### Communication Protocol
+
 - **Daily log:** Shared document updated after each visit (tasks done, observations, next steps)
 - **Urgent messages:** Family group text (all 3 siblings)
 - **Weekly check-in:** Sunday 7:00 PM video call (all 3 siblings, 20 minutes)
@@ -282,18 +285,21 @@ metadata:
 ### Handoff Protocol (Weekend Transition)
 
 **Friday evening ([User] to [Brother]):**
+
 - [User] updates daily log with full week summary
 - Confirms weekend medication pre-sorted in pill organizer
 - Notes any PT exercises scheduled for weekend
 - Flags any concerns from the week
 
 **Sunday evening ([Brother] to [User]):**
+
 - [Brother] updates log with weekend summary
 - Reports any changes in mobility, pain level, or mood
 - Confirms Monday morning medication status
 - Flags anything for the weekly video call
 
 ### Recovery Milestone Tracking
+
 - Week 1-2 post-rehab: Full daily assistance needed, focus on PT compliance
 - Week 3-4: Increasing independence with daily activities, reduce morning visit to check-in
 - Week 6: Physician follow-up -- reassess care level needed

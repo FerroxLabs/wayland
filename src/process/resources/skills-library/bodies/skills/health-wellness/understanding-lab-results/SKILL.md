@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition teaching guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'nutrition teaching guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Understanding Lab Results
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health or any changes to your care. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to understand the structure, columns, and format of a lab report they have received (test name, result, reference range, flag, units) and does not know how to read it
 - Asks what a named panel measures in general terms -- "What is a CBC?", "What does a CMP test for?", "What is on a lipid panel?", "What is an A1C?"
 - Is preparing for upcoming blood work and wants to know what to expect from the draw process, fasting requirements, or what the ordered tests generally evaluate
@@ -32,6 +34,7 @@ metadata:
 - Asks about the difference between a Basic Metabolic Panel and a Comprehensive Metabolic Panel, or between TSH and a full thyroid panel
 
 **Do NOT use this skill when:**
+
 - The user asks whether their specific numerical result is high, low, normal, or concerning for their situation -- redirect to the provider and offer the questions framework instead (see Edge Cases)
 - The user asks what a specific out-of-range value might indicate as a diagnosis -- this crosses into clinical interpretation; use the "redirect without abandoning" pattern in Edge Cases
 - The user asks what treatment, medication, or diet change they should make based on a lab result -- defer entirely to the provider
@@ -89,6 +92,7 @@ The CBC examines the three major cell lineages produced by bone marrow. It is on
 **Basic Metabolic Panel (BMP) -- 8 tests:**
 
 The BMP evaluates the chemistry of the blood fluid. It is the "quick chemistry" panel and includes:
+
 - **Glucose:** Blood sugar at the moment of draw. Fasting glucose (drawn after 8+ hours without caloric intake) and non-fasting glucose have different reference ranges. The report should note fasting status if documented. Typical fasting reference range at most US labs: 70-99 mg/dL. Non-fasting interpretation is more variable.
 - **BUN (Blood Urea Nitrogen):** Nitrogen-containing waste product from protein metabolism, filtered by the kidneys. Typical range: 7-25 mg/dL. Elevated results can reflect many things, which is the provider's job to contextualize.
 - **Creatinine:** Waste product from creatine phosphate breakdown in muscle. Stable production rate makes it a reliable kidney filtration marker. Typical ranges differ by sex and muscle mass. Labs report eGFR (estimated glomerular filtration rate) calculated from creatinine.
@@ -101,6 +105,7 @@ The BMP evaluates the chemistry of the blood fluid. It is the "quick chemistry" 
 **Comprehensive Metabolic Panel (CMP) -- 14 tests:**
 
 The CMP includes all 8 BMP tests plus 6 additional tests focused on the liver and protein status:
+
 - **ALT (Alanine Aminotransferase):** Enzyme concentrated in liver cells. Elevated levels in blood generally indicate liver cell disturbance. Typical range: roughly 7-56 U/L (varies significantly by lab and reference population).
 - **AST (Aspartate Aminotransferase):** Enzyme found in liver, heart muscle, and skeletal muscle. Less liver-specific than ALT. Typical range: roughly 10-40 U/L.
 - **ALP (Alkaline Phosphatase):** Enzyme found in liver, bone, kidneys, and intestinal tissue. Typical range: 44-147 U/L. Reference ranges vary significantly with age and bone growth.
@@ -139,6 +144,7 @@ Ordered to assess fats and cholesterol circulating in the blood. Standard fastin
 **Urinalysis (UA) -- when relevant:**
 
 Though not a blood panel, UA appears on many annual physical lab orders:
+
 - **Dipstick components:** pH, specific gravity, protein, glucose, ketones, blood, leukocyte esterase, nitrites, bilirubin, urobilinogen.
 - **Microscopic components (if ordered):** Red blood cell casts, white blood cell casts, bacteria, squamous cells.
 - Results are reported as negative/trace/1+/2+/3+ for dipstick, and as number per high-power field (HPF) for microscopic.
@@ -160,12 +166,14 @@ This is one of the most important conceptual points for users. Many users assume
 Tailor the questions list to the specific panels the user has. Generic questions are less useful than questions tied to the tests the user actually has in front of them. Structure the list in three tiers:
 
 **Tier 1 -- Universal questions for any lab result conversation:**
+
 - "Are any results outside what you would expect given my specific health history and medications?"
 - "Are there results you would like to monitor over time? Should I come back for repeat testing?"
 - "How do these results compare to my previous labs -- are there trends I should be aware of?"
 - "Are any values in a range that would change your recommendations for me?"
 
 **Tier 2 -- Panel-specific questions:**
+
 - For CBC: "If my WBC differential was included, were all five cell types within expected proportions?"
 - For CMP/BMP: "Was my glucose drawn fasting, and does that affect how you read it?"
 - For lipid panel: "Was I properly fasting before this draw? Does it affect any of these values?"
@@ -173,6 +181,7 @@ Tailor the questions list to the specific panels the user has. Generic questions
 - For A1C: "Is there anything about my red cell health or any condition I have that might affect A1C accuracy?"
 
 **Tier 3 -- Follow-up logistics questions:**
+
 - "Should I make a follow-up appointment to discuss these, or is a phone message or portal message sufficient?"
 - "Are there any results where I should call sooner rather than waiting for my scheduled appointment?"
 - "Are there preparation instructions for my next set of labs I should know about?"
@@ -351,6 +360,7 @@ The user says things like "I am scared," "I cannot stop worrying," or "I have be
 ### 5. User Is Preparing for First-Time Lab Work and Has Never Had Blood Drawn
 
 **Handling:** Explain the practical process in reassuring detail:
+
 - A phlebotomist or lab technician performs the draw, typically from a vein in the antecubital fossa (the inside of the elbow) or the back of the hand.
 - The draw itself takes 1-5 minutes depending on the number of tubes needed.
 - Different colored tops on collection tubes indicate different additives: lavender (EDTA, for CBC), gold or red-speckled (serum separator, for chemistry panels), light blue (citrate, for coagulation tests).
@@ -361,6 +371,7 @@ The user says things like "I am scared," "I cannot stop worrying," or "I have be
 ### 6. User Asks About a Test Not Covered in the Standard Panels (e.g., CRP, ferritin, vitamin D, PSA, CBC with specific sub-panel)
 
 **Handling:** Provide the same level of general "what it measures" education for the requested test, using the same physiological domain language. Examples of common non-panel additions:
+
 - **CRP (C-Reactive Protein) / hsCRP (high-sensitivity CRP):** An acute-phase protein produced by the liver in response to inflammatory signaling. hsCRP uses a more sensitive assay and is measured in mg/L (versus standard CRP in mg/dL). It is a non-specific marker -- inflammation from many causes elevates it.
 - **Ferritin:** A protein that stores iron inside cells; the amount circulating in serum reflects total body iron stores. Measured in ng/mL. Note that ferritin is also an acute-phase reactant and can be elevated by inflammation independent of iron status.
 - **25-OH Vitamin D:** The storage form of vitamin D measured in serum. Reported in ng/mL (US) or nmol/L (international). The 2024 Endocrine Society guidelines define sufficiency as ≥20 ng/mL for the general population; optimal for specific populations is debated among professional societies. Present these as "ranges discussed in the literature" rather than targets.
@@ -375,11 +386,12 @@ The user says things like "I am scared," "I cannot stop worrying," or "I have be
 A user mentions they have sickle cell trait, chronic kidney disease, pregnancy, or have recently had a blood transfusion, and they want to understand their results.
 
 **Handling:** Acknowledge that certain conditions fundamentally affect how some lab tests behave or are interpreted. Examples to explain in educational terms:
+
 - Pregnancy alters reference ranges for many analytes (hemoglobin, alkaline phosphatase, TSH, albumin, sodium) -- trimester-specific reference ranges exist and should be on the report.
 - Recent blood transfusion means the CBC does not reflect the patient's own blood cell production.
 - Chronic kidney disease affects creatinine and eGFR baseline interpretation.
 - Sickle cell trait (not disease) and other hemoglobin variants can affect A1C accuracy (falsely low with some assays, falsely high with others) -- this is one reason providers sometimes use fructosamine instead of A1C in these cases.
-Do not interpret their specific values. Instead, use this context to build a more precise questions list for the provider: "Given that you have [condition], it would be especially useful to ask your provider whether the standard reference ranges on this report apply to your situation, or whether they use adjusted targets for you specifically."
+  Do not interpret their specific values. Instead, use this context to build a more precise questions list for the provider: "Given that you have [condition], it would be especially useful to ask your provider whether the standard reference ranges on this report apply to your situation, or whether they use adjusted targets for you specifically."
 
 ---
 
@@ -401,13 +413,13 @@ Do not interpret their specific values. Instead, use this context to build a mor
 
 ### How to Read the Columns on Your Report
 
-| Column           | What It Contains                                    | Key Point to Know                                              |
-|------------------|-----------------------------------------------------|----------------------------------------------------------------|
-| Test Name        | The specific analyte measured                       | May be abbreviated (e.g., "Hgb" for hemoglobin, "TG" for triglycerides) |
-| Result           | Your measured value from this blood draw            | The only number specific to you                                |
-| Reference Range  | The interval for this lab's general population      | Set by the lab's instruments and reference group; varies between labs |
-| Flag (H or L)    | H = above this lab's reference range; L = below     | Does not automatically mean a problem -- see the statistics note below |
-| Units            | Measurement unit for this analyte                   | US labs use mg/dL for cholesterol and glucose; some countries use mmol/L |
+| Column          | What It Contains                                | Key Point to Know                                                        |
+| --------------- | ----------------------------------------------- | ------------------------------------------------------------------------ |
+| Test Name       | The specific analyte measured                   | May be abbreviated (e.g., "Hgb" for hemoglobin, "TG" for triglycerides)  |
+| Result          | Your measured value from this blood draw        | The only number specific to you                                          |
+| Reference Range | The interval for this lab's general population  | Set by the lab's instruments and reference group; varies between labs    |
+| Flag (H or L)   | H = above this lab's reference range; L = below | Does not automatically mean a problem -- see the statistics note below   |
+| Units           | Measurement unit for this analyte               | US labs use mg/dL for cholesterol and glucose; some countries use mmol/L |
 
 ---
 
@@ -423,13 +435,13 @@ An H or L flag means "this result is outside the population reference range for 
 
 You fasted overnight before this draw, which is the correct preparation. Fasting for 9-12 hours is the standard for lipid panels because food intake -- especially fat -- significantly elevates triglycerides for 4-8 hours after eating.
 
-| Test Name              | What It Generally Measures                                         | Typical Units | Notes on the Measurement                           |
-|------------------------|--------------------------------------------------------------------|---------------|-----------------------------------------------------|
-| Total Cholesterol      | Total cholesterol carried across all lipoprotein particles combined | mg/dL         | Evaluated alongside the distribution, not in isolation |
-| LDL Cholesterol        | Cholesterol carried in low-density lipoprotein particles           | mg/dL         | Usually a calculated value (Friedewald equation), not directly measured |
-| HDL Cholesterol        | Cholesterol carried in high-density lipoprotein particles          | mg/dL         | Directly measured; reference ranges are often sex-specific |
-| Triglycerides          | Fats (triglycerides) circulating in the blood                      | mg/dL         | Most sensitive to fasting status -- your overnight fast was correct |
-| Non-HDL Cholesterol    | Total cholesterol minus HDL; captures all lipoprotein particles    | mg/dL         | A calculated value; increasingly included on modern reports |
+| Test Name           | What It Generally Measures                                          | Typical Units | Notes on the Measurement                                                |
+| ------------------- | ------------------------------------------------------------------- | ------------- | ----------------------------------------------------------------------- |
+| Total Cholesterol   | Total cholesterol carried across all lipoprotein particles combined | mg/dL         | Evaluated alongside the distribution, not in isolation                  |
+| LDL Cholesterol     | Cholesterol carried in low-density lipoprotein particles            | mg/dL         | Usually a calculated value (Friedewald equation), not directly measured |
+| HDL Cholesterol     | Cholesterol carried in high-density lipoprotein particles           | mg/dL         | Directly measured; reference ranges are often sex-specific              |
+| Triglycerides       | Fats (triglycerides) circulating in the blood                       | mg/dL         | Most sensitive to fasting status -- your overnight fast was correct     |
+| Non-HDL Cholesterol | Total cholesterol minus HDL; captures all lipoprotein particles     | mg/dL         | A calculated value; increasingly included on modern reports             |
 
 **How LDL is usually calculated on your report:** LDL = Total Cholesterol - HDL - (Triglycerides ÷ 5). This equation is called the Friedewald equation. It becomes less accurate when triglycerides are above 400 mg/dL, at which point some labs use direct LDL measurement. Your report should note which method was used.
 
@@ -437,10 +449,10 @@ You fasted overnight before this draw, which is the correct preparation. Fasting
 
 ### HbA1c -- What It Generally Measures
 
-| Test Name         | What It Generally Measures                                        | Typical Units | Notes on the Measurement                                        |
-|-------------------|-------------------------------------------------------------------|---------------|-----------------------------------------------------------------|
-| HbA1c (A1C)       | Percentage of hemoglobin molecules that have glucose attached     | %             | Does not require fasting; reflects average blood glucose over the preceding 2-3 months |
-| eAG               | Estimated average glucose, calculated from A1C                    | mg/dL         | A calculated conversion, not a separate direct measurement     |
+| Test Name   | What It Generally Measures                                    | Typical Units | Notes on the Measurement                                                               |
+| ----------- | ------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------------------- |
+| HbA1c (A1C) | Percentage of hemoglobin molecules that have glucose attached | %             | Does not require fasting; reflects average blood glucose over the preceding 2-3 months |
+| eAG         | Estimated average glucose, calculated from A1C                | mg/dL         | A calculated conversion, not a separate direct measurement                             |
 
 Because A1C reflects a 2-3 month average, a single high-sugar meal does not affect it. However, certain conditions can affect A1C accuracy: iron deficiency anemia can cause falsely elevated A1C in some assays; hemolytic anemia (where red cells are destroyed faster than usual) can cause falsely low A1C because there are fewer old cells with accumulated glucose. If either condition is relevant to you, that is worth raising with your provider.
 
@@ -452,42 +464,42 @@ The CBC examines the three types of cells your bone marrow produces and releases
 
 **Red Blood Cell Measurements:**
 
-| Test Name                            | What It Generally Measures                                      | Typical Units | Notes                                      |
-|--------------------------------------|-----------------------------------------------------------------|---------------|--------------------------------------------|
-| RBC (Red Blood Cell Count)           | Number of red blood cells per unit of blood                     | x10^6/uL      | Usually expressed as millions per microliter |
-| Hemoglobin (Hgb)                     | Amount of oxygen-carrying protein in red blood cells            | g/dL          | Reference ranges are sex-specific           |
-| Hematocrit (Hct)                     | Percentage of blood volume occupied by red blood cells          | %             | Roughly 3× the hemoglobin value in g/dL     |
-| MCV (Mean Corpuscular Volume)        | Average size of individual red blood cells                      | fL            | Helps characterize the type of anemia if present |
-| MCH (Mean Corpuscular Hemoglobin)    | Average amount of hemoglobin per red blood cell                 | pg            | Generally tracks with MCV direction         |
-| MCHC (Mean Corpuscular Hemoglobin Concentration) | Concentration of hemoglobin within red cells      | g/dL          | Low MCHC indicates pale or small cells      |
-| RDW (Red Cell Distribution Width)   | Variability in red blood cell size                              | %             | High RDW means uneven cell sizes            |
+| Test Name                                        | What It Generally Measures                             | Typical Units | Notes                                            |
+| ------------------------------------------------ | ------------------------------------------------------ | ------------- | ------------------------------------------------ |
+| RBC (Red Blood Cell Count)                       | Number of red blood cells per unit of blood            | x10^6/uL      | Usually expressed as millions per microliter     |
+| Hemoglobin (Hgb)                                 | Amount of oxygen-carrying protein in red blood cells   | g/dL          | Reference ranges are sex-specific                |
+| Hematocrit (Hct)                                 | Percentage of blood volume occupied by red blood cells | %             | Roughly 3× the hemoglobin value in g/dL          |
+| MCV (Mean Corpuscular Volume)                    | Average size of individual red blood cells             | fL            | Helps characterize the type of anemia if present |
+| MCH (Mean Corpuscular Hemoglobin)                | Average amount of hemoglobin per red blood cell        | pg            | Generally tracks with MCV direction              |
+| MCHC (Mean Corpuscular Hemoglobin Concentration) | Concentration of hemoglobin within red cells           | g/dL          | Low MCHC indicates pale or small cells           |
+| RDW (Red Cell Distribution Width)                | Variability in red blood cell size                     | %             | High RDW means uneven cell sizes                 |
 
 **White Blood Cell Measurements:**
 
-| Test Name                        | What It Generally Measures                                          | Typical Units | Notes                                               |
-|----------------------------------|---------------------------------------------------------------------|---------------|-----------------------------------------------------|
-| WBC (White Blood Cell Count)     | Total count of all immune cells in the blood                        | K/uL          | A broad picture of immune cell production           |
-| Neutrophils (# and %)            | The most abundant WBC type; first responders in the immune system   | K/uL and %    | Part of the differential breakdown                 |
-| Lymphocytes (# and %)            | Coordinate immune responses; include T cells and B cells            | K/uL and %    | Part of the differential breakdown                 |
-| Monocytes (# and %)              | Clean up cellular debris; transition to tissue macrophages          | K/uL and %    | Part of the differential breakdown                 |
-| Eosinophils (# and %)            | Involved in allergic and parasitic immune responses                 | K/uL and %    | Part of the differential breakdown                 |
-| Basophils (# and %)              | Rare; involved in inflammatory signaling                            | K/uL and %    | Part of the differential breakdown                 |
+| Test Name                    | What It Generally Measures                                        | Typical Units | Notes                                     |
+| ---------------------------- | ----------------------------------------------------------------- | ------------- | ----------------------------------------- |
+| WBC (White Blood Cell Count) | Total count of all immune cells in the blood                      | K/uL          | A broad picture of immune cell production |
+| Neutrophils (# and %)        | The most abundant WBC type; first responders in the immune system | K/uL and %    | Part of the differential breakdown        |
+| Lymphocytes (# and %)        | Coordinate immune responses; include T cells and B cells          | K/uL and %    | Part of the differential breakdown        |
+| Monocytes (# and %)          | Clean up cellular debris; transition to tissue macrophages        | K/uL and %    | Part of the differential breakdown        |
+| Eosinophils (# and %)        | Involved in allergic and parasitic immune responses               | K/uL and %    | Part of the differential breakdown        |
+| Basophils (# and %)          | Rare; involved in inflammatory signaling                          | K/uL and %    | Part of the differential breakdown        |
 
 **Platelet Measurements:**
 
-| Test Name                   | What It Generally Measures                                  | Typical Units | Notes                                   |
-|-----------------------------|-------------------------------------------------------------|---------------|-----------------------------------------|
-| PLT (Platelet Count)        | Number of clotting platelets per unit of blood              | K/uL          | Typical range: 150-400 K/uL at most labs |
-| MPV (Mean Platelet Volume)  | Average size of platelets                                   | fL            | Not always included; size relates to platelet activity |
+| Test Name                  | What It Generally Measures                     | Typical Units | Notes                                                  |
+| -------------------------- | ---------------------------------------------- | ------------- | ------------------------------------------------------ |
+| PLT (Platelet Count)       | Number of clotting platelets per unit of blood | K/uL          | Typical range: 150-400 K/uL at most labs               |
+| MPV (Mean Platelet Volume) | Average size of platelets                      | fL            | Not always included; size relates to platelet activity |
 
 ---
 
 ### Factors That May Affect These Specific Results
 
-| Factor                          | Which of Your Tests Are Affected                  | What to Tell Your Provider                                          |
-|---------------------------------|---------------------------------------------------|---------------------------------------------------------------------|
-| Fasting status (you fasted ✓)   | Triglycerides, glucose (if glucose was included)  | Confirm fasting duration to your provider; overnight fast is correct |
-| Exercise in the last 24-48 hrs  | WBC, AST (if included), hemoglobin                | Mention any intense exercise before the draw                        |
-| Biotin supplements              | Not applicable to CBC or lipid panel; affects thyroid tests if you have those | If you take biotin at any dose, mention it to your provider         |
-| Dehydration                     | Hematocrit, hemoglobin, BUN (if CMP was added)    | Mention hydration level before the draw                             |
-| Difficult blood draw            | Potassium (falsely elevated); LDH                 | Lab will note hemolyzed specimens; potassium may need recheck       |
+| Factor                         | Which of Your Tests Are Affected                                              | What to Tell Your Provider                                           |
+| ------------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Fasting status (you fasted ✓)  | Triglycerides, glucose (if glucose was included)                              | Confirm fasting duration to your provider; overnight fast is correct |
+| Exercise in the last 24-48 hrs | WBC, AST (if included), hemoglobin                                            | Mention any intense exercise before the draw                         |
+| Biotin supplements             | Not applicable to CBC or lipid panel; affects thyroid tests if you have those | If you take biotin at any dose, mention it to your provider          |
+| Dehydration                    | Hematocrit, hemoglobin, BUN (if CMP was added)                                | Mention hydration level before the draw                              |
+| Difficult blood draw           | Potassium (falsely elevated); LDH                                             | Lab will note hemolyzed specimens; potassium may need recheck        |

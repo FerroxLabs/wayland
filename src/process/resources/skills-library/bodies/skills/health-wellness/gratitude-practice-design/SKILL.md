@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness self-care journaling emotional-health"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'mental-wellness self-care journaling emotional-health'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Gratitude Practice Design
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health or mental wellbeing. If you are experiencing a mental health crisis, contact a licensed mental health professional or crisis line immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to start or improve a gratitude practice, gratitude journal, or appreciation habit
 - The user asks for gratitude prompts, templates, or exercises they can do on their own
 - The user wants to build psychological resilience or a more positive attentional orientation through a self-directed practice
@@ -32,6 +34,7 @@ metadata:
 - The user is recovering from a rough period and wants to rebuild positive awareness -- without pretending problems do not exist
 
 **Do NOT use when:**
+
 - The user describes symptoms consistent with clinical depression (persistent low mood, anhedonia, sleep disruption, worthlessness), even if they frame it as "I just need to be more grateful" -- redirect with compassion to professional support
 - The user is in acute distress, crisis, grief overwhelm, or panic -- gratitude practice is contraindicated during crisis; use `crisis-support-referral` skill instead
 - The user wants a broader mental health journaling practice that includes processing difficult emotions, self-compassion work, or cognitive restructuring -- use `journaling-mental-health` skill
@@ -59,6 +62,7 @@ Ask all of the following before recommending any format. Do not skip this step -
 Use the decision framework below. Match the user's constraints to the optimal format. Recommend a primary format and one lightweight secondary format.
 
 **Three-Item Gratitude Journal (3IGJ)**
+
 - Time: 3-7 minutes
 - Medium: Writing (physical or digital)
 - Best for: Beginners; anyone who has not tried journaling before; people with 5-minute windows; evening practitioners
@@ -67,6 +71,7 @@ Use the decision framework below. Match the user's constraints to the optimal fo
 - Key risk: Becomes formulaic after 2-3 weeks without novelty injection
 
 **Gratitude Letter (Sent or Unsent)**
+
 - Time: 15-30 minutes
 - Medium: Writing
 - Best for: People motivated by relationships; weekly or biweekly practice; people in a rut with item-based lists; people who want to use gratitude to deepen a specific relationship
@@ -75,6 +80,7 @@ Use the decision framework below. Match the user's constraints to the optimal fo
 - Key risk: Can feel emotionally exposing; some users resist the relational focus
 
 **Appreciation Inventory**
+
 - Time: 10-20 minutes
 - Medium: Writing
 - Best for: People who want periodic deep-dive reflection; biweekly or monthly practice; anyone whose daily practice has stalled
@@ -83,6 +89,7 @@ Use the decision framework below. Match the user's constraints to the optimal fo
 - Key risk: Feels like homework if done too frequently -- best used as a monthly or quarterly reset, not daily
 
 **Gratitude Walk**
+
 - Time: 10-20 minutes
 - Medium: Experiential/movement-based
 - Best for: People who dislike writing; people who already have a daily walk; kinesthetic learners; people who feel "stuck in their head"
@@ -91,6 +98,7 @@ Use the decision framework below. Match the user's constraints to the optimal fo
 - Key risk: Difficult to practice in bad weather or for users with mobility limitations -- build a seated indoor variant
 
 **Savoring Practice (Micro-Gratitude)**
+
 - Time: 60-90 seconds, multiple times per day
 - Medium: Experiential (no writing required, though a brief log is useful)
 - Best for: People with no dedicated practice time; people who want to integrate gratitude into existing moments rather than add a session; people who find journaling artificial; anyone using it as a secondary practice
@@ -99,6 +107,7 @@ Use the decision framework below. Match the user's constraints to the optimal fo
 - Key risk: Easy to forget entirely without a cue -- anchor it to an existing daily trigger (first sip of coffee, stepping outside, ending a call)
 
 **Three-Good-Things with Causal Analysis (3GT+CA)**
+
 - Time: 8-12 minutes
 - Medium: Writing
 - Best for: Intermediate users who have done basic gratitude journaling; users whose goal is countering a negativity bias or rumination pattern; users who want more psychological depth
@@ -361,6 +370,7 @@ Give the user permission to treat off-days as genuine recovery, not as failures.
 ### User Wants a Family Gratitude Practice (Children or Household)
 
 Design a table-round format rather than individual journaling. Structure:
+
 - At dinner, one person asks the round: "What is one specific good thing that happened today?"
 - Each person answers in 1-2 sentences. No item-naming without a brief "because" explanation even with children -- model the "because" yourself
 - The facilitator (a parent or partner) does NOT judge, compare, or redirect answers
@@ -414,15 +424,15 @@ Design accordingly: the Three-Item Gratitude Journal or Three-Good-Things format
 
 ### Practice Overview
 
-| Field | Your Practice |
-|-------|--------------|
-| Goal | Start the day feeling grounded rather than immediately anxious |
-| Primary Format | Three-Good-Things with Causal Analysis (3GT+CA) |
-| Secondary Format | Savoring Practice (no writing, embedded in existing activities) |
-| Frequency | 4-5 days per week |
-| Time Per Session | 7-8 minutes |
-| Time Anchor | Morning coffee, before checking phone or email |
-| Location | Wherever you drink your morning coffee -- same spot each time |
+| Field                  | Your Practice                                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| Goal                   | Start the day feeling grounded rather than immediately anxious                                    |
+| Primary Format         | Three-Good-Things with Causal Analysis (3GT+CA)                                                   |
+| Secondary Format       | Savoring Practice (no writing, embedded in existing activities)                                   |
+| Frequency              | 4-5 days per week                                                                                 |
+| Time Per Session       | 7-8 minutes                                                                                       |
+| Time Anchor            | Morning coffee, before checking phone or email                                                    |
+| Location               | Wherever you drink your morning coffee -- same spot each time                                     |
 | Minimum Viable Version | 60-second mental recall of one specific good thing from yesterday, done before getting out of bed |
 
 ---
@@ -431,7 +441,7 @@ Design accordingly: the Three-Item Gratitude Journal or Three-Good-Things format
 
 You have already identified the exact problem: generic entries. "Grateful for family, health, job" is not a practice failure -- it is a format design failure. That structure does not prevent generic answers, so generic answers are what it produces.
 
-This plan uses a different format (Three-Good-Things with Causal Analysis) that structurally prevents generic entries by requiring you to answer *why* something happened and *what you could do* to make it happen again. You are a good writer -- this format will reward that. It asks more of you than a list, but it is also the format most likely to actually feel like something.
+This plan uses a different format (Three-Good-Things with Causal Analysis) that structurally prevents generic entries by requiring you to answer _why_ something happened and _what you could do_ to make it happen again. You are a good writer -- this format will reward that. It asks more of you than a list, but it is also the format most likely to actually feel like something.
 
 The plan also includes a Specificity Escalation Rule that kicks in at week 3, and an explicit transition plan for week 4, specifically because week 2-3 is the highest-risk period for the experience you have had twice before.
 
@@ -549,36 +559,36 @@ No writing required. No app. No streak to maintain. This is a 60-second noticing
 Use these when your default 3GT entries start feeling automatic.
 **Trigger rule:** If you find yourself writing the same person, place, or theme three times in two weeks, use a prompt from this library for your next session.
 
-| # | Prompt | Category | Notes |
-|---|--------|----------|-------|
-| 1 | Who is someone who helped you in the past week -- not dramatically, but in a small practical way -- and what specifically did they do? | Person | Name them by name. Name the moment. |
-| 2 | What is one thing you completed, finished, or resolved this week that had been waiting? What did it feel like to close it? | Experience | Works especially well when you feel unproductive |
-| 3 | Name a physical space you spent time in yesterday. What about it made it tolerable or pleasant? | Place | Challenge: avoid your home unless you can name something specific you rarely notice |
-| 4 | What is one skill you used this week that you did not have five years ago -- not a career skill, a human one? | Skill | Communication, patience, noticing, saying no -- these count |
-| 5 | Pick one object within reach right now. What would your morning look like if it did not exist? | Object | The subtraction question activates appreciation more vividly than the addition question |
-| 6 | Describe a physical sensation from yesterday that was pleasant or neutral -- not peak joy, just unremarkable comfort. What was it? | Sense | Warm water, soft chair, cold air, full stomach -- small and specific |
-| 7 | What is something you were dreading this week that either did not happen, or was less bad than you expected? | Wildcard | This prompt directly targets morning anxiety -- which is your stated context |
-| 8 | Name someone you have not thought about in a while who taught you something you still use. What did they teach you? | Person | The person does not need to be in your life currently |
-| 9 | What is one experience from the past year that was uncomfortable at the time but that you are now glad happened? | Experience | Do not force this -- only use it when a genuine answer presents itself |
-| 10 | Is there a route, neighborhood, or landscape you pass through regularly that you have stopped actually looking at? What is one specific detail you noticed today? | Place | Pairs well with a morning walk or commute |
-| 11 | What sound in your environment this morning was pleasant, or at least not unpleasant? Be specific about what made it tolerable or good. | Sense | Trains sensory specificity; counteracts abstract-verbal default |
-| 12 | What is something you know how to do that once felt impossible? How long did it take to learn? | Skill | Reframes competence and growth; useful during imposter syndrome episodes |
-| 13 | What is one convenience in your daily life that you almost certainly take for granted? What would a Tuesday look like without it? | Object | Running water, electricity, transit, a reliable device -- specificity required |
-| 14 | What is one thing you are genuinely looking forward to in the next two weeks -- not a large event, something small and specific? | Subtraction | Prospective gratitude; anticipation extends positive emotion forward in time |
+| #   | Prompt                                                                                                                                                            | Category    | Notes                                                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------- |
+| 1   | Who is someone who helped you in the past week -- not dramatically, but in a small practical way -- and what specifically did they do?                            | Person      | Name them by name. Name the moment.                                                     |
+| 2   | What is one thing you completed, finished, or resolved this week that had been waiting? What did it feel like to close it?                                        | Experience  | Works especially well when you feel unproductive                                        |
+| 3   | Name a physical space you spent time in yesterday. What about it made it tolerable or pleasant?                                                                   | Place       | Challenge: avoid your home unless you can name something specific you rarely notice     |
+| 4   | What is one skill you used this week that you did not have five years ago -- not a career skill, a human one?                                                     | Skill       | Communication, patience, noticing, saying no -- these count                             |
+| 5   | Pick one object within reach right now. What would your morning look like if it did not exist?                                                                    | Object      | The subtraction question activates appreciation more vividly than the addition question |
+| 6   | Describe a physical sensation from yesterday that was pleasant or neutral -- not peak joy, just unremarkable comfort. What was it?                                | Sense       | Warm water, soft chair, cold air, full stomach -- small and specific                    |
+| 7   | What is something you were dreading this week that either did not happen, or was less bad than you expected?                                                      | Wildcard    | This prompt directly targets morning anxiety -- which is your stated context            |
+| 8   | Name someone you have not thought about in a while who taught you something you still use. What did they teach you?                                               | Person      | The person does not need to be in your life currently                                   |
+| 9   | What is one experience from the past year that was uncomfortable at the time but that you are now glad happened?                                                  | Experience  | Do not force this -- only use it when a genuine answer presents itself                  |
+| 10  | Is there a route, neighborhood, or landscape you pass through regularly that you have stopped actually looking at? What is one specific detail you noticed today? | Place       | Pairs well with a morning walk or commute                                               |
+| 11  | What sound in your environment this morning was pleasant, or at least not unpleasant? Be specific about what made it tolerable or good.                           | Sense       | Trains sensory specificity; counteracts abstract-verbal default                         |
+| 12  | What is something you know how to do that once felt impossible? How long did it take to learn?                                                                    | Skill       | Reframes competence and growth; useful during imposter syndrome episodes                |
+| 13  | What is one convenience in your daily life that you almost certainly take for granted? What would a Tuesday look like without it?                                 | Object      | Running water, electricity, transit, a reliable device -- specificity required          |
+| 14  | What is one thing you are genuinely looking forward to in the next two weeks -- not a large event, something small and specific?                                  | Subtraction | Prospective gratitude; anticipation extends positive emotion forward in time            |
 
 ---
 
 ### Weekly Schedule
 
-| Day | Time | Format | Duration | Notes |
-|-----|------|--------|----------|-------|
-| Monday | Morning coffee | 3GT+CA | 7 min | Week's first entry -- use yesterday's Sunday as material |
-| Tuesday | Morning coffee | 3GT+CA | 8 min | |
-| Wednesday | Morning coffee | 3GT+CA | 7 min | If entries feel thin, use a prompt from library |
-| Thursday | Rest day | Savoring only | 60 sec x 1-2 | No writing. Just noticing. |
-| Friday | Morning coffee | 3GT+CA | 8 min | End-of-week entries often richest -- lean into specificity |
-| Saturday | Rest day | Savoring only | 60 sec x 1-2 | Optional: spend 2 min reading back this week's entries |
-| Sunday | Morning coffee | 3GT+CA + weekly review | 10 min | Add 2 min to read back the week and answer one check-in question |
+| Day       | Time           | Format                 | Duration     | Notes                                                            |
+| --------- | -------------- | ---------------------- | ------------ | ---------------------------------------------------------------- |
+| Monday    | Morning coffee | 3GT+CA                 | 7 min        | Week's first entry -- use yesterday's Sunday as material         |
+| Tuesday   | Morning coffee | 3GT+CA                 | 8 min        |                                                                  |
+| Wednesday | Morning coffee | 3GT+CA                 | 7 min        | If entries feel thin, use a prompt from library                  |
+| Thursday  | Rest day       | Savoring only          | 60 sec x 1-2 | No writing. Just noticing.                                       |
+| Friday    | Morning coffee | 3GT+CA                 | 8 min        | End-of-week entries often richest -- lean into specificity       |
+| Saturday  | Rest day       | Savoring only          | 60 sec x 1-2 | Optional: spend 2 min reading back this week's entries           |
+| Sunday    | Morning coffee | 3GT+CA + weekly review | 10 min       | Add 2 min to read back the week and answer one check-in question |
 
 ---
 
@@ -586,14 +596,14 @@ Use these when your default 3GT entries start feeling automatic.
 
 **Category Rotation Tracker:**
 
-| Category | Week 1 | Week 2 | Week 3 | Week 4 |
-|----------|--------|--------|--------|--------|
-| Person | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
+| Category   | Week 1  | Week 2  | Week 3  | Week 4  |
+| ---------- | ------- | ------- | ------- | ------- |
+| Person     | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
 | Experience | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
-| Place | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
-| Skill | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
-| Object | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
-| Sense | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
+| Place      | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
+| Skill      | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
+| Object     | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
+| Sense      | [ ] [ ] | [ ] [ ] | [ ] [ ] | [ ] [ ] |
 
 Each "Good Thing" you write belongs to one category. Tick a box when you use that category. If any row reaches 4 ticks in a single week, intentionally avoid that category for the rest of the week.
 
@@ -611,14 +621,14 @@ On the last Sunday of each month, spend 5 minutes on this single question: "What
 
 ### Common Pitfalls and Fixes
 
-| What You Notice | What Is Happening | What to Do |
-|-----------------|-------------------|------------|
-| Writing generic "good things" without specifics | The format is not working hard enough -- the causal analysis questions are being answered in 5 words | Go back to the template. "What caused this?" should take at least 2-3 sentences of real thought |
-| Entries feel emotionally flat even when technically specific | The events being chosen are too neutral -- practical completions rather than moments that actually landed | Try using a prompt from the library. Prompts 7, 8, and 14 specifically target emotional resonance |
-| You skipped 3 or more consecutive days | The morning anchor is breaking down -- something is disrupting the coffee ritual | Invoke MVV immediately: one mental good thing before getting out of bed, no writing. Reset the anchor the next morning |
-| Entries all cluster in one category (usually Experience) | You are mining the most accessible memory structure without ranging across life domains | Use the rotation tracker. Force an Object entry and a Sense entry this week |
-| Practice feels like it is fighting the anxiety rather than preceding it | The phone is being checked before the practice begins | The practice must happen before the phone. Physical notebook placement (on the coffee table, not the bedroom) is the environmental design fix |
-| You feel guilty that your "good things" are small and ordinary | Implicit belief that the practice requires dramatic gratitude | Ordinary and small is exactly right. The lentil soup entry above is a model entry. The mechanism is noticing specifics, not having exceptional days |
+| What You Notice                                                         | What Is Happening                                                                                         | What to Do                                                                                                                                          |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Writing generic "good things" without specifics                         | The format is not working hard enough -- the causal analysis questions are being answered in 5 words      | Go back to the template. "What caused this?" should take at least 2-3 sentences of real thought                                                     |
+| Entries feel emotionally flat even when technically specific            | The events being chosen are too neutral -- practical completions rather than moments that actually landed | Try using a prompt from the library. Prompts 7, 8, and 14 specifically target emotional resonance                                                   |
+| You skipped 3 or more consecutive days                                  | The morning anchor is breaking down -- something is disrupting the coffee ritual                          | Invoke MVV immediately: one mental good thing before getting out of bed, no writing. Reset the anchor the next morning                              |
+| Entries all cluster in one category (usually Experience)                | You are mining the most accessible memory structure without ranging across life domains                   | Use the rotation tracker. Force an Object entry and a Sense entry this week                                                                         |
+| Practice feels like it is fighting the anxiety rather than preceding it | The phone is being checked before the practice begins                                                     | The practice must happen before the phone. Physical notebook placement (on the coffee table, not the bedroom) is the environmental design fix       |
+| You feel guilty that your "good things" are small and ordinary          | Implicit belief that the practice requires dramatic gratitude                                             | Ordinary and small is exactly right. The lentil soup entry above is a model entry. The mechanism is noticing specifics, not having exceptional days |
 
 ---
 

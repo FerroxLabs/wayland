@@ -359,19 +359,37 @@ describeNativeSqlite('SqliteTeamRepository', () => {
     });
 
     it('findStaleLeasedTasks reclaims a legacy NULL-lease in_progress row untouched for a full TTL', async () => {
-      await repo.createTask(leasedTask('legacy', { leaseOwner: undefined, leaseExpiresAt: undefined, lastHeartbeat: undefined, updatedAt: NOW - LEASE_TTL_MS - 1 }));
+      await repo.createTask(
+        leasedTask('legacy', {
+          leaseOwner: undefined,
+          leaseExpiresAt: undefined,
+          lastHeartbeat: undefined,
+          updatedAt: NOW - LEASE_TTL_MS - 1,
+        })
+      );
       const stale = await repo.findStaleLeasedTasks(NOW);
       expect(stale.map((t) => t.id)).toContain('legacy');
       // ...but a recently-touched NULL-lease row is left alone.
-      await repo.createTask(leasedTask('fresh-null', { leaseOwner: undefined, leaseExpiresAt: undefined, lastHeartbeat: undefined, updatedAt: NOW - 1_000 }));
+      await repo.createTask(
+        leasedTask('fresh-null', {
+          leaseOwner: undefined,
+          leaseExpiresAt: undefined,
+          lastHeartbeat: undefined,
+          updatedAt: NOW - 1_000,
+        })
+      );
       const stale2 = await repo.findStaleLeasedTasks(NOW);
       expect(stale2.map((t) => t.id)).not.toContain('fresh-null');
       expect(await repo.markZombie('legacy', NOW)).toBe(true); // legacy row is zombifiable
     });
 
     it('findStaleVerifyingTasks returns only verifying tasks older than the stale window', async () => {
-      await repo.createTask(leasedTask('old', { status: 'verifying', leaseExpiresAt: undefined, updatedAt: NOW - 600_000 }));
-      await repo.createTask(leasedTask('new', { status: 'verifying', leaseExpiresAt: undefined, updatedAt: NOW - 1_000 }));
+      await repo.createTask(
+        leasedTask('old', { status: 'verifying', leaseExpiresAt: undefined, updatedAt: NOW - 600_000 })
+      );
+      await repo.createTask(
+        leasedTask('new', { status: 'verifying', leaseExpiresAt: undefined, updatedAt: NOW - 1_000 })
+      );
       await repo.createTask(leasedTask('run', { status: 'in_progress', updatedAt: NOW - 600_000 }));
 
       const stale = await repo.findStaleVerifyingTasks(NOW, 300_000);

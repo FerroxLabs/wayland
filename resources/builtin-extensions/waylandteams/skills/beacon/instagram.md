@@ -19,9 +19,9 @@ Trigger phrases:
 
 **1. Assign Instagram a stage.** Instagram can serve See, Think, or Care depending on how you use it. Decide which job it does here.
 
-- *See* — Reels with broad-appeal hooks, audio-driven discovery, no in-frame product. Optimization target: reach + saves-as-memorability-proxy.
-- *Think* — Carousels (educational, comparison, framework). Optimization target: saves + shares + profile visits.
-- *Care* — Stories (behind-the-scenes, customer features, FAQ replies, polls). Optimization target: reply rate + sticker interaction.
+- _See_ — Reels with broad-appeal hooks, audio-driven discovery, no in-frame product. Optimization target: reach + saves-as-memorability-proxy.
+- _Think_ — Carousels (educational, comparison, framework). Optimization target: saves + shares + profile visits.
+- _Care_ — Stories (behind-the-scenes, customer features, FAQ replies, polls). Optimization target: reply rate + sticker interaction.
 
 Do not try to make one piece of content serve all three stages.
 
@@ -29,9 +29,9 @@ Do not try to make one piece of content serve all three stages.
 
 **3. Spec creative constraints, not creative content.** Your job is the format brief; Copy writes the words and Brand designs the look. Spec:
 
-- *Reels:* vertical 9:16, hook within first 2 seconds, on-screen text for sound-off viewing, length 7-30 seconds for highest completion rate.
-- *Carousels:* 10 slides max, slide-1 hook earns the swipe, last slide drives CTA, square or 4:5 vertical.
-- *Stories:* 24-hour decay; use stickers (poll, quiz, link, question) to lift interaction; highlight permanent assets in covers.
+- _Reels:_ vertical 9:16, hook within first 2 seconds, on-screen text for sound-off viewing, length 7-30 seconds for highest completion rate.
+- _Carousels:_ 10 slides max, slide-1 hook earns the swipe, last slide drives CTA, square or 4:5 vertical.
+- _Stories:_ 24-hour decay; use stickers (poll, quiz, link, question) to lift interaction; highlight permanent assets in covers.
 
 **4. Set cadence honestly.** Posting more is not strategy. Pick a sustainable cadence the team can actually hit for 12 weeks: 3 Reels + 2 carousels per week is a common floor for active growth.
 
@@ -58,7 +58,9 @@ Do not try to make one piece of content serve all three stages.
 **Brief:** "We need to grow on Instagram."
 
 **Before** (cadence-as-strategy):
-> *Post 5x/week — mix of Reels, photos, and Stories. Use trending audio.*
+
+> _Post 5x/week — mix of Reels, photos, and Stories. Use trending audio._
 
 **After** (stage-anchored, 2026-05-16):
-> *Stage: See (discovery) + Think (educational saves). Mix: 3 Reels/week with hook-on-frame-one and on-screen text, 2 carousels/week (10 slides each, save-optimized framework content), Stories daily for warm-pool depth. Reject product-price posts on grid. Measure: Reel reach + follow-from-non-followers; carousel saves + shares; Story reply rate. Push offer asks to email/DM, not feed. Confirm with Brand on visual constraints before Copy writes captions.*
+
+> _Stage: See (discovery) + Think (educational saves). Mix: 3 Reels/week with hook-on-frame-one and on-screen text, 2 carousels/week (10 slides each, save-optimized framework content), Stories daily for warm-pool depth. Reject product-price posts on grid. Measure: Reel reach + follow-from-non-followers; carousel saves + shares; Story reply rate. Push offer asks to email/DM, not feed. Confirm with Brand on visual constraints before Copy writes captions._

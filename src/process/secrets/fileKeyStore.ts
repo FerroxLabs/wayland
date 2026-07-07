@@ -33,23 +33,9 @@
  *   security posture as the rest of the 0600 config blobs on disk.
  */
 
-import {
-  chmodSync,
-  existsSync,
-  mkdirSync,
-  openSync,
-  readFileSync,
-  writeSync,
-  closeSync,
-  unlinkSync,
-} from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, openSync, readFileSync, writeSync, closeSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
-import {
-  createCipheriv,
-  createDecipheriv,
-  hkdfSync,
-  randomBytes,
-} from 'node:crypto';
+import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:crypto';
 import { getPlatformServices } from '@/common/platform';
 
 /**
@@ -143,7 +129,7 @@ function loadOrCreateSecret(): Buffer {
       // Lost the race - read the secret the winner just wrote.
       const winner = readFileSync(keyFile);
       if (winner.length === SECRET_LEN) return winner;
-      throw new Error('[secrets/fileKeyStore] Concurrent secret-key creation produced a corrupt file.');
+      throw new Error('[secrets/fileKeyStore] Concurrent secret-key creation produced a corrupt file.', { cause: err });
     }
     throw err;
   } finally {

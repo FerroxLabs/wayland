@@ -210,7 +210,7 @@ export const useMcpOAuth = () => {
         signal.addEventListener(
           'abort',
           () => resolve({ success: false, code: 'cancelled', error: 'Sign-in cancelled' }),
-          { once: true },
+          { once: true }
         );
       });
 
@@ -221,7 +221,7 @@ export const useMcpOAuth = () => {
         setLoggingIn((prev) => ({ ...prev, [server.id]: false }));
       }
     },
-    [],
+    []
   );
 
   /**
@@ -254,7 +254,7 @@ export const useMcpOAuth = () => {
     async (
       serverId: string,
       clientId: string,
-      clientSecret?: string,
+      clientSecret?: string
     ): Promise<{ success: boolean; server?: IMcpServer; error?: string }> => {
       try {
         // Headless WebUI: the setMcpByoOAuthCredentials IPC is denied to remote
@@ -291,7 +291,7 @@ export const useMcpOAuth = () => {
         };
       }
     },
-    [],
+    []
   );
 
   // Logout
@@ -331,8 +331,7 @@ export const useMcpOAuth = () => {
   const checkMultipleServers = useCallback(
     async (servers: IMcpServer[]) => {
       const httpServers = servers.filter(
-        (s) =>
-          s.transport.type === 'http' || s.transport.type === 'sse' || s.transport.type === 'streamable_http'
+        (s) => s.transport.type === 'http' || s.transport.type === 'sse' || s.transport.type === 'streamable_http'
       );
 
       await Promise.all(httpServers.map((server) => checkOAuthStatus(server)));

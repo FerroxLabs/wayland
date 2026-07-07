@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "podcast template planning"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'podcast template planning'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Podcast Interview Guide
 
 ## When to Use
@@ -313,6 +314,7 @@ Occasionally a host is the actual domain expert and the guest was booked for the
 Some episode angles require going into territory the guest may not have discussed publicly before, or may have discussed but not fully processed. The host who barrels into this without care gets a shut-down guest. The host who avoids it produces a shallow interview.
 
 **Handling:** Add a "sensitive territory protocol" to the guide:
+
 - Flag the specific question as "requires consent check" in the pre-recording warm-up. During warm-up, say: "One of the things I would love to explore, if you are open to it, is [topic]. If that is not something you want to get into today, completely fine -- just let me know."
 - Write a softer version of the question that approaches the same territory less directly: rather than "Tell me about the hardest moment of that experience," try "What did that period teach you that you could not have learned any other way?"
 - Write an exit ramp phrase for the host to use if the guest becomes visibly distressed: "I really appreciate you going there. Let us take a breath and come back to [safer topic]."
@@ -323,6 +325,7 @@ Some episode angles require going into territory the guest may not have discusse
 Remote recording introduces specific technical and conversational risks that in-person recording does not: audio lag causes crosstalk, visual cues are reduced, connection issues interrupt the flow, and both host and guest are managing their own recording setups simultaneously.
 
 **Handling:** Add a "remote recording note" at the top of the guide:
+
 - Add 5-10% more questions to account for content lost to technical issues
 - Write an "interruption recovery" phrase for the active listening toolkit: "Apologies -- I think we overlapped there. I want to make sure we get your full answer. You were saying [last phrase you heard clearly]..."
 - Note which questions are most suited to the start of the interview (when technical issues are most likely to be resolved) versus which can flex toward the middle or end
@@ -376,56 +379,63 @@ These are casual questions to ask in the 3-5 minutes before recording begins. Th
 
 **Q1 (must-ask) -- Act One: Context**
 Most people who struggle with procrastination have been told it is a motivation problem -- they do not want it badly enough, they lack discipline, they need a better system. You argue the diagnosis is wrong. What is actually happening when someone keeps not starting a task?
-  - *Depth:* "Walk me through the perceptual error at the mechanism level. What is the brain actually doing when it looks at a task and decides it is too effortful?"
-  - *Challenge:* "A lot of people would push back and say -- look, sometimes I procrastinate on things I genuinely do not want to do, and I know exactly why. Is the effort illusion really the explanation in those cases, or is there a version of procrastination that actually is a motivation problem?"
-  - *Application:* "If someone listening just nodded in recognition -- they are the person who keeps not starting something -- what does your framework tell them about where the problem actually sits?"
+
+- _Depth:_ "Walk me through the perceptual error at the mechanism level. What is the brain actually doing when it looks at a task and decides it is too effortful?"
+- _Challenge:_ "A lot of people would push back and say -- look, sometimes I procrastinate on things I genuinely do not want to do, and I know exactly why. Is the effort illusion really the explanation in those cases, or is there a version of procrastination that actually is a motivation problem?"
+- _Application:_ "If someone listening just nodded in recognition -- they are the person who keeps not starting something -- what does your framework tell them about where the problem actually sits?"
 
 **Q2 (must-ask) -- Act One: Context**
 You make a distinction in the book between effort forecasting and effort experience -- the prediction versus the reality. How large is that gap? What does the research actually show about how wrong we are?
-  - *Depth:* "Give me one of your favorite study results from the book. What did people predict, what did they experience, and how far off were they?"
-  - *Challenge:* "Are there tasks where the forecast is actually accurate? Or do we systematically overestimate effort across the board?"
-  - *Application:* "You have been studying this for years now. Do you personally still fall for the effort illusion, or does knowing about it protect you?"
+
+- _Depth:_ "Give me one of your favorite study results from the book. What did people predict, what did they experience, and how far off were they?"
+- _Challenge:_ "Are there tasks where the forecast is actually accurate? Or do we systematically overestimate effort across the board?"
+- _Application:_ "You have been studying this for years now. Do you personally still fall for the effort illusion, or does knowing about it protect you?"
 
 **Q3 (must-ask) -- Act Two: Insight**
 The chapter on pricing really surprised me -- you argue that freelancers and service providers systematically undercharge because of effort overestimation, not because they lack confidence. How does the effort illusion show up in pricing decisions?
-  - *Depth:* "Talk me through what the thought process looks like inside someone's head when they sit down to write a proposal. Where exactly does the effort illusion distort the number they put on the invoice?"
-  - *Challenge:* "Some people would say freelancers undercharge because of market pressure or imposter syndrome -- not because they overestimate how hard the work is. Can those things coexist, or is the effort illusion the upstream cause?"
-  - *Application:* "What is the concrete fix? If a freelancer is listening and they recognize this pattern in themselves, what is the one change that actually interrupts the cycle?"
+
+- _Depth:_ "Talk me through what the thought process looks like inside someone's head when they sit down to write a proposal. Where exactly does the effort illusion distort the number they put on the invoice?"
+- _Challenge:_ "Some people would say freelancers undercharge because of market pressure or imposter syndrome -- not because they overestimate how hard the work is. Can those things coexist, or is the effort illusion the upstream cause?"
+- _Application:_ "What is the concrete fix? If a freelancer is listening and they recognize this pattern in themselves, what is the one change that actually interrupts the cycle?"
   > [TIME CHECK: You should be at approximately 14-16 minutes after this question. If you are past 18 minutes, skip Q4 and move directly to Q5.]
 
 **Q4 (if-time-permits) -- Act Two: Nuance**
 You have a concept in the book called "effort contagion" -- the idea that being around people who treat tasks as effortful makes your own forecasts worse. That seems almost impossible to avoid in a workplace. What does the research show?
-  - *Depth:* "Is there an actual mechanism here -- does hearing someone complain about how hard a task is genuinely change your neural forecast of the same task, or is it more of a social signaling effect?"
-  - *Challenge:* "Is there a counterpart to effort contagion -- can being around people who are calm and systematic about their work actually recalibrate your effort perception upward?"
+
+- _Depth:_ "Is there an actual mechanism here -- does hearing someone complain about how hard a task is genuinely change your neural forecast of the same task, or is it more of a social signaling effect?"
+- _Challenge:_ "Is there a counterpart to effort contagion -- can being around people who are calm and systematic about their work actually recalibrate your effort perception upward?"
 
 **Q5 (must-ask) -- Act Two: Insight**
 You describe what you call "the false threshold" -- the belief that conditions have to be exactly right before starting. What is the relationship between the effort illusion and waiting for the right conditions?
-  - *Depth:* "The internal voice that says 'I will do it when I have a clear morning, when the project is more defined, when I have more energy' -- what is that voice actually responding to?"
-  - *Application:* "You recommend something in the book that sounds almost too simple -- you call it a 'minimum viable start.' What is that, and why does it work at the level of perception rather than just as a behavioral trick?"
+
+- _Depth:_ "The internal voice that says 'I will do it when I have a clear morning, when the project is more defined, when I have more energy' -- what is that voice actually responding to?"
+- _Application:_ "You recommend something in the book that sounds almost too simple -- you call it a 'minimum viable start.' What is that, and why does it work at the level of perception rather than just as a behavioral trick?"
 
 **Q6 (must-ask) -- Act Three: Application**
 A lot of people have been through the productivity system cycle -- GTD, time blocking, Pomodoro, all of it. They tried the systems, got short-term improvement, then slid back. If the actual problem is a perceptual error, why do behavioral interventions not stick?
-  - *Depth:* "Where specifically do productivity systems fail at the perceptual level? What are they solving for that is not the actual problem?"
-  - *Challenge:* "You are implying that your framework is different. What makes an effort-perception intervention more durable than a productivity system?"
-  - *Application:* "If someone has already tried four productivity systems and they are cynical, what evidence do you have that this approach actually produces lasting change?"
+
+- _Depth:_ "Where specifically do productivity systems fail at the perceptual level? What are they solving for that is not the actual problem?"
+- _Challenge:_ "You are implying that your framework is different. What makes an effort-perception intervention more durable than a productivity system?"
+- _Application:_ "If someone has already tried four productivity systems and they are cynical, what evidence do you have that this approach actually produces lasting change?"
 
 **Q7 (if-time-permits) -- Act Three: Extension**
 One thing the book raises but does not fully resolve -- at least from my reading -- is the question of whether the effort illusion is worse in certain domains than others. Is it worse for creative work than analytical work? Worse for solo tasks than collaborative ones?
-  - *Depth:* "Where does your own research or the research you cite point to the domains where effort overestimation is most severe and most costly?"
+
+- _Depth:_ "Where does your own research or the research you cite point to the domains where effort overestimation is most severe and most costly?"
 
 ---
 
 ### Active Listening Toolkit
 
-| Scenario | Exact Phrase |
-|---|---|
-| Agreement (non-interruption) | "Mm-hmm," "Right," "That tracks," "Interesting" -- never more than 4 words while the guest is still speaking |
-| Clarification for audience | "Before we move on -- for listeners who have not encountered that term, can you define what you mean by [term] in plain language?" |
-| Redirect from tangent | "I want to honor that thread -- let me bookmark it. But I want to make sure we get to [next question] first. Can I bring us back to [topic]?" |
-| Non-answer recovery | "Let me come at this from a different angle. Imagine a specific person -- say, a freelance designer who keeps undercharging for projects. Walk me through exactly what is happening in their head when they name a price." |
-| Extend strong answer | "You just said '[repeat their exact phrase].' I want to stay here for a moment -- I do not think I have heard it framed that way before. What do you mean by that exactly?" |
-| Energy recovery | "Let me make this more personal rather than theoretical. Has there been a moment in your own work -- in the research or outside it -- where you caught yourself inside the effort illusion in real time?" |
-| Time pressure | "I want to respect your time and make sure we get to everything important. Let me move us forward -- I will come back to this in the show notes if I can." |
+| Scenario                     | Exact Phrase                                                                                                                                                                                                               |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Agreement (non-interruption) | "Mm-hmm," "Right," "That tracks," "Interesting" -- never more than 4 words while the guest is still speaking                                                                                                               |
+| Clarification for audience   | "Before we move on -- for listeners who have not encountered that term, can you define what you mean by [term] in plain language?"                                                                                         |
+| Redirect from tangent        | "I want to honor that thread -- let me bookmark it. But I want to make sure we get to [next question] first. Can I bring us back to [topic]?"                                                                              |
+| Non-answer recovery          | "Let me come at this from a different angle. Imagine a specific person -- say, a freelance designer who keeps undercharging for projects. Walk me through exactly what is happening in their head when they name a price." |
+| Extend strong answer         | "You just said '[repeat their exact phrase].' I want to stay here for a moment -- I do not think I have heard it framed that way before. What do you mean by that exactly?"                                                |
+| Energy recovery              | "Let me make this more personal rather than theoretical. Has there been a moment in your own work -- in the research or outside it -- where you caught yourself inside the effort illusion in real time?"                  |
+| Time pressure                | "I want to respect your time and make sure we get to everything important. Let me move us forward -- I will come back to this in the show notes if I can."                                                                 |
 
 ---
 

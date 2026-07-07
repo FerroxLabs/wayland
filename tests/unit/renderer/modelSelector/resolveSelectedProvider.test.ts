@@ -136,7 +136,11 @@ describe('resolveActiveModelKey (#124)', () => {
     // opaque legacy storage id, but the bridge row tags itself with the registry
     // id - so the active key must be `<registryProviderId>:<model>`, not
     // `<storageId>:<model>`.
-    const gemini = provider({ id: 'prov_x', platform: 'gemini', [BRIDGE_TAG_KEY]: 'v2:google-gemini' } as Partial<IProvider>);
+    const gemini = provider({
+      id: 'prov_x',
+      platform: 'gemini',
+      [BRIDGE_TAG_KEY]: 'v2:google-gemini',
+    } as Partial<IProvider>);
     const key = resolveActiveModelKey([gemini], { id: 'prov_x', useModel: 'gemini-3-pro-preview' });
     expect(key).toBe('google-gemini:gemini-3-pro-preview');
   });

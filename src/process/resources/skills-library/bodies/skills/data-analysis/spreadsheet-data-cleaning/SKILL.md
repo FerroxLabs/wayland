@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spreadsheets data-science template"
-  category: "data-analysis"
-  subcategory: "spreadsheets"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'spreadsheets data-science template'
+  category: 'data-analysis'
+  subcategory: 'spreadsheets'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Spreadsheet Data Cleaning
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a dataset open in Excel or Google Sheets and describes specific data quality problems -- extra spaces, inconsistent casing, phone numbers in multiple formats, dates stored as text, currency fields with symbols embedded, or columns with mixed types
 - The user asks a formula-level question such as "how do I strip the dollar sign from this column," "how do I find all the duplicate emails," or "how do I fill in the blanks with the value from the row above"
 - The user needs a repeatable, auditable cleaning workflow that lives inside the spreadsheet itself -- no Python, no Power Query, no SQL -- just formulas dragged down a column
@@ -29,6 +31,7 @@ metadata:
 - The user is working with a shared workbook and cannot run external scripts -- all transformations must be formula-based and reviewable by non-technical stakeholders
 
 **Do NOT use when:**
+
 - The user wants a tool-agnostic data cleaning protocol covering Python pandas, SQL, R, and spreadsheets -- use `data-cleaning-protocol` instead, which handles cross-tool strategy
 - The user wants to set up data validation rules (dropdown lists, input masks, range checks) to prevent dirty data from entering the spreadsheet in the future -- use `data-validation-setup`
 - The user wants to audit formula integrity, circular references, or dependency chains in a financial or analytical model -- use `spreadsheet-model-audit`
@@ -72,42 +75,44 @@ Text columns are the most common source of data quality failures. Apply formulas
 
 **Whitespace and non-printable character removal:**
 
-| Problem | Formula | Notes |
-|---|---|---|
-| Leading/trailing/double spaces | `=TRIM(A2)` | Reduces all internal runs of spaces to a single space |
-| Non-printable ASCII chars 0-31 | `=CLEAN(A2)` | Removes line feeds (CHAR 10), carriage returns (CHAR 13), tabs (CHAR 9) |
-| Both problems together | `=TRIM(CLEAN(A2))` | Standard baseline -- apply this to every text column by default |
-| Non-breaking space (CHAR 160) | `=TRIM(CLEAN(SUBSTITUTE(A2,CHAR(160)," ")))` | CHAR(160) is invisible and survives TRIM without this SUBSTITUTE |
-| Smart quotes (left/right) | `=SUBSTITUTE(SUBSTITUTE(A2,CHAR(8220),""""),CHAR(8221),"""")` | Replaces curved left (8220) and right (8221) double quotes with straight quotes |
-| Em dash to hyphen | `=SUBSTITUTE(A2,CHAR(8212),"-")` | CHAR(8212) is the em dash; also handle en dash CHAR(8211) |
-| Bullet points and symbols | `=SUBSTITUTE(A2,CHAR(8226),"")` | CHAR(8226) is the bullet; chain multiple CHAR SUBSTITUTEs as needed |
+| Problem                        | Formula                                                       | Notes                                                                           |
+| ------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Leading/trailing/double spaces | `=TRIM(A2)`                                                   | Reduces all internal runs of spaces to a single space                           |
+| Non-printable ASCII chars 0-31 | `=CLEAN(A2)`                                                  | Removes line feeds (CHAR 10), carriage returns (CHAR 13), tabs (CHAR 9)         |
+| Both problems together         | `=TRIM(CLEAN(A2))`                                            | Standard baseline -- apply this to every text column by default                 |
+| Non-breaking space (CHAR 160)  | `=TRIM(CLEAN(SUBSTITUTE(A2,CHAR(160)," ")))`                  | CHAR(160) is invisible and survives TRIM without this SUBSTITUTE                |
+| Smart quotes (left/right)      | `=SUBSTITUTE(SUBSTITUTE(A2,CHAR(8220),""""),CHAR(8221),"""")` | Replaces curved left (8220) and right (8221) double quotes with straight quotes |
+| Em dash to hyphen              | `=SUBSTITUTE(A2,CHAR(8212),"-")`                              | CHAR(8212) is the em dash; also handle en dash CHAR(8211)                       |
+| Bullet points and symbols      | `=SUBSTITUTE(A2,CHAR(8226),"")`                               | CHAR(8226) is the bullet; chain multiple CHAR SUBSTITUTEs as needed             |
 
 **Case standardization:**
 
-| Output needed | Formula | Caution |
-|---|---|---|
-| All uppercase | `=UPPER(A2)` | Use for codes, IDs, country codes, state abbreviations |
-| All lowercase | `=LOWER(A2)` | Use for email addresses, usernames, URLs |
-| Title case | `=PROPER(A2)` | Use for names, addresses -- but PROPER incorrectly capitalizes "Of", "The", "McDonald" etc. |
-| Sentence case (first letter only) | `=UPPER(LEFT(A2,1))&LOWER(MID(A2,2,LEN(A2)))` | More controlled than PROPER for description fields |
+| Output needed                     | Formula                                       | Caution                                                                                     |
+| --------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| All uppercase                     | `=UPPER(A2)`                                  | Use for codes, IDs, country codes, state abbreviations                                      |
+| All lowercase                     | `=LOWER(A2)`                                  | Use for email addresses, usernames, URLs                                                    |
+| Title case                        | `=PROPER(A2)`                                 | Use for names, addresses -- but PROPER incorrectly capitalizes "Of", "The", "McDonald" etc. |
+| Sentence case (first letter only) | `=UPPER(LEFT(A2,1))&LOWER(MID(A2,2,LEN(A2)))` | More controlled than PROPER for description fields                                          |
 
 **Targeted replacement:**
 
 For known bad values, chain SUBSTITUTE calls:
+
 ```
 =TRIM(CLEAN(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(A2,"N/A",""),"-",""),".",".")))
 ```
+
 Build the chain from the innermost substitution outward. Each SUBSTITUTE wraps the previous result. Limit chains to 5-6 levels before recommending a VLOOKUP mapping table approach (see Step 5).
 
 **Splitting compound fields:**
 
-| Problem | Formula |
-|---|---|
-| First word only | `=LEFT(A2,FIND(" ",A2&" ")-1)` | The appended space handles cells with only one word |
-| Text before first comma | `=LEFT(A2,FIND(",",A2)-1)` | Fails if no comma -- wrap with IFERROR |
-| Text after first comma | `=MID(A2,FIND(",",A2)+2,LEN(A2))` | +2 skips the comma and the space after it |
-| Last word / suffix | `=TRIM(MID(A2,FIND(CHAR(1),SUBSTITUTE(A2," ",CHAR(1),LEN(A2)-LEN(SUBSTITUTE(A2," ",""))))+1,LEN(A2)))` | Finds the position of the last space by replacing the Nth space |
-| Text between two delimiters | `=MID(A2,FIND("[",A2)+1,FIND("]",A2)-FIND("[",A2)-1)` | Extracts content between brackets; adapt delimiters as needed |
+| Problem                     | Formula                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| First word only             | `=LEFT(A2,FIND(" ",A2&" ")-1)`                                                                         | The appended space handles cells with only one word             |
+| Text before first comma     | `=LEFT(A2,FIND(",",A2)-1)`                                                                             | Fails if no comma -- wrap with IFERROR                          |
+| Text after first comma      | `=MID(A2,FIND(",",A2)+2,LEN(A2))`                                                                      | +2 skips the comma and the space after it                       |
+| Last word / suffix          | `=TRIM(MID(A2,FIND(CHAR(1),SUBSTITUTE(A2," ",CHAR(1),LEN(A2)-LEN(SUBSTITUTE(A2," ",""))))+1,LEN(A2)))` | Finds the position of the last space by replacing the Nth space |
+| Text between two delimiters | `=MID(A2,FIND("[",A2)+1,FIND("]",A2)-FIND("[",A2)-1)`                                                  | Extracts content between brackets; adapt delimiters as needed   |
 
 ---
 
@@ -139,6 +144,7 @@ Blank cells and error values propagate silently through aggregations, lookups, a
 ```
 =IF(A2="",A1,A2)
 ```
+
 This pattern works for hierarchical data (e.g., a "Region" column that only has a value in the first row of each region group). Drag down from row 3 onward. The formula references A1 (the row above), not a fixed cell.
 
 **Count-based null audit:**
@@ -157,15 +163,16 @@ Type mismatches are the leading cause of formula failures and incorrect aggregat
 
 **Number conversion:**
 
-| Problem | Formula | Notes |
-|---|---|---|
-| Text-formatted number | `=VALUE(A2)` | Fails if any non-numeric character is present |
-| Number with currency symbol | `=VALUE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(A2,"$",""),",","")," ",""))` | Strip $, commas, spaces before converting |
-| Percentage stored as text | `=VALUE(SUBSTITUTE(A2,"%",""))/100` | Remove % then divide by 100 |
-| Number with parentheses for negative | `=IF(LEFT(A2,1)="(",VALUE(SUBSTITUTE(SUBSTITUTE(A2,"(",""),")",""))*-1,VALUE(A2))` | Accounting-style (123) means -123 |
-| Number with trailing minus sign | `=IF(RIGHT(TRIM(A2),1)="-",VALUE(LEFT(TRIM(A2),LEN(TRIM(A2))-1))*-1,VALUE(A2))` | Some European formats trail the minus |
+| Problem                              | Formula                                                                            | Notes                                         |
+| ------------------------------------ | ---------------------------------------------------------------------------------- | --------------------------------------------- |
+| Text-formatted number                | `=VALUE(A2)`                                                                       | Fails if any non-numeric character is present |
+| Number with currency symbol          | `=VALUE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(A2,"$",""),",","")," ",""))`              | Strip $, commas, spaces before converting     |
+| Percentage stored as text            | `=VALUE(SUBSTITUTE(A2,"%",""))/100`                                                | Remove % then divide by 100                   |
+| Number with parentheses for negative | `=IF(LEFT(A2,1)="(",VALUE(SUBSTITUTE(SUBSTITUTE(A2,"(",""),")",""))*-1,VALUE(A2))` | Accounting-style (123) means -123             |
+| Number with trailing minus sign      | `=IF(RIGHT(TRIM(A2),1)="-",VALUE(LEFT(TRIM(A2),LEN(TRIM(A2))-1))*-1,VALUE(A2))`    | Some European formats trail the minus         |
 
 **Detect text-stored numbers (Excel diagnostic):**
+
 ```
 =ISNUMBER(A2)               -- returns FALSE if number is stored as text
 =SUMPRODUCT(--(NOT(ISNUMBER(A2:A1001))*ISNUMBER(VALUE(A2:A1001))))  -- count text-stored numbers in range
@@ -175,14 +182,14 @@ Type mismatches are the leading cause of formula failures and incorrect aggregat
 
 Dates are the most error-prone type conversion because interpretation is locale-dependent. A date exported as "04/05/2024" is April 5 in the US locale and May 4 in the UK locale. Always clarify the source format first.
 
-| Problem | Formula | Notes |
-|---|---|---|
-| Text date in MM/DD/YYYY | `=DATE(MID(A2,7,4),LEFT(A2,2),MID(A2,4,2))` | Explicit positional parsing -- locale-independent |
-| Text date in DD/MM/YYYY | `=DATE(MID(A2,7,4),MID(A2,4,2),LEFT(A2,2))` | Swap month and day positions |
-| Text date in YYYY-MM-DD (ISO 8601) | `=DATEVALUE(A2)` | Works natively in most locale settings |
-| Date as 8-digit number (20240405) | `=DATE(LEFT(A2,4),MID(A2,5,2),RIGHT(A2,2))` | Common in database exports |
-| Excel serial number to date | `=TEXT(A2,"YYYY-MM-DD")` | Serial 45387 displays as a date string |
-| Inconsistent separators (/ vs -) | `=DATEVALUE(SUBSTITUTE(SUBSTITUTE(A2,"/","-"),".","-"))` | Normalize separators first |
+| Problem                            | Formula                                                  | Notes                                             |
+| ---------------------------------- | -------------------------------------------------------- | ------------------------------------------------- |
+| Text date in MM/DD/YYYY            | `=DATE(MID(A2,7,4),LEFT(A2,2),MID(A2,4,2))`              | Explicit positional parsing -- locale-independent |
+| Text date in DD/MM/YYYY            | `=DATE(MID(A2,7,4),MID(A2,4,2),LEFT(A2,2))`              | Swap month and day positions                      |
+| Text date in YYYY-MM-DD (ISO 8601) | `=DATEVALUE(A2)`                                         | Works natively in most locale settings            |
+| Date as 8-digit number (20240405)  | `=DATE(LEFT(A2,4),MID(A2,5,2),RIGHT(A2,2))`              | Common in database exports                        |
+| Excel serial number to date        | `=TEXT(A2,"YYYY-MM-DD")`                                 | Serial 45387 displays as a date string            |
+| Inconsistent separators (/ vs -)   | `=DATEVALUE(SUBSTITUTE(SUBSTITUTE(A2,"/","-"),".","-"))` | Normalize separators first                        |
 
 **Target date output format for analysis:** Always output dates in ISO 8601 format (YYYY-MM-DD) for downstream compatibility. Use `=TEXT(date_formula,"YYYY-MM-DD")` to produce a text string, or leave as a date serial and apply cell formatting separately.
 
@@ -203,6 +210,7 @@ The expanding range `A$2:A2` is the critical technique: the top boundary is lock
 **Case-insensitive duplicate detection:**
 
 COUNTIF in Excel is case-insensitive by default, so `COUNTIF(A$2:A2,A2)` already treats "Apple" and "apple" as the same value. To force case-sensitive duplicate detection (rare but needed for passwords, codes), use:
+
 ```
 =SUMPRODUCT((EXACT(A$2:A2,A2))*1)>1
 ```
@@ -210,9 +218,11 @@ COUNTIF in Excel is case-insensitive by default, so `COUNTIF(A$2:A2,A2)` already
 **Multi-column composite key duplicates:**
 
 When uniqueness is defined by a combination of columns (e.g., CustomerID + OrderDate must be unique), concatenate them:
+
 ```
 =IF(COUNTIF(E$2:E2,E2)>1,"DUPLICATE","")
 ```
+
 Where column E contains: `=A2&"|"&TEXT(B2,"YYYY-MM-DD")` -- the pipe delimiter prevents false collisions where "John" + "Smith" and "Johns" + "mith" would otherwise look identical.
 
 **Summary counts:**
@@ -224,10 +234,12 @@ Where column E contains: `=A2&"|"&TEXT(B2,"YYYY-MM-DD")` -- the pipe delimiter p
 
 **Removing duplicates non-destructively:**
 Excel's built-in Data > Remove Duplicates is destructive (deletes rows in-place). For non-destructive deduplication, use UNIQUE in Excel 365 or Google Sheets:
+
 ```
 =UNIQUE(A2:A1001)       -- returns unique values as a spilled array
 =UNIQUE(A2:C1001)       -- unique rows across multiple columns
 ```
+
 In Excel 2016 and 2019 (no UNIQUE function), the only non-destructive option is to copy the column to a separate sheet and apply Remove Duplicates there.
 
 ---
@@ -237,21 +249,26 @@ In Excel 2016 and 2019 (no UNIQUE function), the only non-destructive option is 
 When a column has more than 10-15 distinct bad values requiring replacement, nested SUBSTITUTE chains become unmanageable. Use a mapping table approach instead.
 
 **Build a mapping table:**
+
 1. Extract all unique values from the dirty column: copy the column, paste to a helper area, apply Data > Remove Duplicates
 2. Add a second column next to the unique values: "Correct Value"
 3. Fill in the correct value for each dirty value (leave blanks for values that are already correct)
 4. Name the table range `CleaningMap` (Insert > Name > Define in Excel, or simply use an absolute range reference)
 
 **Apply the mapping:**
+
 ```
 =IFERROR(VLOOKUP(TRIM(LOWER(A2)),CleaningMap,2,FALSE),TRIM(LOWER(A2)))
 ```
+
 The IFERROR fallback returns the normalized (trim+lower) original value for anything not found in the mapping table. This means values that are already correct pass through cleanly.
 
 **For Excel 365 / Google Sheets, use XLOOKUP:**
+
 ```
 =IFERROR(XLOOKUP(TRIM(LOWER(A2)),CleaningMap[Raw],CleaningMap[Clean]),TRIM(LOWER(A2)))
 ```
+
 XLOOKUP is preferred because it does not require the lookup column to be the leftmost column in the range.
 
 ---
@@ -270,9 +287,11 @@ The sequence in which cleaning operations are applied determines whether they su
 8. **Validation audit** -- final step: compare diagnostic formula counts from Step 1 against post-cleaning counts
 
 **Combined master formula for a text field:**
+
 ```
 =IFERROR(IF(LEN(TRIM(CLEAN(SUBSTITUTE(A2,CHAR(160)," "))))=0,"[MISSING]",PROPER(TRIM(CLEAN(SUBSTITUTE(A2,CHAR(160)," "))))),A2)
 ```
+
 This single formula handles: non-printable chars, non-breaking spaces, extra whitespace, empty/whitespace-only cells, and title-case normalization -- with an IFERROR fallback to the raw original value if anything fails.
 
 ---
@@ -319,7 +338,9 @@ Present these results in a before/after table. If any post-cleaning count is wor
 **Output column:** [Letter or name -- new helper column]
 **Formula (paste into [cell reference], drag down [N] rows):**
 ```
+
 =[exact formula string]
+
 ```
 **Sequence rationale:** [Why functions are ordered this way -- e.g., "CLEAN before TRIM because CLEAN can produce spaces"]
 **Expected transformation:**
@@ -333,11 +354,15 @@ Present these results in a before/after table. If any post-cleaning count is wor
 **Scope:** [Column(s) defining uniqueness]
 **Key construction formula (if multi-column):**
 ```
+
 =[concatenation formula for composite key column]
+
 ```
 **Duplicate flag formula:**
 ```
+
 =IF(COUNTIF([col]$2:[col]2,[col]2)>1,"DUPLICATE","FIRST")
+
 ```
 **Summary count:** `=COUNTIF([flag_col]2:[flag_col][last_row],"DUPLICATE")`
 **Action required:** [Delete DUPLICATE rows / Review manually / Keep all and flag]
@@ -398,14 +423,17 @@ Present these results in a before/after table. If any post-cleaning count is wor
 ## Edge Cases
 
 ### 1. Numbers Stored as Text (The Green Triangle Problem)
+
 Excel marks number-stored-as-text cells with a small green triangle in the top-left corner. `VALUE(A2)` alone will fail if the text contains any non-numeric characters (spaces, commas, currency symbols, percent signs).
 
 **Diagnostic:** `=ISNUMBER(A2)` returns FALSE for these cells.
 
 **Full-coverage formula:**
+
 ```
 =IFERROR(VALUE(TRIM(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(A2,"$",""),",",""),"%","")," ",""))),A2)
 ```
+
 Strip the four most common non-numeric characters (dollar sign, comma, percent sign, space), TRIM the result, then convert. The outer IFERROR returns the raw original value if conversion still fails -- do not silently return 0, because 0 is a valid data value and masking it creates incorrect aggregations.
 
 After applying this formula, run `=SUMPRODUCT(--(NOT(ISNUMBER(E2:E1001))))` on the cleaned column to confirm all values are now truly numeric.
@@ -413,9 +441,11 @@ After applying this formula, run `=SUMPRODUCT(--(NOT(ISNUMBER(E2:E1001))))` on t
 ---
 
 ### 2. Dates in Ambiguous Mixed Formats Within the Same Column
+
 A column containing both "03/04/2025" and "25/03/2025" is not uniformly parseable. The first value could be March 4 (MM/DD) or April 3 (DD/MM). The second is unambiguously DD/MM because no month goes to 25. Mixed-format columns are a data governance problem, not a formula problem.
 
 **Handling strategy:**
+
 1. Flag rows where both day and month are <= 12 as "AMBIGUOUS": `=IF(AND(VALUE(LEFT(A2,2))<=12,VALUE(MID(A2,4,2))<=12),"AMBIGUOUS","UNAMBIGUOUS")`
 2. Flag rows where the first number is > 12 as definitively DD/MM: `=IF(VALUE(LEFT(A2,2))>12,"DD/MM_CONFIRMED","CHECK")`
 3. Present the count of ambiguous rows to the user and require manual resolution -- do not auto-correct dates you cannot reliably identify
@@ -426,9 +456,11 @@ A column containing both "03/04/2025" and "25/03/2025" is not uniformly parseabl
 ---
 
 ### 3. Unicode Characters, Smart Quotes, and Characters from Copy-Paste
+
 Text copied from Microsoft Word, PDF readers, web browsers, and email clients frequently contains Unicode characters that look like standard ASCII but are not: curly quotes (CHAR 8216, 8217, 8220, 8221), em dashes (CHAR 8212), en dashes (CHAR 8211), ellipsis (CHAR 8230), and non-breaking spaces (CHAR 160). CLEAN removes only CHAR 0-31 and CHAR 127. All of these Unicode characters survive CLEAN untouched.
 
 **Comprehensive Unicode cleaning formula:**
+
 ```
 =TRIM(CLEAN(
   SUBSTITUTE(SUBSTITUTE(
@@ -441,9 +473,11 @@ Text copied from Microsoft Word, PDF readers, web browsers, and email clients fr
     CHAR(8230),"..."),
   CHAR(160)," ")))
 ```
+
 This handles: left/right double quotes, left/right single quotes/apostrophes, en dash, em dash, ellipsis, and non-breaking space -- the seven most common Unicode intrusions in business text data.
 
 **Detection formula to identify affected rows:**
+
 ```
 =SUMPRODUCT(--(LEN(A2:A1001)>LEN(SUBSTITUTE(SUBSTITUTE(A2:A1001,CHAR(8220),""),CHAR(8217),""))))
 ```
@@ -451,6 +485,7 @@ This handles: left/right double quotes, left/right single quotes/apostrophes, en
 ---
 
 ### 4. Cleaning Data Across Multiple Sheets Without Copying
+
 When the source data lives on Sheet2 and the user wants cleaned output on Sheet1 (or a separate "Clean" sheet), cross-sheet formula references work identically:
 
 ```
@@ -462,19 +497,23 @@ When the source data lives on Sheet2 and the user wants cleaned output on Sheet1
 The cleaning sheet serves as the audited, verified output while the source sheet remains completely untouched -- the ideal non-destructive architecture. Name the sheets clearly: "Raw_Data" and "Cleaned_Data." This pattern also makes it easy to re-run cleaning if the source is refreshed.
 
 **Google Sheets cross-file reference:** If the source is a separate Google Sheets file, use IMPORTRANGE:
+
 ```
 =TRIM(CLEAN(IMPORTRANGE("spreadsheet_url","Sheet1!A2")))
 ```
+
 Note that IMPORTRANGE imports static snapshots that refresh periodically -- it does not reflect live edits in real time and requires the user to authorize the connection between files.
 
 ---
 
 ### 5. Very Long Text Fields With Truncation Risk in Excel
+
 Excel has a cell content limit of 32,767 characters per cell, but a formula result can display at most 32,767 characters. This is rarely a problem for structured data, but it matters for columns containing long-form text (survey responses, notes, comments). CLEAN and TRIM applied to a 30,000-character cell can cause performance issues in worksheets with thousands of such rows.
 
 **Symptom:** The worksheet becomes unresponsive when dragging the formula down, or the formula bar shows "#VALUE!" errors unexpectedly.
 
 **Mitigation:**
+
 - Process in batches of 500-1,000 rows at a time rather than dragging to row 50,000 in one operation
 - After each batch, select the cleaned cells, copy, and paste-as-values to freeze results and reduce formula load
 - For genuinely large text, consider whether CLEAN/TRIM are actually necessary -- truncated cleaning (clean only the first 200 characters) may be sufficient: `=TRIM(CLEAN(LEFT(A2,200)))`
@@ -482,9 +521,11 @@ Excel has a cell content limit of 32,767 characters per cell, but a formula resu
 ---
 
 ### 6. Cleaning Phone Numbers That Have Extensions, Country Codes, or Impossible Lengths
+
 A phone cleaning formula that strips all non-digit characters will produce a 7-digit local number, a 10-digit national number, an 11-digit number with country code (1-555-123-4567), and a 15-digit international number -- all in the same "cleaned" column. There is no single reformatting formula that handles all of these.
 
 **Strategy:**
+
 1. Strip to digits only first: `=SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TRIM(A2),"(",""),")",""),"-","")," ",""),".","")`
 2. Flag by digit length: `=LEN(B2)` where B2 is the digit-stripped result
 3. Apply format only to 10-digit numbers (US standard): `=IF(LEN(B2)=10,"("&LEFT(B2,3)&") "&MID(B2,4,3)&"-"&RIGHT(B2,4),"REVIEW: "&B2)`
@@ -496,6 +537,7 @@ A phone cleaning formula that strips all non-digit characters will produce a 7-d
 ---
 
 ### 7. Cleaning a Column Where Some Cells Contain Formulas (Not Raw Values)
+
 If some cells in the source column already contain formulas (e.g., `=CONCATENATE(C2," ",D2)`), the cleaning formula references the formula result, not the underlying formula. This is usually fine -- TRIM and CLEAN work on any text value regardless of whether it was typed or formula-generated.
 
 **Problem case:** If a cell in the source column contains a formula that references cells in a row being deleted or reorganized, the cleaning formula in the helper column will also break (producing #REF!). The IFERROR wrapper will catch this, but the resulting "[MISSING]" or "0" will hide the data loss.
@@ -507,12 +549,13 @@ If some cells in the source column already contain formulas (e.g., `=CONCATENATE
 ## Example
 
 **Input:** "I downloaded a vendor contact list from our CRM into Excel. It has about 800 rows. Here are the problems I've noticed:
+
 - The Company column has extra spaces and random mixed casing (some ALL CAPS, some all lowercase, some title case)
 - The Email column has some cells that say 'N/A' or are blank, and some have spaces around them. A few are all caps.
 - The Revenue column has dollar signs and commas in it so my SUM formula returns 0
 - The Country column uses about 12 different spellings for the same 5 countries ('USA', 'US', 'United States', 'U.S.A.', 'United States of America' -- all meaning the same thing)
 - I need to check if any companies are duplicated
-I'm using Excel 365. Keep the original data and clean into new columns."
+  I'm using Excel 365. Keep the original data and clean into new columns."
 
 ---
 
@@ -521,15 +564,16 @@ I'm using Excel 365. Keep the original data and clean into new columns."
 ## Spreadsheet Cleaning Plan
 
 ### Diagnostic Summary (Pre-Cleaning)
+
 Run these formulas to baseline the current state before any cleaning. Paste each formula into an empty cell and record the result.
 
-| Check | Formula | Paste In |
-|---|---|---|
-| Company -- extra spaces | `=SUMPRODUCT(--(LEN(B2:B801)<>LEN(TRIM(B2:B801))))` | Any empty cell |
-| Email -- blanks + "N/A" | `=COUNTBLANK(C2:C801)+COUNTIF(C2:C801,"N/A")` | Any empty cell |
-| Revenue -- text-stored numbers | `=SUMPRODUCT(--(NOT(ISNUMBER(D2:D801))))` | Any empty cell |
-| Country -- distinct values | `=SUMPRODUCT(1/COUNTIF(E2:E801,E2:E801))` | Any empty cell |
-| Any errors in sheet | `=SUMPRODUCT(--ISERROR(B2:E801))` | Any empty cell |
+| Check                          | Formula                                             | Paste In       |
+| ------------------------------ | --------------------------------------------------- | -------------- |
+| Company -- extra spaces        | `=SUMPRODUCT(--(LEN(B2:B801)<>LEN(TRIM(B2:B801))))` | Any empty cell |
+| Email -- blanks + "N/A"        | `=COUNTBLANK(C2:C801)+COUNTIF(C2:C801,"N/A")`       | Any empty cell |
+| Revenue -- text-stored numbers | `=SUMPRODUCT(--(NOT(ISNUMBER(D2:D801))))`           | Any empty cell |
+| Country -- distinct values     | `=SUMPRODUCT(1/COUNTIF(E2:E801,E2:E801))`           | Any empty cell |
+| Any errors in sheet            | `=SUMPRODUCT(--ISERROR(B2:E801))`                   | Any empty cell |
 
 **Cleaning mode:** Non-destructive (cleaned values in new columns F, G, H, I, J)
 **Platform:** Excel 365
@@ -541,6 +585,7 @@ Run these formulas to baseline the current state before any cleaning. Paste each
 #### Operation 1: Company Name (Column B -- Company → Column F -- Company_Clean)
 
 **Formula (paste into F2, drag down to F801):**
+
 ```
 =IFERROR(
   IF(LEN(TRIM(CLEAN(SUBSTITUTE(B2,CHAR(160)," "))))=0,
@@ -552,6 +597,7 @@ Run these formulas to baseline the current state before any cleaning. Paste each
 ```
 
 **Sequence rationale:**
+
 - `SUBSTITUTE(B2,CHAR(160)," ")` -- replaces non-breaking spaces that TRIM ignores; common in CRM exports
 - `CLEAN(...)` -- removes any non-printable ASCII characters (line feeds, null chars) from the CRM data
 - `TRIM(...)` -- collapses all remaining extra spaces (leading, trailing, double-internal)
@@ -560,6 +606,7 @@ Run these formulas to baseline the current state before any cleaning. Paste each
 - Outer `IFERROR(...,B2)` -- if anything fails, return the raw original value rather than an error
 
 **Expected transformation:**
+
 - Before: `"  ACME CORP  "` → After: `"Acme Corp"`
 - Before: `"global solutions"` → After: `"Global Solutions"`
 - Before: `"   "` (spaces only) → After: `"[MISSING COMPANY]"`
@@ -572,6 +619,7 @@ Run these formulas to baseline the current state before any cleaning. Paste each
 #### Operation 2: Email Address (Column C -- Email → Column G -- Email_Clean)
 
 **Formula (paste into G2, drag down to G801):**
+
 ```
 =IF(
   OR(TRIM(C2)="", UPPER(TRIM(C2))="N/A"),
@@ -581,12 +629,14 @@ Run these formulas to baseline the current state before any cleaning. Paste each
 ```
 
 **Sequence rationale:**
+
 - `TRIM(C2)=""` catches blank cells and whitespace-only cells
 - `UPPER(TRIM(C2))="N/A"` catches all casing variants of "N/A", "n/a", "N/a" -- normalized before comparison
 - `LOWER(TRIM(CLEAN(...)))` -- for valid emails: strip non-printable chars, remove spaces, convert to lowercase (email addresses are case-insensitive by RFC 5321 standard)
 - No IFERROR needed because IF handles both problem states; if LOWER/TRIM/CLEAN fail on a non-text value, add outer IFERROR
 
 **Expected transformation:**
+
 - Before: `"  JOHN.SMITH@ACME.COM  "` → After: `"john.smith@acme.com"`
 - Before: `"N/A"` → After: `"[NO EMAIL]"`
 - Before: `"n/a"` → After: `"[NO EMAIL]"`
@@ -594,9 +644,11 @@ Run these formulas to baseline the current state before any cleaning. Paste each
 - Before: `"Sarah.Jones@COMPANY.COM"` → After: `"sarah.jones@company.com"`
 
 **Post-cleaning email format check (optional):**
+
 ```
 =IF(ISERROR(FIND("@",G2)),"INVALID FORMAT",IF(ISERROR(FIND(".",G2,FIND("@",G2))),"INVALID FORMAT","OK"))
 ```
+
 Paste this into column K (Email_Valid) to flag emails missing @ or a domain dot. This is a basic structural check, not a deliverability check.
 
 ---
@@ -604,6 +656,7 @@ Paste this into column K (Email_Valid) to flag emails missing @ or a domain dot.
 #### Operation 3: Revenue (Column D -- Revenue → Column H -- Revenue_Clean)
 
 **Formula (paste into H2, drag down to H801):**
+
 ```
 =IFERROR(
   IF(TRIM(D2)="", 0,
@@ -614,6 +667,7 @@ Paste this into column K (Email_Valid) to flag emails missing @ or a domain dot.
 ```
 
 **Sequence rationale:**
+
 - `IF(TRIM(D2)="",0,...)` -- blank revenue cells become 0 (adjust to a different fallback if 0 is ambiguous in this dataset -- consider "[MISSING]" instead if you need to distinguish zero-revenue from unknown-revenue)
 - `SUBSTITUTE(D2,"$","")` -- removes dollar sign
 - `SUBSTITUTE(...,",","")` -- removes thousands-separator commas
@@ -622,6 +676,7 @@ Paste this into column K (Email_Valid) to flag emails missing @ or a domain dot.
 - `IFERROR(...,"[PARSE ERROR: "&D2&"]")` -- if VALUE still fails (e.g., the cell contained "TBD" or "N/A"), flags the raw original value rather than silently returning 0
 
 **Expected transformation:**
+
 - Before: `"$1,250,000"` → After: `1250000` (numeric, no formatting)
 - Before: `"$500"` → After: `500`
 - Before: `""` (blank) → After: `0`
@@ -629,6 +684,7 @@ Paste this into column K (Email_Valid) to flag emails missing @ or a domain dot.
 
 **Verification:**
 After cleaning, `=SUM(H2:H801)` should return a non-zero total. Also run:
+
 ```
 =COUNTIF(H2:H801,"[PARSE ERROR*")   -- count cells that still failed conversion
 =SUMPRODUCT(--(NOT(ISNUMBER(H2:H801))))  -- count non-numeric cells in cleaned column (should equal PARSE ERROR count)
@@ -646,24 +702,25 @@ There are too many variants (at least 12 described) for a SUBSTITUTE chain. Use 
 
 Paste the following table starting at M1:
 
-| M (Raw_Country) | N (Standard_Country) |
-|---|---|
-| USA | United States |
-| US | United States |
-| United States | United States |
-| U.S.A. | United States |
-| United States of America | United States |
-| UK | United Kingdom |
-| United Kingdom | United Kingdom |
-| U.K. | United Kingdom |
-| England | United Kingdom |
-| CAN | Canada |
-| Canada | Canada |
-| [add remaining variants from your data] | [standard name] |
+| M (Raw_Country)                         | N (Standard_Country) |
+| --------------------------------------- | -------------------- |
+| USA                                     | United States        |
+| US                                      | United States        |
+| United States                           | United States        |
+| U.S.A.                                  | United States        |
+| United States of America                | United States        |
+| UK                                      | United Kingdom       |
+| United Kingdom                          | United Kingdom       |
+| U.K.                                    | United Kingdom       |
+| England                                 | United Kingdom       |
+| CAN                                     | Canada               |
+| Canada                                  | Canada               |
+| [add remaining variants from your data] | [standard name]      |
 
 Select M1:N20 and name this range `CountryMap` (Formula tab > Name Manager > New in Excel).
 
 **Step 4b -- Cleaning formula (paste into I2, drag down to I801):**
+
 ```
 =IFERROR(
   XLOOKUP(TRIM(UPPER(E2)), UPPER(CountryMap_Raw), CountryMap_Clean, TRIM(PROPER(E2))),
@@ -674,6 +731,7 @@ Select M1:N20 and name this range `CountryMap` (Formula tab > Name Manager > New
 Where CountryMap_Raw is the M column range and CountryMap_Clean is the N column range. The UPPER() normalization on both the lookup value and the lookup array makes the match case-insensitive, so "usa", "USA", and "Usa" all match the "USA" entry in the mapping table.
 
 **Alternative (for Excel 2019 without XLOOKUP):**
+
 ```
 =IFERROR(
   INDEX(N$2:N$20, MATCH(TRIM(UPPER(E2)), UPPER(M$2:M$20), 0)),
@@ -682,6 +740,7 @@ Where CountryMap_Raw is the M column range and CountryMap_Clean is the N column 
 ```
 
 **Expected transformation:**
+
 - Before: `"USA"` → After: `"United States"`
 - Before: `"United States of America"` → After: `"United States"`
 - Before: `"u.s.a."` → After: `"United States"` (UPPER normalization handles this)

@@ -5,19 +5,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy decision-making analysis frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy decision-making analysis frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Systems Thinker
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Describes a persistent, recurring problem that keeps returning despite repeated fixes -- symptoms that come back within weeks or months after interventions
 - Observes counterintuitive behavior in an organization, market, or ecosystem (e.g., adding resources makes delivery slower, cutting costs increases long-term spending)
 - Wants to understand why a policy or intervention produced the opposite of its intended effect
@@ -28,6 +30,7 @@ metadata:
 - Wants to build a shared mental model with a team about how their organization, market, or system actually works
 
 **Do NOT use this skill when:**
+
 - The problem is simple and linear with a clear, unambiguous root cause -- use a standard root cause analysis or 5 Whys approach instead
 - The user is asking about project scheduling, task management, or resource allocation without systemic complexity -- use a project management or planning skill
 - The request is purely quantitative modeling or data science (regression, forecasting, ML) -- use a data analysis or quantitative modeling skill
@@ -145,9 +148,9 @@ When delivering a systems thinking analysis, structure the output as follows. Ad
 
 **Stocks and Flows Map**
 
-| Stock | Key Inflows | Key Outflows | Current Level (if known) | Critical Delays |
-|---|---|---|---|---|
-| [Stock name] | [Inflow 1], [Inflow 2] | [Outflow 1], [Outflow 2] | [High / Low / Unknown] | [Delay in weeks/months] |
+| Stock        | Key Inflows            | Key Outflows             | Current Level (if known) | Critical Delays         |
+| ------------ | ---------------------- | ------------------------ | ------------------------ | ----------------------- |
+| [Stock name] | [Inflow 1], [Inflow 2] | [Outflow 1], [Outflow 2] | [High / Low / Unknown]   | [Delay in weeks/months] |
 
 ---
 
@@ -157,30 +160,30 @@ When delivering a systems thinking analysis, structure the output as follows. Ad
 
 **Loop [Label] ([R/B] -- [Short name]):**
 [Variable A] --(+/-)--> [Variable B] --(+/-)--> [Variable C] --(+/-)--> [Variable A]
-*Story:* [One sentence causal narrative of the loop]
-*Current dominance:* [Is this loop currently driving behavior? Why?]
-*Key delay:* [Where is the most important delay in this loop, and what does it cause?]
+_Story:_ [One sentence causal narrative of the loop]
+_Current dominance:_ [Is this loop currently driving behavior? Why?]
+_Key delay:_ [Where is the most important delay in this loop, and what does it cause?]
 
 ---
 
 **Archetype Diagnosis**
 
-| Archetype | Present? | Evidence | Structural Implication |
-|---|---|---|---|
-| Fixes That Fail | Yes / No / Partial | [Observable evidence] | [What the structure predicts will happen] |
-| Shifting the Burden | Yes / No / Partial | [Observable evidence] | [What capability is being eroded] |
-| Tragedy of the Commons | Yes / No / Partial | [Observable evidence] | [Which shared resource is at risk] |
-| Limits to Growth | Yes / No / Partial | [Observable evidence] | [What the binding constraint is] |
-| Escalation | Yes / No / Partial | [Observable evidence] | [What the arms race is over] |
+| Archetype              | Present?           | Evidence              | Structural Implication                    |
+| ---------------------- | ------------------ | --------------------- | ----------------------------------------- |
+| Fixes That Fail        | Yes / No / Partial | [Observable evidence] | [What the structure predicts will happen] |
+| Shifting the Burden    | Yes / No / Partial | [Observable evidence] | [What capability is being eroded]         |
+| Tragedy of the Commons | Yes / No / Partial | [Observable evidence] | [Which shared resource is at risk]        |
+| Limits to Growth       | Yes / No / Partial | [Observable evidence] | [What the binding constraint is]          |
+| Escalation             | Yes / No / Partial | [Observable evidence] | [What the arms race is over]              |
 
 ---
 
 **Leverage Point Analysis**
 
-| Intervention | Leverage Point (Meadows #) | Mechanism | Expected Delay | Primary Risk |
-|---|---|---|---|---|
-| [Intervention 1] | [#] -- [Name] | [How it changes feedback structure] | [Weeks/months/years] | [Most likely unintended consequence] |
-| [Intervention 2] | [#] -- [Name] | [How it changes feedback structure] | [Weeks/months/years] | [Most likely unintended consequence] |
+| Intervention     | Leverage Point (Meadows #) | Mechanism                           | Expected Delay       | Primary Risk                         |
+| ---------------- | -------------------------- | ----------------------------------- | -------------------- | ------------------------------------ |
+| [Intervention 1] | [#] -- [Name]              | [How it changes feedback structure] | [Weeks/months/years] | [Most likely unintended consequence] |
+| [Intervention 2] | [#] -- [Name]              | [How it changes feedback structure] | [Weeks/months/years] | [Most likely unintended consequence] |
 
 ---
 
@@ -191,6 +194,7 @@ When delivering a systems thinking analysis, structure the output as follows. Ad
 3. **Long-term (1-3 years) -- Paradigm or goal shift:** [If applicable, the deeper change required for lasting resolution]
 
 **Leading Indicators to Monitor:**
+
 - [Indicator 1]: Measure [frequency], expect to see [behavior] if intervention is working
 - [Indicator 2]: Measure [frequency], watch for [warning signal] as early warning of unintended loop
 
@@ -280,22 +284,23 @@ The structural fix for oscillation is almost never "try harder" or "be more disc
 Engineering capacity oscillates with a period of approximately 12-18 months between severe overload (resulting in quality degradation and attrition) and underutilization. The oscillation has persisted for four years despite repeated hiring interventions. The problem is not insufficient hiring -- the problem is the structure that produces cyclical overload and underutilization regardless of how much is hired.
 
 **Behavior Over Time Graph (Verbal)**
-- *Engineering capacity (available person-weeks)*: Oscillates. Troughs during overload phases; peaks shortly after hiring surge completes and before new contracts are won.
-- *Workload (contracted person-weeks required)*: Grows in surges (contract wins) with relatively flat periods between. Leads capacity by approximately 3-6 months at each cycle peak.
-- *Attrition rate*: Spikes 3-4 months after each overload peak, lagging workload peaks by the time it takes burnout to translate to departures.
-- *Quality metrics (defect rate, rework)*: Rise during overload phases, fall during underutilization phases. Lead attrition by 1-2 months.
+
+- _Engineering capacity (available person-weeks)_: Oscillates. Troughs during overload phases; peaks shortly after hiring surge completes and before new contracts are won.
+- _Workload (contracted person-weeks required)_: Grows in surges (contract wins) with relatively flat periods between. Leads capacity by approximately 3-6 months at each cycle peak.
+- _Attrition rate_: Spikes 3-4 months after each overload peak, lagging workload peaks by the time it takes burnout to translate to departures.
+- _Quality metrics (defect rate, rework)_: Rise during overload phases, fall during underutilization phases. Lead attrition by 1-2 months.
 
 ---
 
 **Stocks and Flows Map**
 
-| Stock | Key Inflows | Key Outflows | Current Level | Critical Delays |
-|---|---|---|---|---|
-| Engineering headcount | Hiring rate | Voluntary attrition, involuntary exits | [User to confirm] | 7-14 months from recognition of need to full productivity |
-| Productive capacity (effective person-weeks/month) | Headcount increase, onboarding completion, skill development | Overload-driven productivity loss, attrition, onboarding burden on senior engineers | Oscillating | 3-6 months from hire to meaningful contribution |
-| Contracted workload backlog | Contract wins | Delivery completions, scope reduction | Growing during overload | 1-3 months from contract signature to work mobilization |
-| Engineering morale and discretionary effort | Positive work experiences, recognition, meaningful work | Sustained overload, quality-related frustration, perceived futility | Low during overload peaks | 2-4 months lag between workload and morale change |
-| Organizational reputation as employer | Positive candidate experiences, employee referrals, external reputation | Burnout departures, Glassdoor-type signals, word of mouth in engineering community | Degrading slowly | 6-18 months from attrition events to measurable recruiting impact |
+| Stock                                              | Key Inflows                                                             | Key Outflows                                                                        | Current Level             | Critical Delays                                                   |
+| -------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------- |
+| Engineering headcount                              | Hiring rate                                                             | Voluntary attrition, involuntary exits                                              | [User to confirm]         | 7-14 months from recognition of need to full productivity         |
+| Productive capacity (effective person-weeks/month) | Headcount increase, onboarding completion, skill development            | Overload-driven productivity loss, attrition, onboarding burden on senior engineers | Oscillating               | 3-6 months from hire to meaningful contribution                   |
+| Contracted workload backlog                        | Contract wins                                                           | Delivery completions, scope reduction                                               | Growing during overload   | 1-3 months from contract signature to work mobilization           |
+| Engineering morale and discretionary effort        | Positive work experiences, recognition, meaningful work                 | Sustained overload, quality-related frustration, perceived futility                 | Low during overload peaks | 2-4 months lag between workload and morale change                 |
+| Organizational reputation as employer              | Positive candidate experiences, employee referrals, external reputation | Burnout departures, Glassdoor-type signals, word of mouth in engineering community  | Degrading slowly          | 6-18 months from attrition events to measurable recruiting impact |
 
 ---
 
@@ -303,57 +308,57 @@ Engineering capacity oscillates with a period of approximately 12-18 months betw
 
 **Loop B1 (B -- Hiring Response):**
 Workload backlog --(+)--> Perceived understaffing --(+)--> Hiring rate --(+)--> Headcount --(+)--> Productive capacity --(-)-- Workload backlog
-*Story:* When backlog grows, management perceives understaffing, initiates hiring, headcount increases, capacity grows, and eventually backlog is reduced.
-*Current dominance:* This loop is intended to be dominant but is systematically frustrated by the delay below.
-*Key delay:* 7-14 months from hiring trigger to full productive capacity. Management typically expects relief in 3-4 months, waits 6, sees no relief, hires more -- and then overshoots.
+_Story:_ When backlog grows, management perceives understaffing, initiates hiring, headcount increases, capacity grows, and eventually backlog is reduced.
+_Current dominance:_ This loop is intended to be dominant but is systematically frustrated by the delay below.
+_Key delay:_ 7-14 months from hiring trigger to full productive capacity. Management typically expects relief in 3-4 months, waits 6, sees no relief, hires more -- and then overshoots.
 
 **Loop R1 (R -- Burnout Spiral):**
 Workload backlog --(+)--> Individual workload per engineer --(+)--> Burnout and stress --(+)--> Voluntary attrition --(-)-- Headcount --(-)-- Productive capacity --(+)--> Workload backlog
-*Story:* High backlog increases individual load, which drives burnout and attrition, which reduces capacity, which increases individual load further.
-*Current dominance:* Dominant during the overload phase. This loop is why the overload phase accelerates rather than stabilizing -- each departure worsens conditions for those who remain.
-*Key delay:* 3-5 months from sustained overload to attrition spike -- enough delay to make the causal connection invisible without data.
+_Story:_ High backlog increases individual load, which drives burnout and attrition, which reduces capacity, which increases individual load further.
+_Current dominance:_ Dominant during the overload phase. This loop is why the overload phase accelerates rather than stabilizing -- each departure worsens conditions for those who remain.
+_Key delay:_ 3-5 months from sustained overload to attrition spike -- enough delay to make the causal connection invisible without data.
 
 **Loop R2 (R -- Onboarding Burden):**
 Hiring rate --(+)--> New employees being onboarded --(+)--> Senior engineer onboarding burden --(-)-- Senior productive capacity --(+)--> Effective backlog per experienced engineer
-*Story:* The very act of hiring to solve the overload problem temporarily worsens it by consuming senior engineer time for onboarding and mentoring.
-*Current dominance:* Active during each hiring surge. Explains why adding headcount initially makes delivery worse before it makes it better -- a counterintuitive pattern that causes management to doubt the hiring strategy and sometimes halt it prematurely.
-*Key delay:* 2-4 months of degraded senior capacity per new hire cohort.
+_Story:_ The very act of hiring to solve the overload problem temporarily worsens it by consuming senior engineer time for onboarding and mentoring.
+_Current dominance:_ Active during each hiring surge. Explains why adding headcount initially makes delivery worse before it makes it better -- a counterintuitive pattern that causes management to doubt the hiring strategy and sometimes halt it prematurely.
+_Key delay:_ 2-4 months of degraded senior capacity per new hire cohort.
 
 **Loop R3 (R -- Reputation Erosion):**
 Attrition rate --(+)--> Employer reputation damage --(+)--> Recruiting difficulty --(+)--> Time-to-fill open roles --(+)--> Capacity gap duration --(+)--> Overload --(+)--> Attrition rate
-*Story:* High attrition damages the organization's reputation as an employer, making future hiring harder and slower, extending the overload phase, driving further attrition.
-*Current dominance:* Grows stronger with each cycle. If four years of oscillating attrition has been producing employer brand signals, this loop is becoming increasingly important and explains why each cycle is harder to recover from than the last.
-*Key delay:* 6-18 months for reputation effects to translate into measurable recruiting pipeline changes.
+_Story:_ High attrition damages the organization's reputation as an employer, making future hiring harder and slower, extending the overload phase, driving further attrition.
+_Current dominance:_ Grows stronger with each cycle. If four years of oscillating attrition has been producing employer brand signals, this loop is becoming increasingly important and explains why each cycle is harder to recover from than the last.
+_Key delay:_ 6-18 months for reputation effects to translate into measurable recruiting pipeline changes.
 
 **Loop B2 (B -- Contract Modulation):**
 Productive capacity --(+)--> Sales confidence --(+)--> Contracts sold --(+)--> Workload backlog --(-)-- Productive capacity
-*Story:* When the team has slack, sales pursues and wins more contracts, rebuilding the backlog. This is the loop that restarts the overload cycle after each hiring surge.
-*Current dominance:* Dominant during the underutilization phase. This is the loop that initiates each new overload cycle -- sales correctly identifies slack capacity and fills it, but without coordination with engineering on sustainable throughput, they fill it to overload.
+_Story:_ When the team has slack, sales pursues and wins more contracts, rebuilding the backlog. This is the loop that restarts the overload cycle after each hiring surge.
+_Current dominance:_ Dominant during the underutilization phase. This is the loop that initiates each new overload cycle -- sales correctly identifies slack capacity and fills it, but without coordination with engineering on sustainable throughput, they fill it to overload.
 
 ---
 
 **Archetype Diagnosis**
 
-| Archetype | Present? | Evidence | Structural Implication |
-|---|---|---|---|
-| Fixes That Fail | Yes | Hiring fixes overload temporarily but creates onboarding burden and reputation erosion that worsen future overload | Each hiring surge partially addresses symptom but strengthens the conditions for the next cycle |
-| Shifting the Burden | Partial | Reliance on emergency hiring rather than building sustainable capacity planning capability | Capacity planning muscle may be atrophying -- management relies on reactive hiring rather than developing predictive staffing models |
-| Limits to Growth | Yes | Reinforcing contract-winning growth is hitting the balancing constraint of engineering capacity, with oscillation as the signature behavior | The constraint is not hiring speed alone but the 7-14 month delay from need to productive capacity |
-| Escalation | No | No second party engaged in a competitive response loop | N/A |
-| Tragedy of the Commons | Partial | Senior engineer time is a shared resource consumed by both delivery and onboarding; no explicit governance of how it is allocated | Risk that senior engineers will protect themselves by disengaging from onboarding or delivery, triggering a different crisis |
+| Archetype              | Present? | Evidence                                                                                                                                    | Structural Implication                                                                                                               |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Fixes That Fail        | Yes      | Hiring fixes overload temporarily but creates onboarding burden and reputation erosion that worsen future overload                          | Each hiring surge partially addresses symptom but strengthens the conditions for the next cycle                                      |
+| Shifting the Burden    | Partial  | Reliance on emergency hiring rather than building sustainable capacity planning capability                                                  | Capacity planning muscle may be atrophying -- management relies on reactive hiring rather than developing predictive staffing models |
+| Limits to Growth       | Yes      | Reinforcing contract-winning growth is hitting the balancing constraint of engineering capacity, with oscillation as the signature behavior | The constraint is not hiring speed alone but the 7-14 month delay from need to productive capacity                                   |
+| Escalation             | No       | No second party engaged in a competitive response loop                                                                                      | N/A                                                                                                                                  |
+| Tragedy of the Commons | Partial  | Senior engineer time is a shared resource consumed by both delivery and onboarding; no explicit governance of how it is allocated           | Risk that senior engineers will protect themselves by disengaging from onboarding or delivery, triggering a different crisis         |
 
 ---
 
 **Leverage Point Analysis**
 
-| Intervention | Leverage Point (Meadows #) | Mechanism | Expected Delay | Primary Risk |
-|---|---|---|---|---|
-| Hire faster (reduce time-to-offer) | 9 -- Delays | Reduces the B1 loop delay, allowing balancing loop to close faster and reducing overshoot | 2-4 months to implement, 3-6 months to affect capacity | Does not address the fundamental oscillation driver; B2 loop will still refill capacity to overload |
-| Implement capacity buffer (maintain 10-15% slack target) | 11 -- Buffer sizes | Maintains a capacity buffer stock that absorbs demand surges without triggering overload | Immediate if slack exists; requires 6-12 months to build if starting from overload | Sales will resist "idle" capacity; requires leadership commitment and a new mental model about slack |
-| Create integrated sales-engineering capacity governance | 8 -- Balancing feedback loops | Strengthens the B1 and B2 loops by connecting sales contracting decisions to engineering capacity in real time | 3-6 months to implement governance process | Requires changing sales incentives (currently rewarded for bookings, not for sustainable delivery) |
-| Change sales incentives to include delivery margin, not just booking revenue | 5 -- Rules | Restructures the incentive that drives Loop B2 to overshoot; sales now has a stake in sustainable load | 6-12 months for incentive change to fully affect behavior | Sales may resist; requires executive sponsorship; may reduce short-term revenue |
-| Publish real-time capacity utilization to sales, delivery, and leadership | 6 -- Information flows | Makes the capacity stock visible to all actors simultaneously, reducing information delays that cause misaligned decisions | 1-3 months to implement a dashboard | Only effective if decision-making processes are structured to use the information; information without decision authority changes little |
-| Shift organizational goal from "maximize contracts won" to "maximize sustainable delivery throughput" | 3 -- Goals | Restructures what success means for sales, engineering leadership, and executives, changing all downstream rules and information requirements | 12-24 months to fully internalize | Requires board and investor alignment if publicly visible metrics are affected |
+| Intervention                                                                                          | Leverage Point (Meadows #)    | Mechanism                                                                                                                                     | Expected Delay                                                                     | Primary Risk                                                                                                                             |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Hire faster (reduce time-to-offer)                                                                    | 9 -- Delays                   | Reduces the B1 loop delay, allowing balancing loop to close faster and reducing overshoot                                                     | 2-4 months to implement, 3-6 months to affect capacity                             | Does not address the fundamental oscillation driver; B2 loop will still refill capacity to overload                                      |
+| Implement capacity buffer (maintain 10-15% slack target)                                              | 11 -- Buffer sizes            | Maintains a capacity buffer stock that absorbs demand surges without triggering overload                                                      | Immediate if slack exists; requires 6-12 months to build if starting from overload | Sales will resist "idle" capacity; requires leadership commitment and a new mental model about slack                                     |
+| Create integrated sales-engineering capacity governance                                               | 8 -- Balancing feedback loops | Strengthens the B1 and B2 loops by connecting sales contracting decisions to engineering capacity in real time                                | 3-6 months to implement governance process                                         | Requires changing sales incentives (currently rewarded for bookings, not for sustainable delivery)                                       |
+| Change sales incentives to include delivery margin, not just booking revenue                          | 5 -- Rules                    | Restructures the incentive that drives Loop B2 to overshoot; sales now has a stake in sustainable load                                        | 6-12 months for incentive change to fully affect behavior                          | Sales may resist; requires executive sponsorship; may reduce short-term revenue                                                          |
+| Publish real-time capacity utilization to sales, delivery, and leadership                             | 6 -- Information flows        | Makes the capacity stock visible to all actors simultaneously, reducing information delays that cause misaligned decisions                    | 1-3 months to implement a dashboard                                                | Only effective if decision-making processes are structured to use the information; information without decision authority changes little |
+| Shift organizational goal from "maximize contracts won" to "maximize sustainable delivery throughput" | 3 -- Goals                    | Restructures what success means for sales, engineering leadership, and executives, changing all downstream rules and information requirements | 12-24 months to fully internalize                                                  | Requires board and investor alignment if publicly visible metrics are affected                                                           |
 
 ---
 
@@ -370,10 +375,11 @@ Productive capacity --(+)--> Sales confidence --(+)--> Contracts sold --(+)--> W
 3. **Long-term (1-3 years) -- Paradigm shift:** Move the organizational mental model from "maximize revenue" to "maximize sustainable delivery capacity." This requires: redefining the company's growth story to investors and clients around quality and reliability rather than volume; building a predictive capacity planning capability (using 12-18 month rolling workforce models, not reactive headcount requests); and investing in employer brand repair by systematically gathering and acting on exit interview data, improving return-to-company pathways, and building university recruiting pipelines that are not disrupted by short-term hiring freezes.
 
 **Leading Indicators to Monitor:**
-- *Capacity utilization rate*: Measure weekly. Target 80-85% utilization (not 95-100%). If consistently above 90%, the next overload cycle is 3-6 months away.
-- *Senior engineer onboarding hours per week*: Measure monthly. If above 15% of senior capacity, new hire cohorts are creating a drag that will manifest as delivery quality problems in 4-8 weeks.
-- *Time-to-offer for open roles*: Measure monthly. If increasing, reputation or process issues are extending the B1 loop delay and worsening future oscillation risk.
-- *Sales pipeline vs. 12-month capacity forecast gap*: Measure monthly. If pipeline exceeds capacity by more than 20%, the B2 loop is primed to trigger the next overload cycle without governance intervention.
-- *Voluntary attrition by tenure band*: Measure monthly. A spike in 2-4 year tenure attrition is the earliest signal that the Burnout Spiral (R1) is activating.
+
+- _Capacity utilization rate_: Measure weekly. Target 80-85% utilization (not 95-100%). If consistently above 90%, the next overload cycle is 3-6 months away.
+- _Senior engineer onboarding hours per week_: Measure monthly. If above 15% of senior capacity, new hire cohorts are creating a drag that will manifest as delivery quality problems in 4-8 weeks.
+- _Time-to-offer for open roles_: Measure monthly. If increasing, reputation or process issues are extending the B1 loop delay and worsening future oscillation risk.
+- _Sales pipeline vs. 12-month capacity forecast gap_: Measure monthly. If pipeline exceeds capacity by more than 20%, the B2 loop is primed to trigger the next overload cycle without governance intervention.
+- _Voluntary attrition by tenure band_: Measure monthly. A spike in 2-4 year tenure attrition is the earliest signal that the Burnout Spiral (R1) is activating.
 
 **Most Dangerous Assumption:** The analysis assumes the overload-attrition-reputation reinforcing loop (R3) has not yet permanently damaged the employer brand enough to make each subsequent hiring cycle materially harder. If attrition over four years has been generating sustained negative employer reputation signals in the target engineering community, the capacity recovery time in each cycle is extending, not staying constant. Test this by: pulling recruiting funnel conversion rates (applicant-to-interview, interview-to-offer-acceptance) over the last 4 years. A declining offer acceptance rate is the signature of reputation erosion. If confirmed, employer brand investment is not optional -- it becomes as urgent as the governance and incentive changes.

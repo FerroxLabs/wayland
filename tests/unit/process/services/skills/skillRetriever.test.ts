@@ -26,12 +26,37 @@ const entry = (overrides: Partial<SkillIndexEntry> = {}): SkillIndexEntry => ({
 });
 
 const FIXTURES: SkillIndexEntry[] = [
-  entry({ name: 'python-project-setup', description: 'Set up a new Python project with virtual environments and dependencies', metadata: { tags: ['python', 'virtualenv', 'pip'], category: 'software-engineering' } }),
-  entry({ name: 'react-component', description: 'Generate a React functional component with hooks', metadata: { tags: ['react', 'frontend', 'hooks'], category: 'frontend' } }),
-  entry({ name: 'kube-deploy', description: 'Deploy an application to Kubernetes cluster', metadata: { tags: ['kubernetes', 'devops', 'docker'], category: 'devops' } }),
-  entry({ name: 'blocked-skill', description: 'This skill is blocked and should not appear', metadata: { tags: ['blocked'], category: 'security' }, security: { verdict: 'blocked', findings: [], scannedAt: 0, scannerVersion: 1, llmScanned: false } }),
-  entry({ name: 'sql-query', description: 'Write optimized SQL queries for relational databases', metadata: { tags: ['sql', 'database', 'postgres'], category: 'database' } }),
-  entry({ name: 'git-workflow', description: 'Manage Git branching and merge workflows', metadata: { tags: ['git', 'version-control'], category: 'software-engineering' } }),
+  entry({
+    name: 'python-project-setup',
+    description: 'Set up a new Python project with virtual environments and dependencies',
+    metadata: { tags: ['python', 'virtualenv', 'pip'], category: 'software-engineering' },
+  }),
+  entry({
+    name: 'react-component',
+    description: 'Generate a React functional component with hooks',
+    metadata: { tags: ['react', 'frontend', 'hooks'], category: 'frontend' },
+  }),
+  entry({
+    name: 'kube-deploy',
+    description: 'Deploy an application to Kubernetes cluster',
+    metadata: { tags: ['kubernetes', 'devops', 'docker'], category: 'devops' },
+  }),
+  entry({
+    name: 'blocked-skill',
+    description: 'This skill is blocked and should not appear',
+    metadata: { tags: ['blocked'], category: 'security' },
+    security: { verdict: 'blocked', findings: [], scannedAt: 0, scannerVersion: 1, llmScanned: false },
+  }),
+  entry({
+    name: 'sql-query',
+    description: 'Write optimized SQL queries for relational databases',
+    metadata: { tags: ['sql', 'database', 'postgres'], category: 'database' },
+  }),
+  entry({
+    name: 'git-workflow',
+    description: 'Manage Git branching and merge workflows',
+    metadata: { tags: ['git', 'version-control'], category: 'software-engineering' },
+  }),
 ];
 
 // ---------------------------------------------------------------------------
@@ -142,7 +167,11 @@ describe('SkillRetriever', () => {
     it('rebuilding index replaces the previous one', () => {
       const r = new SkillRetriever({ entries: FIXTURES });
       const fresh: SkillIndexEntry[] = [
-        entry({ name: 'only-skill', description: 'the one and only skill here', metadata: { tags: ['unique'], category: 'test' } }),
+        entry({
+          name: 'only-skill',
+          description: 'the one and only skill here',
+          metadata: { tags: ['unique'], category: 'test' },
+        }),
       ];
       r.buildIndex(fresh);
       const results = r.retrieve('only skill here');

@@ -13,9 +13,9 @@ steps:
   - id: private-app
     title: Create a HubSpot Private App
     estSeconds: 240
-    externalAction: { label: "Open HubSpot", url: "https://app.hubspot.com" }
+    externalAction: { label: 'Open HubSpot', url: 'https://app.hubspot.com' }
     inputs:
-      - { name: HUBSPOT_ACCESS_TOKEN, label: "Access token", secret: true }
+      - { name: HUBSPOT_ACCESS_TOKEN, label: 'Access token', secret: true }
     warning: |
       Private apps are scoped to the **HubSpot account they're created
       in** - if you have multiple portals (e.g. sandbox + production),

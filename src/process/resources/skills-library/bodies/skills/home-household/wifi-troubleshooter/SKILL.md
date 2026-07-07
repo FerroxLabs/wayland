@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart home-maintenance budgeting checklist testing branding performing-arts video-production"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart home-maintenance budgeting checklist testing branding performing-arts video-production'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # WiFi Troubleshooter
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user reports slow internet speeds, buffering, or inability to stream video at expected quality
 - A user has dead zones or weak signal in specific rooms or areas of their home
 - A user experiences frequent disconnections, drops, or devices that periodically lose WiFi
@@ -31,6 +33,7 @@ metadata:
 - A user asks why their WiFi is slower than their paid internet plan
 
 **Do NOT use when:**
+
 - The user needs help configuring an enterprise or business-grade network with VLANs, 802.1X authentication, or managed switches -- refer to a network administration skill
 - The user's issue is with a cellular data connection or mobile hotspot rather than a home WiFi network
 - The user is troubleshooting a wired Ethernet-only connection with no WiFi component
@@ -243,18 +246,19 @@ WiFi 6E routers operating in the 6 GHz band require WPA3 security -- the 6 GHz r
 ## WiFi Diagnosis Report
 
 ### Problem Summary
+
 - Reported symptom: Slow WiFi speeds (20 Mbps) in bedroom
 - Affected scope: Single location (bedroom at far end of house from router)
 - Duration: Recent degradation ("lately") -- not a baseline condition
 
 ### Baseline Measurements
 
-| Test | Result | Expected | Assessment |
-|------|--------|----------|------------|
-| Wired speed (to confirm) | Not yet measured | 380--400 Mbps | Run this first |
-| 5 GHz WiFi at router | Not yet measured | 300+ Mbps | Run this second |
-| 5 GHz WiFi in bedroom | ~20 Mbps reported | 150+ Mbps | Far below threshold |
-| Signal strength in bedroom | Not yet measured | Better than -67 dBm | Likely -75 to -80 dBm |
+| Test                       | Result            | Expected            | Assessment            |
+| -------------------------- | ----------------- | ------------------- | --------------------- |
+| Wired speed (to confirm)   | Not yet measured  | 380--400 Mbps       | Run this first        |
+| 5 GHz WiFi at router       | Not yet measured  | 300+ Mbps           | Run this second       |
+| 5 GHz WiFi in bedroom      | ~20 Mbps reported | 150+ Mbps           | Far below threshold   |
+| Signal strength in bedroom | Not yet measured  | Better than -67 dBm | Likely -75 to -80 dBm |
 
 **Action:** Before doing anything else, connect the laptop to the Motorola MB8600 directly via Ethernet and run a test at fast.com. This confirms whether the 400 Mbps plan is being delivered. The MB8600 is a DOCSIS 3.1 modem capable of multi-gigabit, so it is unlikely to be the bottleneck -- but this step eliminates ISP issues from the investigation.
 
@@ -263,6 +267,7 @@ WiFi 6E routers operating in the 6 GHz band require WPA3 security -- the 6 GHz r
 **Primary cause:** Insufficient signal strength in the bedroom due to distance and wall attenuation. A single router at one end of a house typically loses 15--25 dB of signal over 40--60 feet through 3--4 interior walls. The TP-Link Archer AX50 is a competent WiFi 6 router with a maximum output of 23 dBm on 5 GHz -- but at -75 dBm RSSI in the bedroom, the link will negotiate to low MCS rates (MCS 3--5 on a single spatial stream), producing exactly the 15--30 Mbps range you're experiencing.
 
 **Contributing factors:**
+
 - The bedroom device may be connecting to 2.4 GHz rather than 5 GHz due to band steering holding it there, further limiting throughput
 - If band steering is enabled and the 5 GHz signal is too weak in the bedroom, the device may have switched to 2.4 GHz which is slower per Mbps but reaches farther -- this would explain a working but slow connection at 20 Mbps (typical of a 2.4 GHz connection at distance) rather than no connection at all
 - Something may have changed recently that introduced new interference -- a new neighbor's router, a new device in the home, or the router being moved or blocked
@@ -270,11 +275,13 @@ WiFi 6E routers operating in the 6 GHz band require WPA3 security -- the 6 GHz r
 ### Recommended Fix Sequence
 
 **Priority 1 -- Do This First (Free, Takes 5 Minutes):**
+
 - [ ] Open Command Prompt on the bedroom laptop, run `netsh wlan show interfaces` -- look for "BSSID" and "Radio type." If it shows 802.11n, the laptop is on 2.4 GHz. If it shows 802.11ax or 802.11ac, it's on 5 GHz
 - [ ] Scan for the TP-Link's 5 GHz network in the bedroom (likely named your SSID with "-5G" appended, or the same name if band steering is on). If you can see it, try manually connecting to it and retest speed
 - [ ] Confirm the AX50's firmware is current: log into 192.168.0.1 (TP-Link default), go to Advanced > System Tools > Firmware Upgrade, check for updates. A firmware update resolved a known band steering regression in early AX50 firmware versions
 
 **Priority 2 -- Settings Optimization (Free, Takes 15 Minutes):**
+
 - [ ] Log into the TP-Link admin panel at 192.168.0.1 (default username/password: admin/admin -- change this if you haven't)
 - [ ] Go to Wireless > Wireless Settings > 5 GHz and verify the channel is set to a UNII-1 channel (36, 40, 44, or 48) rather than a DFS channel (52--144). DFS channel radar events cause temporary radio blackouts
 - [ ] Check channel width: if set to 80 MHz or 160 MHz, try 40 MHz and retest. This reduces peak throughput but often improves range stability and reduces interference
@@ -295,14 +302,14 @@ Option C -- TP-Link EAP670 Access Point with Ethernet backhaul ($80): If you can
 
 ### Settings to Change
 
-| Setting | Current (likely) | Recommended | Reason |
-|---------|-----------------|-------------|--------|
-| 5 GHz Channel | Auto (may be on DFS 100) | Channel 36, 40, 44, or 48 | Avoid DFS radar-avoidance blackouts |
-| 5 GHz Channel Width | 80 MHz | 40 MHz (try first) | Better range stability in most home layouts |
-| Band Steering | Enabled | Disabled (create separate SSIDs) | Allows manual control of which band each device uses |
-| Transmit Power | High | Medium | Reduces near-far problem |
-| Admin Password | admin/admin (default) | Change immediately | Default credentials are a security risk |
-| Firmware | Unknown | Update to latest | AX50 had band steering and range fixes in post-release firmware |
+| Setting             | Current (likely)         | Recommended                      | Reason                                                          |
+| ------------------- | ------------------------ | -------------------------------- | --------------------------------------------------------------- |
+| 5 GHz Channel       | Auto (may be on DFS 100) | Channel 36, 40, 44, or 48        | Avoid DFS radar-avoidance blackouts                             |
+| 5 GHz Channel Width | 80 MHz                   | 40 MHz (try first)               | Better range stability in most home layouts                     |
+| Band Steering       | Enabled                  | Disabled (create separate SSIDs) | Allows manual control of which band each device uses            |
+| Transmit Power      | High                     | Medium                           | Reduces near-far problem                                        |
+| Admin Password      | admin/admin (default)    | Change immediately               | Default credentials are a security risk                         |
+| Firmware            | Unknown                  | Update to latest                 | AX50 had band steering and range fixes in post-release firmware |
 
 ### Security Audit Findings
 
@@ -314,6 +321,7 @@ Option C -- TP-Link EAP670 Access Point with Ethernet backhaul ($80): If you can
 ### Follow-Up Verification
 
 After implementing the fixes above:
+
 - [ ] Run `netsh wlan show interfaces` again in the bedroom and confirm "Radio type" shows 802.11ax or 802.11ac (5 GHz connected)
 - [ ] Run fast.com from the bedroom laptop -- target is at least 150 Mbps (37% of plan speed at range is a reasonable expectation through interior walls; above 200 Mbps would indicate excellent 5 GHz coverage)
 - [ ] Check signal strength: Option-click WiFi on Mac or use WiFi Analyzer on a phone -- confirm RSSI in bedroom is -67 dBm or better after any hardware changes

@@ -507,8 +507,7 @@ describe('CronService', () => {
     // emitJobUpdated may still be called by startTimer; only assert NO missed-status update.
     const updateCalls = vi.mocked(repo.update).mock.calls;
     const missedUpdate = updateCalls.find(
-      ([, updates]) =>
-        updates?.state && (updates.state as { lastStatus?: string }).lastStatus === 'missed'
+      ([, updates]) => updates?.state && (updates.state as { lastStatus?: string }).lastStatus === 'missed'
     );
     expect(missedUpdate).toBeUndefined();
   });

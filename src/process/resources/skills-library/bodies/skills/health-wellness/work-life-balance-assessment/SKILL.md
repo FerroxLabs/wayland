@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness time-management self-care stress-management"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mental-wellness time-management self-care stress-management'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Work Life Balance Assessment
 
 > **Disclaimer:** This skill provides general wellness information for educational and self-reflection purposes only. It does NOT constitute medical advice, clinical diagnosis, or treatment for any condition including burnout, depression, anxiety disorders, or occupational stress disorders. The assessments, reference ranges, and suggestions here are educational tools, not clinical instruments. If you are experiencing symptoms that significantly impair your ability to function -- including persistent hopelessness, inability to get out of bed, suicidal thoughts, or physical symptoms of stress -- contact a licensed mental health professional or your primary care physician. If you are in immediate distress, contact emergency services or a crisis line.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user describes feeling chronically overworked, saying things like "I have no time for myself," "I can't remember the last time I relaxed," or "I feel like I live to work"
 - The user explicitly asks for help assessing their work-life balance, creating a balanced schedule, or figuring out where their time actually goes
 - The user wants to set clearer boundaries at work -- with their manager, their team, or their own after-hours behavior -- and needs specific language to do it
@@ -33,6 +35,7 @@ metadata:
 - The user is returning from a high-demand period (crunch at work, caregiving crisis, new baby) and wants to deliberately reset their routines
 
 **Do NOT use when:**
+
 - The user describes symptoms consistent with clinical burnout, major depression, or an anxiety disorder (persistent emotional numbness, inability to experience pleasure, intrusive thoughts, panic attacks) -- refer to a licensed mental health professional using the clinical referral language in Rule 10
 - The user is describing a toxic workplace, harassment, discrimination, or a hostile manager -- this is an HR, legal, or organizational problem that time reallocation cannot solve; use a workplace conflict or career navigation skill instead
 - The user's primary need is productivity optimization -- they want to get more work done in less time, not to protect personal time; use a time management or productivity system skill instead
@@ -59,6 +62,7 @@ Before any plan can be built, you need accurate raw material: how the user actua
 - **Unaccounted buffer:** The remainder after the five categories are summed. Typical unaccounted time is 5-15 hours; if it exceeds 20 hours, the user is likely underestimating work or overestimating sleep.
 
 **After gathering numbers, do the following calculations:**
+
 - Sum all categories and compare to 168
 - Calculate each category as a percentage of the week
 - Note which categories are above or below reference ranges (see Step 2)
@@ -74,14 +78,14 @@ Reference ranges are not prescriptions -- they are epidemiologically derived bas
 
 **Reference ranges (per week) and key thresholds:**
 
-| Category | Sustainable Range | Warning Threshold | Critical Threshold |
-|---|---|---|---|
-| Work (all-in) | 40-50 hours | 51-60 hours | 61+ hours |
-| Sleep | 49-63 hours (7-9 hrs/night) | 42-48 hours (6-7 hrs/night) | Under 42 hours (<6 hrs/night) |
-| Essential maintenance | 28-35 hours | Under 21 hours | Under 14 hours |
-| Relationships | 10-20 hours | 5-10 hours | Under 5 hours |
-| Personal fulfillment | 7-15 hours | 3-7 hours | Under 3 hours / zero |
-| Recovery/leisure | 10-20 hours | Under 7 hours | Zero |
+| Category              | Sustainable Range           | Warning Threshold           | Critical Threshold            |
+| --------------------- | --------------------------- | --------------------------- | ----------------------------- |
+| Work (all-in)         | 40-50 hours                 | 51-60 hours                 | 61+ hours                     |
+| Sleep                 | 49-63 hours (7-9 hrs/night) | 42-48 hours (6-7 hrs/night) | Under 42 hours (<6 hrs/night) |
+| Essential maintenance | 28-35 hours                 | Under 21 hours              | Under 14 hours                |
+| Relationships         | 10-20 hours                 | 5-10 hours                  | Under 5 hours                 |
+| Personal fulfillment  | 7-15 hours                  | 3-7 hours                   | Under 3 hours / zero          |
+| Recovery/leisure      | 10-20 hours                 | Under 7 hours               | Zero                          |
 
 **Name the specific imbalance pattern.** There are five common patterns with distinct interventions:
 
@@ -100,6 +104,7 @@ State the imbalance in concrete, specific language: "You are spending 62 hours p
 Not all hours are equal. Sixty minutes of high-energy morning time spent in a non-urgent meeting is a qualitatively different loss than 60 minutes of low-energy evening time spent on email. Understanding the user's energy architecture prevents you from designing a schedule that puts the right activities at the wrong times.
 
 **Ask the following questions to map energy patterns:**
+
 - What time of day do you feel sharpest and most capable of complex thinking? (Chronotype anchoring)
 - What time of day do you reliably hit a low -- the period where focus drops and mood is lowest?
 - What is the first thing you do when you wake up? What is the last thing you do before sleep? (These reveal intrusion patterns -- whether work or phone has colonized sleep transitions)
@@ -107,6 +112,7 @@ Not all hours are equal. Sixty minutes of high-energy morning time spent in a no
 - After which activities in your current week do you feel genuinely restored vs. after which do you feel depleted?
 
 **Common energy-schedule mismatches to identify:**
+
 - High-value personal time (exercise, creative work) consistently displaced to low-energy slots (10 PM) where it never actually happens
 - High-cognitive work (strategic thinking, writing, complex problem-solving) scheduled during chronobiological low points (early afternoon for most people), leaving peak morning hours for administrative tasks
 - Recovery time front-loaded with passive activities (scrolling) that feel restful but do not produce genuine restoration, leaving no time for active recovery (exercise, social connection) that actually recharges the user
@@ -125,6 +131,7 @@ Limit to exactly three changes. Research on habit formation and behavior change 
 3. **Highest personal value third:** Ask the user what they miss most or what feels most absent from their life. This third change is the one that reminds the user why balance matters -- it is motivationally anchored.
 
 **Each rebalancing opportunity must specify:**
+
 - What specifically changes (not "work less" but "stop checking work messages after 8:00 PM on weekdays")
 - How many hours per week are recovered or redirected
 - Which category the recovered hours come from (source)
@@ -177,12 +184,14 @@ The schedule is not a prescription -- it is a structural template that makes the
 Gradual implementation is more effective than simultaneous change. The implementation plan phases in changes to prevent overwhelm and build confidence through early wins.
 
 **Week 1: Foundation Changes Only**
+
 - Implement the single highest-impact change identified in Step 4 (typically sleep or work boundary)
 - Configure technology to enforce the boundary (Do Not Disturb, notification settings, calendar blocks)
 - Start the end-of-workday shutdown sequence every day, even imperfectly
 - Identify the one non-negotiable personal block and protect it every day
 
 **Week 2: Add the Second Change; Assess Week 1**
+
 - At the start of Week 2, do a brief audit: how many protected blocks from Week 1 were actually honored? What caused violations? Adjust the plan to address real obstacles, not imagined ones.
 - Add the second rebalancing change
 - Add the social or relationship block if it was the second or third change
@@ -345,9 +354,11 @@ Estimated time: [X] minutes
 ## Edge Cases
 
 ### The Caregiver With No Personal Time
+
 When a user is a parent of young children, a primary caregiver for an elderly or ill family member, or both, their time audit will show relationship time that is technically high but functionally exhausting -- because caregiving is relational labor, not restorative relationship time. Standard reference ranges become misleading.
 
 **How to handle:**
+
 - Separate caregiving time from chosen relationship time in the audit. Label them distinctly: "Caregiving (obligatory)" vs. "Relationship time (chosen)." Caregiving hours belong in essential maintenance, not relationships.
 - Acknowledge explicitly that 7-15 hours of personal fulfillment per week may be impossible in the current life phase, and that the reference range is aspirational rather than immediately achievable.
 - Redesign the plan around micro-blocks: three 20-minute personal fulfillment slots per day are structurally equivalent to one 60-minute block but far more achievable for caregivers. Research on micro-recovery suggests even 10-20 minute intentional breaks produce measurable restoration when the activity is genuinely self-chosen.
@@ -355,9 +366,11 @@ When a user is a parent of young children, a primary caregiver for an elderly or
 - Do not suggest the caregiver "do self-care during naptime." This is the standard advice and it fails because naptime is also the only time to handle maintenance tasks. Instead, help identify which maintenance tasks can be batched, deferred, or delegated to create a genuine window.
 
 ### The Remote Worker With No Work-Home Separation
+
 Remote workers frequently report that work has colonized every hour of their day -- not because they work more hours, but because work is always available and the psychological transition out of work never happens. Their time audit often shows moderate total work hours (45-50) with normal-looking numbers that belie constant low-level work intrusion.
 
 **How to handle:**
+
 - Add a qualitative question to the audit: "On a scale of 1-10, how often do you think about work during personal time?" If the answer is above 6, work intrusion is the primary problem, not raw hours.
 - Spatial boundary design is the first intervention: designate a specific physical workspace (a specific room, corner, or desk) that is the only place work happens. If this is not possible due to space constraints, use a physical object as the workspace cue (a specific laptop stand, a specific lamp that is only on during work hours). The object creates a contextual cue that the brain uses to enter and exit work mode.
 - Temporal design: a workday-start ritual (making coffee and sitting at the designated workspace as the first work act) and a workday-end shutdown sequence are both mandatory in the plan for remote workers.
@@ -365,18 +378,22 @@ Remote workers frequently report that work has colonized every hour of their day
 - The brain dump practice (writing all open work loops at workday end) is especially critical for remote workers because the default is to carry those loops mentally into evening, where they surface as "just one more email."
 
 ### The User Whose Work Demand Is Genuinely Temporary or Structural
+
 Some users are in roles where 55-70 hours per week is a real, structural feature of the job at certain times: medical residents, startup founders in early stages, accountants during tax season, agricultural workers during harvest, teachers during grading season. Telling these users to "protect 15 hours of personal fulfillment per week" is not credible and damages trust.
 
 **How to handle:**
+
 - Acknowledge the structural reality directly: "A 70-hour work week during your quarterly close is not a personal failure -- it is a known feature of your role. The plan for this period looks different from a sustainable steady-state plan."
 - Focus the high-demand plan on minimum viable maintenance: sleep optimization (quality over quantity -- consistent sleep and wake time, dark/cool room, no screens 30 minutes before bed), one daily relationship touchpoint (even a 15-minute phone call or dinner), and one 20-minute daily recovery block (a walk, a shower taken slowly, anything that has zero cognitive demand).
 - Include a mandatory "reassess date": the day after the high-demand period ends, the user re-runs the full audit and designs a rebalancing plan for the recovery period. The high-demand period does not extend indefinitely by default.
 - If the high-demand period is not temporary -- if 60+ hours is the permanent baseline for this role -- name that plainly: "The sustainable range for long-term health and relationship functioning is 40-50 hours per week. A role that structurally requires 65+ hours is not a scheduling problem -- it's a role design problem. That's a career navigation question, which is outside this assessment, but worth noting."
 
 ### The User Who Feels Guilty About Personal Time
+
 This edge case requires reframing before any practical plan will be accepted. A user who believes personal time is selfish or earned only through exhaustion will not implement a plan that protects personal time -- they will find reasons to override every protected block.
 
 **How to handle:**
+
 - Do not bypass the guilt with cheerful reassurance ("You deserve it!"). This does not work and feels dismissive.
 - Use the functional reframe: "Your capacity to do your work, care for the people you love, and maintain your health is not separate from personal time -- it is produced by it. Skipping personal restoration does not free up capacity; it gradually depletes it until the system fails." This is a maintenance argument, not a self-indulgence argument.
 - Offer a small experiment framing: "We're not redesigning your life. We're testing whether three specific changes over two weeks produce any noticeable improvement in your energy, focus, or mood. If they don't, we scrap the plan. If they do, the data tells you something your guilt cannot dismiss."
@@ -384,17 +401,21 @@ This edge case requires reframing before any practical plan will be accepted. A 
 - Note: If guilt about personal time is pervasive, persistent, and tied to a pattern of self-deprivation across multiple life areas, that may warrant a conversation with a therapist. Include this gently if it seems relevant.
 
 ### The User Whose Time Audit Does Not Add Up to 168 Hours
+
 A user's self-reported time audit will frequently not sum to 168 hours. Over-counting produces totals above 168; under-counting produces totals significantly below. Both are informative.
 
 **How to handle:**
+
 - Over 168 hours (totals 180-200 hours): The user is double-counting or experiencing time distortion -- a common feature of chronic overwork. Work and essential maintenance overlap (eating lunch while working, sleeping poorly and spending an hour "resting" in bed that is not sleep). Walk through each category and identify the overlaps. Commuting while on a work call is work, not commute + work. Lying in bed unable to sleep is not sleep. Help the user identify the most likely overcounted categories.
 - Under 168 hours by 20+ hours (totals 140-145 hours): There is significant unaccounted time, almost certainly passive recovery time (phone scrolling, background TV, social media) that the user does not register as deliberate activity. Ask: "What do you do between arriving home and going to bed on a typical weeknight?" This usually surfaces the missing hours. Passive recovery is not bad, but if it accounts for 25+ hours per week while personal fulfillment is near zero, there is an opportunity to redirect some of it.
 - Under 168 hours by more than 30 hours: The user is estimating significant categories from memory with low accuracy. Ask them to track actual time for 48-72 hours before proceeding, or use a time-tracking app (any simple timer-based app works) on two representative days.
 
 ### The User Describing Severe Imbalance That Meets Clinical Referral Threshold
+
 If the user describes working 75+ hours per week, sleeping 4-5 hours per night for months, having experienced no personal fulfillment or meaningful social connection in more than six months, or expresses hopelessness about the possibility of change, the plan must include a clinical referral note before proceeding.
 
 **How to handle:**
+
 - Complete the time audit and imbalance identification so the user feels heard and understood -- do not immediately redirect without engagement.
 - Then, include this note at the top of the plan: "What you've described -- [specific hours, specific duration, specific absence of recovery] -- is beyond what a schedule adjustment can address on its own. The changes I'll outline below are meaningful and worth starting, and I also want to note clearly: speaking with a licensed therapist, your primary care physician, or an occupational health specialist can provide support that this plan cannot. This is not an alarm; it's simply a recognition that you're carrying more than a scheduling problem."
 - Then proceed with the plan. Do not withhold the plan because of the referral. The referral note and the plan coexist.
@@ -417,16 +438,16 @@ If the user describes working 75+ hours per week, sleeping 4-5 hours per night f
 
 ### Current Time Allocation (Weekly)
 
-| Category | Hours/Week | % of Week | Reference Range | Status |
-|---|---|---|---|---|
-| Work (all-in: 7:30 AM to 9-10 PM weekdays, minus meals and commute) | 62 | 36.9% | 40-50 hrs | Over by 12-22 hrs |
-| Commute (3 days/week, 1.5 hrs round trip) | 4.5 | 2.7% | Included in work | Included above |
-| Sleep (5.5-6 hrs/night x 7 days) | 39 | 23.2% | 49-63 hrs | **Under by 10-24 hrs** |
-| Essential maintenance (meals, cleaning, errands) | 20 | 11.9% | 28-35 hrs | Slightly under |
-| Relationships (2x/month = ~5 hrs, divided by 4.3 weeks) | 5 | 3.0% | 10-20 hrs | Critically low |
-| Personal fulfillment (running, guitar: currently zero) | 0 | 0.0% | 7-15 hrs | **Zero for 8 months** |
-| Recovery/passive leisure | 37.5 | 22.3% | 10-20 hrs | High -- likely absorbing post-midnight hours |
-| **Total** | **168** | **100%** | | |
+| Category                                                            | Hours/Week | % of Week | Reference Range  | Status                                       |
+| ------------------------------------------------------------------- | ---------- | --------- | ---------------- | -------------------------------------------- |
+| Work (all-in: 7:30 AM to 9-10 PM weekdays, minus meals and commute) | 62         | 36.9%     | 40-50 hrs        | Over by 12-22 hrs                            |
+| Commute (3 days/week, 1.5 hrs round trip)                           | 4.5        | 2.7%      | Included in work | Included above                               |
+| Sleep (5.5-6 hrs/night x 7 days)                                    | 39         | 23.2%     | 49-63 hrs        | **Under by 10-24 hrs**                       |
+| Essential maintenance (meals, cleaning, errands)                    | 20         | 11.9%     | 28-35 hrs        | Slightly under                               |
+| Relationships (2x/month = ~5 hrs, divided by 4.3 weeks)             | 5          | 3.0%      | 10-20 hrs        | Critically low                               |
+| Personal fulfillment (running, guitar: currently zero)              | 0          | 0.0%      | 7-15 hrs         | **Zero for 8 months**                        |
+| Recovery/passive leisure                                            | 37.5       | 22.3%     | 10-20 hrs        | High -- likely absorbing post-midnight hours |
+| **Total**                                                           | **168**    | **100%**  |                  |                                              |
 
 Note on the numbers: Work (62 hours) includes the 9-to-6 scheduled day plus the 7:30-9:00 AM Slack window plus the 6:00-9:30 PM response window on weekdays, minus 1 hour for meals. The commute (4.5 hours) is embedded within the work total. Recovery at 37.5 hours is larger than expected and likely represents the late-night hours between 10 PM and midnight that are spent in passive states (scrolling, TV, unwinding in a low-energy but not-restful way) rather than productive work or quality sleep.
 
@@ -447,6 +468,7 @@ The passive recovery category (approximately 37.5 hours) is the largest non-work
 ### Top 3 Rebalancing Opportunities
 
 **Priority 1: Add 10 hours of sleep per week (move from 5.6 to 7 hours per night)**
+
 - What changes: Bedtime moves from approximately midnight to 10:45 PM on weeknights. Slack and email notifications are turned off at 10:00 PM via Do Not Disturb settings.
 - Hours recovered/redirected: 10 hours/week
 - From category: Passive recovery (late-night low-energy time)
@@ -455,6 +477,7 @@ The passive recovery category (approximately 37.5 hours) is the largest non-work
 - 7-day indicator: By Day 7, you have been in bed with lights off before 11:00 PM on at least 5 of 7 nights. You notice whether you are waking more rested (this takes 5-10 days of consistent sleep to register clearly).
 
 **Priority 2: Eliminate the pre-work Slack window (7:30 AM to 9:00 AM)**
+
 - What changes: Slack and work email are not opened until 9:00 AM on workdays. The 7:30-9:00 AM window becomes protected morning time.
 - Hours recovered/redirected: 7.5 hours/week (1.5 hours x 5 days)
 - From category: Work (removing the pre-official-hours extension)
@@ -463,6 +486,7 @@ The passive recovery category (approximately 37.5 hours) is the largest non-work
 - 7-day indicator: You have completed at least 2 morning runs by Day 7. You have not opened Slack before 9:00 AM on more than 1 day.
 
 **Priority 3: Set a hard 9:00 PM evening cutoff for work communication**
+
 - What changes: After 9:00 PM, no new work messages are read or responded to. The current effective workday ends at 9:30-10:00 PM; this moves it to 9:00 PM, recovering 30-60 minutes of evening time and creating a genuine wind-down window.
 - Hours recovered/redirected: 3.5 hours/week (30-60 min x 5 weeknights)
 - From category: Work (evening extension)
@@ -475,12 +499,14 @@ The passive recovery category (approximately 37.5 hours) is the largest non-work
 ### Boundary-Setting Plan
 
 **Boundary 1: Work communication starts at 9:00 AM, not before**
+
 - Communication script (send to your team in Slack or email): "Hey team -- I'm making a small adjustment to my availability: I'll be starting my day and checking messages at 9:00 AM going forward, rather than earlier. My response time during work hours stays the same. For anything time-sensitive before 9, [teammate name] can cover or I'll address it first thing at 9. Thanks for the heads-up."
 - If challenged with "But we sometimes need you before standup": "Totally fair. If there's a P0 incident or something genuinely needs me before 9, text my phone directly -- that will always reach me for true emergencies. Slack messages I'll pick up at 9."
 - First 2 weeks: Disable Slack notifications on your phone before 9:00 AM using iOS Screen Time or Android Digital Wellbeing. Do not rely on willpower alone -- the notification architecture has to change. If you feel strong urges to check before 9, note what specifically you are afraid you are missing. After two weeks, look back at whether any of those fears materialized.
 - Circuit breaker: If you find yourself opening Slack before 9 AM, close it immediately and note the time. At the end of the week, count the violations. If there are more than 2, the technological control is insufficient -- consider a harder block (using an app blocker like Cold Turkey or Freedom to hard-block Slack until 9 AM).
 
 **Boundary 2: Work communication ends at 9:00 PM on weeknights**
+
 - Communication script (no announcement needed -- simply stop responding after 9 PM. If a colleague notices and asks, use this): "I've started closing down work apps at 9 PM to make sure I'm getting enough sleep to bring full energy to work. I'll pick up anything from the evening first thing the next morning."
 - If challenged with "We had an important conversation last night and you didn't respond": "I saw it this morning and handled it [or: it was resolved by the time I picked it up]. For things that genuinely can't wait until morning, text me directly -- my Slack goes quiet at 9 but my phone is on for real emergencies."
 - First 2 weeks: At 8:45 PM each night, do the brain dump: open a notes app or a paper notebook and write every open work item you are carrying in your head. Title it "Tomorrow's open loops." Write them all down, then close the notebook. Set Slack and email to Do Not Disturb at 9:00 PM automatically. The brain dump is critical -- without it, your brain will manufacture reasons to check "just one more time."
@@ -490,13 +516,13 @@ The passive recovery category (approximately 37.5 hours) is the largest non-work
 
 ### Rebalanced Weekly Schedule
 
-| Time | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
-|---|---|---|---|---|---|---|---|
-| 7:00-7:30 AM | Morning (no screens) | **Run (30 min)** | Morning (no screens) | **Run (30 min)** | Morning (no screens) | Sleep until 8 | Sleep until 8 |
-| 7:30-8:30 AM | Breakfast, prep | Post-run, shower | Breakfast, prep | Post-run, shower | Breakfast, prep | Morning coffee | Morning coffee |
-| 8:30-9:00 AM | Commute prep or start-up ritual | Commute prep or start-up ritual | Commute prep | Commute (remote) | Commute | Leisure | Leisure |
-| 9:00 AM-12:00 PM | **Work (deep focus)** | **Work (deep focus)** | **Work (deep focus)** | **Work (deep focus)** | **Work (deep focus)** | Personal time | Personal time |
-| 12:00-12:45 PM | Lunch (away from desk) | Lunch (away from desk) | Lunch (away from desk) | Lunch (away from desk) | Lunch (away from desk) | Lunch | Lunch |
-| 12:45-6:00 PM | Work | Work | Work | Work | Work | **Run (Sat)** | Rest/admin |
-| 6:00-7:00 PM | Commute + decompression | Dinner | Commute + decompression | Dinner | Commute + decompression | Dinner | Dinner |
-| 7:00-8:00 PM | Dinner
+| Time             | Mon                             | Tue                             | Wed                     | Thu                    | Fri                     | Sat            | Sun            |
+| ---------------- | ------------------------------- | ------------------------------- | ----------------------- | ---------------------- | ----------------------- | -------------- | -------------- |
+| 7:00-7:30 AM     | Morning (no screens)            | **Run (30 min)**                | Morning (no screens)    | **Run (30 min)**       | Morning (no screens)    | Sleep until 8  | Sleep until 8  |
+| 7:30-8:30 AM     | Breakfast, prep                 | Post-run, shower                | Breakfast, prep         | Post-run, shower       | Breakfast, prep         | Morning coffee | Morning coffee |
+| 8:30-9:00 AM     | Commute prep or start-up ritual | Commute prep or start-up ritual | Commute prep            | Commute (remote)       | Commute                 | Leisure        | Leisure        |
+| 9:00 AM-12:00 PM | **Work (deep focus)**           | **Work (deep focus)**           | **Work (deep focus)**   | **Work (deep focus)**  | **Work (deep focus)**   | Personal time  | Personal time  |
+| 12:00-12:45 PM   | Lunch (away from desk)          | Lunch (away from desk)          | Lunch (away from desk)  | Lunch (away from desk) | Lunch (away from desk)  | Lunch          | Lunch          |
+| 12:45-6:00 PM    | Work                            | Work                            | Work                    | Work                   | Work                    | **Run (Sat)**  | Rest/admin     |
+| 6:00-7:00 PM     | Commute + decompression         | Dinner                          | Commute + decompression | Dinner                 | Commute + decompression | Dinner         | Dinner         |
+| 7:00-8:00 PM     | Dinner                          |

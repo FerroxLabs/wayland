@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tdd testing clean-code"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tdd testing clean-code'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # TDD Workflow
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to implement test-driven development from scratch on a greenfield project and needs a concrete Red-Green-Refactor workflow
 - User has a partially tested codebase and wants to adopt TDD incrementally without halting feature delivery
 - User is writing a specific unit or integration test and is stuck on how to structure the test-first cycle for that particular function, class, or module
@@ -31,6 +33,7 @@ metadata:
 - User asks about mutation testing, test coverage thresholds, or test quality metrics
 
 **Do NOT use this skill when:**
+
 - User needs end-to-end testing strategy using browser automation (Cypress, Playwright, Selenium) -- use the E2E testing skill instead
 - User is asking about CI/CD pipeline configuration for running tests -- use the CI/CD pipeline skill
 - User needs contract testing for microservices (Pact, Spring Cloud Contract) -- use the contract testing skill
@@ -135,7 +138,7 @@ A TDD practice that does not self-evaluate accumulates test debt:
 
 When helping a user implement a TDD workflow, produce the following structured response:
 
-```
+````
 ## TDD Workflow Plan: [Feature or Module Name]
 
 ### Context Summary
@@ -162,7 +165,7 @@ When helping a user implement a TDD workflow, produce the following structured r
 
 ```[language]
 [Complete test code with AAA structure labeled]
-```
+````
 
 **Run command:** [e.g., `npx jest --testPathPattern=CartCalculator --watch`]
 **Expected failure:** [What the error message should say]
@@ -183,6 +186,7 @@ When helping a user implement a TDD workflow, produce the following structured r
 ### Refactor Phase
 
 **Identified issues:**
+
 - [e.g., magic number 0.10 should be a named constant DISCOUNT_RATE]
 - [e.g., discount logic is inline in calculate() -- extract to applyDiscount()]
 
@@ -210,13 +214,14 @@ When helping a user implement a TDD workflow, produce the following structured r
 
 ### Recommended Coverage Threshold
 
-| Layer | Threshold | Rationale |
-|-------|-----------|-----------|
-| Domain / Core Logic | 90%+ | High business value, low tolerance for regressions |
-| Application Services | 80%+ | Depends on integration boundaries |
-| Infrastructure / Adapters | 60%+ | Integration tests cover more here |
-| Controllers / Handlers | 70%+ | Unit tests for logic, integration tests for routing |
-```
+| Layer                     | Threshold | Rationale                                           |
+| ------------------------- | --------- | --------------------------------------------------- |
+| Domain / Core Logic       | 90%+      | High business value, low tolerance for regressions  |
+| Application Services      | 80%+      | Depends on integration boundaries                   |
+| Infrastructure / Adapters | 60%+      | Integration tests cover more here                   |
+| Controllers / Handlers    | 70%+      | Unit tests for logic, integration tests for routing |
+
+````
 
 ---
 
@@ -359,14 +364,16 @@ class TestDiscountCalculator:
 
         # Assert
         assert result == 50.00
-```
+````
 
 **Run command:**
+
 ```bash
 pytest tests/domain/test_discount_calculator.py -v
 ```
 
 **Expected failure:**
+
 ```
 ModuleNotFoundError: No module named 'src.domain.discount_calculator'
 ```
@@ -382,9 +389,11 @@ class DiscountCalculator:
 ```
 
 **Re-run.** Expected failure now:
+
 ```
 AssertionError: assert None == 50.0
 ```
+
 Good -- the test fails on the assertion. The Red phase is correctly established.
 
 ---
@@ -400,6 +409,7 @@ class DiscountCalculator:
 ```
 
 **Run command:**
+
 ```bash
 pytest tests/domain/test_discount_calculator.py -v
 ```
@@ -442,6 +452,7 @@ pytest tests/domain/test_discount_calculator.py -v
 ```
 
 **Run.** Expected failure:
+
 ```
 AssertionError: assert 150.0 == 135.0
 ```
@@ -483,9 +494,11 @@ class DiscountCalculator:
 ```
 
 **Run.** Expected failure:
+
 ```
 AssertionError: assert 225.0 == 200.0
 ```
+
 (Current code applies 10% to 250, giving 225, not 200.)
 
 **Green phase:**
@@ -514,6 +527,7 @@ class DiscountCalculator:
 ```
 
 **Run.** Expected failure:
+
 ```
 Failed: DID NOT RAISE <class 'ValueError'>
 ```
@@ -539,6 +553,7 @@ class DiscountCalculator:
 #### Step 8 -- Refactor Phase
 
 **Identified issues in production code:**
+
 1. Magic numbers `0.80`, `0.90`, `100.00`, `200.00` have no names -- they cannot be understood without context
 2. The discount tiers are hardcoded -- if business adds a 30% tier at $500, the method requires modification (Open/Closed Principle violation)
 
@@ -618,11 +633,11 @@ class TestDiscountCalculatorAppliesCorrectDiscount:
 
 #### Recommended Coverage Threshold for This Module
 
-| Layer | Threshold | Configuration |
-|-------|-----------|---------------|
-| `src/domain/` (core logic like DiscountCalculator) | 95%+ | `--cov-fail-under=95` in pytest.ini |
-| `src/application/` (service orchestration) | 85%+ | Same config file |
-| `src/infrastructure/` (DB adapters, HTTP clients) | 65%+ | Lower -- integration tests cover remainder |
+| Layer                                              | Threshold | Configuration                              |
+| -------------------------------------------------- | --------- | ------------------------------------------ |
+| `src/domain/` (core logic like DiscountCalculator) | 95%+      | `--cov-fail-under=95` in pytest.ini        |
+| `src/application/` (service orchestration)         | 85%+      | Same config file                           |
+| `src/infrastructure/` (DB adapters, HTTP clients)  | 65%+      | Lower -- integration tests cover remainder |
 
 **pytest.ini configuration:**
 

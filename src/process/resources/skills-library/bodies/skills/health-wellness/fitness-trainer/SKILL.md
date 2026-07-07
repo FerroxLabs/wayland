@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Personal Fitness Trainer
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about fitness trainer
 - User needs guidance on fitness trainer topics
 - User wants a structured approach to fitness trainer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -105,6 +107,7 @@ PERSONAL FITNESS ASSESSMENT
 The NASM OPT model is a systematic, progressive training framework with five phases:
 
 ### Phase 1: Stabilization Endurance (Weeks 1-4 for beginners)
+
 - **Purpose:** Build foundational stability, correct imbalances, develop endurance
 - **Sets:** 1-3
 - **Reps:** 12-20
@@ -114,6 +117,7 @@ The NASM OPT model is a systematic, progressive training framework with five pha
 - **Exercises:** Stability ball, single-leg, balance-focused movements
 
 ### Phase 2: Strength Endurance (Weeks 5-8)
+
 - **Purpose:** Increase lean body mass, improve stabilization endurance and strength
 - **Sets:** 2-4
 - **Reps:** 8-12
@@ -123,6 +127,7 @@ The NASM OPT model is a systematic, progressive training framework with five pha
 - **Format:** Superset - one strength exercise followed by one stabilization exercise
 
 ### Phase 3: Hypertrophy (Weeks 9-12)
+
 - **Purpose:** Maximize muscle growth
 - **Sets:** 3-5
 - **Reps:** 6-12
@@ -131,6 +136,7 @@ The NASM OPT model is a systematic, progressive training framework with five pha
 - **Intensity:** 75-85% 1RM
 
 ### Phase 4: Maximal Strength (Weeks 13-16)
+
 - **Purpose:** Increase maximal force production
 - **Sets:** 4-6
 - **Reps:** 1-5
@@ -139,6 +145,7 @@ The NASM OPT model is a systematic, progressive training framework with five pha
 - **Intensity:** 85-100% 1RM
 
 ### Phase 5: Power (Weeks 17-20)
+
 - **Purpose:** Develop speed and force production
 - **Sets:** 3-5
 - **Reps:** 1-5 (strength) / 8-10 (power)
@@ -152,6 +159,7 @@ The NASM OPT model is a systematic, progressive training framework with five pha
 Progressive overload is the gradual increase of stress placed on the body during training. Apply these methods systematically:
 
 ### Methods of Progression (in priority order)
+
 1. **Improve form/technique** - Master the movement pattern first
 2. **Increase range of motion** - Full ROM before adding load
 3. **Increase reps** - Add 1-2 reps per set within the target range
@@ -162,11 +170,12 @@ Progressive overload is the gradual increase of stress placed on the body during
 8. **Increase training frequency** - Add training days per week
 
 ### Rate of Progression Guidelines
-| Level | Strength Gain/Month | Load Increase/Session |
-|-------|--------------------|-----------------------|
-| Beginner | 3-5% | 2.5-5 lbs upper / 5-10 lbs lower |
-| Intermediate | 1-2% | 2.5 lbs upper / 5 lbs lower |
-| Advanced | 0.5-1% | Periodized micro-loading |
+
+| Level        | Strength Gain/Month | Load Increase/Session            |
+| ------------ | ------------------- | -------------------------------- |
+| Beginner     | 3-5%                | 2.5-5 lbs upper / 5-10 lbs lower |
+| Intermediate | 1-2%                | 2.5 lbs upper / 5 lbs lower      |
+| Advanced     | 0.5-1%              | Periodized micro-loading         |
 
 ## Workout Plan Templates
 
@@ -295,15 +304,18 @@ Schedule: Push/Pull/Legs/Push/Pull/Legs/Rest
 Follow this sequence before every training session:
 
 ### Phase 1: General Warm-Up (3-5 minutes)
+
 - Light cardio to raise heart rate (walking, cycling, rowing)
 - Target: light sweat, slightly elevated breathing
 
 ### Phase 2: Self-Myofascial Release / Foam Rolling (2 minutes)
+
 - Roll each target muscle group 30 seconds
 - Focus on tight or sore areas
 - Apply moderate pressure, pause on tender spots
 
 ### Phase 3: Dynamic Stretching (3 minutes)
+
 - Leg swings (front-back and side-to-side): 10 each direction
 - Arm circles: 10 forward, 10 backward
 - Hip circles: 10 each direction
@@ -312,6 +324,7 @@ Follow this sequence before every training session:
 - Cat-cow: 10 reps
 
 ### Phase 4: Movement-Specific Warm-Up (2 minutes)
+
 - Perform 2 sets of the first exercise with light weight
 - Set 1: 10 reps at 40% working weight
 - Set 2: 5 reps at 60% working weight
@@ -319,10 +332,13 @@ Follow this sequence before every training session:
 ## Cool-Down Protocol (5-10 minutes)
 
 ### Phase 1: Light Activity (2-3 minutes)
+
 - Walking or easy cycling to gradually lower heart rate
 
 ### Phase 2: Static Stretching (5-7 minutes)
+
 Hold each stretch 30 seconds, 2 sets per muscle group worked:
+
 - Chest: doorway stretch
 - Back: child's pose
 - Shoulders: cross-body stretch
@@ -333,55 +349,61 @@ Hold each stretch 30 seconds, 2 sets per muscle group worked:
 
 ## Rep/Set/Rest Scheme Reference
 
-| Goal | Sets | Reps | Rest | Intensity | Tempo |
-|------|------|------|------|-----------|-------|
-| Muscular Endurance | 2-3 | 12-20 | 30-60s | 50-70% 1RM | 4/2/1 |
-| Hypertrophy | 3-5 | 6-12 | 60-90s | 70-85% 1RM | 2/0/2 |
-| Strength | 4-6 | 1-5 | 3-5 min | 85-100% 1RM | 1/0/1 |
-| Power | 3-5 | 1-5 | 3-5 min | 30-45% 1RM | Explosive |
+| Goal               | Sets | Reps  | Rest    | Intensity   | Tempo     |
+| ------------------ | ---- | ----- | ------- | ----------- | --------- |
+| Muscular Endurance | 2-3  | 12-20 | 30-60s  | 50-70% 1RM  | 4/2/1     |
+| Hypertrophy        | 3-5  | 6-12  | 60-90s  | 70-85% 1RM  | 2/0/2     |
+| Strength           | 4-6  | 1-5   | 3-5 min | 85-100% 1RM | 1/0/1     |
+| Power              | 3-5  | 1-5   | 3-5 min | 30-45% 1RM  | Explosive |
 
 ## Exercise Substitution Guide
 
 When an exercise is unavailable due to equipment or injury, use these swaps:
 
 ### Chest Substitutions
-| Primary | Substitute 1 | Substitute 2 | Bodyweight |
-|---------|-------------|-------------|------------|
-| Barbell Bench Press | Dumbbell Bench Press | Floor Press | Push-ups |
-| Incline Bench Press | Incline DB Press | Landmine Press | Decline Push-ups |
-| Cable Fly | DB Fly | Band Fly | Wide Push-ups |
+
+| Primary             | Substitute 1         | Substitute 2   | Bodyweight       |
+| ------------------- | -------------------- | -------------- | ---------------- |
+| Barbell Bench Press | Dumbbell Bench Press | Floor Press    | Push-ups         |
+| Incline Bench Press | Incline DB Press     | Landmine Press | Decline Push-ups |
+| Cable Fly           | DB Fly               | Band Fly       | Wide Push-ups    |
 
 ### Back Substitutions
-| Primary | Substitute 1 | Substitute 2 | Bodyweight |
-|---------|-------------|-------------|------------|
-| Barbell Row | Dumbbell Row | Cable Row | Inverted Row |
-| Pull-up | Lat Pulldown | Band Pull-up | Negative Pull-ups |
-| Deadlift | Trap Bar Deadlift | DB Deadlift | Single-Leg RDL |
+
+| Primary     | Substitute 1      | Substitute 2 | Bodyweight        |
+| ----------- | ----------------- | ------------ | ----------------- |
+| Barbell Row | Dumbbell Row      | Cable Row    | Inverted Row      |
+| Pull-up     | Lat Pulldown      | Band Pull-up | Negative Pull-ups |
+| Deadlift    | Trap Bar Deadlift | DB Deadlift  | Single-Leg RDL    |
 
 ### Leg Substitutions
-| Primary | Substitute 1 | Substitute 2 | Bodyweight |
-|---------|-------------|-------------|------------|
-| Barbell Squat | Goblet Squat | Leg Press | Pistol Squat |
-| Romanian Deadlift | DB RDL | Good Morning | Nordic Curl |
-| Leg Extension | Sissy Squat | Band Leg Extension | Wall Sit |
+
+| Primary           | Substitute 1 | Substitute 2       | Bodyweight   |
+| ----------------- | ------------ | ------------------ | ------------ |
+| Barbell Squat     | Goblet Squat | Leg Press          | Pistol Squat |
+| Romanian Deadlift | DB RDL       | Good Morning       | Nordic Curl  |
+| Leg Extension     | Sissy Squat  | Band Leg Extension | Wall Sit     |
 
 ### Shoulder Substitutions
-| Primary | Substitute 1 | Substitute 2 | Bodyweight |
-|---------|-------------|-------------|------------|
-| Overhead Press | DB Shoulder Press | Landmine Press | Pike Push-up |
-| Lateral Raise | Cable Lateral Raise | Band Lateral Raise | Side Plank Raise |
+
+| Primary        | Substitute 1        | Substitute 2       | Bodyweight       |
+| -------------- | ------------------- | ------------------ | ---------------- |
+| Overhead Press | DB Shoulder Press   | Landmine Press     | Pike Push-up     |
+| Lateral Raise  | Cable Lateral Raise | Band Lateral Raise | Side Plank Raise |
 
 ## Cardiovascular Training Guidelines
 
 ### By Goal
-| Goal | Type | Frequency | Duration | Intensity |
-|------|------|-----------|----------|-----------|
-| Fat Loss | LISS + HIIT | 3-5x/week | 20-45 min | 60-85% MHR |
-| Endurance | LISS | 3-5x/week | 30-60 min | 60-75% MHR |
-| General Health | Mixed | 3x/week | 20-30 min | 65-80% MHR |
-| Muscle Gain | Minimal LISS | 2x/week | 15-20 min | 60-70% MHR |
+
+| Goal           | Type         | Frequency | Duration  | Intensity  |
+| -------------- | ------------ | --------- | --------- | ---------- |
+| Fat Loss       | LISS + HIIT  | 3-5x/week | 20-45 min | 60-85% MHR |
+| Endurance      | LISS         | 3-5x/week | 30-60 min | 60-75% MHR |
+| General Health | Mixed        | 3x/week   | 20-30 min | 65-80% MHR |
+| Muscle Gain    | Minimal LISS | 2x/week   | 15-20 min | 60-70% MHR |
 
 ### Max Heart Rate Estimation
+
 - Formula: MHR = 220 - age
 - Example: 30 years old -> MHR = 190 bpm
 - Zone 2 (fat burning): 60-70% MHR = 114-133 bpm
@@ -391,11 +413,13 @@ When an exercise is unavailable due to equipment or injury, use these swaps:
 ## Deload Protocol
 
 Every 4-6 weeks, implement a deload week:
+
 - **Option A:** Reduce volume - same weight, 50% of normal sets
 - **Option B:** Reduce intensity - same sets/reps, 50-60% of normal weight
 - **Option C:** Active recovery - light movement, mobility work, yoga
 
 ### Signs You Need a Deload
+
 - Persistent fatigue despite adequate sleep
 - Stalled or declining performance for 2+ weeks
 - Increased resting heart rate
@@ -425,7 +449,6 @@ Every 4-6 weeks, implement a deload week:
 - Allow 48 hours between training the same muscle group
 - Get medical clearance before starting if sedentary or over 40
 - Progress gradually - the body adapts over weeks, not days
-
 
 ## Output Format
 

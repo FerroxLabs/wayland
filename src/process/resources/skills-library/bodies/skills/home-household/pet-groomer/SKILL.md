@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care guide checklist"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'pet-care guide checklist'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pet Groomer
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pet groomer
 - User needs guidance on pet groomer topics
 - User wants a structured approach to pet groomer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -50,25 +52,25 @@ metadata:
 
 ### Dog Coat Types
 
-| Coat Type | Examples | Shedding | Brushing Frequency | Professional Grooming |
-|-----------|---------|----------|-------------------|----------------------|
-| Smooth/Short | Beagle, Boxer, Dachshund | Moderate | Weekly | Every 8-12 weeks |
-| Short Dense | Labrador, German Shepherd, Husky | Heavy (seasonal) | 2-3x weekly | Every 6-8 weeks |
-| Long/Flowing | Shih Tzu, Maltese, Yorkshire Terrier | Low | Daily | Every 4-6 weeks |
-| Wire/Rough | Schnauzer, Wire Fox Terrier, Airedale | Low | 2-3x weekly | Every 6-8 weeks (hand stripping) |
-| Wavy/Textured | Poodle, Bichon Frise, Doodle mixes | Very Low | Daily to every other day | Every 4-6 weeks |
-| Double Coat | Golden Retriever, Corgi, Akita | Heavy (seasonal) | 2-3x weekly (daily when blowing coat) | Every 6-8 weeks |
-| Hairless | Chinese Crested, Xolo | None | N/A (skin care instead) | Bathing every 1-2 weeks |
-| Corded | Puli, Komondor | None (trapped in cords) | Cord separation | Specialized grooming |
+| Coat Type     | Examples                              | Shedding                | Brushing Frequency                    | Professional Grooming            |
+| ------------- | ------------------------------------- | ----------------------- | ------------------------------------- | -------------------------------- |
+| Smooth/Short  | Beagle, Boxer, Dachshund              | Moderate                | Weekly                                | Every 8-12 weeks                 |
+| Short Dense   | Labrador, German Shepherd, Husky      | Heavy (seasonal)        | 2-3x weekly                           | Every 6-8 weeks                  |
+| Long/Flowing  | Shih Tzu, Maltese, Yorkshire Terrier  | Low                     | Daily                                 | Every 4-6 weeks                  |
+| Wire/Rough    | Schnauzer, Wire Fox Terrier, Airedale | Low                     | 2-3x weekly                           | Every 6-8 weeks (hand stripping) |
+| Wavy/Textured | Poodle, Bichon Frise, Doodle mixes    | Very Low                | Daily to every other day              | Every 4-6 weeks                  |
+| Double Coat   | Golden Retriever, Corgi, Akita        | Heavy (seasonal)        | 2-3x weekly (daily when blowing coat) | Every 6-8 weeks                  |
+| Hairless      | Chinese Crested, Xolo                 | None                    | N/A (skin care instead)               | Bathing every 1-2 weeks          |
+| Corded        | Puli, Komondor                        | None (trapped in cords) | Cord separation                       | Specialized grooming             |
 
 ### Cat Coat Types
 
-| Coat Type | Examples | Grooming Needs |
-|-----------|---------|---------------|
-| Short | Domestic Shorthair, Siamese, Abyssinian | Weekly brushing, most self-maintain |
-| Medium | Maine Coon (medium variant), Tonkinese | 2x weekly brushing |
-| Long | Persian, Ragdoll, Maine Coon | Daily brushing to prevent mats |
-| Hairless | Sphynx | Weekly bathing (oil buildup on skin) |
+| Coat Type | Examples                                | Grooming Needs                       |
+| --------- | --------------------------------------- | ------------------------------------ |
+| Short     | Domestic Shorthair, Siamese, Abyssinian | Weekly brushing, most self-maintain  |
+| Medium    | Maine Coon (medium variant), Tonkinese  | 2x weekly brushing                   |
+| Long      | Persian, Ragdoll, Maine Coon            | Daily brushing to prevent mats       |
+| Hairless  | Sphynx                                  | Weekly bathing (oil buildup on skin) |
 
 ---
 
@@ -187,14 +189,14 @@ DRYING:
 
 ### Bathing Frequency and Shampoo Selection
 
-| Coat Type | Frequency | Notes |
-|-----------|-----------|-------|
-| Short/Smooth | Every 6-8 weeks | More often if smelly or dirty |
-| Double Coat | Every 6-8 weeks | Before and after coat blow |
-| Long/Flowing | Every 2-4 weeks | Or as needed |
-| Wavy/Poodle | Every 3-4 weeks | Maintain between grooms |
-| Wire/Rough | Every 4-6 weeks | Preserve coat texture |
-| Cats | Rarely (most self-groom) | Only if dirty, long-haired, or medical need |
+| Coat Type    | Frequency                | Notes                                       |
+| ------------ | ------------------------ | ------------------------------------------- |
+| Short/Smooth | Every 6-8 weeks          | More often if smelly or dirty               |
+| Double Coat  | Every 6-8 weeks          | Before and after coat blow                  |
+| Long/Flowing | Every 2-4 weeks          | Or as needed                                |
+| Wavy/Poodle  | Every 3-4 weeks          | Maintain between grooms                     |
+| Wire/Rough   | Every 4-6 weeks          | Preserve coat texture                       |
+| Cats         | Rarely (most self-groom) | Only if dirty, long-haired, or medical need |
 
 ```
 SHAMPOO SELECTION:
@@ -369,18 +371,18 @@ PUPPIES AND KITTENS (Start Early):
 
 ### Decision Guide
 
-| Task | DIY Feasible? | Professional Recommended? |
-|------|:---:|:---:|
-| Regular brushing | Yes (essential) | N/A (you should do this) |
-| Bathing (short coat) | Yes | Optional |
-| Bathing (long/wavy coat) | Moderate | Recommended |
-| Nail trimming | Yes (with practice) | If pet is anxious |
-| Ear cleaning | Yes | If infection suspected |
-| Haircut (simple trim) | Moderate | Recommended first time |
-| Full breed-standard groom | Difficult | Yes |
-| Mat removal (severe) | No | Yes |
-| Anal gland expression | No | Vet or groomer |
-| Hand stripping (wire coats) | Advanced | Yes |
+| Task                        |    DIY Feasible?    | Professional Recommended? |
+| --------------------------- | :-----------------: | :-----------------------: |
+| Regular brushing            |   Yes (essential)   | N/A (you should do this)  |
+| Bathing (short coat)        |         Yes         |         Optional          |
+| Bathing (long/wavy coat)    |      Moderate       |        Recommended        |
+| Nail trimming               | Yes (with practice) |     If pet is anxious     |
+| Ear cleaning                |         Yes         |  If infection suspected   |
+| Haircut (simple trim)       |      Moderate       |  Recommended first time   |
+| Full breed-standard groom   |      Difficult      |            Yes            |
+| Mat removal (severe)        |         No          |            Yes            |
+| Anal gland expression       |         No          |      Vet or groomer       |
+| Hand stripping (wire coats) |      Advanced       |            Yes            |
 
 ### Choosing a Professional Groomer
 

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching curriculum lesson-plan step-by-step"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'teaching curriculum lesson-plan step-by-step'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Workshop Design
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when the request involves designing a structured learning experience for an educational audience -- students (K-12 or higher education), teachers, faculty, or academic staff -- within a bounded time frame (1 hour to 3 days) that is distinct from a regular class session.
 
 **Trigger scenarios:**
+
 - An instructor asks to design a workshop on a specific topic for their students (e.g., "I need a 90-minute workshop on academic integrity for first-year college students")
 - A curriculum coordinator requests a faculty professional development session on a pedagogical technique (e.g., "Design a half-day PD on differentiated instruction for middle school teachers")
 - A department chair wants a structured new-faculty orientation workshop covering syllabus design, classroom management, and campus resources
@@ -31,6 +33,7 @@ Use this skill when the request involves designing a structured learning experie
 - A graduate teaching assistant (TA) training coordinator needs a workshop on active learning techniques for new TAs
 
 **Do NOT use when:**
+
 - The audience is corporate employees, managers, or non-academic professionals -- use `professional-workshop-design` instead
 - The request involves designing a full course, semester-long sequence, or multi-unit curriculum -- use `online-course-design` or `curriculum-mapping`
 - The user wants a single classroom lesson for a regular course meeting -- use `lesson-plan-design`
@@ -70,14 +73,14 @@ The 5E Instructional Model (Engage-Explore-Explain-Elaborate-Evaluate) was devel
 
 **Time allocations for a 2-hour (120-minute) workshop:**
 
-| Phase | Purpose | Ideal Time Allocation |
-|---|---|---|
-| Engage | Activate prior knowledge, establish relevance, create productive disequilibrium | 8-12% (10-15 min) |
-| Explore | Participants investigate, discover, or grapple with the content before formal instruction | 18-22% (20-25 min) |
-| Explain | Facilitator consolidates learning, introduces vocabulary, bridges exploration to theory | 15-20% (18-24 min) |
-| Elaborate | Participants apply and extend learning to a new context or their own practice | 25-30% (30-36 min) |
-| Evaluate | Assessment of whether outcomes were met (can be embedded throughout) | 8-10% (10-12 min) |
-| Reflect | Metacognitive processing, action planning, commitment to transfer | 8-10% (10-12 min) |
+| Phase     | Purpose                                                                                   | Ideal Time Allocation |
+| --------- | ----------------------------------------------------------------------------------------- | --------------------- |
+| Engage    | Activate prior knowledge, establish relevance, create productive disequilibrium           | 8-12% (10-15 min)     |
+| Explore   | Participants investigate, discover, or grapple with the content before formal instruction | 18-22% (20-25 min)    |
+| Explain   | Facilitator consolidates learning, introduces vocabulary, bridges exploration to theory   | 15-20% (18-24 min)    |
+| Elaborate | Participants apply and extend learning to a new context or their own practice             | 25-30% (30-36 min)    |
+| Evaluate  | Assessment of whether outcomes were met (can be embedded throughout)                      | 8-10% (10-12 min)     |
+| Reflect   | Metacognitive processing, action planning, commitment to transfer                         | 8-10% (10-12 min)     |
 
 - The Explore phase must come BEFORE the Explain phase. This is not optional. Beginning with instruction and then practicing is the traditional model and produces weaker retention. Leading with a structured discovery task primes the brain for the explanatory content. The cognitive science term is "desirable difficulty" -- letting participants struggle productively before receiving the explanation significantly improves retention (Kapur's productive failure research).
 - The Elaborate phase is not re-teaching. It requires participants to apply learning to a context they have NOT yet seen in the workshop -- their own classroom, a novel scenario, or a transfer task.
@@ -92,13 +95,13 @@ Each workshop activity needs four components: Instructions, Deliverable, Activit
 - **Instructions:** Write the participant-facing instructions exactly as the facilitator will say them or display them. Vague instructions ("discuss this with your group") produce vague outputs. Specific instructions ("with your group, read the student work sample and write down two things the student understands and one specific gap") produce usable outcomes. Test your instructions by asking: could a participant follow these without asking a clarifying question?
 - **Deliverable:** Every activity must produce something tangible -- a list, a diagram, a written plan, a sticky-note post, a shared document entry, a verbal response to a structured prompt. The deliverable serves two functions: it keeps participants accountable and it gives the facilitator something to observe and use in the debrief.
 - **Activity structure:** Choose the structure intentionally. Key activity types and their appropriate uses:
-  - *Think-Pair-Share*: best for processing new information quickly; 3-6 minutes total
-  - *Jigsaw*: best for distributing responsibility when there is more content than time allows; requires 4-6 pre-prepared "expert" resource packets; each participant becomes the expert on one piece and teaches peers
-  - *Carousel/Gallery Walk*: best for exploring multiple examples or strategies simultaneously; requires 5+ stations with 3-5 minutes each; produces breadth over depth
-  - *Case Analysis*: best for applying concepts to realistic scenarios; requires carefully designed cases that are ambiguous enough to generate discussion
-  - *Structured Academic Controversy*: best for dispositional outcomes where you want participants to confront competing values; participants argue a position, then argue the opposite, then synthesize
-  - *Protocols (Tuning Protocol, Consultancy Protocol, Final Word)*: best for faculty PD involving participant-generated work; requires a facilitator who knows the protocol
-  - *Design Studio/Workshop-Within-a-Workshop*: participants create something (a lesson plan, an assignment, a rubric) with structured feedback cycles; high time cost but produces direct transfer artifacts
+  - _Think-Pair-Share_: best for processing new information quickly; 3-6 minutes total
+  - _Jigsaw_: best for distributing responsibility when there is more content than time allows; requires 4-6 pre-prepared "expert" resource packets; each participant becomes the expert on one piece and teaches peers
+  - _Carousel/Gallery Walk_: best for exploring multiple examples or strategies simultaneously; requires 5+ stations with 3-5 minutes each; produces breadth over depth
+  - _Case Analysis_: best for applying concepts to realistic scenarios; requires carefully designed cases that are ambiguous enough to generate discussion
+  - _Structured Academic Controversy_: best for dispositional outcomes where you want participants to confront competing values; participants argue a position, then argue the opposite, then synthesize
+  - _Protocols (Tuning Protocol, Consultancy Protocol, Final Word)_: best for faculty PD involving participant-generated work; requires a facilitator who knows the protocol
+  - _Design Studio/Workshop-Within-a-Workshop_: participants create something (a lesson plan, an assignment, a rubric) with structured feedback cycles; high time cost but produces direct transfer artifacts
 - **Grouping:** Group size is a design decision, not an afterthought. Pairs (2) maximize individual accountability. Triads (3) are ideal for feedback activities -- two give feedback, one receives. Groups of 4 are optimal for most discussion tasks. Groups of 5-6 work for carousel stations and jigsaw. Groups larger than 6 allow social loafing -- one or two people dominate and others disengage. For a 20-person workshop, 4 groups of 5 is the standard configuration. For a 30-person workshop, 6 groups of 5 or 5 groups of 6.
 
 ### Step 5: Build the Facilitator Guide with Full Fidelity
@@ -441,6 +444,7 @@ Some educational workshops address topics that generate discomfort, disagreement
 ### Learning Outcomes
 
 By the end of this workshop, students will be able to:
+
 1. Apply the SIFT method (Stop, Investigate the source, Find better coverage, Trace claims) to evaluate a new online source they have not seen before (Bloom's level: Apply -- Procedural)
 2. Distinguish between lateral reading and vertical reading strategies and explain why lateral reading is more reliable for source verification (Bloom's level: Understand -- Conceptual)
 3. Identify at least three characteristics of misinformation design that are used to manipulate reader emotion and trust (Bloom's level: Analyze -- Factual/Conceptual)
@@ -448,18 +452,19 @@ By the end of this workshop, students will be able to:
 
 **Outcome-Activity Alignment:**
 
-| Outcome | Activities That Address It | How It Is Assessed |
-|---------|---------------------------|-------------------|
-| 1: Apply SIFT | SIFT Practice Rounds (Elaborate), Source Evaluation (Elaborate 2) | Completed SIFT worksheet |
-| 2: Lateral vs. vertical reading | Vertical vs. Lateral Race (Explore), Explain phase | Exit ticket question |
-| 3: Misinformation characteristics | Headline Autopsy (Engage), Misinformation Gallery Walk (Explore) | Gallery walk annotation |
-| 4: Source evaluation artifact | Personal Source Evaluation (Elaborate 2) | Evaluated source document |
+| Outcome                           | Activities That Address It                                        | How It Is Assessed        |
+| --------------------------------- | ----------------------------------------------------------------- | ------------------------- |
+| 1: Apply SIFT                     | SIFT Practice Rounds (Elaborate), Source Evaluation (Elaborate 2) | Completed SIFT worksheet  |
+| 2: Lateral vs. vertical reading   | Vertical vs. Lateral Race (Explore), Explain phase                | Exit ticket question      |
+| 3: Misinformation characteristics | Headline Autopsy (Engage), Misinformation Gallery Walk (Explore)  | Gallery walk annotation   |
+| 4: Source evaluation artifact     | Personal Source Evaluation (Elaborate 2)                          | Evaluated source document |
 
 ---
 
 ### Pre-Workshop Preparation
 
 **Librarian (5+ days before):**
+
 - [ ] Select 6 authentic websites for the SIFT Practice Rounds: choose 2 reliable sources, 2 low-quality or biased sources, and 2 "looks credible but isn't" sources. Use real sites, not made-up ones -- the goal is to practice on the actual information landscape students will encounter
 - [ ] Select 8 real headlines from the past 6 months for the Headline Autopsy -- 4 misleading, 4 accurate, all on topics 8th graders would plausibly encounter
 - [ ] Prepare SIFT Practice Round worksheets (28 copies) with fields: URL, Stop (initial reaction), Investigate (what did you find about the source?), Find Better Coverage (what did other sources say about this claim?), Trace Claims (where did this information originate?), and Your Verdict
@@ -469,12 +474,14 @@ By the end of this workshop, students will be able to:
 - [ ] Prepare a 1-slide "SIFT Cheat Sheet" for display during the Elaborate phase
 
 **Librarian (day before):**
+
 - [ ] Print all handouts (28 copies of each: SIFT worksheet x3 for three practice rounds, personal source evaluation template)
 - [ ] Print and post 6 Gallery Walk posters around the library perimeter
 - [ ] Set up devices or confirm BYOD access -- test all 6 URLs load correctly
 - [ ] Write agenda on whiteboard: "1. Headline Autopsy 2. Vertical vs. Lateral Race 3. What is SIFT? 4. BREAK 5. SIFT Practice 6. Your Own Source 7. Wrap-Up"
 
 **Librarian (1 hour before):**
+
 - [ ] Tables arranged in 7 groups of 4
 - [ ] SIFT worksheets (set of 3 per student) in a stack at each table, face down
 - [ ] Markers and sticky notes at each table
@@ -489,19 +496,19 @@ By the end of this workshop, students will be able to:
 
 ### Workshop Agenda
 
-| Clock Time | Phase (5E+R) | Segment Title | Format | Duration |
-|------------|--------------|---------------|--------|----------|
-| 0:00 | Engage | Headline Autopsy | Groups of 4 | 18 min |
-| 0:18 | Explore | Vertical vs. Lateral Race | Pairs | 20 min |
-| 0:38 | Explore | Misinformation Gallery Walk | Individual + Group | 22 min |
-| 1:00 | Explain | What is SIFT? | Whole group + processing pause | 20 min |
-| 1:20 | -- | BREAK | -- | 10 min |
-| 1:30 | Engage (reset) | Two Truths and a Source | Whole group | 5 min |
-| 1:35 | Elaborate | SIFT Practice Rounds | Groups of 4 | 35 min |
-| 2:10 | Elaborate | Personal Source Evaluation | Individual + Pairs | 30 min |
-| 2:40 | Evaluate | SIFT Speed Round | Whole group | 10 min |
-| 2:50 | Reflect | Before-After-Question Exit Ticket | Individual | 10 min |
-| **Total** | | | | **180 min** |
+| Clock Time | Phase (5E+R)   | Segment Title                     | Format                         | Duration    |
+| ---------- | -------------- | --------------------------------- | ------------------------------ | ----------- |
+| 0:00       | Engage         | Headline Autopsy                  | Groups of 4                    | 18 min      |
+| 0:18       | Explore        | Vertical vs. Lateral Race         | Pairs                          | 20 min      |
+| 0:38       | Explore        | Misinformation Gallery Walk       | Individual + Group             | 22 min      |
+| 1:00       | Explain        | What is SIFT?                     | Whole group + processing pause | 20 min      |
+| 1:20       | --             | BREAK                             | --                             | 10 min      |
+| 1:30       | Engage (reset) | Two Truths and a Source           | Whole group                    | 5 min       |
+| 1:35       | Elaborate      | SIFT Practice Rounds              | Groups of 4                    | 35 min      |
+| 2:10       | Elaborate      | Personal Source Evaluation        | Individual + Pairs             | 30 min      |
+| 2:40       | Evaluate       | SIFT Speed Round                  | Whole group                    | 10 min      |
+| 2:50       | Reflect        | Before-After-Question Exit Ticket | Individual                     | 10 min      |
+| **Total**  |                |                                   |                                | **180 min** |
 
 ---
 
@@ -521,6 +528,7 @@ By the end of this workshop, students will be able to:
 [Display Headline 1 on screen -- choose a specific, real recent misleading headline about a topic 8th graders know, such as a viral claim about a popular game, a celebrity, or a school policy]
 
 **Facilitator talking points:**
+
 - Give groups 90 seconds to react, no more
 - Reveal whether the headline was accurate or misleading using a trusted fact-check source result (pre-prepared)
 - Show all 8 headlines sequentially -- 60-90 seconds each
@@ -528,16 +536,18 @@ By the end of this workshop, students will be able to:
 - After the 8 headlines: "How many did your table get right?" Show of hands by number (0, 1-3, 4-6, all). Note: most tables will get 3-5 right, which sets up the problem
 
 **Participant activity:**
-*Instructions displayed:* "Look at each headline. Thumbs up (believe it), thumbs sideways (not sure), thumbs down (suspicious). Discuss at your table -- 90 seconds. Vote as a group."
-*Grouping:* Groups of 4 (assigned -- do not allow friend-group self-selection, it reduces engagement range)
-*Deliverable:* Verbal group vote for each headline; tally on whiteboard by facilitator
-*Duration:* 8 minutes for headlines, 5 minutes for pattern debrief, 5 minutes for facilitator framing
+_Instructions displayed:_ "Look at each headline. Thumbs up (believe it), thumbs sideways (not sure), thumbs down (suspicious). Discuss at your table -- 90 seconds. Vote as a group."
+_Grouping:_ Groups of 4 (assigned -- do not allow friend-group self-selection, it reduces engagement range)
+_Deliverable:_ Verbal group vote for each headline; tally on whiteboard by facilitator
+_Duration:_ 8 minutes for headlines, 5 minutes for pattern debrief, 5 minutes for facilitator framing
 
 **Facilitator observation notes:**
+
 - Listen for: students expressing surprise at being wrong; students confidently wrong (important to note -- these are your highest-risk over-confident readers); students who already use verification strategies
 - Watch for: any student who is clearly checking their phone to look up headlines -- redirect without shame: "We'll look things up in a moment, right now I want your first instinct"
 
 **Debrief questions:**
+
 1. "What made you believe some headlines and doubt others? What clues were you using?"
 2. "Notice that some of the misleading headlines looked more professional than the accurate ones. What does that tell us about using 'looks legit' as a strategy?"
 
@@ -545,6 +555,7 @@ By the end of this workshop, students will be able to:
 "Your instincts got you about halfway there -- and that's roughly the same success rate researchers find with college students and even some adults. The problem is: our brains are not built to detect manipulation. They are built to confirm what we already believe. Today we're going to build a set of skills that work better than instinct. Let's start by trying two completely different strategies for evaluating a source -- and you're going to race to see which one works faster."
 
 **Contingency:**
+
 - If groups finish the headline votes very quickly: ask "What would you need to know to be sure about this headline?" (This previews SIFT without naming it)
 - If students are disengaged or reluctant: use a headline about something in their immediate world (a local school policy, a game or app they use) rather than a national news topic
 - If time is short (compress to 12 minutes): use 5 headlines instead of 8; cut the pattern debrief question
@@ -563,17 +574,19 @@ By the end of this workshop, students will be able to:
 [Assign Strategy A to tables 1, 2, 3; Strategy B to tables 4, 5, 6, 7. Each pair gets the same 3 websites to evaluate -- assign the same URL to one Strategy A pair and one Strategy B pair so results can be compared]
 
 **Participant activity:**
-*Instructions displayed:* "Strategy A: Explore only the website itself for 3 minutes. Strategy B: Search [organization name] + 'bias' or 'review' for 3 minutes. Do NOT look at the original site. Write: (1) Is this source reliable? (2) How confident are you? (3) What evidence did you use?"
-*Grouping:* Pairs within their table group (28 students = 14 pairs)
-*Deliverable:* Written answers to 3 questions on a half-sheet; verbal comparison with a Strategy B pair afterward
-*Duration:* 3 minutes individual strategy work, 5 minutes compare with opposite-strategy pair, 7 minutes whole-group discussion of findings, 5 minutes facilitator bridge
+_Instructions displayed:_ "Strategy A: Explore only the website itself for 3 minutes. Strategy B: Search [organization name] + 'bias' or 'review' for 3 minutes. Do NOT look at the original site. Write: (1) Is this source reliable? (2) How confident are you? (3) What evidence did you use?"
+_Grouping:_ Pairs within their table group (28 students = 14 pairs)
+_Deliverable:_ Written answers to 3 questions on a half-sheet; verbal comparison with a Strategy B pair afterward
+_Duration:_ 3 minutes individual strategy work, 5 minutes compare with opposite-strategy pair, 7 minutes whole-group discussion of findings, 5 minutes facilitator bridge
 
 **Facilitator observation notes:**
+
 - Listen for: Strategy A students describing the website's design, professionalism, or self-described mission as evidence of reliability -- this is vertical reading and exactly the gap to highlight
 - Listen for: Strategy B students finding credibility assessments from Media Bias Fact Check, Wikipedia article histories, news reporting about the organization -- this is lateral reading working
 - Watch for: Strategy A students who intuitively go to other sources -- they are already lateral readers; recruit them to share in the debrief
 
 **Debrief questions:**
+
 1. "Strategy A pairs: what evidence did you use to judge the site? Strategy B pairs: what evidence did you use? [Facilitate a comparison -- which produced more useful information?]"
 2. "Why would staying inside a suspicious website be a bad strategy? What does the website have an interest in telling you?"
 
@@ -581,6 +594,7 @@ By the end of this workshop, students will be able to:
 "What Strategy B pairs did is called lateral reading -- you immediately stepped outside the source to see what others say about it. It is the technique professional fact-checkers use, and it works in about 30 seconds. Before I show you the full system, I want you to look at six examples of how misinformation actually works -- what techniques it uses to get past your defenses. Walk around the library."
 
 **Contingency:**
+
 - If internet access fails: pre-print the "lateral reading result" for each website as a second sheet students can flip over after the vertical reading attempt
 - If pairs finish early: ask them to try the opposite strategy on a second URL
 - If time is short (compress to 15 min): skip the whole-group debr

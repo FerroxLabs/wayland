@@ -68,12 +68,8 @@ const AutoSettingUpCard: React.FC = () => {
         <div className={styles.spinnerRow}>
           <Spin size={28} />
         </div>
-        <h2 className='text-20px font-semibold text-t-primary leading-28px m-0'>
-          {t('memory.setting_up.title')}
-        </h2>
-        <p className='text-14px text-t-secondary leading-22px m-0'>
-          {t('memory.setting_up.subtitle')}
-        </p>
+        <h2 className='text-20px font-semibold text-t-primary leading-28px m-0'>{t('memory.setting_up.title')}</h2>
+        <p className='text-14px text-t-secondary leading-22px m-0'>{t('memory.setting_up.subtitle')}</p>
         <p
           className={`text-12px text-t-tertiary leading-18px m-0 ${styles.brandLine}`}
           data-testid='memory-auto-setting-up-brand'
@@ -81,20 +77,12 @@ const AutoSettingUpCard: React.FC = () => {
           {t('memory.setting_up.brand_line')}
         </p>
         {showTakingLonger ? (
-          <p
-            className='text-12px text-t-tertiary leading-18px m-0'
-            data-testid='memory-auto-setting-up-taking-longer'
-          >
+          <p className='text-12px text-t-tertiary leading-18px m-0' data-testid='memory-auto-setting-up-taking-longer'>
             {t('memory.setting_up.taking_longer')}
           </p>
         ) : null}
         {showHelp ? (
-          <Button
-            type='text'
-            size='small'
-            onClick={handleHelpClick}
-            data-testid='memory-auto-setting-up-help-link'
-          >
+          <Button type='text' size='small' onClick={handleHelpClick} data-testid='memory-auto-setting-up-help-link'>
             {t('memory.setting_up.help')}
           </Button>
         ) : null}

@@ -16,7 +16,7 @@ Tiers exist to capture different willingness-to-pay segments without forcing one
 
 Tiers hurt when the offer is a single transformation with no scale variable (a course on landing your first freelance client is one outcome; tier-stacking it produces decoy noise, not segmentation). When in doubt, ship one tier. A clear single offer beats a confusing ladder.
 
-**2. Design the ladder around outcome, not feature count.** Each tier promises a different *level* of outcome or a different *speed* to the same outcome. Not "12 templates vs 20 templates." More like:
+**2. Design the ladder around outcome, not feature count.** Each tier promises a different _level_ of outcome or a different _speed_ to the same outcome. Not "12 templates vs 20 templates." More like:
 
 - **Entry** — the buyer does the work themselves with the playbook. Lowest price, lowest hand-holding, lowest risk.
 - **Middle (the anchor)** — the buyer does the work with coaching or done-with-you support. The tier most buyers should land on. Price set so margin is healthy here.
@@ -51,6 +51,6 @@ Wider gaps push more buyers to the middle. Narrower gaps push some to the top. P
 
 ## Before / after
 
-**Before:** *"Basic $97 (5 modules), Pro $297 (12 modules + community), Premium $997 (everything + group calls)."*
+**Before:** _"Basic $97 (5 modules), Pro $297 (12 modules + community), Premium $997 (everything + group calls)."_
 
-**After:** *"Starter $297 — work through the playbook on your own, ship your first outreach within 30 days. Growth $797 (most picked) — playbook plus weekly coaching call, first paying client within 90 days or refund. Done-with-you $2,497 — we sit on the call and write the outreach with you, first paying client within 45 days. Three tiers, three different speeds to the same outcome, priced to land most buyers on Growth."*
+**After:** _"Starter $297 — work through the playbook on your own, ship your first outreach within 30 days. Growth $797 (most picked) — playbook plus weekly coaching call, first paying client within 90 days or refund. Done-with-you $2,497 — we sit on the call and write the outreach with you, first paying client within 45 days. Three tiers, three different speeds to the same outcome, priced to land most buyers on Growth."_

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ruby best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ruby best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Ruby Project Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is starting a new Ruby application (gem, Rails app, Sinatra service, CLI tool, background worker) and needs a production-ready project structure from scratch
 - User wants to establish Ruby version management, Bundler configuration, and dependency isolation for a team environment
 - User needs to configure code quality tooling -- RuboCop, RSpec, SimpleCov, Brakeman, or Bundler Audit -- and integrate them into a CI pipeline
@@ -29,6 +31,7 @@ metadata:
 - User needs guidance on local development workflow parity -- ensuring developers run the same Ruby version, same Bundler version, and same environment variable setup as CI
 
 **Do NOT use this skill when:**
+
 - User needs Rails-specific application architecture guidance -- that warrants a dedicated Rails architecture skill covering MVC structure, Active Record patterns, and asset pipeline
 - User is asking about Ruby on Rails API design, serializers, or authentication -- those are framework-level concerns beyond project scaffolding
 - User needs help with a specific Ruby language feature, metaprogramming technique, or algorithmic problem -- use a general Ruby programming skill
@@ -51,6 +54,7 @@ Before writing a single file, classify the project type -- each has a distinct c
 - **Rails application:** Use `rails new` with `--database`, `--skip-*` flags as needed; this skill provides the surrounding project hygiene layer, not Rails-specific architecture.
 
 Confirm these questions before proceeding:
+
 - Will this be released as a gem (public or private registry)?
 - Is this a team project or solo? Teams need stricter automation.
 - What Ruby version is required or preferred? Check for end-of-life status -- Ruby versions receive security support for roughly 2 years after release. Prefer the latest stable minor version (e.g., 3.3.x as of 2024).
@@ -79,33 +83,35 @@ Bundler is the dependency contract for the project. Poor Gemfile hygiene is the 
 - Lock the Bundler version itself. Add a `BUNDLED WITH` section by running `bundle install` locally. Commit `Gemfile.lock` for applications; do NOT commit `Gemfile.lock` for gems (it blocks consumer version resolution).
 - Specify gem versions with **pessimistic constraints** (`~>`) rather than open-ended requirements: `gem 'rack', '~> 3.0'` allows patch updates but prevents breaking minor-version changes.
 - Group gems correctly:
+
   ```ruby
   # Gemfile
   source 'https://rubygems.org'
-  
+
   ruby file: '.ruby-version'  # reads from .ruby-version automatically
-  
+
   gem 'dry-validation', '~> 1.10'
   gem 'zeitwerk', '~> 2.6'
-  
+
   group :development do
     gem 'rubocop', '~> 1.65', require: false
     gem 'rubocop-rspec', require: false
     gem 'rubocop-performance', require: false
   end
-  
+
   group :development, :test do
     gem 'rspec', '~> 3.13'
     gem 'factory_bot', '~> 6.4'
     gem 'faker', '~> 3.3'
   end
-  
+
   group :test do
     gem 'simplecov', require: false
     gem 'webmock', '~> 3.23'
     gem 'vcr', '~> 6.2'
   end
   ```
+
 - Set `require: false` on development tools (RuboCop, Brakeman, etc.) -- they should never be auto-required in application code.
 - Configure Bundler path via `.bundle/config` or environment variable:
   ```
@@ -121,6 +127,7 @@ Bundler is the dependency contract for the project. Poor Gemfile hygiene is the 
 A consistent directory layout enables new contributors to navigate the project immediately.
 
 **For a gem named `payment_gateway`:**
+
 ```
 payment_gateway/
 ├── .bundle/
@@ -155,6 +162,7 @@ payment_gateway/
 ```
 
 Key structural rules:
+
 - `lib/gem_name.rb` loads all internal files via `require_relative` or Zeitwerk autoloader -- it is the public contract of the gem.
 - `lib/gem_name/version.rb` contains ONLY `VERSION = '1.0.0'`. The gemspec requires this file to read the version. No other requires here.
 - `bin/console` should load `require 'irb'` and `require_relative '../lib/gem_name'` then call `IRB.start`.
@@ -182,13 +190,13 @@ AllCops:
     - 'bin/**/*'
     - 'exe/**/*'
     - '*.gemspec'
-    - 'db/schema.rb'    # for Rails projects
+    - 'db/schema.rb' # for Rails projects
 
 # Layout
 Layout/LineLength:
   Max: 120
   AllowedPatterns:
-    - '^\s*#'           # allow long comment lines
+    - '^\s*#' # allow long comment lines
 
 # Style
 Style/FrozenStringLiteralComment:
@@ -199,7 +207,7 @@ Style/StringLiterals:
   EnforcedStyle: single_quotes
 
 Style/Documentation:
-  Enabled: false         # disable for internal projects; enable for gems
+  Enabled: false # disable for internal projects; enable for gems
 
 # Metrics -- start permissive, tighten over time
 Metrics/MethodLength:
@@ -220,6 +228,7 @@ RSpec/MultipleExpectations:
 ```
 
 Critical configuration decisions:
+
 - Always set `TargetRubyVersion` -- without it, RuboCop assumes an old default and misses version-specific cops.
 - Enable `NewCops: enable` so you catch new offenses as RuboCop versions are updated rather than accumulating tech debt.
 - Add `# frozen_string_literal: true` to every Ruby file -- this enables string deduplication and prevents accidental string mutation. RuboCop's `Style/FrozenStringLiteralComment` cop enforces this.
@@ -233,6 +242,7 @@ Critical configuration decisions:
 RSpec is the dominant testing framework for Ruby. Configure it for speed, clarity, and reliable CI behavior.
 
 `spec/spec_helper.rb`:
+
 ```ruby
 # frozen_string_literal: true
 
@@ -275,6 +285,7 @@ end
 ```
 
 `.rspec` file (project root):
+
 ```
 --require spec_helper
 --format documentation
@@ -283,6 +294,7 @@ end
 ```
 
 Key testing configuration decisions:
+
 - Set `config.warnings = true` -- Ruby warnings surface deprecations and potential bugs early.
 - Enable `verify_partial_doubles: true` -- without this, stubbing a method that doesn't exist silently passes, masking misnamed methods.
 - Randomize test order to catch order-dependent failures. When a failure is found, reproduce it with `rspec --seed <number>`.
@@ -296,6 +308,7 @@ Key testing configuration decisions:
 CI is the enforcement mechanism for all quality standards. A CI pipeline that doesn't run quality checks is a quality check that doesn't exist.
 
 `.github/workflows/ci.yml` (GitHub Actions):
+
 ```yaml
 name: CI
 
@@ -311,7 +324,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: ['3.3']   # add '3.2', '3.1' for gems targeting multiple versions
+        ruby: ['3.3'] # add '3.2', '3.1' for gems targeting multiple versions
 
     steps:
       - uses: actions/checkout@v4
@@ -320,7 +333,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true  # runs bundle install and caches automatically
+          bundler-cache: true # runs bundle install and caches automatically
 
       - name: Run RuboCop
         run: bundle exec rubocop --format github
@@ -332,7 +345,7 @@ jobs:
 
       - name: Run Brakeman (security scan)
         run: bundle exec brakeman --no-pager
-        if: hashFiles('config/application.rb') != ''  # only for Rails apps
+        if: hashFiles('config/application.rb') != '' # only for Rails apps
 
       - name: Run bundler-audit
         run: |
@@ -341,6 +354,7 @@ jobs:
 ```
 
 CI configuration decisions:
+
 - Use `ruby/setup-ruby` with `bundler-cache: true` -- this action handles both rbenv setup and Bundler caching automatically. A cache hit reduces CI time from 60-90 seconds of gem installation to under 5 seconds.
 - Run RuboCop with `--format github` on GitHub Actions -- this format creates inline PR annotations rather than plain text output.
 - Run `bundle-audit` in every CI job -- it checks `Gemfile.lock` against the Ruby Advisory Database for known CVEs and takes under 2 seconds.
@@ -354,6 +368,7 @@ CI configuration decisions:
 A project setup is incomplete without the tooling that makes day-to-day development productive.
 
 **`Rakefile`:**
+
 ```ruby
 # frozen_string_literal: true
 
@@ -367,12 +382,14 @@ task default: %i[rubocop spec]
 ```
 
 For gems, add release automation:
+
 ```ruby
 require 'bundler/gem_tasks'
 # Now `rake release` tags, pushes, and publishes the gem
 ```
 
 **`bin/setup`:**
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -388,6 +405,7 @@ echo "==> Setup complete. Run 'bin/console' to start an interactive session."
 ```
 
 **`.env.example`** (never `.env` -- that stays in `.gitignore`):
+
 ```
 APP_ENV=development
 LOG_LEVEL=debug
@@ -395,6 +413,7 @@ DATABASE_URL=postgres://localhost:5432/myapp_development
 ```
 
 **`.gitignore` essentials:**
+
 ```
 # Bundler
 .bundle/
@@ -420,18 +439,26 @@ coverage/
 ```
 
 **`CHANGELOG.md`** -- start with a template following Keep a Changelog format:
+
 ```markdown
 # Changelog
+
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
+
 ### Added
+
 ### Changed
+
 ### Deprecated
+
 ### Removed
+
 ### Fixed
+
 ### Security
 ```
 
@@ -441,7 +468,7 @@ and this project adheres to Semantic Versioning.
 
 When delivering a Ruby project setup recommendation, use this structure:
 
-```
+````
 ## Ruby Project Setup: [Project Name]
 
 ### Project Classification
@@ -478,19 +505,22 @@ git clone <repo>
 cd <project>
 rbenv install   # reads .ruby-version automatically
 bin/setup       # installs gems, copies .env.example
-```
+````
 
 ### Quality Thresholds
+
 - RuboCop: 0 offenses (enforced in CI)
 - Test Coverage: >= 85% overall (enforced by SimpleCov)
 - Security: 0 known CVEs (enforced by bundler-audit)
 - Test Suite Runtime: target < 30 seconds for unit tests
 
 ### Next Steps
+
 1. [specific immediate action]
 2. [specific immediate action]
 3. [specific immediate action]
-```
+
+````
 
 ---
 
@@ -524,39 +554,50 @@ bin/setup       # installs gems, copies .env.example
 When a gem must support multiple Ruby versions (e.g., Ruby 3.1, 3.2, and 3.3), configure the CI matrix accordingly and be explicit in the `gemspec`:
 ```ruby
 spec.required_ruby_version = '>= 3.1.0'
-```
+````
+
 Test against all supported versions in CI. Use `RUBY_VERSION` constant guards only as a last resort -- prefer conditional `require` and feature detection over version branching. When a feature is available in 3.2+ only, document the minimum version requirement rather than shimming behavior.
 
 ### Windows Development Environments
+
 Some gems have native extensions that behave differently on Windows. If team members use Windows, specify the `x86_64-mingw32` or `x64-mingw-ucrt` platform in the `Gemfile.lock`. Use `bundle lock --add-platform x86_64-mingw32` to add Windows platform resolution. Some gems (notably `bcrypt`, `nokogiri`) have Windows-specific binary gem variants -- configure Bundler to prefer pre-compiled binaries: `BUNDLE_FORCE_RUBY_PLATFORM: false`.
 
 ### Monorepo With Multiple Ruby Services
+
 When multiple Ruby services share a monorepo, each service needs its own `Gemfile`, `Gemfile.lock`, `.ruby-version`, and `.rubocop.yml`. Do NOT share a single top-level `Gemfile` across services -- dependency conflicts are inevitable and the blast radius of `bundle update` becomes enormous. Share common RuboCop configuration by using inheritance: create a `.rubocop-shared.yml` at the monorepo root and include it in each service's `.rubocop.yml` with `inherit_from: ../../.rubocop-shared.yml`.
 
 ### Private Gem Registry
+
 When using a private gem registry (GitHub Packages, Gemstash, JFrog Artifactory), configure Bundler to authenticate without embedding credentials in `Gemfile`:
+
 ```ruby
 # Gemfile
 source 'https://gems.example.com' do
   gem 'internal_library', '~> 2.1'
 end
 ```
+
 Store credentials in `.bundle/config` (not committed) or as environment variables: `BUNDLE_GEMS__EXAMPLE__COM: "token:$TOKEN"`. The environment variable naming convention is the source URL with dots and slashes replaced by double underscores and uppercased.
 
 ### Legacy Codebase With No Tests Adopting RuboCop
+
 Running `rubocop` on a codebase with zero prior enforcement will produce thousands of offenses. Do not attempt to fix them all at once -- this creates enormous, unreviable PRs with high merge conflict risk. Run `bundle exec rubocop --auto-gen-config` to generate `.rubocop_todo.yml` with all existing violations excluded. Then add a `TODO` count comment to each entry noting the offense count. Reduce the todo list by 10-20 offenses per PR over multiple weeks, prioritizing high-signal cops (security, correctness) over low-signal ones (style).
 
 ### Docker-Based Development Environments
+
 When developers use Docker for local development, set `BUNDLE_PATH: /usr/local/bundle` in the container and volume-mount it separately from the application code so gems persist across container rebuilds. The `.ruby-version` file is still useful as documentation, but pin the `FROM ruby:3.3.4` base image in `Dockerfile` to a patch version -- the `ruby:3.3` tag updates to new patch releases and can introduce unexpected behavior.
 
 ### Project Requiring Custom `require` Load Order
+
 When a project loads many files and load order matters (circular dependency risks with manual `require`), introduce **Zeitwerk** as the autoloader:
+
 ```ruby
 # lib/payment_gateway.rb
 require 'zeitwerk'
 loader = Zeitwerk::Loader.for_gem
 loader.setup
 ```
+
 Zeitwerk uses file-system conventions to autoload constants -- `lib/payment_gateway/client.rb` defines `PaymentGateway::Client`. This eliminates `require_relative` chains entirely and prevents load-order bugs. Zeitwerk also enables hot-reloading in development via `loader.reload`. Verify the autoload map during setup with `loader.eager_load` in tests.
 
 ---
@@ -572,6 +613,7 @@ Zeitwerk uses file-system conventions to autoload constants -- `lib/payment_gate
 ## Ruby Project Setup: data_validator Gem
 
 ### Project Classification
+
 - Type: Public Ruby Gem
 - Ruby Version: 3.3.4 (development); supports 3.1.0+
 - Team Size: 4 engineers
@@ -580,15 +622,15 @@ Zeitwerk uses file-system conventions to autoload constants -- `lib/payment_gate
 
 ### Toolchain Decision Matrix
 
-| Tool            | Selection             | Rationale                                                          |
-|-----------------|-----------------------|--------------------------------------------------------------------|
-| Version Manager | rbenv                 | Widest team tooling support; mise acceptable alternative           |
-| Bundler Version | 2.5.x                 | Included with Ruby 3.3; do NOT commit Gemfile.lock (gem policy)   |
-| Testing         | RSpec 3.13            | Industry standard for gems; rich matcher ecosystem                 |
-| Linting         | RuboCop 1.65 + rspec  | rubocop-rspec adds RSpec-specific cops essential for test quality  |
-| Coverage        | SimpleCov 0.22        | 90% overall threshold appropriate for new gem with full control    |
-| Security        | bundler-audit         | CVE check on Gemfile.lock; fast, zero false positives              |
-| Pre-commit      | lefthook              | Fast, parallel hook execution; no Ruby runtime dependency          |
+| Tool            | Selection            | Rationale                                                         |
+| --------------- | -------------------- | ----------------------------------------------------------------- |
+| Version Manager | rbenv                | Widest team tooling support; mise acceptable alternative          |
+| Bundler Version | 2.5.x                | Included with Ruby 3.3; do NOT commit Gemfile.lock (gem policy)   |
+| Testing         | RSpec 3.13           | Industry standard for gems; rich matcher ecosystem                |
+| Linting         | RuboCop 1.65 + rspec | rubocop-rspec adds RSpec-specific cops essential for test quality |
+| Coverage        | SimpleCov 0.22       | 90% overall threshold appropriate for new gem with full control   |
+| Security        | bundler-audit        | CVE check on Gemfile.lock; fast, zero false positives             |
+| Pre-commit      | lefthook             | Fast, parallel hook execution; no Ruby runtime dependency         |
 
 ---
 
@@ -611,6 +653,7 @@ cd data_validator
 ---
 
 ### `.ruby-version`
+
 ```
 3.3.4
 ```
@@ -618,6 +661,7 @@ cd data_validator
 ---
 
 ### `data_validator.gemspec`
+
 ```ruby
 # frozen_string_literal: true
 
@@ -659,6 +703,7 @@ end
 ---
 
 ### `Gemfile`
+
 ```ruby
 # frozen_string_literal: true
 
@@ -689,6 +734,7 @@ end
 ---
 
 ### `lib/data_validator/version.rb`
+
 ```ruby
 # frozen_string_literal: true
 
@@ -700,6 +746,7 @@ end
 ---
 
 ### `lib/data_validator.rb`
+
 ```ruby
 # frozen_string_literal: true
 
@@ -725,6 +772,7 @@ end
 ---
 
 ### `.rubocop.yml`
+
 ```yaml
 require:
   - rubocop-rspec
@@ -732,7 +780,7 @@ require:
 
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 3.1   # lowest supported version for cop compatibility
+  TargetRubyVersion: 3.1 # lowest supported version for cop compatibility
   Exclude:
     - 'vendor/**/*'
     - 'bin/**/*'
@@ -750,7 +798,7 @@ Style/StringLiterals:
   EnforcedStyle: single_quotes
 
 Style/Documentation:
-  Enabled: true   # enforce documentation for public gem API
+  Enabled: true # enforce documentation for public gem API
 
 Metrics/MethodLength:
   Max: 15
@@ -768,6 +816,7 @@ RSpec/MultipleExpectations:
 ---
 
 ### `spec/spec_helper.rb`
+
 ```ruby
 # frozen_string_literal: true
 
@@ -807,6 +856,7 @@ end
 ---
 
 ### `.github/workflows/ci.yml`
+
 ```yaml
 name: CI
 
@@ -841,7 +891,7 @@ jobs:
 
       - name: Lint with RuboCop
         run: bundle exec rubocop --format github
-        if: matrix.ruby == '3.3'  # lint once on latest Ruby
+        if: matrix.ruby == '3.3' # lint once on latest Ruby
 
       - name: Run tests
         run: bundle exec rspec
@@ -858,6 +908,7 @@ jobs:
 ---
 
 ### `Rakefile`
+
 ```ruby
 # frozen_string_literal: true
 
@@ -874,6 +925,7 @@ task default: %i[rubocop spec]
 ---
 
 ### `bin/setup`
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -894,6 +946,7 @@ chmod +x bin/setup bin/console
 ---
 
 ### `bin/console`
+
 ```ruby
 #!/usr/bin/env ruby
 # frozen_string_literal: true
@@ -908,6 +961,7 @@ IRB.start(__FILE__)
 ---
 
 ### Initial Setup Commands
+
 ```bash
 rbenv install 3.3.4          # install Ruby (reads .ruby-version)
 bundle install               # install development gems
@@ -919,16 +973,18 @@ git commit -m "chore: initial project scaffold with full quality toolchain"
 ---
 
 ### Quality Thresholds Enforced in CI
-| Check           | Threshold                   | Enforcement                      |
-|-----------------|-----------------------------|----------------------------------|
-| RuboCop         | 0 offenses                  | CI fails on any offense          |
-| Test Coverage   | 90% overall, 75% per file   | SimpleCov raises on merge to main|
-| Security CVEs   | 0 known vulnerabilities     | bundler-audit blocks the build   |
-| Ruby Compat     | Ruby 3.1, 3.2, 3.3          | All 3 matrix jobs must pass      |
+
+| Check         | Threshold                 | Enforcement                       |
+| ------------- | ------------------------- | --------------------------------- |
+| RuboCop       | 0 offenses                | CI fails on any offense           |
+| Test Coverage | 90% overall, 75% per file | SimpleCov raises on merge to main |
+| Security CVEs | 0 known vulnerabilities   | bundler-audit blocks the build    |
+| Ruby Compat   | Ruby 3.1, 3.2, 3.3        | All 3 matrix jobs must pass       |
 
 ---
 
 ### Next Steps
+
 1. Replace the placeholder summary and description in `data_validator.gemspec` with the real description before the first release.
 2. Create `lib/data_validator/schema.rb` and `lib/data_validator/validator.rb` as the first domain files -- Zeitwerk will autoload them as `DataValidator::Schema` and `DataValidator::Validator`.
 3. Write the first failing RSpec example before writing implementation code -- the test infrastructure is ready immediately.

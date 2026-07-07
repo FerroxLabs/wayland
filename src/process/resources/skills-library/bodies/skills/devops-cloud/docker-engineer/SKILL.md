@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "containers-orchestration"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'containers-orchestration'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Docker Engineer
@@ -44,14 +44,14 @@ Is it a compiled language (Go, Rust, C)?
 
 ### Base Image Size Comparison
 
-| Image | Size | Use Case |
-|-------|------|----------|
-| `scratch` | 0 MB | Statically compiled Go/Rust binaries |
-| `gcr.io/distroless/static` | ~2 MB | Static binaries needing CA certs, timezone data |
-| `gcr.io/distroless/base` | ~20 MB | Binaries needing glibc |
-| `alpine:3.19` | ~7 MB | When you need a shell and package manager |
-| `debian:bookworm-slim` | ~80 MB | When you need apt and glibc compatibility |
-| `ubuntu:24.04` | ~78 MB | When you need Ubuntu-specific packages |
+| Image                      | Size   | Use Case                                        |
+| -------------------------- | ------ | ----------------------------------------------- |
+| `scratch`                  | 0 MB   | Statically compiled Go/Rust binaries            |
+| `gcr.io/distroless/static` | ~2 MB  | Static binaries needing CA certs, timezone data |
+| `gcr.io/distroless/base`   | ~20 MB | Binaries needing glibc                          |
+| `alpine:3.19`              | ~7 MB  | When you need a shell and package manager       |
+| `debian:bookworm-slim`     | ~80 MB | When you need apt and glibc compatibility       |
+| `ubuntu:24.04`             | ~78 MB | When you need Ubuntu-specific packages          |
 
 ## Multi-Stage Build Patterns
 
@@ -239,7 +239,7 @@ trivy image --exit-code 1 --severity CRITICAL myimage:latest
 ### Production-Grade Compose File
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 x-common-env: &common-env
   LOG_LEVEL: info
@@ -260,7 +260,7 @@ services:
     image: myapp-api:${VERSION:-latest}
     restart: unless-stopped
     ports:
-      - "${API_PORT:-3000}:3000"
+      - '${API_PORT:-3000}:3000'
     # ... (condensed) ...
     driver: local
 
@@ -276,13 +276,13 @@ networks:
 
 ### Network Types
 
-| Type | Use Case |
-|------|----------|
-| `bridge` | Default. Containers on same host communicate by name. |
-| `host` | Container shares host network stack. No port mapping needed. |
-| `none` | No networking. For batch jobs, security isolation. |
-| `overlay` | Multi-host networking in Swarm/Kubernetes. |
-| `macvlan` | Container gets its own MAC address on physical network. |
+| Type      | Use Case                                                     |
+| --------- | ------------------------------------------------------------ |
+| `bridge`  | Default. Containers on same host communicate by name.        |
+| `host`    | Container shares host network stack. No port mapping needed. |
+| `none`    | No networking. For batch jobs, security isolation.           |
+| `overlay` | Multi-host networking in Swarm/Kubernetes.                   |
+| `macvlan` | Container gets its own MAC address on physical network.      |
 
 ### Internal Networks
 
@@ -290,7 +290,7 @@ networks:
 # Prevent a network from having external access
 networks:
   database:
-    internal: true  # No outbound internet access
+    internal: true # No outbound internet access
 ```
 
 ## Volume Management
@@ -478,6 +478,7 @@ docker run -d \
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing docker engineer solutions
 - Reviewing or improving existing docker engineer approaches
 - Making architectural or implementation decisions about docker engineer
@@ -485,6 +486,7 @@ docker run -d \
 - Troubleshooting docker engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -495,21 +497,26 @@ docker run -d \
 # Docker Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

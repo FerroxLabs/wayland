@@ -141,9 +141,10 @@ const TeammateRow: React.FC<{
 
   const handleRestart = async () => {
     try {
-      const result = (await ipcBridge.team.restartAgent.invoke({ teamId, slotId: agent.slotId })) as
-        | void
-        | { __bridgeError: true; message?: string };
+      const result = (await ipcBridge.team.restartAgent.invoke({ teamId, slotId: agent.slotId })) as void | {
+        __bridgeError: true;
+        message?: string;
+      };
       if (result && typeof result === 'object' && '__bridgeError' in result) {
         Message.error(
           result.message ?? t('teams.rightRail.restartAgentError', { defaultValue: 'Failed to restart agent' })
@@ -189,11 +190,7 @@ const TeammateRow: React.FC<{
           <div className='flex items-center gap-4px min-w-0'>
             <div className='text-12.5px font-medium text-[color:var(--color-text-1)] truncate'>{agent.agentName}</div>
             {isLeader && (
-              <Crown
-                size={11}
-                aria-hidden='true'
-                className='shrink-0 text-[rgb(245,158,11)] drop-shadow-sm'
-              />
+              <Crown size={11} aria-hidden='true' className='shrink-0 text-[rgb(245,158,11)] drop-shadow-sm' />
             )}
           </div>
           <div className='text-10px text-[color:var(--color-text-4)] truncate'>
@@ -225,14 +222,7 @@ const TeammateRow: React.FC<{
   );
 };
 
-const TeamRightRail: React.FC<Props> = ({
-  agents,
-  statusMap,
-  launcher,
-  workspacePath,
-  teamId,
-  onTeammateAdded,
-}) => {
+const TeamRightRail: React.FC<Props> = ({ agents, statusMap, launcher, workspacePath, teamId, onTeammateAdded }) => {
   const { t } = useTranslation();
   const rituals = launcher?._rituals ?? [];
   const hasWorkspace = Boolean(workspacePath && workspacePath.length > 0);

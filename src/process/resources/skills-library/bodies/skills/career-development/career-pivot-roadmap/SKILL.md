@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning goal-setting"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career planning goal-setting'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Career Pivot Roadmap
@@ -234,39 +234,39 @@ metadata:
 
 ### Transferable Skills Assessment
 
-| Skill | Current Proficiency | Relevance to Target | Positioning Strategy |
-|-------|-------------------|--------------------|--------------------|
-| Writing clarity and concision | Strong | High | Frame lesson materials as user-facing instructional content |
-| Audience adaptation | Strong | High | Teaching diverse learners maps to writing for diverse user personas |
-| Curriculum structure | Strong | Medium | Structuring learning paths parallels structuring user flows |
-| Feedback and revision | Moderate | High | Editing student work maps to iterative content design |
-| Empathy and user understanding | Strong | High | Understanding student needs maps to understanding user needs |
+| Skill                          | Current Proficiency | Relevance to Target | Positioning Strategy                                                |
+| ------------------------------ | ------------------- | ------------------- | ------------------------------------------------------------------- |
+| Writing clarity and concision  | Strong              | High                | Frame lesson materials as user-facing instructional content         |
+| Audience adaptation            | Strong              | High                | Teaching diverse learners maps to writing for diverse user personas |
+| Curriculum structure           | Strong              | Medium              | Structuring learning paths parallels structuring user flows         |
+| Feedback and revision          | Moderate            | High                | Editing student work maps to iterative content design               |
+| Empathy and user understanding | Strong              | High                | Understanding student needs maps to understanding user needs        |
 
 ### Skill Gaps to Close
 
-| Gap | Priority | Blocking? | Learning Path | Time Estimate |
-|-----|----------|-----------|---------------|---------------|
-| UX writing principles and patterns | High | Yes | Self-study of UX writing guides and pattern libraries | 6 weeks |
-| Design tool proficiency (Figma) | High | Yes | Online tutorial and hands-on practice with personal projects | 4 weeks |
-| UX research basics | Medium | No | Introductory course on user research methods | 3 weeks |
-| Content design process | High | Yes | Study content design case studies and frameworks | 4 weeks |
-| A/B testing and content metrics | Low | No | Can learn on the job -- study basics during Phase 2 | 2 weeks |
+| Gap                                | Priority | Blocking? | Learning Path                                                | Time Estimate |
+| ---------------------------------- | -------- | --------- | ------------------------------------------------------------ | ------------- |
+| UX writing principles and patterns | High     | Yes       | Self-study of UX writing guides and pattern libraries        | 6 weeks       |
+| Design tool proficiency (Figma)    | High     | Yes       | Online tutorial and hands-on practice with personal projects | 4 weeks       |
+| UX research basics                 | Medium   | No        | Introductory course on user research methods                 | 3 weeks       |
+| Content design process             | High     | Yes       | Study content design case studies and frameworks             | 4 weeks       |
+| A/B testing and content metrics    | Low      | No        | Can learn on the job -- study basics during Phase 2          | 2 weeks       |
 
 ### Credential Requirements
 
-| Credential | Required? | Cost Estimate | Time Estimate | Alternative Path |
-|-----------|-----------|---------------|---------------|-----------------|
-| UX writing certificate | Preferred | $500-2,000 | 2-3 months | Strong portfolio can substitute |
-| UX design certification | Optional | $500-3,000 | 3-6 months | Not needed for UX writing specifically |
+| Credential              | Required? | Cost Estimate | Time Estimate | Alternative Path                       |
+| ----------------------- | --------- | ------------- | ------------- | -------------------------------------- |
+| UX writing certificate  | Preferred | $500-2,000    | 2-3 months    | Strong portfolio can substitute        |
+| UX design certification | Optional  | $500-3,000    | 3-6 months    | Not needed for UX writing specifically |
 
 ### Portfolio Plan
 
-| Project | Demonstrates | Estimated Time | Complexity |
-|---------|-------------|----------------|------------|
-| Redesign error messages for a popular app | UX writing, user empathy, concision | 2 weeks | Low |
-| Create onboarding flow copy for a fictional product | Content design process, flow writing | 3 weeks | Medium |
-| Case study: rewrite a confusing settings page | Before/after analysis, user-centered thinking | 2 weeks | Medium |
-| Volunteer UX writing for a nonprofit or open source project | Real-world experience, collaboration | 4 weeks | Medium |
+| Project                                                     | Demonstrates                                  | Estimated Time | Complexity |
+| ----------------------------------------------------------- | --------------------------------------------- | -------------- | ---------- |
+| Redesign error messages for a popular app                   | UX writing, user empathy, concision           | 2 weeks        | Low        |
+| Create onboarding flow copy for a fictional product         | Content design process, flow writing          | 3 weeks        | Medium     |
+| Case study: rewrite a confusing settings page               | Before/after analysis, user-centered thinking | 2 weeks        | Medium     |
+| Volunteer UX writing for a nonprofit or open source project | Real-world experience, collaboration          | 4 weeks        | Medium     |
 
 ### Networking Targets
 
@@ -281,14 +281,14 @@ metadata:
 
 **Goal:** Learn UX writing fundamentals and basic Figma proficiency
 
-| Week | Action Item | Deliverable | Done? |
-|------|------------|-------------|-------|
-| Week 1-2 | Study UX writing patterns: buttons, error messages, tooltips, onboarding | Notes on 20+ UX writing patterns with examples | [ ] |
-| Week 3-4 | Learn Figma basics: frames, text layers, auto-layout | Complete 3 Figma practice exercises | [ ] |
-| Week 5-6 | Study content design process: research, strategy, writing, testing | Written summary of content design workflow | [ ] |
-| Week 7-8 | Begin UX writing certificate program (evenings/weekends) | Module 1-2 completed | [ ] |
-| Week 9-10 | Study 10 UX writing case studies from published portfolios | Analysis notes on each case study | [ ] |
-| Week 11-12 | Complete first portfolio piece (error message redesign) | Published portfolio piece with before/after | [ ] |
+| Week       | Action Item                                                              | Deliverable                                    | Done? |
+| ---------- | ------------------------------------------------------------------------ | ---------------------------------------------- | ----- |
+| Week 1-2   | Study UX writing patterns: buttons, error messages, tooltips, onboarding | Notes on 20+ UX writing patterns with examples | [ ]   |
+| Week 3-4   | Learn Figma basics: frames, text layers, auto-layout                     | Complete 3 Figma practice exercises            | [ ]   |
+| Week 5-6   | Study content design process: research, strategy, writing, testing       | Written summary of content design workflow     | [ ]   |
+| Week 7-8   | Begin UX writing certificate program (evenings/weekends)                 | Module 1-2 completed                           | [ ]   |
+| Week 9-10  | Study 10 UX writing case studies from published portfolios               | Analysis notes on each case study              | [ ]   |
+| Week 11-12 | Complete first portfolio piece (error message redesign)                  | Published portfolio piece with before/after    | [ ]   |
 
 **Checkpoint:** End of month 3 -- Can I explain UX writing principles and demonstrate Figma basics?
 
@@ -296,13 +296,13 @@ metadata:
 
 **Goal:** Build portfolio and start networking
 
-| Week | Action Item | Deliverable | Done? |
-|------|------------|-------------|-------|
-| Week 1-3 | Create onboarding flow portfolio piece | Published case study with process documentation | [ ] |
-| Week 4-5 | Complete settings page redesign portfolio piece | Published before/after case study | [ ] |
-| Week 6-8 | Begin volunteer UX writing project | Active contribution with documented work | [ ] |
-| Week 4-8 | Conduct 4 informational interviews with UX writers | Notes and follow-up connections from each | [ ] |
-| Week 6 | Launch portfolio website with first 3 pieces | Live portfolio site with case studies | [ ] |
+| Week     | Action Item                                        | Deliverable                                     | Done? |
+| -------- | -------------------------------------------------- | ----------------------------------------------- | ----- |
+| Week 1-3 | Create onboarding flow portfolio piece             | Published case study with process documentation | [ ]   |
+| Week 4-5 | Complete settings page redesign portfolio piece    | Published before/after case study               | [ ]   |
+| Week 6-8 | Begin volunteer UX writing project                 | Active contribution with documented work        | [ ]   |
+| Week 4-8 | Conduct 4 informational interviews with UX writers | Notes and follow-up connections from each       | [ ]   |
+| Week 6   | Launch portfolio website with first 3 pieces       | Live portfolio site with case studies           | [ ]   |
 
 **Checkpoint:** End of month 6 -- Do I have 3+ portfolio pieces and 4+ industry conversations completed?
 
@@ -310,13 +310,13 @@ metadata:
 
 **Goal:** Update all career materials and activate network
 
-| Week | Action Item | Deliverable | Done? |
-|------|------------|-------------|-------|
-| Week 1-2 | Rewrite resume with UX writing framing (use career-change-resume) | Completed resume targeting UX writer roles | [ ] |
-| Week 2-3 | Write cover letter template for UX writing applications | Adaptable cover letter with teacher-to-UX narrative | [ ] |
-| Week 3-4 | Update LinkedIn profile, headline, about section, and experience | Fully updated LinkedIn targeting UX writing | [ ] |
-| Week 4-6 | Conduct 4 more informational interviews (total 8) | Expanded network with referral possibilities | [ ] |
-| Week 6 | Add volunteer project to portfolio (4th piece) | Complete portfolio with 4 case studies | [ ] |
+| Week     | Action Item                                                       | Deliverable                                         | Done? |
+| -------- | ----------------------------------------------------------------- | --------------------------------------------------- | ----- |
+| Week 1-2 | Rewrite resume with UX writing framing (use career-change-resume) | Completed resume targeting UX writer roles          | [ ]   |
+| Week 2-3 | Write cover letter template for UX writing applications           | Adaptable cover letter with teacher-to-UX narrative | [ ]   |
+| Week 3-4 | Update LinkedIn profile, headline, about section, and experience  | Fully updated LinkedIn targeting UX writing         | [ ]   |
+| Week 4-6 | Conduct 4 more informational interviews (total 8)                 | Expanded network with referral possibilities        | [ ]   |
+| Week 6   | Add volunteer project to portfolio (4th piece)                    | Complete portfolio with 4 case studies              | [ ]   |
 
 **Checkpoint:** End of month 9 -- Are resume, portfolio, and LinkedIn ready for applications?
 
@@ -324,13 +324,13 @@ metadata:
 
 **Goal:** Apply, interview, and secure a UX writing role
 
-| Week | Action Item | Deliverable | Done? |
-|------|------------|-------------|-------|
-| Week 1-2 | Apply to 10-15 UX writer/content designer roles | Submitted applications with tailored materials | [ ] |
-| Week 2-4 | Prepare for UX writing exercises and portfolio reviews | Practice presenting 2 case studies in 15 minutes | [ ] |
-| Week 3-8 | Continue applications (5-10 per week) | Running total of 30-50 applications | [ ] |
-| Week 4-8 | Interview and complete design exercises | Interview notes and exercise submissions | [ ] |
-| Week 8-12 | Evaluate offers and negotiate (use salary-negotiation-script) | Accepted offer with start date | [ ] |
+| Week      | Action Item                                                   | Deliverable                                      | Done? |
+| --------- | ------------------------------------------------------------- | ------------------------------------------------ | ----- |
+| Week 1-2  | Apply to 10-15 UX writer/content designer roles               | Submitted applications with tailored materials   | [ ]   |
+| Week 2-4  | Prepare for UX writing exercises and portfolio reviews        | Practice presenting 2 case studies in 15 minutes | [ ]   |
+| Week 3-8  | Continue applications (5-10 per week)                         | Running total of 30-50 applications              | [ ]   |
+| Week 4-8  | Interview and complete design exercises                       | Interview notes and exercise submissions         | [ ]   |
+| Week 8-12 | Evaluate offers and negotiate (use salary-negotiation-script) | Accepted offer with start date                   | [ ]   |
 
 **Checkpoint:** End of month 12 -- Offer accepted or strategy adjustment needed
 
@@ -338,11 +338,11 @@ metadata:
 
 ### Risk Mitigation
 
-| Risk | Likelihood | Mitigation |
-|------|-----------|------------|
-| Evenings/weekends insufficient for skill-building pace | Medium | Use school breaks (summer, winter) for intensive work; adjust timeline to 15 months if needed |
-| Portfolio pieces feel too hypothetical without real UX experience | Medium | Prioritize the volunteer project for real-world credibility; seek freelance micro-projects |
-| UX writer roles require 2+ years of experience | High | Target junior or associate UX writer roles; emphasize 8 years of professional writing experience as equivalent |
+| Risk                                                              | Likelihood | Mitigation                                                                                                     |
+| ----------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------- |
+| Evenings/weekends insufficient for skill-building pace            | Medium     | Use school breaks (summer, winter) for intensive work; adjust timeline to 15 months if needed                  |
+| Portfolio pieces feel too hypothetical without real UX experience | Medium     | Prioritize the volunteer project for real-world credibility; seek freelance micro-projects                     |
+| UX writer roles require 2+ years of experience                    | High       | Target junior or associate UX writer roles; emphasize 8 years of professional writing experience as equivalent |
 
 ### Success Metrics
 

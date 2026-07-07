@@ -124,7 +124,10 @@ describe('readSourceContext', () => {
     // Build a file that exceeds MAX_BYTES (500KB).
     // Each line is ~60 bytes; 10000 lines = ~600KB.
     const lineCount = 10_000;
-    const lines = Array.from({ length: lineCount }, (_, i) => `# Line ${String(i + 1).padStart(5, '0')} - some markdown content here`);
+    const lines = Array.from(
+      { length: lineCount },
+      (_, i) => `# Line ${String(i + 1).padStart(5, '0')} - some markdown content here`
+    );
     const content = lines.join('\n');
     const filePath = writeTmpFile(path.join(tmpHome, 'bigdir'), 'huge.md', content);
 

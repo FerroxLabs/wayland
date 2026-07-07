@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "blog-post seo writing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'blog-post seo writing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # SEO Blog Post
 
 ## When to Use
@@ -427,6 +428,7 @@ A content calendar for social media turns inconsistent posting into a repeatable
 # Content Calendar for Social Media: A Manager's Guide
 
 > **Key Takeaways**
+>
 > - A social media content calendar reduces reactive posting and improves publishing consistency by 40-60% for most marketing teams
 > - Plan content four weeks in advance minimum; six to eight weeks for campaign-heavy quarters
 > - Organize your calendar by channel, content type, and search intent -- not just publish date
@@ -471,16 +473,16 @@ A functional social media content calendar template includes six fields at minim
 
 Here is the field structure for a team-managed B2B calendar:
 
-| Field           | Purpose                                      | Example Entry                          |
-|-----------------|----------------------------------------------|----------------------------------------|
-| Publish Date    | Exact date and time                          | Tuesday, March 12 -- 9:00 AM ET       |
-| Channel         | Platform                                     | LinkedIn                               |
-| Content Type    | Format category                              | Carousel / Thought Leadership          |
-| Topic / Angle   | What the post covers and the specific hook   | "3 metrics CMOs ignore in pipeline reporting" |
-| Asset Status    | Draft / In Review / Approved / Scheduled     | In Review                              |
-| Owner           | Who is responsible for this post             | Sarah M.                               |
-| Campaign Tag    | Which campaign this supports (if any)        | Q2 Pipeline Push                       |
-| Buyer Stage     | Awareness / Consideration / Decision         | Awareness                              |
+| Field         | Purpose                                    | Example Entry                                 |
+| ------------- | ------------------------------------------ | --------------------------------------------- |
+| Publish Date  | Exact date and time                        | Tuesday, March 12 -- 9:00 AM ET               |
+| Channel       | Platform                                   | LinkedIn                                      |
+| Content Type  | Format category                            | Carousel / Thought Leadership                 |
+| Topic / Angle | What the post covers and the specific hook | "3 metrics CMOs ignore in pipeline reporting" |
+| Asset Status  | Draft / In Review / Approved / Scheduled   | In Review                                     |
+| Owner         | Who is responsible for this post           | Sarah M.                                      |
+| Campaign Tag  | Which campaign this supports (if any)      | Q2 Pipeline Push                              |
+| Buyer Stage   | Awareness / Consideration / Decision       | Awareness                                     |
 
 Build this in the tool your team already uses -- Notion, Airtable, Google Sheets, or a dedicated tool like CoSchedule or Buffer. The tool matters less than adoption. A calendar in a tool nobody opens is not a calendar.
 
@@ -541,24 +543,25 @@ The content calendar for social media is not the creative work -- it is the syst
 
 **Internal Linking Plan:**
 
-| Link Text                              | Target Page Topic                          | Placement Section                     |
-|----------------------------------------|--------------------------------------------|---------------------------------------|
-| "content marketing strategy guide"    | Content marketing strategy pillar page     | What a Social Media Content Calendar Actually Does |
-| "social media analytics"              | Social media analytics tools/guide page    | How to Plan Social Media Content      |
-| "social media analytics"              | Social media analytics tools/guide page    | Social Media Scheduling section       |
-| "content calendar template"           | Downloadable template or tool landing page | Conclusion CTA                        |
-| "social media scheduling tools"       | Tool comparison or product feature page    | Scheduling section                    |
+| Link Text                          | Target Page Topic                          | Placement Section                                  |
+| ---------------------------------- | ------------------------------------------ | -------------------------------------------------- |
+| "content marketing strategy guide" | Content marketing strategy pillar page     | What a Social Media Content Calendar Actually Does |
+| "social media analytics"           | Social media analytics tools/guide page    | How to Plan Social Media Content                   |
+| "social media analytics"           | Social media analytics tools/guide page    | Social Media Scheduling section                    |
+| "content calendar template"        | Downloadable template or tool landing page | Conclusion CTA                                     |
+| "social media scheduling tools"    | Tool comparison or product feature page    | Scheduling section                                 |
 
 **Image Suggestions:**
 
-| Placement (after section)                    | Image Description                                              | Alt Text                                                              |
-|----------------------------------------------|----------------------------------------------------------------|-----------------------------------------------------------------------|
-| After intro paragraphs                       | Screenshot of a completed content calendar in Notion or Airtable showing multi-channel view | "social media content calendar template in Notion with channel columns" |
-| After the content mix ratio paragraph        | Infographic showing the 4-1-1 content ratio visually across a four-week grid | "4-1-1 social media content ratio applied to four-week calendar"    |
-| After the calendar template table            | Annotated screenshot of the six-field calendar structure       | "content calendar for social media fields explained with example entries" |
-| After the batch workflow numbered list       | Simple timeline graphic showing the Monday-Friday batch workflow | "social media content creation and scheduling weekly workflow"       |
+| Placement (after section)              | Image Description                                                                           | Alt Text                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| After intro paragraphs                 | Screenshot of a completed content calendar in Notion or Airtable showing multi-channel view | "social media content calendar template in Notion with channel columns"   |
+| After the content mix ratio paragraph  | Infographic showing the 4-1-1 content ratio visually across a four-week grid                | "4-1-1 social media content ratio applied to four-week calendar"          |
+| After the calendar template table      | Annotated screenshot of the six-field calendar structure                                    | "content calendar for social media fields explained with example entries" |
+| After the batch workflow numbered list | Simple timeline graphic showing the Monday-Friday batch workflow                            | "social media content creation and scheduling weekly workflow"            |
 
 **Schema Markup Recommendations:**
+
 - Article schema: Yes
 - FAQ schema: Yes (apply to all five FAQ entries)
 - HowTo schema: Yes (apply to the numbered batch workflow in the Scheduling section)

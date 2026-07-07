@@ -12,14 +12,15 @@ description: >-
   data to pull metrics from.
 license: Apache-2.0
 type: workflow
-skills: "ops-report"
+skills: 'ops-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-ops weekly-review metrics reporting deterministic
   category: Business Operations
-  depends: "ops-report"
+  depends: 'ops-report'
 ---
+
 # Weekly Review
 
 **Estimated time:** about 60 seconds

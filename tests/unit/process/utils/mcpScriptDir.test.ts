@@ -66,8 +66,8 @@ describe('MCP_STDIO_SCRIPT_NAMES', () => {
     // won't catch a missing-script failure for the new file.
     const buildScript = fs.readFileSync(path.resolve(__dirname, '../../../../scripts/build-mcp-servers.js'), 'utf-8');
     const matches = [...buildScript.matchAll(/outfile:\s*path\.join\(ROOT,\s*'out\/main\/([^']+)'\)/g)];
-    const emittedNames = matches.map((m) => m[1]).sort();
-    expect(emittedNames).toEqual([...MCP_STDIO_SCRIPT_NAMES].sort());
+    const emittedNames = matches.map((m) => m[1]).toSorted();
+    expect(emittedNames).toEqual([...MCP_STDIO_SCRIPT_NAMES].toSorted());
   });
 });
 
@@ -76,7 +76,7 @@ describe('inspectMcpScripts', () => {
     const result = inspectMcpScripts();
     if (result.ok) {
       expect(result.presentScripts.length).toBe(MCP_STDIO_SCRIPT_NAMES.length);
-      expect([...result.presentScripts].sort()).toEqual([...MCP_STDIO_SCRIPT_NAMES].sort());
+      expect([...result.presentScripts].toSorted()).toEqual([...MCP_STDIO_SCRIPT_NAMES].toSorted());
     } else {
       // The build hasn't run - that's fine. Make sure the failure report
       // actually names the missing files (otherwise the canary is useless

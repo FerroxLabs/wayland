@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design guide"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design guide'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Level Design Master
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to design game levels with proper pacing, intensity curves, and flow theory application
 - The user wants guidance on spatial composition, player guidance techniques, or environmental storytelling within levels
 - The user is building a blockout or greybox and needs iterative level design workflow advice
@@ -26,6 +27,7 @@ metadata:
 - The user wants playtesting methodology specific to level design and spatial navigation
 
 **Do NOT use this skill when:**
+
 - The user needs overall game design guidance beyond level layout (use video-game-designer instead)
 - The user is writing game narrative or dialogue rather than designing spaces (use game-narrative-writer instead)
 - The user is designing puzzle mechanics rather than level structure (use game-puzzle-designer instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on level design master
 - User asks about level design master best practices or techniques
 - User wants a structured approach to level design master
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of level design master
 
@@ -334,7 +338,6 @@ STORYTELLING: All story in text logs | Over-explaining what
   environment shows | Important details in easily missed locations
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -347,13 +350,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with level design master for a mid-size project."
 
 **Output:** A complete level design master framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

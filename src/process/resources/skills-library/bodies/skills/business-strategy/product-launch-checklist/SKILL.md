@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "checklist planning project-management template strategy"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'checklist planning project-management template strategy'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Product Launch Checklist
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is preparing to launch a new product, major feature, or significant update and needs a structured pre-launch checklist covering all cross-functional workstreams
 - A user asks for a "go-live checklist," "launch readiness review," "release preparation document," or "pre-launch audit" for a product or feature
 - A user needs to coordinate engineering, marketing, customer support, legal, and communications teams ahead of a specific launch date
@@ -28,6 +30,7 @@ metadata:
 - A user is launching into a regulated industry (healthcare, fintech, edtech) and needs to ensure compliance checkpoints are embedded in the pre-launch process
 
 **Do NOT use this skill when:**
+
 - The user needs a full go-to-market strategy with segmentation, positioning, pricing, and channel strategy -- use `go-to-market-strategy`
 - The user wants a product roadmap showing what will be built and when -- use `product-roadmap`
 - The user needs a PR pitch, press release, or journalist outreach strategy -- use `pr-pitch`
@@ -561,28 +564,30 @@ Pricing changes require additional workstreams that a standard feature launch do
 **Output:**
 
 ## Launch Checklist: Team Collaboration (Real-Time Editing, Mentions, and Commenting)
+
 **Version:** 1.0 | **Created:** [Current Date] | **Owner:** PM
 
 ---
 
 ### Launch Overview
 
-| Field | Detail |
-|---|---|
-| **Launch name** | Team Collaboration -- Real-Time Editing, @Mentions, and Comment Threading |
-| **Launch date and time** | Tuesday at 10:00 AM PT |
-| **Launch type** | Major feature |
-| **Target audience** | All existing users (free and paid tiers) |
-| **Rollout strategy** | Phased via feature flag: 5% day 1 (Monday), 25% day 2 (Tuesday at launch), 100% by Thursday if no issues |
-| **Go/no-go decision** | Monday at 2:00 PM PT -- Decision maker: VP of Product, with PM, Engineering Lead, Support Lead |
-| **Post-launch review** | Thursday at 2:00 PM PT -- Owner: PM |
-| **Estimated reach on day 1** | ~600 users (5% of 12,000 DAU) |
+| Field                        | Detail                                                                                                   |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Launch name**              | Team Collaboration -- Real-Time Editing, @Mentions, and Comment Threading                                |
+| **Launch date and time**     | Tuesday at 10:00 AM PT                                                                                   |
+| **Launch type**              | Major feature                                                                                            |
+| **Target audience**          | All existing users (free and paid tiers)                                                                 |
+| **Rollout strategy**         | Phased via feature flag: 5% day 1 (Monday), 25% day 2 (Tuesday at launch), 100% by Thursday if no issues |
+| **Go/no-go decision**        | Monday at 2:00 PM PT -- Decision maker: VP of Product, with PM, Engineering Lead, Support Lead           |
+| **Post-launch review**       | Thursday at 2:00 PM PT -- Owner: PM                                                                      |
+| **Estimated reach on day 1** | ~600 users (5% of 12,000 DAU)                                                                            |
 
 ---
 
 ### Engineering Readiness
 
 #### Code and Testing
+
 - [ ] All three sub-features merged to release branch (real-time editing, mentions, comment threading)
 - [ ] No open required PRs -- confirmed by Engineering Lead
 - [ ] Unit tests passing (coverage: target 75% for new code)
@@ -591,6 +596,7 @@ Pricing changes require additional workstreams that a standard feature launch do
 - [ ] Regression suite passing -- confirm document saving (existing feature) not broken by real-time edit layer
 
 #### Performance
+
 - [ ] Load test completed at 600 concurrent WebSocket connections (representing 5% of DAU, day 1 target)
   - P50 latency (edit propagation): target <200ms
   - P95 latency (edit propagation): target <500ms
@@ -602,6 +608,7 @@ Pricing changes require additional workstreams that a standard feature launch do
 - [ ] Email notification provider rate limits reviewed -- confirm current daily send volume + launch spike stays within limit
 
 #### Security
+
 - [ ] XSS review completed for comment input field and @mention autocomplete (both accept free-text user input)
 - [ ] Real-time edit payloads validated server-side -- confirm clients cannot inject arbitrary document content bypassing validation
 - [ ] Authorization confirmed: users can only edit documents in projects they have access to; mentions only resolve for users within the same workspace
@@ -609,6 +616,7 @@ Pricing changes require additional workstreams that a standard feature launch do
 - [ ] No new PII collected beyond what is already stored -- confirmed by Engineering Lead on [date]
 
 #### Infrastructure and Deployment
+
 - [ ] Database migration (adds `comments` table and `mentions` table): tested in staging with 500,000 existing document rows
   - Migration runtime: measured at 8 seconds -- non-blocking, zero downtime
   - Migration is reversible: Yes (DROP TABLE if rolled back within 72 hours while no user data written; after that, data preservation required)
@@ -622,6 +630,7 @@ Pricing changes require additional workstreams that a standard feature launch do
 - [ ] Build artifact version tagged: v2.14.0 -- stored in artifact registry
 
 #### Observability
+
 - [ ] Monitoring dashboard live: "Team Collab Launch -- Nov 2024" bookmarked for launch team
   - Panels: WebSocket connection count, edit event throughput, mention notification delivery rate, comment creation rate, error rate by endpoint, P50/P95/P99 latency per endpoint
 - [ ] Custom metrics configured:
@@ -636,6 +645,7 @@ Pricing changes require additional workstreams that a standard feature launch do
 - [ ] On-call roster: Primary: [Backend Engineer who built WebSocket layer], Secondary: [Staff Engineer], Escalation: [VP Engineering]
 
 #### Rollback
+
 - [ ] Rollback procedure documented: [Link to runbook]
   - Step 1: Set all three feature flags to 0% in flag management system (takes effect within 30 seconds)
   - Step 2: Verify WebSocket connections drop to zero on monitoring dashboard
@@ -652,11 +662,13 @@ Pricing changes require additional workstreams that a standard feature launch do
 ### Marketing and Communications
 
 #### Messaging
+
 - [ ] Core value proposition approved: "Real-time collaboration built into your project workflow -- edit documents together, mention teammates, and keep all feedback in context with threaded comments"
 - [ ] Elevator pitch finalized: "Teams can now co-edit project documents in real time, @mention collaborators to loop them in instantly, and organize feedback with threaded comments -- all without leaving the project."
 - [ ] Product screenshots created: real-time editing with two cursors visible, mention dropdown, comment thread -- approved by Design and Marketing
 
 #### Content Assets
+
 - [ ] Blog post: Status: In review | Publish time: Tuesday 10:30 AM PT (30 minutes after smoke test window) | Author: [Marketing Writer] | Reviewer: [PM + Head of Marketing]
 - [ ] In-app announcement: A modal on first visit after flag enabled: "New: Collaborate in real time." with a 45-second walkthrough GIF -- configured in feature flag system tied to `team_collab_realtime_editing`; QA'd in staging
 - [ ] Email to existing users: Segment: All users with at least one document created (9,200 of 12,000 DAU qualify) | Send time: Tuesday 11:00 AM PT (after blog post live) | Subject line: "Edit together, in real time -- now live" | List size: 9,200 | Status: Drafted, in legal review for no-reply compliance
@@ -668,16 +680,19 @@ Pricing changes require additional workstreams that a standard feature launch do
   - "Troubleshooting real-time collaboration"
 
 #### Social and Paid
+
 - [ ] Social posts prepared for LinkedIn and Twitter/X: short-form copy + product GIF | Scheduled for Tuesday 10:30 AM PT
 - [ ] Social monitoring: Brand mentions + "real-time editing" + "[product name] mentions" keyword alerts configured in [monitoring tool] for launch week
 - [ ] Paid campaigns: No paid campaigns planned for launch; existing campaigns do not need updating
 
 #### Enablement
+
 - [ ] Sales team briefed: Monday 11:00 AM PT | Talk track: "This closes the 'no real-time collaboration' objection we hear from teams comparing us to [competitor]" | Objection handler covers: "How does it work with offline users?" and "Is there a limit on concurrent editors?"
 - [ ] Customer Success team briefed: Monday 10:00 AM PT | Priority account outreach list: 12 enterprise accounts who have requested this feature by name -- CS to email them directly on Tuesday morning before the public announcement
 - [ ] Partner listings: N/A for this launch
 
 #### Internal
+
 - [ ] Company-wide Slack announcement: #general | Tuesday at 10:00 AM PT simultaneous with feature activation
 - [ ] Executive briefing sent: Monday end of day | Key metrics: feature activation rate (target 15% of reached users on day 1), support contact volume, WebSocket error rate
 
@@ -688,4 +703,4 @@ Pricing changes require additional workstreams that a standard feature launch do
 ### Customer Support Readiness
 
 - [ ] Support team training completed: Friday (4 business days before launch, well above 48-hour minimum)
-  - Format: 
+  - Format:

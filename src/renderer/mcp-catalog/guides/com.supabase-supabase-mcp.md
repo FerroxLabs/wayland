@@ -12,7 +12,7 @@ steps:
   - id: authorize
     title: Sign in with Supabase
     estSeconds: 60
-    primaryAction: { label: "Sign in with Supabase", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Supabase', action: 'oauth-flow' }
     warning: |
       Supabase's docs explicitly warn: **never connect the MCP server to
       production data** - it's designed for development and testing. Pick a

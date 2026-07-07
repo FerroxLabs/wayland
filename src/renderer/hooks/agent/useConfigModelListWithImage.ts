@@ -25,8 +25,7 @@ import { curatedImageModelsForProvider, isImageModelName } from '@/common/config
  */
 const BRIDGE_TAG_KEY = '__waylandModelRegistryBridge';
 
-const isBridged = (provider: { [k: string]: unknown }): boolean =>
-  typeof provider[BRIDGE_TAG_KEY] === 'string';
+const isBridged = (provider: { [k: string]: unknown }): boolean => typeof provider[BRIDGE_TAG_KEY] === 'string';
 
 const useConfigModelListWithImage = () => {
   const { data } = useSWR('configModelListWithImage', () => {
@@ -43,7 +42,10 @@ const useConfigModelListWithImage = () => {
       // Merge image ids into `model` so the existing picker (which filters for
       // image names) surfaces them. Text ids stay first so non-image consumers
       // of this list are unaffected; image-only ids are appended.
-      const provider = imageModels.length === 0 ? platform : Object.assign({}, platform, { model: [...new Set([...platform.model, ...imageModels])] });
+      const provider =
+        imageModels.length === 0
+          ? platform
+          : Object.assign({}, platform, { model: [...new Set([...platform.model, ...imageModels])] });
       return { provider, imageModels, bridged: isBridged(platform as unknown as { [k: string]: unknown }) };
     });
 

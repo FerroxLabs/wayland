@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming template guide beginner-friendly quick-reference testing analysis"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming template guide beginner-friendly quick-reference testing analysis'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Algorithm Pattern Master
 
 You are an expert competitive programming coach specializing in algorithmic patterns. You guide programmers through the essential patterns that appear repeatedly in contests and interviews: sliding window, two pointers, binary search on answer, greedy algorithms, and backtracking, with rigorous complexity analysis and implementation techniques.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about algorithm pattern master techniques or best practices
 - User needs guidance on algorithm pattern master concepts
 - User wants to implement or improve their approach to algorithm pattern master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of algorithm pattern master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,15 +38,15 @@ You are an expert competitive programming coach specializing in algorithmic patt
 
 ### When to Apply Each Pattern
 
-| Problem Signal | Pattern | Complexity |
-|---------------|---------|------------|
-| Contiguous subarray, max/min length | Sliding Window | O(n) |
-| Sorted array, pair finding | Two Pointers | O(n) |
-| Monotonic answer, feasibility check | Binary Search on Answer | O(n log V) |
-| Local optimal leads to global optimal | Greedy | O(n log n) |
-| All combinations, permutations | Backtracking | O(2^n) or O(n!) |
-| Range queries, prefix property | Prefix Sums | O(n) build, O(1) query |
-| Interval scheduling, overlap | Sorting + Sweep | O(n log n) |
+| Problem Signal                        | Pattern                 | Complexity             |
+| ------------------------------------- | ----------------------- | ---------------------- |
+| Contiguous subarray, max/min length   | Sliding Window          | O(n)                   |
+| Sorted array, pair finding            | Two Pointers            | O(n)                   |
+| Monotonic answer, feasibility check   | Binary Search on Answer | O(n log V)             |
+| Local optimal leads to global optimal | Greedy                  | O(n log n)             |
+| All combinations, permutations        | Backtracking            | O(2^n) or O(n!)        |
+| Range queries, prefix property        | Prefix Sums             | O(n) build, O(1) query |
+| Interval scheduling, overlap          | Sorting + Sweep         | O(n log n)             |
 
 ## Sliding Window
 
@@ -482,28 +483,28 @@ public:
 
 ## Complexity Analysis Quick Reference
 
-| Pattern | Time | Space | Key Insight |
-|---------|------|-------|-------------|
-| Sliding window (fixed) | O(n) | O(1) | Each element enters/leaves once |
-| Sliding window (variable) | O(n) | O(k) | Left pointer never moves backward |
-| Two pointers (sorted) | O(n) | O(1) | Total pointer moves = O(n) |
-| Binary search on answer | O(n log V) | O(1) | V = search space range |
-| Greedy + sort | O(n log n) | O(1) | Sort dominates |
-| Backtracking (subsets) | O(2^n) | O(n) | Decision tree has 2^n leaves |
-| Backtracking (permutations) | O(n!) | O(n) | n choices, then n-1, then n-2... |
-| Prefix sums (1D) | O(n) / O(1) | O(n) | Build once, query O(1) |
-| Prefix sums (2D) | O(mn) / O(1) | O(mn) | Inclusion-exclusion principle |
+| Pattern                     | Time         | Space | Key Insight                       |
+| --------------------------- | ------------ | ----- | --------------------------------- |
+| Sliding window (fixed)      | O(n)         | O(1)  | Each element enters/leaves once   |
+| Sliding window (variable)   | O(n)         | O(k)  | Left pointer never moves backward |
+| Two pointers (sorted)       | O(n)         | O(1)  | Total pointer moves = O(n)        |
+| Binary search on answer     | O(n log V)   | O(1)  | V = search space range            |
+| Greedy + sort               | O(n log n)   | O(1)  | Sort dominates                    |
+| Backtracking (subsets)      | O(2^n)       | O(n)  | Decision tree has 2^n leaves      |
+| Backtracking (permutations) | O(n!)        | O(n)  | n choices, then n-1, then n-2...  |
+| Prefix sums (1D)            | O(n) / O(1)  | O(n)  | Build once, query O(1)            |
+| Prefix sums (2D)            | O(mn) / O(1) | O(mn) | Inclusion-exclusion principle     |
 
 ## Common Pitfalls
 
-| Mistake | Impact | Fix |
-|---------|--------|-----|
-| Off-by-one in binary search | Infinite loop or wrong answer | Test with 1 and 2 element cases |
-| Integer overflow in binary search | Undefined behavior | Use `lo + (hi - lo) / 2` |
-| Not handling duplicates in two pointers | Duplicate triplets/pairs | Skip equal adjacent elements |
-| Greedy without proof | Wrong answer on edge cases | Verify with exchange argument |
-| Shrinking window when non-shrinkable needed | Incorrect answer | Identify which variant applies |
-| Missing base case in backtracking | Infinite recursion | Always check termination first |
+| Mistake                                     | Impact                        | Fix                             |
+| ------------------------------------------- | ----------------------------- | ------------------------------- |
+| Off-by-one in binary search                 | Infinite loop or wrong answer | Test with 1 and 2 element cases |
+| Integer overflow in binary search           | Undefined behavior            | Use `lo + (hi - lo) / 2`        |
+| Not handling duplicates in two pointers     | Duplicate triplets/pairs      | Skip equal adjacent elements    |
+| Greedy without proof                        | Wrong answer on edge cases    | Verify with exchange argument   |
+| Shrinking window when non-shrinkable needed | Incorrect answer              | Identify which variant applies  |
+| Missing base case in backtracking           | Infinite recursion            | Always check termination first  |
 
 ## Exercises
 
@@ -513,7 +514,6 @@ public:
 4. **Greedy**: Given arrival/departure times, find the minimum number of platforms needed at a station
 5. **Backtracking**: Generate all valid parentheses combinations for n pairs
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -521,7 +521,6 @@ public:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -542,14 +541,12 @@ public:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -161,11 +161,7 @@ const ConstitutionSettings: React.FC = () => {
   const tokenLevel: 'ok' | 'warning' | 'error' =
     approxTokens >= 3000 ? 'error' : approxTokens >= 2000 ? 'warning' : 'ok';
   const tokenCountClass =
-    tokenLevel === 'error'
-      ? 'text-danger'
-      : tokenLevel === 'warning'
-        ? 'text-warning'
-        : 'text-t-tertiary';
+    tokenLevel === 'error' ? 'text-danger' : tokenLevel === 'warning' ? 'text-warning' : 'text-t-tertiary';
 
   const scrollToHeading = useCallback((id: string, text: string): void => {
     const root = editorRoot.current;
@@ -230,9 +226,7 @@ const ConstitutionSettings: React.FC = () => {
       )}
 
       {loading ? (
-        <div className='text-t-secondary p-16px'>
-          {t('settings.constitutionPage.loading', 'Loading…')}
-        </div>
+        <div className='text-t-secondary p-16px'>{t('settings.constitutionPage.loading', 'Loading…')}</div>
       ) : (
         <div className={isMobile ? 'flex flex-col gap-16px items-stretch' : 'flex gap-16px items-start'}>
           <div className='flex-1 min-w-0 flex flex-col gap-8px'>

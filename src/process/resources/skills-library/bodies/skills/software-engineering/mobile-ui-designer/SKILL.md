@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices design"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices design'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Mobile UI Designer
@@ -26,16 +26,16 @@ This skill provides deep expertise in mobile UI/UX design and implementation. It
 
 ### Material Design 3 (Android) vs Human Interface Guidelines (iOS)
 
-| Aspect | Material Design 3 | Human Interface Guidelines |
-|--------|-------------------|--------------------------|
-| Navigation | Navigation bar (bottom), Navigation drawer, Navigation rail | Tab bar (bottom), Navigation bar (top) |
-| Primary action | FAB (Floating Action Button) | Navigation bar button or prominent button |
-| Typography | Roboto / system, type scale (display, headline, title, body, label) | SF Pro / system, Dynamic Type sizes |
-| Color | Dynamic color from wallpaper, tonal palettes | System colors, vibrancy, materials |
-| Shape | Rounded corners with shape scale | Rounded rectangles, consistent radius |
-| Motion | Emphasized easing, shared axis transitions | Spring animations, interruptible gestures |
-| Elevation | Tonal elevation (color shift, not shadow) | Materials and blur (vibrancy) |
-| Icons | Material Symbols (outlined, rounded, sharp) | SF Symbols (multicolor, hierarchical) |
+| Aspect         | Material Design 3                                                   | Human Interface Guidelines                |
+| -------------- | ------------------------------------------------------------------- | ----------------------------------------- |
+| Navigation     | Navigation bar (bottom), Navigation drawer, Navigation rail         | Tab bar (bottom), Navigation bar (top)    |
+| Primary action | FAB (Floating Action Button)                                        | Navigation bar button or prominent button |
+| Typography     | Roboto / system, type scale (display, headline, title, body, label) | SF Pro / system, Dynamic Type sizes       |
+| Color          | Dynamic color from wallpaper, tonal palettes                        | System colors, vibrancy, materials        |
+| Shape          | Rounded corners with shape scale                                    | Rounded rectangles, consistent radius     |
+| Motion         | Emphasized easing, shared axis transitions                          | Spring animations, interruptible gestures |
+| Elevation      | Tonal elevation (color shift, not shadow)                           | Materials and blur (vibrancy)             |
+| Icons          | Material Symbols (outlined, rounded, sharp)                         | SF Symbols (multicolor, hierarchical)     |
 
 ### Platform-Specific Behavior Rules
 
@@ -98,10 +98,10 @@ import { useWindowDimensions } from 'react-native';
 
 function useColumns(): number {
   const { width } = useWindowDimensions();
-  if (width < 375) return 1;   // Small phones
-  if (width < 768) return 2;   // Phones
-  if (width < 1024) return 3;  // Tablets portrait
-  return 4;                     // Tablets landscape
+  if (width < 375) return 1; // Small phones
+  if (width < 768) return 2; // Phones
+  if (width < 1024) return 3; // Tablets portrait
+  return 4; // Tablets landscape
 }
 
 function ProductGrid({ products }: Props) {
@@ -178,15 +178,15 @@ List {
 
 ### State Communication Matrix
 
-| State | UI Pattern | User Communication |
-|-------|-----------|-------------------|
-| Online, fresh data | Normal display | No indicator needed |
-| Online, loading | Skeleton / shimmer | Subtle loading animation |
-| Online, error | Error with retry | Clear error message + retry button |
-| Offline, cached data | Normal + banner | "Offline - showing cached data" banner |
-| Offline, no data | Empty state | "Connect to the internet to load" |
-| Reconnecting | Loading + banner | "Reconnecting..." |
-| Sync pending | Badge / indicator | "Changes will sync when online" |
+| State                | UI Pattern         | User Communication                     |
+| -------------------- | ------------------ | -------------------------------------- |
+| Online, fresh data   | Normal display     | No indicator needed                    |
+| Online, loading      | Skeleton / shimmer | Subtle loading animation               |
+| Online, error        | Error with retry   | Clear error message + retry button     |
+| Offline, cached data | Normal + banner    | "Offline - showing cached data" banner |
+| Offline, no data     | Empty state        | "Connect to the internet to load"      |
+| Reconnecting         | Loading + banner   | "Reconnecting..."                      |
+| Sync pending         | Badge / indicator  | "Changes will sync when online"        |
 
 ### Offline Banner Component
 
@@ -339,16 +339,16 @@ function useInfiniteProducts() {
 
 ### Bottom Sheet Design Rules
 
-| Guideline | Details |
-|-----------|---------|
-| Content types | Actions, filters, details, forms |
-| Height | Default 50% screen; expandable to 90%; never 100% |
-| Dismiss | Swipe down, tap outside, or explicit close button |
-| Background | Dim the background content (scrim) |
-| Handle | Show drag handle indicator at top |
-| Snap points | Define 2-3 detent positions (e.g., 25%, 50%, 90%) |
-| Accessibility | Must be navigable by screen readers |
-| Keyboard | Sheet must move above keyboard when input focused |
+| Guideline     | Details                                           |
+| ------------- | ------------------------------------------------- |
+| Content types | Actions, filters, details, forms                  |
+| Height        | Default 50% screen; expandable to 90%; never 100% |
+| Dismiss       | Swipe down, tap outside, or explicit close button |
+| Background    | Dim the background content (scrim)                |
+| Handle        | Show drag handle indicator at top                 |
+| Snap points   | Define 2-3 detent positions (e.g., 25%, 50%, 90%) |
+| Accessibility | Must be navigable by screen readers               |
+| Keyboard      | Sheet must move above keyboard when input focused |
 
 ```swift
 // iOS SwiftUI bottom sheet
@@ -383,16 +383,16 @@ struct ProductFilterSheet: View {
 
 ### When to Use Haptics
 
-| Event | Haptic Type | Platform API |
-|-------|-------------|-------------|
-| Button tap | Light impact | UIImpactFeedbackGenerator(.light) / HapticFeedback.CONFIRM |
-| Toggle switch | Medium impact | UIImpactFeedbackGenerator(.medium) |
-| Destructive action | Heavy impact + notification warning | UINotificationFeedbackGenerator(.warning) |
-| Pull-to-refresh trigger | Selection changed | UISelectionFeedbackGenerator |
-| Success completion | Notification success | UINotificationFeedbackGenerator(.success) |
-| Error | Notification error | UINotificationFeedbackGenerator(.error) |
-| Long press activated | Rigid impact | UIImpactFeedbackGenerator(.rigid) |
-| Slider snap | Soft impact at each step | UIImpactFeedbackGenerator(.soft) |
+| Event                   | Haptic Type                         | Platform API                                               |
+| ----------------------- | ----------------------------------- | ---------------------------------------------------------- |
+| Button tap              | Light impact                        | UIImpactFeedbackGenerator(.light) / HapticFeedback.CONFIRM |
+| Toggle switch           | Medium impact                       | UIImpactFeedbackGenerator(.medium)                         |
+| Destructive action      | Heavy impact + notification warning | UINotificationFeedbackGenerator(.warning)                  |
+| Pull-to-refresh trigger | Selection changed                   | UISelectionFeedbackGenerator                               |
+| Success completion      | Notification success                | UINotificationFeedbackGenerator(.success)                  |
+| Error                   | Notification error                  | UINotificationFeedbackGenerator(.error)                    |
+| Long press activated    | Rigid impact                        | UIImpactFeedbackGenerator(.rigid)                          |
+| Slider snap             | Soft impact at each step            | UIImpactFeedbackGenerator(.soft)                           |
 
 ### Implementation
 
@@ -485,6 +485,7 @@ Choosing the Right Pattern:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing mobile ui designer solutions
 - Reviewing or improving existing mobile ui designer approaches
 - Making architectural or implementation decisions about mobile ui designer
@@ -492,6 +493,7 @@ Choosing the Right Pattern:
 - Troubleshooting mobile ui designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -502,21 +504,26 @@ Choosing the Right Pattern:
 # Mobile Ui Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

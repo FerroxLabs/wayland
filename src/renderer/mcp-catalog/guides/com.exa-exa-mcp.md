@@ -12,9 +12,9 @@ steps:
   - id: api-key
     title: Paste your Exa API key
     estSeconds: 60
-    externalAction: { label: "Open Exa dashboard", url: "https://dashboard.exa.ai" }
+    externalAction: { label: 'Open Exa dashboard', url: 'https://dashboard.exa.ai' }
     inputs:
-      - { name: EXA_API_KEY, label: "Exa API key", secret: true }
+      - { name: EXA_API_KEY, label: 'Exa API key', secret: true }
     body: |
       Exa gives every new account free trial credits on signup - enough to
       try the server before you commit. Pay-as-you-go after that, no

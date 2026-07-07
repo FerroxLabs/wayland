@@ -54,7 +54,7 @@ const PromotionThresholdModal: React.FC<Props> = ({ onClose }) => {
       void ipcBridge.memory.getPromotionCandidates.invoke().then((result) => {
         if (!result) return;
         // Count candidates that would qualify at the pending threshold.
-        const count = result.candidates.filter((c) => c.score !== undefined ? c.score >= value : true).length;
+        const count = result.candidates.filter((c) => (c.score !== undefined ? c.score >= value : true)).length;
         setCandidateCount(count);
       });
     }, 200);
@@ -62,11 +62,11 @@ const PromotionThresholdModal: React.FC<Props> = ({ onClose }) => {
 
   const handleSliderChange = useCallback(
     (value: number | number[]) => {
-      const v = Array.isArray(value) ? value[0] ?? 90 : value;
+      const v = Array.isArray(value) ? (value[0] ?? 90) : value;
       setThreshold(v);
       refreshCandidates(v);
     },
-    [refreshCandidates],
+    [refreshCandidates]
   );
 
   const handleSave = useCallback(async () => {
@@ -101,13 +101,7 @@ const PromotionThresholdModal: React.FC<Props> = ({ onClose }) => {
               {threshold}
             </span>
           </div>
-          <Slider
-            min={0}
-            max={100}
-            value={threshold}
-            onChange={handleSliderChange}
-            data-testid='threshold-slider'
-          />
+          <Slider min={0} max={100} value={threshold} onChange={handleSliderChange} data-testid='threshold-slider' />
           <p className={styles.hint} data-testid='candidate-hint'>
             {candidateCount} candidate{candidateCount !== 1 ? 's' : ''} at threshold {threshold}
           </p>
@@ -117,11 +111,7 @@ const PromotionThresholdModal: React.FC<Props> = ({ onClose }) => {
         <div className={styles.field} data-testid='auto-promote-field'>
           <div className={styles.switchRow}>
             <span className={styles.label}>Auto-promote on schedule</span>
-            <Switch
-              checked={autoPromote}
-              onChange={setAutoPromote}
-              data-testid='auto-promote-switch'
-            />
+            <Switch checked={autoPromote} onChange={setAutoPromote} data-testid='auto-promote-switch' />
           </div>
         </div>
 
@@ -144,18 +134,10 @@ const PromotionThresholdModal: React.FC<Props> = ({ onClose }) => {
 
         {/* Actions */}
         <div className={styles.actions}>
-          <Button
-            onClick={onClose}
-            data-testid='cancel-btn'
-          >
+          <Button onClick={onClose} data-testid='cancel-btn'>
             Cancel
           </Button>
-          <Button
-            type='primary'
-            loading={saving}
-            onClick={() => void handleSave()}
-            data-testid='save-btn'
-          >
+          <Button type='primary' loading={saving} onClick={() => void handleSave()} data-testid='save-btn'>
             Save
           </Button>
         </div>

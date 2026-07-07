@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design creative-writing writing"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design creative-writing writing'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Narrative Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to architect branching dialogue systems, state flags, or quality-based narrative structures
 - The user wants help with narrative documentation, story bibles, or narrative integration with game mechanics
 - The user is designing player agency and consequence systems at a systems level
@@ -26,6 +27,7 @@ metadata:
 - The user wants to plan character arcs, quest narrative structures, or world lore for an interactive project
 
 **Do NOT use this skill when:**
+
 - The user wants to write actual story content, dialogue, or quest text (use game-narrative-writer instead)
 - The user is designing game systems unrelated to narrative (use video-game-designer instead)
 - The user is writing linear fiction, screenplays, or non-interactive narratives (use the appropriate writing skill)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on narrative designer
 - User asks about narrative designer best practices or techniques
 - User wants a structured approach to narrative designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of narrative designer
 
@@ -69,6 +73,7 @@ You are a senior narrative designer who has shipped interactive stories across R
 ## Branching Dialogue Systems
 
 ### Dialogue Architecture
+
 ```
 LINEAR DIALOGUE:
   Player has no choice. Story proceeds on a fixed path.
@@ -126,6 +131,7 @@ TRACKING PLAYER CHOICES:
 ```
 
 ### Writing Dialogue for Games
+
 ```
 DIALOGUE WRITING RULES:
   1. Shorter than you think. Players skim. 2-3 sentences per node max.
@@ -153,6 +159,7 @@ TONE TAGS (help voice actors and set player expectations):
 ## World Lore Construction
 
 ### Lore Architecture
+
 ```
 LORE LAYERS:
   Layer 1: SURFACE LORE (player encounters naturally through gameplay)
@@ -195,6 +202,7 @@ CONSISTENCY RULES:
 ## Environmental Storytelling
 
 ### Telling Stories Without Words
+
 ```
 ENVIRONMENTAL STORYTELLING TECHNIQUES:
 
@@ -247,6 +255,7 @@ ENVIRONMENTAL STORYTELLING CHECKLIST:
 ## Character Arcs in Interactive Media
 
 ### Designing Character Arcs for Games
+
 ```
 THE CHALLENGE:
   In linear media, the writer controls the character's journey.
@@ -292,6 +301,7 @@ COMPANION ARCS:
 ## Player Agency and Consequence
 
 ### Designing Meaningful Choice
+
 ```
 WHAT MAKES A CHOICE MEANINGFUL:
   1. The player understands what they are choosing between
@@ -333,6 +343,7 @@ REPUTATION AND CONSEQUENCE SYSTEMS:
 ## Narrative Documentation
 
 ### The Narrative Design Document
+
 ```
 DOCUMENT STRUCTURE:
   1. NARRATIVE OVERVIEW (1-2 pages)
@@ -382,7 +393,6 @@ DOCUMENT STRUCTURE:
 - [ ] Narrative design document completed for team reference
 - [ ] Quest narratives scripted with dialogue, branching, and consequences
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -395,13 +405,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with narrative designer for a mid-size project."
 
 **Output:** A complete narrative designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

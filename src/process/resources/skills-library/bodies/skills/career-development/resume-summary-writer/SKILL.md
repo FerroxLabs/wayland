@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "resume-writing career template"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'resume-writing career template'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Resume Summary Writer
 
 ## When to Use
@@ -282,38 +283,38 @@ B2B SaaS product manager with 7 years of experience in HR technology, specializi
 
 ### Summary Construction Map
 
-| Sentence | Purpose | Content Used |
-|----------|---------|-------------|
-| 1 | Identity + Scope opener | "B2B SaaS product manager," "7 years," "HR technology" -- establishes professional identity and domain immediately |
-| 2 | Signature achievement | Onboarding redesign: 41% to 68% activation on 80K MAU platform -- the single most impressive, directly relevant proof point |
-| 3 | Specialization + Tool cluster | Product discovery, prioritization, Figma, Jira, enterprise sales collaboration -- high ATS density for PM job descriptions |
-| 4 | Scope + Management context | 2-person AP team, enterprise customer base, multi-segment roadmap -- signals readiness for Senior PM seniority |
-| 5 | Not used | Summary is complete at 4 sentences; forward-looking sentence would dilute the impact |
+| Sentence | Purpose                       | Content Used                                                                                                                |
+| -------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1        | Identity + Scope opener       | "B2B SaaS product manager," "7 years," "HR technology" -- establishes professional identity and domain immediately          |
+| 2        | Signature achievement         | Onboarding redesign: 41% to 68% activation on 80K MAU platform -- the single most impressive, directly relevant proof point |
+| 3        | Specialization + Tool cluster | Product discovery, prioritization, Figma, Jira, enterprise sales collaboration -- high ATS density for PM job descriptions  |
+| 4        | Scope + Management context    | 2-person AP team, enterprise customer base, multi-segment roadmap -- signals readiness for Senior PM seniority              |
+| 5        | Not used                      | Summary is complete at 4 sentences; forward-looking sentence would dilute the impact                                        |
 
 ---
 
 ### ATS Keyword Coverage
 
-| Keyword from Target Role | Where It Appears | Exact Phrase Used |
-|--------------------------|-----------------|-------------------|
-| Product Manager / Senior PM | Both variants, sentence 1 | "B2B SaaS product manager" / "Senior Product Manager" (title) |
-| Activation | Both variants, sentence 2 | "30-day activation," "user activation" |
-| Enterprise | Both variants, sentences 3-4 | "enterprise customers," "enterprise sales," "enterprise accounts" |
-| Roadmap | Both variants, sentence 4 | "roadmap strategy" / "roadmap trade-offs" |
-| Jira | Both variants, sentence 3 | "Jira for cross-functional sprint alignment" / "using Figma and Jira" |
-| Figma | Both variants, sentence 3 | "Applies Figma for continuous discovery" |
-| B2B SaaS | Both variants, sentence 1 | "B2B SaaS product manager" |
+| Keyword from Target Role    | Where It Appears             | Exact Phrase Used                                                     |
+| --------------------------- | ---------------------------- | --------------------------------------------------------------------- |
+| Product Manager / Senior PM | Both variants, sentence 1    | "B2B SaaS product manager" / "Senior Product Manager" (title)         |
+| Activation                  | Both variants, sentence 2    | "30-day activation," "user activation"                                |
+| Enterprise                  | Both variants, sentences 3-4 | "enterprise customers," "enterprise sales," "enterprise accounts"     |
+| Roadmap                     | Both variants, sentence 4    | "roadmap strategy" / "roadmap trade-offs"                             |
+| Jira                        | Both variants, sentence 3    | "Jira for cross-functional sprint alignment" / "using Figma and Jira" |
+| Figma                       | Both variants, sentence 3    | "Applies Figma for continuous discovery"                              |
+| B2B SaaS                    | Both variants, sentence 1    | "B2B SaaS product manager"                                            |
 
 ---
 
 ### Language Upgrade Log
 
-| Original Weak Phrasing | Problem | Replaced With |
-|------------------------|---------|---------------|
-| "I'm strong in product discovery" | Self-assessment with no evidence | "Fluent in product discovery methods and prioritization frameworks" -- stated as a professional descriptor, not a self-grade |
-| "worked closely with enterprise sales teams" | Vague collaboration claim | "Close collaboration with enterprise sales and customer success teams" + "directly shortened time-to-value for enterprise customers" -- shows the outcome of that collaboration |
-| Activation figures stated only in absolute terms (41% to 68%) | Absolute figures are harder to process quickly | Added relative improvement framing: "66% relative improvement" and "27 percentage points" so readers with different mental math preferences both receive the signal |
-| "Managed 2 direct reports" | Reported a fact without showing what it means for the target level | "Leads and mentors a 2-person associate PM team while managing roadmap trade-offs" -- frames the management as active leadership contributing to strategic work, not administrative oversight |
+| Original Weak Phrasing                                        | Problem                                                            | Replaced With                                                                                                                                                                                 |
+| ------------------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "I'm strong in product discovery"                             | Self-assessment with no evidence                                   | "Fluent in product discovery methods and prioritization frameworks" -- stated as a professional descriptor, not a self-grade                                                                  |
+| "worked closely with enterprise sales teams"                  | Vague collaboration claim                                          | "Close collaboration with enterprise sales and customer success teams" + "directly shortened time-to-value for enterprise customers" -- shows the outcome of that collaboration               |
+| Activation figures stated only in absolute terms (41% to 68%) | Absolute figures are harder to process quickly                     | Added relative improvement framing: "66% relative improvement" and "27 percentage points" so readers with different mental math preferences both receive the signal                           |
+| "Managed 2 direct reports"                                    | Reported a fact without showing what it means for the target level | "Leads and mentors a 2-person associate PM team while managing roadmap trade-offs" -- frames the management as active leadership contributing to strategic work, not administrative oversight |
 
 ---
 
@@ -329,8 +330,8 @@ To adapt this summary for different target roles within the Senior PM tier, swap
 
 ### If You Need to Add or Swap One Element
 
-| Element | Current Version | How to Update |
-|---------|----------------|---------------|
-| Signature achievement | 41% to 68% activation on onboarding redesign | If applying to a role focused on retention rather than activation, lead with a retention metric if you have one -- otherwise the activation result is still highly relevant as a proxy for retention health |
-| Target role title | "Senior Product Manager -- B2B SaaS" | Update to match the exact title in each job posting for ATS parsing ("Group Product Manager," "Lead Product Manager," "Principal Product Manager" each carry different seniority signals) |
-| Skill cluster | Figma, Jira, discovery, prioritization | If the posting specifically names Amplitude, Mixpanel, or SQL as required skills, add the one(s) you genuinely have into sentence 3 -- "data-informed prioritization using Amplitude and SQL" is a high-value ATS phrase in modern PM job descriptions |
+| Element               | Current Version                              | How to Update                                                                                                                                                                                                                                          |
+| --------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Signature achievement | 41% to 68% activation on onboarding redesign | If applying to a role focused on retention rather than activation, lead with a retention metric if you have one -- otherwise the activation result is still highly relevant as a proxy for retention health                                            |
+| Target role title     | "Senior Product Manager -- B2B SaaS"         | Update to match the exact title in each job posting for ATS parsing ("Group Product Manager," "Lead Product Manager," "Principal Product Manager" each carry different seniority signals)                                                              |
+| Skill cluster         | Figma, Jira, discovery, prioritization       | If the posting specifically names Amplitude, Mixpanel, or SQL as required skills, add the one(s) you genuinely have into sentence 3 -- "data-informed prioritization using Amplitude and SQL" is a high-value ATS phrase in modern PM job descriptions |

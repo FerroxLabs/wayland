@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning strategy template agile project-management"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning strategy template agile project-management'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # PRD Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to write, create, draft, or review a PRD, product requirements document, or product spec
 - The user needs to align engineering, design, and stakeholders on scope before a sprint or development cycle begins
 - The user is defining a new feature, initiative, or product line that requires sign-off from multiple stakeholders with competing priorities
@@ -29,6 +31,7 @@ metadata:
 - The user is writing a PRD for an internal tool, compliance requirement, operational improvement, or infrastructure initiative -- not just user-facing features
 
 **Do NOT use this skill when:**
+
 - The user needs only one or two user stories in isolation without context -- use `user-story-writing`
 - The user wants architecture diagrams, API contracts, data models, or system design -- use `technical-specification`
 - The user needs a detailed feature spec with UX annotations, interaction states, and design tokens -- use `feature-spec`
@@ -123,16 +126,17 @@ Shipping is not the end state -- controlled rollout with defined reversal criter
 ## PRD: [Feature or Initiative Name]
 
 ### Metadata
-| Field | Value |
-|-------|-------|
-| **Author** | [Name, Role] |
-| **Contributors** | [Names and roles: Engineering Lead, Designer, Data Analyst] |
-| **Date created** | [YYYY-MM-DD] |
-| **Last updated** | [YYYY-MM-DD] |
-| **Status** | Draft / In Review / Approved / Shipped |
-| **Target release** | [Version number or date range] |
-| **Stakeholders** | [Names, roles, and approval authority: Approver / Reviewer / Informed] |
-| **Related documents** | [Link to tech spec, design file, discovery doc, competitive analysis] |
+
+| Field                 | Value                                                                  |
+| --------------------- | ---------------------------------------------------------------------- |
+| **Author**            | [Name, Role]                                                           |
+| **Contributors**      | [Names and roles: Engineering Lead, Designer, Data Analyst]            |
+| **Date created**      | [YYYY-MM-DD]                                                           |
+| **Last updated**      | [YYYY-MM-DD]                                                           |
+| **Status**            | Draft / In Review / Approved / Shipped                                 |
+| **Target release**    | [Version number or date range]                                         |
+| **Stakeholders**      | [Names, roles, and approval authority: Approver / Reviewer / Informed] |
+| **Related documents** | [Link to tech spec, design file, discovery doc, competitive analysis]  |
 
 ---
 
@@ -150,27 +154,27 @@ Shipping is not the end state -- controlled rollout with defined reversal criter
 
 **Goal:** [One sentence: Verb + what changes + for whom + why it matters to the business.]
 
-| Metric | Type | Baseline | Target | Measurement Method | Window |
-|--------|------|----------|--------|--------------------|--------|
-| [Primary metric] | Primary | [Current value + date] | [Target + justification] | [Tool/query/dashboard] | [30/60/90 days post-launch] |
-| [Secondary metric 1] | Secondary | [Current] | [Target] | [Method] | [Window] |
-| [Secondary metric 2] | Secondary | [Current] | [Target] | [Method] | [Window] |
-| [Guardrail metric 1] | Guardrail | [Current] | Must not degrade beyond [threshold] | [Method] | Ongoing |
-| [Guardrail metric 2] | Guardrail | [Current] | Must not degrade beyond [threshold] | [Method] | Ongoing |
+| Metric               | Type      | Baseline               | Target                              | Measurement Method     | Window                      |
+| -------------------- | --------- | ---------------------- | ----------------------------------- | ---------------------- | --------------------------- |
+| [Primary metric]     | Primary   | [Current value + date] | [Target + justification]            | [Tool/query/dashboard] | [30/60/90 days post-launch] |
+| [Secondary metric 1] | Secondary | [Current]              | [Target]                            | [Method]               | [Window]                    |
+| [Secondary metric 2] | Secondary | [Current]              | [Target]                            | [Method]               | [Window]                    |
+| [Guardrail metric 1] | Guardrail | [Current]              | Must not degrade beyond [threshold] | [Method]               | Ongoing                     |
+| [Guardrail metric 2] | Guardrail | [Current]              | Must not degrade beyond [threshold] | [Method]               | Ongoing                     |
 
 ---
 
 ### Target User
 
-| Attribute | Detail |
-|-----------|--------|
-| **Segment** | [Named segment with tier, context, and size if known] |
-| **Current behavior** | [Step-by-step: what they do today to accomplish this goal -- the workaround workflow] |
-| **Desired behavior** | [Observable action after this feature exists -- not a feeling, an action] |
-| **Context of use** | [Device, environment, frequency, urgency level] |
-| **Out-of-scope users** | [Who is NOT the target for this initiative and why] |
+| Attribute              | Detail                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| **Segment**            | [Named segment with tier, context, and size if known]                                 |
+| **Current behavior**   | [Step-by-step: what they do today to accomplish this goal -- the workaround workflow] |
+| **Desired behavior**   | [Observable action after this feature exists -- not a feeling, an action]             |
+| **Context of use**     | [Device, environment, frequency, urgency level]                                       |
+| **Out-of-scope users** | [Who is NOT the target for this initiative and why]                                   |
 
-*If multiple user types interact with this feature, add a row per user type.*
+_If multiple user types interact with this feature, add a row per user type._
 
 ---
 
@@ -181,6 +185,7 @@ Shipping is not the end state -- controlled rollout with defined reversal criter
 **Story 1.1 [P0]:** As a [specific user type], I want to [specific action], so that [specific, concrete benefit].
 
 Acceptance Criteria:
+
 - [ ] AC1: [Testable condition -- Given/When/Then or flat statement. Specific enough for a QA engineer to write a test without asking the PM.]
 - [ ] AC2: [Performance condition: completes within X seconds / handles up to Y records]
 - [ ] AC3: [Error state: when X fails, user sees Y and can take action Z]
@@ -190,6 +195,7 @@ Acceptance Criteria:
 **Story 1.2 [P1]:** As a [user type], I want to [action], so that [benefit].
 
 Acceptance Criteria:
+
 - [ ] AC1: [Testable condition]
 - [ ] AC2: [Testable condition]
 - [ ] AC3: [Error handling]
@@ -199,6 +205,7 @@ Acceptance Criteria:
 **Story 2.1 [P0]:** As a [user type], I want to [action], so that [benefit].
 
 Acceptance Criteria:
+
 - [ ] AC1: [Testable condition]
 - [ ] AC2: [Testable condition]
 
@@ -206,45 +213,49 @@ Acceptance Criteria:
 
 ### Out of Scope
 
-| Exclusion | Category | Reason |
-|-----------|----------|--------|
-| [Specific feature or use case] | Deferred | [Named phase or initiative it belongs to] |
-| [Platform or user segment] | Deliberately excluded | [Trade-off rationale] |
-| [Adjacent capability] | Out of product scope | [Which team or system owns it] |
-| [Unclear requirement] | Not yet known | [What research or data is needed to scope it] |
+| Exclusion                      | Category              | Reason                                        |
+| ------------------------------ | --------------------- | --------------------------------------------- |
+| [Specific feature or use case] | Deferred              | [Named phase or initiative it belongs to]     |
+| [Platform or user segment]     | Deliberately excluded | [Trade-off rationale]                         |
+| [Adjacent capability]          | Out of product scope  | [Which team or system owns it]                |
+| [Unclear requirement]          | Not yet known         | [What research or data is needed to scope it] |
 
 ---
 
 ### Assumptions, Risks, and Dependencies
 
 #### Assumptions
-| Assumption | Type | Validation Method | Owner | Status |
-|------------|------|------------------|-------|--------|
+
+| Assumption          | Type                        | Validation Method                        | Owner           | Status                          |
+| ------------------- | --------------------------- | ---------------------------------------- | --------------- | ------------------------------- |
 | [What must be true] | User / Technical / Business | [How we will verify before/after launch] | [Who validates] | [Validated / Pending / At risk] |
 
 #### Risks
-| Risk | Category | Likelihood | Impact | Mitigation | Contingency |
-|------|----------|-----------|--------|------------|-------------|
-| [Risk description] | Technical / Adoption / Regulatory / Dependency | H/M/L | H/M/L | [What we do to reduce probability] | [What we do if it materializes] |
+
+| Risk               | Category                                       | Likelihood | Impact | Mitigation                         | Contingency                     |
+| ------------------ | ---------------------------------------------- | ---------- | ------ | ---------------------------------- | ------------------------------- |
+| [Risk description] | Technical / Adoption / Regulatory / Dependency | H/M/L      | H/M/L  | [What we do to reduce probability] | [What we do if it materializes] |
 
 #### Dependencies
-| Dependency | Description | Owner Team | Required By | Status | Impact if Delayed |
-|-----------|-------------|-----------|-------------|--------|------------------|
-| [System or team] | [What specifically is needed] | [Team name] | [Date] | [On track / At risk / Blocked] | [Impact on launch timeline or feature quality] |
+
+| Dependency       | Description                   | Owner Team  | Required By | Status                         | Impact if Delayed                              |
+| ---------------- | ----------------------------- | ----------- | ----------- | ------------------------------ | ---------------------------------------------- |
+| [System or team] | [What specifically is needed] | [Team name] | [Date]      | [On track / At risk / Blocked] | [Impact on launch timeline or feature quality] |
 
 ---
 
 ### Release Plan
 
-| Phase | Rollout | Audience | Gate Conditions to Advance | Duration |
-|-------|---------|----------|---------------------------|----------|
-| Phase 1 -- Canary | 1--5% | [Internal users or beta cohort] | Error rate < 0.5%, p95 latency within threshold | 1 week |
-| Phase 2 -- Limited | 10--25% | [Specific segment or region] | Primary metric directionally positive, no guardrail breaches | 2 weeks |
-| Phase 3 -- General | 100% | All eligible users | All gate conditions met | -- |
+| Phase              | Rollout | Audience                        | Gate Conditions to Advance                                   | Duration |
+| ------------------ | ------- | ------------------------------- | ------------------------------------------------------------ | -------- |
+| Phase 1 -- Canary  | 1--5%   | [Internal users or beta cohort] | Error rate < 0.5%, p95 latency within threshold              | 1 week   |
+| Phase 2 -- Limited | 10--25% | [Specific segment or region]    | Primary metric directionally positive, no guardrail breaches | 2 weeks  |
+| Phase 3 -- General | 100%    | All eligible users              | All gate conditions met                                      | --       |
 
 **Feature flag:** [Flag name], Owner: [Name], Default: Off, Kill switch: [Procedure]
 
 **Rollback triggers:**
+
 - Error rate exceeds [X]% sustained over [Y] minutes
 - [Guardrail metric] degrades beyond [threshold]
 - [Other observable condition]
@@ -257,9 +268,9 @@ Acceptance Criteria:
 
 ### Open Questions
 
-| Question | Owner | Resolution Needed By | Status |
-|----------|-------|---------------------|--------|
-| [Unresolved question that blocks a decision in this PRD] | [PM / Eng / Design / Legal] | [Date] | [Open / In progress / Resolved] |
+| Question                                                 | Owner                       | Resolution Needed By | Status                          |
+| -------------------------------------------------------- | --------------------------- | -------------------- | ------------------------------- |
+| [Unresolved question that blocks a decision in this PRD] | [PM / Eng / Design / Legal] | [Date]               | [Open / In progress / Resolved] |
 ```
 
 ---
@@ -295,24 +306,31 @@ Acceptance Criteria:
 ## Edge Cases
 
 ### Internal Tool or Operations Feature
+
 When the "user" is an internal team member -- a support agent, ops analyst, finance manager, or sales rep -- the problem statement changes shape. Replace user-facing impact language with operational cost language: hours per week spent on the manual task, error rate of the current process, number of people performing the workaround, and the cost-per-error if the process fails. Success metrics focus on efficiency gains (time-on-task reduction, error rate reduction, throughput increase) rather than adoption curves. Acceptance criteria must account for the internal user's workflow context -- they may be using the tool in a high-pressure, multitasking environment where error recovery and confirmation states matter more than for a deliberate end-user feature. The stakeholder map looks different: the sponsor is typically the team manager or VP of the internal function, not a product owner, and their approval carries specific operational authority.
 
 ### Regulatory or Compliance-Driven Requirement
+
 The "problem" is non-compliance, and the problem statement must name the specific regulation, the specific requirement within it, and the specific gap in the current product. For example: "GDPR Article 17 requires the ability for EU data subjects to request erasure of all personal data. Current product has no deletion workflow -- data is retained indefinitely. Regulatory deadline: [date]." Acceptance criteria must map one-to-one with regulatory checkboxes -- vague ACs are a compliance liability. The out-of-scope table must explicitly state which parts of the regulation are covered by this PRD and which are addressed by other initiatives or already compliant. Include a legal review dependency with a named legal contact and a required sign-off before launch. The rollback plan must address the regulatory implication of reverting -- in some cases, a feature cannot be rolled back once users have exercised a right.
 
 ### Feature With No Prior Adoption Baseline (Net New)
+
 When there is no historical baseline for the primary metric (because the feature does not exist yet), use a proxy-based baseline approach. For adoption: use adoption rates of the most similar feature in the product as a benchmark. For support deflection: use the incoming ticket volume as the pre-launch baseline. For task completion: use the time-and-error-rate of the current workaround workflow as the baseline. Document the proxy clearly -- "baseline is the adoption rate of the CSV import feature (the closest comparable, at 18% of eligible users within 60 days of launch)." Set targets relative to the proxy rather than absolute guesses. Flag this explicitly so stakeholders understand the benchmark is approximate.
 
 ### Multi-Team or Multi-Product Initiative
+
 When the initiative spans more than one engineering team, product area, or platform, a single PRD will be incomplete and will create ownership ambiguity. The recommended structure is: one parent PRD that defines the shared problem statement, shared success metrics, and cross-team dependencies, plus one child PRD per team or product area that defines that team's specific scope, stories, and release plan. The parent PRD includes a RACI table -- Responsible, Accountable, Consulted, Informed -- for each functional area and for each key decision (go/no-go for each phase, rollback decisions, scope changes). Without explicit ownership, multi-team PRDs silently fail when one team's dependency slips -- each team assumes the other is handling the coordination.
 
 ### Exploratory or Research-Phase Initiative
+
 When the scope of a feature is genuinely unknown because the product team has not yet done user research or validated the problem, a standard PRD is premature. Instead, write a "discovery PRD" -- a lighter artifact that documents: the business question being explored (not the solution), the research method (user interviews, prototype testing, data analysis), the sample size and timeline for the research, the specific decisions the research will inform, and the threshold of evidence required to proceed to a full PRD. User stories are replaced with research tasks. Success criteria are about learning milestones, not shipped features. The discovery PRD closes with a go/no-go framework: what evidence would cause the team to proceed, what evidence would cause the team to pivot, and what evidence would cause the team to stop. This prevents "we learned something interesting but different" from indefinitely extending the discovery phase without a decision.
 
 ### Highly Technical Feature With No Direct User Interface
+
 For features like API rate limiting, background job optimization, webhook reliability improvements, or caching layer upgrades, the "user" is typically a developer, an integration partner, or the system itself. The problem statement should quantify the technical pain in developer experience terms: P99 API latency degraded from 200ms to 4 seconds under load, causing 12% of partner integrations to fail silently. User stories take the form of developer tasks and system behavior requirements. Acceptance criteria are primarily performance benchmarks, error rate thresholds, and observability requirements (the system must emit the correct logs and metrics to detect a regression). Success metrics include developer experience proxies: integration failure rate, developer support ticket volume about the API, SDK adoption rate. Guardrail metrics are more critical here than in user-facing features -- a background infrastructure change can silently degrade user-facing behavior in ways that are invisible until measured.
 
 ### Internationalization or Localization Scope
+
 When a feature must be localized for one or more languages or regions, localization scope is one of the most commonly under-specified areas in PRDs -- leading to last-minute scope creep, delayed launches, or incomplete localizations. The PRD must explicitly state: which locales are in scope for launch (list them specifically: en-US, fr-FR, de-DE), which locales are deferred, the character encoding requirements (UTF-8 in most cases but critical for CJK character sets), any locale-specific formatting requirements (date formats, currency symbols, number separators, RTL layout for Arabic or Hebrew), and whether content is user-generated (requiring a different localization strategy than static UI copy). The dependency table must include the localization team or vendor, the string freeze date (the date after which no new UI copy will be added to the launch scope), and the review process for translated content.
 
 ---
@@ -328,16 +346,17 @@ When a feature must be localized for one or more languages or regions, localizat
 ## PRD: Bulk CSV Data Export
 
 ### Metadata
-| Field | Value |
-|-------|-------|
-| **Author** | [PM Name], Product Manager -- Analytics |
-| **Contributors** | [Eng Lead], [Designer], [Data Analyst] |
-| **Date created** | 2025-01-15 |
-| **Last updated** | 2025-01-15 |
-| **Status** | Draft |
-| **Target release** | Q1 2025 (estimated late March) |
-| **Stakeholders** | [VP Product] -- Approver; [Head of Engineering] -- Approver (feasibility); [Customer Success Lead] -- Reviewer; [Legal] -- Reviewer (data handling) |
-| **Related documents** | Dashboard technical spec v2.3, Data retention policy, GDPR data handling guidelines |
+
+| Field                 | Value                                                                                                                                               |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Author**            | [PM Name], Product Manager -- Analytics                                                                                                             |
+| **Contributors**      | [Eng Lead], [Designer], [Data Analyst]                                                                                                              |
+| **Date created**      | 2025-01-15                                                                                                                                          |
+| **Last updated**      | 2025-01-15                                                                                                                                          |
+| **Status**            | Draft                                                                                                                                               |
+| **Target release**    | Q1 2025 (estimated late March)                                                                                                                      |
+| **Stakeholders**      | [VP Product] -- Approver; [Head of Engineering] -- Approver (feasibility); [Customer Success Lead] -- Reviewer; [Legal] -- Reviewer (data handling) |
+| **Related documents** | Dashboard technical spec v2.3, Data retention policy, GDPR data handling guidelines                                                                 |
 
 ---
 
@@ -359,24 +378,24 @@ When a feature must be localized for one or more languages or regions, localizat
 
 **Goal:** Enable analytics dashboard users to self-serve CSV exports of any dashboard view, reducing support burden, removing a churn driver, and eliminating the analyst-as-data-pipeline workaround.
 
-| Metric | Type | Baseline | Target | Measurement Method | Window |
-|--------|------|----------|--------|--------------------|--------|
-| Export-related support tickets | Primary | 20/month (Jan 2025) | ≤ 5/month | Zendesk tag: "export-request" | 60 days post-full launch |
-| Export feature adoption (% of eligible DAU who use export ≥1x per week) | Secondary | 0% (feature does not exist) | ≥ 15% | Product analytics (Amplitude) | 30 days post-full launch |
-| Average exports per active exporter per week | Secondary | 0 | ≥ 2 | Amplitude | 60 days |
-| Dashboard p95 page load time | Guardrail | 2.1 seconds (Jan 2025) | Must not exceed 2.8 seconds | Datadog APM | Ongoing |
-| API error rate (dashboard endpoint) | Guardrail | 0.3% (Jan 2025) | Must not exceed 0.8% | Datadog | Ongoing |
+| Metric                                                                  | Type      | Baseline                    | Target                      | Measurement Method            | Window                   |
+| ----------------------------------------------------------------------- | --------- | --------------------------- | --------------------------- | ----------------------------- | ------------------------ |
+| Export-related support tickets                                          | Primary   | 20/month (Jan 2025)         | ≤ 5/month                   | Zendesk tag: "export-request" | 60 days post-full launch |
+| Export feature adoption (% of eligible DAU who use export ≥1x per week) | Secondary | 0% (feature does not exist) | ≥ 15%                       | Product analytics (Amplitude) | 30 days post-full launch |
+| Average exports per active exporter per week                            | Secondary | 0                           | ≥ 2                         | Amplitude                     | 60 days                  |
+| Dashboard p95 page load time                                            | Guardrail | 2.1 seconds (Jan 2025)      | Must not exceed 2.8 seconds | Datadog APM                   | Ongoing                  |
+| API error rate (dashboard endpoint)                                     | Guardrail | 0.3% (Jan 2025)             | Must not exceed 0.8%        | Datadog                       | Ongoing                  |
 
 ---
 
 ### Target User
 
-| Attribute | Detail |
-|-----------|--------|
-| **Segment** | Data analysts and marketing managers at enterprise accounts (100+ seats). Estimated 1,200 eligible users across 80 enterprise accounts. |
-| **Current behavior** | User identifies data they need → emails customer success or internal analyst → waits 24--72 hours → receives unformatted CSV via email → manually reformats for use in Excel/Google Sheets/Tableau. |
-| **Desired behavior** | User identifies data they need in the dashboard → clicks Export → selects date range → downloads a correctly formatted CSV within 30 seconds -- no email, no waiting, no reformatting. |
-| **Context of use** | Desktop browser (Chrome/Firefox/Safari), used during business hours, weekly or monthly reporting cadence. Export is a deliberate, task-completing action -- not a real-time streaming need. |
+| Attribute              | Detail                                                                                                                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Segment**            | Data analysts and marketing managers at enterprise accounts (100+ seats). Estimated 1,200 eligible users across 80 enterprise accounts.                                                                       |
+| **Current behavior**   | User identifies data they need → emails customer success or internal analyst → waits 24--72 hours → receives unformatted CSV via email → manually reformats for use in Excel/Google Sheets/Tableau.           |
+| **Desired behavior**   | User identifies data they need in the dashboard → clicks Export → selects date range → downloads a correctly formatted CSV within 30 seconds -- no email, no waiting, no reformatting.                        |
+| **Context of use**     | Desktop browser (Chrome/Firefox/Safari), used during business hours, weekly or monthly reporting cadence. Export is a deliberate, task-completing action -- not a real-time streaming need.                   |
 | **Out-of-scope users** | Free-tier users (cost and abuse risk); mobile users (lower demand, export on mobile introduces UX complexity deferred to Phase 2); API users (they have programmatic access; this PRD covers UI export only). |
 
 ---
@@ -388,6 +407,7 @@ When a feature must be localized for one or more languages or regions, localizat
 **Story 1.1 [P0]:** As a data analyst, I want to export the current dashboard view as a CSV file, so that I can analyze the data in my preferred analytics tool without waiting for manual data extraction.
 
 Acceptance Criteria:
+
 - [ ] AC1: An "Export CSV" button is visible on every dashboard view without requiring a settings change or permission grant (for users with Analyst role or above).
 - [ ] AC2: Clicking "Export CSV" initiates file generation and shows a progress indicator within 2 seconds.
 - [ ] AC3: The export completes and the file downloads automatically within 30 seconds for datasets up to 100,000 rows.
@@ -398,6 +418,7 @@ Acceptance Criteria:
 **Story 1.2 [P0]:** As a data analyst, I want the exported CSV to include all columns visible in the current dashboard view with headers matching the dashboard labels, so that I do not need to manually rename columns after downloading.
 
 Acceptance Criteria:
+
 - [ ] AC1: Column headers in the CSV match exactly the column labels displayed in the dashboard UI (including any custom column names the user has configured).
 - [ ] AC2: Column order in the CSV matches the left-to-right column order in the dashboard view at the time of export.
 - [ ] AC3: Data types are preserved appropriately: dates as YYYY-MM-DD, numbers without currency symbols or thousands separators (raw numeric values), strings as unformatted text.
@@ -408,6 +429,7 @@ Acceptance Criteria:
 **Story 2.1 [P1]:** As a marketing manager, I want to select a custom date range before exporting, so that I can retrieve data for a specific reporting period without modifying the live dashboard view.
 
 Acceptance Criteria:
+
 - [ ] AC1: A date range picker is displayed when the user clicks "Export CSV," offering Quick Select options (Last 7 days, Last 30 days, Last 90 days, Custom range) and a Custom range calendar input.
 - [ ] AC2: The date range picker pre-populates with the date range currently active on the dashboard.
 - [ ] AC3: The exported data reflects the selected date range exclusively -- no rows outside the selected range are included.
@@ -419,6 +441,7 @@ Acceptance Criteria:
 **Story 3.1 [P0]:** As an account administrator, I want export capability to respect the existing role-based access control settings, so that users cannot export data that their role does not permit them to view.
 
 Acceptance Criteria:
+
 - [ ] AC1: The "Export CSV" button is visible only to users with the Analyst, Manager, or Admin role. Viewer-role users do not see the export button.
 - [ ] AC2: A Viewer-role user who attempts to access the export endpoint directly (e.g., via URL manipulation) receives a 403 response, not a data payload.
 - [ ] AC3: Exported data is scoped to the data the user has permission to view -- row-level security applied in the dashboard view is also applied to the export.
@@ -429,6 +452,7 @@ Acceptance Criteria:
 **Story 4.1 [P1]:** As a data analyst, I want clear feedback when my export cannot be completed, so that I can take appropriate action without contacting support.
 
 Acceptance Criteria:
+
 - [ ] AC1: If the dashboard view has no data for the selected date range, the export button is disabled and a tooltip reads: "No data available for the selected period."
 - [ ] AC2: If the export service is unavailable (HTTP 503), the user sees: "Export is temporarily unavailable. Please try again in a few minutes." The error is tagged in Datadog for alerting.
 - [ ] AC3: If the export times out (exceeds 35 seconds for small datasets), the system automatically falls back to the email delivery flow and notifies the user inline.
@@ -437,56 +461,60 @@ Acceptance Criteria:
 
 ### Out of Scope
 
-| Exclusion | Category | Reason |
-|-----------|----------|--------|
-| PDF export | Deferred | Requested by 3 tickets/month (low demand). Requires significant rendering work. Targeted for Phase 2 post-adoption validation. |
-| Scheduled / automated exports (email cadence, Slack delivery) | Deferred | Requires background job infrastructure and notification service integration. Separate initiative -- "Automated Reporting." ETA: Q3 2025. |
-| Excel (.xlsx) export format | Deferred | UTF-8 CSV opens correctly in Excel. Native .xlsx requested by 4 tickets/month. Deferred until adoption data justifies the additional format complexity. |
-| Export of raw event-level data | Deliberately excluded | Raw event tables can contain hundreds of millions of rows. Performance risk is unacceptable in this PRD's scope. Scoped to aggregated dashboard views only. Raw data access is addressed through the Data API initiative. |
-| Mobile (iOS/Android) export | Deferred | Export on mobile introduces download manager complexity. Mobile DAU is 8% of total. Deferred to Phase 2 after desktop adoption is validated. |
-| Free-tier user access to export | Deliberately excluded | Export is positioned as a paid-tier differentiator. Free-tier users see a "Upgrade to export" prompt instead of the export button. |
-| Multi-dashboard batch export | Not yet known | Insufficient data on whether users want cross-dashboard aggregated exports. Requires UX research before scoping. |
+| Exclusion                                                     | Category              | Reason                                                                                                                                                                                                                    |
+| ------------------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PDF export                                                    | Deferred              | Requested by 3 tickets/month (low demand). Requires significant rendering work. Targeted for Phase 2 post-adoption validation.                                                                                            |
+| Scheduled / automated exports (email cadence, Slack delivery) | Deferred              | Requires background job infrastructure and notification service integration. Separate initiative -- "Automated Reporting." ETA: Q3 2025.                                                                                  |
+| Excel (.xlsx) export format                                   | Deferred              | UTF-8 CSV opens correctly in Excel. Native .xlsx requested by 4 tickets/month. Deferred until adoption data justifies the additional format complexity.                                                                   |
+| Export of raw event-level data                                | Deliberately excluded | Raw event tables can contain hundreds of millions of rows. Performance risk is unacceptable in this PRD's scope. Scoped to aggregated dashboard views only. Raw data access is addressed through the Data API initiative. |
+| Mobile (iOS/Android) export                                   | Deferred              | Export on mobile introduces download manager complexity. Mobile DAU is 8% of total. Deferred to Phase 2 after desktop adoption is validated.                                                                              |
+| Free-tier user access to export                               | Deliberately excluded | Export is positioned as a paid-tier differentiator. Free-tier users see a "Upgrade to export" prompt instead of the export button.                                                                                        |
+| Multi-dashboard batch export                                  | Not yet known         | Insufficient data on whether users want cross-dashboard aggregated exports. Requires UX research before scoping.                                                                                                          |
 
 ---
 
 ### Assumptions, Risks, and Dependencies
 
 #### Assumptions
-| Assumption | Type | Validation Method | Owner | Status |
-|------------|------|------------------|-------|--------|
-| The export backend can generate 100K-row CSVs within 30 seconds on current infrastructure | Technical | Load test with representative query patterns before Phase 1 launch | Engineering Lead | Pending |
-| Users will adopt self-serve export rather than continuing to email customer success | User | Monitor CS export request tickets at 30 days post-launch; target < 5/month | Customer Success Lead | Pending |
-| UTF-8 CSV is sufficient for the majority of users; specialized format requests are a minority | User | Support ticket analysis (confirmed: 3 xlsx requests/month vs. 20 generic export requests) | PM | Validated |
-| Row-level security currently applied in the dashboard query layer can be reused for exports | Technical | Engineering Lead to confirm before PRD approval | Engineering Lead | Pending |
+
+| Assumption                                                                                    | Type      | Validation Method                                                                         | Owner                 | Status    |
+| --------------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------- | --------- |
+| The export backend can generate 100K-row CSVs within 30 seconds on current infrastructure     | Technical | Load test with representative query patterns before Phase 1 launch                        | Engineering Lead      | Pending   |
+| Users will adopt self-serve export rather than continuing to email customer success           | User      | Monitor CS export request tickets at 30 days post-launch; target < 5/month                | Customer Success Lead | Pending   |
+| UTF-8 CSV is sufficient for the majority of users; specialized format requests are a minority | User      | Support ticket analysis (confirmed: 3 xlsx requests/month vs. 20 generic export requests) | PM                    | Validated |
+| Row-level security currently applied in the dashboard query layer can be reused for exports   | Technical | Engineering Lead to confirm before PRD approval                                           | Engineering Lead      | Pending   |
 
 #### Risks
-| Risk | Category | Likelihood | Impact | Mitigation | Contingency |
-|------|----------|-----------|--------|------------|-------------|
-| Large export queries degrade dashboard performance for other users | Technical | Medium | High | Implement query queuing and resource limits; run large exports in a separate worker pool | Kill switch to disable exports > 50K rows; revert to email-only for large exports |
-| Users attempt to export data they are not authorized to view via direct API calls | Technical / Security | Low | High | Implement auth checks at export API layer (not just UI layer); include in security review | Immediate rollback of feature flag if unauthorized access is detected |
-| Customer success team continues to receive manual export requests from habit, masking true adoption | Adoption | Medium | Medium | Proactive in-app announcement + CS team training on directing users to self-serve export | Adjust adoption target interpretation at 30-day review if CS request volume does not drop proportionally |
-| Enterprise account data volume exceeds assumed 100K row limit, causing timeouts | Technical | Low | Medium | Implement graceful fallback to email delivery at 100K row threshold | Increase threshold if P99 latency data shows headroom; escalate to Data API team for large accounts |
+
+| Risk                                                                                                | Category             | Likelihood | Impact | Mitigation                                                                                | Contingency                                                                                              |
+| --------------------------------------------------------------------------------------------------- | -------------------- | ---------- | ------ | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Large export queries degrade dashboard performance for other users                                  | Technical            | Medium     | High   | Implement query queuing and resource limits; run large exports in a separate worker pool  | Kill switch to disable exports > 50K rows; revert to email-only for large exports                        |
+| Users attempt to export data they are not authorized to view via direct API calls                   | Technical / Security | Low        | High   | Implement auth checks at export API layer (not just UI layer); include in security review | Immediate rollback of feature flag if unauthorized access is detected                                    |
+| Customer success team continues to receive manual export requests from habit, masking true adoption | Adoption             | Medium     | Medium | Proactive in-app announcement + CS team training on directing users to self-serve export  | Adjust adoption target interpretation at 30-day review if CS request volume does not drop proportionally |
+| Enterprise account data volume exceeds assumed 100K row limit, causing timeouts                     | Technical            | Low        | Medium | Implement graceful fallback to email delivery at 100K row threshold                       | Increase threshold if P99 latency data shows headroom; escalate to Data API team for large accounts      |
 
 #### Dependencies
-| Dependency | Description | Owner Team | Required By | Status | Impact if Delayed |
-|-----------|-------------|-----------|-------------|--------|------------------|
-| Dashboard query service | Export reuses the existing query execution layer; requires confirmation that the service supports async query execution for large exports | Data Platform | 2025-02-01 | Pending confirmation | If async not supported, email delivery for large exports requires a separate background job -- adds 2-week engineering effort |
-| Audit logging service | Export actions must be logged; requires audit log service to accept a new event type: "data_export" | Security Engineering | 2025-02-15 | On track | If delayed, export can launch without audit logging only if legal approves a time-limited exception |
-| Legal review -- data export and GDPR | Confirm that on-demand CSV export complies with data handling and retention policies for EU accounts | Legal | 2025-02-01 | In progress | If export requires additional consent flows for EU users, launch scope may require segmented rollout (non-EU first) |
+
+| Dependency                           | Description                                                                                                                               | Owner Team           | Required By | Status               | Impact if Delayed                                                                                                             |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Dashboard query service              | Export reuses the existing query execution layer; requires confirmation that the service supports async query execution for large exports | Data Platform        | 2025-02-01  | Pending confirmation | If async not supported, email delivery for large exports requires a separate background job -- adds 2-week engineering effort |
+| Audit logging service                | Export actions must be logged; requires audit log service to accept a new event type: "data_export"                                       | Security Engineering | 2025-02-15  | On track             | If delayed, export can launch without audit logging only if legal approves a time-limited exception                           |
+| Legal review -- data export and GDPR | Confirm that on-demand CSV export complies with data handling and retention policies for EU accounts                                      | Legal                | 2025-02-01  | In progress          | If export requires additional consent flows for EU users, launch scope may require segmented rollout (non-EU first)           |
 
 ---
 
 ### Release Plan
 
-| Phase | Rollout | Audience | Gate Conditions to Advance | Duration |
-|-------|---------|----------|---------------------------|----------|
-| Phase 1 -- Internal | 100% internal users | Internal team members and beta accounts (5 accounts, manually selected) | Zero critical bugs, p95 export time < 30 seconds for test dataset, audit log entries confirmed | 1 week |
-| Phase 2 -- Limited | 10% of enterprise accounts (random cohort) | ~8 enterprise accounts | Error rate < 0.5%, p95 response time within guardrail, primary metric directionally positive (support ticket volume decreasing) | 2 weeks |
-| Phase 3 -- General | 100% of paid-tier users | All Analyst, Manager, Admin roles on paid tiers | All gate conditions met; no guardrail breaches; legal sign-off confirmed | -- |
+| Phase               | Rollout                                    | Audience                                                                | Gate Conditions to Advance                                                                                                      | Duration |
+| ------------------- | ------------------------------------------ | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Phase 1 -- Internal | 100% internal users                        | Internal team members and beta accounts (5 accounts, manually selected) | Zero critical bugs, p95 export time < 30 seconds for test dataset, audit log entries confirmed                                  | 1 week   |
+| Phase 2 -- Limited  | 10% of enterprise accounts (random cohort) | ~8 enterprise accounts                                                  | Error rate < 0.5%, p95 response time within guardrail, primary metric directionally positive (support ticket volume decreasing) | 2 weeks  |
+| Phase 3 -- General  | 100% of paid-tier users                    | All Analyst, Manager, Admin roles on paid tiers                         | All gate conditions met; no guardrail breaches; legal sign-off confirmed                                                        | --       |
 
 **Feature flag:** `bulk-csv-export-enabled`, Owner: [Engineering Lead], Default: Off, Kill switch: Disable flag in LaunchDarkly within 5 minutes; Engineering oncall verifies error rate returns to baseline; PM notifies customer-facing stakeholders within 30 minutes.
 
 **Rollback triggers:**
+
 - API error rate exceeds 1.5% sustained for 10 minutes on the export endpoint
 - Dashboard p95 page load time exceeds 2.8 seconds (guardrail breach)
 - Unauthorized data access confirmed by security monitoring

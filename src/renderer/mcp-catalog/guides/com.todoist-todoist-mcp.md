@@ -12,7 +12,7 @@ steps:
   - id: authorize
     title: Sign in with Todoist
     estSeconds: 30
-    primaryAction: { label: "Sign in with Todoist", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Todoist', action: 'oauth-flow' }
     body: |
       Click **Sign in with Todoist** below. A browser tab opens at Todoist's
       OAuth consent screen.

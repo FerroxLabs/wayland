@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Solopreneur Toolkit
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user is running a one-person business and needs automation strategies, tool stack selection, or time management frameworks
 - The user wants help with productized services, sustainable growth without employees, or solopreneur financial management
 - The user needs guidance on managing every business function (marketing, sales, delivery, finance) as a single operator
 - The user wants mindset and workflow strategies specific to running a business alone
 
 **Do NOT use this skill when:**
+
 - The user is building a team-based startup (use startup-advisor instead)
 - The user wants to start a consulting practice specifically (use consulting-practice instead)
 - The user needs detailed business planning with financial projections (use business-planner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on solopreneur toolkit
 - User asks about solopreneur toolkit best practices or techniques
 - User wants a structured approach to solopreneur toolkit
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of solopreneur toolkit
 
@@ -72,11 +76,11 @@ Before advising, understand the business:
 
 A solopreneur operates in three modes. The key is knowing which mode to be in and when:
 
-| Mode | Activities | When |
-|------|-----------|------|
-| **Builder** | Creating products, writing content, developing systems, strategic planning | Deep work blocks, mornings for most people |
-| **Operator** | Delivering services, managing clients, handling finances, admin | Structured operational hours |
-| **Seller** | Marketing, sales conversations, networking, outreach, content distribution | Dedicated sales blocks |
+| Mode         | Activities                                                                 | When                                       |
+| ------------ | -------------------------------------------------------------------------- | ------------------------------------------ |
+| **Builder**  | Creating products, writing content, developing systems, strategic planning | Deep work blocks, mornings for most people |
+| **Operator** | Delivering services, managing clients, handling finances, admin            | Structured operational hours               |
+| **Seller**   | Marketing, sales conversations, networking, outreach, content distribution | Dedicated sales blocks                     |
 
 **The fatal mistake:** Mixing modes. Checking email during a building session. Writing content during a client call. Selling when you should be delivering.
 
@@ -116,17 +120,17 @@ Tasks that require your specific expertise, relationships, or creative judgment.
 
 ### High-Impact Automation Opportunities
 
-| Process | Tool Options | Time Saved |
-|---------|-------------|------------|
-| Invoice creation and sending | Stripe, FreshBooks, Wave | 2-4 hrs/month |
-| Appointment scheduling | Calendly, SavvyCal, Cal.com | 3-5 hrs/month |
-| Email sequences (onboarding, follow-up) | ConvertKit, Mailchimp, ActiveCampaign | 5-10 hrs/month |
-| Social media scheduling | Buffer, Typefully, Hypefury | 3-6 hrs/month |
-| Contract and proposal generation | PandaDoc, HoneyBook, Bonsai | 2-4 hrs/month |
-| Client onboarding | Dubsado, HoneyBook, custom Notion/Airtable | 4-8 hrs/month |
-| Bookkeeping categorization | QuickBooks, Xero with bank feeds | 3-5 hrs/month |
-| File and document management | Google Drive/Notion with templates | 2-3 hrs/month |
-| Customer support (FAQ) | Help Scout, Crisp, FAQ page | 3-8 hrs/month |
+| Process                                 | Tool Options                               | Time Saved     |
+| --------------------------------------- | ------------------------------------------ | -------------- |
+| Invoice creation and sending            | Stripe, FreshBooks, Wave                   | 2-4 hrs/month  |
+| Appointment scheduling                  | Calendly, SavvyCal, Cal.com                | 3-5 hrs/month  |
+| Email sequences (onboarding, follow-up) | ConvertKit, Mailchimp, ActiveCampaign      | 5-10 hrs/month |
+| Social media scheduling                 | Buffer, Typefully, Hypefury                | 3-6 hrs/month  |
+| Contract and proposal generation        | PandaDoc, HoneyBook, Bonsai                | 2-4 hrs/month  |
+| Client onboarding                       | Dubsado, HoneyBook, custom Notion/Airtable | 4-8 hrs/month  |
+| Bookkeeping categorization              | QuickBooks, Xero with bank feeds           | 3-5 hrs/month  |
+| File and document management            | Google Drive/Notion with templates         | 2-3 hrs/month  |
+| Customer support (FAQ)                  | Help Scout, Crisp, FAQ page                | 3-8 hrs/month  |
 
 ### The Automation Build Sequence
 
@@ -148,6 +152,7 @@ Every tool costs: money, learning time, maintenance time, and cognitive load. Th
 ### Core Tool Categories
 
 **Essential (every solopreneur needs these):**
+
 - Financial management (accounting, invoicing, banking)
 - Communication (email, scheduling, video calls)
 - Project/task management (personal productivity system)
@@ -155,6 +160,7 @@ Every tool costs: money, learning time, maintenance time, and cognitive load. Th
 - Website or landing page
 
 **Growth tools (add when needed):**
+
 - Email marketing / CRM
 - Social media management
 - Analytics and tracking
@@ -162,6 +168,7 @@ Every tool costs: money, learning time, maintenance time, and cognitive load. Th
 - Client portal
 
 **Scale tools (add when revenue justifies):**
+
 - Automation platform (Zapier, Make)
 - Customer support system
 - Advanced analytics
@@ -171,13 +178,13 @@ Every tool costs: money, learning time, maintenance time, and cognitive load. Th
 
 When evaluating any tool, score it on:
 
-| Criterion | Weight | Question |
-|-----------|--------|----------|
-| Problem fit | 30% | Does it solve my actual bottleneck? |
-| Simplicity | 25% | Can I set it up in under 2 hours? |
-| Integration | 20% | Does it connect to my existing tools? |
-| Cost efficiency | 15% | Is the cost justified by time saved? |
-| Longevity | 10% | Will this tool likely exist in 3 years? |
+| Criterion       | Weight | Question                                |
+| --------------- | ------ | --------------------------------------- |
+| Problem fit     | 30%    | Does it solve my actual bottleneck?     |
+| Simplicity      | 25%    | Can I set it up in under 2 hours?       |
+| Integration     | 20%    | Does it connect to my existing tools?   |
+| Cost efficiency | 15%    | Is the cost justified by time saved?    |
+| Longevity       | 10%    | Will this tool likely exist in 3 years? |
 
 **The "one more tool" trap:** Every new tool promises to save time. In practice, managing 20 tools consumes the time they were supposed to save. Before adding a tool, ask: can an existing tool handle this?
 
@@ -186,11 +193,13 @@ When evaluating any tool, score it on:
 ### Solopreneur Financial Essentials
 
 **Separate your money:**
+
 - Business checking account (all revenue in, all expenses out)
 - Business savings account (tax reserves + emergency fund)
 - Personal accounts (pay yourself a consistent amount)
 
 **The Profit First method (adapted for solopreneurs):**
+
 - Revenue comes in to the main account
 - Immediately allocate: 50% operating expenses, 15% profit, 15% taxes, 20% owner pay
 - Adjust percentages based on your actual numbers, but allocate BEFORE spending
@@ -199,16 +208,17 @@ When evaluating any tool, score it on:
 
 **The pricing ladder:**
 
-| Model | Pros | Cons | Best For |
-|-------|------|------|----------|
-| Hourly | Simple, familiar | Income capped by hours | Early-stage services |
-| Project-based | Predictable per engagement | Scope creep risk | Defined deliverables |
-| Value-based | Highest margins, aligned with outcomes | Harder to sell, requires confidence | Consulting, strategy |
-| Retainer | Predictable recurring revenue | Client may underuse or overuse | Ongoing services |
-| Productized | Scalable, clear scope | Less customization | Standardized services |
-| Subscription | Recurring, scalable | Churn management | Digital products, SaaS |
+| Model         | Pros                                   | Cons                                | Best For               |
+| ------------- | -------------------------------------- | ----------------------------------- | ---------------------- |
+| Hourly        | Simple, familiar                       | Income capped by hours              | Early-stage services   |
+| Project-based | Predictable per engagement             | Scope creep risk                    | Defined deliverables   |
+| Value-based   | Highest margins, aligned with outcomes | Harder to sell, requires confidence | Consulting, strategy   |
+| Retainer      | Predictable recurring revenue          | Client may underuse or overuse      | Ongoing services       |
+| Productized   | Scalable, clear scope                  | Less customization                  | Standardized services  |
+| Subscription  | Recurring, scalable                    | Churn management                    | Digital products, SaaS |
 
 **The pricing formula for services:**
+
 1. Calculate your annual income target
 2. Subtract taxes and business expenses
 3. Divide by the number of billable hours you can realistically work per year (typically 1,000-1,200 for solopreneurs - not 2,080)
@@ -230,11 +240,13 @@ When evaluating any tool, score it on:
 Time management is actually energy management. You have the same 24 hours as everyone; you do not have the same energy at every hour.
 
 **Map your energy:**
+
 - When are you sharpest? (Most people: first 2-4 hours after waking)
 - When do you crash? (Most people: early-to-mid afternoon)
 - When do you get a second wind?
 
 **Assign work to energy:**
+
 - Peak energy → Builder mode (creative, strategic, complex work)
 - Medium energy → Seller mode (requires social energy and persuasion)
 - Low energy → Operator mode (admin, email, routine tasks)
@@ -277,6 +289,7 @@ Solopreneur burnout is an occupational hazard. Protect against it:
 A standardized service with a fixed scope, fixed price, and repeatable delivery process. Instead of custom proposals for every client, you sell a defined package.
 
 **Examples:**
+
 - "Website audit report delivered in 5 business days - $497"
 - "Monthly SEO optimization package - $1,500/month"
 - "Brand identity package: logo + guidelines + assets - $3,000"
@@ -333,6 +346,7 @@ Never work without a contract. A basic service contract should include:
 ### Insurance
 
 Consider at minimum:
+
 - Professional liability (errors and omissions) insurance
 - General liability insurance
 - Cyber liability if you handle client data
@@ -363,7 +377,6 @@ When advising a solopreneur:
 - Give specific, actionable steps rather than general principles
 - Help them identify what to stop doing, not just what to start doing
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -376,13 +389,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with solopreneur toolkit for a mid-size project."
 
 **Output:** A complete solopreneur toolkit framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

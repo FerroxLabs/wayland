@@ -29,7 +29,7 @@ describe('materializeFluxCodexHome - MCP injection (#56)', () => {
     await rm(dataDir, { recursive: true, force: true }).catch(() => {});
   });
 
-  it('carries the user\'s mcp_servers into the flux home, alongside the flux provider', async () => {
+  it("carries the user's mcp_servers into the flux home, alongside the flux provider", async () => {
     await writeFile(
       userConfig,
       [
@@ -110,7 +110,7 @@ describe('materializeFluxCodexHome - model catalog (#68)', () => {
     const catalog = JSON.parse(await readFile(join(home, 'flux-model-catalog.json'), 'utf8')) as {
       models: { slug: string; display_name: string; context_window: number }[];
     };
-    const slugs = catalog.models.map((m) => m.slug).sort();
+    const slugs = catalog.models.map((m) => m.slug).toSorted();
     expect(slugs).toEqual(['flux-auto', 'flux-fast', 'flux-reasoning', 'flux-standard']);
     // codex matches by model.starts_with(slug) - flux-auto entry must be exact.
     const auto = catalog.models.find((m) => m.slug === 'flux-auto');

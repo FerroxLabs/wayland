@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning analysis spreadsheets"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning analysis spreadsheets'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Cap Table Basics
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to build, audit, or interpret a capitalization table at any stage from incorporation through Series B
 - A user wants to calculate ownership percentages before or after a financing round, including SAFE conversions, convertible note conversions, or priced equity rounds
 - A user needs to model dilution scenarios: option pool increases, new investor tranches, follow-on pro-rata participation, or secondary sales
@@ -29,6 +31,7 @@ metadata:
 - A user is onboarding employees and needs to explain what an equity grant means in context of total ownership
 
 **Do NOT use this skill when:**
+
 - The user needs legal advice on shareholder agreements, stock purchase agreements, 409A valuations, or securities law compliance -- direct them to a startup attorney and a licensed accountant
 - The user wants public company stock analysis, trading decisions, or portfolio management (use an investment analysis skill)
 - The user needs a full three-statement financial model or DCF valuation (use `financial-model-structure`)
@@ -77,6 +80,7 @@ Construct the current state before any new transaction:
 This is the most mechanically complex step and the most common source of error:
 
 **For a pre-money SAFE (the original Y Combinator SAFE, pre-2018):**
+
 - The SAFE converts immediately before the priced round closes
 - Shares issued = SAFE investment amount / conversion price
 - Conversion price = the LOWER of: (a) valuation cap / pre-money fully diluted shares, or (b) price per share in the new round × (1 - discount rate)
@@ -84,12 +88,14 @@ This is the most mechanically complex step and the most common source of error:
 - Example: $500K SAFE with $4M cap, 20% discount, on a company doing a $6M pre-money round with 10M pre-money FD shares. Cap price = $4M / 10M = $0.40. New round price = $6M / 10M = $0.60; discounted = $0.60 × 0.80 = $0.48. Cap price ($0.40) is lower, so the SAFE converts at $0.40. Shares = $500K / $0.40 = 1,250,000.
 
 **For a post-money SAFE (Y Combinator standard post-2018):**
+
 - The SAFE holder's ownership percentage is locked at the time of investment: SAFE amount / valuation cap
 - The post-money SAFE does NOT dilute from the new investor's perspective -- it dilutes only the pre-SAFE shareholders
 - Shares issued at conversion = ownership percentage × fully diluted shares after all SAFEs convert (circular calculation; typically solved iteratively or with the YC SAFE cap table model)
 - The post-money SAFE is economically cleaner for SAFE holders but can surprise founders when multiple SAFEs stack up
 
 **For convertible notes:**
+
 - Accrue interest: maturity principal × (1 + annual interest rate) ^ (years outstanding), or simple interest: principal × annual rate × (days / 365)
 - Total conversion amount = principal + accrued interest
 - Conversion shares = total conversion amount / conversion price
@@ -255,6 +261,7 @@ The final deliverable should show the complete picture and history:
 ### Multiple SAFEs with Different Caps and Vintages (Pre- and Post-Money Mixed)
 
 This is the most common and most confusing scenario at seed stage. Convert each SAFE individually:
+
 - Sort SAFEs into pre-money (pre-2018 YC model or equivalent) and post-money (post-2018 YC model)
 - Convert all pre-money SAFEs first. Their shares add to the pre-money FD share count, which affects the price per share for the new round.
 - Post-money SAFEs have ownership percentages fixed at signing (SAFE amount / cap). They do not affect the price per share calculation for the new investor. Their share count is determined by the final post-round fully diluted share count (circular -- solve iteratively or use the YC post-money SAFE model spreadsheet).
@@ -265,6 +272,7 @@ This is the most common and most confusing scenario at seed stage. Convert each 
 ### Option Pool Shuffle -- Precise Mechanics
 
 The "option pool shuffle" is one of the most founder-unfavorable and least-understood aspects of term sheets:
+
 - A term sheet states a pre-money valuation AND a required post-round option pool size (e.g., "15% of post-financing fully diluted capitalization").
 - If the current unallocated pool is smaller than required, the company must increase the pool before the round closes.
 - Because this happens pre-money, the expanded pool dilutes only the existing holders (founders, previous investors), not the new investor.
@@ -275,6 +283,7 @@ The "option pool shuffle" is one of the most founder-unfavorable and least-under
 ### Founder Departure Before Full Vesting
 
 A departing founder creates a sensitive but calculable scenario:
+
 - Unvested shares are typically subject to repurchase by the company at the original purchase price (often $0.0001 per share), effectively returning them to the authorized-but-unissued pool. Confirm this against the stock purchase agreement -- terms vary.
 - Show the post-departure cap table with the unvested shares removed from the departing founder's row and added to "repurchased/cancelled" (then available for reissuance or cancellation).
 - Recalculate all ownership percentages. The remaining founders are anti-diluted (their percentages go up) because the total FD share count decreases.
@@ -284,6 +293,7 @@ A departing founder creates a sensitive but calculable scenario:
 ### Down Round -- Modeling Anti-Dilution
 
 A down round (new price per share below prior round's price) triggers anti-dilution provisions for prior preferred holders:
+
 - **Broad-based weighted average anti-dilution** (most common): The conversion ratio of prior preferred stock adjusts using a formula that considers the total shares outstanding. The adjustment is less severe than full ratchet.
 - **Full ratchet anti-dilution** (rare, very punitive for common): Prior preferred automatically adjusts to the new round's price, as if it had always been priced at the lower level. Can dramatically increase the shares available to preferred holders.
 - For basic cap table work, flag that a down round is occurring, show the headline dilution numbers, and note that anti-dilution adjustments must be calculated from the exact preferred stock terms in the certificate of incorporation. Do not attempt to model the anti-dilution math without those terms.
@@ -292,6 +302,7 @@ A down round (new price per share below prior round's price) triggers anti-dilut
 ### Equal Co-Founder Split and Future Investor Pushback
 
 A 50/50 founder split is mathematically straightforward but creates a strategic concern:
+
 - Many Series A investors view 50/50 splits as a risk factor: unclear decision-making authority, potential for deadlock. Note this without recommending a specific split.
 - Common patterns and their rationale: 60/40 (one founder is CEO or brought the original concept), 70/30 (significant experience or capital disparity), 50/50 with a tiebreaker mechanism (board structure or casting vote to CEO).
 - If the user wants to change the split post-incorporation, the mechanism is either a stock repurchase and reissuance (has tax implications, requires legal work) or a negotiated transfer between founders (also has tax implications). Flag that changing a cap table retroactively is a legal transaction, not just a spreadsheet update.
@@ -300,6 +311,7 @@ A 50/50 founder split is mathematically straightforward but creates a strategic 
 ### Series A With Preferred Stock Complexity
 
 By Series A, the cap table gains meaningful complexity:
+
 - Series A Preferred Stock typically has: 1x non-participating liquidation preference (most common), broad-based weighted average anti-dilution, optional conversion to common at any time (1:1 initially, adjustable for anti-dilution), automatic conversion to common at IPO or by majority preferred vote.
 - On the cap table, show Series A Preferred as a separate line item, noting the liquidation preference per share and total preference stack ($X million must be returned to Series A investors before common holders receive anything in a sale).
 - A fully diluted as-converted cap table shows Series A Preferred as if converted to common -- this is the standard format. A liquidation analysis is a separate waterfall model.
@@ -308,6 +320,7 @@ By Series A, the cap table gains meaningful complexity:
 ### Very Early Stage -- Incorporation Cap Table
 
 The cleanest scenario, but common mistakes still occur:
+
 - Standard Delaware C-Corp setup: 10,000,000 authorized shares, all Common Stock initially. No preferred stock until the first priced round (adding preferred requires a charter amendment).
 - Founders typically purchase their shares at par value ($0.0001/share) immediately at incorporation, triggering an 83(b) election within 30 days of grant to lock in low ordinary income tax treatment. Flag the 83(b) deadline urgently if the user is recently incorporated.
 - Do not authorize more shares than needed for founders + option pool + anticipated first round headroom. Unnecessary authorized shares add complexity without benefit.
@@ -326,12 +339,12 @@ The cleanest scenario, but common mistakes still occur:
 
 **Authorized: 10,000,000 shares**
 
-| Holder | Share Class | Shares | % Issued & O/S | % Fully Diluted |
-|---|---|---|---|---|
-| Founder A | Common | 5,400,000 | 60.00% | 54.00% |
-| Founder B | Common | 3,600,000 | 40.00% | 36.00% |
-| Option Pool (ungranted) | Options | 1,000,000 | -- | 10.00% |
-| **Total** | | **10,000,000** | **100.00%** | **100.00%** |
+| Holder                  | Share Class | Shares         | % Issued & O/S | % Fully Diluted |
+| ----------------------- | ----------- | -------------- | -------------- | --------------- |
+| Founder A               | Common      | 5,400,000      | 60.00%         | 54.00%          |
+| Founder B               | Common      | 3,600,000      | 40.00%         | 36.00%          |
+| Option Pool (ungranted) | Options     | 1,000,000      | --             | 10.00%          |
+| **Total**               |             | **10,000,000** | **100.00%**    | **100.00%**     |
 
 **Notes:** Founders hold 9M shares total (90%). Option pool is 10% of 10M FD shares. Authorized headroom is zero -- any new issuance requires either using the option pool or a charter amendment.
 
@@ -341,13 +354,13 @@ The cleanest scenario, but common mistakes still occur:
 
 The $250K SAFE is a pre-money SAFE with a $4M valuation cap and no discount.
 
-| Input | Value |
-|---|---|
-| SAFE principal | $250,000 |
-| Valuation cap | $4,000,000 |
-| Discount rate | 0% (none) |
+| Input                                  | Value                              |
+| -------------------------------------- | ---------------------------------- |
+| SAFE principal                         | $250,000                           |
+| Valuation cap                          | $4,000,000                         |
+| Discount rate                          | 0% (none)                          |
 | Pre-money FD shares (at time of round) | 10,000,000 (before pool expansion) |
-| New round pre-money valuation | $8,000,000 |
+| New round pre-money valuation          | $8,000,000                         |
 
 **Cap price:** $4,000,000 / 10,000,000 = **$0.40 per share**
 
@@ -384,6 +397,7 @@ Also: N = $2,000,000 / price per share, and price per share = $8,000,000 / (10,6
 This circular system is solved iteratively. A good approximation:
 
 **Approximate post-round FD (ignoring circularity as first pass):**
+
 - New investor will own 20% of post-round (= $2M / ($8M + $2M) = 20%)
 - So pre-round FD / post-round FD = 80%, meaning post-round FD ≈ pre-round FD / 0.80
 - Pre-round FD (post-pool) / 0.80 = post-round FD; pre-round FD (post-pool) = 10,625,000 + expansion
@@ -392,6 +406,7 @@ This circular system is solved iteratively. A good approximation:
 **Iterative solution:**
 
 After one iteration (detailed calculation omitted for brevity; the closed-form solution):
+
 - Required post-round unallocated pool = approximately **1,897,059 shares** (15% of ~12,647,059 total post-round FD)
 - Pool expansion needed = 1,897,059 - 1,000,000 = **897,059 shares** (round to 897,000 shares for whole numbers)
 - Actual unallocated pool post-expansion = **1,897,000 shares**
@@ -402,17 +417,17 @@ After one iteration (detailed calculation omitted for brevity; the closed-form s
 
 ### Step 4: New Investor Pricing
 
-| Term | Value | Calculation |
-|---|---|---|
-| Pre-money valuation | $8,000,000 | As negotiated |
-| Pre-money FD shares | 11,522,000 | After SAFE conversion + pool expansion |
-| Price per share | $0.6943 | $8M / 11,522,000 |
-| Investment amount | $2,000,000 | |
-| New shares issued | 2,881,319 | $2M / $0.6943; rounded to 2,881,000 |
-| Post-money valuation | $10,000,000 | $8M + $2M |
-| Investor ownership | 20.00% | $2M / $10M |
-| Total post-round FD shares | ~14,403,000 | 11,522,000 + 2,881,000 |
-| Unallocated pool % post-round | ~13.17% | 1,897,000 / 14,403,000 |
+| Term                          | Value       | Calculation                            |
+| ----------------------------- | ----------- | -------------------------------------- |
+| Pre-money valuation           | $8,000,000  | As negotiated                          |
+| Pre-money FD shares           | 11,522,000  | After SAFE conversion + pool expansion |
+| Price per share               | $0.6943     | $8M / 11,522,000                       |
+| Investment amount             | $2,000,000  |                                        |
+| New shares issued             | 2,881,319   | $2M / $0.6943; rounded to 2,881,000    |
+| Post-money valuation          | $10,000,000 | $8M + $2M                              |
+| Investor ownership            | 20.00%      | $2M / $10M                             |
+| Total post-round FD shares    | ~14,403,000 | 11,522,000 + 2,881,000                 |
+| Unallocated pool % post-round | ~13.17%     | 1,897,000 / 14,403,000                 |
 
 **Note on pool %:** The iterative approximation yields ~13.2% rather than exactly 15% due to rounding. In practice, exact pool sizes are negotiated and set in the option plan, and the final number is often close but not precisely on the target. Increase the pool by a further ~250,000 shares (via a second iteration) to hit closer to 15%. For this example we will proceed with the first iteration result.
 
@@ -420,27 +435,27 @@ After one iteration (detailed calculation omitted for brevity; the closed-form s
 
 ### Step 5: Post-Round Cap Table
 
-| Holder | Share Class | Shares | Pre-Round % (FD) | Post-Round % (FD) | Abs. Dilution | Rel. Dilution |
-|---|---|---|---|---|---|---|
-| Founder A | Common | 5,400,000 | 54.00% | 37.49% | 16.51pp | 30.57% |
-| Founder B | Common | 3,600,000 | 36.00% | 24.99% | 11.01pp | 30.57% |
-| SAFE Holder | Seed Preferred | 625,000 | 6.25% | 4.34% | 1.91pp | 30.56% |
-| Option Pool (expanded, ungranted) | Options | 1,897,000 | 10.00% | 13.17% | +3.17pp | N/A (pool increased) |
-| **Seed Investor** | **Seed Preferred** | **2,881,000** | **0.00%** | **20.00%** | **N/A** | **N/A** |
-| **Total (FD)** | | **14,403,000** | **100.00%** | **99.99%*** | | |
+| Holder                            | Share Class        | Shares         | Pre-Round % (FD) | Post-Round % (FD) | Abs. Dilution | Rel. Dilution        |
+| --------------------------------- | ------------------ | -------------- | ---------------- | ----------------- | ------------- | -------------------- |
+| Founder A                         | Common             | 5,400,000      | 54.00%           | 37.49%            | 16.51pp       | 30.57%               |
+| Founder B                         | Common             | 3,600,000      | 36.00%           | 24.99%            | 11.01pp       | 30.57%               |
+| SAFE Holder                       | Seed Preferred     | 625,000        | 6.25%            | 4.34%             | 1.91pp        | 30.56%               |
+| Option Pool (expanded, ungranted) | Options            | 1,897,000      | 10.00%           | 13.17%            | +3.17pp       | N/A (pool increased) |
+| **Seed Investor**                 | **Seed Preferred** | **2,881,000**  | **0.00%**        | **20.00%**        | **N/A**       | **N/A**              |
+| **Total (FD)**                    |                    | **14,403,000** | **100.00%**      | **99.99%\***      |               |                      |
 
-*Rounding residual of 0.01% due to whole-number share rounding. Acceptable.
+\*Rounding residual of 0.01% due to whole-number share rounding. Acceptable.
 
 ---
 
 ### Dilution Waterfall
 
-| Event | Founder A | Founder B | SAFE Holder | Seed Investor | Option Pool |
-|---|---|---|---|---|---|
-| Incorporation | 54.00% | 36.00% | -- | -- | 10.00% |
-| + $250K SAFE (at conversion) | 50.85% | 33.90% | 5.88% | -- | 9.41% |
-| + Pool expansion (pre-money) | 46.87% | 31.25% | 5.42% | -- | 16.47% |
-| **+ $2M Seed Round** | **37.49%** | **24.99%** | **4.34%** | **20.00%** | **13.17%** |
+| Event                        | Founder A  | Founder B  | SAFE Holder | Seed Investor | Option Pool |
+| ---------------------------- | ---------- | ---------- | ----------- | ------------- | ----------- |
+| Incorporation                | 54.00%     | 36.00%     | --          | --            | 10.00%      |
+| + $250K SAFE (at conversion) | 50.85%     | 33.90%     | 5.88%       | --            | 9.41%       |
+| + Pool expansion (pre-money) | 46.87%     | 31.25%     | 5.42%       | --            | 16.47%      |
+| **+ $2M Seed Round**         | **37.49%** | **24.99%** | **4.34%**   | **20.00%**    | **13.17%**  |
 
 ---
 

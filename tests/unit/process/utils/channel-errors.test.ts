@@ -134,15 +134,12 @@ describe('parseRetryAfter', () => {
     expect(parseRetryAfter(past, now)).toBe(0);
   });
 
-  it.each([
-    { value: null },
-    { value: undefined },
-    { value: '' },
-    { value: '   ' },
-    { value: 'not a date' },
-  ])('returns undefined for %j', ({ value }) => {
-    expect(parseRetryAfter(value)).toBeUndefined();
-  });
+  it.each([{ value: null }, { value: undefined }, { value: '' }, { value: '   ' }, { value: 'not a date' }])(
+    'returns undefined for %j',
+    ({ value }) => {
+      expect(parseRetryAfter(value)).toBeUndefined();
+    }
+  );
 });
 
 describe('isTransient', () => {

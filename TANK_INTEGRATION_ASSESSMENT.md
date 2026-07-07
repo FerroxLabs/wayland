@@ -4,7 +4,7 @@
 
 **Short answer:** Anywhere from **~1–2 weeks** (embed tank as a sidecar behind a
 Wayland tab) to **2–4+ months** (a true native merge of tank's orchestration
-engine). The two products overlap heavily in concept, which makes a *code* merge
+engine). The two products overlap heavily in concept, which makes a _code_ merge
 expensive and partly redundant, and cheap-but-loose integration attractive.
 There is also one hard gate: **licensing** (see §4).
 
@@ -12,21 +12,21 @@ There is also one hard gate: **licensing** (see §4).
 
 ## 1. What each side actually is
 
-| | **Wayland** | **Tank** |
-|---|---|---|
-| Role | Local-first **desktop** AI agent; drives AI CLIs (Claude Code, Codex, Gemini…) interactively | Multi-agent **mission control**; spawns disposable coding sessions, autonomous queues, schedules across hosts |
-| Stack | Electron + React + TypeScript (+ Rust `wcore`) | Python FastAPI + SQLite + HTMX, no build step |
-| Runner | In-process: `AgentRegistry` + ACP + pty/child_process | `tmux new -d` on a (often remote) host; agents post lifecycle events back over HTTP |
-| Distribution | Packaged desktop app | systemd service + `deploy.sh` over SSH; thin Electron window (`desktop/`) that just points at a tank server URL |
-| License | **AGPL-3.0-or-later** | **Proprietary** (Creator Magic Ltd) |
+|              | **Wayland**                                                                                  | **Tank**                                                                                                        |
+| ------------ | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Role         | Local-first **desktop** AI agent; drives AI CLIs (Claude Code, Codex, Gemini…) interactively | Multi-agent **mission control**; spawns disposable coding sessions, autonomous queues, schedules across hosts   |
+| Stack        | Electron + React + TypeScript (+ Rust `wcore`)                                               | Python FastAPI + SQLite + HTMX, no build step                                                                   |
+| Runner       | In-process: `AgentRegistry` + ACP + pty/child_process                                        | `tmux new -d` on a (often remote) host; agents post lifecycle events back over HTTP                             |
+| Distribution | Packaged desktop app                                                                         | systemd service + `deploy.sh` over SSH; thin Electron window (`desktop/`) that just points at a tank server URL |
+| License      | **AGPL-3.0-or-later**                                                                        | **Proprietary** (Creator Magic Ltd)                                                                             |
 
-**Key realization:** these are *the same category of product*. Wayland already
+**Key realization:** these are _the same category of product_. Wayland already
 has `src/process/agent/` (a multi-backend registry: acp, gemini, nanobot,
 openclaw, wcore, remote), a **mission-control** page, `task/`, `team/`, `flux/`,
 `cron/`, `workflows/`, a `webserver` and a `webui`. Tank has projects, tasks,
 agents, queues, schedules, monitors. So integration is not "add a missing
 capability" — it's "reconcile two overlapping implementations." The genuinely
-*additive* things tank has that Wayland lacks: the **autonomous overnight queue**
+_additive_ things tank has that Wayland lacks: the **autonomous overnight queue**
 (multi-turn, RC-sentinel completion), **remote fleet / multi-host** orchestration
 over SSH+tmux, **schedules/monitors**, and the pluggable **codex/grok/antigravity**
 backends via `backends.py`.
@@ -36,8 +36,9 @@ backends via `backends.py`.
 ## 2. Three integration strategies (pick by goal)
 
 ### Option A — Embed tank as a sidecar (fastest, ~1–2 weeks)
+
 Tank is already a self-contained web app, and tank's own `desktop/main.js` is
-*already just an Electron window around a tank server*. Wayland can do the same:
+_already just an Electron window around a tank server_. Wayland can do the same:
 spawn the Python service as a managed child process and surface its dashboard in
 a Wayland tab via a `BrowserView` pointed at `http://localhost:7879`, injecting
 the `tank_token` cookie (exactly the mechanism tank/desktop already uses).
@@ -52,6 +53,7 @@ the `tank_token` cookie (exactly the mechanism tank/desktop already uses).
   look; bloats the installer.
 
 ### Option C — Native client against tank's HTTP/SSE API (best balance, ~3–6 weeks)
+
 Keep tank running as its own service (local sidecar or remote), but build a
 **native React mission-control in Wayland** that talks to tank's already-rich API
 (`/projects`, `/queue`, `/tasks`, `/agents`, `/schedules`, `/monitors`, plus SSE
@@ -63,12 +65,13 @@ streams). No HTMX embedded; native Arco UI; tank's proven engine underneath.
   decoupled (also sidesteps the license issue — see §4, "arms-length").
 
 ### Option B — Native merge: port tank's engine into Wayland (largest, 2–4+ months)
+
 Re-implement tank's orchestration in TypeScript on Wayland's existing primitives
 (`AgentRegistry`, `task/`, `cron/`, `flux/`, storage). This is the "one unified
 product" outcome.
 
 - **Work:** port the queue engine (multi-turn resume, RC-sentinel completion
-  model), the remote SSH+tmux runner (Wayland currently drives agents *in-process*
+  model), the remote SSH+tmux runner (Wayland currently drives agents _in-process_
   — remote fleet is a new capability), schedules, monitors, the backend adapters
   (codex/grok/agy), and migrate tank's SQLite schema into Wayland's storage.
 - **Costs:** reconcile two data models and two fundamentally different runner
@@ -97,11 +100,11 @@ product" outcome.
 
 - **Wayland: AGPL-3.0-or-later. Tank core: PROPRIETARY** ("all rights reserved",
   Creator Magic Ltd).
-- Copying tank's source *into* the AGPL Wayland tree and distributing it is a
+- Copying tank's source _into_ the AGPL Wayland tree and distributing it is a
   license conflict: AGPL requires source disclosure of the combined work; the
   proprietary license forbids it. **Option B is legally blocked as-is.**
 - **However, you (stormxkt@gmail.com) appear to own both** (tank's desktop author
-  is the same identity). So this is a *decision you control*, not an external
+  is the same identity). So this is a _decision you control_, not an external
   blocker: you can relicense/dual-license tank to enable a merge.
 - **Options A and C are AGPL-safe without relicensing**: running tank as a
   separate process communicating over HTTP is "mere aggregation" / an

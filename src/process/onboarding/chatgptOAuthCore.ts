@@ -72,9 +72,7 @@ export const CHATGPT_AUTH_CLAIM = 'https://api.openai.com/auth';
 /** Resolve the client_id: env override wins over the pinned default. */
 export function resolveClientId(env: NodeJS.ProcessEnv = process.env): string {
   const override = env.WAYLAND_CHATGPT_OAUTH_CLIENT_ID;
-  return typeof override === 'string' && override.trim().length > 0
-    ? override.trim()
-    : CHATGPT_OAUTH_CLIENT_ID_DEFAULT;
+  return typeof override === 'string' && override.trim().length > 0 ? override.trim() : CHATGPT_OAUTH_CLIENT_ID_DEFAULT;
 }
 
 /** Build the exact redirect_uri for a given loopback port. */
@@ -264,7 +262,10 @@ function normalizePlanType(value: unknown): ChatGptPlanType {
 }
 
 /** True when the stored access token is absent or past its expiry. */
-export function isTokenExpired(tokens: { accessToken?: string; expiresAt?: number }, now: number = Date.now()): boolean {
+export function isTokenExpired(
+  tokens: { accessToken?: string; expiresAt?: number },
+  now: number = Date.now()
+): boolean {
   if (!tokens.accessToken) return true;
   if (typeof tokens.expiresAt !== 'number') return false; // unknown expiry -> assume usable
   return tokens.expiresAt <= now;

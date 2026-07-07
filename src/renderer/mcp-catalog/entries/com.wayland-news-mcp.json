@@ -14,7 +14,12 @@
       "runtimeHint": "native",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "NEWSAPI_KEY", "description": "Optional newsapi.org key. Without it, only Hacker News + RSS work.", "isRequired": false, "isSecret": true }
+        {
+          "name": "NEWSAPI_KEY",
+          "description": "Optional newsapi.org key. Without it, only Hacker News + RSS work.",
+          "isRequired": false,
+          "isSecret": true
+        }
       ]
     }
   ],

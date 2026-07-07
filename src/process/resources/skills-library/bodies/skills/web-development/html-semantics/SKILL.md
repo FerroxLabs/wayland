@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "html-css web-development accessibility"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'html-css web-development accessibility'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # HTML Semantics
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks which HTML element to use for a specific piece of content (e.g., "should I use `<div>` or `<article>` for my blog post?")
 - User wants to audit an existing page for semantic correctness and accessibility compliance
 - User is building a document outline and needs guidance on heading hierarchy, landmark regions, and sectioning content
@@ -30,6 +32,7 @@ metadata:
 - User is building a design system and needs to establish semantic HTML conventions for components
 
 **Do NOT use this skill when:**
+
 - User needs CSS layout help (use a CSS layout skill -- semantic HTML and visual layout are separate concerns)
 - User is asking about JavaScript DOM manipulation, event handling, or dynamic content updates
 - User needs help with HTML form validation logic or form submission handling
@@ -92,11 +95,11 @@ Match each content block to its correct semantic container using these decision 
 Text-level elements carry meaning that screen readers and search engines interpret:
 
 - **`<strong>`**: Strong importance, seriousness, or urgency. Screen readers may announce with emphasis. Do NOT use for general bold styling -- use CSS `font-weight` on a `<span>` instead.
-- **`<em>`**: Stress emphasis that changes meaning ("I *never* said that"). Different from `<strong>`. Do NOT use for italic styling -- use CSS `font-style` on a `<span>`.
+- **`<em>`**: Stress emphasis that changes meaning ("I _never_ said that"). Different from `<strong>`. Do NOT use for italic styling -- use CSS `font-style` on a `<span>`.
 - **`<b>`**: Stylistically offset text without extra importance -- keywords in a document, product names in a review. A semantic compromise when neither `<strong>` nor a descriptive element fits.
 - **`<i>`**: Alternative voice or mood -- technical terms, foreign phrases, thoughts in narrative. Not just "italic text".
 - **`<mark>`**: Highlighted text for reference purposes -- search result matches, code annotations. Adds `role="mark"` accessibility semantics in most browsers.
-- **`<abbr title="...">`: Abbreviations and acronyms. The `title` attribute provides the expansion. Use on first occurrence in a document.
+- \*\*`<abbr title="...">`: Abbreviations and acronyms. The `title` attribute provides the expansion. Use on first occurrence in a document.
 - **`<time datetime="YYYY-MM-DD">`**: Machine-readable dates and times. The `datetime` attribute must use ISO 8601 format. Enables calendar integration and search engine temporal understanding.
 - **`<code>`**: Inline code. Wrap with `<pre>` for block code. `<kbd>` for user keyboard input. `<samp>` for sample output. `<var>` for variables.
 - **`<del>` and `<ins>`**: Content that has been removed or added. Use `datetime` and `cite` attributes. Screen readers announce these as deleted/inserted.
@@ -131,7 +134,7 @@ Semantic HTML must be verified against multiple quality signals:
 
 When helping a user implement HTML semantics, produce output in this structure:
 
-```
+````
 ## Semantic HTML Analysis
 
 ### Page/Component: [Name]
@@ -164,9 +167,10 @@ h1: [Page Title]
 #### Corrected HTML
 ```html
 [Full corrected markup here]
-```
+````
 
 #### Accessibility Checklist
+
 - [ ] Single <h1> present and descriptive
 - [ ] No heading levels skipped
 - [ ] All <nav> elements have unique accessible names
@@ -179,6 +183,7 @@ h1: [Page Title]
 - [ ] Page language declared: <html lang="en">
 
 #### Validation Commands
+
 ```bash
 # Run axe-core in browser console
 const axe = await import('https://cdn.jsdelivr.net/npm/axe-core/axe.min.js');
@@ -187,7 +192,8 @@ axe.run().then(r => console.table(r.violations));
 # W3C validator via CLI (vnu.jar)
 java -jar vnu.jar --format json index.html
 ```
-```
+
+````
 
 ---
 
@@ -292,7 +298,7 @@ Inline SVG used as meaningful images: add `role="img"` and `aria-label="[descrip
 <div class="footer">
   <span>© 2024 TechBlog. All rights reserved.</span>
 </div>
-```
+````
 
 ---
 
@@ -304,124 +310,119 @@ Inline SVG used as meaningful images: add `role="img"` and `aria-label="[descrip
 
 #### Issues Found
 
-| Issue | Severity | WCAG Criterion |
-|---|---|---|
-| `<h3>` used as only/first heading -- h1 missing | Critical | 1.3.1 Info and Relationships |
-| All landmark regions using `<div>` | Critical | 1.3.6 Identify Purpose |
-| `<img>` missing `alt` attribute | Critical | 1.1.1 Non-text Content |
-| Navigation not wrapped in `<nav>` | Serious | 1.3.1 |
-| Published date not machine-readable | Moderate | 1.3.1 |
-| Code block not in `<pre><code>` | Moderate | 1.3.1 |
-| Related articles is a list, not bare divs | Moderate | 1.3.1 |
-| `<b>Important:</b>` should be `<strong>` | Minor | 1.3.1 |
-| Author box semantically disconnected from article | Minor | 1.3.1 |
-| No skip navigation link | Serious | 2.4.1 Bypass Blocks |
-| `<html lang>` not shown -- must be present | Critical | 3.1.1 Language of Page |
+| Issue                                             | Severity | WCAG Criterion               |
+| ------------------------------------------------- | -------- | ---------------------------- |
+| `<h3>` used as only/first heading -- h1 missing   | Critical | 1.3.1 Info and Relationships |
+| All landmark regions using `<div>`                | Critical | 1.3.6 Identify Purpose       |
+| `<img>` missing `alt` attribute                   | Critical | 1.1.1 Non-text Content       |
+| Navigation not wrapped in `<nav>`                 | Serious  | 1.3.1                        |
+| Published date not machine-readable               | Moderate | 1.3.1                        |
+| Code block not in `<pre><code>`                   | Moderate | 1.3.1                        |
+| Related articles is a list, not bare divs         | Moderate | 1.3.1                        |
+| `<b>Important:</b>` should be `<strong>`          | Minor    | 1.3.1                        |
+| Author box semantically disconnected from article | Minor    | 1.3.1                        |
+| No skip navigation link                           | Serious  | 2.4.1 Bypass Blocks          |
+| `<html lang>` not shown -- must be present        | Critical | 3.1.1 Language of Page       |
 
 #### Landmark Structure (Corrected)
-| Role | Element | Accessible Name | Notes |
-|---|---|---|---|
-| banner | `<header>` | (implicit) | Site-wide -- wraps logo + nav |
-| navigation | `<nav>` | aria-label="Primary" | Inside `<header>` |
-| main | `<main>` | (implicit) | Wraps article + sidebar |
-| contentinfo | `<footer>` | (implicit) | Site-wide footer |
+
+| Role        | Element    | Accessible Name      | Notes                         |
+| ----------- | ---------- | -------------------- | ----------------------------- |
+| banner      | `<header>` | (implicit)           | Site-wide -- wraps logo + nav |
+| navigation  | `<nav>`    | aria-label="Primary" | Inside `<header>`             |
+| main        | `<main>`   | (implicit)           | Wraps article + sidebar       |
+| contentinfo | `<footer>` | (implicit)           | Site-wide footer              |
 
 Note: the sidebar `<aside>` is nested inside `<main>` -- this is valid and expected. The `<aside>` in this case contains "Related Articles" which is tangentially related content.
 
 #### Heading Outline (Corrected)
+
 ```
 h1: Understanding Async/Await in JavaScript  (article title)
   h2: Related Articles  (sidebar section label -- visually hidden acceptable)
 ```
 
 #### Element Selection Rationale
-| Content Block | Chosen Element | Rejected | Reason |
-|---|---|---|---|
-| Page wrapper for post | `<article>` | `<div class="main-article">` | Self-contained, syndicatable blog post |
-| Article title | `<h1>` | `<h3>` | First and only heading -- must be h1 |
-| Published date | `<time datetime="2024-12-15">` | `<span>` | Machine-readable ISO date for SEO + AT |
-| Author bio box | `<aside>` inside `<article>` | `<div class="author-box">` | Supplementary to the article content |
-| Author photo | `<img alt="Jane Smith">` | `<img>` with no alt | Meaningful image -- person identity |
-| Important note | `<p>` with `<strong>` | `<div>` with `<b>` | `<strong>` = importance; `<div>` invalid inside flow as anonymous wrapper |
-| Code sample | `<pre><code>` | `<div class="code-block">` | `<pre>` preserves whitespace; `<code>` = code semantics |
-| Related articles | `<ul>` with `<li>` | bare `<div>` per link | List semantics -- AT announces item count |
-| Nav links | `<nav>` with `<ul>` | `<div class="nav">` | Landmark + list semantics for navigation |
+
+| Content Block         | Chosen Element                 | Rejected                     | Reason                                                                    |
+| --------------------- | ------------------------------ | ---------------------------- | ------------------------------------------------------------------------- |
+| Page wrapper for post | `<article>`                    | `<div class="main-article">` | Self-contained, syndicatable blog post                                    |
+| Article title         | `<h1>`                         | `<h3>`                       | First and only heading -- must be h1                                      |
+| Published date        | `<time datetime="2024-12-15">` | `<span>`                     | Machine-readable ISO date for SEO + AT                                    |
+| Author bio box        | `<aside>` inside `<article>`   | `<div class="author-box">`   | Supplementary to the article content                                      |
+| Author photo          | `<img alt="Jane Smith">`       | `<img>` with no alt          | Meaningful image -- person identity                                       |
+| Important note        | `<p>` with `<strong>`          | `<div>` with `<b>`           | `<strong>` = importance; `<div>` invalid inside flow as anonymous wrapper |
+| Code sample           | `<pre><code>`                  | `<div class="code-block">`   | `<pre>` preserves whitespace; `<code>` = code semantics                   |
+| Related articles      | `<ul>` with `<li>`             | bare `<div>` per link        | List semantics -- AT announces item count                                 |
+| Nav links             | `<nav>` with `<ul>`            | `<div class="nav">`          | Landmark + list semantics for navigation                                  |
 
 #### Corrected HTML
 
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Understanding Async/Await in JavaScript -- TechBlog</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Understanding Async/Await in JavaScript -- TechBlog</title>
+  </head>
+  <body>
+    <!-- Skip navigation: first focusable element on the page -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- Skip navigation: first focusable element on the page -->
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header>
+      <a href="/" aria-label="TechBlog -- home">
+        <span aria-hidden="true">TechBlog</span>
+      </a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/articles">Articles</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+      </nav>
+    </header>
 
-  <header>
-    <a href="/" aria-label="TechBlog -- home">
-      <span aria-hidden="true">TechBlog</span>
-    </a>
-    <nav aria-label="Primary">
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/articles">Articles</a></li>
-        <li><a href="/about">About</a></li>
-      </ul>
-    </nav>
-  </header>
+    <main id="main-content">
+      <article>
+        <header>
+          <h1>Understanding Async/Await in JavaScript</h1>
+          <p>
+            By <span rel="author">Jane Smith</span> -- Published: <time datetime="2024-12-15">December 15, 2024</time>
+          </p>
+        </header>
 
-  <main id="main-content">
+        <p>Async/await is syntactic sugar over Promises...</p>
 
-    <article>
-      <header>
-        <h1>Understanding Async/Await in JavaScript</h1>
-        <p>
-          By <span rel="author">Jane Smith</span> --
-          Published: <time datetime="2024-12-15">December 15, 2024</time>
-        </p>
-      </header>
+        <p><strong>Important:</strong> Always handle errors in async functions.</p>
 
-      <p>Async/await is syntactic sugar over Promises...</p>
-
-      <p>
-        <strong>Important:</strong> Always handle errors in async functions.
-      </p>
-
-      <figure>
-        <figcaption>Example: basic async function using fetch</figcaption>
-        <pre><code>async function fetchData(url) {
+        <figure>
+          <figcaption>Example: basic async function using fetch</figcaption>
+          <pre><code>async function fetchData(url) {
   const response = await fetch(url);
   return response.json();
 }</code></pre>
-      </figure>
+        </figure>
 
-      <aside aria-labelledby="author-heading">
-        <h2 id="author-heading">About the Author</h2>
-        <img src="jane.jpg" alt="Jane Smith" width="80" height="80">
-        <p>Jane Smith is a senior engineer at...</p>
+        <aside aria-labelledby="author-heading">
+          <h2 id="author-heading">About the Author</h2>
+          <img src="jane.jpg" alt="Jane Smith" width="80" height="80" />
+          <p>Jane Smith is a senior engineer at...</p>
+        </aside>
+      </article>
+
+      <aside aria-labelledby="related-heading">
+        <h2 id="related-heading">Related Articles</h2>
+        <ul>
+          <li><a href="/promises">Understanding Promises</a></li>
+          <li><a href="/generators">JavaScript Generators</a></li>
+        </ul>
       </aside>
+    </main>
 
-    </article>
-
-    <aside aria-labelledby="related-heading">
-      <h2 id="related-heading">Related Articles</h2>
-      <ul>
-        <li><a href="/promises">Understanding Promises</a></li>
-        <li><a href="/generators">JavaScript Generators</a></li>
-      </ul>
-    </aside>
-
-  </main>
-
-  <footer>
-    <p><small>© 2024 TechBlog. All rights reserved.</small></p>
-  </footer>
-
-</body>
+    <footer>
+      <p><small>© 2024 TechBlog. All rights reserved.</small></p>
+    </footer>
+  </body>
 </html>
 ```
 
@@ -438,6 +439,7 @@ h1: Understanding Async/Await in JavaScript  (article title)
 **`<img src="jane.jpg">` → `<img src="jane.jpg" alt="Jane Smith">`**: The missing `alt` attribute causes NVDA to read the full file path "jane dot jpg" which conveys no useful information. Alt text "Jane Smith" identifies the person depicted.
 
 #### Accessibility Checklist
+
 - [x] Single `<h1>` present and descriptive
 - [x] No heading levels skipped (h1 → h2 only)
 - [x] All `<nav>` elements have unique accessible names
@@ -450,6 +452,7 @@ h1: Understanding Async/Await in JavaScript  (article title)
 - [x] `<article>` heading restarts at `<h1>` for the article, `<h2>` for nested sections
 
 #### Validation Commands
+
 ```bash
 # axe-core in browser console (paste after loading the page)
 const script = document.createElement('script');

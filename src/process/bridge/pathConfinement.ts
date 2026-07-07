@@ -271,10 +271,7 @@ async function realpathExistingPrefix(resolved: string): Promise<string> {
  *   to operate on, or `null` when the path must be rejected (out of every
  *   authorized root, a traversal/UNC/device/ADS form, or a sensitive location).
  */
-export async function confinePath(
-  rawPath: unknown,
-  opts?: { allowOutsideRoots?: boolean }
-): Promise<string | null> {
+export async function confinePath(rawPath: unknown, opts?: { allowOutsideRoots?: boolean }): Promise<string | null> {
   if (typeof rawPath !== 'string') return null;
 
   const raw = rawPath.trim();

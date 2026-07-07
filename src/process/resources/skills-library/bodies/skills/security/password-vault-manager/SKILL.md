@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security budgeting guide quick-reference cloud testing safety emergency-preparedness"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security budgeting guide quick-reference cloud testing safety emergency-preparedness'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Password Vault Manager
 
 You are an expert in personal password management who guides users through setting up, migrating to, and effectively using password vaults to eliminate password reuse and strengthen account security.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about password vault manager techniques or best practices
 - User needs guidance on password vault manager concepts
 - User wants to implement or improve their approach to password vault manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of password vault manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,20 +38,20 @@ You are an expert in personal password management who guides users through setti
 
 ### Feature Matrix
 
-| Feature | 1Password | Bitwarden | KeePass | Dashlane |
-|---------|-----------|-----------|---------|---------|
-| **Open source** | No | Yes (client) | Yes (full) | No |
-| **Local vault option** | No | Self-host | Yes (default) | No |
-| **Cloud sync** | Yes | Yes | Via plugin | Yes |
-| **Browser extension** | All major | All major | Via KeePassXC | All major |
-| **Mobile apps** | iOS, Android | iOS, Android | KeePassDX/etc | iOS, Android |
-| **Family sharing** | 5 users | 6 users | Manual | 10 users |
-| **TOTP built-in** | Yes | Yes (premium) | Via plugin | Yes |
-| **Passkey support** | Yes | Yes | No | Yes |
-| **CLI access** | Yes (op) | Yes (bw) | No | No |
-| **Offline access** | Yes | Yes | Yes | Limited |
-| **Audit/reports** | Watchtower | Vault health | No | Dark web scan |
-| **Price (personal)** | ~$3/mo | Free / $1/mo | Free | ~$5/mo |
+| Feature                | 1Password    | Bitwarden     | KeePass       | Dashlane      |
+| ---------------------- | ------------ | ------------- | ------------- | ------------- |
+| **Open source**        | No           | Yes (client)  | Yes (full)    | No            |
+| **Local vault option** | No           | Self-host     | Yes (default) | No            |
+| **Cloud sync**         | Yes          | Yes           | Via plugin    | Yes           |
+| **Browser extension**  | All major    | All major     | Via KeePassXC | All major     |
+| **Mobile apps**        | iOS, Android | iOS, Android  | KeePassDX/etc | iOS, Android  |
+| **Family sharing**     | 5 users      | 6 users       | Manual        | 10 users      |
+| **TOTP built-in**      | Yes          | Yes (premium) | Via plugin    | Yes           |
+| **Passkey support**    | Yes          | Yes           | No            | Yes           |
+| **CLI access**         | Yes (op)     | Yes (bw)      | No            | No            |
+| **Offline access**     | Yes          | Yes           | Yes           | Limited       |
+| **Audit/reports**      | Watchtower   | Vault health  | No            | Dark web scan |
+| **Price (personal)**   | ~$3/mo       | Free / $1/mo  | Free          | ~$5/mo        |
 
 ### Choosing the Right Manager
 
@@ -255,15 +256,15 @@ Add tags for cross-cutting organization:
 
 ### Safe Sharing Practices
 
-| Method | Use Case | Security Level |
-|--------|----------|---------------|
-| Vault sharing (family/team) | Ongoing shared access | High - encrypted, revocable |
-| One-time share link | Temporary credential sharing | High - time-limited, single-use |
-| Secure note in vault | Share recovery codes with spouse | High - encrypted at rest |
-| Verbal (phone call) | One-time emergency access | Medium - no digital trail |
-| Encrypted message (Signal) | Ad-hoc sharing | Medium - encrypted in transit |
-| Email / SMS | **Never for passwords** | **Not acceptable** |
-| Sticky note | **Never** | **Not acceptable** |
+| Method                      | Use Case                         | Security Level                  |
+| --------------------------- | -------------------------------- | ------------------------------- |
+| Vault sharing (family/team) | Ongoing shared access            | High - encrypted, revocable     |
+| One-time share link         | Temporary credential sharing     | High - time-limited, single-use |
+| Secure note in vault        | Share recovery codes with spouse | High - encrypted at rest        |
+| Verbal (phone call)         | One-time emergency access        | Medium - no digital trail       |
+| Encrypted message (Signal)  | Ad-hoc sharing                   | Medium - encrypted in transit   |
+| Email / SMS                 | **Never for passwords**          | **Not acceptable**              |
+| Sticky note                 | **Never**                        | **Not acceptable**              |
 
 ### Setting Up Family Sharing
 
@@ -342,28 +343,27 @@ Test annually:
 
 ## Password Policy Quick Reference
 
-| Account Type | Min Length | Unique? | 2FA Required? | Rotation |
-|---|---|---|---|---|
-| Password vault | 20+ chars (passphrase) | Yes | Yes (FIDO2) | Annual |
-| Email | 20+ chars | Yes | Yes | Annual |
-| Financial | 20+ chars | Yes | Yes | Annual |
-| Work SSO | Per policy | Yes | Yes | Per policy |
-| Social media | 16+ chars | Yes | Yes | When breached |
-| Shopping | 16+ chars | Yes | Recommended | When breached |
-| Low-value accounts | 16+ chars | Yes | Optional | When breached |
+| Account Type       | Min Length             | Unique? | 2FA Required? | Rotation      |
+| ------------------ | ---------------------- | ------- | ------------- | ------------- |
+| Password vault     | 20+ chars (passphrase) | Yes     | Yes (FIDO2)   | Annual        |
+| Email              | 20+ chars              | Yes     | Yes           | Annual        |
+| Financial          | 20+ chars              | Yes     | Yes           | Annual        |
+| Work SSO           | Per policy             | Yes     | Yes           | Per policy    |
+| Social media       | 16+ chars              | Yes     | Yes           | When breached |
+| Shopping           | 16+ chars              | Yes     | Recommended   | When breached |
+| Low-value accounts | 16+ chars              | Yes     | Optional      | When breached |
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| skipped master password | Use recovery codes or emergency access |
-| Autofill not working | Check browser extension is unlocked; verify URL match |
-| Duplicate entries | Use vault deduplication tool; merge manually |
-| Sync not updating | Force sync; check internet; re-authenticate |
-| Lost FIDO2 key | Use backup TOTP or recovery codes |
-| Account locked out | Contact service support with identity verification |
-| Vault corrupted | Restore from last backup export |
-
+| Problem                 | Solution                                              |
+| ----------------------- | ----------------------------------------------------- |
+| skipped master password | Use recovery codes or emergency access                |
+| Autofill not working    | Check browser extension is unlocked; verify URL match |
+| Duplicate entries       | Use vault deduplication tool; merge manually          |
+| Sync not updating       | Force sync; check internet; re-authenticate           |
+| Lost FIDO2 key          | Use backup TOTP or recovery codes                     |
+| Account locked out      | Contact service support with identity verification    |
+| Vault corrupted         | Restore from last backup export                       |
 
 ## Process
 
@@ -372,7 +372,6 @@ Test annually:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -393,14 +392,12 @@ Test annually:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud security"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud security'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Secrets Manager
@@ -30,13 +30,13 @@ You are an expert in secrets management for production systems. Secrets -- API k
 
 ## Solution Comparison
 
-| Feature | HashiCorp Vault | AWS Secrets Manager | Azure Key Vault | GCP Secret Manager |
-|---------|----------------|--------------------|-----------------|--------------------|
-| **Self-hosted** | Yes | No | No | No |
-| **Dynamic secrets** | Yes | No | No | No |
-| **Auto-rotation** | Via policies | Built-in (Lambda) | Built-in | Via Cloud Functions |
-| **Cost** | Free (OSS) | $0.40/secret/month | $0.03/10K ops | $0.06/10K ops |
-| **Complexity** | High | Low | Low | Low |
+| Feature             | HashiCorp Vault | AWS Secrets Manager | Azure Key Vault | GCP Secret Manager  |
+| ------------------- | --------------- | ------------------- | --------------- | ------------------- |
+| **Self-hosted**     | Yes             | No                  | No              | No                  |
+| **Dynamic secrets** | Yes             | No                  | No              | No                  |
+| **Auto-rotation**   | Via policies    | Built-in (Lambda)   | Built-in        | Via Cloud Functions |
+| **Cost**            | Free (OSS)      | $0.40/secret/month  | $0.03/10K ops   | $0.06/10K ops       |
+| **Complexity**      | High            | Low                 | Low             | Low                 |
 
 ### When to Choose What
 
@@ -147,13 +147,13 @@ DECRYPT:
 
 ## Secret Injection Patterns
 
-| Pattern | How | Pros | Cons |
-|---------|-----|------|------|
-| **Environment variables** | `SECRET=value` in pod spec | Simple, universal | Visible in process list |
-| **File mount** | Secret written to volume | More secure than env vars | App must read file |
-| **Sidecar** | Vault Agent injects secrets | Dynamic, auto-renewed | More infrastructure |
-| **SDK** | App calls Vault API directly | Most control | Code dependency |
-| **External Secrets Operator** | CRD syncs to k8s Secret | GitOps-friendly | Extra operator |
+| Pattern                       | How                          | Pros                      | Cons                    |
+| ----------------------------- | ---------------------------- | ------------------------- | ----------------------- |
+| **Environment variables**     | `SECRET=value` in pod spec   | Simple, universal         | Visible in process list |
+| **File mount**                | Secret written to volume     | More secure than env vars | App must read file      |
+| **Sidecar**                   | Vault Agent injects secrets  | Dynamic, auto-renewed     | More infrastructure     |
+| **SDK**                       | App calls Vault API directly | Most control              | Code dependency         |
+| **External Secrets Operator** | CRD syncs to k8s Secret      | GitOps-friendly           | Extra operator          |
 
 ### Vault Agent Sidecar (Kubernetes)
 
@@ -166,9 +166,9 @@ spec:
   template:
     metadata:
       annotations:
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "my-app"
-        vault.hashicorp.com/agent-inject-secret-db.txt: "secret/data/my-app/database"
+        vault.hashicorp.com/agent-inject: 'true'
+        vault.hashicorp.com/role: 'my-app'
+        vault.hashicorp.com/agent-inject-secret-db.txt: 'secret/data/my-app/database'
         vault.hashicorp.com/agent-inject-template-db.txt: |
           {{- with secret "secret/data/my-app/database" -}}
           DATABASE_URL={{ .Data.data.url }}
@@ -215,14 +215,14 @@ LAYER 6: Rotation   - All secrets have max lifetime, automated rotation
 
 ### Anti-Patterns
 
-| Anti-Pattern | Risk | Fix |
-|-------------|------|-----|
-| Shared secrets across services | One compromise exposes all | Unique secrets per service |
-| Long-lived API keys | Extended blast radius | Short TTLs, auto-rotation |
-| Secrets in CI/CD variables | CI compromise = all secrets | OIDC federation, no static secrets in CI |
-| `config-file` files in development | Accidentally committed | `.config.example` + secrets manager |
-| Secrets in Docker images | Image pull = secret access | Inject at runtime only |
-| Hardcoded in source code | Git history forever | Pre-commit hooks to detect |
+| Anti-Pattern                       | Risk                        | Fix                                      |
+| ---------------------------------- | --------------------------- | ---------------------------------------- |
+| Shared secrets across services     | One compromise exposes all  | Unique secrets per service               |
+| Long-lived API keys                | Extended blast radius       | Short TTLs, auto-rotation                |
+| Secrets in CI/CD variables         | CI compromise = all secrets | OIDC federation, no static secrets in CI |
+| `config-file` files in development | Accidentally committed      | `.config.example` + secrets manager      |
+| Secrets in Docker images           | Image pull = secret access  | Inject at runtime only                   |
+| Hardcoded in source code           | Git history forever         | Pre-commit hooks to detect               |
 
 ## Secret Scanning
 
@@ -296,6 +296,7 @@ REMEDIATION (4-48 hours):
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing secrets manager solutions
 - Reviewing or improving existing secrets manager approaches
 - Making architectural or implementation decisions about secrets manager
@@ -303,6 +304,7 @@ REMEDIATION (4-48 hours):
 - Troubleshooting secrets manager-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -313,21 +315,26 @@ REMEDIATION (4-48 hours):
 # Secrets Manager Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

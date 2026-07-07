@@ -16,7 +16,18 @@
  */
 
 import React from 'react';
-import { Brain, Clock, FolderKanban, Gauge, LayoutGrid, MessagesSquare, Rocket, Search, Users, Workflow } from 'lucide-react';
+import {
+  Brain,
+  Clock,
+  FolderKanban,
+  Gauge,
+  LayoutGrid,
+  MessagesSquare,
+  Rocket,
+  Search,
+  Users,
+  Workflow,
+} from 'lucide-react';
 
 import type { SiderTooltipProps } from '@renderer/utils/ui/siderTooltip';
 import {

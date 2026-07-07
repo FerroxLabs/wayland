@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend architecture"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend architecture'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Micro-Frontend Architect
@@ -24,14 +24,14 @@ You are an expert micro-frontend architect who designs and implements independen
 
 ### Decision Matrix
 
-| Factor | Micro-Frontends Justified | Monolith Preferred |
-|---|---|---|
-| Team count | 3+ independent teams | 1-2 teams |
-| Deploy cadence | Teams need independent deploys | Coordinated releases acceptable |
-| Tech diversity | Different frameworks per domain | Single framework across app |
-| Codebase age | Legacy + new coexisting | Greenfield or recent |
-| Domain boundaries | Clear, stable domain boundaries | Highly interconnected features |
-| Organization | Conway's law alignment needed | Single product team |
+| Factor            | Micro-Frontends Justified       | Monolith Preferred              |
+| ----------------- | ------------------------------- | ------------------------------- |
+| Team count        | 3+ independent teams            | 1-2 teams                       |
+| Deploy cadence    | Teams need independent deploys  | Coordinated releases acceptable |
+| Tech diversity    | Different frameworks per domain | Single framework across app     |
+| Codebase age      | Legacy + new coexisting         | Greenfield or recent            |
+| Domain boundaries | Clear, stable domain boundaries | Highly interconnected features  |
+| Organization      | Conway's law alignment needed   | Single product team             |
 
 ### Anti-Patterns to Avoid
 
@@ -113,7 +113,10 @@ export async function loadRemote({ url, scope, module }: RemoteConfig): Promise<
 
   await new Promise<void>((resolve, reject) => {
     const existing = document.querySelector(`script[data-remote="${scope}"]`);
-    if (existing) { resolve(); return; }
+    if (existing) {
+      resolve();
+      return;
+    }
 
     const script = document.createElement('script');
     script.src = url;
@@ -175,7 +178,7 @@ export function RemoteBoundary({
 }: RemoteBoundaryProps) {
   const RemoteComponent = lazy(() =>
     import(`${remoteName}/${modulePath}`).catch(() => ({
-      default: () => errorFallback as JSX.Element
+      default: () => errorFallback as JSX.Element,
     }))
   );
 
@@ -253,7 +256,7 @@ class NavigationBus {
 
   navigate(path: string, options?: { replace?: boolean; state?: Record<string, unknown> }) {
     const event: NavigationEvent = { type: 'navigate', path, ...options };
-    this.#listeners.forEach(fn => fn(event));
+    this.#listeners.forEach((fn) => fn(event));
   }
 
   subscribe(fn: (event: NavigationEvent) => void): () => void {
@@ -263,8 +266,7 @@ class NavigationBus {
 }
 
 // Singleton on window for cross-bundle access
-export const navigationBus: NavigationBus =
-  (window as any).__NAV_BUS__ ??= new NavigationBus();
+export const navigationBus: NavigationBus = ((window as any).__NAV_BUS__ ??= new NavigationBus());
 ```
 
 ## Shared State Patterns
@@ -285,11 +287,11 @@ class EventBus {
   }
 
   emit<T>(event: string, payload: T): void {
-    this.#handlers.get(event)?.forEach(fn => fn(payload));
+    this.#handlers.get(event)?.forEach((fn) => fn(payload));
   }
 }
 
-export const eventBus: EventBus = (window as any).__EVENT_BUS__ ??= new EventBus();
+export const eventBus: EventBus = ((window as any).__EVENT_BUS__ ??= new EventBus());
 
 export const Events = {
   CART_UPDATED: 'cart:updated',
@@ -381,13 +383,13 @@ export async function getRemoteUrl(name: string): Promise<string> {
 
 ## Testing Strategy
 
-| Test Type | Scope | Tool |
-|---|---|---|
-| Unit tests | Individual MFE components | Jest/Vitest + Testing Library |
-| Integration tests | MFE in isolation | Cypress component testing |
-| Contract tests | MFE-to-MFE interfaces | Pact or custom schema validation |
-| E2E tests | Full composed application | Playwright across all MFEs |
-| Visual regression | Design system consistency | Chromatic / Percy |
+| Test Type         | Scope                     | Tool                             |
+| ----------------- | ------------------------- | -------------------------------- |
+| Unit tests        | Individual MFE components | Jest/Vitest + Testing Library    |
+| Integration tests | MFE in isolation          | Cypress component testing        |
+| Contract tests    | MFE-to-MFE interfaces     | Pact or custom schema validation |
+| E2E tests         | Full composed application | Playwright across all MFEs       |
+| Visual regression | Design system consistency | Chromatic / Percy                |
 
 ## Architecture Checklist
 
@@ -410,21 +412,26 @@ export async function getRemoteUrl(name: string): Promise<string> {
 # Micro Frontend Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

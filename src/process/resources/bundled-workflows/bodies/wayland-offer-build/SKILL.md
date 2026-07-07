@@ -12,14 +12,15 @@ description: >-
   answer without building the full four-lock offer.
 license: Apache-2.0
 type: workflow
-skills: "sales-icp market-funnel convert-temperature funnels-offer convert-three-locks funnels-offer-stack funnels-offer-pricing funnels-offer-guarantee"
+skills: 'sales-icp market-funnel convert-temperature funnels-offer convert-three-locks funnels-offer-stack funnels-offer-pricing funnels-offer-guarantee'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing funnels offer pricing step-by-step donahoe-method
   category: marketing
-  depends: "sales-icp market-funnel convert-temperature funnels-offer convert-three-locks funnels-offer-stack funnels-offer-pricing funnels-offer-guarantee"
+  depends: 'sales-icp market-funnel convert-temperature funnels-offer convert-three-locks funnels-offer-stack funnels-offer-pricing funnels-offer-guarantee'
 ---
+
 # Offer Build (The Donahoe Method)
 
 **Estimated time:** 25-35 minutes

@@ -390,11 +390,15 @@ describe('connectClaude - detached process group', () => {
     const setup = vi.fn().mockResolvedValue(undefined);
     const cleanup = vi.fn().mockResolvedValue(undefined);
 
-    await connectClaude('/cwd', { setup, cleanup }, {
-      ANTHROPIC_BASE_URL: 'https://api.fluxrouter.ai/anthropic',
-      ANTHROPIC_AUTH_TOKEN: 'sk-flux-key',
-      ANTHROPIC_MODEL: 'flux-auto',
-    });
+    await connectClaude(
+      '/cwd',
+      { setup, cleanup },
+      {
+        ANTHROPIC_BASE_URL: 'https://api.fluxrouter.ai/anthropic',
+        ANTHROPIC_AUTH_TOKEN: 'sk-flux-key',
+        ANTHROPIC_MODEL: 'flux-auto',
+      }
+    );
 
     expect(mockSpawn).toHaveBeenCalledWith(
       '/bundled/bun',

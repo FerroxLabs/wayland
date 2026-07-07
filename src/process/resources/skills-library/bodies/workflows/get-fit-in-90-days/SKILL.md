@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "fitness-trainer workout-planner nutrition-advisor sports-nutrition habit-tracker running-coach"
+skills: 'fitness-trainer workout-planner nutrition-advisor sports-nutrition habit-tracker running-coach'
 trigger_phrases: >-
   I want to get fit in 90 days help me get in shape 90 day fitness plan
   transform my body in 3 months I want to start working out build a fitness
@@ -22,8 +22,9 @@ metadata:
   version: 1.0.0
   tags: fitness workout-planning nutrition health-wellness step-by-step planning
   category: life-event
-  depends: "fitness-trainer workout-planner nutrition-advisor sports-nutrition habit-tracker running-coach"
+  depends: 'fitness-trainer workout-planner nutrition-advisor sports-nutrition habit-tracker running-coach'
 ---
+
 # Get Fit In 90 Days
 
 This workflow references health and fitness information for educational purposes only. It is not medical advice. Consult a qualified healthcare provider before starting any fitness or nutrition program.
@@ -181,6 +182,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

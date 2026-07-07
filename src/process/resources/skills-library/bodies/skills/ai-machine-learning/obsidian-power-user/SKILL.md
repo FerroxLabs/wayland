@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml template advanced automation research networking energy-efficiency time-management"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml template advanced automation research networking energy-efficiency time-management'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Obsidian Power User
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about obsidian power user techniques or best practices
 - User needs guidance on obsidian power user concepts
 - User wants to implement or improve their approach to obsidian power user
 
 **Do NOT use when:**
+
 - The request falls outside the scope of obsidian power user
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -55,13 +56,13 @@ metadata:
 
 ### Note Types
 
-| Type | Location | Purpose | Lifespan |
-|------|----------|---------|----------|
-| Fleeting notes | Daily Notes / Inbox | Quick captures, raw thoughts | Temporary (process in 24-48 hrs) |
-| Literature notes | Sources/ folder | Key ideas from books/articles in YOUR words | Permanent |
-| Permanent notes | Notes/ folder | Your original thinking, one idea per note (100-300 words) | Permanent |
-| Structure notes (MOCs) | MOC/ folder | Curated links organizing clusters of related notes | Evolving |
-| Project notes | Projects/ folder | Active project management, tasks, drafts | Project lifespan |
+| Type                   | Location            | Purpose                                                   | Lifespan                         |
+| ---------------------- | ------------------- | --------------------------------------------------------- | -------------------------------- |
+| Fleeting notes         | Daily Notes / Inbox | Quick captures, raw thoughts                              | Temporary (process in 24-48 hrs) |
+| Literature notes       | Sources/ folder     | Key ideas from books/articles in YOUR words               | Permanent                        |
+| Permanent notes        | Notes/ folder       | Your original thinking, one idea per note (100-300 words) | Permanent                        |
+| Structure notes (MOCs) | MOC/ folder         | Curated links organizing clusters of related notes        | Evolving                         |
+| Project notes          | Projects/ folder    | Active project management, tasks, drafts                  | Project lifespan                 |
 
 ### The Zettelkasten Workflow
 
@@ -115,27 +116,27 @@ Display: Center/Repel force Medium, Link force Low, Link distance Medium
 
 ### Must-Have
 
-| Plugin | Purpose |
-|--------|---------|
-| Templater | Advanced templates with dynamic content, dates, prompts |
-| Dataview | Database queries across your vault (tables, lists from metadata) |
-| Calendar | Calendar widget for daily notes navigation |
-| Periodic Notes | Daily, weekly, monthly, yearly note templates |
-| Quick Add | Fast note capture with templates |
-| Tasks | Task management -- query and aggregate tasks from anywhere |
-| Obsidian Git | Automatic version control and backup |
+| Plugin         | Purpose                                                          |
+| -------------- | ---------------------------------------------------------------- |
+| Templater      | Advanced templates with dynamic content, dates, prompts          |
+| Dataview       | Database queries across your vault (tables, lists from metadata) |
+| Calendar       | Calendar widget for daily notes navigation                       |
+| Periodic Notes | Daily, weekly, monthly, yearly note templates                    |
+| Quick Add      | Fast note capture with templates                                 |
+| Tasks          | Task management -- query and aggregate tasks from anywhere       |
+| Obsidian Git   | Automatic version control and backup                             |
 
 ### Recommended
 
-| Plugin | Purpose |
-|--------|---------|
-| Excalidraw | Drawing and diagramming |
-| Kanban | Project management boards |
-| Tag Wrangler | Rename, merge, organize tags |
-| Readwise Official | Import highlights |
+| Plugin             | Purpose                      |
+| ------------------ | ---------------------------- |
+| Excalidraw         | Drawing and diagramming      |
+| Kanban             | Project management boards    |
+| Tag Wrangler       | Rename, merge, organize tags |
+| Readwise Official  | Import highlights            |
 | Zotero Integration | Academic citation management |
-| Linter | Consistent formatting |
-| Homepage | Custom start page |
+| Linter             | Consistent formatting        |
+| Homepage           | Custom start page            |
 
 ### Dataview Essentials
 
@@ -157,27 +158,35 @@ Other useful queries: `LIST FROM #productivity SORT file.mtime DESC`, `TASK FROM
 ```markdown
 ---
 type: daily
-date: {{date:YYYY-MM-DD}}
+date: { { date:YYYY-MM-DD } }
 ---
+
 # {{date:dddd, MMMM Do, YYYY}}
 
 ## Morning Intentions
+
 - ONE most important thing:
 - Energy level (1-10):
 
 ## Tasks
+
 ### Must Do
+
 - [ ]
+
 ### Should Do
+
 - [ ]
 
 ## Notes and Ideas
 
 ## End of Day Review
+
 - What went well?
 - What could be improved?
 
 ---
+
 << [[{{date-1d:YYYY-MM-DD}}]] | [[{{date+1d:YYYY-MM-DD}}]] >>
 ```
 
@@ -188,20 +197,24 @@ date: {{date:YYYY-MM-DD}}
 type: permanent
 topics: []
 status: seed
-created: {{date:YYYY-MM-DD}}
+created: { { date:YYYY-MM-DD } }
 ---
+
 # {{title}}
 
 [One clear statement of the main idea]
 
 ## Explanation
+
 [100-300 words in your own words]
 
 ## Connections
+
 - Related to [[]]
 - Supports/contradicts [[]]
 
 ## Source
+
 [Where this idea came from]
 ```
 
@@ -222,12 +235,12 @@ created: {{date:YYYY-MM-DD}}
 
 ## Publishing
 
-| Method | Complexity | Cost | Best For |
-|--------|-----------|------|----------|
-| Obsidian Publish | Very Low | $8/mo | Official, integrated |
-| Quartz | Medium | Free (hosting) | Developers, custom digital garden |
-| MkDocs | Medium | Free (hosting) | Technical documentation |
-| Hugo | Medium-High | Free (hosting) | Full blogs |
+| Method           | Complexity  | Cost           | Best For                          |
+| ---------------- | ----------- | -------------- | --------------------------------- |
+| Obsidian Publish | Very Low    | $8/mo          | Official, integrated              |
+| Quartz           | Medium      | Free (hosting) | Developers, custom digital garden |
+| MkDocs           | Medium      | Free (hosting) | Technical documentation           |
+| Hugo             | Medium-High | Free (hosting) | Full blogs                        |
 
 **Publish:** Well-developed permanent notes, MOCs, how-to guides, original frameworks.
 **Keep private:** Fleeting notes, journals, incomplete thinking, sensitive info, daily notes.
@@ -266,7 +279,6 @@ Monthly: Review orphan notes, update MOCs, archive completed projects
 Quarterly: Audit plugins, review vault structure, prune unused tags
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -274,7 +286,6 @@ Quarterly: Audit plugins, review vault structure, prune unused tags
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -295,14 +306,12 @@ Quarterly: Audit plugins, review vault structure, prune unused tags
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

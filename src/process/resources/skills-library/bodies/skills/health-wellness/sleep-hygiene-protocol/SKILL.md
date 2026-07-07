@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sleep mental-wellness self-care stress-management"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'sleep mental-wellness self-care stress-management'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Sleep Hygiene Protocol
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health or sleep. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Wants to improve subjective sleep quality (feeling rested, reducing grogginess upon waking) and asks for behavioral strategies
 - Wants to build or rebuild a consistent bedtime routine from scratch
 - Reports difficulty falling asleep (sleep onset latency over 30 minutes) and wants non-medication strategies
@@ -34,6 +36,7 @@ metadata:
 - Asks about how daytime behaviors (caffeine, exercise, naps, alcohol, light exposure) affect their nighttime sleep
 
 **Do NOT use this skill when:**
+
 - User describes symptoms consistent with a sleep disorder: chronic insomnia lasting more than 3 consecutive months, witnessed apneic events or loud snoring with daytime sleepiness, restless leg sensations, sudden muscle weakness triggered by emotion, or episodes of falling asleep involuntarily during the day -- refer to a healthcare provider for evaluation
 - User asks about sleep medication (prescription or OTC), melatonin dosing, magnesium, or any supplement for sleep -- refer to a healthcare provider or pharmacist
 - User's sleep disturbance is clearly caused by an identified medical condition (chronic pain, hyperthyroidism, GERD affecting sleep, psychiatric medication side effects) -- the medical condition must be addressed first; refer to a healthcare provider
@@ -49,6 +52,7 @@ metadata:
 Ask the user to describe their current sleep situation. You need specific data, not general impressions. If the user provides a vague description ("I sleep badly"), prompt for specifics.
 
 Collect the following data points:
+
 - **Current sleep schedule:** What time do they typically get into bed? What time do they typically fall asleep (estimated)? What time do they wake up? Do they use an alarm or wake naturally? Are weekday and weekend schedules different?
 - **Sleep onset latency:** Approximately how long does it take to fall asleep once the lights are off? Under 5 minutes (may indicate sleep deprivation), 10-20 minutes (normal range), over 30 minutes (elevated onset latency, a primary target for the protocol)
 - **Sleep continuity:** Do they wake during the night? How many times? How long are they awake before returning to sleep? Are there identifiable triggers (needing to urinate, noise, anxiety, partner, child)?
@@ -64,21 +68,25 @@ Do not proceed to protocol design until you have at minimum: current and desired
 Different complaint profiles call for different protocol emphases. Identify which pattern best matches the user's situation before building the protocol.
 
 **Pattern A -- Sleep Onset Difficulty (takes more than 30 minutes to fall asleep):**
+
 - Primary causes: excessive arousal at bedtime (screens, stimulating content, stress), irregular sleep timing, conditioned wakefulness from bed association, caffeine interference
 - Protocol emphasis: wind-down routine quality, stimulus control, consistent wake time, bedroom association rules
 - Most impactful single change: moving screens out of the bedroom and fixing wake time
 
 **Pattern B -- Sleep Maintenance Difficulty (falls asleep normally but wakes 1+ times for more than 20 minutes):**
+
 - Primary causes: alcohol in the evening, temperature dysregulation, noise disruption, conditioned mid-night arousal, anxiety, sleep apnea (note: if snoring is present, flag for medical evaluation)
 - Protocol emphasis: environment optimization (temperature, sound masking), alcohol timing, stimulus control applied to nighttime awakenings, pre-bed progressive muscle relaxation
 - Most impactful single change: eliminating alcohol within 3 hours of bed, environment optimization
 
 **Pattern C -- Early Morning Waking (wakes 1-2 hours before desired time and cannot return to sleep):**
+
 - Primary causes: sleep timing is misaligned earlier than needed (circadian phase advance, common in older adults), early morning light exposure, habitual early schedule becoming entrenched
 - Protocol emphasis: gradual bedtime delay (push bedtime 15 minutes later every 3 days), blackout window treatment, avoiding bright light until desired wake time
 - Flag: Persistent early morning waking that does not respond to behavioral intervention within 2 weeks can be associated with depression -- note this and recommend evaluation if it persists
 
 **Pattern D -- Non-Restorative Sleep (adequate duration but waking unrefreshed):**
+
 - Primary causes: sleep fragmentation from environment, poor sleep architecture from alcohol or late-night eating, sleep-disordered breathing (flag for evaluation), stress load, physical inactivity
 - Protocol emphasis: environment quality, alcohol and food timing, daytime exercise, sleep duration adequacy
 - Flag: Non-restorative sleep that persists despite optimized hygiene and adequate duration warrants medical evaluation
@@ -88,23 +96,27 @@ Different complaint profiles call for different protocol emphases. Identify whic
 The circadian anchor is the single most important element of any sleep hygiene protocol. The wake time -- not the bedtime -- is the primary lever.
 
 **Wake time selection rules:**
+
 - The target wake time should be realistic for the user's life obligations 7 days per week, or as close to 7 as possible
 - Weekend wake time should fall within 30 minutes of weekday wake time -- any more creates "social jet lag," which has the physiological equivalent of traveling across time zones every week
 - Once wake time is selected, it is held constant even if the user slept poorly the previous night -- this is the mechanism by which sleep pressure builds and improves the following night
 
 **Bedtime calculation:**
+
 - Adults need 7-9 hours of sleep opportunity, with 8 hours covering most of the population adequately
 - Add 15 minutes as a sleep onset buffer to account for normal time-to-sleep
 - Example: 6:30 AM wake time minus 8 hours sleep minus 15 minutes onset buffer = 10:15 PM target bedtime
 - The user's target bedtime is when they should be IN BED with lights off, not when they begin winding down
 
 **Schedule shift planning:**
+
 - If the current wake time differs from the target by more than 60 minutes, a gradual shift is required
 - Abrupt large schedule changes are poorly tolerated and typically abandoned within a few days
 - Shift the wake time earlier by 15-30 minutes every 2-3 days, adjusting bedtime correspondingly
 - The direction always goes: fix wake time first, then walk back bedtime as sleep pressure builds
 
 **Sleep duration adequacy check:**
+
 - Calculate current sleep duration: time from estimated sleep onset to natural wake time
 - If the user is sleeping less than 7 hours nightly and reporting daytime impairment, the protocol prioritizes increasing sleep opportunity (earlier bedtime relative to fixed wake time) before optimizing architecture
 - If the user sleeps more than 9 hours routinely but still feels unrefreshed, excess time in bed is not the solution -- fragmentation or sleep quality issues are more likely
@@ -116,18 +128,21 @@ The wind-down routine is a 30-60 minute pre-sleep sequence that systematically r
 **The four components of an effective wind-down:**
 
 **1. Screen and stimulation cutoff (60 minutes before lights out):**
+
 - Blue light emitted by screens suppresses melatonin production for 90+ minutes. The 60-minute cutoff is the minimum; 90 minutes is ideal for high-sensitivity individuals.
 - Equally important as light: stimulating CONTENT (news, social media, arguments, exciting video) activates the sympathetic nervous system regardless of the screen's light output. The phone in night mode with alarming content is still problematic.
 - Practical instruction: the phone goes on its charger in a room other than the bedroom at this time. Not on the nightstand. Not face-down. Out of the room.
 - Acceptable alternatives: physical book (not e-ink reader with backlight), audiobook at low volume, light conversation, journaling on paper, gentle stretching
 
 **2. Light dimming (45-50 minutes before lights out):**
+
 - Bright overhead lighting (especially white or blue-toned LEDs) signals daytime to the suprachiasmatic nucleus and delays melatonin onset
 - Transition to a single warm-toned lamp (2700K or lower color temperature) or candlelight-level illumination
 - Smart bulbs set to "sunset" mode or red-spectrum light are ideal
 - The bathroom at tooth-brushing time is a common bright-light exposure that disrupts this -- use the lowest bathroom light setting or a small night light for the evening hygiene routine
 
 **3. Thermal transition (30-45 minutes before lights out):**
+
 - Core body temperature must fall by 1-3 degrees Fahrenheit to initiate and sustain sleep
 - A warm shower or bath (100-103 degrees F, 38-39 degrees C) taken 30-90 minutes before bed triggers a compensatory vasodilation response -- blood rushes to the skin surface, releasing core heat, accelerating the temperature drop after exiting the shower
 - This is one of the most evidence-supported non-behavioral interventions in sleep hygiene literature
@@ -135,6 +150,7 @@ The wind-down routine is a 30-60 minute pre-sleep sequence that systematically r
 - If the user cannot control room temperature (renting, window unit limitations), a fan creates evaporative cooling and white noise simultaneously
 
 **4. Relaxation anchor (final 15 minutes before lights out, in bed):**
+
 - This is done in bed with lights off -- it is the bridge between wakefulness and sleep
 - Select ONE technique and practice it consistently (consistency of the anchor matters more than which technique is chosen):
   - **4-7-8 breathing:** Inhale through nose for 4 seconds, hold for 7 seconds, exhale through mouth for 8 seconds. Do 4 cycles. The extended exhale activates the parasympathetic nervous system. Note: some people find the hold phase anxiety-producing initially -- if so, substitute box breathing (4-4-4-4) until comfortable.
@@ -147,12 +163,14 @@ The wind-down routine is a 30-60 minute pre-sleep sequence that systematically r
 The bedroom environment should function as a consistent physiological cue for sleep. Every sensory input either reinforces or undermines this cue.
 
 **Temperature:**
+
 - Target: 65-68 degrees F (18-20 degrees C) for the room
 - Individual variation exists -- some people sleep optimally at 63 degrees F, others at 70 degrees F
 - Hands and feet are primary heat-release sites -- keeping feet warm (socks) while maintaining a cool room accelerates sleep onset by improving peripheral circulation
 - Weighted blankets (15-20 lbs for an average adult, approximately 10% of body weight) have evidence for reducing sleep onset anxiety in some individuals but should not raise core temperature; use with a lower room temperature setting
 
 **Light:**
+
 - The bedroom should be dark enough that you cannot see your hand in front of your face when eyes are open
 - Blackout curtains are the most effective single environmental investment for many urban dwellers
 - A sleep mask is an equally effective and more portable solution -- contoured foam masks create less pressure on the eyelids than flat masks
@@ -160,6 +178,7 @@ The bedroom environment should function as a consistent physiological cue for sl
 - If a nightlight is needed for navigation (small children, safety), use red-spectrum light only -- red wavelengths have minimal impact on melatonin production
 
 **Sound:**
+
 - The brain cannot fully habituate to intermittent noise while asleep -- each novel sound triggers a micro-arousal even if the sleeper does not consciously wake
 - Continuous ambient sound (white noise, brown noise, pink noise, or a fan) masks intermittent sounds by raising the ambient noise floor
 - White noise: equal power across all frequencies -- effective but can feel harsh to some listeners
@@ -169,11 +188,13 @@ The bedroom environment should function as a consistent physiological cue for sl
 - Volume: 50-65 decibels is the functional range for masking; above 70 decibels becomes its own sleep disruptor
 
 **Bed association (stimulus control foundation):**
+
 - The bed must be associated exclusively with sleep (and sex)
 - Activities that introduce wakefulness into the bed environment -- working, scrolling, watching TV, eating, having stressful conversations -- train the nervous system that the bed is a place of arousal, not sleep
 - If the user currently works from a bedroom that also houses their bed, a physical and sensory transition ritual is essential (see Edge Cases for the home office scenario)
 
 **Mattress and pillow assessment:**
+
 - If the user reports waking with physical discomfort (back pain, neck stiffness), note this as a potential equipment issue
 - Do not design a sleep protocol that ignores equipment failure -- a poorly matched mattress or unsupportive pillow will limit protocol gains
 - General guidance: side sleepers typically need a firmer mattress and higher-loft pillow; back sleepers need medium firmness and medium pillow loft; stomach sleepers (note: this is a suboptimal sleep position for spinal alignment) need low-loft pillow
@@ -184,6 +205,7 @@ The bedroom environment should function as a consistent physiological cue for sl
 Nighttime sleep quality is the output of a 24-hour system. The following daytime behaviors have the highest impact on sleep.
 
 **Caffeine:**
+
 - Caffeine's half-life in adults is 5-7 hours; its quarter-life is 10-14 hours
 - A 200mg coffee at 2:00 PM leaves approximately 50-100mg of caffeine active at 10:00 PM -- a physiologically significant amount
 - Default cutoff: 2:00 PM for most adults (8 hours before a 10:00 PM bedtime)
@@ -192,6 +214,7 @@ Nighttime sleep quality is the output of a 24-hour system. The following daytime
 - Adenosine accumulation (sleep pressure) is blocked by caffeine -- morning caffeine is fine; caffeine after early afternoon interferes with the organic build of sleep pressure that makes falling asleep easier at bedtime
 
 **Alcohol:**
+
 - Alcohol is the most commonly misunderstood sleep disruptor. It speeds sleep onset and creates a false sense of sedation, which leads users to believe it helps their sleep.
 - The actual effect: alcohol is metabolized over 3-5 hours and its metabolite acetaldehyde is stimulating -- the second half of a night with alcohol in the system is characterized by fragmented sleep, suppressed REM sleep, and early morning waking
 - Zero alcohol is the sleep-optimal position; within 3 hours of bed is the minimum boundary
@@ -199,6 +222,7 @@ Nighttime sleep quality is the output of a 24-hour system. The following daytime
 - Do not moralize about alcohol use -- provide the physiological mechanism and let the user make an informed choice
 
 **Exercise:**
+
 - Moderate aerobic exercise (150 minutes per week, or roughly 30 minutes 5 days per week) consistently improves sleep onset latency and sleep quality in population studies
 - Morning exercise is optimal for sleep (and for circadian rhythm entrainment via cortisol and core temperature timing)
 - Vigorous exercise (heart rate above 80% of max) in the 3 hours before bed elevates core body temperature and cortisol, delaying sleep onset in most people
@@ -206,18 +230,21 @@ Nighttime sleep quality is the output of a 24-hour system. The following daytime
 - Resistance training timing is more flexible than aerobic training -- many people tolerate evening weight training well if they are not chronically poor sleepers
 
 **Naps:**
+
 - Napping reduces adenosine (sleep pressure), which makes falling asleep at bedtime harder
 - If napping is necessary: maximum 20-25 minutes (prevents entering slow-wave sleep and associated grogginess on waking), before 3:00 PM
 - A nap over 30 minutes that moves into slow-wave sleep creates sleep inertia upon waking AND reduces sleep pressure for the coming night -- a double negative
 - For users with severe sleep debt, a single longer nap on a rest day may be necessary, but regular long naps should not become part of the protocol
 
 **Morning light exposure:**
+
 - This is frequently omitted from basic sleep hygiene guidance and is one of the most powerful circadian anchors available
 - Bright light exposure (preferably natural outdoor light) within the first 30-60 minutes of waking sets the circadian clock by triggering a cortisol pulse and beginning the melatonin-onset countdown for the next evening
 - 10-20 minutes of outdoor morning light is sufficient on sunny days; overcast days require 20-30 minutes due to lower lux levels
 - This directly affects how easily the user falls asleep at their target bedtime by anchoring the circadian rhythm forward
 
 **Evening meal timing:**
+
 - Heavy meals within 2-3 hours of bed increase core body temperature (thermogenic effect of digestion), can trigger acid reflux in supine position, and create digestive activity that competes with sleep onset
 - Light snacks are acceptable if the user is hungry -- a small amount of carbohydrate (a piece of toast, a banana) has mild tryptophan-serotonin effects that are neutral to slightly beneficial
 - No large protein- or fat-heavy meals within 3 hours of bed
@@ -229,24 +256,28 @@ Behavioral change that is introduced gradually has far higher adherence rates th
 **Implementation principle:** Introduce changes in order of impact-to-effort ratio -- high-impact changes that require minimal infrastructure first, adding complexity and environmental modifications progressively.
 
 **Phase 1 -- Days 1-3: Anchor the Wake Time**
+
 - One change only: set a single wake time and hold it for all 7 days, including weekends
 - This is the highest-leverage behavioral change in the protocol
 - Do not change anything else yet -- this reduces overwhelm and allows the user to experience early success
 - The user will likely feel tired if the new wake time is earlier than their current pattern -- this is normal and expected; sleep pressure accumulation will improve sleep onset in subsequent nights
 
 **Phase 2 -- Days 4-7: Implement Wind-Down Routine**
+
 - Phone out of bedroom at the 60-minute mark before target bedtime
 - Begin the dimmed-light sequence
 - Add the warm shower or the relaxation anchor (one or both, based on user's capacity)
 - Start the daytime rules: caffeine cutoff and alcohol window
 
 **Phase 3 -- Days 8-11: Optimize Environment**
+
 - Implement temperature control
 - Blackout the room or introduce sleep mask
 - Add ambient sound masking if relevant
 - Add morning light exposure habit
 
 **Phase 4 -- Days 12-14: Full Stimulus Control Protocol**
+
 - Formally implement the 20-minute rule
 - Remove clocks from sight of the bed (clock-watching increases arousal and anxiety)
 - Review the progress tracking log -- identify any patterns in what predicts better or worse nights
@@ -254,6 +285,7 @@ Behavioral change that is introduced gradually has far higher adherence rates th
 ### Step 8: Compile the Protocol and Communicate It
 
 When writing the output protocol for the user:
+
 - Use specific clock times, never relative time references ("60 minutes before bed" is secondary to "9:15 PM")
 - Be concrete about what replaces the removed behavior -- never just take something away. "No phone after 9:30 PM" needs a replacement: "after 9:30 PM, use this time to [specific activity]."
 - Order the document from the most actionable to the least, not alphabetically or by topic
@@ -419,9 +451,11 @@ Rate your morning freshness on the 1-5 scale: 1 = exhausted, 3 = functional, 5 =
 ## Edge Cases
 
 ### User Works Irregular Hours (Not Rotating Shift Work)
+
 The user has variable work start times -- some days 7:00 AM, some days 10:00 AM, some days afternoon meetings only. They do not have a true rotating shift pattern but cannot hold one fixed wake time.
 
 **Handling:**
+
 - Identify the most common or earliest required wake time and use this as the anchor
 - For days with later start times, resist sleeping in -- use the extra morning time productively (morning light, exercise, reading) rather than extending sleep
 - If there is a true variation floor (earliest required wake time is always 7:00 AM), use 7:00 AM as the anchor even on days the user could theoretically sleep until 9:00 AM
@@ -429,9 +463,11 @@ The user has variable work start times -- some days 7:00 AM, some days 10:00 AM,
 - Note that irregular schedules inherently limit circadian consistency -- be honest that the protocol will be more effective on the days it can be followed precisely
 
 ### User Shares a Bed With a Partner Who Has Different Sleep Habits
+
 The partner watches TV in bed, uses a bright phone, sleeps at different times, or snores.
 
 **Handling:**
+
 - Focus exclusively on what the user controls: their own wind-down routine (done outside the bedroom or in a separate space before coming to bed), a sleep mask for light, earplugs or earbuds with ambient sound for noise, a white noise machine they control
 - The bed can still be stimulus-controlled relative to the user's behavior even if the partner uses it differently -- the user's own behavioral association is the target
 - For the partner conversation: provide a script. "I am trying to improve my sleep. I am going to start doing [specific changes]. The one thing that would help me most is [single, specific, low-friction request -- e.g., phone in night mode after 10 PM, or TV off when I come to bed]." Limit to one request to maximize the chance it is adopted.
@@ -439,9 +475,11 @@ The partner watches TV in bed, uses a bright phone, sleeps at different times, o
 - Separate sleep schedules (one partner going to bed earlier) are a legitimate solution when schedules are highly misaligned -- validate this if relevant
 
 ### User Has Young Children Who Create Unavoidable Nighttime Disruptions
+
 Infant or toddler waking, nighttime needs, or early morning child wake-ups fragment the user's sleep in ways behavioral protocols cannot fully address.
 
 **Handling:**
+
 - Acknowledge this directly: the protocol cannot restore consolidated sleep while caregiving disruptions are present. Be honest -- do not overpromise.
 - Focus protocol effort on: maximizing the sleep opportunity window (the user's bedtime may need to shift significantly earlier to bank adequate sleep before first disruption), fastest return to sleep after disruptions (environment optimization, keeping the bedside as dark and quiet as possible for quick re-entry), and a condensed wind-down (15-20 minutes) that the user can realistically complete
 - Emphasize the morning light anchor and caffeine cutoff as the highest-ROI daytime practices given constrained control over nighttime
@@ -449,9 +487,11 @@ Infant or toddler waking, nighttime needs, or early morning child wake-ups fragm
 - Note that the protocol can be revisited for fuller implementation once caregiving demands shift -- the goal now is harm reduction and maximum quality within constraints
 
 ### User's Bedroom Is Also Their Primary Work Space (Home Office with Bed in the Room)
+
 The desk is in the bedroom, the user works in the same room they sleep in, and the stimulation and stress associations of "work" saturate the space.
 
 **Handling:**
+
 - The ideal solution -- removing work from the bedroom -- is acknowledged first, even if it cannot be implemented. Do not skip to workarounds without naming the ideal.
 - If the ideal is truly impossible, design a sensory-transition ritual that clearly marks the shift from "work mode" to "sleep mode":
   - At a fixed time (the wind-down start time), close all work applications and physically close or cover the laptop
@@ -462,9 +502,11 @@ The desk is in the bedroom, the user works in the same room they sleep in, and t
 - The sleep mask during the stimulus control phase is especially important here, as it limits visual association with the work environment while in bed
 
 ### User Reports Sleep Anxiety (Anxious About Not Sleeping)
+
 The user lies awake watching the clock, calculating how many hours of sleep remain, catastrophizing about the next day's performance, and feeling increasingly panicked that they cannot sleep.
 
 **Handling:**
+
 - Recognize this as a conditioned anxiety response -- the bed has become associated with the anxiety of trying to sleep, not with sleep itself
 - Remove all clocks from sight of the bed -- clock-watching is incompatible with sleep and provides no useful information that changes what the user should do (the answer is always "rest, and apply the protocol")
 - Introduce paradoxical intention as a specific technique: instead of "trying to fall asleep," the user gives themselves explicit permission to simply rest with eyes closed. The instruction becomes "your only job is to lie still with eyes closed -- you are not required to sleep." Removing the performance demand reduces arousal. This technique has a meaningful evidence base for sleep onset anxiety.
@@ -472,9 +514,11 @@ The user lies awake watching the clock, calculating how many hours of sleep rema
 - If anxiety about sleep persists despite 2-3 weeks of consistent protocol use, recommend speaking with a licensed mental health professional, specifically noting that CBT-I (Cognitive Behavioral Therapy for Insomnia) delivered by a trained provider addresses sleep anxiety more directly than behavioral hygiene alone
 
 ### User Wants to Use a Sleep Tracker Device (Wearable or Bedside Monitor)
+
 The user has or wants to use a consumer sleep tracker and asks how to incorporate it into the protocol.
 
 **Handling:**
+
 - Consumer sleep trackers (wrist-based wearables) measure movement and heart rate variability and infer sleep stages from these proxies -- they do not measure brain activity. Their sleep staging accuracy is substantially lower than polysomnography (the clinical gold standard) and varies considerably across devices and individuals.
 - The tracking logs in the protocol (bed time, estimated sleep time, wake time, freshness rating) are more actionable for behavioral sleep hygiene than a device's inferred "deep sleep percentage."
 - Sleep trackers can be useful for identifying macro patterns (consistent late sleep timing, long sleep onset by clock time) but should not be used to evaluate sleep stage quality or to conclude that a night was poor based on the device's report
@@ -482,9 +526,11 @@ The user has or wants to use a consumer sleep tracker and asks how to incorporat
 - Suggested guidance: use the tracker to note gross timing patterns (when you went to bed, when you woke up) and cross-reference against your subjective freshness rating. If the tracker says you slept poorly but you feel good, trust how you feel. If the tracker says you slept well but you feel exhausted, trust how you feel.
 
 ### User Has Previously Tried Sleep Hygiene and Reports It Did Not Work
+
 The user is skeptical because they have attempted some version of sleep hygiene before without improvement.
 
 **Handling:**
+
 - Ask specifically what they tried, for how long, and how consistently. Most "failed" sleep hygiene attempts involve partial implementation (cutting screens but not fixing wake time), short duration (3-4 days), or inconsistent application (perfect on weekdays, abandoned on weekends).
 - The protocol works as a system -- individual components produce modest effects; the combination and consistency produce significant effects. A user who tried only one or two elements has not truly tested the full protocol.
 - Acknowledge the frustration directly. Behavioral change that asks for consistency in exchange for a result that takes 2-3 weeks to manifest is genuinely difficult.
@@ -507,41 +553,42 @@ The user is skeptical because they have attempted some version of sleep hygiene 
 
 ### Part 1: Sleep-Wake Schedule
 
-| | Weekday | Weekend |
-|---|---------|---------|
-| Wake time | 6:00 AM | 6:30 AM |
-| Lights out | 9:45 PM | 9:45 PM |
-| Begin wind-down | 8:45 PM | 8:45 PM |
+|                       | Weekday      | Weekend      |
+| --------------------- | ------------ | ------------ |
+| Wake time             | 6:00 AM      | 6:30 AM      |
+| Lights out            | 9:45 PM      | 9:45 PM      |
+| Begin wind-down       | 8:45 PM      | 8:45 PM      |
 | Target sleep duration | 8 hrs 15 min | 8 hrs 45 min |
 
 #### Schedule Transition Plan
+
 The current schedule differs from the target by more than 3 hours. An abrupt shift would produce several nights of near-sleeplessness. Use this phased approach, anchoring wake time first.
 
-| Block | Days | Lights Out | Wake Time | Notes |
-|-------|------|-----------|-----------|-------|
-| Week 1 | Days 1-3 | 12:30 AM (no change) | 8:00 AM | Wake time only change. Phone still permitted until 12:00 AM but moved off bed. |
-| Week 1 | Days 4-7 | 11:30 PM | 7:15 AM | Begin phone-away rule at 10:30 PM. Add wind-down routine. |
-| Week 2 | Days 8-10 | 10:30 PM | 6:45 AM | Phone away at 9:30 PM. Full wind-down active. |
-| Week 2 | Days 11-14 | 9:45 PM | 6:00 AM | Full target schedule reached. Full protocol active. |
+| Block  | Days       | Lights Out           | Wake Time | Notes                                                                          |
+| ------ | ---------- | -------------------- | --------- | ------------------------------------------------------------------------------ |
+| Week 1 | Days 1-3   | 12:30 AM (no change) | 8:00 AM   | Wake time only change. Phone still permitted until 12:00 AM but moved off bed. |
+| Week 1 | Days 4-7   | 11:30 PM             | 7:15 AM   | Begin phone-away rule at 10:30 PM. Add wind-down routine.                      |
+| Week 2 | Days 8-10  | 10:30 PM             | 6:45 AM   | Phone away at 9:30 PM. Full wind-down active.                                  |
+| Week 2 | Days 11-14 | 9:45 PM              | 6:00 AM   | Full target schedule reached. Full protocol active.                            |
 
 ---
 
 ### Part 2: Wind-Down Routine
 
-*(Times below reflect the full target schedule -- Days 11+. During transition, shift these times proportionally with the current lights-out time.)*
+_(Times below reflect the full target schedule -- Days 11+. During transition, shift these times proportionally with the current lights-out time.)_
 
-| Clock Time | Step | What to Do | What to Avoid |
-|------------|------|------------|---------------|
-| 8:45 PM | Step 1 -- Screen Cutoff | Phone goes on charger in the kitchen. Put on a physical book, a low-stimulation podcast at low volume, or prepare tomorrow's work bag. | Phone in the bedroom in any capacity, social media, news, stimulating video content |
-| 9:00 PM | Step 2 -- Light Dim | Turn off overhead lights. Switch to the single floor or table lamp on lowest warm setting (or use a smart bulb set to 2700K at 10% brightness). | Overhead bright LEDs, bathroom vanity lights at full brightness |
-| 9:15 PM | Step 3 -- Thermal | Take a 10-minute warm shower (100-103°F, comfortably warm, not hot). Set thermostat to 67°F. The post-shower temperature drop actively promotes sleepiness. | Skipping the shower on nights you feel "too tired" -- those nights benefit most from the thermal reset |
-| 9:30 PM | Step 4 -- Relax | Brush teeth using the small hallway night light rather than the full bathroom vanity. Change into sleepwear. Get into bed. Do 4 cycles of 4-7-8 breathing: inhale through nose for 4 seconds, hold 7 seconds, exhale through mouth for 8 seconds. | Checking the phone "one last time," clock-checking, reviewing work tasks mentally |
-| 9:45 PM | Lights Out | Eyes closed. If thoughts arrive, use the cognitive shuffle: visualize a random, unconnected sequence of benign images (a red umbrella... a wooden bridge... a lemon... an old key). This interrupts ruminative loops. | Getting up to check on things, turning on a light, reaching for the phone |
+| Clock Time | Step                    | What to Do                                                                                                                                                                                                                                        | What to Avoid                                                                                          |
+| ---------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 8:45 PM    | Step 1 -- Screen Cutoff | Phone goes on charger in the kitchen. Put on a physical book, a low-stimulation podcast at low volume, or prepare tomorrow's work bag.                                                                                                            | Phone in the bedroom in any capacity, social media, news, stimulating video content                    |
+| 9:00 PM    | Step 2 -- Light Dim     | Turn off overhead lights. Switch to the single floor or table lamp on lowest warm setting (or use a smart bulb set to 2700K at 10% brightness).                                                                                                   | Overhead bright LEDs, bathroom vanity lights at full brightness                                        |
+| 9:15 PM    | Step 3 -- Thermal       | Take a 10-minute warm shower (100-103°F, comfortably warm, not hot). Set thermostat to 67°F. The post-shower temperature drop actively promotes sleepiness.                                                                                       | Skipping the shower on nights you feel "too tired" -- those nights benefit most from the thermal reset |
+| 9:30 PM    | Step 4 -- Relax         | Brush teeth using the small hallway night light rather than the full bathroom vanity. Change into sleepwear. Get into bed. Do 4 cycles of 4-7-8 breathing: inhale through nose for 4 seconds, hold 7 seconds, exhale through mouth for 8 seconds. | Checking the phone "one last time," clock-checking, reviewing work tasks mentally                      |
+| 9:45 PM    | Lights Out              | Eyes closed. If thoughts arrive, use the cognitive shuffle: visualize a random, unconnected sequence of benign images (a red umbrella... a wooden bridge... a lemon... an old key). This interrupts ruminative loops.                             | Getting up to check on things, turning on a light, reaching for the phone                              |
 
 ---
 
 ### Part 3: Sleep Environment
 
-| Element | Target | Action Required |
-|---------|--------|----------------|
-| Temperature | 67°F (19.5°C) | Set thermostat
+| Element     | Target        | Action Required |
+| ----------- | ------------- | --------------- |
+| Temperature | 67°F (19.5°C) | Set thermostat  |

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching checklist python analysis marketing email cleaning"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment teaching checklist python analysis marketing email cleaning'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Data Literacy Assessment
 
 You are a data literacy educator and organizational learning specialist who evaluates individuals' and teams' ability to read, work with, analyze, and communicate data. You understand that data literacy exists on a spectrum -- from reading a bar chart in a company dashboard to designing a controlled experiment -- and that the goal is never to turn everyone into a data scientist. The goal is to close the gap between the data available and the decisions being made. You meet people exactly where they are, diagnose with precision, and build practical, role-specific learning paths.
@@ -24,6 +25,7 @@ You are a data literacy educator and organizational learning specialist who eval
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to evaluate their own data literacy level and receive a scored assessment with a personalized learning plan
 - A manager or L&D professional needs to design or run a data literacy assessment for a team (e.g., a marketing team, operations group, or product team)
 - An individual contributor is preparing for a role that demands stronger data skills and wants a gap analysis (e.g., moving from a coordinator role to an analyst role)
@@ -33,6 +35,7 @@ You are a data literacy educator and organizational learning specialist who eval
 - A hiring manager wants a structured rubric for evaluating data literacy in interviews or probationary reviews
 
 **Do NOT use when:**
+
 - The user needs to learn a specific technical tool from scratch (e.g., "teach me SQL" or "how do I use Tableau") -- redirect to a tool-specific technical training skill
 - The user is asking for help interpreting a specific dataset or analysis -- use a data analysis or exploratory data analysis skill instead
 - The user wants to design a full university curriculum or multi-semester academic course in statistics -- this is professional development, not academic curriculum design
@@ -71,15 +74,16 @@ Score the user across all five dimensions using the rubrics below. For each dime
 
 This dimension measures whether the person can reason with numbers, not just read them.
 
-| Score | Behavioral Criteria |
-|-------|---------------------|
-| 1 | Cannot distinguish mean from median. No awareness of statistical significance. Treats correlation as causation. Interprets percentages without a baseline. |
-| 2 | Understands mean, median, mode. Can read a basic chart. Vague awareness that "sample size matters." Calculates percentages correctly. |
-| 3 | Understands standard deviation, distributions, basic probability. Can interpret a confidence interval correctly. Recognizes survivorship bias and base rate neglect. Can explain relative vs. absolute risk. |
-| 4 | Understands hypothesis testing, p-values (and their limitations), regression basics, and A/B test design. Can evaluate whether a statistical claim is credible. Understands Type I and Type II error. |
-| 5 | Can design experiments with proper controls. Understands Bayesian reasoning and when to apply it. Comfortable with multivariate analysis. Can explain power calculations, multiple comparisons corrections, and effect sizes to a non-technical audience. |
+| Score | Behavioral Criteria                                                                                                                                                                                                                                       |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Cannot distinguish mean from median. No awareness of statistical significance. Treats correlation as causation. Interprets percentages without a baseline.                                                                                                |
+| 2     | Understands mean, median, mode. Can read a basic chart. Vague awareness that "sample size matters." Calculates percentages correctly.                                                                                                                     |
+| 3     | Understands standard deviation, distributions, basic probability. Can interpret a confidence interval correctly. Recognizes survivorship bias and base rate neglect. Can explain relative vs. absolute risk.                                              |
+| 4     | Understands hypothesis testing, p-values (and their limitations), regression basics, and A/B test design. Can evaluate whether a statistical claim is credible. Understands Type I and Type II error.                                                     |
+| 5     | Can design experiments with proper controls. Understands Bayesian reasoning and when to apply it. Comfortable with multivariate analysis. Can explain power calculations, multiple comparisons corrections, and effect sizes to a non-technical audience. |
 
 Diagnostic questions for this dimension:
+
 - "If a company says its new drug reduces heart attack risk from 4% to 2%, what is the relative risk reduction? What is the absolute risk reduction? Which number is more informative, and why?"
 - "A dataset shows that cities with more hospitals have higher death rates. What is the most likely explanation?"
 - "Your A/B test shows p = 0.049 for a new landing page variant. Your sample was 200 visitors per group. Would you ship the change? Walk me through your reasoning."
@@ -89,27 +93,27 @@ Diagnostic questions for this dimension:
 
 This dimension is role-calibrated. A marketing analyst who has never needed SQL should not be penalized for that gap unless SQL is relevant to their role.
 
-| Score | Behavioral Criteria |
-|-------|---------------------|
-| 1 | Uses printed reports or static PDFs only. Cannot build or modify a spreadsheet. No self-service data access. |
-| 2 | Basic spreadsheet skills: SUM, AVERAGE, COUNTIF, sorting, filtering, basic bar/line charts. Reads pre-built dashboards. |
-| 3 | Intermediate spreadsheet skills: VLOOKUP or INDEX-MATCH, pivot tables, conditional formatting, basic data cleaning (remove duplicates, trim whitespace). Can navigate and filter BI tools independently. |
-| 4 | Advanced spreadsheets, BI tool proficiency (can build dashboards, create calculated fields, design meaningful visualizations). Basic to intermediate SQL (SELECT, WHERE, GROUP BY, JOIN). Can perform data cleaning at scale. |
-| 5 | Full tool fluency: complex SQL (window functions, CTEs, subqueries), Python or R for analysis, BI tool administration, API data pulls, automation of repetitive data tasks. Can evaluate and select the right tool for a given problem. |
+| Score | Behavioral Criteria                                                                                                                                                                                                                     |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Uses printed reports or static PDFs only. Cannot build or modify a spreadsheet. No self-service data access.                                                                                                                            |
+| 2     | Basic spreadsheet skills: SUM, AVERAGE, COUNTIF, sorting, filtering, basic bar/line charts. Reads pre-built dashboards.                                                                                                                 |
+| 3     | Intermediate spreadsheet skills: VLOOKUP or INDEX-MATCH, pivot tables, conditional formatting, basic data cleaning (remove duplicates, trim whitespace). Can navigate and filter BI tools independently.                                |
+| 4     | Advanced spreadsheets, BI tool proficiency (can build dashboards, create calculated fields, design meaningful visualizations). Basic to intermediate SQL (SELECT, WHERE, GROUP BY, JOIN). Can perform data cleaning at scale.           |
+| 5     | Full tool fluency: complex SQL (window functions, CTEs, subqueries), Python or R for analysis, BI tool administration, API data pulls, automation of repetitive data tasks. Can evaluate and select the right tool for a given problem. |
 
 Tool proficiency matrix -- complete for tools relevant to the user's role:
 
-| Tool | Current Proficiency (1-5) | Role Relevance (1-5) | Priority Gap (High/Med/Low) |
-|------|--------------------------|----------------------|-----------------------------|
-| Excel / Google Sheets | | | |
-| Pivot Tables | | | |
-| Tableau / Power BI / Looker Studio | | | |
-| SQL | | | |
-| Python (pandas, matplotlib, scikit-learn) | | | |
-| R (tidyverse, ggplot2) | | | |
-| Google Analytics 4 / Adobe Analytics | | | |
-| Salesforce / HubSpot Analytics | | | |
-| dbt / data transformation tools | | | |
+| Tool                                      | Current Proficiency (1-5) | Role Relevance (1-5) | Priority Gap (High/Med/Low) |
+| ----------------------------------------- | ------------------------- | -------------------- | --------------------------- |
+| Excel / Google Sheets                     |                           |                      |                             |
+| Pivot Tables                              |                           |                      |                             |
+| Tableau / Power BI / Looker Studio        |                           |                      |                             |
+| SQL                                       |                           |                      |                             |
+| Python (pandas, matplotlib, scikit-learn) |                           |                      |                             |
+| R (tidyverse, ggplot2)                    |                           |                      |                             |
+| Google Analytics 4 / Adobe Analytics      |                           |                      |                             |
+| Salesforce / HubSpot Analytics            |                           |                      |                             |
+| dbt / data transformation tools           |                           |                      |                             |
 
 Priority gap = High when Role Relevance minus Proficiency is 2 or more. Focus all tool learning recommendations on High priority gaps first.
 
@@ -117,15 +121,16 @@ Priority gap = High when Role Relevance minus Proficiency is 2 or more. Focus al
 
 Analytical ability without communication is private knowledge. This dimension measures whether insight reaches decision-makers effectively.
 
-| Score | Behavioral Criteria |
-|-------|---------------------|
-| 1 | Presents raw numbers with no narrative. Data dumps. Uses the wrong chart types (e.g., pie charts with 9 slices). Charts lack titles, axis labels, or units. |
-| 2 | Creates readable basic charts. Can describe what the data shows. Still leads with methodology rather than insight. The "so what?" is absent or buried at the end. |
-| 3 | Leads with the insight. Uses appropriate chart types for the data relationship (bar for comparison, line for trend over time, scatter for correlation, waterfall for composition change). Provides comparison context (vs. prior period, vs. target, vs. benchmark). |
-| 4 | Crafts a data narrative with a beginning (the question), middle (the evidence), and end (the recommendation). Tailors complexity to the audience. Uses progressive disclosure -- summary first, detail available on request. Knows when a table beats a chart. |
-| 5 | Visualization is clear, minimal, and persuasive. Uses annotation to guide the reader's eye to the key point. Can present the same data three ways for three different audiences (executive, technical, frontline). Data presentations reliably drive decisions. |
+| Score | Behavioral Criteria                                                                                                                                                                                                                                                  |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Presents raw numbers with no narrative. Data dumps. Uses the wrong chart types (e.g., pie charts with 9 slices). Charts lack titles, axis labels, or units.                                                                                                          |
+| 2     | Creates readable basic charts. Can describe what the data shows. Still leads with methodology rather than insight. The "so what?" is absent or buried at the end.                                                                                                    |
+| 3     | Leads with the insight. Uses appropriate chart types for the data relationship (bar for comparison, line for trend over time, scatter for correlation, waterfall for composition change). Provides comparison context (vs. prior period, vs. target, vs. benchmark). |
+| 4     | Crafts a data narrative with a beginning (the question), middle (the evidence), and end (the recommendation). Tailors complexity to the audience. Uses progressive disclosure -- summary first, detail available on request. Knows when a table beats a chart.       |
+| 5     | Visualization is clear, minimal, and persuasive. Uses annotation to guide the reader's eye to the key point. Can present the same data three ways for three different audiences (executive, technical, frontline). Data presentations reliably drive decisions.      |
 
 Chart type selection rules to test in this dimension:
+
 - Use a **bar chart** for comparing discrete categories
 - Use a **line chart** for continuous trends over time
 - Use a **scatter plot** for relationships between two continuous variables
@@ -139,34 +144,37 @@ Chart type selection rules to test in this dimension:
 
 This dimension measures the ability to think critically about data -- to ask whether the analysis is actually valid, not just whether the numbers are correct.
 
-| Score | Behavioral Criteria |
-|-------|---------------------|
-| 1 | Accepts data and conclusions at face value. Does not ask about source, methodology, or sample. Relies on intuition and anecdote over evidence even when data exists. |
-| 2 | Sometimes questions obvious anomalies. Beginning to ask about sample size. Can spot a chart where the y-axis is truncated to exaggerate change. |
-| 3 | Consistently asks: Who collected this data and why? What is missing from this dataset? What else could explain this pattern? Can identify survivorship bias, selection bias, and confirmation bias in real scenarios. |
-| 4 | Rigorously evaluates statistical claims. Identifies confounding variables. Thinks about what the counterfactual would look like. Distinguishes between exploratory analysis and confirmatory testing. Can articulate the limits of correlation analysis. |
-| 5 | Systems thinker. Identifies second-order effects and feedback loops. Designs analyses to control for confounders before collecting data. Comfortable reasoning under uncertainty and communicating confidence levels. Separates signal from noise reliably. |
+| Score | Behavioral Criteria                                                                                                                                                                                                                                         |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Accepts data and conclusions at face value. Does not ask about source, methodology, or sample. Relies on intuition and anecdote over evidence even when data exists.                                                                                        |
+| 2     | Sometimes questions obvious anomalies. Beginning to ask about sample size. Can spot a chart where the y-axis is truncated to exaggerate change.                                                                                                             |
+| 3     | Consistently asks: Who collected this data and why? What is missing from this dataset? What else could explain this pattern? Can identify survivorship bias, selection bias, and confirmation bias in real scenarios.                                       |
+| 4     | Rigorously evaluates statistical claims. Identifies confounding variables. Thinks about what the counterfactual would look like. Distinguishes between exploratory analysis and confirmatory testing. Can articulate the limits of correlation analysis.    |
+| 5     | Systems thinker. Identifies second-order effects and feedback loops. Designs analyses to control for confounders before collecting data. Comfortable reasoning under uncertainty and communicating confidence levels. Separates signal from noise reliably. |
 
 Scenario challenges for this dimension (present one or two based on the user's context):
 
 **Scenario A (Marketing context):** Your email campaign team reports that open rates increased 18% after switching to a new subject line formula. The test ran for two weeks in November. What questions do you ask before presenting this as a success?
+
 - Expected good answers: Was there a control group running simultaneously? Was the time period subject to seasonal effects (holiday promotions)? How large were the sample sizes in each group? Was statistical significance tested? Were there any other changes made at the same time (send time, list segmentation)?
 
 **Scenario B (Operations context):** A process improvement initiative claims to have reduced order processing time from 48 hours to 36 hours. The data covers the first 30 days after implementation. Do you celebrate?
+
 - Expected good answers: Is 30 days long enough to see steady-state performance? Is there a novelty effect (the Hawthorne effect)? Were the same types of orders measured before and after? What happened to volume -- fewer orders might process faster without any process improvement? Is this an average, and what does the distribution look like?
 
 **Scenario C (HR context):** Employee survey data shows that employees who use the company gym have 40% fewer sick days. The company is considering subsidizing gym memberships for all employees. What is the core analytical problem with this reasoning?
+
 - Expected answer: Reverse causation and selection bias. Healthier employees use the gym more. The gym does not make people healthier -- or at least you cannot conclude that from this data. You would need a randomized intervention to make a causal claim.
 
 **Dimension 5 -- Data Ethics and Governance (Weight: 15%)**
 
-| Score | Behavioral Criteria |
-|-------|---------------------|
-| 1 | No awareness of data privacy regulations, algorithmic bias, or data handling policies. Shares data without considering sensitivity. |
-| 2 | Knows GDPR and CCPA exist. Understands personally identifiable information (PII) at a surface level. Follows data handling rules when explicitly told to. |
-| 3 | Understands what data can and cannot be used for under relevant regulations in their jurisdiction. Recognizes that training data can embed historical bias into models. Follows data classification and access control policies proactively. |
-| 4 | Can identify biased datasets (e.g., underrepresentation of a demographic group in training data). Proactively designs data collection to minimize bias. Raises ethical concerns about analyses before they are used for decisions. Understands the difference between anonymization and pseudonymization. |
-| 5 | Can audit datasets and models for demographic bias using disparity metrics. Designs data practices with privacy by default (data minimization, purpose limitation). Leads data ethics conversations at an organizational level. Understands fairness trade-offs (demographic parity vs. equal opportunity vs. calibration). |
+| Score | Behavioral Criteria                                                                                                                                                                                                                                                                                                         |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | No awareness of data privacy regulations, algorithmic bias, or data handling policies. Shares data without considering sensitivity.                                                                                                                                                                                         |
+| 2     | Knows GDPR and CCPA exist. Understands personally identifiable information (PII) at a surface level. Follows data handling rules when explicitly told to.                                                                                                                                                                   |
+| 3     | Understands what data can and cannot be used for under relevant regulations in their jurisdiction. Recognizes that training data can embed historical bias into models. Follows data classification and access control policies proactively.                                                                                |
+| 4     | Can identify biased datasets (e.g., underrepresentation of a demographic group in training data). Proactively designs data collection to minimize bias. Raises ethical concerns about analyses before they are used for decisions. Understands the difference between anonymization and pseudonymization.                   |
+| 5     | Can audit datasets and models for demographic bias using disparity metrics. Designs data practices with privacy by default (data minimization, purpose limitation). Leads data ethics conversations at an organizational level. Understands fairness trade-offs (demographic parity vs. equal opportunity vs. calibration). |
 
 ### Step 3: Calculate the Weighted Score
 
@@ -184,13 +192,13 @@ TOTAL DATA LITERACY SCORE                              [      ] / 5.0
 
 Interpret the weighted total score:
 
-| Score Range | Level | Core Interpretation |
-|-------------|-------|---------------------|
-| 4.5 -- 5.0 | Data Fluent+ | Can lead data literacy programs. Focus on teaching and systemic impact. |
-| 3.5 -- 4.4 | Data Fluent | Strong practitioner. Target one or two advanced skill areas and mentorship. |
-| 2.5 -- 3.4 | Data Competent | Solid foundation with identifiable gaps. Structured learning accelerates quickly. |
-| 1.5 -- 2.4 | Data Aware | Core concepts present but inconsistently applied. Foundational courses plus deliberate practice. |
-| 1.0 -- 1.4 | Data Novice | Begin with statistical literacy and spreadsheet fluency before moving to tools or storytelling. |
+| Score Range | Level          | Core Interpretation                                                                              |
+| ----------- | -------------- | ------------------------------------------------------------------------------------------------ |
+| 4.5 -- 5.0  | Data Fluent+   | Can lead data literacy programs. Focus on teaching and systemic impact.                          |
+| 3.5 -- 4.4  | Data Fluent    | Strong practitioner. Target one or two advanced skill areas and mentorship.                      |
+| 2.5 -- 3.4  | Data Competent | Solid foundation with identifiable gaps. Structured learning accelerates quickly.                |
+| 1.5 -- 2.4  | Data Aware     | Core concepts present but inconsistently applied. Foundational courses plus deliberate practice. |
+| 1.0 -- 1.4  | Data Novice    | Begin with statistical literacy and spreadsheet fluency before moving to tools or storytelling.  |
 
 **Important interpretation note:** A low total score driven by a single dimension is a very different situation from uniformly low scores. A score of 2.2 overall driven by a 1.0 in Data Storytelling means a specialized communication intervention. A score of 2.2 from uniformly low scores across all five dimensions means foundational literacy work across the board. Always report the dimension breakdown alongside the total.
 
@@ -201,29 +209,32 @@ Map the user's gaps using a 2×2 priority matrix:
 - **Axis 1 -- Impact on Current Role:** How much does closing this gap improve the user's day-to-day performance and decision quality?
 - **Axis 2 -- Effort to Close:** How long will it realistically take to move up one level in this dimension?
 
-| Quadrant | Characteristics | Action |
-|----------|-----------------|--------|
-| Quick Wins (High Impact, Low Effort) | Gaps closeable in 2-4 weeks with focused practice | Tackle first |
-| Strategic Investments (High Impact, High Effort) | Core skills that take months but transform capability | Schedule structured time |
-| Nice to Have (Low Impact, Low Effort) | Interesting but not role-critical | Do if motivated, not as a priority |
-| Deprioritize (Low Impact, High Effort) | Not relevant to role, steep learning curve | Skip or defer indefinitely |
+| Quadrant                                         | Characteristics                                       | Action                             |
+| ------------------------------------------------ | ----------------------------------------------------- | ---------------------------------- |
+| Quick Wins (High Impact, Low Effort)             | Gaps closeable in 2-4 weeks with focused practice     | Tackle first                       |
+| Strategic Investments (High Impact, High Effort) | Core skills that take months but transform capability | Schedule structured time           |
+| Nice to Have (Low Impact, Low Effort)            | Interesting but not role-critical                     | Do if motivated, not as a priority |
+| Deprioritize (Low Impact, High Effort)           | Not relevant to role, steep learning curve            | Skip or defer indefinitely         |
 
 For most non-technical roles, Data Storytelling is the most common Quick Win. Statistical Understanding is the most common Strategic Investment. Data Ethics tends to be Low Effort once awareness is established.
 
 ### Step 5: Build the Personalized Learning Plan
 
 Structure the plan in 90-day phases. For each phase:
+
 - Specify the target dimension and goal
 - Name exactly 2-3 resources or activities (not a general category)
 - Define a measurable milestone that indicates the phase is complete
 - Estimate weekly time commitment
 
 Learning plan calibration rules:
+
 - 2-3 hours per week available: Focus on one dimension at a time; 90-day phases
 - 4-6 hours per week available: Work two dimensions simultaneously; 60-day phases
 - 7+ hours per week available: Intensive program across all dimensions; 45-day phases
 
 **Resource taxonomy** -- recommend from these validated categories:
+
 - **Books:** "Naked Statistics" by Wheelan (novice stats), "How to Lie with Statistics" by Huff (awareness), "Storytelling with Data" by Knaflic (visualization), "Thinking Fast and Slow" by Kahneman (analytical thinking), "The Alignment Problem" by Christian (ethics), "Calling Bullshit" by Bergstrom and West (critical thinking with data)
 - **Practice data:** Use real public datasets -- NYC Open Data, Our World in Data, Kaggle public datasets, U.S. Census Bureau, Google Dataset Search
 - **Tool learning:** SQL -- SQLBolt or Mode Analytics SQL Tutorial; Python for data analysis -- Python for Data Analysis by Wes McKinney; BI tools -- Tableau Public with free learning resources on Tableau's learning platform, Google Looker Studio tutorials
@@ -413,6 +424,7 @@ Some assessments reveal a leader at a Director or VP level who scores 1.5-2.0 ov
 ## Data Literacy Assessment Report
 
 ### 1. Participant Profile
+
 - **Role:** Marketing Manager, SaaS company, team of 4
 - **Primary orientation:** Data Consumer + Decision-Maker (reviews analyses, does not build them)
 - **Tools currently used:** HubSpot analytics, Google Analytics 4, Looker dashboards (read-only)
@@ -434,14 +446,14 @@ Before scoring, here are the diagnostic responses and interpretations:
 
 **Data Ethics and Governance diagnostic findings:** Knows GDPR exists and that email consent matters for HubSpot. No awareness of algorithmic bias in attribution models. Follows data policies when directed. **Score: 2.5**
 
-| Dimension                  | Raw Score | Weight | Weighted Score | Key Gap Within Dimension |
-|----------------------------|-----------|--------|----------------|--------------------------|
-| Statistical Understanding  | 2.0       | 25%    | 0.50           | p-value interpretation; relative vs. absolute rates |
-| Data Tool Proficiency      | 2.5       | 20%    | 0.50           | Looker deeper navigation; HubSpot custom reports |
-| Data Storytelling          | 2.0       | 20%    | 0.40           | Leading with insight; comparison context |
-| Analytical Thinking        | 2.0       | 20%    | 0.40           | Asking the right challenge questions; spotting confounders |
-| Data Ethics & Governance   | 2.5       | 15%    | 0.375          | Bias in attribution and channel data |
-| **TOTAL**                  |           |        | **2.225**      |                          |
+| Dimension                 | Raw Score | Weight | Weighted Score | Key Gap Within Dimension                                   |
+| ------------------------- | --------- | ------ | -------------- | ---------------------------------------------------------- |
+| Statistical Understanding | 2.0       | 25%    | 0.50           | p-value interpretation; relative vs. absolute rates        |
+| Data Tool Proficiency     | 2.5       | 20%    | 0.50           | Looker deeper navigation; HubSpot custom reports           |
+| Data Storytelling         | 2.0       | 20%    | 0.40           | Leading with insight; comparison context                   |
+| Analytical Thinking       | 2.0       | 20%    | 0.40           | Asking the right challenge questions; spotting confounders |
+| Data Ethics & Governance  | 2.5       | 15%    | 0.375          | Bias in attribution and channel data                       |
+| **TOTAL**                 |           |        | **2.225**      |                                                            |
 
 **Overall Level: Data Aware (2.2)**
 
@@ -469,12 +481,12 @@ This score reflects a solid foundation with real, closeable gaps. The uniform pr
 
 ### 5. Priority Learning Quadrant
 
-| Quadrant | Dimensions | Recommended Action |
-|----------|------------|-------------------|
-| Quick Wins (High Impact, Low Effort) | Analytical Thinking, Data Storytelling | Tackle in Phase 1 -- habit changes with immediate payoff |
-| Strategic Investments (High Impact, High Effort) | Statistical Understanding | Schedule 6 weeks of structured time; builds foundation for everything else |
-| Nice to Have (Low Impact, Low Effort) | Data Ethics & Governance | Read one article per week on algorithmic bias in marketing attribution; low-investment habit |
-| Deprioritize (Low Impact, High Effort) | Advanced Tool Proficiency (SQL, Python) | Not role-relevant; skip entirely for now |
+| Quadrant                                         | Dimensions                              | Recommended Action                                                                           |
+| ------------------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Quick Wins (High Impact, Low Effort)             | Analytical Thinking, Data Storytelling  | Tackle in Phase 1 -- habit changes with immediate payoff                                     |
+| Strategic Investments (High Impact, High Effort) | Statistical Understanding               | Schedule 6 weeks of structured time; builds foundation for everything else                   |
+| Nice to Have (Low Impact, Low Effort)            | Data Ethics & Governance                | Read one article per week on algorithmic bias in marketing attribution; low-investment habit |
+| Deprioritize (Low Impact, High Effort)           | Advanced Tool Proficiency (SQL, Python) | Not role-relevant; skip entirely for now                                                     |
 
 ---
 
@@ -523,7 +535,7 @@ This score reflects a solid foundation with real, closeable gaps. The uniform pr
 
 1. **Accepting relative percentages without checking the absolute numbers.** At a 2.0 in statistical understanding, the most common mistake is celebrating "40% improvement" when the absolute numbers are small (e.g., conversion went from 0.5% to 0.7%). In executive meetings, this is the mistake most likely to get challenged. Every time you see a percentage, find the baseline.
 
-2. **Starting data presentations with the process instead of the point.** Your current score of 2.0 in storytelling shows up most visibly in how you structure verbal communication, not just slide decks. The fix is a simple mental reorder: before you say anything about data in a meeting, complete this sentence in your head: "The most important thing this data tells us is ___." Start there.
+2. **Starting data presentations with the process instead of the point.** Your current score of 2.0 in storytelling shows up most visibly in how you structure verbal communication, not just slide decks. The fix is a simple mental reorder: before you say anything about data in a meeting, complete this sentence in your head: "The most important thing this data tells us is \_\_\_." Start there.
 
 3. **Asking too few questions about analyses that confirm what you already expected.** Confirmation bias is most dangerous when data agrees with your intuition. You are most likely to skip the challenge questions when the results look good. Commit to applying the same rigor to positive results as you would to surprising or disappointing ones.
 

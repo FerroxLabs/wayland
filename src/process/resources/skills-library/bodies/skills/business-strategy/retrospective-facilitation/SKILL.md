@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "agile planning project-management template strategy"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'agile planning project-management template strategy'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Retrospective Facilitation
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to plan, structure, or facilitate a sprint retrospective, iteration review, or quarterly team retrospective -- including selecting a format, generating prompts, and building an agenda
 - A user wants to diagnose and improve a stale retro process -- the team is going through the motions, energy is low, action items never get completed, or the same issues keep surfacing
 - A user needs to facilitate a retrospective for a team in a specific challenging context: new team, distributed team, team in conflict, recently reorganized team, or team that just experienced a major failure
@@ -28,6 +30,7 @@ metadata:
 - A user needs to adapt retrospective practice for a specific context: mob programming team, design team, cross-functional product team, or a team where not all members are engineers
 
 **Do NOT use this skill when:**
+
 - The user needs an **incident post-mortem** -- post-mortems have a distinct structure (timeline reconstruction, contributing factors, remediation items) and a different goal (restore reliability, not improve team process); use the `incident-postmortem` skill instead
 - The user needs a **project status report** or sprint review -- sprint reviews are about demonstrating value to stakeholders, not internal team reflection; use `status-update`
 - The user wants a **meeting agenda** for a planning session, design review, or any ceremony that is not specifically about team process improvement; use `meeting-agenda`
@@ -58,21 +61,25 @@ Before selecting a format or writing a single prompt, understand the situation f
 Format selection is not aesthetic -- it is diagnostic. Match the format to what the team needs to surface.
 
 **For general sprint reflection (most common scenario):**
+
 - **Start / Stop / Continue** -- The simplest and most durable format. Three columns. Everyone knows what to do. Use for new teams, time-constrained retros (under 60 min), or teams coming back from retro fatigue. Weakness: it tends to produce vague items.
 - **What Went Well / What Needs Improvement / Action Items (WWW)** -- The classic format from XP teams. Nearly identical to Start/Stop/Continue in practice but less prescriptive. Good default.
 - **4 Ls: Liked, Learned, Lacked, Longed For** -- Adds texture. "Lacked" and "Longed For" surface structural gaps that "What Needs Improvement" misses. "Learned" captures knowledge growth, which is a team health signal. Use when a team has done Start/Stop/Continue for 3+ retros in a row.
 
 **For teams processing specific events or emotions:**
+
 - **Mad / Sad / Glad** -- Emotion-first format. Lowers defenses because the team is categorizing feelings, not making arguments. Highly effective when a sprint involved visible stress, a team conflict, or a morale dip. Weakness: can feel soft to engineering-heavy teams; introduce it explicitly as a way to surface signal that process-only formats miss.
 - **Energy Levels (the "Speedometer" check-in)** -- Not a full format, but a powerful signal: ask each person to rate their sprint energy 1-10 and explain why. Use this as a check-in activity in any retro, but especially in teams showing signs of burnout.
 - **Timeline** -- Draw a horizontal line representing the sprint. Each team member marks high-energy moments and low-energy moments with sticky notes, then walk through them chronologically. Produces exceptional discussion of specific events rather than vague impressions. Use after a sprint with notable incidents, releases, or conflicts. Takes longer (plan 90 min minimum for 6+ people).
 
 **For teams that are stuck or pessimistic:**
+
 - **Sailboat (a.k.a. Speed Boat)** -- Draws a sailboat metaphor: wind (what propels the team), anchors (what slows the team down), rocks ahead (risks), and the island (the goal). The visual metaphor makes it easier for people to surface systemic problems because they are critiquing "the boat," not each other. Use when a team is in a rut, cynical, or struggling to see a path forward.
 - **KALM: Keep, Add, Less, More** -- A refined version of Start/Stop/Continue. "Less" and "More" allow for nuance that "Stop" does not -- some things are not worth stopping entirely, just reducing. Use with experienced teams that find Start/Stop/Continue too binary.
 - **Futurespective / Pre-Mortem variant** -- Instead of reviewing what happened, ask "What could go wrong in the next sprint?" and "What does a perfect next sprint look like?" Use when a team is stuck in retrospective fatigue -- looking backward has stopped producing insight, so look forward.
 
 **For teams that have recently succeeded or are celebrating:**
+
 - **Journey Lines** -- Each team member draws their personal emotional journey through the sprint as a line graph (high/low). More personal than the Timeline format. Use after major releases or end-of-project retrospectives to honor individual experiences. Takes 75-90 minutes.
 - **Star / Wish** -- Simple two-column format: "Stars" (things worth celebrating and preserving) and "Wishes" (things to change). Use after a strong sprint when you want to reinforce what is working while still improving.
 
@@ -85,6 +92,7 @@ Format selection is not aesthetic -- it is diagnostic. Match the format to what 
 A retro is not just a meeting with sticky notes. It has a specific flow that has been validated by decades of practice. Do not skip phases -- each one serves a distinct function.
 
 **Phase 1: Set the Stage (5-10 minutes)**
+
 - Open with a check-in activity, not a status report. The check-in serves two functions: it ensures every person speaks at least once in the first 5 minutes (dramatically increases participation throughout the rest of the session), and it calibrates the group's emotional starting point.
 - Good check-in prompts: "One word to describe this sprint" / "Weather report for your current mood" / "On a scale of 1-10, how do you feel about this sprint?" / "What is one thing you want to get out of this retro?"
 - Avoid check-ins that require more than 30 seconds per person -- they eat into the core session.
@@ -92,12 +100,14 @@ A retro is not just a meeting with sticky notes. It has a specific flow that has
 - Review ground rules (or co-create them with a new team): focus on process not people, one conversation at a time, Vegas rule (what happens in retro stays in retro), all data is useful even if it is uncomfortable.
 
 **Phase 2: Gather Data (10-15 minutes)**
+
 - **Silent, individual writing comes first. Every time. No exceptions.** Before anyone speaks, everyone writes. Use sticky notes (physical or digital). This is the single most impactful facilitation practice in retrospectives because it eliminates anchoring bias -- the first person who speaks does not set the direction of everyone else's thinking.
 - Allow 8-10 minutes of genuine silence. Facilitators often rush this phase -- resist that impulse.
 - In remote sessions, digital boards (Miro, EasyRetro) with anonymous mode enabled allow people to write without social observation pressure. Turn on anonymous mode and turn it off only when sharing begins, if the team is comfortable.
 - For a Timeline format, data gathering is collaborative rather than silent -- team members add events to a shared timeline. Add 5 minutes for this variant.
 
 **Phase 3: Generate Insights (20-30 minutes)**
+
 - After silent writing, share items on the board. In remote sessions, each person reads their own stickies aloud -- do not skip this, as vocalizing the item creates accountability and often sparks discussion.
 - **Affinity mapping / clustering:** Group similar items together. The facilitator does the initial grouping and invites the team to correct it. Naming the clusters is itself a discussion -- "What do we call this group of items about missed handoffs and unclear ownership?"
 - **Dot voting:** Each participant gets 3-5 votes (dots) to allocate across the board. They can place all votes on one item or spread them. Dot voting takes 2-3 minutes and surfaces the collective priority without a prolonged negotiation. For remote sessions, use digital voting tools built into Miro, FigJam, or EasyRetro.
@@ -106,6 +116,7 @@ A retro is not just a meeting with sticky notes. It has a specific flow that has
 - **Distinguish between team-level solvable problems and escalation-needed problems.** Some issues (e.g., headcount decisions, budget constraints, cross-team dependencies) cannot be solved by the team in the next sprint. Create a separate "escalation needed" list and assign someone to bring it to leadership. Do not put escalation-needed items in the action item list -- they will never be completed and will erode trust in the retro process.
 
 **Phase 4: Decide What to Do (10 minutes)**
+
 - Generate action items ONLY from the top voted clusters. Do not create actions for unvoted items.
 - Each action item must pass the SMART-O test before it is accepted:
   - **Specific:** "Add a 15-minute timeboxed sync to Tuesdays for cross-team dependency review" not "improve communication"
@@ -117,6 +128,7 @@ A retro is not just a meeting with sticky notes. It has a specific flow that has
 - **Hard cap: 3 action items maximum.** Research and extensive practitioner evidence consistently shows that teams completing 2 focused actions improve more than teams attempting 7 and abandoning most. If the team insists on more, use dot voting on the action candidates themselves and enforce the cap.
 
 **Phase 5: Close the Retrospective (5 minutes)**
+
 - Run a **retro on the retro** (ROTI -- Return on Time Invested): ask each person to rate the session 1-5 and give one word of feedback. This takes 2 minutes and provides invaluable signal about the health of the retro process itself.
 - Summarize the 3 action items aloud, confirm owners and deadlines.
 - Share notes within 24 hours. The faster notes are distributed, the more the team believes the retro matters.
@@ -434,20 +446,22 @@ Retro fatigue is one of the most common and dangerous patterns in agile teams. I
 ## Retrospective: Product Team -- Sprint 22
 
 ### Session Details
-| Field         | Value |
-|---------------|-------|
-| Date          | [Date of retro] |
-| Duration      | 75 minutes |
-| Format        | 4Ls -- Liked, Learned, Lacked, Longed For |
-| Facilitator   | [Rotate -- suggest the data analyst or a designer this sprint, not the PM] |
-| Participants  | 7 (3 engineers, 2 designers, 1 PM, 1 data analyst) |
-| Tool          | Miro -- 4-column board with anonymous sticky notes enabled during writing |
-| Sprint Goal   | Ship [Feature Name] to production |
+
+| Field         | Value                                                                                                         |
+| ------------- | ------------------------------------------------------------------------------------------------------------- |
+| Date          | [Date of retro]                                                                                               |
+| Duration      | 75 minutes                                                                                                    |
+| Format        | 4Ls -- Liked, Learned, Lacked, Longed For                                                                     |
+| Facilitator   | [Rotate -- suggest the data analyst or a designer this sprint, not the PM]                                    |
+| Participants  | 7 (3 engineers, 2 designers, 1 PM, 1 data analyst)                                                            |
+| Tool          | Miro -- 4-column board with anonymous sticky notes enabled during writing                                     |
+| Sprint Goal   | Ship [Feature Name] to production                                                                             |
 | Sprint Result | Shipped on time -- but late design changes, engineering/design conflict, and analytics scramble in final days |
 
 ---
 
 ### Ground Rules
+
 1. Prime Directive: "Everyone did the best job they could, given what they knew at the time, their skills and abilities, the resources available, and the situation at hand."
 2. We focus on process and systems -- not individuals. We are not naming who was responsible; we are asking what process gaps allowed this to happen.
 3. Vegas rule -- this conversation stays in this team.
@@ -458,10 +472,10 @@ Retro fatigue is one of the most common and dangerous patterns in agile teams. I
 
 ### Previous Action Items Review
 
-| Action | Owner | Due Date | Status | Outcome / Blocker |
-|--------|-------|----------|--------|--------------------|
-| Add design review checkpoint at sprint day 5 | [Designer Lead] | Sprint 22 end | Not done | Calendar invite was not created; sprint work took priority |
-| Include analytics requirements in ticket acceptance criteria | [PM] | Sprint 22 | Partially done | Done for 3 of 8 tickets -- applied to new tickets created after the first week but not retroactively to existing ones |
+| Action                                                       | Owner           | Due Date      | Status         | Outcome / Blocker                                                                                                     |
+| ------------------------------------------------------------ | --------------- | ------------- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Add design review checkpoint at sprint day 5                 | [Designer Lead] | Sprint 22 end | Not done       | Calendar invite was not created; sprint work took priority                                                            |
+| Include analytics requirements in ticket acceptance criteria | [PM]            | Sprint 22     | Partially done | Done for 3 of 8 tickets -- applied to new tickets created after the first week but not retroactively to existing ones |
 
 **Completion rate: 0 of 2 fully completed (1 partially).** This is worth naming directly at the start: "We have two actions from last retro. One was not started -- let's briefly discuss why before we move into reflection. The other was partially done, which is progress." Do not skip this. It is directly related to the pain felt during Sprint 22.
 
@@ -469,34 +483,39 @@ Retro fatigue is one of the most common and dangerous patterns in agile teams. I
 
 ### Agenda
 
-| Time | Phase | Activity | Duration |
-|------|-------|----------|----------|
-| 0:00 | Set the Stage | Check-in: "One word for how Sprint 22 felt" -- everyone answers, no discussion | 5 min |
-| 0:05 | Set the Stage | Prime Directive + Ground Rules + brief note on why format matters today | 3 min |
-| 0:08 | Set the Stage | Previous action item review -- name completion rate, ask "what got in the way of the day-5 checkpoint?" | 7 min |
-| 0:15 | Gather Data | Silent individual writing on 4L Miro board (anonymous mode on) | 12 min |
-| 0:27 | Generate Insights | Facilitator clusters items live; team confirms groupings (2 min); dot voting (3 votes each) | 8 min |
-| 0:35 | Generate Insights | Discuss top 3 clusters -- Five Whys for each, 10 min per cluster | 30 min |
-| 1:05 | Decide What to Do | Generate 2-3 action items -- SMART-O test each one, assign owners | 7 min |
-| 1:12 | Close | ROTI check (1-5 score + one word), summarize actions, confirm notes shared today | 3 min |
+| Time | Phase             | Activity                                                                                                | Duration |
+| ---- | ----------------- | ------------------------------------------------------------------------------------------------------- | -------- |
+| 0:00 | Set the Stage     | Check-in: "One word for how Sprint 22 felt" -- everyone answers, no discussion                          | 5 min    |
+| 0:05 | Set the Stage     | Prime Directive + Ground Rules + brief note on why format matters today                                 | 3 min    |
+| 0:08 | Set the Stage     | Previous action item review -- name completion rate, ask "what got in the way of the day-5 checkpoint?" | 7 min    |
+| 0:15 | Gather Data       | Silent individual writing on 4L Miro board (anonymous mode on)                                          | 12 min   |
+| 0:27 | Generate Insights | Facilitator clusters items live; team confirms groupings (2 min); dot voting (3 votes each)             | 8 min    |
+| 0:35 | Generate Insights | Discuss top 3 clusters -- Five Whys for each, 10 min per cluster                                        | 30 min   |
+| 1:05 | Decide What to Do | Generate 2-3 action items -- SMART-O test each one, assign owners                                       | 7 min    |
+| 1:12 | Close             | ROTI check (1-5 score + one word), summarize actions, confirm notes shared today                        | 3 min    |
 
 ---
 
 ### Reflection Prompts (4Ls)
 
 **Liked:**
+
 > "What about how we worked together -- or a specific practice, tool, or interaction -- made this sprint more effective? What would you not want to lose even as we make changes?"
 
 **Learned:**
+
 > "What did this sprint teach us -- about our process, our craft, our cross-functional collaboration, or our users -- that we did not know at the start of Sprint 22?"
 
 **Lacked:**
+
 > "What information, alignment, structure, or resource was missing that would have made the last-minute scramble avoidable? Be specific -- name the point in the sprint where the absence first became a problem."
 
 **Longed For:**
+
 > "If one thing about how we work together could be permanently different by Sprint 24, what would it be?"
 
 **Deeper dive prompt (use if discussion stalls or generates only surface items):**
+
 > "Imagine it's Sprint Day 12 at 4pm -- three days before launch -- and there are no surprises, no conflicts, no scrambles. What is different about how we worked in Sprints 1-9 of that imagined sprint compared to what actually happened in Sprint 22?"
 
 ---
@@ -514,10 +533,12 @@ The following clusters are likely to emerge based on the sprint description. The
 3. **Cross-functional conflict around crunch** -- Engineering and design conflict about timing is a psychological safety signal. This should be addressed as a process issue: "What process change would have meant the design changes were visible earlier, removing the time pressure that created conflict?"
 
 **Opening each cluster discussion:**
+
 - "Who wrote the items in this cluster? Can you walk us through what you were thinking about -- specifically what happened, not in general?"
 - "Does anyone have a different experience of this situation, or something to add?"
 
 **Driving toward root cause:**
+
 1. "Why did [cluster theme] happen in Sprint 22?"
 2. "What condition made that inevitable given how we work?"
 3. "If we removed or changed [that condition], would this cluster disappear or just reappear in a different form?"
@@ -534,6 +555,6 @@ At some point, someone will likely notice the connection to the uncompleted day-
 
 Based on the likely root causes, well-formed action items for this retro:
 
-| # | Action | Root Cause Addressed | Owner | Due Date | Definition of Done |
-|---|--------|---------------------|-------|----------|--------------------|
-| 1 | Create a recurring calendar event for Sprint Day 5 design review (60 min, required attendees: all designers, PM, lead engineer) -- today, before this retro notes go
+| #   | Action                                                                                                                                                               | Root Cause Addressed | Owner | Due Date | Definition of Done |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ----- | -------- | ------------------ |
+| 1   | Create a recurring calendar event for Sprint Day 5 design review (60 min, required attendees: all designers, PM, lead engineer) -- today, before this retro notes go |

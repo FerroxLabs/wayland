@@ -14,14 +14,15 @@ description: >-
   atomic competitor skill can answer without the full research arc.
 license: Apache-2.0
 type: workflow
-skills: "market-competitors market-audit"
+skills: 'market-competitors market-audit'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing competitors research positioning step-by-step
   category: marketing
-  depends: "market-competitors market-audit"
+  depends: 'market-competitors market-audit'
 ---
+
 # Competitor Deep Research
 
 **Estimated time:** 45-60 minutes

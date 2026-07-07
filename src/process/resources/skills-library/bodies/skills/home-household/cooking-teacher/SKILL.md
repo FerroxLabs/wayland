@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning guide"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning guide'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cooking Technique Teacher
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about cooking teacher
 - User needs guidance on cooking teacher topics
 - User wants a structured approach to cooking teacher
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -79,12 +81,12 @@ COOKING SKILL ASSESSMENT
 
 ### Essential Knife Types
 
-| Knife | Size | Primary Use |
-|-------|------|-------------|
-| Chef's knife | 8-10 inches | The workhorse; 90% of cutting tasks |
-| Paring knife | 3-4 inches | Small precision work, peeling, trimming |
-| Serrated/bread knife | 8-10 inches | Bread, tomatoes, delicate items |
-| Santoku | 5-7 inches | Alternative to chef's knife (Asian style) |
+| Knife                | Size        | Primary Use                               |
+| -------------------- | ----------- | ----------------------------------------- |
+| Chef's knife         | 8-10 inches | The workhorse; 90% of cutting tasks       |
+| Paring knife         | 3-4 inches  | Small precision work, peeling, trimming   |
+| Serrated/bread knife | 8-10 inches | Bread, tomatoes, delicate items           |
+| Santoku              | 5-7 inches  | Alternative to chef's knife (Asian style) |
 
 ### How to Hold a Chef's Knife
 
@@ -115,6 +117,7 @@ A dull knife requires more force and is more likely to slip.
 **Slice:** Smooth forward-and-down motion through the ingredient
 
 **Dice:**
+
 ```
 STANDARD DICE SIZES
 =====================
@@ -169,13 +172,13 @@ Week 4: Speed and confidence
 
 ### Understanding Heat Levels
 
-| Heat Level | Skillet Cue | Temperature | Use For |
-|-----------|------------|-------------|---------|
-| Low | Barely warm to touch near surface | 200-275F | Melting, sweating, gentle simmering |
-| Medium-low | Light sizzle when food added | 275-325F | Sweating onions, slow cooking, reducing |
-| Medium | Steady sizzle, oil shimmers | 325-375F | Most sauteing, pancakes |
-| Medium-high | Active sizzle, slight smoke | 375-425F | Searing, browning, stir-frying |
-| High | Oil smokes, instant sizzle | 425-500F | Searing steaks, wok cooking |
+| Heat Level  | Skillet Cue                       | Temperature | Use For                                 |
+| ----------- | --------------------------------- | ----------- | --------------------------------------- |
+| Low         | Barely warm to touch near surface | 200-275F    | Melting, sweating, gentle simmering     |
+| Medium-low  | Light sizzle when food added      | 275-325F    | Sweating onions, slow cooking, reducing |
+| Medium      | Steady sizzle, oil shimmers       | 325-375F    | Most sauteing, pancakes                 |
+| Medium-high | Active sizzle, slight smoke       | 375-425F    | Searing, browning, stir-frying          |
+| High        | Oil smokes, instant sizzle        | 425-500F    | Searing steaks, wok cooking             |
 
 ### The Maillard Reaction (Why Browning = Flavor)
 
@@ -201,25 +204,25 @@ OVERCROWDING TEST:
 
 ### Smoke Points of Common Oils
 
-| Oil | Smoke Point | Best For |
-|-----|------------|---------|
-| Extra virgin olive oil | 375F | Low-medium heat, dressings, finishing |
-| Butter | 350F | Low-medium heat, sauces, baking |
-| Coconut oil | 350F | Medium heat, baking |
-| Vegetable/canola oil | 400F | All-purpose cooking |
-| Grapeseed oil | 420F | High-heat sauteing, searing |
-| Avocado oil | 520F | Very high heat, searing, grilling |
-| Ghee (clarified butter) | 485F | High heat with butter flavor |
-| Peanut oil | 450F | Deep frying, stir-frying |
+| Oil                     | Smoke Point | Best For                              |
+| ----------------------- | ----------- | ------------------------------------- |
+| Extra virgin olive oil  | 375F        | Low-medium heat, dressings, finishing |
+| Butter                  | 350F        | Low-medium heat, sauces, baking       |
+| Coconut oil             | 350F        | Medium heat, baking                   |
+| Vegetable/canola oil    | 400F        | All-purpose cooking                   |
+| Grapeseed oil           | 420F        | High-heat sauteing, searing           |
+| Avocado oil             | 520F        | Very high heat, searing, grilling     |
+| Ghee (clarified butter) | 485F        | High heat with butter flavor          |
+| Peanut oil              | 450F        | Deep frying, stir-frying              |
 
 ### Pan Selection by Technique
 
-| Pan | Best For | Why |
-|-----|---------|-----|
-| Stainless steel | Searing, deglazing, sauces | Develops fond (brown bits), non-reactive |
-| Cast iron | Searing, baking, frying | Excellent heat retention, goes oven to stove |
-| Non-stick | Eggs, fish, delicate items | Low-stick, easy cleanup |
-| Carbon steel | Stir-frying, crepes, searing | Heats fast, develops seasoning like cast iron |
+| Pan                 | Best For                      | Why                                                |
+| ------------------- | ----------------------------- | -------------------------------------------------- |
+| Stainless steel     | Searing, deglazing, sauces    | Develops fond (brown bits), non-reactive           |
+| Cast iron           | Searing, baking, frying       | Excellent heat retention, goes oven to stove       |
+| Non-stick           | Eggs, fish, delicate items    | Low-stick, easy cleanup                            |
+| Carbon steel        | Stir-frying, crepes, searing  | Heats fast, develops seasoning like cast iron      |
 | Enameled Dutch oven | Braising, soups, stews, bread | Even heat, retains moisture, goes stovetop to oven |
 
 ## Seasoning Principles (Salt, Fat, Acid, Heat)
@@ -422,42 +425,43 @@ TROUBLESHOOTING:
 
 ### Dry Heat Methods
 
-| Method | How | Temperature | Time | Result |
-|--------|-----|------------|------|--------|
-| Saute | Small amount of oil, high heat, toss/stir | Med-High | 3-10 min | Browned, tender |
-| Pan-fry | Moderate oil, medium heat | Medium | 5-15 min | Golden crust |
-| Deep-fry | Submerged in oil | 350-375F | 2-8 min | Crispy all around |
-| Roast | Dry oven heat, open pan | 350-450F | 20-120 min | Caramelized exterior |
-| Bake | Dry oven heat | 300-400F | Varies | Even, gentle cooking |
-| Broil | Radiant heat from above | 500F+ | 2-10 min | Charred top |
-| Grill | Radiant heat from below | High | 5-20 min | Char marks, smoky |
+| Method   | How                                       | Temperature | Time       | Result               |
+| -------- | ----------------------------------------- | ----------- | ---------- | -------------------- |
+| Saute    | Small amount of oil, high heat, toss/stir | Med-High    | 3-10 min   | Browned, tender      |
+| Pan-fry  | Moderate oil, medium heat                 | Medium      | 5-15 min   | Golden crust         |
+| Deep-fry | Submerged in oil                          | 350-375F    | 2-8 min    | Crispy all around    |
+| Roast    | Dry oven heat, open pan                   | 350-450F    | 20-120 min | Caramelized exterior |
+| Bake     | Dry oven heat                             | 300-400F    | Varies     | Even, gentle cooking |
+| Broil    | Radiant heat from above                   | 500F+       | 2-10 min   | Charred top          |
+| Grill    | Radiant heat from below                   | High        | 5-20 min   | Char marks, smoky    |
 
 ### Moist Heat Methods
 
-| Method | How | Temperature | Time | Result |
-|--------|-----|------------|------|--------|
-| Boil | Full rolling boil | 212F | Varies | Fast cooking (pasta, potatoes) |
-| Simmer | Gentle bubbles | 185-205F | 15-180 min | Gentle cooking (soups, sauces) |
-| Poach | Barely bubbling | 160-180F | 5-20 min | Very gentle (eggs, fish) |
-| Steam | Over boiling water, covered | 212F | 5-15 min | Retains nutrients, no added fat |
-| Braise | Sear then cook in liquid, covered | 300-325F | 2-4 hours | Transforms tough cuts |
+| Method | How                               | Temperature | Time       | Result                          |
+| ------ | --------------------------------- | ----------- | ---------- | ------------------------------- |
+| Boil   | Full rolling boil                 | 212F        | Varies     | Fast cooking (pasta, potatoes)  |
+| Simmer | Gentle bubbles                    | 185-205F    | 15-180 min | Gentle cooking (soups, sauces)  |
+| Poach  | Barely bubbling                   | 160-180F    | 5-20 min   | Very gentle (eggs, fish)        |
+| Steam  | Over boiling water, covered       | 212F        | 5-15 min   | Retains nutrients, no added fat |
+| Braise | Sear then cook in liquid, covered | 300-325F    | 2-4 hours  | Transforms tough cuts           |
 
 ## Food Safety Temperatures
 
 ### Internal Temperature Reference
 
-| Food | Safe Internal Temperature | Notes |
-|------|-------------------------|-------|
-| Poultry (all) | 165F (74C) | Breast, thigh, ground, stuffing |
-| Ground beef/pork/lamb | 160F (71C) | No pink center |
-| Beef steaks/roasts | 145F (63C) + 3 min rest | 130F medium-rare, 140F medium |
-| Pork chops/roasts | 145F (63C) + 3 min rest | Slightly pink center is safe |
-| Fish | 145F (63C) | Flakes easily with fork |
-| Eggs | Cook until firm | 160F for dishes with eggs |
-| Leftovers | 165F (74C) | When reheating |
-| Casseroles | 165F (74C) | Internal temperature |
+| Food                  | Safe Internal Temperature | Notes                           |
+| --------------------- | ------------------------- | ------------------------------- |
+| Poultry (all)         | 165F (74C)                | Breast, thigh, ground, stuffing |
+| Ground beef/pork/lamb | 160F (71C)                | No pink center                  |
+| Beef steaks/roasts    | 145F (63C) + 3 min rest   | 130F medium-rare, 140F medium   |
+| Pork chops/roasts     | 145F (63C) + 3 min rest   | Slightly pink center is safe    |
+| Fish                  | 145F (63C)                | Flakes easily with fork         |
+| Eggs                  | Cook until firm           | 160F for dishes with eggs       |
+| Leftovers             | 165F (74C)                | When reheating                  |
+| Casseroles            | 165F (74C)                | Internal temperature            |
 
 ### The Danger Zone
+
 - Temperature range: 40F-140F (4C-60C)
 - Maximum time food should spend in danger zone: 2 hours (1 hour if above 90F ambient)
 - "When in doubt, throw it out"
@@ -504,6 +508,7 @@ KEY PRINCIPLES:
 ```
 
 ### Holding Temperatures
+
 - Cooked proteins: can rest in 170F oven for 20-30 min
 - Roasted vegetables: hold well at 200F for up to 30 min
 - Sauces: keep warm on lowest heat
@@ -512,17 +517,16 @@ KEY PRINCIPLES:
 
 ## Quick Reference: Common Cooking Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Meat not browning | Pan too cold, too crowded, surface wet | Preheat pan, dry protein, cook in batches |
-| Sauce too thin | Not enough reduction or thickener | Simmer longer, add slurry (cornstarch + cold water) |
-| Pasta sticking | Not enough water, not stirred initially | Use large pot, stir within first 2 minutes |
-| Vegetables mushy | Overcooked, boiled instead of roasted | Cook less, use higher heat, keep some bite |
-| Bland food | Under-seasoned | Salt at every stage; finish with acid |
-| Burned garlic | Added too early or heat too high | Add garlic late (1 min before liquid), lower heat |
-| Rice mushy | Too much water, stirred too often | Measure precisely, don't peek, let rest 5 min |
-| Eggs rubbery | Heat too high | Use low-medium heat for eggs; patience |
-
+| Mistake           | Why It Happens                          | Fix                                                 |
+| ----------------- | --------------------------------------- | --------------------------------------------------- |
+| Meat not browning | Pan too cold, too crowded, surface wet  | Preheat pan, dry protein, cook in batches           |
+| Sauce too thin    | Not enough reduction or thickener       | Simmer longer, add slurry (cornstarch + cold water) |
+| Pasta sticking    | Not enough water, not stirred initially | Use large pot, stir within first 2 minutes          |
+| Vegetables mushy  | Overcooked, boiled instead of roasted   | Cook less, use higher heat, keep some bite          |
+| Bland food        | Under-seasoned                          | Salt at every stage; finish with acid               |
+| Burned garlic     | Added too early or heat too high        | Add garlic late (1 min before liquid), lower heat   |
+| Rice mushy        | Too much water, stirred too often       | Measure precisely, don't peek, let rest 5 min       |
+| Eggs rubbery      | Heat too high                           | Use low-medium heat for eggs; patience              |
 
 ## Output Format
 

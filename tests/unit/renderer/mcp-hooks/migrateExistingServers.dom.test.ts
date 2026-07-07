@@ -5,10 +5,7 @@
  */
 
 import { describe, expect, test } from 'vitest';
-import {
-  migrateExistingServers,
-  type McpServerRecord,
-} from '@renderer/hooks/mcp/migrateExistingServers';
+import { migrateExistingServers, type McpServerRecord } from '@renderer/hooks/mcp/migrateExistingServers';
 
 describe('migrateExistingServers', () => {
   test("tags pre-existing servers as 'custom' if missing source", () => {
@@ -28,9 +25,7 @@ describe('migrateExistingServers', () => {
   });
 
   test('is idempotent', () => {
-    const tagged = [
-      { id: 'x', command: 'npx', args: [], source: 'custom' as const },
-    ] as unknown as McpServerRecord[];
+    const tagged = [{ id: 'x', command: 'npx', args: [], source: 'custom' as const }] as unknown as McpServerRecord[];
     const after = migrateExistingServers(tagged);
     expect(after).toEqual(tagged);
   });

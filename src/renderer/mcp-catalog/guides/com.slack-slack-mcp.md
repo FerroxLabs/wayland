@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Slack
     estSeconds: 30
-    primaryAction: { label: "Sign in with Slack", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Slack', action: 'oauth-flow' }
     body: |
       Slack doesn't allow apps to auto-register, so the first time you click
       **Sign in with Slack** Wayland opens a dialog asking for your own OAuth

@@ -12,14 +12,15 @@ description: >-
   step.
 license: Apache-2.0
 type: workflow
-skills: "finance-forecast finance-budget"
+skills: 'finance-forecast finance-budget'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-finance forecast planning step-by-step cfo
   category: business-finance
-  depends: "finance-forecast finance-budget"
+  depends: 'finance-forecast finance-budget'
 ---
+
 # Build a 12-Month Forecast
 
 **Estimated time:** 45-60 minutes

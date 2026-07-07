@@ -84,7 +84,9 @@ describe('parseCodexAuthDoc', () => {
 
   it('prefers an explicit account_id over the id_token claim', () => {
     const idToken = makeIdToken({ 'https://api.openai.com/auth': { chatgpt_account_id: 'acct-jwt' } });
-    const bundle = parseCodexAuthDoc({ tokens: { access_token: 'acc', id_token: idToken, account_id: 'acct-explicit' } });
+    const bundle = parseCodexAuthDoc({
+      tokens: { access_token: 'acc', id_token: idToken, account_id: 'acct-explicit' },
+    });
     expect(bundle?.accountId).toBe('acct-explicit');
   });
 
@@ -113,7 +115,9 @@ describe('writeCodexAuthFile / readCodexAuthFile round-trip', () => {
     const tokens: ChatGptTokens = {
       accessToken: 'acc',
       refreshToken: 'ref',
-      idToken: makeIdToken({ 'https://api.openai.com/auth': { chatgpt_account_id: 'acct-1', chatgpt_plan_type: 'plus' } }),
+      idToken: makeIdToken({
+        'https://api.openai.com/auth': { chatgpt_account_id: 'acct-1', chatgpt_plan_type: 'plus' },
+      }),
       accountId: 'acct-1',
     };
 

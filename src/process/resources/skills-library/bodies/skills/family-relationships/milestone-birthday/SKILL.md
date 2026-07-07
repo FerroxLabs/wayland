@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events event-planning planning"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events event-planning planning'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Milestone Birthday
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on milestone birthday
 - User asks about milestone birthday best practices or techniques
 - User wants a structured approach to milestone birthday
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of milestone birthday
 
@@ -58,6 +59,7 @@ You are a thoughtful guide who helps people mark life's milestone birthdays with
 ## The Emotional Landscape of Milestone Birthdays
 
 ### What Each Milestone Often Brings
+
 ```
 TURNING 30:
   - "Am I where I thought I would be?"
@@ -91,6 +93,7 @@ TURNING 60:
 ```
 
 ### Navigating Difficult Feelings
+
 ```
 IF YOU ARE DREADING YOUR MILESTONE BIRTHDAY:
 
@@ -114,6 +117,7 @@ IF THE FEELINGS ARE OVERWHELMING:
 ## Life Reflection Exercises
 
 ### The Decade Review
+
 ```
 FOR THE DECADE YOU ARE COMPLETING:
 
@@ -146,6 +150,7 @@ FOR THE DECADE YOU ARE COMPLETING:
 ```
 
 ### The Letter to Your Future Self
+
 ```
 Write a letter to yourself at the NEXT milestone birthday:
 
@@ -166,6 +171,7 @@ Write a letter to yourself at the NEXT milestone birthday:
 ```
 
 ### The Values Inventory
+
 ```
 RANK THESE -- your ranking reveals your priorities:
 
@@ -192,6 +198,7 @@ RANK THESE -- your ranking reveals your priorities:
 ## Party Planning
 
 ### Celebration Styles
+
 ```
 EPIC PARTY:
   - Venue rental, theme, music, photo booth
@@ -225,6 +232,7 @@ PROGRESSIVE CELEBRATION:
 ```
 
 ### Party Planning Timeline
+
 ```
 3 MONTHS OUT (for larger events):
   [ ] Set budget
@@ -256,6 +264,7 @@ DAY BEFORE:
 ## Photo and Video Tributes
 
 ### The Photo Montage
+
 ```
 CREATING A MEANINGFUL TRIBUTE:
 
@@ -280,6 +289,7 @@ CREATING A MEANINGFUL TRIBUTE:
 ```
 
 ### The Video Message Compilation
+
 ```
 ASK 10-20 PEOPLE TO RECORD A SHORT VIDEO:
 
@@ -298,6 +308,7 @@ ASK 10-20 PEOPLE TO RECORD A SHORT VIDEO:
 ## Bucket List Creation
 
 ### The Intentional Bucket List
+
 ```
 CATEGORIES TO CONSIDER:
 
@@ -327,6 +338,7 @@ MAKING IT ACTIONABLE:
 ## Legacy Projects
 
 ### Ways to Preserve and Create Legacy
+
 ```
 MEMORY PRESERVATION:
   - Record interviews with elderly family members (StoryCorps app)
@@ -359,6 +371,7 @@ PRACTICAL LEGACY:
 ## Future Visioning
 
 ### The Next Decade Design
+
 ```
 ENVISION YOUR NEXT 10 YEARS:
 
@@ -380,6 +393,7 @@ CREATE YOUR ONE-PAGE LIFE DESIGN:
 ## Milestone Gift Ideas
 
 ### Meaningful Over Expensive
+
 ```
 EXPERIENCE GIFTS:
   - Concert, show, or event tickets
@@ -408,6 +422,7 @@ INVESTMENT GIFTS:
 ## Quick Reference
 
 When helping with milestone birthdays:
+
 - **"I am dreading turning [age]"** -> Validate the feeling. Offer reframing strategies.
 - **"I want something meaningful"** -> Start with what matters to them. Not everyone wants a party.
 - **"What do I get someone?"** -> Meaningful over expensive. Something personal.
@@ -415,7 +430,6 @@ When helping with milestone birthdays:
 - **"I want to make changes"** -> Use the milestone as a catalyst. Future visioning exercise.
 
 Every age is the right age to be. The best is not behind you. The best is whatever you decide to make of what comes next.
-
 
 ## Output Format
 
@@ -429,13 +443,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with milestone birthday for a mid-size project."
 
 **Output:** A complete milestone birthday framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

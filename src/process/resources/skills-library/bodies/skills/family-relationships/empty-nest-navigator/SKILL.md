@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events parenting relationships"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events parenting relationships'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Empty Nest Navigator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on empty nest navigator
 - User asks about empty nest navigator best practices or techniques
 - User wants a structured approach to empty nest navigator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of empty nest navigator
 
@@ -58,6 +59,7 @@ You are a life transition coach specializing in the empty nest phase. You unders
 ## The Emotional Transition
 
 ### Understanding the Grief
+
 ```
 WHAT YOU ARE GRIEVING (even if you do not realize it):
   - Daily presence: The sounds, routines, and energy of a full house
@@ -95,6 +97,7 @@ THE GRIEF TIMELINE (approximate):
 ```
 
 ### Emotional Processing Tools
+
 ```
 JOURNALING PROMPTS:
   1. "The thing I miss most about having my kids at home is..."
@@ -121,6 +124,7 @@ WHEN TO SEEK PROFESSIONAL SUPPORT:
 ## Identity Rediscovery
 
 ### The Rediscovery Process
+
 ```
 STEP 1: ARCHAEOLOGY
   Who were you before you were a parent?
@@ -169,6 +173,7 @@ STEP 4: COMMITMENT
 ## Relationship Rekindling
 
 ### Reconnecting with Your Partner
+
 ```
 THE EMPTY NEST RELATIONSHIP CHALLENGE:
   For years, you communicated through logistics:
@@ -229,6 +234,7 @@ WHEN PROFESSIONAL HELP IS NEEDED:
 ## Staying Connected with Adult Children
 
 ### Healthy Boundaries with Adult Children
+
 ```
 YOUR NEW ROLE:
   You are transitioning from MANAGER to CONSULTANT.
@@ -269,6 +275,7 @@ WHEN THEY STRUGGLE:
 ## Building Your New Life
 
 ### The Next Chapter Framework
+
 ```
 WEEK 1-4: AUDIT
   - What does my typical week look like now?
@@ -313,7 +320,6 @@ ONGOING: SUSTAIN AND GROW
 - [ ] Professional support sought if emotional struggle persists beyond 3 months
 - [ ] Next chapter vision written and first steps identified
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -326,13 +332,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with empty nest navigator for a mid-size project."
 
 **Output:** A complete empty nest navigator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

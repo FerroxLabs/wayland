@@ -91,9 +91,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
       if (!description.trim()) setDescription(describePrompt.trim());
       setTab('write');
     } catch (err) {
-      setGenerateError(
-        err instanceof Error ? err.message : t('builder.error.generateFailed')
-      );
+      setGenerateError(err instanceof Error ? err.message : t('builder.error.generateFailed'));
     } finally {
       setGenerating(false);
     }
@@ -122,9 +120,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
         onSaved();
       }
     } catch (err) {
-      setSaveError(
-        err instanceof Error ? err.message : t('builder.error.saveFailed')
-      );
+      setSaveError(err instanceof Error ? err.message : t('builder.error.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -159,11 +155,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
                   {t('builder.form.name.label')}
                   <span className='text-[rgb(var(--danger-6))] ml-2px'>*</span>
                 </label>
-                <Input
-                  value={name}
-                  onChange={setName}
-                  placeholder={t('builder.form.name.placeholder')}
-                />
+                <Input value={name} onChange={setName} placeholder={t('builder.form.name.placeholder')} />
               </div>
 
               {/* Description */}
@@ -184,24 +176,12 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
               {/* Category + Tags */}
               <div className='flex gap-12px'>
                 <div className='flex flex-col gap-6px flex-1'>
-                  <label className='text-13px font-medium text-t-primary'>
-                    {t('builder.form.category.label')}
-                  </label>
-                  <Input
-                    value={category}
-                    onChange={setCategory}
-                    placeholder={t('builder.form.category.placeholder')}
-                  />
+                  <label className='text-13px font-medium text-t-primary'>{t('builder.form.category.label')}</label>
+                  <Input value={category} onChange={setCategory} placeholder={t('builder.form.category.placeholder')} />
                 </div>
                 <div className='flex flex-col gap-6px flex-1'>
-                  <label className='text-13px font-medium text-t-primary'>
-                    {t('builder.form.tags.label')}
-                  </label>
-                  <Input
-                    value={tagsRaw}
-                    onChange={setTagsRaw}
-                    placeholder={t('builder.form.tags.placeholder')}
-                  />
+                  <label className='text-13px font-medium text-t-primary'>{t('builder.form.tags.label')}</label>
+                  <Input value={tagsRaw} onChange={setTagsRaw} placeholder={t('builder.form.tags.placeholder')} />
                 </div>
               </div>
 
@@ -227,9 +207,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
           <Tabs.TabPane key='describe' title={t('builder.tab.describe')}>
             <div className='flex flex-col gap-14px pt-12px'>
               <div className='flex flex-col gap-6px'>
-                <label className='text-13px font-medium text-t-primary'>
-                  {t('builder.describe.label')}
-                </label>
+                <label className='text-13px font-medium text-t-primary'>{t('builder.describe.label')}</label>
                 <Input.TextArea
                   value={describePrompt}
                   onChange={setDescribePrompt}
@@ -238,9 +216,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
                 />
               </div>
 
-              {generateError && (
-                <span className='text-12px text-[rgb(var(--danger-6))]'>{generateError}</span>
-              )}
+              {generateError && <span className='text-12px text-[rgb(var(--danger-6))]'>{generateError}</span>}
 
               <div className='flex justify-end'>
                 <Button
@@ -249,9 +225,7 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
                   disabled={!describePrompt.trim() || generating}
                   onClick={() => void handleGenerate()}
                 >
-                  {generating
-                    ? t('builder.describe.generating')
-                    : t('builder.describe.generate')}
+                  {generating ? t('builder.describe.generating') : t('builder.describe.generate')}
                 </Button>
               </div>
             </div>
@@ -259,14 +233,10 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
         </Tabs>
 
         {/* Scan verdict after save */}
-        {savedVerdict && (
-          <VerdictAlert verdict={savedVerdict.verdict} name={savedVerdict.name} />
-        )}
+        {savedVerdict && <VerdictAlert verdict={savedVerdict.verdict} name={savedVerdict.name} />}
 
         {/* Save error */}
-        {saveError && (
-          <span className='text-12px text-[rgb(var(--danger-6))]'>{saveError}</span>
-        )}
+        {saveError && <span className='text-12px text-[rgb(var(--danger-6))]'>{saveError}</span>}
 
         {/* Footer actions */}
         <div className='flex items-center justify-end gap-12px pt-4px'>
@@ -274,21 +244,11 @@ const BuildSkillModal: React.FC<BuildSkillModalProps> = ({ visible, onClose, onS
             {t('builder.actions.cancel')}
           </Button>
           {savedVerdict && savedVerdict.verdict !== 'blocked' ? (
-            <Button
-              type='primary'
-              onClick={handleDoneAfterSave}
-              className=''
-            >
+            <Button type='primary' onClick={handleDoneAfterSave} className=''>
               {t('builder.actions.done')}
             </Button>
           ) : (
-            <Button
-              type='primary'
-              loading={saving}
-              disabled={!canSave}
-              onClick={() => void handleSave()}
-              className=''
-            >
+            <Button type='primary' loading={saving} disabled={!canSave} onClick={() => void handleSave()} className=''>
               {saving ? t('builder.actions.saving') : t('builder.actions.save')}
             </Button>
           )}

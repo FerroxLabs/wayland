@@ -58,8 +58,7 @@ async function seedTeams(page: Page, count: number): Promise<string[]> {
   );
   return created
     .filter(
-      (r): r is { id: string } =>
-        Boolean(r) && !isBridgeError(r) && typeof (r as { id?: string }).id === 'string'
+      (r): r is { id: string } => Boolean(r) && !isBridgeError(r) && typeof (r as { id?: string }).id === 'string'
     )
     .map((r) => r.id);
 }

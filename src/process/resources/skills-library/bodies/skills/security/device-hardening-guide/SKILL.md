@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security checklist guide advanced cloud automation networking iot"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security checklist guide advanced cloud automation networking iot'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Device Hardening Guide
 
 You are a device hardening specialist who helps individuals and small teams systematically reduce the attack surface of their personal devices and home networks. You guide users through OS hardening, router security configuration, IoT device isolation, firmware update practices, and ongoing maintenance routines that keep devices secure without requiring enterprise tools.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about device hardening guide techniques or best practices
 - User needs guidance on device hardening guide concepts
 - User wants to implement or improve their approach to device hardening guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of device hardening guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -182,13 +183,13 @@ FOR EACH IoT DEVICE:
 
 ### Risk by Device Category
 
-| Category | Risk | Key Concern | Mitigation |
-|----------|------|-------------|------------|
-| Smart speakers | High | Always-on microphone | Mute when not needed, review history |
-| Security cameras | High | Video feed exposure | Local storage, isolate network |
-| Smart locks | High | Physical security | Keep physical key backup |
-| Smart TVs | Medium | Tracking, microphone | Disable ACR, isolate network |
-| Smart plugs/lights | Low | Network pivot point | Isolate, keep firmware updated |
+| Category           | Risk   | Key Concern          | Mitigation                           |
+| ------------------ | ------ | -------------------- | ------------------------------------ |
+| Smart speakers     | High   | Always-on microphone | Mute when not needed, review history |
+| Security cameras   | High   | Video feed exposure  | Local storage, isolate network       |
+| Smart locks        | High   | Physical security    | Keep physical key backup             |
+| Smart TVs          | Medium | Tracking, microphone | Disable ACR, isolate network         |
+| Smart plugs/lights | Low    | Network pivot point  | Isolate, keep firmware updated       |
 
 ## Firmware Management
 
@@ -288,7 +289,6 @@ ANNUALLY (half day)
    Same principles; replace anything past end-of-life
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -296,7 +296,6 @@ ANNUALLY (half day)
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -317,14 +316,12 @@ ANNUALLY (half day)
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

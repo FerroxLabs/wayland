@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing planning"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance investing planning'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Rental Property Investor
@@ -19,7 +19,6 @@ metadata:
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
 
 ## When to Use
-
 
 ## Process
 
@@ -34,14 +33,15 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on rental property investor
 - User asks about rental property investor best practices or techniques
 - User wants a structured approach to rental property investor
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of rental property investor
-
 
 ## Questions to Ask First
 
@@ -100,12 +100,12 @@ Example:
   Cap Rate: $9,900 / $150,000 = 6.6%
 ```
 
-| Cap Rate Range | Typical Interpretation |
-|---------------|----------------------|
-| 3-5% | Low risk, expensive market, appreciation play |
-| 5-8% | Moderate risk, balanced cash flow and appreciation |
-| 8-10% | Higher cash flow, may be lower appreciation market |
-| 10%+ | High cash flow, investigate why (higher risk area?) |
+| Cap Rate Range | Typical Interpretation                              |
+| -------------- | --------------------------------------------------- |
+| 3-5%           | Low risk, expensive market, appreciation play       |
+| 5-8%           | Moderate risk, balanced cash flow and appreciation  |
+| 8-10%          | Higher cash flow, may be lower appreciation market  |
+| 10%+           | High cash flow, investigate why (higher risk area?) |
 
 ### Cash-on-Cash Return
 
@@ -200,6 +200,7 @@ KEY METRICS:
 ## Phase 3: Financing Options
 
 ### Conventional Investment Loans
+
 - **Down payment:** 15-25% (20-25% most common)
 - **Rates:** Typically 0.5-0.75% higher than primary residence rates
 - **Reserves required:** 6 months PITI per property
@@ -207,12 +208,14 @@ KEY METRICS:
 - **DTI:** Typically 45% max including new property
 
 ### Portfolio Loans
+
 - **Offered by:** Local banks and credit unions
 - **Flexibility:** More flexible underwriting, relationship-based
 - **Terms:** Often adjustable rate or shorter fixed periods
 - **Best for:** Investors with 5+ properties or complex income situations
 
 ### DSCR Loans (Debt Service Coverage Ratio)
+
 - **Qualification:** Based on property income, not personal income
 - **DSCR requirement:** Usually 1.0-1.25 minimum
 - **Down payment:** 20-25%
@@ -220,12 +223,14 @@ KEY METRICS:
 - **Trade-off:** Higher rates than conventional
 
 ### House Hacking Strategies
+
 - **Live-in duplex/triplex/fourplex:** Use owner-occupied financing (3.5% FHA, 0% VA)
 - **Rent by the room:** Purchase single-family, rent spare rooms
 - **ADU (Accessory Dwelling Unit):** Add a unit to your primary residence
 - **Benefit:** Owner-occupied rates and lower down payments
 
 ### Creative Financing
+
 - **Seller financing:** Negotiate terms directly with seller
 - **Subject-to:** Take over existing mortgage (advanced strategy)
 - **Lease option:** Lease with option to purchase
@@ -239,18 +244,19 @@ KEY METRICS:
 
 ### Self-Management vs. Professional Management
 
-| Factor | Self-Manage | Professional Manager |
-|--------|------------|---------------------|
-| Cost | Your time | 8-12% of gross rent |
-| Tenant calls | You handle all | Manager handles |
-| Maintenance | You coordinate | Manager coordinates |
-| Leasing | You show, screen, lease | Manager handles |
-| Legal compliance | You must stay current | Manager should know |
-| Scalability | Limited by your time | Scales with portfolio |
-| Distance | Must be local | Can invest anywhere |
-| Best for | 1-3 local properties | 4+ properties or remote |
+| Factor           | Self-Manage             | Professional Manager    |
+| ---------------- | ----------------------- | ----------------------- |
+| Cost             | Your time               | 8-12% of gross rent     |
+| Tenant calls     | You handle all          | Manager handles         |
+| Maintenance      | You coordinate          | Manager coordinates     |
+| Leasing          | You show, screen, lease | Manager handles         |
+| Legal compliance | You must stay current   | Manager should know     |
+| Scalability      | Limited by your time    | Scales with portfolio   |
+| Distance         | Must be local           | Can invest anywhere     |
+| Best for         | 1-3 local properties    | 4+ properties or remote |
 
 ### Hiring a Property Manager Checklist
+
 - [ ] Interview at least 3 management companies
 - [ ] Verify license and insurance
 - [ ] Ask about their portfolio size and property types
@@ -270,16 +276,17 @@ KEY METRICS:
 
 ### Screening Criteria (Apply Consistently to All Applicants)
 
-| Criteria | Standard | Verification Method |
-|----------|----------|-------------------|
-| Income | 3x monthly rent minimum | Pay stubs, tax returns, employment verification |
-| Credit score | 620+ (adjust for market) | Credit report |
-| Rental history | 2+ years positive history | Landlord references (call at least 2 prior) |
-| Employment | Stable employment or verifiable income | Employment verification letter |
-| Criminal background | Per local/state laws | Background check service |
-| Eviction history | No prior evictions | Eviction records search |
+| Criteria            | Standard                               | Verification Method                             |
+| ------------------- | -------------------------------------- | ----------------------------------------------- |
+| Income              | 3x monthly rent minimum                | Pay stubs, tax returns, employment verification |
+| Credit score        | 620+ (adjust for market)               | Credit report                                   |
+| Rental history      | 2+ years positive history              | Landlord references (call at least 2 prior)     |
+| Employment          | Stable employment or verifiable income | Employment verification letter                  |
+| Criminal background | Per local/state laws                   | Background check service                        |
+| Eviction history    | No prior evictions                     | Eviction records search                         |
 
 ### Screening Process Workflow
+
 1. Pre-screen with basic questions (move date, income, pets, reason for moving)
 2. Show the property to qualified prospects
 3. Collect completed application with signed consent
@@ -290,6 +297,7 @@ KEY METRICS:
 8. Document reasons for approval or denial
 
 ### Questions to Ask Previous Landlords
+
 - Did the tenant pay rent on time?
 - Did they give proper notice before moving?
 - Was the property left in good condition?
@@ -297,6 +305,7 @@ KEY METRICS:
 - Would you rent to this tenant again?
 
 ### Fair Housing Compliance
+
 **Protected classes (federal):** Race, color, national origin, religion, sex, familial status, disability.
 
 **Additional state/local protections may include:** Source of income, sexual orientation, gender identity, age, marital status, veteran status.
@@ -308,6 +317,7 @@ KEY METRICS:
 ## Phase 6: Lease Agreements
 
 ### Essential Lease Provisions
+
 - [ ] Full legal names of all tenants (adults on the lease)
 - [ ] Property address and description
 - [ ] Lease term (start date, end date, renewal terms)
@@ -330,6 +340,7 @@ KEY METRICS:
 - [ ] Property alteration restrictions
 
 ### Move-In Process Checklist
+
 - [ ] Collect first month's rent and security deposit (certified funds)
 - [ ] Complete move-in condition report with photos (both parties sign)
 - [ ] Provide keys, garage remotes, mailbox keys
@@ -346,21 +357,23 @@ KEY METRICS:
 
 ### Capital Expenditure Reserve Schedule
 
-| Component | Expected Life | Replacement Cost | Annual Reserve |
-|-----------|-------------|-----------------|---------------|
-| Roof | 20-30 years | $5,000-$15,000 | $250-$750 |
-| HVAC | 15-20 years | $3,000-$8,000 | $150-$533 |
-| Water heater | 10-15 years | $800-$2,000 | $53-$200 |
-| Appliances | 10-15 years | $2,000-$5,000 | $133-$500 |
-| Flooring | 10-20 years | $2,000-$8,000 | $100-$800 |
-| Exterior paint | 7-10 years | $2,000-$5,000 | $200-$714 |
-| Plumbing | 20-30 years | $2,000-$10,000 | $67-$500 |
-| Electrical | 25-40 years | $2,000-$8,000 | $50-$320 |
+| Component      | Expected Life | Replacement Cost | Annual Reserve |
+| -------------- | ------------- | ---------------- | -------------- |
+| Roof           | 20-30 years   | $5,000-$15,000   | $250-$750      |
+| HVAC           | 15-20 years   | $3,000-$8,000    | $150-$533      |
+| Water heater   | 10-15 years   | $800-$2,000      | $53-$200       |
+| Appliances     | 10-15 years   | $2,000-$5,000    | $133-$500      |
+| Flooring       | 10-20 years   | $2,000-$8,000    | $100-$800      |
+| Exterior paint | 7-10 years    | $2,000-$5,000    | $200-$714      |
+| Plumbing       | 20-30 years   | $2,000-$10,000   | $67-$500       |
+| Electrical     | 25-40 years   | $2,000-$8,000    | $50-$320       |
 
 **Total annual CapEx reserve: approximately $1,000-$4,000+ per property** (varies significantly by age and condition)
 
 ### Routine Maintenance Budget
+
 Budget 5-10% of gross annual rent for routine maintenance:
+
 - Seasonal HVAC servicing
 - Plumbing repairs
 - Minor electrical issues
@@ -372,6 +385,7 @@ Budget 5-10% of gross annual rent for routine maintenance:
 - General turnover costs between tenants
 
 ### Tenant Turnover Cost Estimate
+
 ```
 Paint touch-up or full repaint:       $200-$2,000
 Carpet cleaning or replacement:       $150-$2,000
@@ -389,6 +403,7 @@ Total typical turnover:               $1,000-$5,000+
 ### Portfolio Growth Strategies
 
 **BRRRR Method (Buy, Rehab, Rent, Refinance, Repeat):**
+
 1. Buy undervalued property (often distressed)
 2. Rehab to market standard or above
 3. Rent to qualified tenant
@@ -396,6 +411,7 @@ Total typical turnover:               $1,000-$5,000+
 5. Repeat using recovered capital for next purchase
 
 **1031 Exchange:**
+
 - Sell investment property and defer capital gains taxes
 - Must identify replacement property within 45 days
 - Must close on replacement property within 180 days
@@ -411,6 +427,7 @@ Total typical turnover:               $1,000-$5,000+
 | Scaling (Year 5+) | 7+ | Professional management, larger deals, syndication |
 
 ### Building Your Investment Team
+
 - [ ] Real estate agent (investor-friendly, knows rental market)
 - [ ] Mortgage broker or lender (experienced with investment properties)
 - [ ] Real estate attorney (landlord-tenant law)
@@ -425,6 +442,7 @@ Total typical turnover:               $1,000-$5,000+
 ## Tax Benefits of Rental Property
 
 ### Common Deductions
+
 - Mortgage interest
 - Property taxes
 - Insurance premiums
@@ -438,6 +456,7 @@ Total typical turnover:               $1,000-$5,000+
 - Utilities (if owner-paid)
 
 ### Depreciation Calculation
+
 ```
 Depreciation = (Property Value - Land Value) / 27.5 years
 
@@ -452,6 +471,7 @@ any actual cash expenditure.
 ```
 
 ### Cost Segregation (Advanced)
+
 Accelerate depreciation by identifying property components with shorter depreciation schedules (5, 7, or 15 years instead of 27.5 years). Cost segregation studies typically make financial sense for properties valued at $500,000+. Consult a CPA.
 
 ---
@@ -471,7 +491,6 @@ Accelerate depreciation by identifying property components with shorter deprecia
 
 Successful rental property investing requires thorough analysis, conservative projections, and consistent management. Always run numbers conservatively and plan for the unexpected.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -484,13 +503,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with rental property investor for a mid-size project."
 
 **Output:** A complete rental property investor framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

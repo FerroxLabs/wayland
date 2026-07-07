@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management journaling checklist template guide advanced javascript sql"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management journaling checklist template guide advanced javascript sql'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Obsidian Vault Builder
 
 You are an expert Obsidian vault architect who designs sustainable knowledge management systems using Obsidian's local-first, markdown-based approach. You help users build vaults with effective linking strategies, useful plugins, Templater automations, and graph structures that compound in value over time.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about obsidian vault builder techniques or best practices
 - User needs guidance on obsidian vault builder concepts
 - User wants to implement or improve their approach to obsidian vault builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of obsidian vault builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -106,17 +107,20 @@ passed a selection process while overlooking those that did not. This can
 lead to incorrect conclusions because failures are invisible.
 
 ## Examples
+
 - Studying successful companies ignores the ones that failed using the same strategies
 - WWII bomber armor: engineers studied returning planes' damage patterns,
   but the holes showed where planes could survive hits, not where they were vulnerable
 
 ## Related
+
 - [[Cognitive Biases MOC]]
 - [[Selection Bias]]
 - [[Abraham Wald]] - statistician who identified the bomber armor problem
 - [[How to Think Clearly]]
 
 ---
+
 tags: #cognitive-bias #decision-making
 source: "Thinking, Fast and Slow" by Daniel Kahneman
 created: 2025-01-15
@@ -132,26 +136,31 @@ MOCs are index notes that curate links to related notes. They replace rigid fold
 A map of cognitive biases I've encountered and documented.
 
 ## Decision-Making Biases
+
 - [[Survivorship Bias]]
 - [[Confirmation Bias]]
 - [[Anchoring Effect]]
 - [[Sunk Cost Fallacy]]
 
 ## Social Biases
+
 - [[Fundamental Attribution Error]]
 - [[Halo Effect]]
 - [[Bandwagon Effect]]
 
 ## Memory Biases
+
 - [[Hindsight Bias]]
 - [[Availability Heuristic]]
 - [[Peak-End Rule]]
 
 ## Meta
+
 - [[Debiasing Strategies]]
 - [[Mental Models MOC]] - overlapping topic
 
 ---
+
 tags: #moc #psychology
 ```
 
@@ -159,15 +168,15 @@ tags: #moc #psychology
 
 Use different linking patterns for different relationships:
 
-| Pattern | Syntax | Use For |
-|---------|--------|---------|
-| Direct link | `[[Note Name]]` | Strong, specific connection |
-| Aliased link | `[[Note Name|display text]]` | Cleaner reading experience |
-| Embedded link | `![[Note Name]]` | Include content inline |
-| Header link | `[[Note Name#Section]]` | Link to specific section |
-| Block link | `[[Note Name^block-id]]` | Link to specific paragraph |
-| Tag | `#topic` | Broad categorization |
-| Nested tag | `#topic/subtopic` | Hierarchical categorization |
+| Pattern       | Syntax                   | Use For                     |
+| ------------- | ------------------------ | --------------------------- | -------------------------- |
+| Direct link   | `[[Note Name]]`          | Strong, specific connection |
+| Aliased link  | `[[Note Name             | display text]]`             | Cleaner reading experience |
+| Embedded link | `![[Note Name]]`         | Include content inline      |
+| Header link   | `[[Note Name#Section]]`  | Link to specific section    |
+| Block link    | `[[Note Name^block-id]]` | Link to specific paragraph  |
+| Tag           | `#topic`                 | Broad categorization        |
+| Nested tag    | `#topic/subtopic`        | Hierarchical categorization |
 
 ### When to Link vs Tag
 
@@ -180,24 +189,25 @@ Use different linking patterns for different relationships:
 
 ### Community Plugins (Recommended Setup)
 
-| Plugin | Purpose | Priority |
-|--------|---------|----------|
-| **Templater** | Advanced templates with JavaScript, date math, prompts | Essential |
-| **Dataview** | Query notes like a database using frontmatter | Essential |
-| **Calendar** | Visual calendar for daily notes navigation | High |
-| **Periodic Notes** | Weekly/monthly/quarterly note templates | High |
-| **QuickAdd** | Fast capture with templates and macros | High |
-| **Kanban** | Kanban boards from markdown | Medium |
-| **Excalidraw** | Visual thinking and diagrams | Medium |
-| **Git** (Obsidian Git) | Version control and backup | Medium |
-| **Linter** | Auto-format frontmatter and markdown | Medium |
-| **Tasks** | Query and manage tasks across notes | Medium |
-| **Strange New Worlds** | See how many notes link to current note | Low |
-| **Graph Analysis** | Advanced graph metrics and clustering | Low |
+| Plugin                 | Purpose                                                | Priority  |
+| ---------------------- | ------------------------------------------------------ | --------- |
+| **Templater**          | Advanced templates with JavaScript, date math, prompts | Essential |
+| **Dataview**           | Query notes like a database using frontmatter          | Essential |
+| **Calendar**           | Visual calendar for daily notes navigation             | High      |
+| **Periodic Notes**     | Weekly/monthly/quarterly note templates                | High      |
+| **QuickAdd**           | Fast capture with templates and macros                 | High      |
+| **Kanban**             | Kanban boards from markdown                            | Medium    |
+| **Excalidraw**         | Visual thinking and diagrams                           | Medium    |
+| **Git** (Obsidian Git) | Version control and backup                             | Medium    |
+| **Linter**             | Auto-format frontmatter and markdown                   | Medium    |
+| **Tasks**              | Query and manage tasks across notes                    | Medium    |
+| **Strange New Worlds** | See how many notes link to current note                | Low       |
+| **Graph Analysis**     | Advanced graph metrics and clustering                  | Low       |
 
 ### Templater Configuration
 
 Settings to configure:
+
 - Template folder: `templates`
 - Trigger on new file creation: Enable
 - Folder templates: Map folders to templates (e.g., `daily` folder uses Daily Note template)
@@ -206,7 +216,7 @@ Settings to configure:
 
 Dataview lets you query your notes using a SQL-like language or inline JavaScript.
 
-```markdown
+````markdown
 ## All notes tagged #project-management created this month
 
 ```dataview
@@ -215,6 +225,7 @@ FROM #project-management
 WHERE file.ctime >= date(today) - dur(30 days)
 SORT file.ctime DESC
 ```
+````
 
 ## Tasks due this week
 
@@ -241,7 +252,8 @@ FROM #project
 WHERE status != "Complete"
 SORT due ASC
 ```
-```
+
+````
 
 ## Templates
 
@@ -278,11 +290,11 @@ tags: daily
 ---
 **Yesterday**: [[<% tp.date.now("YYYY-MM-DD", -1) %>]]
 **Tomorrow**: [[<% tp.date.now("YYYY-MM-DD", 1) %>]]
-```
+````
 
 ### Weekly Review Template
 
-```markdown
+````markdown
 ---
 date: <% tp.date.now("YYYY-MM-DD") %>
 week: <% tp.date.now("YYYY-[W]ww") %>
@@ -294,19 +306,23 @@ tags: weekly-review
 ## Review Last Week
 
 ### Wins
+
 1.
 2.
 3.
 
 ### Incomplete Tasks
+
 ```dataview
 TASK
 FROM "daily"
 WHERE file.day >= date(<% tp.date.now("YYYY-MM-DD", -7) %>) AND file.day <= date(<% tp.date.now("YYYY-MM-DD") %>)
 AND !completed
 ```
+````
 
 ### Key Metrics
+
 - Notes created this week:
 - Connections made:
 - Projects advanced:
@@ -314,11 +330,13 @@ AND !completed
 ## Plan Next Week
 
 ### Top 3 Priorities
+
 1.
 2.
 3.
 
 ### Scheduled Commitments
+
 - Monday:
 - Tuesday:
 - Wednesday:
@@ -326,8 +344,10 @@ AND !completed
 - Friday:
 
 ### Someday/Maybe Items to Consider
+
 -
-```
+
+````
 
 ### Meeting Note Template
 
@@ -360,7 +380,7 @@ tags: meeting
 
 ## Action Items
 - [ ] @person: task - due YYYY-MM-DD
-```
+````
 
 ### New Note Template (Zettelkasten-Style)
 
@@ -377,11 +397,12 @@ source:
 
 ## Why This Matters
 
-
 ## Related
+
 - [[]]
 
 ## References
+
 -
 ```
 
@@ -409,16 +430,19 @@ source:
 **Rating**: 5/5
 
 ## Key Ideas
+
 1. [[System 1 and System 2 Thinking]] - dual process theory of cognition
 2. [[Anchoring Effect]] - initial exposure biases subsequent judgments
 3. [[Loss Aversion]] - losses feel roughly twice as painful as equivalent gains
 4. [[Peak-End Rule]] - experiences judged by peak intensity and ending
 
 ## My Takeaways
+
 - Most decision-making is System 1 (fast, intuitive, error-prone)
 - Awareness of biases does not eliminate them, but structured processes can mitigate them
 
 ## Quotes
+
 > "A reliable way to make people believe in falsehoods is frequent repetition,
 > because familiarity is not easily distinguished from truth."
 ```
@@ -427,7 +451,7 @@ source:
 
 Use a combination of a project note, linked task notes, and Dataview queries:
 
-```markdown
+````markdown
 # Project: Website Redesign
 
 **Status**: In Progress
@@ -435,17 +459,21 @@ Use a combination of a project note, linked task notes, and Dataview queries:
 **Lead**: @Sean
 
 ## Overview
+
 Redesign the company website to improve conversion and accessibility.
 
 ## Tasks
+
 ```dataview
 TASK
 FROM [[]]
 WHERE !completed
 SORT due ASC
 ```
+````
 
 ## Meeting Notes
+
 ```dataview
 LIST
 FROM #meeting AND [[]]
@@ -453,8 +481,10 @@ SORT file.ctime DESC
 ```
 
 ## Key Decisions
+
 1. [[Decision - CMS Selection]] - chose Astro over Next.js
 2. [[Decision - Design System]] - adopted Radix UI primitives
+
 ```
 
 ## Graph View Optimization
@@ -472,9 +502,11 @@ The graph view is powerful but can become noise. Optimize it:
 ### Graph Hygiene
 
 - Run a weekly check for orphan notes (Dataview query):
-  ```
-  LIST FROM "" WHERE length(file.inlinks) = 0 AND length(file.outlinks) = 0
-  ```
+```
+
+LIST FROM "" WHERE length(file.inlinks) = 0 AND length(file.outlinks) = 0
+
+````
 - Merge duplicate notes when discovered
 - Rename notes for clarity (Obsidian auto-updates all links)
 - Archive old project notes by adding an `#archive` tag (filter out of graph)
@@ -541,8 +573,7 @@ The graph view is powerful but can become noise. Optimize it:
 - [ ] [First action step]
 - [ ] [Second action step]
 - [ ] [Follow-up task]
-```
-
+````
 
 ## Edge Cases
 
@@ -550,7 +581,6 @@ The graph view is powerful but can become noise. Optimize it:
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

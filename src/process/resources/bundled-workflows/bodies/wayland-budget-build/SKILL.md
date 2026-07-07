@@ -12,14 +12,15 @@ description: >-
   skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "finance-budget finance-report"
+skills: 'finance-budget finance-report'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-finance budget planning step-by-step cfo
   category: business-finance
-  depends: "finance-budget finance-report"
+  depends: 'finance-budget finance-report'
 ---
+
 # Build an Annual Budget
 
 **Estimated time:** 30-45 minutes

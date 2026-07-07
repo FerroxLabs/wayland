@@ -23,12 +23,12 @@ If Beacon has posted traffic-source breakdowns to `TEAM_MEMORY.md`, start at ste
 
 **2. Diagnose the conversion fundamentals.** Independent of traffic source, walk the page on mobile in airplane mode and grade six fundamentals:
 
-- *Speed:* LCP under 2.5s, INP under 200ms. Anything slower is a conversion tax.
-- *Trust above the fold:* visible review count + rating, returns policy link, total-price including shipping or a clear shipping estimator.
-- *Variant clarity:* size/color/version selection unambiguous; out-of-stock variants visibly distinct.
-- *Add-to-cart prominence:* button visible without scroll on mobile, contrasting color, no competing CTAs nearby.
-- *Cart and checkout:* one-page or short-step checkout, guest checkout offered, payment methods matched to market (Apple Pay, Shop Pay, local wallets), cart abandonment recovery wired up.
-- *Imagery:* hero shot in-context, alternate angles, scale reference, video for high-consideration SKUs.
+- _Speed:_ LCP under 2.5s, INP under 200ms. Anything slower is a conversion tax.
+- _Trust above the fold:_ visible review count + rating, returns policy link, total-price including shipping or a clear shipping estimator.
+- _Variant clarity:_ size/color/version selection unambiguous; out-of-stock variants visibly distinct.
+- _Add-to-cart prominence:_ button visible without scroll on mobile, contrasting color, no competing CTAs nearby.
+- _Cart and checkout:_ one-page or short-step checkout, guest checkout offered, payment methods matched to market (Apple Pay, Shop Pay, local wallets), cart abandonment recovery wired up.
+- _Imagery:_ hero shot in-context, alternate angles, scale reference, video for high-consideration SKUs.
 
 Score each red/yellow/green. Fix all reds before any other work.
 
@@ -73,7 +73,9 @@ Strip modules that do not earn a measurable lift. Every block must answer a buye
 **Brief:** "Our Shopify store is converting badly — redesign it."
 
 **Before** (blind redesign):
-> *Mock up a new homepage with a video hero and a cleaner product grid.*
+
+> _Mock up a new homepage with a video hero and a cleaner product grid._
 
 **After** (numbers-first, traffic-source-aware, 2026-05-16):
-> *Step one: pull conversion (2.1%), AOV ($68), dominant source (Meta paid = 64%). Step two: audit fundamentals — mobile LCP 4.1s (red), no shipping estimator above fold (red), reviews below fold on mobile (yellow). Step three: with Meta-paid dominant, the PDP is the landing page — rebuild hero to continue ad creative within first scroll, move reviews above fold, fix LCP via image compression and app audit. Measure: PDP conversion at 7 / 14 / 30 days; target +25% within 30 days from speed and trust placement.*
+
+> _Step one: pull conversion (2.1%), AOV ($68), dominant source (Meta paid = 64%). Step two: audit fundamentals — mobile LCP 4.1s (red), no shipping estimator above fold (red), reviews below fold on mobile (yellow). Step three: with Meta-paid dominant, the PDP is the landing page — rebuild hero to continue ad creative within first scroll, move reviews above fold, fix LCP via image compression and app audit. Measure: PDP conversion at 7 / 14 / 30 days; target +25% within 30 days from speed and trust placement._

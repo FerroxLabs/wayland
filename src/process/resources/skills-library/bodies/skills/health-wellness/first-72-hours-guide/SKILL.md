@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness stress-management guide beginner-friendly quick-reference networking safety emergency-preparedness"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness stress-management guide beginner-friendly quick-reference networking safety emergency-preparedness'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # First 72 Hours Guide
@@ -22,15 +22,16 @@ You are a disaster response advisor who helps people navigate the critical first
 
 > **DISCLAIMER**: This skill provides general emergency survival guidance. In a life-threatening emergency, call 911 or your local emergency number immediately. This information is not a substitute for professional emergency medical care, search and rescue services, or official disaster response guidance. Always follow instructions from emergency management officials and first responders.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about first 72 hours guide techniques or best practices
 - User needs guidance on first 72 hours guide concepts
 - User wants to implement or improve their approach to first 72 hours guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of first 72 hours guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,12 +52,14 @@ You are a disaster response advisor who helps people navigate the critical first
 ### Priority 1: Life Safety
 
 **Assess immediate danger:**
+
 - [ ] Are you in a safe location right now?
 - [ ] Is the building structurally sound? (Look for cracks, leaning, gas smell)
 - [ ] Are there fires, downed power lines, or flooding nearby?
 - [ ] Is the air safe to breathe? (Smell gas, see smoke, dust)
 
 **If NOT safe:**
+
 - Move to safety immediately
 - Do not re-enter damaged buildings
 - Stay away from downed power lines (assume all are live)
@@ -64,6 +67,7 @@ You are a disaster response advisor who helps people navigate the critical first
 - Move upwind from chemical releases or fire smoke
 
 **If safe:**
+
 - [ ] Account for all household members
 - [ ] Check for injuries - treat life-threatening injuries first
 - [ ] Put on sturdy shoes and protective clothing
@@ -73,6 +77,7 @@ You are a disaster response advisor who helps people navigate the critical first
 ### Priority 2: Medical Assessment
 
 **Check each person using this order:**
+
 1. **Breathing**: Are they breathing? Is airway clear?
 2. **Bleeding**: Is there serious bleeding? Apply direct pressure
 3. **Shock**: Pale, cold, clammy skin? Elevate legs, keep warm
@@ -81,6 +86,7 @@ You are a disaster response advisor who helps people navigate the critical first
 6. **Other injuries**: Cuts, bruises, sprains - treat as able
 
 **When to call for emergency help:**
+
 - Uncontrolled bleeding
 - Difficulty breathing
 - Chest pain
@@ -91,6 +97,7 @@ You are a disaster response advisor who helps people navigate the critical first
 - Trapped individuals
 
 **If emergency services are unavailable:**
+
 - Prioritize stopping bleeding and maintaining airways
 - Keep injured people warm and still
 - Monitor for changes in condition
@@ -113,12 +120,14 @@ You are a disaster response advisor who helps people navigate the critical first
 **You need a minimum of 1/2 gallon per person per day for survival. 1 gallon is recommended.**
 
 **If you have stored water:**
+
 - Ration to 1 gallon per person per day
 - Prioritize drinking water, then cooking, then sanitation
 - Store open containers covered and in shade
 
 **If you need to find water:**
 Emergency water sources (in order of safety):
+
 1. Bottled water and sealed beverages
 2. Water heater tank (turn off gas/power first, let sediment settle)
 3. Ice cubes from freezer (melt as needed)
@@ -137,6 +146,7 @@ Emergency water sources (in order of safety):
 | UV treatment | Follow product instructions | Bacteria, viruses, parasites |
 
 **NEVER drink:**
+
 - Flood water
 - Water with chemical contamination
 - Radiator fluid or other vehicle fluids
@@ -145,6 +155,7 @@ Emergency water sources (in order of safety):
 ### Shelter
 
 **Sheltering in place (in your home):**
+
 - [ ] Identify the safest room (interior, structurally sound)
 - [ ] Close and seal windows if air quality is a concern
 - [ ] Use blankets, sleeping bags, and warm clothing for warmth
@@ -154,6 +165,7 @@ Emergency water sources (in order of safety):
 - [ ] Avoid using charcoal, gas grills, or generators indoors (CO poisoning)
 
 **If you must shelter outside:**
+
 - Find or create windbreak (building walls, vehicles, natural features)
 - Get off the ground (use a pad, cardboard, tarp, or branches)
 - Cover yourself to retain heat (mylar blankets, tarps, layers of clothing)
@@ -172,6 +184,7 @@ Emergency water sources (in order of safety):
 ### Food
 
 **First 24 hours food priorities:**
+
 - Eat perishable food first (refrigerator food while still cold)
 - Unopened refrigerator stays cold ~4 hours
 - Unopened freezer stays cold 24-48 hours (full) or 24 hours (half full)
@@ -179,6 +192,7 @@ Emergency water sources (in order of safety):
 - Ration food if resupply is uncertain
 
 **Food safety after power outage:**
+
 - Discard any perishable food above 40F for more than 2 hours
 - Discard any food with an unusual odor, color, or texture
 - When in doubt, throw it out
@@ -186,6 +200,7 @@ Emergency water sources (in order of safety):
 - Canned food is safe as long as cans are undamaged and not swollen
 
 **Cooking without power:**
+
 - Outdoor grill (NEVER use indoors)
 - Camp stove (NEVER use indoors)
 - Fireplace (if functional and safe)
@@ -195,6 +210,7 @@ Emergency water sources (in order of safety):
 ### Sanitation
 
 **If plumbing is not working:**
+
 - Do NOT flush toilets if you suspect sewer line damage
 - Use a bucket toilet: 5-gallon bucket with garbage bag liner and seat
 - Add cat litter, sawdust, or dirt after each use to reduce odor
@@ -203,6 +219,7 @@ Emergency water sources (in order of safety):
 - Designate a specific area for waste (away from water sources)
 
 **Hygiene priorities:**
+
 - Hand washing before food handling and after toilet use
 - Hand sanitizer when water is limited
 - Baby wipes for personal cleaning when showers are unavailable
@@ -214,6 +231,7 @@ Emergency water sources (in order of safety):
 ### Reassess and Stabilize
 
 **Situation assessment:**
+
 - [ ] Is your shelter secure and adequate?
 - [ ] How are your water supplies holding up?
 - [ ] How is the food supply?
@@ -243,6 +261,7 @@ Emergency water sources (in order of safety):
 ### Property Assessment
 
 **Only if safe to do so:**
+
 - [ ] Document damage with photographs (for insurance)
 - [ ] Cover broken windows and damaged roof areas with tarps
 - [ ] Secure the property from further damage or weather
@@ -262,6 +281,7 @@ Emergency water sources (in order of safety):
 - Sleep is critical for decision-making - prioritize rest shifts
 
 **Signs someone needs more help:**
+
 - Unable to function or make basic decisions
 - Persistent panic or severe anxiety
 - Dissociation (detached from reality)
@@ -274,6 +294,7 @@ Emergency water sources (in order of safety):
 ### Recovery Transition
 
 **By 72 hours, you should be working toward:**
+
 - Reliable water source or resupply plan
 - Stable shelter situation (or en route to one)
 - Contact with family and support network
@@ -284,6 +305,7 @@ Emergency water sources (in order of safety):
 ### Accessing Aid
 
 **Common disaster relief resources:**
+
 - FEMA disaster assistance (if federal disaster declared)
 - American Red Cross shelters and services
 - Salvation Army disaster services
@@ -292,6 +314,7 @@ Emergency water sources (in order of safety):
 - 211 information hotline
 
 **To register for assistance:**
+
 - Have identification if possible (but assistance is not denied without it)
 - Document your address and extent of damage
 - Keep records of all expenses and losses
@@ -302,6 +325,7 @@ Emergency water sources (in order of safety):
 ### Decision Point: Stay or Go?
 
 **Consider leaving if:**
+
 - [ ] Your shelter is unsafe or deteriorating
 - [ ] You are running out of water with no resupply
 - [ ] Medical needs cannot be met in current location
@@ -310,6 +334,7 @@ Emergency water sources (in order of safety):
 - [ ] Shelter or assistance is available at another location
 
 **Consider staying if:**
+
 - [ ] Your location is safe and stable
 - [ ] You have adequate supplies
 - [ ] Travel routes may be dangerous
@@ -320,12 +345,14 @@ Emergency water sources (in order of safety):
 ## Quick Reference: Survival Priorities
 
 **The Rule of 3s (approximate survival limits):**
+
 - 3 minutes without air
 - 3 hours without shelter (in harsh conditions)
 - 3 days without water
 - 3 weeks without food
 
 **This means your priorities should always be:**
+
 1. **Immediate safety and breathable air**
 2. **Shelter from extreme conditions**
 3. **Water**
@@ -402,7 +429,6 @@ DAD'S PHONE: ______________________
 EMERGENCY CONTACT: _________________
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -410,7 +436,6 @@ EMERGENCY CONTACT: _________________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -431,14 +456,12 @@ EMERGENCY CONTACT: _________________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

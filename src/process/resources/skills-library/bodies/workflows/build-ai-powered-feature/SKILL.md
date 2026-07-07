@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Build Ai Powered Feature
 
 **Estimated time:** 4-10 weeks
@@ -121,7 +122,7 @@ deploy the AI feature behind a feature flag for gradual rollout. Start with 5% o
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Reconsider whether AI is the right solution
   - If **After Step 2**: Explore alternative approaches or simplify the problem
   - If **After Step 4**: Iterate on AI component until targets are met
@@ -172,6 +173,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

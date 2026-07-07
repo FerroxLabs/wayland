@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing tdd automation"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'testing tdd automation'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Property Based Testing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to write property-based tests for functions involving mathematical invariants, data transformations, serialization/deserialization, or stateful systems
 - The user wants to replace or supplement example-based unit tests with generative testing that explores the input space automatically
 - The user is debugging a property-based test failure and needs help understanding shrinking, seed replay, or generator composition
@@ -30,6 +32,7 @@ metadata:
 - The user wants to test parser correctness, codec round-trips, sorting algorithm stability, or algebraic laws (associativity, commutativity, idempotency)
 
 **Do NOT use this skill when:**
+
 - The user needs mutation testing guidance -- use the mutation-testing skill instead
 - The user needs fuzzing for security vulnerability discovery (AFL, libFuzzer) -- property-based testing and security fuzzing share concepts but have different toolchains and goals
 - The user is asking about snapshot testing, visual regression, or contract testing -- those are distinct practices with their own skills
@@ -140,7 +143,7 @@ Stateful testing is the most powerful and most underused form of property-based 
 
 When responding to a property-based testing request, structure the output as follows:
 
-```
+````
 ## Property-Based Testing Plan: [System Under Test]
 
 ### Identified Properties
@@ -167,9 +170,10 @@ def valid_orders(draw):
                              places=2, allow_nan=False))
     side = draw(st.sampled_from(["BUY", "SELL"]))
     return Order(quantity=quantity, price=price, side=side)
-```
+````
 
 ### Property Tests
+
 ```python
 # One block per identified property
 @given(valid_orders())
@@ -183,20 +187,24 @@ def test_[property_name](order):
 ```
 
 ### CI Configuration
+
 - **Standard suite:** max_examples=500, deadline=500ms, runs on every PR
 - **Extended suite:** max_examples=5000, runs nightly
 - **Database:** .hypothesis/examples/ committed to version control
 - **Seed strategy:** [fixed for replay / date-based for nightly]
 
 ### Stateful Test Plan (if applicable)
+
 - **Model:** [description of reference model]
 - **Commands:** [list of state transitions]
 - **Invariants:** [list of always-true assertions]
 
 ### Known Limitations and Risks
+
 - [Generator may not cover distribution X -- mitigation]
 - [Shrinking may be slow for type Y -- mitigation]
-```
+
+````
 
 ---
 
@@ -351,7 +359,7 @@ def valid_user_profiles(draw):
             allow_infinity=False
         )),
     )
-```
+````
 
 ### Property Tests
 
@@ -523,6 +531,7 @@ settings.load_profile("ci")  # Default -- override with HYPOTHESIS_PROFILE=night
 ### Stateful Test Plan (future -- codec versioning)
 
 When the codec introduces a v2 format, add a stateful test that:
+
 - **Model:** Python dict mapping user_id (UUID) to UserProfile
 - **Commands:** `WriteV1(profile)`, `WriteV2(profile)`, `Read(user_id)`, `Migrate(user_id)`
 - **Invariant after every command:** `Read(user_id)` returns the last-written profile regardless of which version wrote it

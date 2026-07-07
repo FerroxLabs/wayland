@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml devops guide"
-  category: "ai-machine-learning"
-  subcategory: "ml-fundamentals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml devops guide'
+  category: 'ai-machine-learning'
+  subcategory: 'ml-fundamentals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # ML Ops Engineer
@@ -190,14 +190,14 @@ def validate_model_for_production(model_name, version):
 
 ### Serving Architecture Decision
 
-| Framework | Best For | Latency | Throughput | GPU Support |
-|-----------|----------|---------|------------|-------------|
-| TorchServe | PyTorch models | Low | High | Yes |
-| Triton | Multi-framework, GPU | Very Low | Very High | Yes |
-| TF Serving | TensorFlow models | Low | High | Yes |
-| BentoML | Python-first, easy | Medium | Medium | Yes |
-| vLLM | LLM serving | Low | High | Yes |
-| FastAPI + custom | Simple models | Varies | Medium | Optional |
+| Framework        | Best For             | Latency  | Throughput | GPU Support |
+| ---------------- | -------------------- | -------- | ---------- | ----------- |
+| TorchServe       | PyTorch models       | Low      | High       | Yes         |
+| Triton           | Multi-framework, GPU | Very Low | Very High  | Yes         |
+| TF Serving       | TensorFlow models    | Low      | High       | Yes         |
+| BentoML          | Python-first, easy   | Medium   | Medium     | Yes         |
+| vLLM             | LLM serving          | Low      | High       | Yes         |
+| FastAPI + custom | Simple models        | Varies   | Medium     | Optional    |
 
 ### Model Serving with FastAPI
 
@@ -499,6 +499,7 @@ Level 4 - Automated Retraining:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing ml ops engineer solutions
 - Reviewing or improving existing ml ops engineer approaches
 - Making architectural or implementation decisions about ml ops engineer
@@ -506,6 +507,7 @@ Level 4 - Automated Retraining:
 - Troubleshooting ml ops engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -516,21 +518,26 @@ Level 4 - Automated Retraining:
 # Ml Ops Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

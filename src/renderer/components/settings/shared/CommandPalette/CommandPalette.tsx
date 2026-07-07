@@ -92,7 +92,9 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onClose }) => {
             className='flex-1'
             style={{ background: 'transparent', boxShadow: 'none', border: 'none' }}
           />
-          <kbd className='text-11px text-[var(--color-text-3)] bg-[var(--color-bg-4)] rounded-4px px-6px py-2px'>Esc</kbd>
+          <kbd className='text-11px text-[var(--color-text-3)] bg-[var(--color-bg-4)] rounded-4px px-6px py-2px'>
+            Esc
+          </kbd>
         </div>
 
         {/* Results */}

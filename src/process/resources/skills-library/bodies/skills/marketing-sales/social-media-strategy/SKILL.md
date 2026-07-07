@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing social-media planning strategy"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing social-media planning strategy'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Social Media Strategy
 
 ## When to Use
@@ -391,12 +392,13 @@ The first 90 days for a new account require a different strategic emphasis than 
 
 ### Platform Strategy
 
-| Platform | Role | Core Audience | Content Focus | Weekly Frequency | Key Formats |
-|----------|------|---------------|--------------|-----------------|-------------|
-| Instagram | Primary | Local Austin women 24-42, fitness-curious, community-seekers | Studio atmosphere, class experience, instructor personality, member stories | 4 feed posts/week + daily Stories | 50% Reels, 30% Carousels, 20% Single image |
-| Facebook | Secondary | Local Austin community, event discovery, 30-50 demographic | Class schedule, events, member testimonials, community spotlights | 2 posts/week | Image + short video repurposed from Instagram |
+| Platform  | Role      | Core Audience                                                | Content Focus                                                               | Weekly Frequency                  | Key Formats                                   |
+| --------- | --------- | ------------------------------------------------------------ | --------------------------------------------------------------------------- | --------------------------------- | --------------------------------------------- |
+| Instagram | Primary   | Local Austin women 24-42, fitness-curious, community-seekers | Studio atmosphere, class experience, instructor personality, member stories | 4 feed posts/week + daily Stories | 50% Reels, 30% Carousels, 20% Single image    |
+| Facebook  | Secondary | Local Austin community, event discovery, 30-50 demographic   | Class schedule, events, member testimonials, community spotlights           | 2 posts/week                      | Image + short video repurposed from Instagram |
 
 **Platform notes:**
+
 - Instagram: This is where local fitness discovery happens for the target audience. Prioritize Reels for reach to non-followers. Stories serve as the daily connection channel -- post 2-4 frames daily even when there is no feed post.
 - Facebook: Do not create original content for Facebook. Repurpose Instagram posts via Meta's native cross-posting. Use Facebook primarily for events (class workshops, community challenges) and for reaching the slightly older local demographic through local community groups.
 
@@ -404,17 +406,18 @@ The first 90 days for a new account require a different strategic emphasis than 
 
 ### Content Pillars
 
-| # | Pillar Name | Purpose | % of Content | Posts/Month | Core Series |
-|---|-------------|---------|-------------|-------------|-------------|
-| 1 | Class Experience | Educate + Inspire | 30% | 6-7 | "What to Expect" weekly Reel |
-| 2 | Studio Community | Connect | 25% | 5-6 | "Member Spotlight" every other week |
-| 3 | Instructor Voices | Build trust + connection | 20% | 4-5 | "Ask [Instructor Name]" Stories Q&A |
-| 4 | Wellness + Lifestyle | Educate (value content) | 15% | 3-4 | None -- topic variety |
-| 5 | Studio Offers + News | Convert + Announce | 10% | 2-3 | Class schedule updates, new member offers |
+| #   | Pillar Name          | Purpose                  | % of Content | Posts/Month | Core Series                               |
+| --- | -------------------- | ------------------------ | ------------ | ----------- | ----------------------------------------- |
+| 1   | Class Experience     | Educate + Inspire        | 30%          | 6-7         | "What to Expect" weekly Reel              |
+| 2   | Studio Community     | Connect                  | 25%          | 5-6         | "Member Spotlight" every other week       |
+| 3   | Instructor Voices    | Build trust + connection | 20%          | 4-5         | "Ask [Instructor Name]" Stories Q&A       |
+| 4   | Wellness + Lifestyle | Educate (value content)  | 15%          | 3-4         | None -- topic variety                     |
+| 5   | Studio Offers + News | Convert + Announce       | 10%          | 2-3         | Class schedule updates, new member offers |
 
 **Post ideas per pillar:**
 
 **Pillar 1 -- Class Experience:**
+
 - 15-second Reel of a barre class set to trending audio showing the energy and space
 - Carousel: "5 Things First-Time HIIT Attenders Always Get Wrong" (tips that reduce intimidation)
 - Reel: Instructor teaching a 3-breath reset between HIIT sets -- a technique non-members don't know exists
@@ -422,6 +425,7 @@ The first 90 days for a new account require a different strategic emphasis than 
 - Reel: Side-by-side of a beginner and advanced student in the same yoga class ("we truly meet you where you are")
 
 **Pillar 2 -- Studio Community:**
+
 - Member spotlight carousel: 3-4 slides featuring a member, their class preference, and one quote about why they keep coming back
 - Reel: "Day in the life of a studio regular" -- casual, iPhone-shot, authentic
 - Staff birthday or work anniversary post that tags the instructor
@@ -429,6 +433,7 @@ The first 90 days for a new account require a different strategic emphasis than 
 - UGC repost: Share a member's post from class with permission (ask in DM or via Stories poll "tag us to be featured")
 
 **Pillar 3 -- Instructor Voices:**
+
 - Instructor playlist reveal carousel: "What [Name] plays in Sunday yoga"
 - Stories Q&A: "Ask [Instructor] anything about HIIT" -- screenshot best questions for feed post
 - Instructor "hot take" post: "Unpopular opinion: you should not go to HIIT more than 3 times a week. Here's why."
@@ -436,12 +441,14 @@ The first 90 days for a new account require a different strategic emphasis than 
 - "Why I teach barre" -- short-form first-person video, 30-60 seconds
 
 **Pillar 4 -- Wellness + Lifestyle:**
+
 - Carousel: "The 3 things that actually help muscle soreness (and the 2 that don't)"
 - Single image/quote: A recovery or mindset quote with the studio's visual brand
 - Reel: "Morning routine before a 6am HIIT class" -- what the instructor actually eats
 - Carousel: "How to layer yoga and HIIT in a week without overtraining" -- a practical scheduling guide
 
 **Pillar 5 -- Studio Offers + News:**
+
 - "Refer a friend and both get one class free" -- graphic post with clear CTA
 - New class time announcement with urgency: "We added a Saturday 9am HIIT -- only 8 spots"
 - "First class free this week only" -- time-limited offer for local awareness
@@ -453,17 +460,18 @@ The first 90 days for a new account require a different strategic emphasis than 
 
 > Rotate specific topics each week. Keep this day/platform/format/pillar structure every week for 12 weeks.
 
-| Day | Platform | Pillar | Format | Content Angle |
-|-----|----------|--------|--------|---------------|
-| Monday | Instagram | Class Experience | Reel | Class energy, atmosphere, or technique moment |
-| Tuesday | Instagram | Stories only | Stories (2-3 frames) | Poll or question: "What class are you taking this week?" |
-| Wednesday | Instagram | Instructor Voices | Carousel or Single image | Instructor insight, tip, or personality post |
-| Thursday | Instagram + Facebook | Studio Offers + News | Graphic/image | Schedule reminder, upcoming event, or offer |
-| Friday | Instagram | Studio Community | Carousel | Member spotlight or UGC feature |
-| Saturday | Instagram | Wellness + Lifestyle | Single image or Reel | Lifestyle/mindset/recovery content |
-| Sunday | Instagram | Stories only | Stories (2-3 frames) | Behind-the-scenes of Sunday class prep or instructor check-in |
+| Day       | Platform             | Pillar               | Format                   | Content Angle                                                 |
+| --------- | -------------------- | -------------------- | ------------------------ | ------------------------------------------------------------- |
+| Monday    | Instagram            | Class Experience     | Reel                     | Class energy, atmosphere, or technique moment                 |
+| Tuesday   | Instagram            | Stories only         | Stories (2-3 frames)     | Poll or question: "What class are you taking this week?"      |
+| Wednesday | Instagram            | Instructor Voices    | Carousel or Single image | Instructor insight, tip, or personality post                  |
+| Thursday  | Instagram + Facebook | Studio Offers + News | Graphic/image            | Schedule reminder, upcoming event, or offer                   |
+| Friday    | Instagram            | Studio Community     | Carousel                 | Member spotlight or UGC feature                               |
+| Saturday  | Instagram            | Wellness + Lifestyle | Single image or Reel     | Lifestyle/mindset/recovery content                            |
+| Sunday    | Instagram            | Stories only         | Stories (2-3 frames)     | Behind-the-scenes of Sunday class prep or instructor check-in |
 
 **Format mix summary:**
+
 - Instagram feed: 50% Reels, 30% Carousels, 20% Single image
 - Instagram Stories: Daily, 2-4 frames -- polls, questions, behind-the-scenes, class countdowns
 - Facebook: 2 posts/week cross-posted from Instagram (Thursday offer post + one community post)
@@ -472,48 +480,49 @@ The first 90 days for a new account require a different strategic emphasis than 
 
 ### First 2-Week Content Brief
 
-| Week | Day | Platform | Format | Pillar | Specific Topic | Caption Direction |
-|------|-----|----------|--------|--------|----------------|-------------------|
-| 1 | Mon | Instagram | Reel | Class Experience | 15-sec clip of a barre class in session, trending audio | "This is what Tuesday morning at [Studio] looks like. 8 spots left this week. Link in bio." |
-| 1 | Wed | Instagram | Carousel (4 slides) | Instructor Voices | "Meet [Instructor Name] -- the person who will make you fall in love with HIIT" | Introduce the instructor, her background, teaching philosophy, and what new members always ask her |
-| 1 | Thu | Instagram + Facebook | Graphic | Offers + News | "New member special: First class free, any format" | "If you've been curious about [Studio], this is your week. No commitment, just show up." |
-| 1 | Fri | Instagram | Carousel (3 slides) | Studio Community | Member spotlight: [Member name or first name only with permission] | "She started with one yoga class a week. Today she teaches here. Meet [Name]." |
-| 1 | Sat | Instagram | Single image | Wellness + Lifestyle | Quote image: "You don't have to go hard to go consistently." | Short caption on sustainable fitness, ending with "What class are you taking this week? Tell us below." |
-| 2 | Mon | Instagram | Reel | Class Experience | 30-sec "What to expect in your first HIIT class" -- instructor talking to camera | "Every single person in our HIIT class was a first-timer once. Here's what they wish they knew." |
-| 2 | Wed | Instagram | Carousel | Wellness + Lifestyle | "How to schedule yoga + HIIT in the same week" -- 5 slides | Educational carousel with simple visual schedule, CTA to view class times in bio |
-| 2 | Thu | Instagram + Facebook | Image | Offers + News | Saturday 9am HIIT announcement | "We added a Saturday 9am. 8 spots. First come, first served. Schedule in bio." |
-| 2 | Fri | Instagram | Reel | Studio Community | Behind-the-scenes: studio setup before a 6am class, instructor prepping the room | "Most people are asleep when [Name] is already making this place perfect for you." |
-| 2 | Sat | Instagram | Single image | Instructor Voices | Instructor hot take post | "Unpopular opinion: You don't need to go hard 5 days a week. Here's what we actually recommend." |
+| Week | Day | Platform             | Format              | Pillar               | Specific Topic                                                                   | Caption Direction                                                                                       |
+| ---- | --- | -------------------- | ------------------- | -------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| 1    | Mon | Instagram            | Reel                | Class Experience     | 15-sec clip of a barre class in session, trending audio                          | "This is what Tuesday morning at [Studio] looks like. 8 spots left this week. Link in bio."             |
+| 1    | Wed | Instagram            | Carousel (4 slides) | Instructor Voices    | "Meet [Instructor Name] -- the person who will make you fall in love with HIIT"  | Introduce the instructor, her background, teaching philosophy, and what new members always ask her      |
+| 1    | Thu | Instagram + Facebook | Graphic             | Offers + News        | "New member special: First class free, any format"                               | "If you've been curious about [Studio], this is your week. No commitment, just show up."                |
+| 1    | Fri | Instagram            | Carousel (3 slides) | Studio Community     | Member spotlight: [Member name or first name only with permission]               | "She started with one yoga class a week. Today she teaches here. Meet [Name]."                          |
+| 1    | Sat | Instagram            | Single image        | Wellness + Lifestyle | Quote image: "You don't have to go hard to go consistently."                     | Short caption on sustainable fitness, ending with "What class are you taking this week? Tell us below." |
+| 2    | Mon | Instagram            | Reel                | Class Experience     | 30-sec "What to expect in your first HIIT class" -- instructor talking to camera | "Every single person in our HIIT class was a first-timer once. Here's what they wish they knew."        |
+| 2    | Wed | Instagram            | Carousel            | Wellness + Lifestyle | "How to schedule yoga + HIIT in the same week" -- 5 slides                       | Educational carousel with simple visual schedule, CTA to view class times in bio                        |
+| 2    | Thu | Instagram + Facebook | Image               | Offers + News        | Saturday 9am HIIT announcement                                                   | "We added a Saturday 9am. 8 spots. First come, first served. Schedule in bio."                          |
+| 2    | Fri | Instagram            | Reel                | Studio Community     | Behind-the-scenes: studio setup before a 6am class, instructor prepping the room | "Most people are asleep when [Name] is already making this place perfect for you."                      |
+| 2    | Sat | Instagram            | Single image        | Instructor Voices    | Instructor hot take post                                                         | "Unpopular opinion: You don't need to go hard 5 days a week. Here's what we actually recommend."        |
 
 ---
 
 ### Engagement Plan
 
-| Activity | Frequency | Time Required | Who | Notes |
-|----------|-----------|---------------|-----|-------|
-| Respond to all comments | Daily, within 2 hrs of publishing | 5 min | Owner | First hour of engagement is critical for Instagram algorithm -- check phone after posting |
-| Respond to DMs | Daily | 5-10 min | Owner | Set up an automated Instagram welcome DM for new followers: "Thanks for following! Our schedule is in the link in bio -- first class is free this week." |
-| Proactive commenting | 5 days/week | 10 min | Owner | Comment on 5 posts from accounts your target members follow: Austin fitness hashtags, local wellness accounts, neighborhood community accounts |
-| Stories interactive content | 4x/week | 5 min | Owner | Use polls ("yoga or HIIT this week?"), countdowns (to a new challenge), and question boxes ("What would you want in a new class format?") |
-| UGC sourcing | Weekly | 5 min | Owner | After each class, post a Stories frame: "Tag us if you came to class today -- we repost!" |
-| Local community engagement | 3x/week | 10 min | Owner | Engage in Austin-specific hashtags: #AustinFitness, #AustinYoga, #AustinWellness, and local neighborhood accounts |
-| Referral activation | Monthly | 15 min | Owner | Monthly Stories post reminding members about the refer-a-friend offer; send a DM to the 10 most engaged followers personally |
+| Activity                    | Frequency                         | Time Required | Who   | Notes                                                                                                                                                    |
+| --------------------------- | --------------------------------- | ------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Respond to all comments     | Daily, within 2 hrs of publishing | 5 min         | Owner | First hour of engagement is critical for Instagram algorithm -- check phone after posting                                                                |
+| Respond to DMs              | Daily                             | 5-10 min      | Owner | Set up an automated Instagram welcome DM for new followers: "Thanks for following! Our schedule is in the link in bio -- first class is free this week." |
+| Proactive commenting        | 5 days/week                       | 10 min        | Owner | Comment on 5 posts from accounts your target members follow: Austin fitness hashtags, local wellness accounts, neighborhood community accounts           |
+| Stories interactive content | 4x/week                           | 5 min         | Owner | Use polls ("yoga or HIIT this week?"), countdowns (to a new challenge), and question boxes ("What would you want in a new class format?")                |
+| UGC sourcing                | Weekly                            | 5 min         | Owner | After each class, post a Stories frame: "Tag us if you came to class today -- we repost!"                                                                |
+| Local community engagement  | 3x/week                           | 10 min        | Owner | Engage in Austin-specific hashtags: #AustinFitness, #AustinYoga, #AustinWellness, and local neighborhood accounts                                        |
+| Referral activation         | Monthly                           | 15 min        | Owner | Monthly Stories post reminding members about the refer-a-friend offer; send a DM to the 10 most engaged followers personally                             |
 
 ---
 
 ### Metrics Dashboard
 
-| KPI | Platform | Current Baseline | 30-Day Target | 90-Day Target | Review Frequency |
-|-----|----------|-----------------|---------------|---------------|-----------------|
-| Engagement rate (feed) | Instagram | ~1.8% (estimated) | 3% | 5% | Weekly |
-| Reach per Reel | Instagram | Unknown | 500 non-followers | 1,500 non-followers | Weekly |
-| Follower count | Instagram | 847 | 1,050 | 1,500 | Monthly |
-| Story views (avg per frame) | Instagram | Unknown | 100 | 200 | Weekly |
-| Link-in-bio clicks | Instagram | Unknown | 25/week | 75/week | Weekly |
-| Page likes/follows | Facebook | 312 | 360 | 450 | Monthly |
-| New member inquiries via social DM | Both | Unknown | 3/week | 10/week | Weekly |
+| KPI                                | Platform  | Current Baseline  | 30-Day Target     | 90-Day Target       | Review Frequency |
+| ---------------------------------- | --------- | ----------------- | ----------------- | ------------------- | ---------------- |
+| Engagement rate (feed)             | Instagram | ~1.8% (estimated) | 3%                | 5%                  | Weekly           |
+| Reach per Reel                     | Instagram | Unknown           | 500 non-followers | 1,500 non-followers | Weekly           |
+| Follower count                     | Instagram | 847               | 1,050             | 1,500               | Monthly          |
+| Story views (avg per frame)        | Instagram | Unknown           | 100               | 200                 | Weekly           |
+| Link-in-bio clicks                 | Instagram | Unknown           | 25/week           | 75/week             | Weekly           |
+| Page likes/follows                 | Facebook  | 312               | 360               | 450                 | Monthly          |
+| New member inquiries via social DM | Both      | Unknown           | 3/week            | 10/week             | Weekly           |
 
 **Optimization triggers:**
+
 - If engagement rate is below 2.5% for 3 consecutive weeks -- audit content mix; shift 10% of feed posts from single images to Reels and carousels
 - If follower growth is flat after 6 weeks -- increase proactive engagement from 5 to 10 accounts per day; test a local giveaway campaign (free month of classes) to seed reach
 - If the Wellness/Lifestyle pillar consistently underperforms -- replace it with more Community content and reduce it to 10% share
@@ -523,10 +532,10 @@ The first 90 days for a new account require a different strategic emphasis than 
 
 ### Tool Recommendations
 
-| Tool | Purpose | Cost | Priority |
-|------|---------|------|----------|
-| Later or Buffer | Schedule Instagram and Facebook posts in advance; batch weekly content on Sunday | Free tier available; Later paid starts at $18/mo | High -- use from week 1 |
-| Canva | Design carousels, quote graphics, promotional posts without a designer | Free tier covers most needs; Pro is $15/mo | High |
-| CapCut | Edit Reels on iPhone; add captions, trending audio, transitions | Free | High if producing Reels |
-| Instagram native analytics | Track engagement rate, reach, Story views | Free -- built in | High |
-| Flick or Metricool | Hashtag research and performance tracking | Flick starts at $14/mo | Low -- useful after month 2 |
+| Tool                       | Purpose                                                                          | Cost                                             | Priority                    |
+| -------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------ | --------------------------- |
+| Later or Buffer            | Schedule Instagram and Facebook posts in advance; batch weekly content on Sunday | Free tier available; Later paid starts at $18/mo | High -- use from week 1     |
+| Canva                      | Design carousels, quote graphics, promotional posts without a designer           | Free tier covers most needs; Pro is $15/mo       | High                        |
+| CapCut                     | Edit Reels on iPhone; add captions, trending audio, transitions                  | Free                                             | High if producing Reels     |
+| Instagram native analytics | Track engagement rate, reach, Story views                                        | Free -- built in                                 | High                        |
+| Flick or Metricool         | Hashtag research and performance tracking                                        | Flick starts at $14/mo                           | Low -- useful after month 2 |

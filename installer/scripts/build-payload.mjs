@@ -21,7 +21,10 @@ const PAYLOAD = join(PKG, 'payload');
 function run(cmd, args) {
   console.log(`\n$ ${cmd} ${args.join(' ')}`);
   const r = spawnSync(cmd, args, { cwd: APP, stdio: 'inherit' });
-  if (r.status !== 0) { console.error(`✗ ${cmd} ${args.join(' ')} failed`); process.exit(1); }
+  if (r.status !== 0) {
+    console.error(`✗ ${cmd} ${args.join(' ')} failed`);
+    process.exit(1);
+  }
 }
 
 console.log('Building Wayland headless payload…');
@@ -34,8 +37,14 @@ run('node', ['scripts/build-mcp-servers.js']);
 
 const distServer = join(APP, 'dist-server');
 const renderer = join(APP, 'out', 'renderer');
-for (const [p, label] of [[distServer, 'dist-server'], [renderer, 'out/renderer']]) {
-  if (!existsSync(p)) { console.error(`✗ expected build output missing: ${label} (${p})`); process.exit(1); }
+for (const [p, label] of [
+  [distServer, 'dist-server'],
+  [renderer, 'out/renderer'],
+]) {
+  if (!existsSync(p)) {
+    console.error(`✗ expected build output missing: ${label} (${p})`);
+    process.exit(1);
+  }
 }
 
 rmSync(PAYLOAD, { recursive: true, force: true });
@@ -50,9 +59,18 @@ const isMcpScript = (f) =>
   /^(builtin-mcp-.+|team-mcp-stdio|team-guide-mcp-stdio)\.(js|mjs)$/.test(f) || f === 'eventkit-bridge';
 const mcpScripts = existsSync(outMain) ? readdirSync(outMain).filter(isMcpScript) : [];
 for (const f of mcpScripts) cpSync(join(outMain, f), join(PAYLOAD, 'dist-server', f));
-const REQUIRED_MCP = ['builtin-mcp-image-gen.js', 'builtin-mcp-search-skills.js', 'builtin-mcp-concierge-diag.js', 'team-mcp-stdio.js', 'team-guide-mcp-stdio.js'];
+const REQUIRED_MCP = [
+  'builtin-mcp-image-gen.js',
+  'builtin-mcp-search-skills.js',
+  'builtin-mcp-concierge-diag.js',
+  'team-mcp-stdio.js',
+  'team-guide-mcp-stdio.js',
+];
 const missingMcp = REQUIRED_MCP.filter((f) => !mcpScripts.includes(f));
-if (missingMcp.length) { console.error(`✗ MCP build incomplete, missing: ${missingMcp.join(', ')}`); process.exit(1); }
+if (missingMcp.length) {
+  console.error(`✗ MCP build incomplete, missing: ${missingMcp.join(', ')}`);
+  process.exit(1);
+}
 console.log(`  + ${mcpScripts.length} MCP scripts → payload/dist-server`);
 
 // Builtin resource trees the server resolves under payload/src/process/resources/.
@@ -63,7 +81,10 @@ const resDst = join(PAYLOAD, 'src', 'process', 'resources');
 const RESOURCE_DIRS = ['skills', 'assistant', 'skills-library', 'bundled-workflows'];
 for (const name of RESOURCE_DIRS) {
   const s = join(resSrc, name);
-  if (!existsSync(s)) { console.error(`✗ resource dir missing in source: ${name} (${s})`); process.exit(1); }
+  if (!existsSync(s)) {
+    console.error(`✗ resource dir missing in source: ${name} (${s})`);
+    process.exit(1);
+  }
   cpSync(s, join(resDst, name), { recursive: true });
 }
 console.log(`  + resources (${RESOURCE_DIRS.join(', ')}) → payload/src/process/resources`);

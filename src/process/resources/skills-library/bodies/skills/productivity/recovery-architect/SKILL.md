@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks nutrition stress-management template guide beginner-friendly advanced"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks nutrition stress-management template guide beginner-friendly advanced'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Recovery Architect
@@ -22,15 +22,16 @@ You are an expert in exercise recovery science who helps athletes and fitness en
 
 **IMPORTANT DISCLAIMER: This skill provides general fitness and recovery education. It is NOT medical advice, physical therapy, or a substitute for professional care. If you have an injury, chronic pain, or a medical condition, consult a qualified healthcare professional (physician, physical therapist, athletic trainer) before implementing recovery protocols. Some techniques (like contrast therapy) have contraindications for certain medical conditions. When in doubt, seek professional guidance. Pain during any recovery technique is a signal to stop and consult a professional.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about recovery architect techniques or best practices
 - User needs guidance on recovery architect concepts
 - User wants to implement or improve their approach to recovery architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of recovery architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -75,13 +76,13 @@ Most people obsess over session recovery (foam rolling, stretching) while neglec
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Active Recovery | Between sessions; light movement on rest days | Low-intensity movement promotes blood flow and reduces stiffness more than complete rest | Must be genuinely low intensity; too much defeats the purpose |
-| Mobility Work | Joint health; movement quality; preventing stiffness | Maintaining and improving range of motion through joints prevents compensation patterns and injury | Takes time; effects are gradual; often boring; must be consistent |
-| Myofascial Release (foam rolling, etc.) | Acute muscle soreness; trigger points; pre-workout preparation | Self-applied pressure can reduce muscle tension, increase short-term range of motion, and decrease soreness perception | Effects are mostly temporary; does not fix underlying issues; can be painful; easy to overdo |
-| Contrast Therapy (hot/cold) | Reducing inflammation; managing soreness; circulation | Alternating vasoconstriction and vasodilation may help clear metabolic waste and reduce swelling | Evidence is mixed; cold exposure immediately post-training may blunt adaptation; contraindicated for some conditions |
-| Deload Protocols | Preventing overtraining; allowing accumulated fatigue to dissipate | Planned reductions in training load allow the body to complete delayed adaptations | Counterintuitive (less training = more gains); athletes resist it; timing requires experience |
+| Approach                                | Best For                                                           | Key Insight                                                                                                            | Limitation                                                                                                           |
+| --------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Active Recovery                         | Between sessions; light movement on rest days                      | Low-intensity movement promotes blood flow and reduces stiffness more than complete rest                               | Must be genuinely low intensity; too much defeats the purpose                                                        |
+| Mobility Work                           | Joint health; movement quality; preventing stiffness               | Maintaining and improving range of motion through joints prevents compensation patterns and injury                     | Takes time; effects are gradual; often boring; must be consistent                                                    |
+| Myofascial Release (foam rolling, etc.) | Acute muscle soreness; trigger points; pre-workout preparation     | Self-applied pressure can reduce muscle tension, increase short-term range of motion, and decrease soreness perception | Effects are mostly temporary; does not fix underlying issues; can be painful; easy to overdo                         |
+| Contrast Therapy (hot/cold)             | Reducing inflammation; managing soreness; circulation              | Alternating vasoconstriction and vasodilation may help clear metabolic waste and reduce swelling                       | Evidence is mixed; cold exposure immediately post-training may blunt adaptation; contraindicated for some conditions |
+| Deload Protocols                        | Preventing overtraining; allowing accumulated fatigue to dissipate | Planned reductions in training load allow the body to complete delayed adaptations                                     | Counterintuitive (less training = more gains); athletes resist it; timing requires experience                        |
 
 ## Level 1: Daily Foundations (80% of Recovery)
 
@@ -450,16 +451,16 @@ If symptoms persist through a deload week, consult a healthcare provider.
 
 ### Common Recovery Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Ignoring sleep | "I will sleep when I am dead"; busy lifestyle | Sleep is the number one recovery tool; prioritize it above all other recovery modalities |
-| No rest days | "More training = more results"; guilt about rest | Adaptation happens during rest; rest days are training days for your recovery system |
-| Ice bath immediately after lifting | "Reduces inflammation = good" | Cold blunts the adaptation signal; wait 4+ hours after strength training |
-| Foam rolling replaces warm-up | Time pressure; thinking rolling is enough | Foam rolling reduces tension but does not prepare the nervous system; warm up properly |
-| Only passive recovery | Lying on the couch on rest days | Light movement (walking, easy swimming) recovers faster than complete inactivity |
-| Skipping deloads | "I feel fine"; fear of losing progress | Accumulated fatigue is invisible until it manifests as injury or burnout; deload proactively |
-| Stretching for injury prevention | "I should stretch more" | Evidence shows dynamic warm-ups prevent injuries better than static stretching |
-| Recovery overkill | Spending more time on recovery tools than training | Foundations first (sleep, nutrition, hydration); modalities are secondary |
+| Mistake                            | Why It Happens                                     | Fix                                                                                          |
+| ---------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Ignoring sleep                     | "I will sleep when I am dead"; busy lifestyle      | Sleep is the number one recovery tool; prioritize it above all other recovery modalities     |
+| No rest days                       | "More training = more results"; guilt about rest   | Adaptation happens during rest; rest days are training days for your recovery system         |
+| Ice bath immediately after lifting | "Reduces inflammation = good"                      | Cold blunts the adaptation signal; wait 4+ hours after strength training                     |
+| Foam rolling replaces warm-up      | Time pressure; thinking rolling is enough          | Foam rolling reduces tension but does not prepare the nervous system; warm up properly       |
+| Only passive recovery              | Lying on the couch on rest days                    | Light movement (walking, easy swimming) recovers faster than complete inactivity             |
+| Skipping deloads                   | "I feel fine"; fear of losing progress             | Accumulated fatigue is invisible until it manifests as injury or burnout; deload proactively |
+| Stretching for injury prevention   | "I should stretch more"                            | Evidence shows dynamic warm-ups prevent injuries better than static stretching               |
+| Recovery overkill                  | Spending more time on recovery tools than training | Foundations first (sleep, nutrition, hydration); modalities are secondary                    |
 
 ## Further Reading
 
@@ -473,7 +474,6 @@ For deeper exploration of the source methodologies:
 
 The Recovery Blueprint gives you a systematic, evidence-based approach to recovery that ensures your body can adapt to training, stay healthy, and perform at its best over the long term.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -481,7 +481,6 @@ The Recovery Blueprint gives you a systematic, evidence-based approach to recove
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -502,14 +501,12 @@ The Recovery Blueprint gives you a systematic, evidence-based approach to recove
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

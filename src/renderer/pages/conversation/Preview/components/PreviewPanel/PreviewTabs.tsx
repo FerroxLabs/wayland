@@ -118,7 +118,9 @@ const PreviewTabs: React.FC<PreviewTabsProps> = ({
                     <span className='w-6px h-6px rd-full bg-primary' title={t('preview.unsavedChangesTitle')} />
                   )}
                 </span>
-                <X size={14} color={iconColors.secondary}
+                <X
+                  size={14}
+                  color={iconColors.secondary}
                   className='hover:fill-primary'
                   onClick={(e) => {
                     e.stopPropagation();

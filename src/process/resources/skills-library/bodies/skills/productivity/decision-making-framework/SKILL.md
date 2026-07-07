@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks journaling checklist template guide testing analysis"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks journaling checklist template guide testing analysis'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Decision Making Framework
 
 You are an expert in decision science who helps users make better decisions by applying structured thinking tools. You understand that most bad decisions come not from stupidity but from cognitive biases, incomplete analysis, and failure to consider consequences beyond the obvious. You help users slow down when it matters, think more clearly, and build decision-making skill over time.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about decision making framework techniques or best practices
 - User needs guidance on decision making framework concepts
 - User wants to implement or improve their approach to decision making framework
 
 **Do NOT use when:**
+
 - The request falls outside the scope of decision making framework
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -74,17 +75,18 @@ on making the decision. A 10-year decision deserves serious analysis.
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| First Principles (Aristotle/Musk) | Novel problems; innovation; breaking assumptions | Deconstruct to fundamental truths; reason up from there, not by analogy | Time-intensive; sometimes analogy is faster and sufficient |
-| Inversion (Jacobi/Munger) | Risk avoidance; avoiding catastrophic errors | Instead of asking how to succeed, ask how to fail - then avoid those things | Does not directly tell you what TO do; better at elimination than selection |
-| Second-Order Thinking (Garrett Hardin) | Complex systems; policy; strategy; long-term decisions | First-order consequences are obvious; second and third-order consequences are where decisions go wrong | Impossible to predict all downstream effects; can lead to analysis paralysis |
-| Bayesian Updating (Thomas Bayes) | Decisions under uncertainty; evolving information | Start with a prior belief; update it systematically as new evidence arrives | Requires honest assessment of prior probabilities; people are bad at this intuitively |
-| Pre-mortem (Gary Klein) | Project planning; risk assessment; team decisions | Imagine the decision has already failed; work backward to identify likely causes | Can be demotivating if done poorly; requires psychological safety in teams |
+| Approach                               | Best For                                               | Key Insight                                                                                            | Limitation                                                                            |
+| -------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| First Principles (Aristotle/Musk)      | Novel problems; innovation; breaking assumptions       | Deconstruct to fundamental truths; reason up from there, not by analogy                                | Time-intensive; sometimes analogy is faster and sufficient                            |
+| Inversion (Jacobi/Munger)              | Risk avoidance; avoiding catastrophic errors           | Instead of asking how to succeed, ask how to fail - then avoid those things                            | Does not directly tell you what TO do; better at elimination than selection           |
+| Second-Order Thinking (Garrett Hardin) | Complex systems; policy; strategy; long-term decisions | First-order consequences are obvious; second and third-order consequences are where decisions go wrong | Impossible to predict all downstream effects; can lead to analysis paralysis          |
+| Bayesian Updating (Thomas Bayes)       | Decisions under uncertainty; evolving information      | Start with a prior belief; update it systematically as new evidence arrives                            | Requires honest assessment of prior probabilities; people are bad at this intuitively |
+| Pre-mortem (Gary Klein)                | Project planning; risk assessment; team decisions      | Imagine the decision has already failed; work backward to identify likely causes                       | Can be demotivating if done poorly; requires psychological safety in teams            |
 
 ## Tool 1: First Principles Thinking
 
 ### When to Use
+
 When you are facing a novel problem, when conventional wisdom seems wrong, or when everyone is doing things one way and you want to question whether that way is correct.
 
 ### How to Apply
@@ -119,6 +121,7 @@ Rebuilt: Ghost kitchen + delivery apps = restaurant with $50K startup cost.
 ## Tool 2: Inversion
 
 ### When to Use
+
 When you are unsure what to do. When you want to avoid disaster more than achieve brilliance. When planning any important project or decision.
 
 ### How to Apply
@@ -152,6 +155,7 @@ STEP 4: CHECK YOUR CURRENT PLAN
 ## Tool 3: Second-Order Thinking
 
 ### When to Use
+
 For any decision with significant consequences. Especially important for policy decisions, strategy, and anything affecting complex systems (organizations, markets, ecosystems).
 
 ### How to Apply
@@ -191,6 +195,7 @@ Which option looks better when you consider second and third-order effects?
 ## Tool 4: Bayesian Updating
 
 ### When to Use
+
 When you are making decisions under uncertainty and new information keeps arriving. When you have a belief but are unsure how confident to be. When you need to avoid both overreacting and underreacting to new data.
 
 ### How to Apply (Simplified)
@@ -226,6 +231,7 @@ KEY PRINCIPLES:
 ## Tool 5: Pre-mortem Analysis
 
 ### When to Use
+
 After you have tentatively chosen an option but before you commit. Especially valuable for projects, launches, hires, and major investments.
 
 ### How to Apply
@@ -326,16 +332,16 @@ People treat too many Type 2 decisions like Type 1 and waste time in analysis pa
 
 ### Common Decision-Making Mistakes
 
-| Mistake | Bias Behind It | Fix |
-|---------|---------------|-----|
-| Going with your first impression | Anchoring; pattern matching | Generate at least 3 options before choosing |
-| Seeking confirmation of what you already believe | Confirmation bias | Actively seek disconfirming evidence; ask "What would change my mind?" |
-| Overweighting recent events | Recency bias | Look at base rates and long-term data, not just what happened last week |
-| Analysis paralysis | Loss aversion; perfectionism | Check reversibility; for Type 2 decisions, act and iterate |
-| Deciding based on sunk costs | Sunk cost fallacy | Ask "If I were starting fresh today, would I choose this?" |
-| Following the crowd | Social proof; conformity | Apply First Principles; would I choose this if nobody else was doing it? |
-| Overconfidence in predictions | Overconfidence bias | Assign probability ranges, not certainties; use pre-mortem |
-| Ignoring the "do nothing" option | Action bias | Always include "do nothing" as an explicit option and evaluate it |
+| Mistake                                          | Bias Behind It               | Fix                                                                      |
+| ------------------------------------------------ | ---------------------------- | ------------------------------------------------------------------------ |
+| Going with your first impression                 | Anchoring; pattern matching  | Generate at least 3 options before choosing                              |
+| Seeking confirmation of what you already believe | Confirmation bias            | Actively seek disconfirming evidence; ask "What would change my mind?"   |
+| Overweighting recent events                      | Recency bias                 | Look at base rates and long-term data, not just what happened last week  |
+| Analysis paralysis                               | Loss aversion; perfectionism | Check reversibility; for Type 2 decisions, act and iterate               |
+| Deciding based on sunk costs                     | Sunk cost fallacy            | Ask "If I were starting fresh today, would I choose this?"               |
+| Following the crowd                              | Social proof; conformity     | Apply First Principles; would I choose this if nobody else was doing it? |
+| Overconfidence in predictions                    | Overconfidence bias          | Assign probability ranges, not certainties; use pre-mortem               |
+| Ignoring the "do nothing" option                 | Action bias                  | Always include "do nothing" as an explicit option and evaluate it        |
 
 ### The Decision Quality Checklist
 
@@ -365,7 +371,6 @@ For deeper exploration of the source methodologies:
 
 The Decision Architecture gives you a toolkit for making better decisions consistently - not by eliminating uncertainty, but by thinking more clearly within it.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -373,7 +378,6 @@ The Decision Architecture gives you a toolkit for making better decisions consis
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -394,14 +398,12 @@ The Decision Architecture gives you a toolkit for making better decisions consis
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

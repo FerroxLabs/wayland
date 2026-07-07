@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide research"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide research'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'advanced'
 ---
+
 # Special Needs Trust Overview
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you. Government benefit rules, resource limits, and trust administration requirements are subject to regulatory change -- all figures and thresholds cited here should be verified with a current benefits counselor or special needs planning attorney.
@@ -30,6 +31,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks about special needs trusts (SNTs), supplemental needs trusts, or "disability trusts" in the context of estate planning for a family member with a disability
 - Wants to understand how to leave an inheritance, life insurance proceeds, or retirement account benefits to a person with disabilities without jeopardizing their SSI, Medicaid, or other means-tested government benefits
 - Is a parent, grandparent, sibling, or other family member who wants to plan for a loved one with a disability as part of their own estate plan
@@ -42,6 +44,7 @@ metadata:
 - Wants to understand trustee selection for a special needs trust, including professional trustees and pooled trust options
 
 **Do NOT use when:**
+
 - The user wants to draft, review, or modify a special needs trust document -- refer to a special needs planning attorney
 - The user is asking about government benefit eligibility rules, application procedures, or appeals -- refer to a Social Security Administration benefits counselor, State Medicaid office, or disability rights organization
 - The user is asking about general trust concepts without a disability planning component -- use `trust-basics-explainer`
@@ -85,6 +88,7 @@ Ground the user in why special needs trusts exist before introducing the solutio
 Walk through each trust type with the technical precision a user needs to have an informed conversation with an attorney. Do not recommend one type over another, but do explain which factual scenarios trigger each.
 
 **Third-Party Special Needs Trust (3rd-Party SNT / Supplemental Needs Trust):**
+
 - Created and funded exclusively with assets belonging to someone OTHER than the beneficiary with disabilities -- typically parents, grandparents, siblings, or other family members
 - The assets placed in the trust were never owned by the beneficiary, which is the legal foundation for excluding them from the beneficiary's countable resources under SSI and Medicaid rules
 - Governed by 42 U.S.C. § 1396p(d)(2)(B) exclusions and parallel SSA POMS (Program Operations Manual System) guidance at SI 01120.200 through SI 01120.210
@@ -94,6 +98,7 @@ Walk through each trust type with the technical precision a user needs to have a
 - There is no age restriction for the beneficiary of a third-party SNT
 
 **First-Party Special Needs Trust (Self-Settled SNT / d4A Trust):**
+
 - Created for a beneficiary using the beneficiary's OWN assets -- assets that the beneficiary already owns or is entitled to own
 - Common scenarios: the person with disabilities inherits directly (without a trust in place), receives a personal injury or medical malpractice settlement, receives a divorce settlement, or is the beneficiary of a retirement account that was not directed to a trust
 - Authorized under 42 U.S.C. § 1396p(d)(4)(A) -- the "d4A" designation refers to this statutory section
@@ -103,6 +108,7 @@ Walk through each trust type with the technical precision a user needs to have a
 - Court involvement is often required to establish a d4A trust, particularly when the assets are substantial or when no parent or grandparent is available to serve as the trust creator
 
 **Pooled Special Needs Trust (d4C Trust):**
+
 - Authorized under 42 U.S.C. § 1396p(d)(4)(C)
 - Managed by a nonprofit organization, which pools the funds of multiple beneficiaries for investment and management purposes while maintaining a separate sub-account for each individual beneficiary
 - **Can be funded with the beneficiary's own assets (like a d4A trust)** and carries the same Medicaid payback requirement upon death, though many pooled trusts allow any remaining balance in the sub-account to remain with the nonprofit rather than passing to heirs (the nonprofit absorbs it in lieu of Medicaid payback -- this varies by organization and state)
@@ -123,6 +129,7 @@ This is the operational core of how a properly administered trust preserves bene
 - **Best practice:** The trustee pays vendors, providers, and merchants directly on behalf of the beneficiary, rather than giving the beneficiary money to spend.
 
 **Generally Safe Distribution Categories:**
+
 - Recreation and entertainment (tickets, memberships, hobbies, vacations, outings, sporting events)
 - Technology and electronics (computer, tablet, smartphone, adaptive and assistive technology devices)
 - Transportation (vehicle purchase, vehicle modifications for wheelchair accessibility, rideshare costs, car insurance, maintenance)
@@ -135,10 +142,12 @@ This is the operational core of how a properly administered trust preserves bene
 - Companion care, personal advocacy, or care coordination services not covered by Medicaid
 
 **Requires Careful Structuring or Attorney Guidance:**
+
 - Housing costs (rent, mortgage payments, utilities) -- paying these can reduce SSI under ISM rules depending on current SSA policy; the trust may own the home directly to avoid some ISM complications
 - Food -- depending on current ISM rules, food payments may reduce SSI; purchasing groceries through a grocery delivery account or prepaid card loaded by the trustee requires guidance
 
 **Generally Avoid:**
+
 - Direct cash payments to the beneficiary
 - Payments for items that Medicaid is already supposed to cover (substituting trust funds for Medicaid wastes trust assets)
 - "Loans" to the beneficiary (SSA may treat them as income)

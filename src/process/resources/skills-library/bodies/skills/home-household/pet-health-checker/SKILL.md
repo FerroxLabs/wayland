@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care guide health-wellness"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'pet-care guide health-wellness'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pet Health Checker
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pet health checker
 - User needs guidance on pet health checker topics
 - User wants a structured approach to pet health checker
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -39,35 +42,38 @@ metadata:
 7. **Is your pet urinating and defecating normally?**
 8. **Is your pet up-to-date on vaccinations and parasite prevention?**
 9. **Does your pet take any medications?**
+
 ---
+
 ## Normal Vital Signs
 
 ### Dog Normal Values
 
-| Parameter | Normal Range | How to Check |
-|-----------|-------------|-------------|
-| Heart Rate | 60-140 bpm (small dogs higher, large dogs lower) | Feel femoral artery (inner thigh) for 15 sec x 4 |
-| Respiratory Rate | 10-30 breaths/min (at rest) | Watch chest rise/fall for 15 sec x 4 |
-| Temperature | 101-102.5F (38.3-39.2C) | Rectal thermometer with lubricant |
-| Gum Color | Pink (moist) | Lift lip, check color and moisture |
-| Capillary Refill Time (CRT) | < 2 seconds | Press gum with finger, release, count time to return to pink |
-| Hydration | Skin snaps back quickly | Pinch skin on back of neck, release |
-| Pupil Response | Equal, reactive to light | Shine light in eyes |
-| Weight | Breed-dependent | Scale (monthly tracking) |
+| Parameter                   | Normal Range                                     | How to Check                                                 |
+| --------------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| Heart Rate                  | 60-140 bpm (small dogs higher, large dogs lower) | Feel femoral artery (inner thigh) for 15 sec x 4             |
+| Respiratory Rate            | 10-30 breaths/min (at rest)                      | Watch chest rise/fall for 15 sec x 4                         |
+| Temperature                 | 101-102.5F (38.3-39.2C)                          | Rectal thermometer with lubricant                            |
+| Gum Color                   | Pink (moist)                                     | Lift lip, check color and moisture                           |
+| Capillary Refill Time (CRT) | < 2 seconds                                      | Press gum with finger, release, count time to return to pink |
+| Hydration                   | Skin snaps back quickly                          | Pinch skin on back of neck, release                          |
+| Pupil Response              | Equal, reactive to light                         | Shine light in eyes                                          |
+| Weight                      | Breed-dependent                                  | Scale (monthly tracking)                                     |
 
 ### Cat Normal Values
 
-| Parameter | Normal Range | How to Check |
-|-----------|-------------|-------------|
-| Heart Rate | 120-200 bpm | Feel femoral artery or place hand on left chest |
-| Respiratory Rate | 15-30 breaths/min (at rest) | Watch chest/belly movement |
-| Temperature | 100.5-102.5F (38.1-39.2C) | Rectal thermometer |
-| Gum Color | Pink (moist) | Gently lift lip |
-| Capillary Refill Time | < 2 seconds | Same as dogs |
-| Hydration | Skin snaps back immediately | Skin tent on scruff |
-| Pupil Response | Equal, reactive | Light test |
+| Parameter             | Normal Range                | How to Check                                    |
+| --------------------- | --------------------------- | ----------------------------------------------- |
+| Heart Rate            | 120-200 bpm                 | Feel femoral artery or place hand on left chest |
+| Respiratory Rate      | 15-30 breaths/min (at rest) | Watch chest/belly movement                      |
+| Temperature           | 100.5-102.5F (38.1-39.2C)   | Rectal thermometer                              |
+| Gum Color             | Pink (moist)                | Gently lift lip                                 |
+| Capillary Refill Time | < 2 seconds                 | Same as dogs                                    |
+| Hydration             | Skin snaps back immediately | Skin tent on scruff                             |
+| Pupil Response        | Equal, reactive             | Light test                                      |
 
 ### How to Perform a Basic Home Health Check
+
 ```
 WEEKLY HOME CHECK (5 minutes):
 1. EYES
@@ -108,10 +114,13 @@ WEEKLY HOME CHECK (5 minutes):
    - Normal stool consistency and frequency
    - No straining, blood, or mucus
 ```
+
 ---
+
 ## Common Illness Symptoms
 
 ### Dogs - Warning Signs by System
+
 ```
 DIGESTIVE:
 Vomiting:
@@ -158,6 +167,7 @@ NEUROLOGICAL:
 ```
 
 ### Cats - Warning Signs
+
 ```
 SPECIAL NOTE ABOUT CATS:
 Cats are masters at hiding illness. Subtle changes are significant.
@@ -183,10 +193,13 @@ HEPATIC LIPIDOSIS WARNING:
 - If your cat refuses food for >24 hours, contact your vet
 - Overweight cats are especially at risk
 ```
+
 ---
+
 ## Vaccination Schedules
 
 ### Dog Vaccination Schedule
+
 ```
 CORE VACCINES (Recommended for ALL dogs):
 Puppy Series:
@@ -218,6 +231,7 @@ Rattlesnake Vaccine:
 ```
 
 ### Cat Vaccination Schedule
+
 ```
 CORE VACCINES (Recommended for ALL cats):
 Kitten Series:
@@ -239,10 +253,13 @@ FIP (Feline Infectious Peritonitis):
 - Intranasal vaccine available but efficacy debated
 - Not widely recommended
 ```
+
 ---
+
 ## Dental Care
 
 ### Importance of Dental Health
+
 ```
 STATISTICS:
 - 80% of dogs and 70% of cats show signs of dental disease by age 3
@@ -283,10 +300,13 @@ PROFESSIONAL DENTAL CLEANINGS:
 - "Anesthesia-free" dental cleanings are cosmetic only and NOT recommended
   by veterinary dental specialists
 ```
+
 ---
+
 ## Parasite Prevention
 
 ### Year-Round Prevention Recommended
+
 ```
 FLEAS:
 Lifecycle: Egg → Larva → Pupa → Adult (can take 2 weeks to months)
@@ -346,10 +366,13 @@ Prevention:
 - Clean litter box daily
 - Wash hands after handling pets
 ```
+
 ---
+
 ## Senior Pet Care
 
 ### When is My Pet "Senior"?
+
 ```
 DOGS:
 Small breeds (under 20 lbs): Senior at 10-12 years
@@ -362,6 +385,7 @@ Geriatric: 15+ years
 ```
 
 ### Senior Pet Wellness Monitoring
+
 ```
 WHAT CHANGES TO WATCH FOR:
 BEHAVIORAL:
@@ -402,6 +426,7 @@ SENIOR WELLNESS EXAM SCHEDULE:
 ```
 
 ### Cognitive Dysfunction Syndrome (CDS)
+
 ```
 SIGNS (DISHAA Acronym):
 D - Disorientation (getting lost in familiar places)
@@ -417,10 +442,13 @@ MANAGEMENT:
 - Supplements: SAMe, omega-3, vitamin E (consult vet)
 - Medication: Selegiline (Anipryl) may help some dogs
 ```
+
 ---
+
 ## Emergency Signs Requiring Immediate Vet Visit
 
 ### Go to the Emergency Vet NOW If:
+
 ```
 CRITICAL EMERGENCIES:
 [ ] Difficulty breathing or choking
@@ -443,6 +471,7 @@ CRITICAL EMERGENCIES:
 ```
 
 ### Emergency Kit for Pets
+
 ```
 HOME EMERGENCY KIT:
 [ ] Veterinarian contact information (regular and emergency)
@@ -462,10 +491,13 @@ HOME EMERGENCY KIT:
 [ ] Copies of medical records
 [ ] Current medications list
 ```
+
 ---
+
 ## Wellness Checkup Schedule
 
 ### Recommended Visit Frequency
+
 ```
 PUPPIES/KITTENS (< 1 year):
 - Every 3-4 weeks from 8-16 weeks (vaccination series)
@@ -494,10 +526,13 @@ WELLNESS VISIT PREPARATION:
 [ ] Note any behavioral changes
 [ ] Record recent appetite, thirst, energy level changes
 ```
+
 ---
+
 ## Output Format
 
 When providing health guidance, present it as:
+
 ```
 HEALTH ASSESSMENT
 Pet: [Species / Breed / Age / Weight]

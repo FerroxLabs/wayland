@@ -63,18 +63,11 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
 
   const handleTestAndEnable = async () => {
     if (!appId.trim()) {
-      Message.warning(
-        t('settings.channels.msTeams.credentials.appId.required', 'Please enter an App ID'),
-      );
+      Message.warning(t('settings.channels.msTeams.credentials.appId.required', 'Please enter an App ID'));
       return;
     }
     if (!appPassword.trim()) {
-      Message.warning(
-        t(
-          'settings.channels.msTeams.credentials.appPassword.required',
-          'Please enter an App Password',
-        ),
-      );
+      Message.warning(t('settings.channels.msTeams.credentials.appPassword.required', 'Please enter an App Password'));
       return;
     }
 
@@ -92,8 +85,7 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.msTeams.connectionFailed', 'MS Teams connection failed'),
+          testResult.data?.error ?? t('settings.channels.msTeams.connectionFailed', 'MS Teams connection failed')
         );
         return;
       }
@@ -109,9 +101,7 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
       });
 
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.msTeams.pluginEnabled', 'MS Teams plugin enabled'),
-        );
+        Message.success(t('settings.channels.msTeams.pluginEnabled', 'MS Teams plugin enabled'));
         // Mint inbound webhook URL - secret for MS Teams is the appId (JWT aud claim)
         const rotateResult = await channel.rotateWebhookToken.invoke({
           platform: 'ms-teams',
@@ -127,10 +117,7 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
           onStatusChange(statusResult.data.find((p) => p.type === 'ms-teams') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ??
-            t('settings.channels.msTeams.enableFailed', 'Failed to enable plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.msTeams.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -147,7 +134,7 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
           <span className='text-12px'>
             {t(
               'settings.channels.msTeams.replaceWarning',
-              'Saving new credentials will replace the existing MS Teams bot connection.',
+              'Saving new credentials will replace the existing MS Teams bot connection.'
             )}
           </span>
         </div>
@@ -157,7 +144,7 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
         label={t('settings.channels.msTeams.credentials.appId.label', 'App ID (MicrosoftAppId)')}
         description={t(
           'settings.channels.msTeams.credentials.appId.help',
-          'Azure AD app registration client ID - found in Azure Portal → App Registrations → Overview.',
+          'Azure AD app registration client ID - found in Azure Portal → App Registrations → Overview.'
         )}
       >
         <Input
@@ -165,20 +152,17 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
           onChange={setAppId}
           placeholder={t(
             'settings.channels.msTeams.credentials.appId.placeholder',
-            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+            'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
           )}
           style={{ width: 280 }}
         />
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.msTeams.credentials.appPassword.label',
-          'App Password (Client Secret)',
-        )}
+        label={t('settings.channels.msTeams.credentials.appPassword.label', 'App Password (Client Secret)')}
         description={t(
           'settings.channels.msTeams.credentials.appPassword.help',
-          'Azure AD client secret - App Registrations → Certificates & secrets → New client secret.',
+          'Azure AD client secret - App Registrations → Certificates & secrets → New client secret.'
         )}
       >
         <Input.Password
@@ -187,10 +171,7 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
           placeholder={
             hasExisting
               ? '••••••••••••••••'
-              : t(
-                  'settings.channels.msTeams.credentials.appPassword.placeholder',
-                  'Paste your client secret value',
-                )
+              : t('settings.channels.msTeams.credentials.appPassword.placeholder', 'Paste your client secret value')
           }
           style={{ width: 280 }}
           visibilityToggle
@@ -200,7 +181,7 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
       <div className='text-12px text-t-tertiary'>
         {t(
           'settings.channels.msTeams.setupHint',
-          'Register your bot in the Azure Portal: Azure Bot Service → Create resource → configure Microsoft Teams channel → set messaging endpoint to your Wayland webhook URL → copy App ID and client secret here.',
+          'Register your bot in the Azure Portal: Azure Bot Service → Create resource → configure Microsoft Teams channel → set messaging endpoint to your Wayland webhook URL → copy App ID and client secret here.'
         )}
       </div>
 
@@ -213,17 +194,13 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
             <div className='text-12px text-t-tertiary mt-2px'>
               {t(
                 'settings.channels.msTeams.webhookUrl.help',
-                'Set this as the Messaging Endpoint in Azure Bot Service.',
+                'Set this as the Messaging Endpoint in Azure Bot Service.'
               )}
             </div>
           </div>
           <div className='flex items-center gap-8px'>
             <Input value={inboundUrl} readOnly style={{ width: 360 }} />
-            <Button
-              type='outline'
-              icon={<Copy size={14} />}
-              onClick={handleCopyInboundUrl}
-            >
+            <Button type='outline' icon={<Copy size={14} />} onClick={handleCopyInboundUrl}>
               {t('settings.channels.msTeams.webhookUrl.copyButton', 'Copy')}
             </Button>
           </div>
@@ -236,7 +213,6 @@ const MsTeamsConfigForm: React.FC<MsTeamsConfigFormProps> = ({ pluginStatus, mod
         </Button>
       </div>
       <ChannelAgentModelSelector platform='ms-teams' modelSelection={modelSelection} />
-
     </div>
   );
 };

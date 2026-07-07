@@ -48,10 +48,7 @@ async function gotoTeamsPage(page: import('@playwright/test').Page): Promise<voi
   await page.waitForURL(/\/teams$/, { timeout: 15_000 });
 }
 
-async function selectImportFile(
-  page: import('@playwright/test').Page,
-  fixturePath: string
-): Promise<void> {
+async function selectImportFile(page: import('@playwright/test').Page, fixturePath: string): Promise<void> {
   await page.locator('[data-testid="teams-import-cta"]').click();
   await page.locator('[data-testid="teams-import-file-input"]').setInputFiles(fixturePath);
 }

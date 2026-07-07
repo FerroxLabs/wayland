@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security compliance guide"
-  category: "security"
-  subcategory: "compliance-audit"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'security compliance guide'
+  category: 'security'
+  subcategory: 'compliance-audit'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Compliance Checker
@@ -206,25 +206,24 @@ PHI_FIELDS = {
 
 ```yaml
 pci_dss_v4_developer_requirements:
-
-  requirement_3:  # Protect Stored Account Data
+  requirement_3: # Protect Stored Account Data
     - never_store_full_track_data: true
     - never_store_cvv_after_authorization: true
-    - mask_pan_display: "Show only first 6 and last 4 digits"
-    - encrypt_pan_at_rest: "AES-256 with key management"
-    - use_tokenization: "Replace PAN with non-reversible token"
+    - mask_pan_display: 'Show only first 6 and last 4 digits'
+    - encrypt_pan_at_rest: 'AES-256 with key management'
+    - use_tokenization: 'Replace PAN with non-reversible token'
 
-  requirement_4:  # Protect Data in Transit
-    - tls_version: "1.2 minimum, 1.3 preferred"
-    - never_send_pan_via: ["email", "chat", "SMS"]
+  requirement_4: # Protect Data in Transit
+    - tls_version: '1.2 minimum, 1.3 preferred'
+    - never_send_pan_via: ['email', 'chat', 'SMS']
 
-  requirement_6:  # Secure Development
+  requirement_6: # Secure Development
     # ... (condensed) ...
 
-  requirement_11:  # Security Testing
-    - vulnerability_scans: "Quarterly by ASV"
-    - penetration_test: "Annual (or after significant changes)"
-    - file_integrity_monitoring: "Critical system files"
+  requirement_11: # Security Testing
+    - vulnerability_scans: 'Quarterly by ASV'
+    - penetration_test: 'Annual (or after significant changes)'
+    - file_integrity_monitoring: 'Critical system files'
 ```
 
 ### PCI-Compliant Payment Form
@@ -239,8 +238,8 @@ pci_dss_v4_developer_requirements:
 
 <!-- CORRECT: Hosted iframe from payment processor -->
 <div id="card-element">
-    <!-- Stripe Elements renders an iframe here -->
-    <!-- Card data never touches your server -->
+  <!-- Stripe Elements renders an iframe here -->
+  <!-- Card data never touches your server -->
 </div>
 ```
 
@@ -347,39 +346,40 @@ scout aws --report-dir ./scout-report
 metrics:
   access_control:
     - name: users_without_mfa
-      query: "Count IAM users where MFA is not enabled"
+      query: 'Count IAM users where MFA is not enabled'
       threshold: 0
       severity: critical
 
     - name: inactive_users_90_days
-      query: "Count users with no login in 90 days"
+      query: 'Count users with no login in 90 days'
       threshold: 0
       severity: high
 
     # ... (condensed) ...
 
     - name: high_vulns_unpatched_7d
-      query: "Count high vulnerabilities older than 7 days"
+      query: 'Count high vulnerabilities older than 7 days'
       threshold: 0
       severity: high
 ```
 
 ## Framework Comparison
 
-| Requirement | SOC 2 | GDPR | HIPAA | PCI DSS | ISO 27001 |
-|------------|-------|------|-------|---------|-----------|
-| Encryption at rest | CC6.7 | Art. 32 | 164.312(a)(2)(iv) | Req 3.4 | A10.1 |
-| Encryption in transit | CC6.7 | Art. 32 | 164.312(e)(1) | Req 4.1 | A10.1 |
-| Access control | CC6.1-6.3 | Art. 32 | 164.312(a)(1) | Req 7-8 | A9 |
-| Logging/audit | CC7.1-7.2 | Art. 30 | 164.312(b) | Req 10 | A12.4 |
-| Incident response | CC7.3 | Art. 33-34 | 164.308(a)(6) | Req 12.10 | A16 |
-| Vulnerability mgmt | CC7.1 | Art. 32 | 164.308(a)(5) | Req 6.1, 11 | A12.6 |
-| Data retention | CC6.5 | Art. 5(1)(e) | 164.530(j) | Req 3.1 | A8.2 |
-| Risk assessment | CC3.1 | Art. 35 | 164.308(a)(1) | Req 12.2 | A6.1.2 |
+| Requirement           | SOC 2     | GDPR         | HIPAA             | PCI DSS     | ISO 27001 |
+| --------------------- | --------- | ------------ | ----------------- | ----------- | --------- |
+| Encryption at rest    | CC6.7     | Art. 32      | 164.312(a)(2)(iv) | Req 3.4     | A10.1     |
+| Encryption in transit | CC6.7     | Art. 32      | 164.312(e)(1)     | Req 4.1     | A10.1     |
+| Access control        | CC6.1-6.3 | Art. 32      | 164.312(a)(1)     | Req 7-8     | A9        |
+| Logging/audit         | CC7.1-7.2 | Art. 30      | 164.312(b)        | Req 10      | A12.4     |
+| Incident response     | CC7.3     | Art. 33-34   | 164.308(a)(6)     | Req 12.10   | A16       |
+| Vulnerability mgmt    | CC7.1     | Art. 32      | 164.308(a)(5)     | Req 6.1, 11 | A12.6     |
+| Data retention        | CC6.5     | Art. 5(1)(e) | 164.530(j)        | Req 3.1     | A8.2      |
+| Risk assessment       | CC3.1     | Art. 35      | 164.308(a)(1)     | Req 12.2    | A6.1.2    |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing compliance checker solutions
 - Reviewing or improving existing compliance checker approaches
 - Making architectural or implementation decisions about compliance checker
@@ -387,6 +387,7 @@ metrics:
 - Troubleshooting compliance checker-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -397,21 +398,26 @@ metrics:
 # Compliance Checker Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

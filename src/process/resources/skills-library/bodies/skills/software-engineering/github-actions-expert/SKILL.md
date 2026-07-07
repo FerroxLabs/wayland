@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation shell-scripting ci-cd"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'automation shell-scripting ci-cd'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # GitHub Actions Expert
@@ -26,17 +26,17 @@ You are an expert in GitHub Actions who designs efficient, secure, and maintaina
 
 ```yaml
 # .github/workflows/ci.yml
-name: CI Pipeline                    # Display name in GitHub UI
+name: CI Pipeline # Display name in GitHub UI
 
-on:                                  # Trigger events
+on: # Trigger events
   push:
     branches: [main]
     paths-ignore:
-      - '**.md'                      # Skip CI for docs-only changes
+      - '**.md' # Skip CI for docs-only changes
       - '.github/ISSUE_TEMPLATE/**'
   pull_request:
     branches: [main]
-  workflow_dispatch:                  # Manual trigger
+  workflow_dispatch: # Manual trigger
     inputs:
       environment:
         description: 'Target environment'
@@ -45,15 +45,15 @@ on:                                  # Trigger events
         type: choice
         options: [staging, production]
 
-concurrency:                         # Prevent duplicate runs
+concurrency: # Prevent duplicate runs
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true           # Cancel previous run on same branch
+  cancel-in-progress: true # Cancel previous run on same branch
 
-permissions:                         # Least privilege
+permissions: # Least privilege
   contents: read
   pull-requests: write
 
-env:                                 # Workflow-level environment variables
+env: # Workflow-level environment variables
   NODE_VERSION: '20'
   REGISTRY: ghcr.io
 
@@ -70,7 +70,7 @@ jobs:
       - run: npm run lint
 
   test:
-    needs: lint                      # Job dependency
+    needs: lint # Job dependency
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -136,17 +136,17 @@ on:
 jobs:
   test:
     strategy:
-      fail-fast: false               # Do not cancel other matrix jobs on failure
+      fail-fast: false # Do not cancel other matrix jobs on failure
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         node: [18, 20, 22]
         exclude:
           - os: windows-latest
-            node: 18                 # Skip Node 18 on Windows
+            node: 18 # Skip Node 18 on Windows
         include:
           - os: ubuntu-latest
             node: 20
-            coverage: true           # Add coverage only for this combo
+            coverage: true # Add coverage only for this combo
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -198,7 +198,7 @@ jobs:
 - uses: actions/setup-node@v4
   with:
     node-version: 20
-    cache: 'npm'                     # Automatic npm cache
+    cache: 'npm' # Automatic npm cache
 
 # Custom cache (for build outputs, etc.)
 - uses: actions/cache@v4
@@ -240,7 +240,7 @@ jobs:
 name: Reusable Deploy
 
 on:
-  workflow_call:                      # Makes this reusable
+  workflow_call: # Makes this reusable
     inputs:
       environment:
         required: true
@@ -404,7 +404,7 @@ jobs:
       labels: [self-hosted, linux, x64, gpu]
     steps:
       - uses: actions/checkout@v4
-      - run: nvidia-smi  # GPU available on self-hosted
+      - run: nvidia-smi # GPU available on self-hosted
       - run: make build
 ```
 
@@ -415,15 +415,15 @@ jobs:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production           # Uses production-specific secrets
+    environment: production # Uses production-specific secrets
     steps:
       - name: Deploy
         env:
-          DB_URL: ${{ secrets.DATABASE_URL }}      # Environment secret
-          API_KEY: ${{ secrets.API_KEY }}           # Repository secret
+          DB_URL: ${{ secrets.DATABASE_URL }} # Environment secret
+          API_KEY: ${{ secrets.API_KEY }} # Repository secret
         run: deploy --db-url "$DB_URL"
 
-# OIDC for cloud providers (no static secrets!)
+  # OIDC for cloud providers (no static secrets!)
   deploy-aws:
     permissions:
       id-token: write
@@ -511,6 +511,7 @@ SECURITY: Minimum permissions, pin action versions, OIDC over static credentials
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing github actions expert solutions
 - Reviewing or improving existing github actions expert approaches
 - Making architectural or implementation decisions about github actions expert
@@ -518,6 +519,7 @@ SECURITY: Minimum permissions, pin action versions, OIDC over static credentials
 - Troubleshooting github actions expert-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -528,21 +530,26 @@ SECURITY: Minimum permissions, pin action versions, OIDC over static credentials
 # Github Actions Expert Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

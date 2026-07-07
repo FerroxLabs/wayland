@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "php best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'php best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # PHP Modern Idioms
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is writing or reviewing PHP 8.0+ code and wants to apply idiomatic patterns -- named arguments, match expressions, nullsafe operators, fibers, enums, readonly properties, intersection types, first-class callables, and constructor property promotion
 - The user is migrating a PHP 7.x codebase to PHP 8.x and needs to know which legacy patterns to replace and how to replace them systematically
 - The user asks how to eliminate verbose boilerplate in PHP classes (e.g., getters/setters, constructor assignments, array-based pseudo-enums) using modern language features
@@ -29,6 +31,7 @@ metadata:
 - The user wants to write expressive, readable PHP that leverages functional-style patterns -- array functions, immutability, pipelines -- without reaching for external FP libraries unnecessarily
 
 **Do NOT use this skill when:**
+
 - The user needs help with PHP framework internals (Laravel, Symfony, Laminas) -- those have dedicated framework-specific skills
 - The user is asking about PHP performance profiling or Swoole/FrankenPHP async architecture -- use the PHP runtime performance skill
 - The user wants guidance on PHP database access patterns (Doctrine ORM, PDO, query builders) -- use the PHP persistence skill
@@ -59,6 +62,7 @@ Before recommending any specific idiom, confirm the PHP version because feature 
 Constructor property promotion and readonly properties are the single highest-ROI modernization for most PHP codebases.
 
 - Replace the classic pattern of declaring properties, assigning them in `__construct`, and providing getters with promoted properties:
+
   ```php
   // Before (PHP 7.x)
   class UserDto {
@@ -69,7 +73,7 @@ Constructor property promotion and readonly properties are the single highest-RO
           $this->email = $email;
       }
   }
-  
+
   // After (PHP 8.0+)
   class UserDto {
       public function __construct(
@@ -78,6 +82,7 @@ Constructor property promotion and readonly properties are the single highest-RO
       ) {}
   }
   ```
+
 - Use `readonly` on promoted properties whenever the value should not change after construction -- this enforces immutability at the language level, not by convention
 - PHP 8.2 introduced readonly classes -- annotate the entire class with `readonly` when every property should be immutable, avoiding per-property annotation:
   ```php
@@ -140,6 +145,7 @@ PHP 8.1 native enums eliminate the most common PHP anti-pattern: constants array
 The `match` expression and nullsafe operator `?->` eliminate entire categories of defensive boilerplate.
 
 - Replace `switch` statements with `match` expressions -- `match` is an expression (returns a value), uses strict comparison (`===`), and throws `\UnhandledMatchError` for unmatched subjects, forcing exhaustive handling:
+
   ```php
   // Before
   switch ($status) {
@@ -147,7 +153,7 @@ The `match` expression and nullsafe operator `?->` eliminate entire categories o
       case 'pending': $label = 'Pending'; break;
       default: $label = 'Unknown';
   }
-  
+
   // After
   $label = match($status) {
       'active'  => 'Active',
@@ -155,18 +161,21 @@ The `match` expression and nullsafe operator `?->` eliminate entire categories o
       default   => 'Unknown',
   };
   ```
+
 - Multiple conditions can share an arm: `'active', 'verified' => 'Confirmed'`
 - For deeply nested nullable chains, replace nested `isset` + null checks with the nullsafe operator:
+
   ```php
   // Before
   $city = null;
   if ($user !== null && $user->getAddress() !== null) {
       $city = $user->getAddress()->getCity();
   }
-  
+
   // After
   $city = $user?->getAddress()?->getCity();
   ```
+
 - The nullsafe operator short-circuits the entire chain on the first null -- do NOT chain it through side-effectful methods, only through pure accessors
 - Combine nullsafe with the null coalescing operator for defaults: `$city = $user?->getAddress()?->getCity() ?? 'Unknown'`
 - Avoid nesting `match` expressions more than two levels deep -- extract to a named method when the logic grows complex
@@ -202,22 +211,26 @@ PHP 8.0+ type system features eliminate docblock-only type hints and make types 
 Named arguments and first-class callable syntax reduce coupling to parameter order and eliminate verbose closures.
 
 - Named arguments are essential when calling functions with many optional parameters -- they communicate intent at the call site:
+
   ```php
   // Before
   array_slice($items, 0, 5, true);
-  
+
   // After
   array_slice(array: $items, offset: 0, length: 5, preserve_keys: true);
   ```
+
 - Named arguments make refactoring safer -- if the callee adds a new parameter with a default, existing named-argument call sites remain valid without changes
 - First-class callable syntax (`Closure::fromCallable` replacement) allows passing any callable as a closure without wrapping it in an anonymous function:
+
   ```php
   // Before
   $trimmed = array_map(fn($s) => trim($s), $strings);
-  
+
   // After
   $trimmed = array_map(trim(...), $strings);
   ```
+
 - First-class callables work on static methods, instance methods, and built-in functions: `strlen(...)`, `$obj->method(...)`, `ClassName::staticMethod(...)`
 - Do NOT use named arguments when the parameter name is unstable (e.g., a third-party function where the name is not part of the public API) -- parameter name changes are breaking changes
 
@@ -237,26 +250,28 @@ Modern PHP moves away from returning `false` or `null` on failure and toward typ
 - Catch exceptions at the boundary where you can meaningfully handle them -- not deep inside domain logic
 - Use `finally` for cleanup operations (closing resources, releasing locks) regardless of whether an exception occurred
 - For operations that can fail without being exceptional (e.g., parsing user input), consider a simple Result value object instead of exception-driven flow:
+
   ```php
   readonly class Result {
       private function __construct(
           private readonly mixed $value,
           private readonly ?string $error,
       ) {}
-  
+
       public static function ok(mixed $value): static {
           return new static($value, null);
       }
-  
+
       public static function fail(string $error): static {
           return new static(null, $error);
       }
-  
+
       public function isOk(): bool { return $this->error === null; }
       public function unwrap(): mixed { return $this->value; }
       public function error(): ?string { return $this->error; }
   }
   ```
+
 - Exceptions should be exceptional -- IO failures, constraint violations, programming errors are exceptions; "no results found" is not
 - Always include context in exception messages: `"User with ID {$id} not found in repository"` is actionable; `"Not found"` is not
 
@@ -280,7 +295,7 @@ Idioms that are not automatically enforced degrade over time. Tooling makes mode
 
 When advising a user on PHP modern idioms, structure the response as follows:
 
-```
+````
 ## PHP Modern Idioms Audit
 
 ### PHP Version & Strict Mode Status
@@ -313,9 +328,10 @@ When advising a user on PHP modern idioms, structure the response as follows:
 **Before:**
 ```php
 [concrete legacy code snippet]
-```
+````
 
 **After:**
+
 ```php
 [concrete modern PHP code snippet]
 ```
@@ -325,26 +341,30 @@ When advising a user on PHP modern idioms, structure the response as follows:
 ### Tooling Configuration
 
 **PHPStan (`phpstan.neon`):**
+
 ```yaml
 [minimal working config]
 ```
 
 **Rector (`rector.php`):**
+
 ```php
 [minimal working config]
 ```
 
 **PHP-CS-Fixer (`.php-cs-fixer.php`):**
+
 ```php
 [minimal working config]
 ```
 
 ### Trade-offs and Risks
 
-| Decision | Benefit | Risk | Mitigation |
-|----------|---------|------|------------|
+| Decision            | Benefit            | Risk        | Mitigation            |
+| ------------------- | ------------------ | ----------- | --------------------- |
 | [specific decision] | [concrete benefit] | [real risk] | [specific mitigation] |
-```
+
+````
 
 ---
 
@@ -494,7 +514,7 @@ class UserService
         $user->status = User::STATUS_ACTIVE; // bypasses accessor, common in legacy code
     }
 }
-```
+````
 
 ---
 
@@ -599,17 +619,19 @@ final class UserService
 ### Tooling Configuration
 
 **PHPStan (`phpstan.neon`):**
+
 ```yaml
 parameters:
-    level: 6
-    paths:
-        - src
-    strictRules: true
-    checkMissingIterableValueType: true
-    treatPhpDocTypesAsCertain: false
+  level: 6
+  paths:
+    - src
+  strictRules: true
+  checkMissingIterableValueType: true
+  treatPhpDocTypesAsCertain: false
 ```
 
 **Rector (`rector.php`):**
+
 ```php
 <?php
 
@@ -631,6 +653,7 @@ return static function (RectorConfig $rectorConfig): void {
 ```
 
 **PHP-CS-Fixer (`.php-cs-fixer.php`):**
+
 ```php
 <?php
 
@@ -652,13 +675,13 @@ return (new PhpCsFixer\Config())
 
 ### Migration Priority and Risk Matrix
 
-| Modernization | ROI | Breaking Risk | Migration Effort |
-|---|---|---|---|
-| Add `declare(strict_types=1)` | Very High | Medium -- type coercions become TypeErrors | File by file with test coverage |
-| Replace constants with enums | High | Low -- Rector handles most cases | 1--2 hours per enum cluster |
-| Constructor promotion + readonly | High | Low -- pure refactor, same API surface | Rector automates this fully |
-| Replace switch with match | Medium | Low -- behavior identical if default present | Rector `ChangeOrIfContinueToMultiContinueRector` |
-| Nullsafe operator chains | Medium | Low -- pure refactor | Manual, ~30 min per class |
-| PHPStan at level 6 | Very High | None -- analysis only | 4--8 hours to resolve initial violations |
+| Modernization                    | ROI       | Breaking Risk                                | Migration Effort                                 |
+| -------------------------------- | --------- | -------------------------------------------- | ------------------------------------------------ |
+| Add `declare(strict_types=1)`    | Very High | Medium -- type coercions become TypeErrors   | File by file with test coverage                  |
+| Replace constants with enums     | High      | Low -- Rector handles most cases             | 1--2 hours per enum cluster                      |
+| Constructor promotion + readonly | High      | Low -- pure refactor, same API surface       | Rector automates this fully                      |
+| Replace switch with match        | Medium    | Low -- behavior identical if default present | Rector `ChangeOrIfContinueToMultiContinueRector` |
+| Nullsafe operator chains         | Medium    | Low -- pure refactor                         | Manual, ~30 min per class                        |
+| PHPStan at level 6               | Very High | None -- analysis only                        | 4--8 hours to resolve initial violations         |
 
 **Recommended order:** Run Rector with `SetList::PHP_82` first to apply all mechanical transformations automatically. Then add PHPStan at level 5 and fix violations. Then manually refactor to enums and readonly classes where Rector did not fully cover the pattern. The entire migration for a 10,000-line codebase should take 2--4 working days, not weeks.

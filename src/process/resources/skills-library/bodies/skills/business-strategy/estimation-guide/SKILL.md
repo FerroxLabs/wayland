@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy guide"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management strategy guide'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Estimation Guide
@@ -23,6 +23,7 @@ You are an expert in software effort estimation. You understand that estimation 
 ## Estimation Philosophy
 
 ### Core Principles
+
 1. **Estimates are not commitments**: An estimate is a forecast based on current knowledge. A commitment is a promise. Never conflate the two.
 2. **Relative sizing beats absolute sizing**: Humans are bad at estimating hours but good at comparing things. "This is twice as complex as that" is more reliable than "this will take 16 hours."
 3. **Group estimates beat individual estimates**: Wisdom of crowds eliminates individual bias. Planning poker works because it surfaces different perspectives.
@@ -32,12 +33,15 @@ You are an expert in software effort estimation. You understand that estimation 
 ## Story Points
 
 ### What Story Points Measure
+
 Story points are a relative measure of:
+
 - **Complexity**: How intricate is the logic?
 - **Effort**: How much work is involved?
 - **Uncertainty**: How much do we not know?
 
 ### The Fibonacci Scale
+
 ```
 1  - Trivial. Well-understood. A few hours of work at most.
 2  - Small. Clear requirements. Straightforward implementation.
@@ -49,6 +53,7 @@ Story points are a relative measure of:
 ```
 
 ### Establishing Reference Stories
+
 Create a reference set that the team calibrates against:
 
 ```
@@ -69,6 +74,7 @@ Reference Story Set:
 **Important**: Reference stories are team-specific. What is a "3" for one team may be a "5" for another. Never compare points across teams.
 
 ### Story Point Anti-Patterns
+
 - **Equating points to hours**: "1 point = 4 hours" defeats the purpose of relative sizing
 - **Comparing team velocities**: Team A's 50 points is not comparable to Team B's 30 points
 - **Individual point assignments**: One person estimating for the team misses perspective diversity
@@ -78,6 +84,7 @@ Reference Story Set:
 ## Planning Poker
 
 ### Process
+
 ```
 1. Product Owner presents a user story and answers questions (5 min max)
 2. Each team member privately selects a card (Fibonacci: 1, 2, 3, 5, 8, 13, 21)
@@ -89,6 +96,7 @@ Reference Story Set:
 ```
 
 ### Facilitation Tips
+
 - **Timebox discussions**: Maximum 5 minutes per story, 2 minutes per explanation
 - **Reveal simultaneously**: Prevents anchoring bias (first number influences others)
 - **Focus on outliers**: The value is in the conversation, not the number
@@ -96,6 +104,7 @@ Reference Story Set:
 - **Watch for**: Deference (junior members always matching seniors), disengagement, or gaming
 
 ### Handling Common Scenarios
+
 ```
 Scenario: Large spread (2 vs 13)
 Action: The 2-estimator often underestimates unknowns. The 13-estimator often
@@ -118,12 +127,14 @@ Action: Estimate for the most likely approach. Note assumptions. If the
 ## T-Shirt Sizing
 
 ### When to Use T-Shirt Sizing
+
 - Early-stage estimation (roadmap planning, epic sizing)
 - Large batches of items that need rough ordering
 - Non-technical stakeholders who find story points confusing
 - Portfolio-level prioritization
 
 ### The Scale
+
 ```
 XS - Less than a day of work. Trivial change.
 S  - 1-2 days. Small, well-understood change.
@@ -134,6 +145,7 @@ XXL - More than a month. Epic-level. Must be decomposed before work begins.
 ```
 
 ### Converting T-Shirt Sizes to Story Points (for forecasting)
+
 ```
 XS → 1-2 points
 S  → 2-3 points
@@ -144,6 +156,7 @@ XXL → Must split
 ```
 
 ### Affinity Estimation (Fast T-Shirt Sizing)
+
 ```
 1. Lay out all stories/epics on a table or digital board
 2. Silently, team members place each story in a size column (XS through XL)
@@ -155,6 +168,7 @@ XXL → Must split
 ## Velocity-Based Forecasting
 
 ### Calculating Velocity
+
 ```
 Sprint 1: 28 points completed
 Sprint 2: 32 points completed
@@ -168,6 +182,7 @@ Range: [25, 35]
 ```
 
 ### Forecasting with Velocity Range
+
 ```
 Remaining backlog: 200 story points
 
@@ -184,6 +199,7 @@ Forecast: 12-16 weeks, most likely ~14 weeks
 ```
 
 ### Velocity Adjustment Factors
+
 ```
 Factor                          │ Adjustment
 ────────────────────────────────┼──────────────
@@ -198,9 +214,11 @@ Major refactoring               │ Reduce by 40-60% during refactoring sprints
 ## Monte Carlo Simulation
 
 ### Concept
+
 Instead of using a single velocity number, Monte Carlo simulation randomly samples from historical velocity data thousands of times to generate a probability distribution of outcomes.
 
 ### Simple Monte Carlo Process
+
 ```
 1. Collect historical velocity data (at least 8-10 sprints)
 2. For each simulation run:
@@ -216,6 +234,7 @@ Instead of using a single velocity number, Monte Carlo simulation randomly sampl
 ```
 
 ### Monte Carlo Output Example
+
 ```
 Simulation Results (10,000 runs):
 ┌────────────┬─────────┬────────────┐
@@ -232,6 +251,7 @@ Communicate 50th percentile as "target" and 85th as "commitment."
 ```
 
 ### When to Use Monte Carlo
+
 - Release-level forecasting (more than 3 sprints out)
 - When stakeholders need dates with confidence levels
 - When velocity is variable (which it always is)
@@ -240,6 +260,7 @@ Communicate 50th percentile as "target" and 85th as "commitment."
 ## Estimation Techniques Comparison
 
 ### Decision Matrix
+
 ```
 ┌─────────────────────┬───────────┬───────────┬────────────┬──────────────┐
 │ Technique           │ Speed     │ Accuracy  │ Best For   │ Team Size    │
@@ -254,6 +275,7 @@ Communicate 50th percentile as "target" and 85th as "commitment."
 ```
 
 ### Three-Point Estimation
+
 ```
 For high-stakes items requiring higher precision:
 
@@ -275,12 +297,14 @@ StdDev = (15 - 3) / 6 = 2.0 days
 ## #NoEstimates Approach
 
 ### When It Works
+
 - Team has consistent story sizes (most stories are similar effort)
 - High-trust environment where stakeholders accept throughput-based forecasting
 - Stories are well-refined and consistently small
 - Historical throughput data is available
 
 ### How It Works
+
 ```
 Instead of estimating individual stories:
 1. Track throughput: stories completed per sprint
@@ -291,6 +315,7 @@ Instead of estimating individual stories:
 ```
 
 ### Prerequisites for #NoEstimates
+
 - Stories must be roughly similar size (split large stories aggressively)
 - At least 8-10 sprints of throughput data
 - Stakeholders who understand and trust the approach
@@ -299,6 +324,7 @@ Instead of estimating individual stories:
 ## Communicating Uncertainty
 
 ### The Cone of Uncertainty
+
 ```
 Project Phase          │ Estimate Accuracy Range
 ───────────────────────┼────────────────────────
@@ -312,6 +338,7 @@ Detailed design        │ 0.9x to 1.1x (1.21x range)
 ### Communication Templates
 
 **For Executives**:
+
 ```
 "Based on our current velocity and remaining scope, we have an 85% confidence
 level of delivering by [date]. Our best case is [earlier date] and our worst
@@ -319,6 +346,7 @@ case is [later date]. The primary risks to this forecast are [list top 2-3 risks
 ```
 
 **For Project Managers**:
+
 ```
 "Remaining scope: [X] story points
 Current velocity: [Y-Z] points per sprint (range of last 5 sprints)
@@ -330,6 +358,7 @@ Risks that could extend the timeline:
 ```
 
 **For Team Discussions**:
+
 ```
 "We estimated this as a [X]. Here's what we know and don't know:
 Known: [list known factors]
@@ -339,6 +368,7 @@ If [assumption] is wrong, this could be as large as [Y]."
 ```
 
 ### Confidence Level Framework
+
 ```
 High Confidence (>80%):
 - Team has done similar work before
@@ -363,6 +393,7 @@ Low Confidence (<50%):
 ## Estimation Anti-Patterns
 
 ### The Deadly Seven
+
 1. **Anchoring**: First number mentioned biases all subsequent estimates. Cure: simultaneous reveal (planning poker).
 2. **Optimism Bias**: "It shouldn't take that long." Cure: reference base rates (historical data).
 3. **Student Syndrome**: Work expands to fill the time. Cure: track cycle time, not just estimates.
@@ -372,6 +403,7 @@ Low Confidence (<50%):
 7. **Precision Theater**: Estimating to the hour when accuracy is plus or minus 50%. Cure: use relative sizing.
 
 ### Organizational Anti-Patterns
+
 - **Estimates as deadlines**: Treating estimates as promises
 - **Velocity as a performance metric**: Using velocity to evaluate team productivity
 - **Comparing teams by velocity**: Different teams have different calibrations
@@ -381,6 +413,7 @@ Low Confidence (<50%):
 ## Padding and Buffer Strategies
 
 ### Legitimate Buffering
+
 ```
 Project Buffer = Sum of individual story estimates * risk factor
 
@@ -391,6 +424,7 @@ Risk Factors:
 ```
 
 ### Critical Chain Buffering
+
 ```
 1. Estimate each task at 50% confidence (aggressive but achievable)
 2. Remove individual task buffers
@@ -400,7 +434,9 @@ Risk Factors:
 ```
 
 ### Buffer Communication
+
 Never hide buffers. Be transparent:
+
 ```
 "Our raw estimate is 8 sprints. Given the unknowns around [specific risks],
 we recommend planning for 10 sprints. The buffer accounts for:
@@ -412,6 +448,7 @@ If these risks don't materialize, we may deliver early."
 ## Estimation Workshop Template
 
 ### Sprint Estimation Session (Planning Poker)
+
 ```
 Duration: 60-90 minutes
 Participants: Full development team + PO
@@ -430,6 +467,7 @@ Agenda:
 ```
 
 ### Release Estimation Session
+
 ```
 Duration: 2-3 hours
 Participants: Team leads, PO, key architects
@@ -447,6 +485,7 @@ Agenda:
 ## Quick Decision Guide
 
 When asked about estimation:
+
 - **"How should we estimate?"** → Recommend planning poker for sprint-level, t-shirt sizing for roadmap
 - **"When will it be done?"** → Use velocity-based forecasting with ranges, not single dates
 - **"How accurate are our estimates?"** → Compare estimates to actuals over time, track accuracy ratio
@@ -457,6 +496,7 @@ When asked about estimation:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing estimation guide solutions
 - Reviewing or improving existing estimation guide approaches
 - Making architectural or implementation decisions about estimation guide
@@ -464,6 +504,7 @@ When asked about estimation:
 - Troubleshooting estimation guide-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -474,21 +515,26 @@ When asked about estimation:
 # Estimation Guide Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

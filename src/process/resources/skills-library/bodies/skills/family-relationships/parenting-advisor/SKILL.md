@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events guide"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events guide'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Parenting Advisor
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about parenting advisor
 - User needs guidance on parenting advisor topics
 - User wants a structured approach to parenting advisor
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -60,12 +62,14 @@ Before providing guidance, gather essential context:
 **Primary Needs:** Attachment, regulation, trust-building
 
 **Key Developmental Tasks:**
+
 - Establishing feeding rhythms (breast, bottle, or combination)
 - Sleep pattern development (no "schedule" yet -- respond to cues)
 - Sensory processing and environmental adjustment
 - Parent-infant bonding and attachment formation
 
 **Parenting Focus:**
+
 - Respond promptly to cries (you cannot spoil a newborn)
 - Skin-to-skin contact as often as possible
 - Learn your baby's unique cues (hunger, tired, overstimulated)
@@ -74,24 +78,26 @@ Before providing guidance, gather essential context:
 
 **Common Challenges & Solutions:**
 
-| Challenge | Evidence-Based Approach |
-|-----------|----------------------|
-| Colic/excessive crying | Rule of 3s assessment, 5 S's (Swaddle, Side, Shush, Swing, Suck) |
-| Sleep deprivation | Shift sleeping, safe co-sleeping guidelines if chosen, sleep when baby sleeps |
-| Feeding difficulties | Lactation consultant referral, paced bottle feeding technique |
-| Postpartum mood changes | Edinburgh Postnatal Depression Scale screening, professional support |
+| Challenge               | Evidence-Based Approach                                                       |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| Colic/excessive crying  | Rule of 3s assessment, 5 S's (Swaddle, Side, Shush, Swing, Suck)              |
+| Sleep deprivation       | Shift sleeping, safe co-sleeping guidelines if chosen, sleep when baby sleeps |
+| Feeding difficulties    | Lactation consultant referral, paced bottle feeding technique                 |
+| Postpartum mood changes | Edinburgh Postnatal Depression Scale screening, professional support          |
 
 ### Stage 2: Infant (4-12 Months)
 
 **Primary Needs:** Exploration, attachment security, sensorimotor development
 
 **Key Developmental Tasks:**
+
 - Motor milestones (rolling, sitting, crawling, possibly walking)
 - Object permanence development
 - Babbling and pre-language communication
 - Stranger awareness and separation anxiety (normal at 8-10 months)
 
 **Parenting Focus:**
+
 - Create safe exploration environments (babyproofing)
 - Responsive feeding (baby-led weaning or traditional -- both valid)
 - Narrate your day to build language exposure
@@ -99,6 +105,7 @@ Before providing guidance, gather essential context:
 - Allow safe risk-taking in movement
 
 **Positive Discipline at This Stage:**
+
 - Redirect rather than say "no" (save "no" for safety)
 - Use simple language: "Gentle hands" with demonstration
 - Remove hazards rather than expecting compliance
@@ -109,6 +116,7 @@ Before providing guidance, gather essential context:
 **Primary Needs:** Autonomy, language explosion, emotional regulation (co-regulation)
 
 **Key Developmental Tasks:**
+
 - Walking, running, climbing
 - Vocabulary explosion (50 words by 18 months, 200+ by age 2)
 - Beginning of pretend play
@@ -116,6 +124,7 @@ Before providing guidance, gather essential context:
 - Toilet learning readiness
 
 **Parenting Focus:**
+
 - Offer controlled choices: "Red shirt or blue shirt?"
 - Name emotions constantly: "You seem frustrated that the block fell"
 - Use "First-Then" language: "First shoes, then outside"
@@ -123,6 +132,7 @@ Before providing guidance, gather essential context:
 - Allow messes -- this is how they learn
 
 **Positive Discipline Techniques:**
+
 ```
 REDIRECT Framework for Toddlers:
 R - Recognize the feeling behind the behavior
@@ -137,19 +147,20 @@ T - Time-in (not time-out) for emotional flooding
 
 **Common Toddler Challenges:**
 
-| Challenge | Strategy |
-|-----------|----------|
-| Tantrums | Stay calm, stay close, validate, wait it out, debrief after |
-| Hitting/biting | "I won't let you hit. Hitting hurts. You can hit this pillow." |
-| Food refusal | Division of responsibility (Ellyn Satter): parent decides what/when/where, child decides whether/how much |
-| Sleep regression | Maintain routine, offer comfort, avoid creating new dependencies |
-| Sharing struggles | Normal -- parallel play is developmentally appropriate |
+| Challenge         | Strategy                                                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------------------------- |
+| Tantrums          | Stay calm, stay close, validate, wait it out, debrief after                                               |
+| Hitting/biting    | "I won't let you hit. Hitting hurts. You can hit this pillow."                                            |
+| Food refusal      | Division of responsibility (Ellyn Satter): parent decides what/when/where, child decides whether/how much |
+| Sleep regression  | Maintain routine, offer comfort, avoid creating new dependencies                                          |
+| Sharing struggles | Normal -- parallel play is developmentally appropriate                                                    |
 
 ### Stage 4: Preschool (3-5 Years)
 
 **Primary Needs:** Initiative, social skills, imaginative play, pre-academic foundations
 
 **Key Developmental Tasks:**
+
 - Complex pretend play and theory of mind
 - Early friendships and social navigation
 - Pre-literacy and numeracy readiness
@@ -157,6 +168,7 @@ T - Time-in (not time-out) for emotional flooding
 - Understanding rules and fairness
 
 **Parenting Focus:**
+
 - Ask open-ended questions about their play and ideas
 - Teach problem-solving: "What could you try?"
 - Foster independence in self-care (dressing, hygiene)
@@ -164,6 +176,7 @@ T - Time-in (not time-out) for emotional flooding
 - Normalize mistakes as learning
 
 **Positive Discipline Techniques:**
+
 - Natural consequences when safe: skipped jacket = feels cold briefly
 - Logical consequences when needed: threw toy = toy goes away temporarily
 - Family contribution: simple household tasks build belonging
@@ -174,6 +187,7 @@ T - Time-in (not time-out) for emotional flooding
 **Primary Needs:** Industry, competence, peer belonging, academic identity
 
 **Key Developmental Tasks:**
+
 - Academic skill building and learning-to-learn
 - Deepening friendships and social hierarchies
 - Developing sense of competence and self-efficacy
@@ -181,6 +195,7 @@ T - Time-in (not time-out) for emotional flooding
 - Beginning understanding of abstract concepts
 
 **Parenting Focus:**
+
 - Homework support without doing it for them
 - Encourage effort over outcome (growth mindset, Carol Dweck)
 - Monitor friendships and social dynamics without controlling
@@ -188,6 +203,7 @@ T - Time-in (not time-out) for emotional flooding
 - Maintain family connection rituals (dinner, game nights, one-on-one time)
 
 **Communication Template:**
+
 ```
 When discussing a school/social challenge:
 
@@ -205,6 +221,7 @@ When discussing a school/social challenge:
 **Primary Needs:** Identity formation, increasing autonomy, peer acceptance, puberty navigation
 
 **Key Developmental Tasks:**
+
 - Puberty and body changes
 - Abstract thinking development
 - Increasing peer influence relative to parent influence
@@ -212,6 +229,7 @@ When discussing a school/social challenge:
 - Beginning separation-individuation from family
 
 **Parenting Focus:**
+
 - Maintain connection even as they pull away
 - Have ongoing (not one-time) conversations about puberty, bodies, consent
 - Respect growing privacy needs while maintaining safety
@@ -219,6 +237,7 @@ When discussing a school/social challenge:
 - Be available without being intrusive
 
 **Autonomy Ladder Template:**
+
 ```
 Level 1: Parent decides, explains reasoning
 Level 2: Parent decides after hearing child's input
@@ -235,6 +254,7 @@ to the appropriate level and advance gradually.
 **Primary Needs:** Identity consolidation, genuine autonomy, future orientation, intimate relationships
 
 **Key Developmental Tasks:**
+
 - Identity achievement across domains (values, career, relationships)
 - Executive function maturation (still developing until mid-20s)
 - Romantic and sexual development
@@ -242,6 +262,7 @@ to the appropriate level and advance gradually.
 - Consolidating personal value system
 
 **Parenting Focus:**
+
 - Shift from manager to consultant role
 - Pick battles wisely -- safety and values, not hair color
 - Maintain family meals and rituals (research shows protective effect)
@@ -252,12 +273,12 @@ to the appropriate level and advance gradually.
 
 ### The Four Styles (Baumrind Model)
 
-| Style | Warmth | Structure | Outcome Research |
-|-------|--------|-----------|-----------------|
-| **Authoritative** (recommended) | High | High | Best outcomes across domains |
-| Authoritarian | Low | High | Compliance but lower self-esteem |
-| Permissive | High | Low | Social skills but poor self-regulation |
-| Uninvolved | Low | Low | Poorest outcomes across domains |
+| Style                           | Warmth | Structure | Outcome Research                       |
+| ------------------------------- | ------ | --------- | -------------------------------------- |
+| **Authoritative** (recommended) | High   | High      | Best outcomes across domains           |
+| Authoritarian                   | Low    | High      | Compliance but lower self-esteem       |
+| Permissive                      | High   | Low       | Social skills but poor self-regulation |
+| Uninvolved                      | Low    | Low       | Poorest outcomes across domains        |
 
 ### Authoritative Parenting in Practice
 
@@ -285,12 +306,12 @@ WARMTH                          STRUCTURE
 
 ### The Mistaken Goals Chart
 
-| Behavior Pattern | Child's Belief | Parent Feels | Effective Response |
-|-----------------|---------------|-------------|-------------------|
-| Attention-seeking | "I belong only when noticed" | Annoyed, irritated | Give attention at unexpected times, involve in useful tasks |
-| Power struggles | "I belong only when in control" | Angry, challenged | Offer choices, don't fight or give in, redirect to positive power |
-| Revenge | "I don't belong, so I'll hurt back" | Hurt, disappointed | Don't retaliate, build trust, acknowledge hurt |
-| Assumed inadequacy | "I can't belong, so I'll give up" | Despair, helpless | Show faith, encourage any small step, don't give up on them |
+| Behavior Pattern   | Child's Belief                      | Parent Feels       | Effective Response                                                |
+| ------------------ | ----------------------------------- | ------------------ | ----------------------------------------------------------------- |
+| Attention-seeking  | "I belong only when noticed"        | Annoyed, irritated | Give attention at unexpected times, involve in useful tasks       |
+| Power struggles    | "I belong only when in control"     | Angry, challenged  | Offer choices, don't fight or give in, redirect to positive power |
+| Revenge            | "I don't belong, so I'll hurt back" | Hurt, disappointed | Don't retaliate, build trust, acknowledge hurt                    |
+| Assumed inadequacy | "I can't belong, so I'll give up"   | Despair, helpless  | Show faith, encourage any small step, don't give up on them       |
 
 ### Consequence Decision Tree
 
@@ -315,6 +336,7 @@ Is the child's behavior a problem?
 ## Communication Strategies by Age
 
 ### For Young Children (2-5)
+
 - Get on their physical level
 - Use 5-word sentences or fewer
 - Offer two choices maximum
@@ -322,6 +344,7 @@ Is the child's behavior a problem?
 - Use visual aids and schedules
 
 ### For School-Age Children (6-11)
+
 - Active listening with eye contact
 - Reflect feelings before problem-solving
 - Use "I notice..." instead of accusations
@@ -329,6 +352,7 @@ Is the child's behavior a problem?
 - Family meetings for recurring issues
 
 ### For Tweens and Teens (12-18)
+
 - Listen 80%, talk 20%
 - Avoid lecturing (they tune out after 30 seconds)
 - Validate before advising
@@ -397,6 +421,7 @@ AFTER:
 ## Special Considerations
 
 ### Co-Parenting After Separation
+
 - Keep conflict away from children
 - Maintain consistent rules across households where possible
 - Never use children as messengers
@@ -404,6 +429,7 @@ AFTER:
 - Use parallel parenting if high-conflict (minimal direct communication)
 
 ### Blended Family Integration
+
 - Go slow -- bond before discipline
 - Biological parent handles discipline initially
 - Create new family traditions while honoring old ones
@@ -411,6 +437,7 @@ AFTER:
 - Professional support is strength, not weakness
 
 ### Neurodivergent Children
+
 - Collaborate with professionals for tailored strategies
 - Sensory needs are real needs, not preferences
 - Behavior is communication -- decode before correcting
@@ -418,6 +445,7 @@ AFTER:
 - Adjust expectations to the individual child, not age norms alone
 
 ### Culturally Responsive Parenting
+
 - Honor your family's cultural values and traditions
 - Discuss cultural identity and pride proactively
 - Prepare children for bias they may encounter (if applicable)
@@ -427,6 +455,7 @@ AFTER:
 ## When to Seek Professional Support
 
 Consult a pediatrician or child psychologist if you observe:
+
 - Persistent regression in previously mastered skills
 - Significant behavior change lasting more than 2 weeks
 - Self-harm or expressed desire to harm self/others
@@ -464,32 +493,38 @@ RESOURCES: [books, websites, professionals if relevant]
 **Developmental context:** At age 4, tantrums at transitions (especially bedtime) are developmentally normal. The prefrontal cortex is still developing -- emotional regulation is a skill they are learning, not one they have.
 
 ### Root Cause Assessment
+
 Common triggers for bedtime tantrums at age 4:
+
 1. Overtired (counterintuitively, overtired children fight sleep harder)
 2. Need for control (4-year-olds are asserting independence)
 3. Separation anxiety or fear of dark
 4. Inconsistent routine (the brain craves predictability)
 
 ### The Bedtime Routine Framework (30 minutes)
-| Time | Activity | Purpose |
-|------|----------|---------|
-| T-30 min | Warning: "30 minutes until bedtime" | Transition prep |
-| T-20 min | Calm activity (bath, coloring, puzzle) | Nervous system wind-down |
-| T-10 min | Pajamas, teeth, potty | Routine steps (same order every night) |
-| T-5 min | 2 books (child chooses) | Gives sense of control |
-| T-0 | Lights out, 1 song or short chat | Connection moment |
+
+| Time     | Activity                               | Purpose                                |
+| -------- | -------------------------------------- | -------------------------------------- |
+| T-30 min | Warning: "30 minutes until bedtime"    | Transition prep                        |
+| T-20 min | Calm activity (bath, coloring, puzzle) | Nervous system wind-down               |
+| T-10 min | Pajamas, teeth, potty                  | Routine steps (same order every night) |
+| T-5 min  | 2 books (child chooses)                | Gives sense of control                 |
+| T-0      | Lights out, 1 song or short chat       | Connection moment                      |
 
 ### Key Technique: Offer Controlled Choices
+
 Instead of: "It is bedtime now" (triggers power struggle)
 Try: "Do you want the blue pajamas or the red pajamas?" then "Do you want mommy or daddy to read tonight?"
 This gives the child agency within your boundaries.
 
 ### What to Expect
+
 - Week 1: Tantrums may actually increase (extinction burst -- they test the new boundary)
 - Week 2-3: Frequency should decrease if routine is consistent
 - Week 4+: New routine becomes expected
 
 ### When to Seek Help
+
 If tantrums include self-harm, last longer than 30 minutes regularly, or are accompanied by regression in other areas (potty training, speech), consult your pediatrician.
 
 ## Edge Cases

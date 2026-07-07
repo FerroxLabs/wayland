@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance savings goal-setting"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance savings goal-setting'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Savings Goals Tracker
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Has two or more named savings goals competing for the same monthly surplus and needs to know how much to put toward each
 - Asks how long it will take to reach a savings target given their current or planned monthly contribution
 - Has a hard-deadline goal (vacation departing in June, tuition due in August) alongside open-ended aspirational goals and cannot fully fund both simultaneously
@@ -33,6 +35,7 @@ metadata:
 - Received a windfall -- bonus, tax refund, inheritance, sale of an asset -- and wants to apply it optimally across existing savings goals
 
 **Do NOT use when:**
+
 - The user's primary need is sizing or building an emergency fund -- use `emergency-fund-planner`, which applies the 3-to-6-month-expenses methodology specific to that goal
 - The user has no working budget yet and does not know their monthly surplus -- use `budget-planning` first to establish income minus expenses before this skill can produce meaningful allocations
 - The goal involves any form of investment return, expected capital appreciation, or dollar-cost averaging -- even a house down payment managed in an investment account falls under investing skills, not this skill
@@ -319,27 +322,35 @@ When **[Goal 2]** is funded (projected [Month Year]):
 ## Edge Cases
 
 ### Surplus Is Insufficient for Even Tier 1 Goals
+
 If the user's available monthly surplus cannot fund a Tier 1 goal by its hard deadline even with 100% allocation, the plan must immediately escalate. Do not produce a partial funding plan that implies the goal is achievable when it is not. Instead: (1) calculate the exact shortfall in total dollars, (2) state the minimum monthly contribution needed and what that requires cutting from expenses, (3) identify whether a lump-sum accelerator (tax refund, selling an item, a short-term side gig) could close the gap, (4) if none of these are viable, state clearly that the deadline cannot be met at the current income-to-expense ratio and suggest using `budget-planning` before returning to this skill.
 
 ### User Wants to Save for Something With a Variable Cost Target
+
 Some goals have uncertain targets -- a house down payment in a rising market, a car whose price depends on what is available, college tuition 10 years from now. Apply a 10-15% cost buffer on top of the user's stated target for medium-term goals (1-5 years) and a 20-25% buffer for long-term goals (5+ years). Label the buffer explicitly: "Target: $25,000 + 15% buffer = $28,750 planning target." This prevents the user from reaching their "number" and discovering it is no longer enough.
 
 ### User Has Already Started Multiple High-Yield Savings Accounts for Each Goal
+
 This is the ideal setup and should be affirmed. When a user has separate, labeled savings accounts per goal, the plan should map contribution amounts directly to each account. Note that high-yield savings accounts (HYSAs) typically compound interest monthly, which marginally accelerates progress. For simplicity, do not model interest in the projection table -- that makes balances slightly better than projected, which is a positive variance to celebrate rather than a problem to fix. Mention this as a bonus.
 
 ### User Has a Windfall to Allocate Immediately
+
 Follow this allocation sequence: (1) top up the emergency fund to 1-month expenses first if it is below that threshold, (2) then apply to Tier 1 goals in full until they are complete or the windfall is exhausted, (3) then apply to Tier 2 goals, (4) then Tier 3 goals in priority order. Show the before-and-after timeline comparison explicitly -- the user should see concretely how many months the windfall eliminates from each goal's timeline. Do not recommend what to do with any windfall remainder beyond the goals in scope.
 
 ### User's Income Is Irregular (Freelancer, Commission-Based, Seasonal)
+
 A fixed monthly contribution plan breaks down when income varies month to month by 50% or more. Instead of a fixed monthly amount, build a percentage-based plan. Define each goal's allocation as a percentage of that month's actual surplus rather than a fixed dollar amount. For example: "Vacation: 45% of surplus this month. Laptop: 10% of surplus. Down payment: 35% of surplus. Buffer: 10%." The timelines will be expressed as ranges ("10-16 months depending on income variance") rather than single dates. Ask the user for their average monthly surplus AND their low-income month estimate -- use the low-income month estimate as the base for the plan's Tier 1 calculations.
 
 ### One Goal Is Partially Funded Through a Non-Cash Mechanism
+
 Sometimes a goal is partially "funded" through credit card rewards points (e.g., $400 toward a flight), employer travel benefits, gift contributions from family, or a matching program. These reduce the cash savings target but should not be counted until the user is certain they will be redeemed for this goal. Treat confirmed, already-earned rewards as a deduction from the remaining amount with a label: "Target: $3,000. Cash needed: $2,600 (assumes $400 in confirmed travel rewards redeemed)." Flag unearned or speculative contributions as footnotes only.
 
 ### User Completes a Goal and Wants to Add a New One Mid-Plan
+
 When a user returns having completed a goal and wants to add a new savings target, restart the process from Step 1 for the new goal only. Do not rebuild the entire plan. Slot the new goal into the existing tier structure based on its deadline and consequence profile. Update the monthly allocation table and reallocation triggers to reflect the addition. Remind the user that the new goal's addition may delay previously projected completion dates for existing Tier 3 goals.
 
 ### User Has Conflicting Stated Priorities and Mathematical Realities
+
 A common scenario: the user ranks "house down payment" as #1 but also has a vacation with a booked, non-refundable flight departing in 3 months that needs $1,400 more. The math says the vacation must receive priority contribution, but the user's stated priority disagrees. Handle this by naming the conflict directly: "Your stated #1 is the down payment, but the vacation has a hard deadline in 3 months with a non-refundable booking -- if the vacation isn't funded, you lose the booking cost. I'm recommending the vacation as Tier 2 for the next 3 months, then shifting full focus to the down payment. Does that work for you?" Always get explicit user agreement before overriding a stated priority.
 
 ---
@@ -360,13 +371,13 @@ A common scenario: the user ranks "house down payment" as #1 but also has a vaca
 
 ### Your Monthly Savings Capacity
 
-| Metric                                    | Amount   |
-|-------------------------------------------|----------|
-| Monthly after-tax income                  | $4,200   |
-| Monthly fixed + variable expenses         | $3,400   |
-| Irregular expense reserve ($900/yr ÷ 12)  | $75      |
-| Planning buffer (5%)                      | $37      |
-| **Available monthly surplus (usable)**    | **$688** |
+| Metric                                   | Amount   |
+| ---------------------------------------- | -------- |
+| Monthly after-tax income                 | $4,200   |
+| Monthly fixed + variable expenses        | $3,400   |
+| Irregular expense reserve ($900/yr ÷ 12) | $75      |
+| Planning buffer (5%)                     | $37      |
+| **Available monthly surplus (usable)**   | **$688** |
 
 **Irregular expense detail:** Car insurance $600 in June + $300 annual membership = $900/year = $75/month reserved. This money is set aside monthly and is not available for goal savings.
 
@@ -376,28 +387,29 @@ A common scenario: the user ranks "house down payment" as #1 but also has a vaca
 
 ### Goals Inventory
 
-| # | Goal Name       | Target   | Currently Saved | Remaining | Deadline         | Deadline Type | Tier   |
-|---|-----------------|----------|-----------------|-----------|------------------|---------------|--------|
-| 1 | Paris Trip      | $4,500   | $400            | $4,100    | March 2025 (~5 mo)| Hard        | Tier 2 |
-| 2 | Laptop          | $1,200   | $0              | $1,200    | Sept 2025 (~10 mo)| Soft        | Tier 3 |
-| 3 | House Down Pmt  | $33,000* | $0              | $33,000   | Open (~36 mo est.)| Open        | Tier 3 |
-|   | **TOTALS**      | $38,700  | $400            | **$38,300**|                 |               |        |
+| #   | Goal Name      | Target    | Currently Saved | Remaining   | Deadline           | Deadline Type | Tier   |
+| --- | -------------- | --------- | --------------- | ----------- | ------------------ | ------------- | ------ |
+| 1   | Paris Trip     | $4,500    | $400            | $4,100      | March 2025 (~5 mo) | Hard          | Tier 2 |
+| 2   | Laptop         | $1,200    | $0              | $1,200      | Sept 2025 (~10 mo) | Soft          | Tier 3 |
+| 3   | House Down Pmt | $33,000\* | $0              | $33,000     | Open (~36 mo est.) | Open          | Tier 3 |
+|     | **TOTALS**     | $38,700   | $400            | **$38,300** |                    |               |        |
 
-*$30,000 target + 10% planning buffer ($3,000) = $33,000 planning target. Home prices and required down payment amounts shift. The buffer protects against arriving at your number and finding it is no longer sufficient.
+\*$30,000 target + 10% planning buffer ($3,000) = $33,000 planning target. Home prices and required down payment amounts shift. The buffer protects against arriving at your number and finding it is no longer sufficient.
 
 ---
 
 ### Funding Gap Analysis
 
-| Metric                                              | Amount    |
-|-----------------------------------------------------|-----------|
-| Total remaining across all goals                    | $38,300   |
-| Required monthly (all goals parallel, original timelines) | $990 |
-| Available monthly surplus                           | $688      |
-| **Gap (positive = shortfall)**                      | **$302**  |
-| Funding status                                      | Shortfall -- parallel funding not fully achievable at current surplus |
+| Metric                                                    | Amount                                                                |
+| --------------------------------------------------------- | --------------------------------------------------------------------- |
+| Total remaining across all goals                          | $38,300                                                               |
+| Required monthly (all goals parallel, original timelines) | $990                                                                  |
+| Available monthly surplus                                 | $688                                                                  |
+| **Gap (positive = shortfall)**                            | **$302**                                                              |
+| Funding status                                            | Shortfall -- parallel funding not fully achievable at current surplus |
 
 **Breakdown of the $990 parallel requirement:**
+
 - Paris Trip: $4,100 ÷ 5 months = $820/month (hard deadline -- this is non-negotiable)
 - Laptop: $1,200 ÷ 10 months = $120/month
 - Down payment: $33,000 ÷ 36 months = $917/month (open-ended -- this drives the majority of the gap)
@@ -406,6 +418,7 @@ The core issue: funding the Paris trip at its required $820/month leaves only $6
 
 **Conflict Notice -- Paris Trip Underfunding:**
 At $688/month total surplus, even allocating every dollar to the Paris Trip produces only $688 x 5 = $3,440 plus the $400 already saved = $3,840 by March -- $660 short of the $4,500 target. Action required: choose one of the following options:
+
 - **Option 1:** Reduce the Paris trip budget from $4,500 to $3,840 (shorter itinerary, fewer splurges, economy class)
 - **Option 2:** Identify a one-time $660 injection before March (tax refund submitted early, item sold, etc.)
 - **Option 3:** Extend the trip payment deadline by 1 month to April (confirm with airline and hotel whether this is possible)
@@ -424,13 +437,13 @@ At $688/month total surplus, even allocating every dollar to the Paris Trip prod
 
 ### Monthly Allocation Plan
 
-| Goal Name          | Monthly Contribution | Funding Mode             | Months Remaining | Projected Completion |
-|--------------------|---------------------|--------------------------|------------------|----------------------|
-| Paris Trip         | $688                | Sequential -- 100% surge | 5 months         | March 2025           |
-| Laptop             | $0 now → $688 later | Sequential -- Phase 2    | ~2 months (est.) | May 2025             |
-| House Down Pmt     | $0 now → $688 later | Sequential -- Phase 3    | ~44 months (est.)| Jan 2028 (est.)      |
-| **Total Allocated**| **$688**            |                          |                  |                      |
-| **Unallocated Slack** | **$0**           | None -- fully committed to Paris surge |       |                      |
+| Goal Name             | Monthly Contribution | Funding Mode                           | Months Remaining  | Projected Completion |
+| --------------------- | -------------------- | -------------------------------------- | ----------------- | -------------------- |
+| Paris Trip            | $688                 | Sequential -- 100% surge               | 5 months          | March 2025           |
+| Laptop                | $0 now → $688 later  | Sequential -- Phase 2                  | ~2 months (est.)  | May 2025             |
+| House Down Pmt        | $0 now → $688 later  | Sequential -- Phase 3                  | ~44 months (est.) | Jan 2028 (est.)      |
+| **Total Allocated**   | **$688**             |                                        |                   |                      |
+| **Unallocated Slack** | **$0**               | None -- fully committed to Paris surge |                   |                      |
 
 **Note on Laptop:** Once Paris is complete (Month 5), all $688/month flows to the $1,200 laptop. It funds in under 2 months. Then the full $688/month shifts to the down payment.
 
@@ -440,32 +453,32 @@ At $688/month total surplus, even allocating every dollar to the Paris Trip prod
 
 ### Progress Snapshot (November 2024)
 
-| Goal Name       | Progress Bar          | Current | Target   | % Complete |
-|-----------------|-----------------------|---------|----------|------------|
-| Paris Trip      | █░░░░░░░░░ 10%        | $400    | $3,840   | 10.4%      |
-| Laptop          | ░░░░░░░░░░ 0%         | $0      | $1,200   | 0.0%       |
-| House Down Pmt  | ░░░░░░░░░░ 0%         | $0      | $33,000  | 0.0%       |
+| Goal Name      | Progress Bar   | Current | Target  | % Complete |
+| -------------- | -------------- | ------- | ------- | ---------- |
+| Paris Trip     | █░░░░░░░░░ 10% | $400    | $3,840  | 10.4%      |
+| Laptop         | ░░░░░░░░░░ 0%  | $0      | $1,200  | 0.0%       |
+| House Down Pmt | ░░░░░░░░░░ 0%  | $0      | $33,000 | 0.0%       |
 
 ---
 
 ### Month-by-Month Projection
 
-| Month      | Paris Trip   | Laptop   | Down Payment | Total Cumulative |
-|------------|-------------|----------|--------------|-----------------|
-| Nov 2024   | $1,088       | $0       | $0           | $1,088          |
-| Dec 2024   | $1,776       | $0       | $0           | $1,776          |
-| Jan 2025   | $2,464       | $0       | $0           | $2,464          |
-| Feb 2025   | $3,152       | $0       | $0           | $3,152          |
-| Mar 2025   | $3,840 ✓     | $0       | $0           | $3,840          |
-| Apr 2025   | COMPLETE     | $688     | $0           | $4,528          |
-| May 2025   | --           | $1,200 ✓ | $176         | $5,904          |
-| Jun 2025   | --           | COMPLETE | $864         | $6,768          |
-| Jul 2025   | --           | --       | $1,552       | $8,152          |
-| Aug 2025   | --           | --       | $2,240       | $8,840          |
+| Month    | Paris Trip | Laptop   | Down Payment | Total Cumulative |
+| -------- | ---------- | -------- | ------------ | ---------------- |
+| Nov 2024 | $1,088     | $0       | $0           | $1,088           |
+| Dec 2024 | $1,776     | $0       | $0           | $1,776           |
+| Jan 2025 | $2,464     | $0       | $0           | $2,464           |
+| Feb 2025 | $3,152     | $0       | $0           | $3,152           |
+| Mar 2025 | $3,840 ✓   | $0       | $0           | $3,840           |
+| Apr 2025 | COMPLETE   | $688     | $0           | $4,528           |
+| May 2025 | --         | $1,200 ✓ | $176         | $5,904           |
+| Jun 2025 | --         | COMPLETE | $864         | $6,768           |
+| Jul 2025 | --         | --       | $1,552       | $8,152           |
+| Aug 2025 | --         | --       | $2,240       | $8,840           |
 
 ✓ = Goal reached. COMPLETE = Contribution reallocated to next goal.
 
-*April 2025: Paris complete at end of March. Full $688/month to Laptop in April. Laptop is $488 short at start of April. Laptop funded by mid-May; remaining May surplus of $176 begins down payment.*
+_April 2025: Paris complete at end of March. Full $688/month to Laptop in April. Laptop is $488 short at start of April. Laptop funded by mid-May; remaining May surplus of $176 begins down payment._
 
 ---
 
@@ -485,24 +498,24 @@ When **Laptop** is funded (approximately mid-May 2025):
 
 ### Sensitivity Analysis
 
-| Scenario                                            | Impact on House Down Payment              |
-|-----------------------------------------------------|------------------------------------------|
-| $300/month raise confirmed (Month 6)                | Timeline shortens from 44 to ~34 months -- saves ~10 months |
-| One-time $3,000 tax refund applied in April 2025    | Reduces down payment timeline by ~4 months |
-| Spend $50/month less (streaming, dining out, etc.)  | Shaves ~3 months off down payment timeline |
-| Miss 2 months of contributions (emergency, etc.)    | Down payment extends by 2 months -- recalibrate at next quarterly review |
-| Surplus drops by 20% to $550/month                  | Down payment timeline extends from 44 to ~55 months -- consider revisiting target or timeline |
-| Home prices rise 10%, needing $36,300 instead        | Add ~5 months at current contribution rate; buffer partially absorbs this |
+| Scenario                                           | Impact on House Down Payment                                                                  |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| $300/month raise confirmed (Month 6)               | Timeline shortens from 44 to ~34 months -- saves ~10 months                                   |
+| One-time $3,000 tax refund applied in April 2025   | Reduces down payment timeline by ~4 months                                                    |
+| Spend $50/month less (streaming, dining out, etc.) | Shaves ~3 months off down payment timeline                                                    |
+| Miss 2 months of contributions (emergency, etc.)   | Down payment extends by 2 months -- recalibrate at next quarterly review                      |
+| Surplus drops by 20% to $550/month                 | Down payment timeline extends from 44 to ~55 months -- consider revisiting target or timeline |
+| Home prices rise 10%, needing $36,300 instead      | Add ~5 months at current contribution rate; buffer partially absorbs this                     |
 
 ---
 
 ### Review Checklist
 
-| Frequency     | Action                                                                                      |
-|---------------|---------------------------------------------------------------------------------------------|
-| Monthly       | Log actual balance for Paris Trip account; compare to projection; flag any gap >10%         |
-| March 2025    | Confirm Paris fully funded; activate Laptop reallocation trigger immediately                |
-| May 2025      | Confirm Laptop funded; activate Down Payment reallocation trigger; check raise status        |
-| Quarterly     | Re-examine down payment target if home prices in your area have shifted significantly        |
-| Annually      | Full reset -- re-tier all goals, recalculate surplus, add new goals, check emergency fund size |
-| If raise confirmed | Return to this plan and rebuild the down payment projection with $988/month as the new base |
+| Frequency          | Action                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------- |
+| Monthly            | Log actual balance for Paris Trip account; compare to projection; flag any gap >10%            |
+| March 2025         | Confirm Paris fully funded; activate Laptop reallocation trigger immediately                   |
+| May 2025           | Confirm Laptop funded; activate Down Payment reallocation trigger; check raise status          |
+| Quarterly          | Re-examine down payment target if home prices in your area have shifted significantly          |
+| Annually           | Full reset -- re-tier all goals, recalculate surplus, add new goals, check emergency fund size |
+| If raise confirmed | Return to this plan and rebuild the down payment projection with $988/month as the new base    |

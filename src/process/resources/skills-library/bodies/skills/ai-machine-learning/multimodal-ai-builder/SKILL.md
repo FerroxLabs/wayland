@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml guide best-practices"
-  category: "ai-machine-learning"
-  subcategory: "applied-ai"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml guide best-practices'
+  category: 'ai-machine-learning'
+  subcategory: 'applied-ai'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Multimodal AI Builder
@@ -47,23 +47,23 @@ Text Encoder <--cross-attention-- Vision Encoder features
 
 ### Vision-Language Models
 
-| Model | Provider | Max Image Res | Context | Latency | Cost/1M in |
-|-------|----------|---------------|---------|---------|------------|
-| GPT-4o | OpenAI | 2048x2048 | 128K | ~2s | $2.50 |
-| Claude 3.5 Sonnet | Anthropic | 8000x8000 | 200K | ~2s | $3.00 |
-| Gemini 1.5 Pro | Google | 3072x3072 | 2M | ~3s | $1.25 |
-| LLaVA-NeXT | OSS | 672x672 | 4K | ~1s | Free (GPU) |
-| Pixtral | Mistral | Variable | 128K | ~2s | $2.00 |
+| Model             | Provider  | Max Image Res | Context | Latency | Cost/1M in |
+| ----------------- | --------- | ------------- | ------- | ------- | ---------- |
+| GPT-4o            | OpenAI    | 2048x2048     | 128K    | ~2s     | $2.50      |
+| Claude 3.5 Sonnet | Anthropic | 8000x8000     | 200K    | ~2s     | $3.00      |
+| Gemini 1.5 Pro    | Google    | 3072x3072     | 2M      | ~3s     | $1.25      |
+| LLaVA-NeXT        | OSS       | 672x672       | 4K      | ~1s     | Free (GPU) |
+| Pixtral           | Mistral   | Variable      | 128K    | ~2s     | $2.00      |
 
 ### Text-to-Speech / Speech-to-Text
 
-| Model | Direction | Languages | Latency | Cost |
-|-------|-----------|-----------|---------|------|
-| Whisper large-v3 | STT | 99+ | ~0.3x RT | Free (OSS) |
-| Deepgram Nova-2 | STT | 36+ | Real-time | $0.0043/min |
-| OpenAI TTS-1-HD | TTS | ~20 | ~1s | $15/1M chars |
-| ElevenLabs | TTS | 29+ | ~0.5s | $0.18/1K chars |
-| Coqui XTTS-v2 | TTS | 17+ | ~2s | Free (OSS) |
+| Model            | Direction | Languages | Latency   | Cost           |
+| ---------------- | --------- | --------- | --------- | -------------- |
+| Whisper large-v3 | STT       | 99+       | ~0.3x RT  | Free (OSS)     |
+| Deepgram Nova-2  | STT       | 36+       | Real-time | $0.0043/min    |
+| OpenAI TTS-1-HD  | TTS       | ~20       | ~1s       | $15/1M chars   |
+| ElevenLabs       | TTS       | 29+       | ~0.5s     | $0.18/1K chars |
+| Coqui XTTS-v2    | TTS       | 17+       | ~2s       | Free (OSS)     |
 
 ### Model Selection Decision Tree
 
@@ -224,21 +224,21 @@ def extract_keyframes(
 
 ## Fusion Strategy Selection
 
-| Fusion Type | Best For | Trade-off |
-|-------------|----------|-----------|
-| Late Fusion | Independent modalities | Simple but misses cross-modal patterns |
-| Early Fusion | Tightly coupled modalities | Powerful but expensive to train |
-| Cross-Attention | One modality conditions on another | Balanced complexity and performance |
-| Bottleneck | Dimensionality reduction | Compact but may lose information |
+| Fusion Type     | Best For                           | Trade-off                              |
+| --------------- | ---------------------------------- | -------------------------------------- |
+| Late Fusion     | Independent modalities             | Simple but misses cross-modal patterns |
+| Early Fusion    | Tightly coupled modalities         | Powerful but expensive to train        |
+| Cross-Attention | One modality conditions on another | Balanced complexity and performance    |
+| Bottleneck      | Dimensionality reduction           | Compact but may lose information       |
 
 ## Cost Optimization
 
-| Strategy | Savings | Implementation |
-|----------|---------|----------------|
-| Image resolution tiering | 30-60% | Low-res first, high-res only if needed |
-| Audio chunking | 20-40% | Process only speech segments, skip silence |
-| Model cascading | 40-70% | Cheap model first, expensive for hard cases |
-| Caching | 50-90% | Hash inputs, cache identical requests |
+| Strategy                 | Savings | Implementation                              |
+| ------------------------ | ------- | ------------------------------------------- |
+| Image resolution tiering | 30-60%  | Low-res first, high-res only if needed      |
+| Audio chunking           | 20-40%  | Process only speech segments, skip silence  |
+| Model cascading          | 40-70%  | Cheap model first, expensive for hard cases |
+| Caching                  | 50-90%  | Hash inputs, cache identical requests       |
 
 ### Model Cascading Pattern
 
@@ -293,6 +293,7 @@ class MultimodalCascade:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing multimodal ai builder solutions
 - Reviewing or improving existing multimodal ai builder approaches
 - Making architectural or implementation decisions about multimodal ai builder
@@ -300,6 +301,7 @@ class MultimodalCascade:
 - Troubleshooting multimodal ai builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -310,21 +312,26 @@ class MultimodalCascade:
 # Multimodal Ai Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

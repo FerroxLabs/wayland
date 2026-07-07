@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend javascript"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend javascript'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # React Architect
@@ -58,7 +58,7 @@ function Tabs({ defaultValue, children }: TabsProps) {
   const [activeTab, setActiveTab] = useState(defaultValue);
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
-      <div role="tablist">{children}</div>
+      <div role='tablist'>{children}</div>
     </TabsContext.Provider>
   );
 }
@@ -66,11 +66,7 @@ function Tabs({ defaultValue, children }: TabsProps) {
 function TabTrigger({ value, children }: TabTriggerProps) {
   const { activeTab, setActiveTab } = useTabsContext();
   return (
-    <button
-      role="tab"
-      aria-selected={activeTab === value}
-      onClick={() => setActiveTab(value)}
-    >
+    <button role='tab' aria-selected={activeTab === value} onClick={() => setActiveTab(value)}>
       {children}
     </button>
   );
@@ -79,7 +75,7 @@ function TabTrigger({ value, children }: TabTriggerProps) {
 function TabContent({ value, children }: TabContentProps) {
   const { activeTab } = useTabsContext();
   if (activeTab !== value) return null;
-  return <div role="tabpanel">{children}</div>;
+  return <div role='tabpanel'>{children}</div>;
 }
 
 Tabs.Trigger = TabTrigger;
@@ -114,7 +110,7 @@ function withAuth<P extends object>(Component: ComponentType<P>) {
   return function AuthenticatedComponent(props: P) {
     const { user, isLoading } = useAuth();
     if (isLoading) return <Skeleton />;
-    if (!user) return <Navigate to="/login" />;
+    if (!user) return <Navigate to='/login' />;
     return <Component {...props} />;
   };
 }
@@ -155,7 +151,9 @@ function useUsers(filters?: UserFilters) {
   const queryString = useMemo(() => buildQuery(filters), [filters]);
   const { data, status, get } = useApi<User[]>(`/api/users?${queryString}`);
 
-  useEffect(() => { get(); }, [get]);
+  useEffect(() => {
+    get();
+  }, [get]);
 
   return {
     users: data ?? [],
@@ -197,17 +195,17 @@ WHEN NOT TO USE useEffect:
 
 ### Decision Matrix
 
-| Requirement | Solution |
-|---|---|
-| Component-local UI state | useState / useReducer |
-| Shared between sibling components | Lift state up |
-| Deep prop drilling (theme, auth, locale) | Context + useContext |
-| Complex client state with devtools | Zustand or Redux Toolkit |
-| Server state (cache, sync, refetch) | TanStack Query / SWR |
-| URL-driven state | URL search params (nuqs) |
-| Form state | React Hook Form / Formik |
-| Complex workflows / state machines | XState |
-| Fine-grained reactivity (perf-critical) | Jotai / Signals |
+| Requirement                              | Solution                 |
+| ---------------------------------------- | ------------------------ |
+| Component-local UI state                 | useState / useReducer    |
+| Shared between sibling components        | Lift state up            |
+| Deep prop drilling (theme, auth, locale) | Context + useContext     |
+| Complex client state with devtools       | Zustand or Redux Toolkit |
+| Server state (cache, sync, refetch)      | TanStack Query / SWR     |
+| URL-driven state                         | URL search params (nuqs) |
+| Form state                               | React Hook Form / Formik |
+| Complex workflows / state machines       | XState                   |
+| Fine-grained reactivity (perf-critical)  | Jotai / Signals          |
 
 ### Context Performance Trap -- and Solution
 
@@ -302,7 +300,7 @@ const Settings = lazy(() => import('./features/settings'));
 // Component-level splitting (for heavy components)
 const Chart = lazy(() => import('./shared/components/Chart'));
 const MarkdownEditor = lazy(() =>
-  import('./shared/components/MarkdownEditor').then(m => ({ default: m.MarkdownEditor }))
+  import('./shared/components/MarkdownEditor').then((m) => ({ default: m.MarkdownEditor }))
 );
 
 // Preloading on hover/focus
@@ -311,7 +309,11 @@ function NavLink({ to, children }: NavLinkProps) {
     const route = routeMap[to];
     if (route?.loader) route.loader();
   };
-  return <Link to={to} onMouseEnter={preload} onFocus={preload}>{children}</Link>;
+  return (
+    <Link to={to} onMouseEnter={preload} onFocus={preload}>
+      {children}
+    </Link>
+  );
 }
 ```
 
@@ -362,21 +364,21 @@ Client Components ('use client' directive):
 import { ClientInteractive } from './ClientInteractive';
 
 async function ServerWrapper() {
-  const data = await db.query('SELECT ...');   // Direct DB access
+  const data = await db.query('SELECT ...'); // Direct DB access
   return (
     <ClientInteractive initialData={data}>
-      <ServerChildContent />   {/* Server component passed as children */}
+      <ServerChildContent /> {/* Server component passed as children */}
     </ClientInteractive>
   );
 }
 
 // ClientInteractive.tsx
-'use client';
+('use client');
 export function ClientInteractive({ initialData, children }: Props) {
   const [state, setState] = useState(initialData);
   return (
     <div onClick={() => setState(transform(state))}>
-      {children}  {/* Server-rendered content stays as-is */}
+      {children} {/* Server-rendered content stays as-is */}
     </div>
   );
 }
@@ -411,9 +413,11 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   render() {
     if (this.state.error) {
-      return this.props.fallback
-        ? this.props.fallback({ error: this.state.error, reset: this.handleReset })
-        : <DefaultErrorUI error={this.state.error} onRetry={this.handleReset} />;
+      return this.props.fallback ? (
+        this.props.fallback({ error: this.state.error, reset: this.handleReset })
+      ) : (
+        <DefaultErrorUI error={this.state.error} onRetry={this.handleReset} />
+      );
     }
     return this.props.children;
   }
@@ -423,6 +427,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 ### Granular Error Boundaries
 
 Place error boundaries at meaningful UI seams:
+
 - Around each independent feature section
 - Around third-party component integrations
 - Around data-fetching Suspense boundaries
@@ -475,6 +480,7 @@ Before shipping a React application to production, verify:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing react architect solutions
 - Reviewing or improving existing react architect approaches
 - Making architectural or implementation decisions about react architect
@@ -482,6 +488,7 @@ Before shipping a React application to production, verify:
 - Troubleshooting react architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -492,21 +499,26 @@ Before shipping a React application to production, verify:
 # React Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

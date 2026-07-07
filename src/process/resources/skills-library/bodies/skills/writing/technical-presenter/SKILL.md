@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing presentation"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing content-marketing presentation'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Technical Presenter
@@ -49,38 +49,46 @@ ACT 3: THE RESOLUTION (20% of time)
 
 ```markdown
 ## Talk: [Title]
+
 **Duration**: [30/45/60 min]
 **Audience**: [Who, what they already know]
 **One-sentence summary**: [If the audience remembers one thing...]
 
 ### Opening Hook (2-3 min)
+
 [Story, question, or demo that grabs attention]
 
 ### Problem Statement (5 min)
+
 - Pain point 1: [Relatable scenario]
 - Pain point 2: [Real-world consequence]
 - What existing solutions miss
 
 ### Concept 1: [Name] (10 min)
+
 - Explain the mental model
 - Code example / diagram
 - "Aha moment" demonstration
 
 ### Concept 2: [Name] (10 min)
+
 - Build on concept 1
 - Live demo or walkthrough
 - Address common misconception
 
 ### Concept 3: [Name] (10 min)
+
 - Advanced application
 - Real production example
 - Trade-offs and when NOT to use this
 
 ### Live Demo (5-8 min)
+
 - [Scripted demo showing concepts in action]
 - [Backup: recorded video if demo fails]
 
 ### Takeaways & Resources (3-5 min)
+
 - 3 things to remember
 - Links, repos, further reading
 - Q&A transition
@@ -176,6 +184,7 @@ PROGRESSIVE CODE REVEAL:
 ## Live Demo Preparation
 
 ### Environment
+
 [ ] Dedicated demo project (not your production codebase)
 [ ] All dependencies pre-installed and working offline
 [ ] Font size 20pt+ in editor (View > Zoom > 200%)
@@ -185,6 +194,7 @@ PROGRESSIVE CODE REVEAL:
 [ ] Test with the projector/external display resolution
 
 ### Demo Script
+
 [ ] Write out every command you will type
 [ ] Practice the exact sequence 10+ times
 [ ] Time each section of the demo
@@ -192,12 +202,14 @@ PROGRESSIVE CODE REVEAL:
 [ ] Prepare git tags for each stage: `git checkout demo-step-1`
 
 ### Backup Plan
+
 [ ] Record a video of the entire demo working perfectly
 [ ] Have screenshots of key results
 [ ] Prepare git branches for each demo stage
 [ ] If live coding fails, narrate over the recorded video
 
 ### Network
+
 [ ] Does the demo require internet? Can it work offline?
 [ ] If internet required: test on conference WiFi, have phone hotspot ready
 [ ] Pre-cache any API responses
@@ -294,16 +306,19 @@ PACING:
 
 ```markdown
 ## Talk Title
+
 [Short, specific, intriguing. Under 60 characters.]
 "Building a Real-Time Search Engine with 50ms Latency"
 NOT: "Search Engine Things I Learned" (too vague)
 
 ## Abstract (200-300 words)
+
 [Paragraph 1: The problem and why it matters]
 [Paragraph 2: What the talk covers (3-4 key points)]
 [Paragraph 3: What the audience will take away]
 
 ## Outline
+
 - Introduction and problem context (5 min)
 - [Key topic 1] with code examples (10 min)
 - [Key topic 2] with live demo (10 min)
@@ -311,15 +326,18 @@ NOT: "Search Engine Things I Learned" (too vague)
 - Takeaways and resources (5 min)
 
 ## Target Audience
+
 [Intermediate backend developers familiar with databases
- but new to search infrastructure]
+but new to search infrastructure]
 
 ## Key Takeaways
+
 1. [Specific, actionable learning]
 2. [Specific, actionable learning]
 3. [Specific, actionable learning]
 
 ## Speaker Bio (50-100 words)
+
 [Name] is a [role] at [company] where they [relevant experience].
 They have [credibility marker: years of experience, open source,
 blog, previous talks]. When not [work activity], they [human detail].
@@ -380,6 +398,7 @@ Rehearsal IS speaking out loud at full pace.
 ## Presentation Day
 
 ### Before Arriving
+
 [ ] Laptop charged and charger packed
 [ ] Slides exported to PDF as backup (on USB drive)
 [ ] Demo video recorded as backup
@@ -387,6 +406,7 @@ Rehearsal IS speaking out loud at full pace.
 [ ] Water bottle
 
 ### 30 Minutes Before
+
 [ ] Test projector connection and resolution
 [ ] Test microphone (lapel mic vs handheld)
 [ ] Set font size in editor (verify from back of room)
@@ -396,6 +416,7 @@ Rehearsal IS speaking out loud at full pace.
 [ ] Check clicker/presenter remote batteries
 
 ### 5 Minutes Before
+
 [ ] Deep breaths
 [ ] Slides on first slide
 [ ] Notes visible on presenter display (not audience screen)
@@ -403,6 +424,7 @@ Rehearsal IS speaking out loud at full pace.
 [ ] Timer visible to you
 
 ### During the Talk
+
 [ ] Make eye contact with different sections of the room
 [ ] Speak to the BACK of the room (volume)
 [ ] Pause after important points
@@ -425,6 +447,7 @@ DAY-OF: Test projector, kill notifications, have backups for everything
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing technical presenter solutions
 - Reviewing or improving existing technical presenter approaches
 - Making architectural or implementation decisions about technical presenter
@@ -432,6 +455,7 @@ DAY-OF: Test projector, kill notifications, have backups for everything
 - Troubleshooting technical presenter-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -442,21 +466,26 @@ DAY-OF: Test projector, kill notifications, have backups for everything
 # Technical Presenter Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

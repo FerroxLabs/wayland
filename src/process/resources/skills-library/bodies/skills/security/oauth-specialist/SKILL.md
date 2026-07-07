@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security api-security guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security api-security guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # OAuth Specialist
@@ -157,13 +157,13 @@ class ClientCredentialsManager:
 
 ### Access Token vs Refresh Token
 
-| Property | Access Token | Refresh Token |
-|----------|-------------|---------------|
-| Lifetime | Short (5-60 min) | Long (days-months) |
-| Purpose | Authorize API requests | Obtain new access tokens |
-| Storage | Memory (SPA), httpOnly cookie (server) | Secure server-side storage |
-| Revocable | Only via token introspection | Yes, via revocation endpoint |
-| Contains | User claims, scopes, expiry | Opaque reference |
+| Property  | Access Token                           | Refresh Token                |
+| --------- | -------------------------------------- | ---------------------------- |
+| Lifetime  | Short (5-60 min)                       | Long (days-months)           |
+| Purpose   | Authorize API requests                 | Obtain new access tokens     |
+| Storage   | Memory (SPA), httpOnly cookie (server) | Secure server-side storage   |
+| Revocable | Only via token introspection           | Yes, via revocation endpoint |
+| Contains  | User claims, scopes, expiry            | Opaque reference             |
 
 ### Token Storage Security
 
@@ -349,16 +349,16 @@ AZURE_CONFIG = {
 
 ### Common OAuth Vulnerabilities
 
-| Vulnerability | Prevention |
-|--------------|------------|
-| CSRF via state parameter | Generate random state, verify on callback |
-| Code injection | Validate redirect_uri exactly (no wildcards) |
-| Token leakage via Referer | Use POST for token exchange, fragment for implicit |
-| Open redirect | Strict redirect_uri validation on server |
-| Token theft via XSS | httpOnly cookies, CSP headers, no localStorage |
-| PKCE downgrade | Require PKCE for all clients on the server side |
-| Scope escalation | Validate scopes on every request, not just at token issuance |
-| Refresh token theft | Rotate refresh tokens, detect reuse |
+| Vulnerability             | Prevention                                                   |
+| ------------------------- | ------------------------------------------------------------ |
+| CSRF via state parameter  | Generate random state, verify on callback                    |
+| Code injection            | Validate redirect_uri exactly (no wildcards)                 |
+| Token leakage via Referer | Use POST for token exchange, fragment for implicit           |
+| Open redirect             | Strict redirect_uri validation on server                     |
+| Token theft via XSS       | httpOnly cookies, CSP headers, no localStorage               |
+| PKCE downgrade            | Require PKCE for all clients on the server side              |
+| Scope escalation          | Validate scopes on every request, not just at token issuance |
+| Refresh token theft       | Rotate refresh tokens, detect reuse                          |
 
 ### Redirect URI Validation
 
@@ -419,6 +419,7 @@ This eliminates token theft via XSS entirely.
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing oauth specialist solutions
 - Reviewing or improving existing oauth specialist approaches
 - Making architectural or implementation decisions about oauth specialist
@@ -426,6 +427,7 @@ This eliminates token theft via XSS entirely.
 - Troubleshooting oauth specialist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -436,21 +438,26 @@ This eliminates token theft via XSS entirely.
 # Oauth Specialist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automotive home-maintenance checklist"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automotive home-maintenance checklist'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Vehicle Maintenance Scheduler
 
 > **NOTE:** Always cross-reference manufacturer-specific intervals in the owner's manual. These schedules represent industry-standard guidelines, but OEM recommendations take precedence. Vehicles with oil life monitoring systems (GM's Oil Life System, Honda's Maintenance Minder, BMW's Condition Based Service) use algorithm-based alerts that override fixed mileage intervals -- follow those alerts unless you drive under severe conditions, in which case you may need to service earlier than the system suggests.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to build a personalized, mileage- and date-based maintenance schedule for a specific vehicle (year, make, model, engine)
 - A user is purchasing a used vehicle and needs to audit what maintenance is overdue based on current mileage and service history gaps
 - A user is preparing a vehicle for seasonal transition (pre-winter antifreeze testing, pre-summer cooling system check, spring underbody wash after road salt exposure)
@@ -33,6 +35,7 @@ metadata:
 - A user wants to compare DIY vs. shop costs for specific services and understand which repairs are realistic for a home mechanic
 
 **Do NOT use when:**
+
 - The user describes an active mechanical failure (engine misfiring, brake fade, overheating in progress) -- use a vehicle diagnostics or roadside troubleshooting skill instead
 - The user needs a smog or emissions inspection -- regulations are jurisdiction-specific and require a certified emissions skill or local authority guidance
 - The user is asking about major engine or transmission rebuilds -- those require a specialized engine rebuild or drivetrain repair skill
@@ -323,6 +326,7 @@ PRE-SUMMER CHECKLIST (perform in April in most climates):
 ### Step 6: Generate the Personalized Schedule Output
 
 Using all collected data, produce the formatted output (see Output Format section) with:
+
 - Overdue items listed first with priority tier, estimated cost, and urgency note
 - Due-soon items (within 3 months or 3,000 miles) listed second
 - Upcoming items (3-12 months out) listed third with estimated mileage and calendar date targets
@@ -336,7 +340,7 @@ Provide the user with a structured log they can maintain digitally (spreadsheet)
 ```
 VEHICLE PROFILE:
   Year/Make/Model: _______________ Engine: _______________
-  VIN (last 6 digits for reference): _______________ 
+  VIN (last 6 digits for reference): _______________
   License Plate: _______________ State: _______________
   Purchase Date: _______________ Purchase Mileage: _______________
   Current Insurance Provider: _______________ Policy #: _______________
@@ -496,7 +500,9 @@ Action: [No action needed / Load test recommended / Replace before winter / Repl
 ## Edge Cases
 
 ### Unknown Service History (Recently Purchased Used Vehicle)
+
 Treat all services as potentially overdue and apply the following triage sequence:
+
 - First priority: Engine oil and filter (change immediately if unknown -- cost is $60-100 and eliminates all risk)
 - Second: Visually inspect brake pads through wheel spokes. If less than 4mm visible, inspect fully.
 - Third: Test brake fluid with a moisture test strip (available at auto parts stores for $5-10/pack)
@@ -507,13 +513,16 @@ Treat all services as potentially overdue and apply the following triage sequenc
 - If the vehicle has over 80,000 miles and timing belt application: confirm belt replacement history or budget for immediate replacement
 
 ### Vehicle With Maintenance Minder System (Honda, GM, BMW, Mercedes)
+
 - Honda Maintenance Minder uses codes (A, B, 1-7) to prescribe specific services, not just oil changes. Code "B1" means oil change + tire rotation. Code "B567" means oil change + tire rotation + engine air filter + brake fluid + coolant. Translate the dash code into specific services.
 - GM Oil Life System bases its percentage on an algorithm tracking cold starts, idle time, trip length, and temperature. Zero percent oil life does not mean the oil is necessarily sludged -- it means the algorithm has reached its threshold. Still change within 500 miles of reaching 0%.
 - BMW Condition Based Service (CBS) tracks engine oil, brake fluid, microfilter, vehicle inspection, and spark plugs independently. Each has its own countdown displayed in the iDrive menu. Do not wait for all CBS items to trigger simultaneously -- address each as it reaches 0%.
 - Do not override these systems in favor of fixed intervals unless the driving profile is severe and the system does not account for it adequately.
 
 ### Preparing a Vehicle for Extended Storage (60+ Days)
+
 This situation requires departure from normal interval logic:
+
 - Perform oil change immediately before storage even if not at interval -- used oil contains combustion acids that corrode bearings during long sits
 - Fill fuel tank completely and add a fuel stabilizer (Sta-Bil or equivalent, follow label ratio) within the last 10 miles driven before storage to prevent ethanol phase separation and varnish formation in injectors and carburetors
 - Inflate tires 5 PSI above normal specification to compensate for slow leakage and reduce flat-spotting risk
@@ -524,27 +533,35 @@ This situation requires departure from normal interval logic:
 - Do NOT apply parking brake during storage -- rear brake pads can fuse to rotors, especially after wet exposure
 
 ### Fleet of Two or More Household Vehicles
+
 When a household runs two or more vehicles, offset service schedules intentionally:
+
 - Stagger oil change dates by 2-3 months to distribute costs and avoid a single high-expense month
 - Identify the primary (highest-mileage) vehicle and apply severe-condition scheduling to it regardless of driving type, since it accumulates service-triggering mileage faster
 - Maintain a shared household vehicle log with separate sections per vehicle, unified annual budget view
 - When one vehicle needs major work exceeding its value, that is the natural moment to consolidate to one vehicle temporarily and accelerate the replacement timeline for the other
 
 ### Post-Accident or Post-Flood Vehicle
+
 Flood damage and collision both create hidden maintenance demands beyond obvious body repair:
+
 - Post-flood: Drain and replace all fluids regardless of appearance (water contamination in differentials, transmission, and engine oil is not visible but causes rapid bearing failure). Brake fluid absorbs water readily -- flush immediately. Inspect wheel bearings for corrosion. Check electrical connectors for corrosion (spray with contact cleaner, apply dielectric grease).
 - Post-collision (even minor): Inspect alignment (measure toe, camber, caster at a shop with a 4-wheel alignment rack). Inspect steering rack boots for tears. Check for brake line damage if the impact was near a wheel. Inspect the suspension geometry for bent control arms or subframe damage.
 - Any airbag deployment: The vehicle requires professional inspection of the airbag system, seatbelt pretensioners, and any deployed side-curtain systems before returning to service.
 
 ### High-Altitude or Mountain Driving Profile
+
 Altitude and mountain terrain create specific maintenance demands:
+
 - At 5,000-10,000 feet elevation, engines run lean (less oxygen per intake stroke), increasing combustion temperature and accelerating spark plug wear. Reduce spark plug replacement interval by 15-20% for drivers routinely above 6,000 feet.
 - Sustained downhill driving uses engine braking heavily, which loads the powertrain differently than flat driving -- increase transmission fluid inspection frequency to every 20,000 miles
 - Brake heat from extended downhill grades accelerates brake fluid moisture absorption (heat cycles push moisture through seals). Test brake fluid after any trip involving 10+ miles of sustained descent.
 - Cooling systems work harder at altitude (lower ambient air pressure reduces cooling efficiency). Maintain coolant to the full line consistently and inspect the radiator cap pressure rating annually.
 
 ### Electric Vehicle or Plug-In Hybrid Edge Case
+
 Many users do not realize their hybrid or PHEV still requires traditional maintenance. Clarify:
+
 - Full hybrid (Prius, Accord Hybrid): Oil still requires changing, but intervals can extend to 10,000 miles with 0W-20 synthetic because the engine cycles off frequently at low speeds, reducing combustion byproduct accumulation. However, short-trip cold starts may partially offset this -- assess driving profile carefully.
 - PHEV (Prius Prime, RAV4 Prime, Pacifica Hybrid): Engine may not run for days at a time. Oil can accumulate fuel dilution from cold starts without reaching full operating temperature. Use time-based intervals (6 months) rather than mileage-based if the vehicle frequently operates in EV-only mode.
 - Battery electric vehicles (BEV): No oil changes, no transmission fluid, no spark plugs. However: brake fluid (absorbs moisture through the hydraulic system regardless of motor type), cabin air filter, tire rotation (BEVs are heavier due to battery packs -- tires wear 20-30% faster than equivalent ICE vehicles), and 12V auxiliary battery (separate from the main traction battery, still 2-4 year lifespan).
@@ -627,3 +644,4 @@ Coolant Test               | Oct 2024     | Now            | Free       | Test f
                            |              |                |           | Subaru uses HOAT Pink;
                            |              |                |           | DO NOT mix with green IAT.
 ⚠️ TIMING BELT + WATER PUMP | 105,000 mi  | Feb-Mar 2026   | $750-1,100|
+```

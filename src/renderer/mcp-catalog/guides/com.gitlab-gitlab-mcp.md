@@ -17,7 +17,7 @@ steps:
   - id: authorize
     title: Sign in with GitLab
     estSeconds: 30
-    primaryAction: { label: "Sign in with GitLab", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with GitLab', action: 'oauth-flow' }
     body: |
       Click **Sign in with GitLab** below. A browser tab opens to GitLab's
       OAuth consent screen requesting `api`, `read_user`, and

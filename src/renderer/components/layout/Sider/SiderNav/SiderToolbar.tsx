@@ -42,7 +42,11 @@ const SiderToolbar: React.FC<SiderToolbarProps> = ({
             )}
             onClick={onNewChat}
           >
-            <Plus size={16} className={classNames('block leading-none', styles.newChatIcon)} style={{ lineHeight: 0 }} />
+            <Plus
+              size={16}
+              className={classNames('block leading-none', styles.newChatIcon)}
+              style={{ lineHeight: 0 }}
+            />
           </div>
         </Tooltip>
       </div>
@@ -61,7 +65,11 @@ const SiderToolbar: React.FC<SiderToolbarProps> = ({
           onClick={onNewChat}
         >
           <div className='size-20px rd-8px bg-aou-2 border border-solid border-[var(--color-border-2)] group-hover:bg-fill-3 group-hover:border-transparent flex items-center justify-center shrink-0 transition-colors'>
-            <Plus size={16} className={classNames('block leading-none', styles.newChatIcon)} style={{ lineHeight: 0 }} />
+            <Plus
+              size={16}
+              className={classNames('block leading-none', styles.newChatIcon)}
+              style={{ lineHeight: 0 }}
+            />
           </div>
           <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px'>
             {t('conversation.welcome.newConversation')}

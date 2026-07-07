@@ -43,7 +43,13 @@ describe('Curator flux hero-exception', () => {
     // lands enabled:false and disappears from the WCore picker entirely.
     const ollama: CatalogModel[] = [
       { ...fluxAuto, id: 'qwen3:32b', providerId: 'ollama-local', family: 'qwen3', displayName: 'qwen3:32b' },
-      { ...fluxAuto, id: 'hf.co/Jackrong/Qwen3.5-27B', providerId: 'ollama-local', family: 'hf.co/Jackrong/Qwen3.5-27B', displayName: 'Qwen3.5 27B' },
+      {
+        ...fluxAuto,
+        id: 'hf.co/Jackrong/Qwen3.5-27B',
+        providerId: 'ollama-local',
+        family: 'hf.co/Jackrong/Qwen3.5-27B',
+        displayName: 'Qwen3.5 27B',
+      },
     ];
     const out = curator.curate(ollama);
     expect(out.filter((m) => m.enabled)).toHaveLength(2);
@@ -57,7 +63,14 @@ describe('Curator flux hero-exception', () => {
     // hiding the whole provider from the picker. Same class as Ollama/flux.
     const sakana: CatalogModel[] = [
       { ...fluxAuto, id: 'fugu', providerId: 'sakana', family: 'fugu', displayName: 'fugu', enriched: false },
-      { ...fluxAuto, id: 'fugu-ultra', providerId: 'sakana', family: 'fugu-ultra', displayName: 'fugu-ultra', enriched: false },
+      {
+        ...fluxAuto,
+        id: 'fugu-ultra',
+        providerId: 'sakana',
+        family: 'fugu-ultra',
+        displayName: 'fugu-ultra',
+        enriched: false,
+      },
     ];
     const out = curator.curate(sakana);
     expect(out.filter((m) => m.enabled)).toHaveLength(2);

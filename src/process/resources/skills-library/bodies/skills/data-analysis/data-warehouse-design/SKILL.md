@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql planning"
-  category: "data-analysis"
-  subcategory: "data-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science sql planning'
+  category: 'data-analysis'
+  subcategory: 'data-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Data Warehouse Design
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to design a data warehouse or analytical data store
 - User wants to create a dimensional model with fact and dimension tables
 - User needs to decide between star schema and snowflake schema
@@ -28,6 +29,7 @@ metadata:
 - User asks about grain, slowly changing dimensions, or conformed dimensions
 
 **Do NOT use when:**
+
 - User wants to design an operational (OLTP) database schema (use `data-schema-design`)
 - User wants to design the ETL pipelines that load the warehouse (use `etl-pipeline-design`)
 - User wants a dashboard layout for warehouse data (use `bi-dashboard-spec`)
@@ -52,7 +54,7 @@ metadata:
      - **Accumulating snapshot grain:** One row per entity lifecycle (order lifecycle from placed to shipped to delivered)
 
 3. **Identify fact tables.** For each measurable business process:
-   - Name the fact table (fact_[process_name])
+   - Name the fact table (fact\_[process_name])
    - State the grain explicitly
    - List the measures (numeric values that can be aggregated: revenue, quantity, duration, count)
    - Classify each measure:
@@ -61,7 +63,7 @@ metadata:
      - **Non-additive:** Cannot be summed (ratios, percentages) -- store the components and calculate at query time
 
 4. **Identify dimension tables.** For each descriptive context:
-   - Name the dimension table (dim_[entity_name])
+   - Name the dimension table (dim\_[entity_name])
    - List the attributes (descriptive columns used for filtering and grouping)
    - Identify the natural key (business identifier) and surrogate key
    - Determine the SCD (Slowly Changing Dimension) type:
@@ -141,17 +143,20 @@ metadata:
 ### Entity-Relationship Diagram
 
 ```
+
                     +-------------+
                     | dim_date    |
                     +------+------+
                            |
-+-------------+    +-------+-------+    +-------------+
-| dim_[name1] +----+ fact_[name]   +----+ dim_[name2] |
-+-------------+    +-------+-------+    +-------------+
-                           |
-                    +------+------+
-                    | dim_[name3] |
-                    +-------------+
+
++-------------+ +-------+-------+ +-------------+
+| dim*[name1] +----+ fact*[name] +----+ dim*[name2] |
++-------------+ +-------+-------+ +-------------+
+|
++------+------+
+| dim*[name3] |
++-------------+
+
 ```
 
 ### Design Decisions
@@ -205,6 +210,7 @@ metadata:
 ## Data Warehouse Design: E-Commerce Analytics Warehouse
 
 ### Overview
+
 - **Business processes:** Sales transactions, Inventory snapshots
 - **Schema type:** Star schema
 - **Primary consumers:** BI analysts (Tableau), Finance team (monthly reports), Merchandising team (inventory planning)
@@ -213,133 +219,139 @@ metadata:
 ### Fact Tables
 
 #### fact_sales
+
 - **Grain:** One row = one order line item (one product in one order)
 - **Estimated volume:** 5,000 rows/day (~1.8M/year), retained indefinitely
 - **Retention:** Permanent (partitioned by order_date_key, yearly)
 
-| Column | Type | Measure Type | Description |
-|--------|------|-------------|-------------|
-| sale_key | BIGINT | -- | Surrogate primary key |
-| order_id | VARCHAR(20) | Degenerate dim | Order identifier (not a FK; stored in the fact for drill-through) |
-| order_date_key | INT | FK -> dim_date.date_key | Date the order was placed |
-| customer_key | BIGINT | FK -> dim_customer.id | Customer who placed the order |
-| product_key | BIGINT | FK -> dim_product.id | Product purchased |
-| promotion_key | BIGINT | FK -> dim_promotion.id | Promotion applied (0 = no promotion) |
-| quantity | INT | Additive | Units purchased |
-| unit_price | DECIMAL(10,2) | Non-additive | Price per unit (do not SUM; use for avg price calc) |
-| gross_revenue | DECIMAL(10,2) | Additive | quantity x unit_price before discounts |
-| discount_amount | DECIMAL(10,2) | Additive | Total discount applied |
-| net_revenue | DECIMAL(10,2) | Additive | gross_revenue - discount_amount |
-| tax_amount | DECIMAL(10,2) | Additive | Tax charged |
-| shipping_cost | DECIMAL(10,2) | Additive | Shipping allocated to this line item |
+| Column          | Type          | Measure Type            | Description                                                       |
+| --------------- | ------------- | ----------------------- | ----------------------------------------------------------------- |
+| sale_key        | BIGINT        | --                      | Surrogate primary key                                             |
+| order_id        | VARCHAR(20)   | Degenerate dim          | Order identifier (not a FK; stored in the fact for drill-through) |
+| order_date_key  | INT           | FK -> dim_date.date_key | Date the order was placed                                         |
+| customer_key    | BIGINT        | FK -> dim_customer.id   | Customer who placed the order                                     |
+| product_key     | BIGINT        | FK -> dim_product.id    | Product purchased                                                 |
+| promotion_key   | BIGINT        | FK -> dim_promotion.id  | Promotion applied (0 = no promotion)                              |
+| quantity        | INT           | Additive                | Units purchased                                                   |
+| unit_price      | DECIMAL(10,2) | Non-additive            | Price per unit (do not SUM; use for avg price calc)               |
+| gross_revenue   | DECIMAL(10,2) | Additive                | quantity x unit_price before discounts                            |
+| discount_amount | DECIMAL(10,2) | Additive                | Total discount applied                                            |
+| net_revenue     | DECIMAL(10,2) | Additive                | gross_revenue - discount_amount                                   |
+| tax_amount      | DECIMAL(10,2) | Additive                | Tax charged                                                       |
+| shipping_cost   | DECIMAL(10,2) | Additive                | Shipping allocated to this line item                              |
 
 #### fact_inventory_snapshot
+
 - **Grain:** One row = one product per warehouse per day (daily periodic snapshot)
 - **Estimated volume:** 10,000 rows/day (2,000 products x 5 warehouses), retained for 2 years
 - **Retention:** 2 years rolling
 
-| Column | Type | Measure Type | Description |
-|--------|------|-------------|-------------|
-| snapshot_date_key | INT | FK -> dim_date.date_key | Snapshot date |
-| product_key | BIGINT | FK -> dim_product.id | Product being tracked |
-| warehouse_key | BIGINT | FK -> dim_warehouse.id | Warehouse location |
-| quantity_on_hand | INT | Semi-additive | Units in stock (sum across warehouses, NOT across dates) |
-| quantity_reserved | INT | Semi-additive | Units reserved for pending orders |
-| quantity_available | INT | Semi-additive | on_hand - reserved |
-| reorder_flag | BOOLEAN | Non-additive | True if available < reorder_point |
+| Column             | Type    | Measure Type            | Description                                              |
+| ------------------ | ------- | ----------------------- | -------------------------------------------------------- |
+| snapshot_date_key  | INT     | FK -> dim_date.date_key | Snapshot date                                            |
+| product_key        | BIGINT  | FK -> dim_product.id    | Product being tracked                                    |
+| warehouse_key      | BIGINT  | FK -> dim_warehouse.id  | Warehouse location                                       |
+| quantity_on_hand   | INT     | Semi-additive           | Units in stock (sum across warehouses, NOT across dates) |
+| quantity_reserved  | INT     | Semi-additive           | Units reserved for pending orders                        |
+| quantity_available | INT     | Semi-additive           | on_hand - reserved                                       |
+| reorder_flag       | BOOLEAN | Non-additive            | True if available < reorder_point                        |
 
 ### Dimension Tables
 
 #### dim_customer (SCD Type 2)
+
 - **SCD Type:** Type 2 (track address and segment changes)
 - **Estimated rows:** 100,000 (with ~10% having multiple historical rows)
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | BIGINT | Surrogate key |
-| customer_natural_key | VARCHAR(20) | Business customer ID |
-| name | VARCHAR(200) | Full name |
-| email | VARCHAR(255) | Email address |
-| city | VARCHAR(100) | City |
-| state | VARCHAR(50) | State/province |
-| country | VARCHAR(50) | Country |
-| customer_segment | VARCHAR(20) | VIP, Regular, New (derived from purchase history) |
-| first_order_date | DATE | Date of first purchase |
-| valid_from | DATE | SCD2 effective start |
-| valid_to | DATE | SCD2 effective end (9999-12-31 for current) |
-| is_current | BOOLEAN | True for the active row |
+| Column               | Type         | Description                                       |
+| -------------------- | ------------ | ------------------------------------------------- |
+| id                   | BIGINT       | Surrogate key                                     |
+| customer_natural_key | VARCHAR(20)  | Business customer ID                              |
+| name                 | VARCHAR(200) | Full name                                         |
+| email                | VARCHAR(255) | Email address                                     |
+| city                 | VARCHAR(100) | City                                              |
+| state                | VARCHAR(50)  | State/province                                    |
+| country              | VARCHAR(50)  | Country                                           |
+| customer_segment     | VARCHAR(20)  | VIP, Regular, New (derived from purchase history) |
+| first_order_date     | DATE         | Date of first purchase                            |
+| valid_from           | DATE         | SCD2 effective start                              |
+| valid_to             | DATE         | SCD2 effective end (9999-12-31 for current)       |
+| is_current           | BOOLEAN      | True for the active row                           |
 
 #### dim_product (SCD Type 1)
+
 - **SCD Type:** Type 1 (overwrite; product attributes are corrected, not tracked historically)
 - **Estimated rows:** 2,000
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | BIGINT | Surrogate key |
-| sku | VARCHAR(20) | Product SKU |
-| product_name | VARCHAR(200) | Display name |
-| category | VARCHAR(50) | Top-level category |
-| subcategory | VARCHAR(50) | Second-level category |
-| brand | VARCHAR(100) | Brand name |
-| cost_price | DECIMAL(10,2) | Current cost (for margin calculation) |
-| is_active | BOOLEAN | Currently for sale |
+| Column       | Type          | Description                           |
+| ------------ | ------------- | ------------------------------------- |
+| id           | BIGINT        | Surrogate key                         |
+| sku          | VARCHAR(20)   | Product SKU                           |
+| product_name | VARCHAR(200)  | Display name                          |
+| category     | VARCHAR(50)   | Top-level category                    |
+| subcategory  | VARCHAR(50)   | Second-level category                 |
+| brand        | VARCHAR(100)  | Brand name                            |
+| cost_price   | DECIMAL(10,2) | Current cost (for margin calculation) |
+| is_active    | BOOLEAN       | Currently for sale                    |
 
 #### dim_promotion (SCD Type 1)
+
 - **Estimated rows:** 500
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | BIGINT | Surrogate key (0 = no promotion) |
-| promotion_code | VARCHAR(20) | Promo code |
-| promotion_name | VARCHAR(100) | Descriptive name |
-| discount_type | VARCHAR(20) | percentage, fixed_amount, buy_x_get_y |
-| discount_value | DECIMAL(10,2) | Discount amount or percentage |
-| start_date | DATE | Promotion start |
-| end_date | DATE | Promotion end |
+| Column         | Type          | Description                           |
+| -------------- | ------------- | ------------------------------------- |
+| id             | BIGINT        | Surrogate key (0 = no promotion)      |
+| promotion_code | VARCHAR(20)   | Promo code                            |
+| promotion_name | VARCHAR(100)  | Descriptive name                      |
+| discount_type  | VARCHAR(20)   | percentage, fixed_amount, buy_x_get_y |
+| discount_value | DECIMAL(10,2) | Discount amount or percentage         |
+| start_date     | DATE          | Promotion start                       |
+| end_date       | DATE          | Promotion end                         |
 
 #### dim_warehouse (SCD Type 1)
+
 - **Estimated rows:** 5
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | BIGINT | Surrogate key |
-| warehouse_code | VARCHAR(10) | Internal code |
-| warehouse_name | VARCHAR(100) | Display name |
-| city | VARCHAR(100) | Location city |
-| region | VARCHAR(50) | Geographic region |
+| Column         | Type         | Description       |
+| -------------- | ------------ | ----------------- |
+| id             | BIGINT       | Surrogate key     |
+| warehouse_code | VARCHAR(10)  | Internal code     |
+| warehouse_name | VARCHAR(100) | Display name      |
+| city           | VARCHAR(100) | Location city     |
+| region         | VARCHAR(50)  | Geographic region |
 
 #### dim_date (Conformed)
 
-| Column | Type | Description |
-|--------|------|-------------|
-| date_key | INT | YYYYMMDD integer key |
-| full_date | DATE | Calendar date |
-| day_of_week | VARCHAR(10) | Monday through Sunday |
-| day_of_month | INT | 1-31 |
-| month_number | INT | 1-12 |
-| month_name | VARCHAR(10) | January through December |
-| quarter | VARCHAR(6) | Q1-2026 format |
-| year | INT | Calendar year |
-| fiscal_quarter | VARCHAR(6) | Fiscal quarter (if different) |
-| is_weekend | BOOLEAN | Saturday or Sunday |
-| is_holiday | BOOLEAN | Company-defined holidays |
+| Column         | Type        | Description                   |
+| -------------- | ----------- | ----------------------------- |
+| date_key       | INT         | YYYYMMDD integer key          |
+| full_date      | DATE        | Calendar date                 |
+| day_of_week    | VARCHAR(10) | Monday through Sunday         |
+| day_of_month   | INT         | 1-31                          |
+| month_number   | INT         | 1-12                          |
+| month_name     | VARCHAR(10) | January through December      |
+| quarter        | VARCHAR(6)  | Q1-2026 format                |
+| year           | INT         | Calendar year                 |
+| fiscal_quarter | VARCHAR(6)  | Fiscal quarter (if different) |
+| is_weekend     | BOOLEAN     | Saturday or Sunday            |
+| is_holiday     | BOOLEAN     | Company-defined holidays      |
 
 ### Design Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Schema type | Star | BI tool compatibility (Tableau performs best with star); simpler queries for analyst team |
-| Sales grain | Order line item | Most atomic level; enables both per-product and per-order analysis |
-| Inventory grain | Daily snapshot per product per warehouse | Daily granularity balances storage cost with analysis need; sub-daily not required |
-| Customer SCD | Type 2 | Segment and location changes matter for historical analysis ("what segment was this customer in when they purchased?") |
-| Product SCD | Type 1 | Product corrections should update in place; historical product attribute tracking not required |
-| unit_price as non-additive | Store in fact but mark as non-additive | Analysts need it for drill-through; SUM(unit_price) is meaningless but AVG and per-row display are useful |
+| Decision                   | Choice                                   | Rationale                                                                                                              |
+| -------------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Schema type                | Star                                     | BI tool compatibility (Tableau performs best with star); simpler queries for analyst team                              |
+| Sales grain                | Order line item                          | Most atomic level; enables both per-product and per-order analysis                                                     |
+| Inventory grain            | Daily snapshot per product per warehouse | Daily granularity balances storage cost with analysis need; sub-daily not required                                     |
+| Customer SCD               | Type 2                                   | Segment and location changes matter for historical analysis ("what segment was this customer in when they purchased?") |
+| Product SCD                | Type 1                                   | Product corrections should update in place; historical product attribute tracking not required                         |
+| unit_price as non-additive | Store in fact but mark as non-additive   | Analysts need it for drill-through; SUM(unit_price) is meaningless but AVG and per-row display are useful              |
 
 ### Query Patterns
 
-| Question | Query Approach | Tables Joined |
-|----------|---------------|---------------|
-| Monthly revenue by category | GROUP BY dim_date.month_name, dim_product.category; SUM(net_revenue) | fact_sales + dim_date + dim_product |
-| Customer segment contribution to revenue | GROUP BY dim_customer.customer_segment; SUM(net_revenue) | fact_sales + dim_customer (WHERE is_current = true) |
-| Promotion effectiveness (revenue with vs without) | GROUP BY dim_promotion.promotion_name; SUM(net_revenue), AVG(discount_amount) | fact_sales + dim_promotion |
-| Current inventory levels by category | GROUP BY dim_product.category, dim_warehouse.region; SUM(quantity_available) WHERE date_key = today | fact_inventory_snapshot + dim_product + dim_warehouse + dim_date |
+| Question                                          | Query Approach                                                                                      | Tables Joined                                                    |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Monthly revenue by category                       | GROUP BY dim_date.month_name, dim_product.category; SUM(net_revenue)                                | fact_sales + dim_date + dim_product                              |
+| Customer segment contribution to revenue          | GROUP BY dim_customer.customer_segment; SUM(net_revenue)                                            | fact_sales + dim_customer (WHERE is_current = true)              |
+| Promotion effectiveness (revenue with vs without) | GROUP BY dim_promotion.promotion_name; SUM(net_revenue), AVG(discount_amount)                       | fact_sales + dim_promotion                                       |
+| Current inventory levels by category              | GROUP BY dim_product.category, dim_warehouse.region; SUM(quantity_available) WHERE date_key = today | fact_inventory_snapshot + dim_product + dim_warehouse + dim_date |

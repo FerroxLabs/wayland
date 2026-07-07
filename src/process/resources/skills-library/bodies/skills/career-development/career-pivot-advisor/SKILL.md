@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning guide"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career planning guide'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Career Pivot Advisor
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to transition to a different career or industry
 - User needs help identifying transferable skills for a career change
 - User is evaluating whether to make a career pivot
 - User needs a career transition action plan with timeline
 
 **Do NOT use this skill when:**
+
 - User needs resume writing or interview prep -- use dedicated skills for those
 - User wants salary negotiation tactics -- use negotiation-coach
 - User is looking for job listings or application help -- use job search skills
@@ -519,8 +521,7 @@ KEY RULES:
 
 ---
 
-*This skill provides career transition guidance. Career pivots are increasingly common and successful when planned methodically. Consider working with a career coach for personalized support during major transitions.*
-
+_This skill provides career transition guidance. Career pivots are increasingly common and successful when planned methodically. Consider working with a career coach for personalized support during major transitions._
 
 ## Output Format
 
@@ -559,11 +560,13 @@ Section 3: Resources
 | Stakeholder presentations | Design critique and handoff | High |
 
 **Gap Analysis:**
+
 - Missing: Interaction design fundamentals, wireframing methodology, design systems
 - Missing: Portfolio of 3-5 case studies demonstrating UX process
 - Missing: Formal credential (Google UX Certificate or equivalent)
 
 **6-Month Transition Timeline:**
+
 - Months 1-2: Complete Google UX Professional Certificate (Coursera, 10 hrs/week)
 - Months 2-3: Build 2 case studies from volunteer or spec projects
 - Month 4: Redesign a real product as a case study, start networking in UX communities

@@ -65,7 +65,7 @@ const FilterRail: React.FC<Props> = ({
       }
     }
     const categories = Array.from(categoriesMap.entries())
-      .sort((a, b) => b[1] - a[1])
+      .toSorted((a, b) => b[1] - a[1])
       .map(([cat, count]) => ({ cat, count }));
     return { sources, verdicts, categories };
   }, [entries]);
@@ -77,15 +77,19 @@ const FilterRail: React.FC<Props> = ({
     setter(next);
   };
 
-  const visibleCategories = showAllCategories
-    ? counts.categories
-    : counts.categories.slice(0, CATEGORIES_VISIBLE);
+  const visibleCategories = showAllCategories ? counts.categories : counts.categories.slice(0, CATEGORIES_VISIBLE);
   const hiddenCount = counts.categories.length - CATEGORIES_VISIBLE;
 
   return (
     <div
-      className={isMobile ? 'flex flex-col gap-18px py-16px px-14px w-full' : 'flex flex-col gap-18px py-16px px-14px shrink-0'}
-      style={isMobile ? { borderBottom: '1px solid var(--color-border-1)' } : { width: 200, borderRight: '1px solid var(--color-border-1)' }}
+      className={
+        isMobile ? 'flex flex-col gap-18px py-16px px-14px w-full' : 'flex flex-col gap-18px py-16px px-14px shrink-0'
+      }
+      style={
+        isMobile
+          ? { borderBottom: '1px solid var(--color-border-1)' }
+          : { width: 200, borderRight: '1px solid var(--color-border-1)' }
+      }
     >
       {/* SOURCES */}
       <FilterGroup label={t('sections.sources', 'Sources')}>
@@ -141,10 +145,7 @@ const FilterRail: React.FC<Props> = ({
   );
 };
 
-const FilterGroup: React.FC<{ label: string; children: React.ReactNode }> = ({
-  label,
-  children,
-}) => (
+const FilterGroup: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <div>
     <div
       className='text-10px uppercase font-semibold mb-8px'

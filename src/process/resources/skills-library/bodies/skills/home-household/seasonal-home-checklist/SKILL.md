@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance checklist planning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance checklist planning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Seasonal Home Checklist
 
 ## When to Use
@@ -299,6 +300,7 @@ Identify this scenario when the user says "just bought," "first winter," "never 
 Add a brief orientation note before the checklist: "Seasonal prep is about protecting systems before they are stressed by weather extremes. Think of it in three passes: (1) Shut things down that can be damaged by cold or moisture, (2) Turn on and test systems you'll depend on, (3) Inspect what summer or winter may have damaged."
 
 Add "First Time?" callouts for at least five tasks in the checklist with plain-language instructions. Examples of tasks that confuse new homeowners:
+
 - Bleeding a radiator (what does "bleed" mean, what tool is needed, how do you know it's done)
 - Shutting off a hose bib (the interior valve is in the basement, not outside)
 - Testing a CO detector (different from smoke detector -- hold the test button 5-10 seconds for CO)
@@ -320,6 +322,7 @@ Do not include: gutter cleaning, roof inspection, exterior caulking, hose bib sh
 ### Manufactured or Mobile Home
 
 Flag this as a distinct profile. Manufactured homes have specific vulnerabilities that site-built homes do not:
+
 - **Underbelly:** The vapor barrier and insulation under the floor structure can sag, tear, or be invaded by pests. Inspect for hanging sections, holes, or moisture staining before winter. Repair with heavy polyethylene sheeting and foam insulation.
 - **Skirting:** Vented skirting must be sealed for winter to protect under-floor plumbing. Remove or cover foundation vents (use foam vent covers). Maintain a heat source under the home if possible.
 - **Water supply lines:** Often exposed or minimally insulated under the home. Self-regulating heat tape rated for potable water is the standard solution. Heat tape should be inspected annually for cracking or charring. Older thermostat-controlled heat tape (not self-regulating) is a fire risk and should be replaced.
@@ -362,11 +365,13 @@ When the user mentions an old roof, chronic basement moisture, known foundation 
 ---
 
 ## Fall-to-Winter Home Preparation Checklist
+
 ### October-November, First-Time Homeowner Edition
 
 **Home Profile:** Single-family Cape Cod (1985) | Cold northern transitional -- Connecticut Zone 6a | Gas forced-air furnace + central AC
 
 **Key Dates:**
+
 - Start checklist by: Now (you're right on time for central CT)
 - Plumbing freeze tasks complete by: November 15 (before sustained nights below 28°F)
 - Gutter cleaning: After leaves have fully dropped -- target November 1-15 for central CT
@@ -377,6 +382,7 @@ When the user mentions an old roof, chronic basement moisture, known foundation 
 ---
 
 ### Priority Key
+
 - 🔴 Must-Do: Prevents property damage or safety risk if skipped
 - 🟡 Should-Do: Prevents accelerated wear, higher energy bills, or comfort issues
 - 🟢 Nice-to-Do: Adds comfort or efficiency, fine to defer
@@ -385,13 +391,13 @@ When the user mentions an old roof, chronic basement moisture, known foundation 
 
 ### HVAC and Systems
 
-| # | Task | Priority | Time | Notes |
-|---|------|----------|------|-------|
-| 1 | Replace furnace filter -- check size printed on current filter edge | 🔴 Must-Do | 10 min | 1-inch: replace now. 4-inch media: replace if over 12 months old. Choose MERV 8-11 for standard use. |
-| 2 | Schedule professional furnace tune-up | 🔴 Must-Do | 5 min to call | Call this week -- fall slots fill fast. Cost: $80-150. Technician checks heat exchanger for cracks (CO hazard), cleans burners, tests igniter. Skipping this risks a no-heat failure on the coldest night. |
-| 3 | Switch thermostat to heating mode; test that heat comes on within 2 minutes | 🔴 Must-Do | 10 min | If you smell burning when heat first runs, that's normal -- dust on the heat exchanger burning off. It should clear within 30 minutes. Persistent burning smell means call an HVAC tech. |
-| 4 | Program thermostat: 68°F daytime, 62°F sleeping, 60°F away | 🟡 Should-Do | 15 min | Each degree reduction saves approximately 1-3% on heating costs. Do not set below 60°F if pipes run through exterior walls or crawlspaces. |
-| 5 | Cover top of central AC condenser with plywood or breathable cover | 🟢 Nice-to-Do | 20 min | Protects from falling ice and debris. Do NOT fully wrap the unit -- trapped moisture corrodes coils. Plywood weighted down is fine. Remove cover the moment heat pump (if applicable) or AC season starts. |
+| #   | Task                                                                        | Priority      | Time          | Notes                                                                                                                                                                                                      |
+| --- | --------------------------------------------------------------------------- | ------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Replace furnace filter -- check size printed on current filter edge         | 🔴 Must-Do    | 10 min        | 1-inch: replace now. 4-inch media: replace if over 12 months old. Choose MERV 8-11 for standard use.                                                                                                       |
+| 2   | Schedule professional furnace tune-up                                       | 🔴 Must-Do    | 5 min to call | Call this week -- fall slots fill fast. Cost: $80-150. Technician checks heat exchanger for cracks (CO hazard), cleans burners, tests igniter. Skipping this risks a no-heat failure on the coldest night. |
+| 3   | Switch thermostat to heating mode; test that heat comes on within 2 minutes | 🔴 Must-Do    | 10 min        | If you smell burning when heat first runs, that's normal -- dust on the heat exchanger burning off. It should clear within 30 minutes. Persistent burning smell means call an HVAC tech.                   |
+| 4   | Program thermostat: 68°F daytime, 62°F sleeping, 60°F away                  | 🟡 Should-Do  | 15 min        | Each degree reduction saves approximately 1-3% on heating costs. Do not set below 60°F if pipes run through exterior walls or crawlspaces.                                                                 |
+| 5   | Cover top of central AC condenser with plywood or breathable cover          | 🟢 Nice-to-Do | 20 min        | Protects from falling ice and debris. Do NOT fully wrap the unit -- trapped moisture corrodes coils. Plywood weighted down is fine. Remove cover the moment heat pump (if applicable) or AC season starts. |
 
 **⚠️ First Time?** Replacing the furnace filter: Locate your furnace (likely in the basement). The filter slides into a slot where the large return air duct connects to the furnace cabinet. The filter has an arrow printed on its frame -- that arrow points toward the furnace (in the direction of airflow). Slide the old one out, note the size (e.g., 16x25x1 inches), buy the same size at a hardware store, and slide the new one in arrow-forward. Dusty filter = the old one, clean white filter = the new one.
 
@@ -399,15 +405,15 @@ When the user mentions an old roof, chronic basement moisture, known foundation 
 
 ### Exterior
 
-| # | Task | Priority | Time | Notes |
-|---|------|----------|------|-------|
-| 6 | Clean gutters and flush downspouts with garden hose -- do this AFTER leaves fully drop | 🔴 Must-Do | 2-3 hr | Previous owners mentioned chronic clogging -- check for overhanging branches that could be trimmed. Clogged gutters cause ice dams in Cape Cods, which can force water under shingles into the attic. |
-| 7 | Extend downspouts so they discharge 6+ feet from foundation | 🔴 Must-Do | 30 min | Splash blocks alone are insufficient for clay-heavy CT soils. Flexible downspout extensions cost $5-10 each at hardware stores. |
-| 8 | Inspect roof from ground with binoculars | 🔴 Must-Do | 15 min | 1985 home: original roof would be 35+ years old -- well past end of life. Look for curling shingles, missing shingles, exposed brown fiberglass mat (granule loss), and dark staining at the ridge. If concerns found, get a roofer's inspection this fall before winter. |
-| 9 | Inspect exterior caulk around all windows, doors, and pipe/wire penetrations | 🟡 Should-Do | 45 min | Do this while temperatures are still above 40°F -- caulk won't adhere in cold. Cracked or missing caulk allows cold air infiltration and moisture entry. Use silicone-latex hybrid exterior caulk. |
-| 10 | Check weatherstripping on all exterior doors -- hold a dollar bill in the closed door and pull; if it slides out easily, the seal is worn | 🟡 Should-Do | 20 min | Cape Cods often have a knee-wall door to attic storage -- check this too. Foam tape weatherstripping: $5-12 per door. V-strip metal: $12-20, more durable. |
-| 11 | Disconnect all garden hoses from outdoor faucets | 🔴 Must-Do | 10 min | Even frost-free hose bibs will freeze and burst if a hose is left attached -- the hose traps water in the pipe. Store hoses in the basement or garage. Skipping this risks a burst pipe inside the wall. |
-| 12 | Store outdoor furniture, cushions, and grill (or cover with weatherproof cover) | 🟢 Nice-to-Do | 30 min | Cushions hold moisture and develop mold. UV and freeze cycles crack plastic and wicker. |
+| #   | Task                                                                                                                                      | Priority      | Time   | Notes                                                                                                                                                                                                                                                                     |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6   | Clean gutters and flush downspouts with garden hose -- do this AFTER leaves fully drop                                                    | 🔴 Must-Do    | 2-3 hr | Previous owners mentioned chronic clogging -- check for overhanging branches that could be trimmed. Clogged gutters cause ice dams in Cape Cods, which can force water under shingles into the attic.                                                                     |
+| 7   | Extend downspouts so they discharge 6+ feet from foundation                                                                               | 🔴 Must-Do    | 30 min | Splash blocks alone are insufficient for clay-heavy CT soils. Flexible downspout extensions cost $5-10 each at hardware stores.                                                                                                                                           |
+| 8   | Inspect roof from ground with binoculars                                                                                                  | 🔴 Must-Do    | 15 min | 1985 home: original roof would be 35+ years old -- well past end of life. Look for curling shingles, missing shingles, exposed brown fiberglass mat (granule loss), and dark staining at the ridge. If concerns found, get a roofer's inspection this fall before winter. |
+| 9   | Inspect exterior caulk around all windows, doors, and pipe/wire penetrations                                                              | 🟡 Should-Do  | 45 min | Do this while temperatures are still above 40°F -- caulk won't adhere in cold. Cracked or missing caulk allows cold air infiltration and moisture entry. Use silicone-latex hybrid exterior caulk.                                                                        |
+| 10  | Check weatherstripping on all exterior doors -- hold a dollar bill in the closed door and pull; if it slides out easily, the seal is worn | 🟡 Should-Do  | 20 min | Cape Cods often have a knee-wall door to attic storage -- check this too. Foam tape weatherstripping: $5-12 per door. V-strip metal: $12-20, more durable.                                                                                                                |
+| 11  | Disconnect all garden hoses from outdoor faucets                                                                                          | 🔴 Must-Do    | 10 min | Even frost-free hose bibs will freeze and burst if a hose is left attached -- the hose traps water in the pipe. Store hoses in the basement or garage. Skipping this risks a burst pipe inside the wall.                                                                  |
+| 12  | Store outdoor furniture, cushions, and grill (or cover with weatherproof cover)                                                           | 🟢 Nice-to-Do | 30 min | Cushions hold moisture and develop mold. UV and freeze cycles crack plastic and wicker.                                                                                                                                                                                   |
 
 **⚠️ First Time?** Ice dams are a specific risk for Cape Cods. The roof meets the eaves at a shallow angle, and insulation can be thin in the knee walls and eaves. When the attic is warm, heat melts snow on the roof. That snowmelt runs down and refreezes at the cold eave overhang. The ice backs up under shingles and leaks into the ceiling below. Prevention: good attic insulation and adequate soffit-to-ridge ventilation. Check attic insulation thickness in the interior inspection section.
 
@@ -415,14 +421,14 @@ When the user mentions an old roof, chronic basement moisture, known foundation 
 
 ### Interior
 
-| # | Task | Priority | Time | Notes |
-|---|------|----------|------|-------|
-| 13 | Check attic insulation depth above living space (access via attic hatch or knee wall doors) | 🔴 Must-Do | 20 min | Target R-49 for CT (Zone 6a) = approximately 16-18 inches of fiberglass batts or 14-16 inches of blown cellulose. 1985 homes often have R-19 to R-30, which is inadequate. Under-insulated attic = higher heating bills + ice dams. |
-| 14 | Check that attic soffit vents are NOT covered by insulation (look for daylight or use a flashlight to locate soffit baffles) | 🔴 Must-Do | 20 min | Blocked soffit vents prevent cold air circulation in the attic, which causes the attic to warm and increases ice dam risk. Add polystyrene baffles if insulation has migrated to the eaves. |
-| 15 | Reverse ceiling fan direction to clockwise (there's a small switch on the motor housing) | 🟢 Nice-to-Do | 5 min each fan | Run on low speed. Pushes warm air pooled at the ceiling down the walls. More noticeable benefit in rooms with 9-foot-plus ceilings. |
-| 16 | Check indoor humidity with a hygrometer (inexpensive digital models at hardware stores) | 🟡 Should-Do | 10 min | Target 35-45% RH in winter. Below 30% = dry skin, wood floor gaps, static. Above 50% = condensation on windows, mold risk. If forced-air system has a humidifier attached (look for a box on the supply plenum with a water line), set it to 35%. |
-| 17 | Check all exterior-wall electrical outlets for cold drafts; add foam gaskets behind the covers | 🟡 Should-Do | 30 min | Remove outlet cover, hold hand near outlet -- if you feel a draft, install a pre-cut foam gasket (sold in packs of 10 for $3). One of the cheapest and most effective air-sealing measures in older homes. |
-| 18 | Add weatherstripping to attic access hatch if not already present | 🟡 Should-Do | 30 min | Attic hatches in 1985 homes are often uninsulated and leak massive amounts of warm air. Add foam weatherstripping around the perimeter and glue a rigid foam insulation panel (R-10 or higher) to the back of the hatch. |
+| #   | Task                                                                                                                         | Priority      | Time           | Notes                                                                                                                                                                                                                                             |
+| --- | ---------------------------------------------------------------------------------------------------------------------------- | ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 13  | Check attic insulation depth above living space (access via attic hatch or knee wall doors)                                  | 🔴 Must-Do    | 20 min         | Target R-49 for CT (Zone 6a) = approximately 16-18 inches of fiberglass batts or 14-16 inches of blown cellulose. 1985 homes often have R-19 to R-30, which is inadequate. Under-insulated attic = higher heating bills + ice dams.               |
+| 14  | Check that attic soffit vents are NOT covered by insulation (look for daylight or use a flashlight to locate soffit baffles) | 🔴 Must-Do    | 20 min         | Blocked soffit vents prevent cold air circulation in the attic, which causes the attic to warm and increases ice dam risk. Add polystyrene baffles if insulation has migrated to the eaves.                                                       |
+| 15  | Reverse ceiling fan direction to clockwise (there's a small switch on the motor housing)                                     | 🟢 Nice-to-Do | 5 min each fan | Run on low speed. Pushes warm air pooled at the ceiling down the walls. More noticeable benefit in rooms with 9-foot-plus ceilings.                                                                                                               |
+| 16  | Check indoor humidity with a hygrometer (inexpensive digital models at hardware stores)                                      | 🟡 Should-Do  | 10 min         | Target 35-45% RH in winter. Below 30% = dry skin, wood floor gaps, static. Above 50% = condensation on windows, mold risk. If forced-air system has a humidifier attached (look for a box on the supply plenum with a water line), set it to 35%. |
+| 17  | Check all exterior-wall electrical outlets for cold drafts; add foam gaskets behind the covers                               | 🟡 Should-Do  | 30 min         | Remove outlet cover, hold hand near outlet -- if you feel a draft, install a pre-cut foam gasket (sold in packs of 10 for $3). One of the cheapest and most effective air-sealing measures in older homes.                                        |
+| 18  | Add weatherstripping to attic access hatch if not already present                                                            | 🟡 Should-Do  | 30 min         | Attic hatches in 1985 homes are often uninsulated and leak massive amounts of warm air. Add foam weatherstripping around the perimeter and glue a rigid foam insulation panel (R-10 or higher) to the back of the hatch.                          |
 
 **⚠️ First Time?** How to check attic insulation: Open the attic hatch (typically in a closet ceiling or hallway). Look across the floor of the attic. If you can see the tops of the ceiling joists (the wooden beams), insulation is definitely inadequate -- the joists should be buried. Measure from the top of a joist to the top of the insulation. If under 12 inches, adding insulation is one of the highest-return upgrades you can make (estimated $1-3 per square foot for blown cellulose, with 15-20% reduction in heating bills in a 1985 home).
 
@@ -430,13 +436,13 @@ When the user mentions an old roof, chronic basement moisture, known foundation 
 
 ### Plumbing
 
-| # | Task | Priority | Time | Notes |
-|---|------|----------|------|-------|
-| 19 | Shut off interior valves to all exterior hose bibs (outdoor faucets) | 🔴 Must-Do | 15 min | The shutoff valves are inside the basement, near where the pipe exits through the foundation wall. Turn clockwise to close. After shutting off, go outside and open the faucet handle to drain remaining water. Leave the exterior faucet handle open. Skipping risks a burst pipe inside the wall -- $20,000-$50,000 in water damage. |
-| 20 | Locate and test the main water shutoff valve | 🔴 Must-Do | 5 min | In a 1985 Connecticut home, likely a gate valve (round wheel handle) or ball valve (lever) near where the water main enters the basement. Turn it completely off and then back on. If it sticks or does not fully close, schedule a plumber to replace with a ball valve -- cost $150-300. Every adult in the home should know where this is. |
-| 21 | Insulate exposed water pipes in unheated areas (rim joist, unheated basement sections, under-sink cabinets on exterior walls) | 🔴 Must-Do | 45 min | Use foam pipe insulation sleeves (split-foam tubes, sold by pipe diameter at hardware stores, $0.50-1.50 per foot). Secure with foam tape. For pipe runs in the rim joist cavity, add faced fiberglass batt or rigid foam board over the insulation. |
-| 22 | Flush 2-3 gallons from water heater drain valve to clear sediment | 🟡 Should-Do | 15 min | Attach a hose to the valve at the base of the water heater, run to floor drain. Open valve briefly, let it run until water is clear. A 1985 home with original water heater is long overdue for replacement -- check the age sticker on the unit. Average lifespan is 10-15 years. |
-| 23 | Note location of the water heater's temperature setting (factory default 140°F -- most plumbers recommend 120°F for safety, which also reduces energy use) | 🟢 Nice-to-Do | 5 min | Scalding risk at 140°F, Legionella risk below 120°F. 120°F is the safe middle ground for residential use. |
+| #   | Task                                                                                                                                                       | Priority      | Time   | Notes                                                                                                                                                                                                                                                                                                                                         |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 19  | Shut off interior valves to all exterior hose bibs (outdoor faucets)                                                                                       | 🔴 Must-Do    | 15 min | The shutoff valves are inside the basement, near where the pipe exits through the foundation wall. Turn clockwise to close. After shutting off, go outside and open the faucet handle to drain remaining water. Leave the exterior faucet handle open. Skipping risks a burst pipe inside the wall -- $20,000-$50,000 in water damage.        |
+| 20  | Locate and test the main water shutoff valve                                                                                                               | 🔴 Must-Do    | 5 min  | In a 1985 Connecticut home, likely a gate valve (round wheel handle) or ball valve (lever) near where the water main enters the basement. Turn it completely off and then back on. If it sticks or does not fully close, schedule a plumber to replace with a ball valve -- cost $150-300. Every adult in the home should know where this is. |
+| 21  | Insulate exposed water pipes in unheated areas (rim joist, unheated basement sections, under-sink cabinets on exterior walls)                              | 🔴 Must-Do    | 45 min | Use foam pipe insulation sleeves (split-foam tubes, sold by pipe diameter at hardware stores, $0.50-1.50 per foot). Secure with foam tape. For pipe runs in the rim joist cavity, add faced fiberglass batt or rigid foam board over the insulation.                                                                                          |
+| 22  | Flush 2-3 gallons from water heater drain valve to clear sediment                                                                                          | 🟡 Should-Do  | 15 min | Attach a hose to the valve at the base of the water heater, run to floor drain. Open valve briefly, let it run until water is clear. A 1985 home with original water heater is long overdue for replacement -- check the age sticker on the unit. Average lifespan is 10-15 years.                                                            |
+| 23  | Note location of the water heater's temperature setting (factory default 140°F -- most plumbers recommend 120°F for safety, which also reduces energy use) | 🟢 Nice-to-Do | 5 min  | Scalding risk at 140°F, Legionella risk below 120°F. 120°F is the safe middle ground for residential use.                                                                                                                                                                                                                                     |
 
 **⚠️ First Time?** To find and shut off a hose bib: Go to your basement and look at the exterior walls. Find a copper or steel pipe coming through the foundation wall -- it will have a valve on it. This is the interior shutoff for that outdoor faucet. Turn the wheel or lever clockwise until it stops. Then go outside and open the faucet handle to let the trapped water drain. You should hear a small amount of water dribble out. Once it stops, leave the exterior handle in the open position all winter. If no interior shutoff exists (older homes sometimes lack them), add this to your plumber list.
 
@@ -444,10 +450,10 @@ When the user mentions an old roof, chronic basement moisture, known foundation 
 
 ### Safety
 
-| # | Task | Priority | Time | Notes |
-|---|------|----------|------|-------|
-| 24 | Test all smoke detectors and CO detectors; replace batteries | 🔴 Must-Do | 15 min | Replace all batteries now -- use the daylight saving time change (November) as your annual reminder. CO detectors expire after 5-7 years regardless of batteries -- check manufacture date on the back. New home purchase is a good reason to replace all detectors with known-age units. |
-| 25 | Verify CO detector placement -- one on each floor, within 15 feet of each sleeping area | 🔴 Must-Do | 10 min | 1985 homes may not have CO detectors. They are now code-required in Connecticut for all homes with fuel-burning appliances. CO is produced by the gas furnace -- a cracked heat exchanger is the primary risk. |
-| 26 | Inspect (or schedule inspection of) fireplace or wood stove if present | 🔴 Must-Do | 10 min check | If this home has a fireplace, do NOT use it until a chimney sweep has inspected it. The previous owner's creosote history is unknown. Schedule a Level 1 sweep and inspection before first use. Cost: $150-300. NFPA 211 requires annual inspection for chimneys in use. |
-| 27 | Update or assemble emergency kit for winter power outage | 🟡 Should-Do | 30 min | Connecticut averages 2-5 significant winter outages per decade in inland areas. Kit should include: flashlights with fresh batteries, battery radio, blankets, 72-hour food and water supply (1 gallon per person per day), first aid kit, and if on well water, stored water (municipal water stays on during most outages). |
-| 28 | Check fire extinguisher -- needle in green zone on the gauge | 🔴 Must-Do | 2 min | Mount one in the kitchen and one near the furnace room if you have a gas appliance. Replace if gauge reads in the red zone or if it
+| #   | Task                                                                                    | Priority     | Time         | Notes                                                                                                                                                                                                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------- | ------------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 24  | Test all smoke detectors and CO detectors; replace batteries                            | 🔴 Must-Do   | 15 min       | Replace all batteries now -- use the daylight saving time change (November) as your annual reminder. CO detectors expire after 5-7 years regardless of batteries -- check manufacture date on the back. New home purchase is a good reason to replace all detectors with known-age units.                                     |
+| 25  | Verify CO detector placement -- one on each floor, within 15 feet of each sleeping area | 🔴 Must-Do   | 10 min       | 1985 homes may not have CO detectors. They are now code-required in Connecticut for all homes with fuel-burning appliances. CO is produced by the gas furnace -- a cracked heat exchanger is the primary risk.                                                                                                                |
+| 26  | Inspect (or schedule inspection of) fireplace or wood stove if present                  | 🔴 Must-Do   | 10 min check | If this home has a fireplace, do NOT use it until a chimney sweep has inspected it. The previous owner's creosote history is unknown. Schedule a Level 1 sweep and inspection before first use. Cost: $150-300. NFPA 211 requires annual inspection for chimneys in use.                                                      |
+| 27  | Update or assemble emergency kit for winter power outage                                | 🟡 Should-Do | 30 min       | Connecticut averages 2-5 significant winter outages per decade in inland areas. Kit should include: flashlights with fresh batteries, battery radio, blankets, 72-hour food and water supply (1 gallon per person per day), first aid kit, and if on well water, stored water (municipal water stays on during most outages). |
+| 28  | Check fire extinguisher -- needle in green zone on the gauge                            | 🔴 Must-Do   | 2 min        | Mount one in the kitchen and one near the furnace room if you have a gas appliance. Replace if gauge reads in the red zone or if it                                                                                                                                                                                           |

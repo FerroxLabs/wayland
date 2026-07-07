@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "craft-project-planner pricing-strategist brand-identity-designer handmade-seller social-media-strategist"
+skills: 'craft-project-planner pricing-strategist brand-identity-designer handmade-seller social-media-strategist'
 trigger_phrases: >-
   I want to sell my crafts start a craft business sell handmade items online
   launch an Etsy shop turn my hobby into a business handmade business guide
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: sewing entrepreneurship branding step-by-step planning
   category: creative-project
-  depends: "craft-project-planner pricing-strategist brand-identity-designer handmade-seller social-media-strategist"
+  depends: 'craft-project-planner pricing-strategist brand-identity-designer handmade-seller social-media-strategist'
 ---
+
 # Launch Craft Business
 
 **Estimated time:** 4-8 weeks
@@ -158,6 +159,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -168,7 +170,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Trying to sell everything you make:** A focused product line with a cohesive aesthetic sells better than a random assortment. Curate ruthlessly.
 - **Poor product photography:** On Etsy, the photo is the first impression. Natural light, clean backgrounds, and multiple angles are non-negotiable.
 - **Ignoring Etsy SEO:** Etsy is a search engine. If your titles and tags do not match what buyers type, your products are invisible regardless of quality.
-
 
 ### Timeline Considerations
 

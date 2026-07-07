@@ -99,16 +99,12 @@ describe('toUnifiedIncomingFromSynologyChat - happy paths', () => {
   });
 
   it('falls back to user_id as chatId when channel_id is absent', () => {
-    const result = toUnifiedIncomingFromSynologyChat(
-      payload({ channel_id: undefined }),
-    );
+    const result = toUnifiedIncomingFromSynologyChat(payload({ channel_id: undefined }));
     expect(result!.chatId).toBe('42');
   });
 
   it('uses user_id as username when username is absent', () => {
-    const result = toUnifiedIncomingFromSynologyChat(
-      payload({ username: undefined }),
-    );
+    const result = toUnifiedIncomingFromSynologyChat(payload({ username: undefined }));
     expect(result!.user.username).toBe('42');
     expect(result!.user.displayName).toBe('42');
   });
@@ -127,26 +123,18 @@ describe('toUnifiedIncomingFromSynologyChat - happy paths', () => {
 
 describe('toUnifiedIncomingFromSynologyChat - trigger_word stripping', () => {
   it('strips trigger_word prefix from text', () => {
-    const result = toUnifiedIncomingFromSynologyChat(
-      payload({ trigger_word: '/bot', text: '/bot hello' }),
-    );
+    const result = toUnifiedIncomingFromSynologyChat(payload({ trigger_word: '/bot', text: '/bot hello' }));
     expect(result).not.toBeNull();
     expect(result!.content.text).toBe('hello');
   });
 
   it('leaves text unchanged when trigger_word is not a prefix', () => {
-    const result = toUnifiedIncomingFromSynologyChat(
-      payload({ trigger_word: '/bot', text: 'say /bot now' }),
-    );
+    const result = toUnifiedIncomingFromSynologyChat(payload({ trigger_word: '/bot', text: 'say /bot now' }));
     expect(result!.content.text).toBe('say /bot now');
   });
 
   it('returns null when text is only the trigger_word', () => {
-    expect(
-      toUnifiedIncomingFromSynologyChat(
-        payload({ trigger_word: '/bot', text: '/bot' }),
-      ),
-    ).toBeNull();
+    expect(toUnifiedIncomingFromSynologyChat(payload({ trigger_word: '/bot', text: '/bot' }))).toBeNull();
   });
 });
 

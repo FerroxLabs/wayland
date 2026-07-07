@@ -34,7 +34,9 @@ describe('McpService.attachOAuthTokens (#MCP-oauth: reuse Wayland token, no engi
 
   it('attaches the stored bearer token to an authorized OAuth server', async () => {
     getValidToken.mockResolvedValue('tok-123');
-    const [out] = (await attach(svc, [httpServer('canva')])) as Array<{ transport: { headers: Record<string, string> } }>;
+    const [out] = (await attach(svc, [httpServer('canva')])) as Array<{
+      transport: { headers: Record<string, string> };
+    }>;
     expect(out.transport.headers.Authorization).toBe('Bearer tok-123');
   });
 

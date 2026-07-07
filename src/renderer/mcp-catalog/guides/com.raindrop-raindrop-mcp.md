@@ -14,10 +14,10 @@ steps:
   - id: api-key
     title: Paste your Raindrop test token
     estSeconds: 90
-    externalAction: { label: "Open Raindrop integrations", url: "https://app.raindrop.io/settings/integrations" }
+    externalAction: { label: 'Open Raindrop integrations', url: 'https://app.raindrop.io/settings/integrations' }
     inputs:
-      - { name: RAINDROP_TOKEN, label: "Raindrop test token", secret: true }
-    primaryAction: { label: "Save & connect", action: "api-key-save" }
+      - { name: RAINDROP_TOKEN, label: 'Raindrop test token', secret: true }
+    primaryAction: { label: 'Save & connect', action: 'api-key-save' }
     body: |
       1. Click **Open Raindrop integrations** above. The path is
          **Raindrop.io -> Settings -> Integrations**.

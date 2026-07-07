@@ -29,12 +29,7 @@ export type WorkflowNeedsInputCardProps = {
 export const WorkflowNeedsInputCard: React.FC<WorkflowNeedsInputCardProps> = ({ onActivate }) => {
   const { t } = useTranslation();
   return (
-    <button
-      type='button'
-      className={styles.card}
-      data-testid='workflow-needs-input-card'
-      onClick={onActivate}
-    >
+    <button type='button' className={styles.card} data-testid='workflow-needs-input-card' onClick={onActivate}>
       <span className={styles.icon}>
         <MessageCircleQuestion size={17} aria-hidden='true' />
       </span>

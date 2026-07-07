@@ -7,42 +7,43 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming guide beginner-friendly analysis parenting"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming guide beginner-friendly analysis parenting'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Structure Expert
 
 You are an expert competitive programming coach specializing in advanced data structures. You guide programmers through segment trees, Fenwick trees (BIT), tries, union-find (DSU), sparse tables, and their variants, with implementation patterns, complexity analysis, and application guidance.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about data structure expert techniques or best practices
 - User needs guidance on data structure expert concepts
 - User wants to implement or improve their approach to data structure expert
 
 **Do NOT use when:**
+
 - The request falls outside the scope of data structure expert
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
 
 ## Data Structure Selection Guide
 
-| Query Type | Update | Structure | Build | Query | Update |
-|-----------|--------|-----------|-------|-------|--------|
-| Range sum/min/max | Point | Fenwick Tree | O(n) | O(log n) | O(log n) |
-| Range sum/min/max | Range | Segment Tree + Lazy | O(n) | O(log n) | O(log n) |
-| Range min/max | None | Sparse Table | O(n log n) | O(1) | N/A |
-| Prefix XOR/string | N/A | Trie | O(n*L) | O(L) | O(L) |
-| Connectivity | Union | Union-Find (DSU) | O(n) | O(alpha(n)) | O(alpha(n)) |
-| Ordered statistics | Insert/Delete | Order Statistics Tree | N/A | O(log n) | O(log n) |
+| Query Type         | Update        | Structure             | Build      | Query       | Update      |
+| ------------------ | ------------- | --------------------- | ---------- | ----------- | ----------- |
+| Range sum/min/max  | Point         | Fenwick Tree          | O(n)       | O(log n)    | O(log n)    |
+| Range sum/min/max  | Range         | Segment Tree + Lazy   | O(n)       | O(log n)    | O(log n)    |
+| Range min/max      | None          | Sparse Table          | O(n log n) | O(1)        | N/A         |
+| Prefix XOR/string  | N/A           | Trie                  | O(n\*L)    | O(L)        | O(L)        |
+| Connectivity       | Union         | Union-Find (DSU)      | O(n)       | O(alpha(n)) | O(alpha(n)) |
+| Ordered statistics | Insert/Delete | Order Statistics Tree | N/A        | O(log n)    | O(log n)    |
 
 ## Segment Tree
 
@@ -448,29 +449,29 @@ public:
 
 ## Comparison: Segment Tree vs Fenwick vs Sparse Table
 
-| Feature | Segment Tree | Fenwick Tree | Sparse Table |
-|---------|-------------|--------------|--------------|
-| Build | O(n) | O(n log n) | O(n log n) |
-| Point query | O(log n) | O(log n) | O(1) |
-| Range query | O(log n) | O(log n) | O(1) |
-| Point update | O(log n) | O(log n) | N/A |
-| Range update | O(log n) with lazy | With tricks | N/A |
-| Space | O(4n) | O(n) | O(n log n) |
-| Code complexity | High | Low | Low |
-| Operations | Any associative | Invertible only | Idempotent only |
-| Constant factor | Medium | Small | Tiny |
+| Feature         | Segment Tree       | Fenwick Tree    | Sparse Table    |
+| --------------- | ------------------ | --------------- | --------------- |
+| Build           | O(n)               | O(n log n)      | O(n log n)      |
+| Point query     | O(log n)           | O(log n)        | O(1)            |
+| Range query     | O(log n)           | O(log n)        | O(1)            |
+| Point update    | O(log n)           | O(log n)        | N/A             |
+| Range update    | O(log n) with lazy | With tricks     | N/A             |
+| Space           | O(4n)              | O(n)            | O(n log n)      |
+| Code complexity | High               | Low             | Low             |
+| Operations      | Any associative    | Invertible only | Idempotent only |
+| Constant factor | Medium             | Small           | Tiny            |
 
 ## Common Pitfalls
 
-| Mistake | Impact | Fix |
-|---------|--------|-----|
-| Segment tree size 2n instead of 4n | Buffer overflow | Always allocate 4n |
-| 0-indexed vs 1-indexed confusion | Off-by-one errors | Pick one convention, stick to it |
-| Missing push_down in lazy seg tree | Stale data | Push down before any recursive call |
-| Fenwick for non-invertible ops | Wrong answers | Use segment tree for min/max |
-| Path compression with rollback | Incorrect rollback | Use union by rank only for rollback |
-| Sparse table for sum queries | Wrong answer (not idempotent) | Use prefix sums or Fenwick tree |
-| Trie with fixed array children | MLE on large alphabet | Use map or hash map for children |
+| Mistake                            | Impact                        | Fix                                 |
+| ---------------------------------- | ----------------------------- | ----------------------------------- |
+| Segment tree size 2n instead of 4n | Buffer overflow               | Always allocate 4n                  |
+| 0-indexed vs 1-indexed confusion   | Off-by-one errors             | Pick one convention, stick to it    |
+| Missing push_down in lazy seg tree | Stale data                    | Push down before any recursive call |
+| Fenwick for non-invertible ops     | Wrong answers                 | Use segment tree for min/max        |
+| Path compression with rollback     | Incorrect rollback            | Use union by rank only for rollback |
+| Sparse table for sum queries       | Wrong answer (not idempotent) | Use prefix sums or Fenwick tree     |
+| Trie with fixed array children     | MLE on large alphabet         | Use map or hash map for children    |
 
 ## Exercises
 
@@ -480,7 +481,6 @@ public:
 4. **Dynamic Connectivity**: Use Union-Find for online "add edge" and connectivity queries
 5. **K-th Smallest in Range**: Use a persistent segment tree to find k-th smallest in arr[l..r]
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -488,7 +488,6 @@ public:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -509,14 +508,12 @@ public:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

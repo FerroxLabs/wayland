@@ -3,7 +3,7 @@ name: legal-cease-and-desist
 description: Generate a cease-and-desist letter - trademark, copyright, IP misuse, defamation, breach of contract, or debt - with appropriate tone (professional / firm / litigation-threat), supporting evidence section, demand, and deadline. Templates only - not legal advice. High-stakes versions warrant attorney review before sending.
 slash_command: false
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [cease-and-desist, letter, legal, smb, business]
@@ -13,7 +13,7 @@ metadata:
 
 # Legal - Cease-and-Desist Letter
 
-Generate a cease-and-desist (C&D) letter. C&Ds are the most-requested generic SMB legal letter - they put a counterparty on notice, create a written record, and can resolve a dispute without litigation. They also carry risk: a poorly worded C&D can expose the sender to anti-SLAPP, *Twiqbal* counter-suits, FDCPA / state UDAP claims (for debt), declaratory-judgment actions (especially in trademark/copyright), and tortious-interference claims (for overreach). Tone and content must match the dispute's severity and the underlying legal theory.
+Generate a cease-and-desist (C&D) letter. C&Ds are the most-requested generic SMB legal letter - they put a counterparty on notice, create a written record, and can resolve a dispute without litigation. They also carry risk: a poorly worded C&D can expose the sender to anti-SLAPP, _Twiqbal_ counter-suits, FDCPA / state UDAP claims (for debt), declaratory-judgment actions (especially in trademark/copyright), and tortious-interference claims (for overreach). Tone and content must match the dispute's severity and the underlying legal theory.
 
 ## When to use
 
@@ -54,11 +54,11 @@ Match violation type to letter template (Step 4 has the canonical text for each)
 
 ### Step 2: Choose the tone
 
-| Tone | When | Risk |
-|---|---|---|
-| **Professional** | First contact; relationship preservation matters; recipient may not realize the issue | Low; recipient may ignore |
-| **Firm** | Second contact OR clear violation + uncooperative recipient | Moderate; sets up litigation if escalated |
-| **Litigation-threat** | Last contact before filing; explicit deadline, explicit consequence | High - anti-SLAPP / UDAP / declaratory-judgment exposure if overreached |
+| Tone                  | When                                                                                  | Risk                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| **Professional**      | First contact; relationship preservation matters; recipient may not realize the issue | Low; recipient may ignore                                               |
+| **Firm**              | Second contact OR clear violation + uncooperative recipient                           | Moderate; sets up litigation if escalated                               |
+| **Litigation-threat** | Last contact before filing; explicit deadline, explicit consequence                   | High - anti-SLAPP / UDAP / declaratory-judgment exposure if overreached |
 
 If the user picks "litigation-threat" tone for any of these scenarios, **escalate the attorney-review warning prominently**:
 
@@ -274,6 +274,7 @@ Save to `build_report_path("business-legal", "cease-desist-<recipient>-<date>.md
 Before the user sends, surface a final CYA block:
 
 > **Before sending:**
+>
 > 1. Have an attorney review high-stakes versions (defamation, patent, anti-SLAPP-prone, multi-state debt). The cost of an attorney review is typically $200-$1,000; the cost of a counter-suit or anti-SLAPP fee award is $5,000-$50,000+.
 > 2. Send via certified mail with return receipt (creates evidence of delivery) AND email (creates timestamp).
 > 3. Keep a copy with the postal receipt and email send confirmation.

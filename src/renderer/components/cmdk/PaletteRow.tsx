@@ -29,17 +29,13 @@ const PaletteRow: React.FC<PaletteRowProps> = ({ icon, title, subtitle, hint }) 
   return (
     <div className='flex items-center gap-12px w-full'>
       {icon !== undefined && (
-        <span className='shrink-0 flex items-center justify-center w-20px h-20px text-[var(--text-muted)]'>
-          {icon}
-        </span>
+        <span className='shrink-0 flex items-center justify-center w-20px h-20px text-[var(--text-muted)]'>{icon}</span>
       )}
       <div className='flex-1 min-w-0 flex flex-col'>
         <span className='text-14px text-[var(--text-primary)] truncate'>{title}</span>
         {subtitle && <span className='text-12px text-[var(--text-muted)] truncate'>{subtitle}</span>}
       </div>
-      {hint && (
-        <span className='text-11px text-[var(--text-muted)] shrink-0 ml-8px font-mono'>{hint}</span>
-      )}
+      {hint && <span className='text-11px text-[var(--text-muted)] shrink-0 ml-8px font-mono'>{hint}</span>}
     </div>
   );
 };

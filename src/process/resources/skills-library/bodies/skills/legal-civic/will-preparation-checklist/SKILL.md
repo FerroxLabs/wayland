@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy checklist guide"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy checklist guide'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
 
 # Will Preparation Checklist
@@ -27,6 +27,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about preparing to write a will or create a last will and testament
 - User wants to know what information to gather before meeting an estate attorney
 - User asks what a will covers or what decisions they need to make
@@ -34,6 +35,7 @@ metadata:
 - User asks about choosing an executor or naming beneficiaries
 
 **Do NOT use when:**
+
 - User asks to draft or write an actual will document (refer to an estate attorney)
 - User asks for advice on how to distribute assets among beneficiaries
 - User asks about trust creation or trust funding (use `trust-basics-explainer`)
@@ -238,59 +240,68 @@ metadata:
 ## Will Preparation Checklist
 
 ### 1. Personal Information
-| Field                    | Details            |
-|--------------------------|--------------------|
-| Full legal name          | [to be filled]     |
-| Date of birth            | [to be filled]     |
-| State/country of residence | [to be filled]   |
-| Marital status           | Married            |
-| Citizenship              | [to be filled]     |
-| Existing will?           | No                 |
+
+| Field                      | Details        |
+| -------------------------- | -------------- |
+| Full legal name            | [to be filled] |
+| Date of birth              | [to be filled] |
+| State/country of residence | [to be filled] |
+| Marital status             | Married        |
+| Citizenship                | [to be filled] |
+| Existing will?             | No             |
 
 ### 2. Asset Inventory
 
 #### Real Property
-| Property         | Address     | Approx. Value | Title Held As     |
-|------------------|-------------|---------------|-------------------|
-| Primary residence | [address]  | $[amount]     | [discuss: joint tenancy? tenants by entirety?] |
+
+| Property          | Address   | Approx. Value | Title Held As                                  |
+| ----------------- | --------- | ------------- | ---------------------------------------------- |
+| Primary residence | [address] | $[amount]     | [discuss: joint tenancy? tenants by entirety?] |
 
 #### Financial Accounts
-| Account Type | Institution | Approx. Balance |
-|-------------|-------------|-----------------|
-| [list each checking, savings, etc.] | [name] | $[amount] |
+
+| Account Type                        | Institution | Approx. Balance |
+| ----------------------------------- | ----------- | --------------- |
+| [list each checking, savings, etc.] | [name]      | $[amount]       |
 
 #### Retirement Accounts
-| Account Type | Institution | Approx. Value | Current Beneficiary |
-|-------------|-------------|---------------|---------------------|
-| [401k/IRA/etc.] | [name] | $[amount]  | [verify: is spouse named?] |
+
+| Account Type    | Institution | Approx. Value | Current Beneficiary        |
+| --------------- | ----------- | ------------- | -------------------------- |
+| [401k/IRA/etc.] | [name]      | $[amount]     | [verify: is spouse named?] |
 
 #### Insurance Policies
-| Type | Company | Face Value | Current Beneficiary |
-|------|---------|------------|---------------------|
-| [life insurance if any] | [company] | $[amount] | [verify] |
+
+| Type                    | Company   | Face Value | Current Beneficiary |
+| ----------------------- | --------- | ---------- | ------------------- |
+| [life insurance if any] | [company] | $[amount]  | [verify]            |
 
 ### 3. Beneficiaries
-| Name         | Relationship | Minor? | Special Needs? | Contact       |
-|-------------|-------------|--------|----------------|---------------|
-| [spouse]    | Spouse      | No     | No             | [info]        |
-| [child 1]   | Child       | Yes (age 12) | No       | N/A           |
-| [child 2]   | Child       | Yes (age 8)  | No       | N/A           |
+
+| Name      | Relationship | Minor?       | Special Needs? | Contact |
+| --------- | ------------ | ------------ | -------------- | ------- |
+| [spouse]  | Spouse       | No           | No             | [info]  |
+| [child 1] | Child        | Yes (age 12) | No             | N/A     |
+| [child 2] | Child        | Yes (age 8)  | No             | N/A     |
 
 **Note:** Both children are minors. You will need to discuss guardianship and how assets will be managed for them until they reach adulthood. See Section 5 below.
 
 ### 4. Executor Selection
-| Role               | Name         | Relationship | Contact       |
-|--------------------|-------------|-------------|---------------|
-| Primary executor   | [consider: spouse, sibling, trusted friend] | | |
-| Alternate executor | [who serves if primary cannot?] | | |
+
+| Role               | Name                                        | Relationship | Contact |
+| ------------------ | ------------------------------------------- | ------------ | ------- |
+| Primary executor   | [consider: spouse, sibling, trusted friend] |              |         |
+| Alternate executor | [who serves if primary cannot?]             |              |         |
 
 ### 5. Guardianship (Minor Children Present)
-| Role               | Name         | Relationship | Contact       |
-|--------------------|-------------|-------------|---------------|
-| Primary guardian   | [who should raise your children?] | | |
-| Alternate guardian | [backup guardian] | | |
+
+| Role               | Name                              | Relationship | Contact |
+| ------------------ | --------------------------------- | ------------ | ------- |
+| Primary guardian   | [who should raise your children?] |              |         |
+| Alternate guardian | [backup guardian]                 |              |         |
 
 **Think about when choosing a guardian:**
+
 - Shared values and parenting approach
 - Willingness to serve (have you asked them?)
 - Financial stability to absorb additional children
@@ -299,14 +310,17 @@ metadata:
 - Existing relationship between the guardian and your children
 
 ### 6. Specific Wishes
+
 - Residuary estate: Discuss with attorney how to structure distributions for minor children (common options include outright at age of majority, staggered distributions at milestone ages, or testamentary trust)
 
 ### 7. Additional Considerations
+
 - [ ] Funeral/burial preferences: [document your preferences]
 - [ ] Pet care provisions: [if applicable]
 - [ ] Simultaneous death clause: Discuss with attorney what happens if both spouses die in the same event
 
 ### 8. Questions for Attorney
+
 1. How should we structure the will so assets are managed for our minor children until they reach adulthood?
 2. Should we create a testamentary trust within the will for the children's inheritance?
 3. At what age should the children receive their inheritance outright? (Common options: 18, 21, 25, or staggered)
@@ -317,6 +331,7 @@ metadata:
 8. What happens to our assets if both of us die before the children reach adulthood?
 
 ### Next Steps
+
 - [ ] Both spouses fill in all blank fields above
 - [ ] Verify current beneficiary designations on all retirement accounts and insurance policies
 - [ ] Gather recent statements for all financial accounts

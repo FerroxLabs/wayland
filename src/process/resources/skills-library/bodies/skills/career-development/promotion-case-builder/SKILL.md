@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning template writing"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career planning template writing'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Promotion Case Builder
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user explicitly wants to build a written, shareable document that makes the case for a promotion -- not when they want coaching, a conversation script, or general career advice.
 
 **Trigger scenarios:**
+
 - User says they want to prepare a promotion packet, promotion case, or promotion document to submit to their manager or a review committee
 - User asks how to document their accomplishments to justify a level-up request at an upcoming review cycle
 - User has already been informally told they are on the promotion track and needs to formalize the evidence
@@ -37,6 +39,7 @@ Use this skill when the user explicitly wants to build a written, shareable docu
 - User wants to document a pattern of operating above their current level to make the timing argument -- that the promotion is overdue, not aspirational
 
 **Do NOT use when:**
+
 - User wants to write a performance review self-assessment that will be submitted as part of an annual review cycle -- use `performance-review-prep` instead, which structures content around review rubrics rather than promotion criteria
 - User wants a script, talking points, or coaching for an in-person promotion conversation -- use `salary-negotiation-script` for the compensation discussion component
 - User needs help writing or rewriting resume bullets to reflect accomplishments -- use `resume-bullet-writer`, which applies action-verb and STAR formatting for a resume audience rather than an internal advocacy document
@@ -151,41 +154,45 @@ Presentation signals professionalism and effort to the reader.
 [Sentence 2: Pattern of operating above level -- the scope argument in one sentence.]
 [Sentence 3: The explicit promotion readiness claim.]
 
-*Maximum 3 sentences. This is the summary a manager will read aloud to a committee.*
+_Maximum 3 sentences. This is the summary a manager will read aloud to a committee._
 
 ---
 
 ### Accomplishments and Impact
 
-| # | Accomplishment | Measurable Outcome | Scope | Next-Level Competency |
-|---|----------------|--------------------|-------|----------------------|
-| 1 | [Action: what the user did] | [Metric: $X saved, X% improvement, X users affected, X hrs reduced] | [Team / Org / Company-wide / External] | [Specific criterion from leveling guide or expected competency at target level] |
-| 2 | [Action] | [Metric] | [Scope] | [Competency] |
-| 3 | [Action] | [Metric] | [Scope] | [Competency] |
-| 4 | [Action] | [Metric] | [Scope] | [Competency] |
-| 5 | [Action] | [Metric] | [Scope] | [Competency] |
-| 6 | [Action] | [Metric] | [Scope] | [Competency] |
+| #   | Accomplishment              | Measurable Outcome                                                  | Scope                                  | Next-Level Competency                                                           |
+| --- | --------------------------- | ------------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------- |
+| 1   | [Action: what the user did] | [Metric: $X saved, X% improvement, X users affected, X hrs reduced] | [Team / Org / Company-wide / External] | [Specific criterion from leveling guide or expected competency at target level] |
+| 2   | [Action]                    | [Metric]                                                            | [Scope]                                | [Competency]                                                                    |
+| 3   | [Action]                    | [Metric]                                                            | [Scope]                                | [Competency]                                                                    |
+| 4   | [Action]                    | [Metric]                                                            | [Scope]                                | [Competency]                                                                    |
+| 5   | [Action]                    | [Metric]                                                            | [Scope]                                | [Competency]                                                                    |
+| 6   | [Action]                    | [Metric]                                                            | [Scope]                                | [Competency]                                                                    |
 
-*Include 5-8 rows. Sort by impact magnitude, not chronology. Each metric must be a real number, percentage, dollar amount, or time delta.*
+_Include 5-8 rows. Sort by impact magnitude, not chronology. Each metric must be a real number, percentage, dollar amount, or time delta._
 
 ---
 
 ### Evidence of Operating Above Current Level
 
 **Responsibilities that exceed the [Current Title] job description:**
+
 - [Responsibility]: This is a [Target Title]-level responsibility because [specific reason referencing company leveling guide or stated expectation]. I have been performing this responsibility since [date/timeframe].
 - [Responsibility]: [Same format]
 - [Responsibility]: [Same format]
 
 **Projects led at [Target Title] scope or complexity:**
+
 - **[Project Name]:** [What it was, what the user's specific role was, why the scope or complexity places it at the target level, and the outcome]. Teams involved: [list]. Timeline: [X months].
 - **[Project Name]:** [Same format]
 
 **Decision authority exercised at [Target Title] level:**
+
 - [Decision made]: [Context, the user's specific authority exercised, and consequence of the decision]. Outcome: [what happened].
 - [Decision made]: [Same format]
 
 **Cross-functional influence:**
+
 - [Team or stakeholder influenced]: [How the user influenced them, what changed, and why this exceeds current-level expectations].
 
 ---
@@ -198,13 +205,15 @@ Presentation signals professionalism and effort to the reader.
 
 > "[Direct quote]" -- [Name, Title]
 
-*If no written feedback is available, describe the nature of the feedback and from whom.*
+_If no written feedback is available, describe the nature of the feedback and from whom._
 
 **Teams and colleagues who benefited directly from this work:**
+
 - [Team/person]: [How they benefited, and the measurable result if available]
 - [Team/person]: [Same format]
 
 **Mentoring and development contributions:**
+
 - [Who was mentored / developed]: [Duration, nature of engagement, and concrete outcome -- e.g., "promoted to X," "delivered first solo project," "now leads Y function"]
 - [Same format]
 
@@ -251,7 +260,8 @@ The following materials are available upon request or can be reviewed prior to o
 - [ ] Metrics dashboard / data source: [Description]
 
 ---
-*Document prepared [Date]. Confidential.*
+
+_Document prepared [Date]. Confidential._
 ```
 
 ---
@@ -348,14 +358,14 @@ Over the past two years, I have driven measurable business outcomes including a 
 
 ### Accomplishments and Impact
 
-| # | Accomplishment | Measurable Outcome | Scope | Next-Level Competency (Career Ladder) |
-|---|----------------|--------------------|-------|--------------------------------------|
-| 1 | Led pricing strategy overhaul, including market research, cross-functional alignment across Sales, Finance, and Engineering, and staged rollout plan | +$2.1M ARR, representing a 14% increase in annual recurring revenue | Company-wide | Sets product strategy for a significant product area |
-| 2 | Drove mobile app redesign from discovery through launch, including user research, feature prioritization, and go-to-market coordination | +34% daily active users (DAU) within 60 days of launch | Product, Design, Engineering, Marketing | Sets product strategy; drives cross-functional alignment without authority |
-| 3 | Built and launched competitive intelligence program from scratch -- research methodology, distribution cadence, executive briefing format | CEO cites program by name in board meetings; adopted by 4 product areas beyond my own | Company-wide | Sets product strategy; strategic input at executive level |
-| 4 | Owned product operations for the 12-person PM team (8 months): standardized rituals, created onboarding playbook, introduced shared OKR tracking | Onboarding time for new PMs reduced from 6 weeks to 3 weeks; OKR completion rate across PM team increased from 61% to 84% | PM org-wide | Develops PM capability on the team |
-| 5 | Mentored two Associate PMs with weekly 1:1s, career development planning, and project coaching | One promoted to PM this quarter; both now managing their own product areas independently | Team | Develops PM capability on the team |
-| 6 | Partnered with Sales and Customer Success to redesign enterprise onboarding flow, resolving 18-month stalemate between the teams on feature prioritization | Reduced enterprise time-to-value from 47 days to 22 days; enterprise NPS increased 19 points | Enterprise segment, cross-functional | Drives cross-functional alignment without authority |
+| #   | Accomplishment                                                                                                                                             | Measurable Outcome                                                                                                        | Scope                                   | Next-Level Competency (Career Ladder)                                      |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------- |
+| 1   | Led pricing strategy overhaul, including market research, cross-functional alignment across Sales, Finance, and Engineering, and staged rollout plan       | +$2.1M ARR, representing a 14% increase in annual recurring revenue                                                       | Company-wide                            | Sets product strategy for a significant product area                       |
+| 2   | Drove mobile app redesign from discovery through launch, including user research, feature prioritization, and go-to-market coordination                    | +34% daily active users (DAU) within 60 days of launch                                                                    | Product, Design, Engineering, Marketing | Sets product strategy; drives cross-functional alignment without authority |
+| 3   | Built and launched competitive intelligence program from scratch -- research methodology, distribution cadence, executive briefing format                  | CEO cites program by name in board meetings; adopted by 4 product areas beyond my own                                     | Company-wide                            | Sets product strategy; strategic input at executive level                  |
+| 4   | Owned product operations for the 12-person PM team (8 months): standardized rituals, created onboarding playbook, introduced shared OKR tracking           | Onboarding time for new PMs reduced from 6 weeks to 3 weeks; OKR completion rate across PM team increased from 61% to 84% | PM org-wide                             | Develops PM capability on the team                                         |
+| 5   | Mentored two Associate PMs with weekly 1:1s, career development planning, and project coaching                                                             | One promoted to PM this quarter; both now managing their own product areas independently                                  | Team                                    | Develops PM capability on the team                                         |
+| 6   | Partnered with Sales and Customer Success to redesign enterprise onboarding flow, resolving 18-month stalemate between the teams on feature prioritization | Reduced enterprise time-to-value from 47 days to 22 days; enterprise NPS increased 19 points                              | Enterprise segment, cross-functional    | Drives cross-functional alignment without authority                        |
 
 ---
 
@@ -454,4 +464,5 @@ The following materials are available upon request or can be reviewed prior to o
 - [x] Peer feedback excerpts: collected Q4 cycle, available in HR system
 
 ---
-*Document prepared [Date]. Confidential -- prepared for discussion with [Manager Name].*
+
+_Document prepared [Date]. Confidential -- prepared for discussion with [Manager Name]._

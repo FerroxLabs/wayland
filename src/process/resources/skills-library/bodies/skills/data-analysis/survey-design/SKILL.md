@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis template"
-  category: "data-analysis"
-  subcategory: "research-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis template'
+  category: 'data-analysis'
+  subcategory: 'research-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Survey Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to build a customer satisfaction, employee engagement, product feedback, or post-event survey from scratch
 - A user wants to collect structured quantitative or mixed-method data from a defined respondent population and needs question type selection, scale design, and an analysis plan
 - A user is designing a Net Promoter Score (NPS), Customer Effort Score (CES), or Customer Satisfaction Score (CSAT) measurement program and needs a supporting question architecture
@@ -29,6 +31,7 @@ metadata:
 - A user needs to segment responses by audience attributes (tenure, role, geography) and must build that segmentation into the survey structure before launch
 
 **Do NOT use when:**
+
 - The user wants to analyze qualitative interview transcripts or code themes from existing interview notes -- use `qualitative-coding` instead
 - The user wants to run a controlled experiment to compare two versions of something -- use `ab-test-design` instead, since surveys cannot establish causality
 - The user is researching a market for sizing, competitor mapping, or trend intelligence -- use `competitive-intelligence` instead
@@ -74,21 +77,22 @@ The sequence of questions is as important as the questions themselves. Cognitive
 
 Each question type has specific use cases, analytical affordances, and known pitfalls. Match the question type to what the data needs to do, not to what feels easiest to write.
 
-| Data Need | Question Type | Analytical Output | Key Constraint |
-|-----------|--------------|-------------------|----------------|
-| Measure attitude strength | 5-point Likert | Mean, median, frequency distribution | Use when you need parametric statistics and have ≥30 responses |
-| Measure subtle attitude differences | 7-point Likert | More sensitive mean comparison | Use when comparing subgroups or when scale sensitivity is critical |
-| Standard loyalty measurement | NPS (0-10 numeric) | Promoter%, Detractor%, NPS score | Always use 11-point (0-10), never 10-point (1-10), to match industry benchmarks |
-| Effort/ease measurement | CES (1-7 or 1-5) | Mean CES; lower is better (less effort) | Use "The company made it easy for me to..." phrasing, not "How easy was it?" |
-| Categorical exclusive choice | Single-choice / radio | Frequency distribution, mode | Options must be mutually exclusive and exhaustive (include "Other") |
-| Categorical multiple response | Multi-select / checkbox | Frequency per option, combination patterns | Report as "% of respondents who selected" not "% of responses" |
-| Relative priority | Forced ranking | Average rank per item, rank order | Limit to 5-7 items; beyond 7, respondents rank randomly |
-| Rate multiple attributes | Matrix / grid | Mean per row, attribute ranking | Limit to 5-7 rows; matrix questions on mobile are notorious for abandonment |
-| Exact quantity | Numeric input | Mean, median, range | Use when you genuinely need a number, not an approximation |
-| Exploratory insight | Open text | Thematic coding, word frequency | Maximum 2-3 per survey; always make them optional for non-critical surveys |
-| Nuanced continuous attitude | Semantic differential / slider | Mean on a polar scale | Use for research where directionality matters (e.g., simple vs. complex) |
+| Data Need                           | Question Type                  | Analytical Output                          | Key Constraint                                                                  |
+| ----------------------------------- | ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------- |
+| Measure attitude strength           | 5-point Likert                 | Mean, median, frequency distribution       | Use when you need parametric statistics and have ≥30 responses                  |
+| Measure subtle attitude differences | 7-point Likert                 | More sensitive mean comparison             | Use when comparing subgroups or when scale sensitivity is critical              |
+| Standard loyalty measurement        | NPS (0-10 numeric)             | Promoter%, Detractor%, NPS score           | Always use 11-point (0-10), never 10-point (1-10), to match industry benchmarks |
+| Effort/ease measurement             | CES (1-7 or 1-5)               | Mean CES; lower is better (less effort)    | Use "The company made it easy for me to..." phrasing, not "How easy was it?"    |
+| Categorical exclusive choice        | Single-choice / radio          | Frequency distribution, mode               | Options must be mutually exclusive and exhaustive (include "Other")             |
+| Categorical multiple response       | Multi-select / checkbox        | Frequency per option, combination patterns | Report as "% of respondents who selected" not "% of responses"                  |
+| Relative priority                   | Forced ranking                 | Average rank per item, rank order          | Limit to 5-7 items; beyond 7, respondents rank randomly                         |
+| Rate multiple attributes            | Matrix / grid                  | Mean per row, attribute ranking            | Limit to 5-7 rows; matrix questions on mobile are notorious for abandonment     |
+| Exact quantity                      | Numeric input                  | Mean, median, range                        | Use when you genuinely need a number, not an approximation                      |
+| Exploratory insight                 | Open text                      | Thematic coding, word frequency            | Maximum 2-3 per survey; always make them optional for non-critical surveys      |
+| Nuanced continuous attitude         | Semantic differential / slider | Mean on a polar scale                      | Use for research where directionality matters (e.g., simple vs. complex)        |
 
 Key rules for question type selection:
+
 - Never use a matrix for questions that have different sub-topic scales -- all rows in a matrix must use the same scale to be valid.
 - Never use ranking when the goal is to understand absolute satisfaction -- a respondent can rank support #1 but still rate it as poor. Use rating first, ranking only for relative comparison.
 - Multi-select questions cannot produce mean scores -- they can only produce frequency distributions. Never analyze multi-select results with means.
@@ -106,6 +110,7 @@ Question wording is where most surveys fail. Apply these specific writing discip
 - **Social desirability check:** For any question where the "right answer" is obvious (e.g., "Do you care about data security?"), consider indirect phrasing or behavioral anchors instead.
 
 For each question, document:
+
 1. Question text (final wording)
 2. Question type and response options
 3. Which RQ it answers
@@ -129,6 +134,7 @@ Scales must be labeled at every point, balanced in polarity, and consistent thro
 - **CSAT (1-5 or 1-3):** For quick post-interaction measurement, 3-point (Dissatisfied / Neutral / Satisfied) outperforms 5-point in response rate; for detailed tracking, use 5-point
 
 **Scale selection rules:**
+
 - 5-point scales: Use when response sensitivity is less important and survey fatigue is a concern
 - 7-point scales: Use when comparing subgroups where small differences matter, when respondents are experts or highly motivated, and in academic or formal research contexts
 - Never use even-numbered scales (4-point, 6-point) unless you explicitly want to force a directional response (no neutral midpoint). Forced-choice scales increase social desirability bias.
@@ -329,6 +335,7 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ## Survey: New Onboarding Experience Assessment -- [Q1 2026]
 
 ### Survey Overview
+
 - **Purpose:** Evaluate whether the redesigned onboarding flow achieves faster time-to-value, identify where users encounter friction or confusion, and measure post-onboarding product confidence -- to inform whether to scale the new flow to all customers or iterate further
 - **Target respondent:** B2B customers who completed the new onboarding flow within the past 60 days (n=300 eligible)
 - **Distribution channel:** In-app notification (Day 3 post-onboarding complete) + email link (Day 5 fallback for non-openers)
@@ -343,24 +350,26 @@ Surveys in healthcare, academic research, financial services, or involving minor
 
 ### Research Questions
 
-| ID | Research Question | Priority | Analysis Type | Survey Questions |
-|----|------------------|----------|--------------|-----------------|
-| RQ1 | What is the post-onboarding confidence level compared to the pre-redesign baseline? | P1 | Descriptive + Comparative | Q2, Q3 |
-| RQ2 | Which specific onboarding steps produce the most friction, confusion, or abandonment? | P1 | Descriptive + Diagnostic | Q4, Q5, Q6 |
-| RQ3 | How long did customers perceive it took to feel productive with the product, and does that differ by company size? | P1 | Comparative | Q1, Q7 |
-| RQ4 | What would most improve the onboarding experience for customers who report low confidence? | P2 | Relational + Qualitative | Q2, Q8 |
-| RQ5 | Are there differences in confidence and friction by the respondent's role (admin vs end user)? | P2 | Comparative | Q9 (segmentation), all core questions |
+| ID  | Research Question                                                                                                  | Priority | Analysis Type             | Survey Questions                      |
+| --- | ------------------------------------------------------------------------------------------------------------------ | -------- | ------------------------- | ------------------------------------- |
+| RQ1 | What is the post-onboarding confidence level compared to the pre-redesign baseline?                                | P1       | Descriptive + Comparative | Q2, Q3                                |
+| RQ2 | Which specific onboarding steps produce the most friction, confusion, or abandonment?                              | P1       | Descriptive + Diagnostic  | Q4, Q5, Q6                            |
+| RQ3 | How long did customers perceive it took to feel productive with the product, and does that differ by company size? | P1       | Comparative               | Q1, Q7                                |
+| RQ4 | What would most improve the onboarding experience for customers who report low confidence?                         | P2       | Relational + Qualitative  | Q2, Q8                                |
+| RQ5 | Are there differences in confidence and friction by the respondent's role (admin vs end user)?                     | P2       | Comparative               | Q9 (segmentation), all core questions |
 
 ---
 
 ### Survey Questions
 
 #### Section 1: Orientation (Opening -- Questions 1)
-*Purpose: Establish time-to-value perception before anchoring on specific satisfaction ratings*
+
+_Purpose: Establish time-to-value perception before anchoring on specific satisfaction ratings_
 
 ---
 
 **Q1: After completing the initial setup, how long did it take before you felt productive using [Product Name] for real work?**
+
 - **Type:** Single-choice (radio)
 - **Required:** Yes
 - **Response options:**
@@ -379,11 +388,13 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 #### Section 2: Confidence and Friction (Core -- Questions 2-7)
-*Purpose: Measure the primary metrics (confidence, friction points) for RQ1, RQ2, and RQ3*
+
+_Purpose: Measure the primary metrics (confidence, friction points) for RQ1, RQ2, and RQ3_
 
 ---
 
 **Q2: Overall, how confident do you feel using [Product Name] after completing onboarding?**
+
 - **Type:** 5-point Likert (Confidence scale)
 - **Required:** Yes
 - **Response options:** Not at all confident (1) / Slightly confident (2) / Moderately confident (3) / Very confident (4) / Extremely confident (5)
@@ -396,6 +407,7 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 **Q3: Please rate your experience with each of the following aspects of the onboarding:**
+
 - **Type:** Matrix (5-point Satisfaction scale)
 - **Required:** Yes
 - **Rows:**
@@ -414,6 +426,7 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 **Q4: Were there any steps during onboarding where you felt stuck or confused?**
+
 - **Type:** Single-choice (radio)
 - **Required:** Yes
 - **Response options:**
@@ -428,6 +441,7 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 **Q5: [Displayed only if Q4 = Yes] Which part of the onboarding caused the most confusion or friction? Select all that apply.**
+
 - **Type:** Multi-select (checkbox)
 - **Required:** No (displayed conditionally)
 - **Response options:**
@@ -448,6 +462,7 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 **Q6: How would you rate the quality of the help resources available during onboarding? (Tooltips, tutorial videos, help center articles)**
+
 - **Type:** 5-point Likert (Satisfaction scale)
 - **Required:** Yes
 - **Response options:** Very Dissatisfied (1) / Dissatisfied (2) / Neither Satisfied nor Dissatisfied (3) / Satisfied (4) / Very Satisfied (5), plus "I did not use any help resources" option
@@ -460,6 +475,7 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 **Q7: How does your confidence using [Product Name] today compare to your confidence immediately after completing onboarding?**
+
 - **Type:** Single-choice (radio)
 - **Required:** Yes
 - **Response options:**
@@ -477,11 +493,13 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 #### Section 3: Open Feedback and Segmentation (Closing -- Questions 8-9)
-*Purpose: Capture qualitative context and enable segmentation*
+
+_Purpose: Capture qualitative context and enable segmentation_
 
 ---
 
 **Q8: What is the single most important improvement we could make to the onboarding experience?**
+
 - **Type:** Open text (short -- 1-3 sentences; displayed with a visible character count of 280 max)
 - **Required:** No
 - **Response options:** Free text field
@@ -494,6 +512,7 @@ Surveys in healthcare, academic research, financial services, or involving minor
 ---
 
 **Q9: What best describes your role when using [Product Name]? (Optional)**
+
 - **Type:** Single-choice (radio)
 - **Required:** No
 - **Response options:**
@@ -512,29 +531,30 @@ Surveys in healthcare, academic research, financial services, or involving minor
 
 ### Response Scales Reference
 
-| Scale Name | Point Count | Labels (Low → High) | Used In | Notes |
-|-----------|------------|---------------------|---------|-------|
-| Confidence (5-point) | 5 | Not at all confident → Extremely confident | Q2 | Treated as interval for mean analysis; distinct from satisfaction |
-| Satisfaction (5-point) | 5 | Very Dissatisfied → Very Satisfied | Q3, Q6 | Treated as interval for mean analysis; both endpoints explicitly labeled |
-| Comparative change (5-point) | 5 | Much less confident now → Much more confident now | Q7 | Ordinal -- report frequencies, not mean |
+| Scale Name                   | Point Count | Labels (Low → High)                               | Used In | Notes                                                                    |
+| ---------------------------- | ----------- | ------------------------------------------------- | ------- | ------------------------------------------------------------------------ |
+| Confidence (5-point)         | 5           | Not at all confident → Extremely confident        | Q2      | Treated as interval for mean analysis; distinct from satisfaction        |
+| Satisfaction (5-point)       | 5           | Very Dissatisfied → Very Satisfied                | Q3, Q6  | Treated as interval for mean analysis; both endpoints explicitly labeled |
+| Comparative change (5-point) | 5           | Much less confident now → Much more confident now | Q7      | Ordinal -- report frequencies, not mean                                  |
 
 ---
 
 ### Analysis Plan
 
-| RQ | Input Questions | Statistical Method | Output Metric | Decision Rule | Owner |
-|----|----------------|-------------------|---------------|---------------|-------|
-| RQ1: Post-onboarding confidence | Q2, segmented by Q9 (role) and Q1 (time-to-value) | Mean and SD; one-way ANOVA by role segment (if n ≥ 20 per group) | Mean Confidence Score (1-5); this is the new baseline | ≥ 4.0: scale new flow. 3.5-3.9: iterate on friction points. < 3.5: interview before scaling | Head of Onboarding |
-| RQ2: Friction point identification | Q3 (matrix means), Q4 (stuck binary), Q5 (friction multi-select), Q6 (help resources) | Rank Q3 rows by mean; frequency distribution for Q5; compare Q3 and Q5 rankings for consistency | Ranked friction hotspot list; top 2 module priorities | Any Q3 row < 3.0 OR any Q5 option > 30% frequency triggers a design sprint | Product Designer |
-| RQ3: Time-to-value by segment | Q1, Q7, segmented by Q9 | Frequency distribution for Q1; cross-tab Q1 × Q9 (role) using chi-square if n allows | % achieving productivity within 3 days; distribution by role | If >30% select > 2 weeks or "not yet productive," investigate whether role-specific tracks are needed | Product Manager |
-| RQ4: Improvement prioritization | Q8, cross-referenced with Q2 quintiles | Thematic coding (MECE categories); frequency by theme; compare themes between low-confidence (Q2 ≤ 2) and high-confidence (Q2 ≥ 4) groups | Top 3 improvement themes; low-confidence theme list | Theme >20% among low-confidence group = critical remediation | Content and UX Lead |
-| RQ5: Role-based differences | Q9 × Q2, Q3, Q1 | Cross-tabulation; subgroup means; one-way ANOVA if n ≥ 20 per role | Confidence and friction scores by role | If Admin vs. Contributor confidence differs by > 0.5 points, design role-specific tracks | Head of Onboarding |
+| RQ                                 | Input Questions                                                                       | Statistical Method                                                                                                                        | Output Metric                                                | Decision Rule                                                                                         | Owner               |
+| ---------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- | ------------------- |
+| RQ1: Post-onboarding confidence    | Q2, segmented by Q9 (role) and Q1 (time-to-value)                                     | Mean and SD; one-way ANOVA by role segment (if n ≥ 20 per group)                                                                          | Mean Confidence Score (1-5); this is the new baseline        | ≥ 4.0: scale new flow. 3.5-3.9: iterate on friction points. < 3.5: interview before scaling           | Head of Onboarding  |
+| RQ2: Friction point identification | Q3 (matrix means), Q4 (stuck binary), Q5 (friction multi-select), Q6 (help resources) | Rank Q3 rows by mean; frequency distribution for Q5; compare Q3 and Q5 rankings for consistency                                           | Ranked friction hotspot list; top 2 module priorities        | Any Q3 row < 3.0 OR any Q5 option > 30% frequency triggers a design sprint                            | Product Designer    |
+| RQ3: Time-to-value by segment      | Q1, Q7, segmented by Q9                                                               | Frequency distribution for Q1; cross-tab Q1 × Q9 (role) using chi-square if n allows                                                      | % achieving productivity within 3 days; distribution by role | If >30% select > 2 weeks or "not yet productive," investigate whether role-specific tracks are needed | Product Manager     |
+| RQ4: Improvement prioritization    | Q8, cross-referenced with Q2 quintiles                                                | Thematic coding (MECE categories); frequency by theme; compare themes between low-confidence (Q2 ≤ 2) and high-confidence (Q2 ≥ 4) groups | Top 3 improvement themes; low-confidence theme list          | Theme >20% among low-confidence group = critical remediation                                          | Content and UX Lead |
+| RQ5: Role-based differences        | Q9 × Q2, Q3, Q1                                                                       | Cross-tabulation; subgroup means; one-way ANOVA if n ≥ 20 per role                                                                        | Confidence and friction scores by role                       | If Admin vs. Contributor confidence differs by > 0.5 points, design role-specific tracks              | Head of Onboarding  |
 
 ---
 
 ### Survey Administration Notes
 
 **Pre-launch checklist:**
+
 - [ ] Cognitive interview completed with 5 recent onboarding completers (mix of roles)
 - [ ] Completion time verified at under 5 minutes with 10 internal testers
 - [ ] Mobile rendering tested (Q3 matrix rendered correctly on iOS Safari and Chrome Android)

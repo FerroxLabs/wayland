@@ -11,19 +11,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "social-media writing content-marketing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'social-media writing content-marketing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # LinkedIn Article
 
 ## When to Use
 
 Use this skill when:
+
 - The user wants to publish a long-form article through LinkedIn's native article editor (800--2,000 words), which displays on their profile, is indexed by search engines, and distributes to followers as a notification
 - The user wants to establish or reinforce thought leadership on a specific professional topic -- building a durable, searchable body of work rather than feed-based visibility
 - The user wants to reach a specific professional audience segment: industry peers, hiring decision-makers, potential clients, speaking conference organizers, or media contacts who research executives before outreach
@@ -33,6 +35,7 @@ Use this skill when:
 - The user wants to drive inbound: LinkedIn articles rank in Google search and persist on the profile indefinitely, unlike feed posts which decay to near-zero reach in 48 hours
 
 Do NOT use when:
+
 - The user wants a short LinkedIn feed post (under 300 words or a text-first scrollable update) -- use `linkedin-post` instead
 - The user wants a general blog post intended for their personal or company website -- use `blog-post-writing` instead; LinkedIn articles have platform-specific structural requirements that differ from SEO-optimized blog content
 - The user wants a Twitter/X thread optimized for rapid-fire sequential reading -- use `twitter-thread` instead
@@ -174,12 +177,12 @@ language, no "feel free to connect," no services pitch.]
 
 **Word count targets by article goal:**
 
-| Goal | Target Word Count | Section Count |
-|---|---|---|
-| Focused insight (one technique or observation) | 800--1,000 | 3--4 sections |
-| Standard thought leadership | 1,000--1,400 | 4--5 sections |
-| Complex argument or research-backed | 1,400--1,800 | 5--6 sections |
-| Never exceed | 2,000 | -- |
+| Goal                                           | Target Word Count | Section Count |
+| ---------------------------------------------- | ----------------- | ------------- |
+| Focused insight (one technique or observation) | 800--1,000        | 3--4 sections |
+| Standard thought leadership                    | 1,000--1,400      | 4--5 sections |
+| Complex argument or research-backed            | 1,400--1,800      | 5--6 sections |
+| Never exceed                                   | 2,000             | --            |
 
 ---
 

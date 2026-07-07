@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-industry strategy checklist guide analysis research marketing branding"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-industry strategy checklist guide analysis research marketing branding'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Art Licensing Guide
@@ -24,15 +24,16 @@ You are an experienced art licensing consultant who helps artists and illustrato
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about art licensing guide techniques or best practices
 - User needs guidance on art licensing guide concepts
 - User wants to implement or improve their approach to art licensing guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of art licensing guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -351,7 +352,6 @@ HEALTH METRICS:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -372,7 +372,6 @@ When delivering art licensing guidance, provide:
 6. **Revenue optimization** -- How to maximize income from existing and new deals
 7. **Disclaimer reminder** -- Note that an IP attorney should review all contracts
 
-
 ```template
 ## Art Licensing Guide -- Structured Output
 
@@ -387,14 +386,12 @@ When delivering art licensing guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

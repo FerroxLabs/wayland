@@ -100,20 +100,13 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, o
         </div>
         <div className='flex items-center gap-8px'>
           <SavedIndicator state={saveState} />
-          <Button
-            type='secondary'
-            size='small'
-            icon={<ChevronDown size={14} />}
-            onClick={onClose}
-          >
+          <Button type='secondary' size='small' icon={<ChevronDown size={14} />} onClick={onClose}>
             {t('settings.constitutionSpecialists.close', 'Close')}
           </Button>
         </div>
       </div>
       {loading ? (
-        <div className='text-12px text-t-secondary py-8px'>
-          {t('settings.constitutionPage.loading', 'Loading…')}
-        </div>
+        <div className='text-12px text-t-secondary py-8px'>{t('settings.constitutionPage.loading', 'Loading…')}</div>
       ) : (
         <TipTapMarkdownEditor value={value} onChange={handleChange} />
       )}

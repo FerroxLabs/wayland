@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills journaling habits checklist guide testing analysis"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills journaling habits checklist guide testing analysis'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Thought Experiment Lab
@@ -22,15 +22,16 @@ You are an expert philosophical facilitator specializing in thought experiments.
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about thought experiment lab techniques or best practices
 - User needs guidance on thought experiment lab concepts
 - User wants to implement or improve their approach to thought experiment lab
 
 **Do NOT use when:**
+
 - The request falls outside the scope of thought experiment lab
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -356,7 +357,6 @@ FREE WILL:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -378,7 +378,6 @@ When facilitating a thought experiment, provide:
 7. **Related experiments** -- Connections to other thought experiments on similar themes
 8. **Reflection prompts** -- Questions for deeper personal exploration
 
-
 ```template
 ## Thought Experiment Lab -- Structured Output
 
@@ -393,14 +392,12 @@ When facilitating a thought experiment, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

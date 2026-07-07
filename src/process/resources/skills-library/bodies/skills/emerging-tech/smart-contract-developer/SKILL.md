@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced blockchain checklist quick-reference testing automation safety emergency-preparedness"
-  category: "emerging-tech"
-  subcategory: "blockchain-web3"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced blockchain checklist quick-reference testing automation safety emergency-preparedness'
+  category: 'emerging-tech'
+  subcategory: 'blockchain-web3'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Smart Contract Developer
@@ -22,15 +22,16 @@ You are an expert Solidity smart contract developer with deep knowledge of the E
 
 > **IMPORTANT DISCLAIMER:** Smart contracts handle real financial value. Bugs can lead to irreversible loss of funds. This skill provides educational guidance and development patterns only. Always engage professional auditors before deploying contracts that manage significant value. Never deploy unaudited code to mainnet with real funds.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about smart contract developer techniques or best practices
 - User needs guidance on smart contract developer concepts
 - User wants to implement or improve their approach to smart contract developer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of smart contract developer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -86,13 +87,13 @@ contract MyToken is ERC20, Ownable, ReentrancyGuard {
 
 ### Key Language Features (Solidity 0.8+)
 
-| Feature | Details |
-|---------|---------|
-| **Custom errors** | `error InsufficientBalance(uint256 available, uint256 required);` -- cheaper than revert strings |
-| **Checked arithmetic** | Overflow/underflow reverts automatically in 0.8+ (use `unchecked {}` only when provably safe) |
-| **User-defined value types** | `type TokenId is uint256;` for type safety |
-| **Immutable variables** | `immutable` set once in constructor, stored in bytecode, cheaper than storage reads |
-| **Constants** | `constant` for compile-time values, zero gas cost |
+| Feature                      | Details                                                                                          |
+| ---------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Custom errors**            | `error InsufficientBalance(uint256 available, uint256 required);` -- cheaper than revert strings |
+| **Checked arithmetic**       | Overflow/underflow reverts automatically in 0.8+ (use `unchecked {}` only when provably safe)    |
+| **User-defined value types** | `type TokenId is uint256;` for type safety                                                       |
+| **Immutable variables**      | `immutable` set once in constructor, stored in bytecode, cheaper than storage reads              |
+| **Constants**                | `constant` for compile-time values, zero gas cost                                                |
 
 ---
 
@@ -194,16 +195,16 @@ function getPrice() public view returns (uint256) {
 
 ### Vulnerability Quick Reference
 
-| Vulnerability | Detection | Mitigation |
-|--------------|-----------|------------|
-| Reentrancy | External calls before state updates | CEI pattern + `nonReentrant` modifier |
-| Integer overflow | Solidity <0.8 without SafeMath | Use Solidity 0.8+ (built-in checks) |
-| Access control | Missing `onlyOwner` / role checks | OpenZeppelin `AccessControl` |
-| Front-running | Unprotected swaps, auctions | Slippage limits, commit-reveal, Flashbots |
-| Oracle manipulation | Single-source spot prices | Chainlink oracles, TWAP |
-| Unchecked return values | Ignoring `transfer()` return | Use `SafeERC20.safeTransfer()` |
-| Denial of service | Unbounded loops, external call in loop | Pull pattern, gas limits |
-| Storage collision (proxies) | Misaligned storage slots | ERC-1967 storage slots |
+| Vulnerability               | Detection                              | Mitigation                                |
+| --------------------------- | -------------------------------------- | ----------------------------------------- |
+| Reentrancy                  | External calls before state updates    | CEI pattern + `nonReentrant` modifier     |
+| Integer overflow            | Solidity <0.8 without SafeMath         | Use Solidity 0.8+ (built-in checks)       |
+| Access control              | Missing `onlyOwner` / role checks      | OpenZeppelin `AccessControl`              |
+| Front-running               | Unprotected swaps, auctions            | Slippage limits, commit-reveal, Flashbots |
+| Oracle manipulation         | Single-source spot prices              | Chainlink oracles, TWAP                   |
+| Unchecked return values     | Ignoring `transfer()` return           | Use `SafeERC20.safeTransfer()`            |
+| Denial of service           | Unbounded loops, external call in loop | Pull pattern, gas limits                  |
+| Storage collision (proxies) | Misaligned storage slots               | ERC-1967 storage slots                    |
 
 ---
 
@@ -272,18 +273,18 @@ if (msg.sender == owner && expensiveCall()) { ... }
 
 ### Gas Comparison Reference
 
-| Operation | Approximate Gas Cost |
-|-----------|---------------------|
-| SSTORE (cold, zero to non-zero) | 20,000 |
-| SSTORE (warm, non-zero to non-zero) | 2,900 |
-| SLOAD (cold) | 2,100 |
-| SLOAD (warm) | 100 |
-| Memory expansion (per word) | 3 |
-| Calldata (per non-zero byte) | 16 |
-| Calldata (per zero byte) | 4 |
-| ETH transfer | 21,000 (base) |
-| Contract creation | 32,000 (base) |
-| LOG (per topic) | 375 |
+| Operation                           | Approximate Gas Cost |
+| ----------------------------------- | -------------------- |
+| SSTORE (cold, zero to non-zero)     | 20,000               |
+| SSTORE (warm, non-zero to non-zero) | 2,900                |
+| SLOAD (cold)                        | 2,100                |
+| SLOAD (warm)                        | 100                  |
+| Memory expansion (per word)         | 3                    |
+| Calldata (per non-zero byte)        | 16                   |
+| Calldata (per zero byte)            | 4                    |
+| ETH transfer                        | 21,000 (base)        |
+| Contract creation                   | 32,000 (base)        |
+| LOG (per topic)                     | 375                  |
 
 ---
 
@@ -357,41 +358,48 @@ forge script script/Deploy.s.sol --rpc-url $RPC --broadcast  # Deploy
 Before deploying any contract, review every item:
 
 ### Access Control
+
 - [ ] Every state-changing function has appropriate access control
 - [ ] `onlyOwner` / role-based access for admin functions
 - [ ] No use of `tx.origin` for authentication
 - [ ] Ownership transfer uses two-step pattern (Ownable2Step)
 
 ### Reentrancy
+
 - [ ] Checks-Effects-Interactions pattern followed everywhere
 - [ ] `nonReentrant` modifier on functions with external calls
 - [ ] No state reads after external calls relied upon for logic
 
 ### Input Validation
+
 - [ ] All external/public function inputs validated
 - [ ] Zero address checks on address parameters
 - [ ] Array length checks and bounds validation
 - [ ] No unbounded loops over user-supplied data
 
 ### Token Handling
+
 - [ ] Uses `SafeERC20` for all token transfers
 - [ ] Handles fee-on-transfer tokens if needed
 - [ ] Handles rebasing tokens if needed
 - [ ] Approval race condition mitigated (use increaseAllowance)
 
 ### Economic Security
+
 - [ ] Flash loan attack vectors analyzed
 - [ ] Oracle manipulation resistance verified
 - [ ] Slippage protection on all swaps
 - [ ] MEV extraction vectors identified and mitigated
 
 ### Upgradeability (if using proxies)
+
 - [ ] Storage layout documented and tested for collision
 - [ ] Initializer used instead of constructor
 - [ ] `_disableInitializers` called in implementation constructor
 - [ ] No selfdestruct / delegatecall in implementation
 
 ### Deployment
+
 - [ ] Constructor arguments verified
 - [ ] Contract verified on block explorer
 - [ ] Admin keys secured (multisig, not EOA)
@@ -412,7 +420,6 @@ Before deploying any contract, review every item:
 8. **Timelock** critical admin functions (minimum 24-48 hour delay)
 9. **Emergency plan** documented: who can pause, under what conditions
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -420,7 +427,6 @@ Before deploying any contract, review every item:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -441,14 +447,12 @@ Before deploying any contract, review every item:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

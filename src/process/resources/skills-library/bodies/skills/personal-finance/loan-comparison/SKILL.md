@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance debt-management analysis budgeting"
-  category: "personal-finance"
-  subcategory: "debt-management"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance debt-management analysis budgeting'
+  category: 'personal-finance'
+  subcategory: 'debt-management'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Loan Comparison
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has received 2--4 distinct loan offers (personal loans, auto loans, student loans, small business loans, or mortgages without tax/insurance escrow complexity) and wants an objective side-by-side comparison
 - The user asks "which loan costs less overall?" or "what is the true cost of this loan?" -- indicating they need total-cost analysis, not just rate comparison
 - The user is evaluating the same loan amount across lenders with different rates, terms, or fee structures and cannot determine which offer is genuinely cheaper
@@ -33,6 +35,7 @@ metadata:
 - The user is comparing a 0% promotional financing offer against a standard loan with a cash-back incentive (net cost comparison)
 
 **Do NOT use when:**
+
 - The user wants to consolidate multiple existing debts into one new loan -- use `debt-consolidation-analysis`, which accounts for current balances, remaining terms, and blended interest rates across existing obligations
 - The user has existing loans and wants a payoff strategy (avalanche vs. snowball method) -- use `debt-payoff-planner`
 - The user wants to understand why their credit score affects the rate they are being offered -- use `credit-score-explainer`
@@ -67,11 +70,13 @@ Use the standard fixed-rate amortization formula for every fixed-rate loan:
 **Monthly Payment (M) = P × [r(1+r)^n] / [(1+r)^n -- 1]**
 
 Where:
+
 - P = principal (if fees are financed, add financed fees to P)
 - r = periodic interest rate = stated annual rate ÷ 12
 - n = total number of monthly payments
 
 **Key calculation notes:**
+
 - Use the stated interest rate (not APR) for the amortization formula. APR is a disclosure metric, not an amortization driver.
 - For a rate of 7.5% annual: r = 0.075 ÷ 12 = 0.00625
 - For 0% promotional loans: monthly payment = P ÷ n (no interest component). Flag the post-promotional-period rate separately.
@@ -92,6 +97,7 @@ For each option:
 - **Total amount repaid** = Principal + total interest + total fees
 
 **Important distinctions:**
+
 - If a $300 origination fee is financed into the loan, the borrower pays interest on that fee for the entire term. A $300 fee financed into a 60-month loan at 9% costs approximately $370 in total (fee + interest on fee). Show this as part of total interest, not a flat fee.
 - If fees are paid upfront out of pocket, they do not accrue interest but still represent real cash outflow. Include them in total cost but not in the amortization calculation.
 - Points paid at closing in a mortgage context are prepaid interest -- they are deductible in some tax situations. Flag this for the user to verify with a tax professional but do not adjust calculations for tax effects without explicit instruction.
@@ -114,6 +120,7 @@ The effective APR normalizes loans with different fee structures onto a common b
 Effective APR ≈ Stated Rate + (Annual Fee Cost / Average Outstanding Balance)
 
 For a $15,000 loan at 8.5% for 36 months with a $300 origination fee:
+
 - Average balance ≈ $15,000 × 0.55 (rough midpoint adjustment) ≈ $8,250
 - Annual fee cost = $300 ÷ 3 years = $100/year
 - Fee add-on ≈ $100 / $8,250 ≈ 1.2%
@@ -130,11 +137,13 @@ When one option has lower rate but higher fees, calculate the break-even month -
 **Break-even months = Upfront fee differential / Monthly payment differential**
 
 More precisely:
+
 - Calculate monthly interest cost under each option at each month of the amortization schedule (interest portion = outstanding balance × monthly rate)
 - Accumulate the monthly interest savings of the lower-rate option
 - The break-even month is when accumulated savings first exceed the fee paid for that lower rate
 
 **Practical application:**
+
 - If a mortgage with 1 point ($2,500 on a $250,000 loan) saves $15/month in interest, break-even = $2,500 / $15 = 167 months (nearly 14 years). Points are not worth it unless the borrower holds the loan 14+ years.
 - If a personal loan with a $200 origination fee saves $18/month vs. a no-fee option, break-even = $200 / $18 = 11 months. Fee is worth it if the loan runs longer than 11 months (which it will for a 36-month loan).
 - For shorter personal loans (12--36 months), break-even math usually favors no-fee options because the fee recovery period is a large fraction of the total term.
@@ -146,6 +155,7 @@ More precisely:
 Never compare a variable-rate loan to a fixed-rate loan using only the initial rate. The initial rate is a teaser; the actual cost depends on rate movements.
 
 **Build three scenarios for variable-rate options:**
+
 - **Best case:** Rate stays flat at the initial rate for the entire term
 - **Base case:** Rate rises by the average historical adjustment for that index (for SOFR-indexed loans, use 3--4 annual adjustments of 0.25--0.50% as a reasonable stress test)
 - **Worst case:** Rate increases to the lifetime cap immediately after the initial period and stays there
@@ -153,6 +163,7 @@ Never compare a variable-rate loan to a fixed-rate loan using only the initial r
 Calculate total cost under each scenario. Present the range of outcomes alongside the fixed-rate options. Use this framing: "Variable-rate Option B costs between $X and $Y depending on rate movements, versus fixed-rate Option A which costs a certain $Z."
 
 For variable-rate loans, also flag:
+
 - The adjustment frequency (6-month vs. 12-month resets)
 - The rate floor (some loans cannot go below the initial rate)
 - Whether there is a prepayment penalty that would lock the borrower into the variable rate
@@ -342,20 +353,26 @@ These factors cannot be captured in the comparison matrix but may be decisive:
 ## Edge Cases
 
 ### Loans with Different Principal Amounts
+
 If the user is comparing a $18,000 offer from one lender against a $20,000 offer from another (e.g., because one lender will not finance the full amount, or one requires a down payment), do not compare total interest figures directly -- they are not comparable. Instead:
+
 - Calculate cost-per-$1,000 borrowed for each option: (Total interest / Principal) × 1,000
 - Separately note the absolute amount of interest and the absolute monthly payment
 - Ask the user to clarify: "Are you trying to borrow a fixed amount, or are the loan amounts genuinely different?" The answer changes the comparison framework entirely.
 
 ### 0% Promotional Rate Offers
+
 These require a two-phase analysis. Phase 1: During the promotional period (typically 12--24 months for credit cards or retail financing), the loan costs nothing in interest -- monthly payment = principal ÷ promo months. Phase 2: If any balance remains after the promotional period, the post-promotional rate (commonly 24.99%--29.99% for retail/credit card products) applies, often retroactively to the original balance in some contracts. Always:
+
 - Calculate the required monthly payment to pay off the full balance before the promo ends
 - Calculate the worst-case total cost if the balance is not fully paid off and the full rate kicks in
 - Compare both phases to the standard loan option
 - Flag deferred interest contracts (where interest accrues from day one but is waived only if fully paid off) vs. true 0% contracts (where no interest accrues during the promotional period)
 
 ### Cash Rebate vs. Low-Rate Financing (Auto Loans)
+
 Manufacturers frequently offer a choice: 0% financing for 60 months OR a $2,500--$3,500 cash rebate applied to the purchase price with standard financing. This is a real comparison problem with a quantifiable answer:
+
 - Option 1: 0% for 60 months on the full sticker price (e.g., $28,000) -- monthly payment = $467, total interest = $0
 - Option 2: $2,500 rebate applied at signing, finance $25,500 at 6.9% for 60 months -- monthly payment = $503, total interest = $4,071, total cost = $25,500 + $4,071 = $29,571
 - Option 1 total cost = $28,000; Option 2 total cost = $29,571 -- the 0% financing saves $1,571 despite the rebate
@@ -363,7 +380,9 @@ Manufacturers frequently offer a choice: 0% financing for 60 months OR a $2,500-
 - Always run both options when a user presents this scenario
 
 ### Mortgage with Discount Points
+
 Points are prepaid interest. One point = 1% of loan amount. The rate reduction per point varies by lender and market conditions -- typically 0.125% to 0.25% per point. The analysis requires:
+
 - Calculate monthly payment savings from the rate reduction
 - Calculate break-even: upfront point cost ÷ monthly savings = break-even months
 - Compare break-even to expected loan duration (how long will the borrower keep this mortgage before selling or refinancing?)
@@ -372,7 +391,9 @@ Points are prepaid interest. One point = 1% of loan amount. The rate reduction p
 - Note that mortgage interest and points may be tax-deductible -- flag this for the user without adjusting the calculation
 
 ### Variable Rate Loan in the Comparison
+
 Treat initial-rate comparison as misleading by default. Required disclosures:
+
 - State the initial rate, index (SOFR, Prime Rate), margin, adjustment frequency, initial rate cap, periodic cap, and lifetime cap
 - Run three scenarios: rate flat at initial, rate increases 1% per year until cap, rate jumps immediately to lifetime cap
 - Calculate monthly payment at each cap level (use the standard formula with remaining balance and remaining term at the time of adjustment)
@@ -380,14 +401,18 @@ Treat initial-rate comparison as misleading by default. Required disclosures:
 - Example for a 5/1 ARM: the first 5 years are fixed; years 6--30 adjust annually. The post-adjustment payment could be calculated at the cap rate and shown alongside the fixed-rate alternative
 
 ### Bi-Weekly Payment Option
+
 Some lenders (especially mortgage and auto lenders) offer bi-weekly payment programs. These are often presented as a way to save interest, but the math is nuanced:
+
 - True bi-weekly: 26 payments of half the monthly payment per year = 13 full monthly payment equivalents per year (vs. 12 for standard monthly). The extra payment goes entirely to principal, accelerating payoff and reducing total interest.
 - Pseudo-bi-weekly: The lender withdraws funds every two weeks but only applies them monthly -- no benefit, sometimes accompanied by a fee. Confirm which type is offered.
 - Quantify the actual savings: on a $300,000 mortgage at 7% for 30 years, true bi-weekly payments reduce the term by approximately 4-5 years and save roughly $60,000--$70,000 in interest. This is a dramatic enough difference to include as a separate row in the comparison if the user is evaluating mortgage options.
 - If one lender offers bi-weekly and another does not, compare them on an equivalent basis (monthly-payment version for both) first, then show the bi-weekly option's total cost separately as an enhancement scenario.
 
 ### User Wants to Include "Pay Cash" as an Option
+
 Add a cash column to the comparison. Key points:
+
 - Total cost of cash = face price of purchase only (zero interest, zero fees)
 - Opportunity cost = what those dollars could have earned if invested rather than spent (the user should verify this with a financial advisor, but you can illustrate: $15,000 invested at 5% for 3 years grows to approximately $17,364 -- so the opportunity cost of using cash is approximately $2,364 in foregone growth)
 - Cash is the cheapest borrowing option by definition if the alternative rate is positive, but it depletes liquid savings and eliminates the ability to deploy those funds elsewhere
@@ -410,24 +435,26 @@ Add a cash column to the comparison. Key points:
 ---
 
 ### Loan Terms Summary
-| Parameter              | First National Bank     | Meridian Credit Union   | Online Lender Direct    |
-|------------------------|-------------------------|-------------------------|-------------------------|
-| Face Amount            | $25,000                 | $25,000                 | $25,000                 |
-| Stated Interest Rate   | 9.25%                   | 8.75%                   | 10.50%                  |
-| Lender-Quoted APR      | Not provided            | 8.75%                   | 10.50%                  |
-| Loan Term              | 48 months (4 yrs)       | 60 months (5 yrs)       | 36 months (3 yrs)       |
-| Rate Type              | Fixed                   | Fixed                   | Fixed                   |
-| Origination Fee        | $500 (2.0% of principal)| $0                      | $0                      |
-| Other Fees             | None disclosed          | None disclosed          | None disclosed          |
-| Fees Financed or Upfront| Upfront                | N/A                     | N/A                     |
-| Prepayment Penalty     | Not disclosed -- verify | Not disclosed -- verify | Not disclosed -- verify |
-| Payment Frequency      | Monthly                 | Monthly                 | Monthly                 |
+
+| Parameter                | First National Bank      | Meridian Credit Union   | Online Lender Direct    |
+| ------------------------ | ------------------------ | ----------------------- | ----------------------- |
+| Face Amount              | $25,000                  | $25,000                 | $25,000                 |
+| Stated Interest Rate     | 9.25%                    | 8.75%                   | 10.50%                  |
+| Lender-Quoted APR        | Not provided             | 8.75%                   | 10.50%                  |
+| Loan Term                | 48 months (4 yrs)        | 60 months (5 yrs)       | 36 months (3 yrs)       |
+| Rate Type                | Fixed                    | Fixed                   | Fixed                   |
+| Origination Fee          | $500 (2.0% of principal) | $0                      | $0                      |
+| Other Fees               | None disclosed           | None disclosed          | None disclosed          |
+| Fees Financed or Upfront | Upfront                  | N/A                     | N/A                     |
+| Prepayment Penalty       | Not disclosed -- verify  | Not disclosed -- verify | Not disclosed -- verify |
+| Payment Frequency        | Monthly                  | Monthly                 | Monthly                 |
 
 ---
 
 ### Monthly Payment Calculation Detail
 
 **First National Bank:** P = $25,000, r = 9.25% ÷ 12 = 0.77083%/month, n = 48
+
 - M = 25,000 × [0.007708 × (1.007708)^48] / [(1.007708)^48 -- 1]
 - (1.007708)^48 = 1.44697
 - M = 25,000 × [0.007708 × 1.44697] / [1.44697 -- 1]
@@ -435,6 +462,7 @@ Add a cash column to the comparison. Key points:
 - M = 25,000 × 0.024946 = **$624/month**
 
 **Meridian Credit Union:** P = $25,000, r = 8.75% ÷ 12 = 0.72917%/month, n = 60
+
 - M = 25,000 × [0.007292 × (1.007292)^60] / [(1.007292)^60 -- 1]
 - (1.007292)^60 = 1.54097
 - M = 25,000 × [0.007292 × 1.54097] / [0.54097]
@@ -442,6 +470,7 @@ Add a cash column to the comparison. Key points:
 - M = 25,000 × 0.020768 = **$519/month**
 
 **Online Lender Direct:** P = $25,000, r = 10.50% ÷ 12 = 0.875%/month, n = 36
+
 - M = 25,000 × [0.00875 × (1.00875)^36] / [(1.00875)^36 -- 1]
 - (1.00875)^36 = 1.36983
 - M = 25,000 × [0.00875 × 1.36983] / [0.36983]
@@ -451,52 +480,56 @@ Add a cash column to the comparison. Key points:
 ---
 
 ### Monthly Payment Comparison
-| Metric                        | First National Bank | Meridian Credit Union | Online Lender Direct |
-|-------------------------------|---------------------|-----------------------|----------------------|
-| Monthly Payment               | $624                | $519                  | $810                 |
-| vs. Lowest Payment Option     | +$105               | Lowest                | +$291                |
-| Annual Payment Burden         | $7,488              | $6,228                | $9,720               |
+
+| Metric                    | First National Bank | Meridian Credit Union | Online Lender Direct |
+| ------------------------- | ------------------- | --------------------- | -------------------- |
+| Monthly Payment           | $624                | $519                  | $810                 |
+| vs. Lowest Payment Option | +$105               | Lowest                | +$291                |
+| Annual Payment Burden     | $7,488              | $6,228                | $9,720               |
 
 ---
 
 ### Total Cost of Borrowing
-| Metric                        | First National Bank | Meridian Credit Union | Online Lender Direct |
-|-------------------------------|---------------------|-----------------------|----------------------|
-| Principal (face amount)       | $25,000             | $25,000               | $25,000              |
-| Total Interest Paid           | $4,952              | $6,140                | $4,176               |
-| Total Fees (all-in)           | $500                | $0                    | $0                   |
-| **Total Amount Repaid**       | **$30,452**         | **$31,140**           | **$29,176**          |
-| **Total Cost of Borrowing**   | **$5,452**          | **$6,140**            | **$4,176**           |
-| vs. Cheapest Total Cost       | +$1,276             | +$1,964               | Cheapest             |
-| Effective APR                 | 10.64%              | 8.75%                 | 10.50%               |
-| Cost per $1,000 borrowed      | $218.08             | $245.60               | $167.04              |
+
+| Metric                      | First National Bank | Meridian Credit Union | Online Lender Direct |
+| --------------------------- | ------------------- | --------------------- | -------------------- |
+| Principal (face amount)     | $25,000             | $25,000               | $25,000              |
+| Total Interest Paid         | $4,952              | $6,140                | $4,176               |
+| Total Fees (all-in)         | $500                | $0                    | $0                   |
+| **Total Amount Repaid**     | **$30,452**         | **$31,140**           | **$29,176**          |
+| **Total Cost of Borrowing** | **$5,452**          | **$6,140**            | **$4,176**           |
+| vs. Cheapest Total Cost     | +$1,276             | +$1,964               | Cheapest             |
+| Effective APR               | 10.64%              | 8.75%                 | 10.50%               |
+| Cost per $1,000 borrowed    | $218.08             | $245.60               | $167.04              |
 
 **Effective APR note for First National Bank:** The stated rate is 9.25%, but the $500 upfront origination fee raises the effective APR. Using the IRR method: the lender receives $500 at closing but disburses only $24,500 net. Solving for the rate that equates $24,500 present value to 48 payments of $624 yields an effective monthly rate of 0.8867%, or an effective APR of approximately 10.64% -- a full 1.39 percentage points above the stated rate.
 
 ---
 
 ### Break-Even Analysis
-| Metric                                          | First National Bank vs. Online Lender Direct |
-|-------------------------------------------------|----------------------------------------------|
-| Fee differential                                | $500 more for First National Bank            |
-| Monthly payment: FNB vs. Direct                 | $624 vs. $810 (FNB is $186 cheaper/month)    |
-| Break-even calculation                          | $500 ÷ $186 = 2.7 months                     |
-| Loan term                                       | 48 months (FNB) vs. 36 months (Direct)       |
-| Verdict                                         | Fee is trivial relative to payment difference |
+
+| Metric                          | First National Bank vs. Online Lender Direct  |
+| ------------------------------- | --------------------------------------------- |
+| Fee differential                | $500 more for First National Bank             |
+| Monthly payment: FNB vs. Direct | $624 vs. $810 (FNB is $186 cheaper/month)     |
+| Break-even calculation          | $500 ÷ $186 = 2.7 months                      |
+| Loan term                       | 48 months (FNB) vs. 36 months (Direct)        |
+| Verdict                         | Fee is trivial relative to payment difference |
 
 Note: The break-even comparison above is between options with different terms, so the fee analysis is secondary to the term-driven payment and cost differences. The more meaningful break-even is between FNB (48 months, 9.25%, $500 fee) and a hypothetical no-fee version of FNB. Stripping the fee: without the $500 fee, FNB's effective APR would be 9.25% -- still higher than Meridian's 8.75% but for a shorter term. The fee costs FNB the effective-APR comparison against Meridian.
 
 ---
 
 ### Summary Scorecard
-| Criterion                     | Winner                 | Margin                           |
-|-------------------------------|------------------------|----------------------------------|
-| Lowest monthly payment        | Meridian Credit Union  | $519/month ($105 less than FNB)  |
-| Lowest total cost             | Online Lender Direct   | $4,176 total interest + $0 fees  |
-| Lowest effective APR          | Meridian Credit Union  | 8.75%                            |
-| Shortest payoff term          | Online Lender Direct   | 36 months (done 1 yr earlier)    |
-| Lowest stated rate            | Meridian Credit Union  | 8.75%                            |
-| Best rate after fee adjustment| Meridian Credit Union  | 8.75% effective (no fees)        |
+
+| Criterion                      | Winner                | Margin                          |
+| ------------------------------ | --------------------- | ------------------------------- |
+| Lowest monthly payment         | Meridian Credit Union | $519/month ($105 less than FNB) |
+| Lowest total cost              | Online Lender Direct  | $4,176 total interest + $0 fees |
+| Lowest effective APR           | Meridian Credit Union | 8.75%                           |
+| Shortest payoff term           | Online Lender Direct  | 36 months (done 1 yr earlier)   |
+| Lowest stated rate             | Meridian Credit Union | 8.75%                           |
+| Best rate after fee adjustment | Meridian Credit Union | 8.75% effective (no fees)       |
 
 ---
 

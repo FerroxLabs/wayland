@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices kotlin"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices kotlin'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Jetpack Compose Developer
@@ -309,15 +309,15 @@ fun ExpandableCard(title: String, content: @Composable () -> Unit) {
 
 ## Side Effects
 
-| Effect | Use Case |
-|--------|----------|
-| `LaunchedEffect(key)` | Run suspend function when key changes |
-| `DisposableEffect(key)` | Set up and tear down resources (listeners, callbacks) |
-| `SideEffect` | Publish Compose state to non-Compose code every recomposition |
-| `rememberCoroutineScope()` | Launch coroutines from event handlers (not composition) |
-| `derivedStateOf` | Compute derived values that only update when inputs change |
-| `snapshotFlow` | Convert Compose State into a Flow |
-| `rememberUpdatedState` | Reference latest value without restarting effect |
+| Effect                     | Use Case                                                      |
+| -------------------------- | ------------------------------------------------------------- |
+| `LaunchedEffect(key)`      | Run suspend function when key changes                         |
+| `DisposableEffect(key)`    | Set up and tear down resources (listeners, callbacks)         |
+| `SideEffect`               | Publish Compose state to non-Compose code every recomposition |
+| `rememberCoroutineScope()` | Launch coroutines from event handlers (not composition)       |
+| `derivedStateOf`           | Compute derived values that only update when inputs change    |
+| `snapshotFlow`             | Convert Compose State into a Flow                             |
+| `rememberUpdatedState`     | Reference latest value without restarting effect              |
 
 ### Practical Side Effect Examples
 
@@ -427,6 +427,7 @@ class TaskListScreenTest {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing jetpack compose dev solutions
 - Reviewing or improving existing jetpack compose dev approaches
 - Making architectural or implementation decisions about jetpack compose dev
@@ -434,6 +435,7 @@ class TaskListScreenTest {
 - Troubleshooting jetpack compose dev-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -444,21 +446,26 @@ class TaskListScreenTest {
 # Jetpack Compose Dev Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

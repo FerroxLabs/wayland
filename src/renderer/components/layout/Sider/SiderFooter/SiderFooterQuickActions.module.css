@@ -21,7 +21,9 @@
   color: var(--color-text-3);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
 .btn:hover {

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ruby testing tdd"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ruby testing tdd'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Ruby Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to structure tests for a Ruby application using RSpec, Minitest, or Test::Unit
 - The user wants to know when to use mocks vs. stubs vs. fakes vs. spies in Ruby tests
 - The user needs guidance on test organization -- unit, integration, and system test boundaries in a Rails or plain Ruby project
@@ -30,6 +32,7 @@ metadata:
 - The user wants to configure CI-specific test tooling for a Ruby project (parallel_tests, test-prof, SimpleCov thresholds)
 
 **Do NOT use this skill when:**
+
 - The user is asking about Ruby performance optimization unrelated to tests -- use the ruby-performance-optimization skill instead
 - The user needs help with general Rails architecture and has no testing question -- use the rails-application-architecture skill
 - The user is testing JavaScript or TypeScript in a Rails frontend context -- use the javascript-testing-patterns skill
@@ -127,7 +130,7 @@ Ruby's duck typing makes doubles powerful but easy to misuse. Apply these rules 
 
 When helping a user with Ruby testing patterns, structure your response as follows:
 
-```
+````
 ## Test Analysis
 
 **Code Under Test:** [class/module name and responsibility]
@@ -153,12 +156,12 @@ When helping a user with Ruby testing patterns, structure your response as follo
 # Minimum valid factory
 factory :[model] do
   [attribute]: [value]  # only what's needed for validity
-  
+
   trait :[variant] do
     [attribute]: [value]
   end
 end
-```
+````
 
 ---
 
@@ -211,7 +214,7 @@ end
 ## Performance Targets
 
 | Suite Segment     | Max Duration (local) | Max Duration (CI) |
-|-------------------|----------------------|-------------------|
+| ----------------- | -------------------- | ----------------- |
 | Unit tests        | 60s                  | 90s               |
 | Integration tests | 3 min                | 5 min             |
 | System tests      | 10 min               | 15 min            |
@@ -223,7 +226,8 @@ end
 
 1. [Specific change with filename and line reference]
 2. [Specific change with filename and line reference]
-```
+
+````
 
 ---
 
@@ -355,7 +359,7 @@ FactoryBot.define do
     end
   end
 end
-```
+````
 
 ---
 
@@ -558,7 +562,7 @@ end
 ## Performance Targets
 
 | Suite Segment     | Max Duration (local) | Max Duration (CI) |
-|-------------------|----------------------|-------------------|
+| ----------------- | -------------------- | ----------------- |
 | Unit tests        | 60s                  | 90s               |
 | Integration tests | 3 min                | 5 min             |
 | System tests      | 10 min               | 15 min            |

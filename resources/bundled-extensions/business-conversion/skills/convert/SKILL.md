@@ -39,9 +39,22 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [convert-sales-page, convert-vsl, convert-open, convert-proof, convert-three-locks, convert-bullets, convert-close, convert-chute, convert-voice, funnels-offer, funnels-build-campaign]
+    related_skills:
+      [
+        convert-sales-page,
+        convert-vsl,
+        convert-open,
+        convert-proof,
+        convert-three-locks,
+        convert-bullets,
+        convert-close,
+        convert-chute,
+        convert-voice,
+        funnels-offer,
+        funnels-build-campaign,
+      ]
 attribution:
-  lineage: "Wayland Business Suite (Original) - built on The Donahoe Method, synthesizing Schwartz/Halbert/Caples/Ogilvy/Sugarman/Hormozi/Cialdini canon"
+  lineage: 'Wayland Business Suite (Original) - built on The Donahoe Method, synthesizing Schwartz/Halbert/Caples/Ogilvy/Sugarman/Hormozi/Cialdini canon'
 ---
 
 # Convert - Conversion Orchestrator (The Donahoe Method, encoded)
@@ -83,6 +96,7 @@ Trigger this orchestrator when the user wants to **build a conversion asset from
 - `/convert package <product>` - composite full-asset build (research → primitives → page → visual → audit)
 
 Do **NOT** trigger this orchestrator for:
+
 - Auditing an existing live URL (use `/market landing <url>` or `/market copy <url>`)
 - Analyzing a funnel's conversion path on a live site (use `/market funnel <url>`)
 - Designing the offer structure itself (use `/funnel offer` - that's funnels pack territory)
@@ -90,46 +104,46 @@ Do **NOT** trigger this orchestrator for:
 
 ## Verbs
 
-| Verb | Sub-skill | One-liner |
-|------|-----------|-----------|
-| `four-questions` | `convert-four-questions` | Run The Four Questions diagnostic (Why You / Me / This / Now) |
-| `temperature` | `convert-temperature` | Classify reader temperature (Ice Cold / Cool / Warm / Hot / Boiling) |
-| `open` | `convert-open` | Generate Four-Layer Open (Nerve Strike + Side Door + Skin in Game + Fingerprint) |
-| `proof` | `convert-proof` | Apply Conversational Proof - claim → evidence → reason → move on; 5 types library |
-| `locks` | `convert-three-locks` | Architect Want / Trust / Excuse persuasion sequence |
-| `bullets` | `convert-bullets` | Generate bullets across 4 types (Keyhole / Flip / Snapshot / Scar) mixed for rhythm |
-| `close` | `convert-close` | The Cascade Close - Stack → Vision → Math → Safety Net → Door + P.S. + P.P.S. |
-| `chute` | `convert-chute` | Engineer momentum (open loops, rhythm, transitions, read-aloud test) |
-| `transition` | `convert-transition` | Library of 10 transition moves; integrate into existing copy |
-| `voice` | `convert-voice` | Apply Donahoe Voice Rules + Bullshit Filter |
-| `fingerprint` | `convert-fingerprint` | Develop the only-you POV / contrarian take / vivid voice |
-| `bullshit-filter` | `convert-bullshit-filter` | Pass any draft through "would I actually say this to someone I'm trying to help?" |
-| `sales-page` | `convert-sales-page` | Long-form direct-response sales page (full Method + HTML/CSS) |
-| `vsl` | `convert-vsl` | VSL script (18-min structure with timestamps) |
-| `vsl-page` | `convert-vsl-page` | VSL hosting page + buy-button reveal mechanics |
-| `squeeze` | `convert-squeeze-page` | Single-purpose opt-in page |
-| `oto` | `convert-oto-page` | One-Time Offer page |
-| `downsell` | `convert-downsell-page` | OTO recovery page |
-| `bump` | `convert-bump` | Order-form bump micro-copy + checkbox HTML |
-| `cross-sell` | `convert-cross-sell-page` | Post-purchase upsell with relevant bundles |
-| `lead-magnet-page` | `convert-lead-magnet-page` | Free→email opt-in page |
-| `thank-you` | `convert-thank-you-page` | Thank-you page with secondary-offer stack |
-| `bridge` | `convert-bridge-page` | Advertorial / listicle / pre-sell content |
-| `webinar-reg` | `convert-webinar-reg-page` | Webinar registration page |
-| `checkout` | `convert-checkout-page` | Checkout micro-copy + trust signals |
-| `above-fold` | `convert-above-fold` | Above-fold hierarchy + 5-second test |
-| `scroll-rhythm` | `convert-scroll-rhythm` | Scroll-depth orchestration aligned to Three Locks |
-| `mobile` | `convert-mobile` | Mobile thumb-zone + reading-pattern compression |
-| `proof-stack` | `convert-proof-stack` | Visual proof stacking (testimonials, logo bars, video > text) |
-| `audit` | `convert-audit` | Donahoe Method audit (8 frameworks scored) |
-| `package` | `convert-package` | Composite - full sales asset end-to-end |
-| `report` | `convert-report` | Aggregate prior runs into client-ready report |
+| Verb               | Sub-skill                  | One-liner                                                                           |
+| ------------------ | -------------------------- | ----------------------------------------------------------------------------------- |
+| `four-questions`   | `convert-four-questions`   | Run The Four Questions diagnostic (Why You / Me / This / Now)                       |
+| `temperature`      | `convert-temperature`      | Classify reader temperature (Ice Cold / Cool / Warm / Hot / Boiling)                |
+| `open`             | `convert-open`             | Generate Four-Layer Open (Nerve Strike + Side Door + Skin in Game + Fingerprint)    |
+| `proof`            | `convert-proof`            | Apply Conversational Proof - claim → evidence → reason → move on; 5 types library   |
+| `locks`            | `convert-three-locks`      | Architect Want / Trust / Excuse persuasion sequence                                 |
+| `bullets`          | `convert-bullets`          | Generate bullets across 4 types (Keyhole / Flip / Snapshot / Scar) mixed for rhythm |
+| `close`            | `convert-close`            | The Cascade Close - Stack → Vision → Math → Safety Net → Door + P.S. + P.P.S.       |
+| `chute`            | `convert-chute`            | Engineer momentum (open loops, rhythm, transitions, read-aloud test)                |
+| `transition`       | `convert-transition`       | Library of 10 transition moves; integrate into existing copy                        |
+| `voice`            | `convert-voice`            | Apply Donahoe Voice Rules + Bullshit Filter                                         |
+| `fingerprint`      | `convert-fingerprint`      | Develop the only-you POV / contrarian take / vivid voice                            |
+| `bullshit-filter`  | `convert-bullshit-filter`  | Pass any draft through "would I actually say this to someone I'm trying to help?"   |
+| `sales-page`       | `convert-sales-page`       | Long-form direct-response sales page (full Method + HTML/CSS)                       |
+| `vsl`              | `convert-vsl`              | VSL script (18-min structure with timestamps)                                       |
+| `vsl-page`         | `convert-vsl-page`         | VSL hosting page + buy-button reveal mechanics                                      |
+| `squeeze`          | `convert-squeeze-page`     | Single-purpose opt-in page                                                          |
+| `oto`              | `convert-oto-page`         | One-Time Offer page                                                                 |
+| `downsell`         | `convert-downsell-page`    | OTO recovery page                                                                   |
+| `bump`             | `convert-bump`             | Order-form bump micro-copy + checkbox HTML                                          |
+| `cross-sell`       | `convert-cross-sell-page`  | Post-purchase upsell with relevant bundles                                          |
+| `lead-magnet-page` | `convert-lead-magnet-page` | Free→email opt-in page                                                              |
+| `thank-you`        | `convert-thank-you-page`   | Thank-you page with secondary-offer stack                                           |
+| `bridge`           | `convert-bridge-page`      | Advertorial / listicle / pre-sell content                                           |
+| `webinar-reg`      | `convert-webinar-reg-page` | Webinar registration page                                                           |
+| `checkout`         | `convert-checkout-page`    | Checkout micro-copy + trust signals                                                 |
+| `above-fold`       | `convert-above-fold`       | Above-fold hierarchy + 5-second test                                                |
+| `scroll-rhythm`    | `convert-scroll-rhythm`    | Scroll-depth orchestration aligned to Three Locks                                   |
+| `mobile`           | `convert-mobile`           | Mobile thumb-zone + reading-pattern compression                                     |
+| `proof-stack`      | `convert-proof-stack`      | Visual proof stacking (testimonials, logo bars, video > text)                       |
+| `audit`            | `convert-audit`            | Donahoe Method audit (8 frameworks scored)                                          |
+| `package`          | `convert-package`          | Composite - full sales asset end-to-end                                             |
+| `report`           | `convert-report`           | Aggregate prior runs into client-ready report                                       |
 
 ## Inputs
 
 - **First positional arg:** the verb (one of the table above)
 - **Remaining args:** passed through as the sub-skill's input (product description, offer brief, target audience, etc.)
-- **`out_path`** *(optional):* explicit output file. Defaults via `build_report_path("business-conversion", instruction)`.
+- **`out_path`** _(optional):_ explicit output file. Defaults via `build_report_path("business-conversion", instruction)`.
 
 ## Routing logic
 
@@ -155,6 +169,7 @@ The full sales-asset build end-to-end. Fans out the following sequence:
 ### `/convert quick <product>`
 
 60-second compressed Method snapshot:
+
 - 1 four-question answer set
 - 1 temperature read
 - 1 four-layer open

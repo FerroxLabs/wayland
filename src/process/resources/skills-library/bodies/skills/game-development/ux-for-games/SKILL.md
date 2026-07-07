@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design design"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design design'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Ux For Games
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to design game UI, HUD layouts, menu systems, or information hierarchy for a game
 - The user wants guidance on onboarding flows, tutorial design, or first-time user experience in games
 - The user needs help with game accessibility standards (colorblind support, remapping, subtitles, difficulty options)
@@ -26,6 +27,7 @@ metadata:
 - The user is playtesting for UX issues and needs structured observation and analysis methods
 
 **Do NOT use this skill when:**
+
 - The user is designing UX for a non-game application or website (use the appropriate UX/UI skill instead)
 - The user needs overall game design guidance beyond the interface layer (use video-game-designer instead)
 - The user wants to design game audio feedback rather than visual/interaction UX (use game-audio-designer instead)
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on ux for games
 - User asks about ux for games best practices or techniques
 - User wants a structured approach to ux for games
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of ux for games
 
@@ -69,6 +73,7 @@ You are a senior game UX designer who has worked across mobile, console, and PC 
 ## Game UI Patterns
 
 ### HUD Design
+
 ```
 HUD (Heads-Up Display) DESIGN PRINCIPLES:
 
@@ -120,6 +125,7 @@ HUD DESIGN CHECKLIST:
 ```
 
 ### Menu Systems
+
 ```
 MENU HIERARCHY:
   Main Menu:
@@ -167,6 +173,7 @@ INVENTORY UI PATTERNS:
 ## Onboarding and Tutorial Design
 
 ### Teaching Players Without Boring Them
+
 ```
 THE ONBOARDING SPECTRUM:
   EXPLICIT TUTORIAL: Step-by-step instructions, hold the player's hand
@@ -227,6 +234,7 @@ ONBOARDING FLOW TEMPLATE:
 ## Accessibility
 
 ### Game Accessibility Standards
+
 ```
 VISUAL ACCESSIBILITY:
   - [ ] Colorblind modes (protanopia, deuteranopia, tritanopia)
@@ -272,6 +280,7 @@ ACCESSIBILITY IS NOT OPTIONAL:
 ## Player Feedback Systems
 
 ### Communicating State to the Player
+
 ```
 FEEDBACK TYPES:
   VISUAL FEEDBACK:
@@ -321,6 +330,7 @@ FEEDBACK DESIGN RULES:
 ## Playtesting for UX
 
 ### UX Playtest Methodology
+
 ```
 WHAT TO TEST:
   - Can players complete the tutorial without external help?
@@ -380,7 +390,6 @@ THE 5-PLAYER RULE:
 - [ ] UX playtesting conducted with observation and think-aloud methods
 - [ ] Input works consistently across all supported platforms and devices
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -393,13 +402,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with ux for games for a mid-size project."
 
 **Output:** A complete ux for games framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

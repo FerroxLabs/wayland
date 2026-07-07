@@ -26,7 +26,8 @@ function makeConfig(overrides: Partial<Record<string, unknown>> = {}): IChannelP
     enabled: true,
     status: 'created',
     credentials: {
-      incomingUrl: 'https://nas.example.com/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&version=2&token=abc',
+      incomingUrl:
+        'https://nas.example.com/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&version=2&token=abc',
       incomingToken: 'test-token-123',
       ...overrides,
     },
@@ -89,7 +90,7 @@ describe('SynologyChatPlugin lifecycle: created → ready → running → stoppe
     await plugin.handleWebhookPayload(
       { user_id: '5', username: 'bob', text: 'hi', channel_id: '1' },
       {},
-      'synology-chat_default',
+      'synology-chat_default'
     );
     expect(plugin.getActiveUserCount()).toBe(1);
 

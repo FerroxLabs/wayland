@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide checklist"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness guide checklist'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # First Aid Reference Guide
@@ -34,11 +34,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about first aid guide
 - User needs guidance on first aid guide topics
 - User wants a structured approach to first aid guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -209,6 +211,7 @@ MINOR WOUND CARE
 ```
 
 ### When Wounds Need Medical Attention
+
 - Deep wounds (fat or muscle visible)
 - Gaping wounds that won't close
 - Wounds that won't stop bleeding after 10 minutes of pressure
@@ -223,11 +226,11 @@ MINOR WOUND CARE
 
 ### Burn Classification
 
-| Degree | Appearance | Pain Level | Depth | Treatment |
-|--------|-----------|-----------|-------|-----------|
-| 1st (Superficial) | Red, dry, no blisters | Painful | Epidermis only | Home care usually OK |
-| 2nd (Partial) | Red, blisters, moist | Very painful | Into dermis | Doctor for large/sensitive areas |
-| 3rd (Full) | White/charred, dry, leathery | May be painless (nerve damage) | Through dermis | Call 911 - Emergency |
+| Degree            | Appearance                   | Pain Level                     | Depth          | Treatment                        |
+| ----------------- | ---------------------------- | ------------------------------ | -------------- | -------------------------------- |
+| 1st (Superficial) | Red, dry, no blisters        | Painful                        | Epidermis only | Home care usually OK             |
+| 2nd (Partial)     | Red, blisters, moist         | Very painful                   | Into dermis    | Doctor for large/sensitive areas |
+| 3rd (Full)        | White/charred, dry, leathery | May be painless (nerve damage) | Through dermis | Call 911 - Emergency             |
 
 ### Burn First Aid
 
@@ -268,14 +271,14 @@ CALL 911 FOR:
 
 ### Identifying Fractures vs Sprains
 
-| Sign | Possible Fracture | Sprain |
-|------|------------------|--------|
-| Deformity | Visible - limb looks bent/abnormal | Usually none |
-| Swelling | Rapid, significant | Moderate |
-| Bruising | May be severe | Usually present |
-| Pain | Severe, worse with movement | Moderate to severe |
-| Ability to use | Often cannot bear weight/use | May be able to partially use |
-| Sound at injury | May have heard a crack/snap | May have heard a pop |
+| Sign            | Possible Fracture                  | Sprain                       |
+| --------------- | ---------------------------------- | ---------------------------- |
+| Deformity       | Visible - limb looks bent/abnormal | Usually none                 |
+| Swelling        | Rapid, significant                 | Moderate                     |
+| Bruising        | May be severe                      | Usually present              |
+| Pain            | Severe, worse with movement        | Moderate to severe           |
+| Ability to use  | Often cannot bear weight/use       | May be able to partially use |
+| Sound at injury | May have heard a crack/snap        | May have heard a pop         |
 
 ### RICE Protocol (for sprains and stable suspected fractures)
 
@@ -300,6 +303,7 @@ E - ELEVATION
 ```
 
 ### When to Seek Emergency Care for Injury
+
 - Visible bone or deformity
 - Loss of sensation or circulation below injury
 - Unable to bear any weight
@@ -387,18 +391,18 @@ AFTER EPINEPHRINE:
 
 ### Heat Emergencies
 
-| Condition | Signs | Response |
-|-----------|-------|----------|
-| Heat cramps | Muscle cramps during exercise, sweating | Move to shade, stretch, hydrate with electrolytes |
-| Heat exhaustion | Heavy sweating, weakness, nausea, headache, cool/clammy skin | Move to cool place, loosen clothing, cool with wet cloths, sip water. Seek medical help if vomiting or symptoms worsen |
-| Heat stroke | HIGH temp (103F+), red/hot/DRY skin, confusion, loss of consciousness | **CALL 911.** Cool rapidly (cold water immersion, ice packs at neck/armpits/groin). This is life-threatening. |
+| Condition       | Signs                                                                 | Response                                                                                                               |
+| --------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Heat cramps     | Muscle cramps during exercise, sweating                               | Move to shade, stretch, hydrate with electrolytes                                                                      |
+| Heat exhaustion | Heavy sweating, weakness, nausea, headache, cool/clammy skin          | Move to cool place, loosen clothing, cool with wet cloths, sip water. Seek medical help if vomiting or symptoms worsen |
+| Heat stroke     | HIGH temp (103F+), red/hot/DRY skin, confusion, loss of consciousness | **CALL 911.** Cool rapidly (cold water immersion, ice packs at neck/armpits/groin). This is life-threatening.          |
 
 ### Cold Emergencies
 
-| Condition | Signs | Response |
-|-----------|-------|----------|
-| Frostnip | Numbness, white/waxy skin | Move indoors, warm gently (body heat, warm water 98-105F) |
-| Frostbite | Hard/waxy skin, blisters, no sensation | Seek medical care. Warm in 98-105F water. Do NOT rub. Do NOT rewarm if refreezing is possible |
+| Condition   | Signs                                            | Response                                                                                                                        |
+| ----------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Frostnip    | Numbness, white/waxy skin                        | Move indoors, warm gently (body heat, warm water 98-105F)                                                                       |
+| Frostbite   | Hard/waxy skin, blisters, no sensation           | Seek medical care. Warm in 98-105F water. Do NOT rub. Do NOT rewarm if refreezing is possible                                   |
 | Hypothermia | Shivering, confusion, slurred speech, drowsiness | **CALL 911.** Move to warm area, remove wet clothing, warm the core GRADUALLY with blankets, warm (not hot) drinks if conscious |
 
 ## Poisoning Response
@@ -493,7 +497,6 @@ CALL 911 WHEN:
 WHEN IN DOUBT, CALL. It is always better to call and not need
 emergency services than to not call and need them.
 ```
-
 
 ## Output Format
 

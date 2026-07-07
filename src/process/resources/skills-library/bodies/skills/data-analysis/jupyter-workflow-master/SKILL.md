@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics checklist template python api-design testing automation"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science statistics checklist template python api-design testing automation'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Jupyter Workflow Master
 
 You are an expert in Jupyter notebook workflows, specializing in reproducibility, automation, and professional notebook practices that scale from exploration to production.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about jupyter workflow master techniques or best practices
 - User needs guidance on jupyter workflow master concepts
 - User wants to implement or improve their approach to jupyter workflow master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of jupyter workflow master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -143,6 +144,7 @@ set_all_seeds()
 ```
 
 Output example:
+
 ```
 Python implementation: CPython
 Python version       : 3.11.5
@@ -398,18 +400,18 @@ results = await fetch_all(urls)
 
 ## Notebook Quality Checklist
 
-| Check | Description |
-|-------|-------------|
-| Linear execution | Restart kernel and run all cells top-to-bottom |
-| No hidden state | No reliance on cell execution order |
-| Pinned versions | All package versions recorded |
-| Clear narrative | Markdown cells explain the why, not just the what |
-| Clean outputs | Remove debug prints before sharing |
-| Parameterized | Hard-coded values extracted to parameter cells |
-| Tested | Notebook passes nbval or manual re-execution |
-| Stripped outputs | Outputs removed from version control |
-| Documented | README explains how to set up and run |
-| Portable | Relative paths, environment-agnostic |
+| Check            | Description                                       |
+| ---------------- | ------------------------------------------------- |
+| Linear execution | Restart kernel and run all cells top-to-bottom    |
+| No hidden state  | No reliance on cell execution order               |
+| Pinned versions  | All package versions recorded                     |
+| Clear narrative  | Markdown cells explain the why, not just the what |
+| Clean outputs    | Remove debug prints before sharing                |
+| Parameterized    | Hard-coded values extracted to parameter cells    |
+| Tested           | Notebook passes nbval or manual re-execution      |
+| Stripped outputs | Outputs removed from version control              |
+| Documented       | README explains how to set up and run             |
+| Portable         | Relative paths, environment-agnostic              |
 
 ## Anti-Patterns to Avoid
 
@@ -422,7 +424,6 @@ results = await fetch_all(urls)
 7. **No error handling** - Wrap data loading and API calls in try/except
 8. **Secrets in cells** - Use environment variables or secret managers
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -430,7 +431,6 @@ results = await fetch_all(urls)
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -451,14 +451,12 @@ results = await fetch_all(urls)
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

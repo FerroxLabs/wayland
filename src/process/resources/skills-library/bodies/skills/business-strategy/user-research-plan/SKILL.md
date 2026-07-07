@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research planning analysis strategy decision-making"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research planning analysis strategy decision-making'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # User Research Plan
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user needs to design a structured UX or user research study before making a product decision -- for example, before committing to a feature redesign, a new onboarding flow, or a navigation overhaul
 - A user wants to understand why a behavior is occurring in product analytics (drop-off, low adoption, support volume spikes) and needs a qualitative investigation to explain the quantitative signal
 - A user is evaluating whether an existing design, prototype, or workflow works well enough to ship -- they need evaluative research, not generative discovery
@@ -28,6 +30,7 @@ metadata:
 - A user is building out a research program from scratch and needs to understand how to sequence methods over time
 
 **Do NOT use this skill when:**
+
 - The user needs to validate whether a new product concept solves a problem for a market segment that does not yet exist as customers -- use `customer-discovery-interview` instead, which follows a different hypothesis-driven discovery methodology appropriate for early startups
 - The user wants to measure employee sentiment, engagement, or culture -- use `employee-survey`, which requires anonymity design, HR compliance, and benchmark comparisons not addressed here
 - The user is asking for market sizing, competitive positioning, or buyer persona research based on secondary data -- use `market-research-brief`, which covers desk research and market analysis
@@ -60,32 +63,35 @@ Before writing a single question, establish why this research is being conducted
 Method selection is a matching problem: the method must fit the research question type, the available timeline, the budget, and the stage of the product. There is no universally "best" method.
 
 **Generative methods:**
+
 - **Semi-structured user interviews:** The most versatile generative method. Use when you need to understand user goals, mental models, workflows, frustrations, and decision-making. Sessions are 45-60 minutes, conducted 1:1 with a researcher. Ideal sample: 5-8 participants per distinct user segment. Saturation -- the point at which additional sessions produce no new themes -- typically occurs at 5-7 in a homogeneous population, 8-12 across heterogeneous segments. Do not conduct fewer than 5; do not conduct more than 12 without a clear reason (complex product domain, multiple very distinct segments).
 - **Contextual inquiry:** Observation in the user's real environment while they perform authentic tasks. Use when the work context is critical to understanding behavior -- logistics workers, field technicians, clinical staff. More time-intensive than interviews (2-4 hours per participant) but reveals workarounds, environmental constraints, and team dynamics that interviews miss. Sample: 4-6 participants.
 - **Diary studies:** Participants self-report experiences over time (days or weeks) via prompted journaling, photo uploads, or short video clips. Use for behaviors that are episodic, longitudinal, or private -- financial decisions, health tracking, travel planning. Tools: Dscout, Indeemo, or structured WhatsApp/email prompts. Sample: 10-20 participants over 1-4 weeks. High dropout risk; overrecruit by 30%.
 - **Participatory design / co-design sessions:** Users actively help design solutions, often using card sorting, journey mapping, or concept sketching exercises. Use when you want to generate solution ideas directly from users, not just diagnose problems. Sample: 6-10 participants in workshop format.
 
 **Evaluative methods:**
+
 - **Moderated usability testing:** A facilitator guides participants through tasks on a prototype or live product while observing and probing their behavior aloud. The gold standard for identifying usability issues. Sample: 5 participants per design variant is the Nielsen-Landauer threshold -- statistically, 5 participants expose approximately 85% of the most severe usability problems. For complex enterprise software, aim for 7-8. Session length: 45-75 minutes.
 - **Unmoderated usability testing:** Participants complete tasks asynchronously using tools like UserTesting, Maze, or Lookback. Faster (results in 24-48 hours) and cheaper, but you cannot probe unexpected behavior. Use for straightforward tasks with clear success criteria. Sample: 15-30 participants to compensate for lower data quality per session.
 - **First-click testing:** Participants click where they would first navigate to accomplish a task on a static screenshot. Rapid, low-cost evaluation of navigation and label clarity. Tools: Chalkmark, Optimal Workshop. Sample: 30-50 participants. Use specifically for navigation, IA, or CTA placement decisions.
 - **Tree testing:** Evaluates information architecture by asking participants to find items in a text-only hierarchy, without visual design cues. Use before committing to a navigation redesign. Tools: Treejack, Optimal Workshop. Sample: 50+ participants for statistical confidence.
 
 **Descriptive / mixed methods:**
+
 - **Survey with open-text questions:** Use when you need to quantify prevalence of behaviors or attitudes identified in qualitative research, or when you need to segment responses by user demographic. Effective sample depends on the population size and desired confidence interval. For a product with 50,000 active users, 384 responses gives ±5% confidence at 95%. Use closed-ended scales (Likert, frequency, semantic differential) for quantitative data; include 1-2 open-text questions for qualitative texture. Tools: Typeform, SurveyMonkey, Google Forms.
 - **Mixed methods (sequential):** The most rigorous and actionable approach for complex questions. Conduct qualitative interviews first (generative), then use findings to inform a survey (descriptive). Alternatively, conduct a survey to identify patterns, then use interviews to explain the "why" behind quantitative signals. The sequence matters: interviews before surveys generates better survey questions; surveys before interviews identifies which patterns are worth exploring.
 
 **Decision matrix for rapid method selection:**
 
-| Research question type | Timeline | Budget | Recommended method |
-|------------------------|----------|--------|--------------------|
-| Understand user goals/context | 3-4 weeks | Medium | Semi-structured interviews |
-| Evaluate a prototype | 1-2 weeks | Low-medium | Moderated usability test |
-| Evaluate a live feature quickly | 3-5 days | Low | Unmoderated usability test |
-| Understand IA or navigation | 1 week | Low | Tree testing or card sorting |
-| Quantify known issues | 2-3 weeks | Low | Survey |
-| Longitudinal behavior patterns | 4-8 weeks | High | Diary study |
-| Complex decision, high stakes | 5-8 weeks | High | Mixed methods (interviews + survey) |
+| Research question type          | Timeline  | Budget     | Recommended method                  |
+| ------------------------------- | --------- | ---------- | ----------------------------------- |
+| Understand user goals/context   | 3-4 weeks | Medium     | Semi-structured interviews          |
+| Evaluate a prototype            | 1-2 weeks | Low-medium | Moderated usability test            |
+| Evaluate a live feature quickly | 3-5 days  | Low        | Unmoderated usability test          |
+| Understand IA or navigation     | 1 week    | Low        | Tree testing or card sorting        |
+| Quantify known issues           | 2-3 weeks | Low        | Survey                              |
+| Longitudinal behavior patterns  | 4-8 weeks | High       | Diary study                         |
+| Complex decision, high stakes   | 5-8 weeks | High       | Mixed methods (interviews + survey) |
 
 ---
 
@@ -110,6 +116,7 @@ Recruiting the right participants is the single factor that most determines rese
 The discussion guide is the primary instrument of the research. Its quality determines whether sessions produce insight or noise.
 
 **For semi-structured interviews:**
+
 - Structure: Opening and consent (5 min) -> Warm-up and context setting (5-10 min) -> Core exploration section (25-35 min) -> Specific topic probes or concept reactions (10-15 min) -> Wrap-up and open floor (5 min). Total: 45-60 minutes.
 - Write 8-12 primary questions for a 60-minute interview. You will use 6-8. Having more allows flexibility.
 - **The TEDW probe framework:** After every primary question, use: Tell me more about that. Explain what you mean. Describe what that was like. Walk me through exactly what happened. These four probes work in almost every context and train researchers to pursue depth.
@@ -119,6 +126,7 @@ The discussion guide is the primary instrument of the research. Its quality dete
 - Write a short "context memo" at the top of the guide: the research question, the decision it informs, and two or three hypotheses you are testing. This is for the researcher's eyes only and helps them pursue relevant threads in the conversation.
 
 **For moderated usability tests:**
+
 - Structure: Introduction and consent (5-8 min) -> Warm-up questions about the participant's context (5 min) -> Task scenarios (20-40 min) -> Post-task debrief questions (5-10 min) -> Overall debrief (5 min). Total: 45-75 minutes.
 - Write task scenarios as realistic situations, not instructions. Bad: "Click on the settings menu and change your notification preferences." Good: "Imagine you've been getting too many email notifications from this app and you want to reduce them. Show me what you would do." The scenario provides motivation and context without revealing the answer.
 - Include a success criterion for every task before the test runs. Success criteria can be: binary (did they complete the task or not?), path-based (did they use the expected flow, or an alternative?), or confidence-based (self-reported ease on a 1-7 Likert scale post-task).
@@ -127,12 +135,14 @@ The discussion guide is the primary instrument of the research. Its quality dete
 - After all tasks, ask: "If this were your own tool and you could change one thing about what you just used, what would it be?" This often surfaces the most actionable single finding.
 
 **For unmoderated tests:**
+
 - Write task scenarios with even more precision because there is no researcher to clarify ambiguity. Every scenario must be self-contained and unambiguous.
 - Set screen recording and audio recording on.
 - Include a brief pre-test screener within the tool (e.g., Maze, UserTesting) to filter out unqualified respondents who slipped through recruitment.
 - Limit to 3-5 tasks maximum. Completion rates drop sharply after 20 minutes for unmoderated sessions.
 
 **Universal discussion guide rules:**
+
 - Never include the research hypothesis or the "right answer" in any question.
 - Sequence questions from broadest to narrowest (funnel structure). Opening with specific questions puts participants on the defensive.
 - Include a "what else" question at the close of every major section: "Is there anything about [this topic] that you think I should understand that we haven't talked about yet?" This question consistently surfaces the most surprising findings.
@@ -172,6 +182,7 @@ Poor logistics cause research to fail for reasons entirely unrelated to the qual
 Analysis must be planned before data collection begins. If the analysis method is defined after the data is collected, unconscious confirmation bias shapes which findings receive emphasis.
 
 **Thematic analysis for qualitative data (interviews, open-text):**
+
 1. **Transcription:** Generate verbatim transcripts from recordings. AI transcription tools (Grain, Otter.ai, Rev) produce 80-90% accurate transcripts; always review and correct before coding.
 2. **First-pass reading:** Read all transcripts once before coding to develop familiarity with the data as a whole. Note initial impressions but do not assign codes yet.
 3. **Open coding:** Read transcripts again and tag segments of text with descriptive labels (codes) that capture what the participant is saying or doing. Use participants' own language when possible -- these "in vivo" codes are closer to the actual experience. Tools: Dovetail, Reframer, Airtable, or sticky notes in Miro/FigJam.
@@ -181,6 +192,7 @@ Analysis must be planned before data collection begins. If the analysis method i
 7. **Team affinity synthesis:** If multiple researchers or stakeholders code independently, conduct an affinity session where codes are grouped collaboratively. This reduces individual researcher bias and increases confidence in themes.
 
 **Usability issue analysis:**
+
 - Rate each observed issue on a severity scale before aggregating across sessions:
   - Severity 1 (Critical): Prevents task completion. Fix before shipping.
   - Severity 2 (Serious): Causes significant delay, workaround required, high user frustration. Fix in near-term.
@@ -190,6 +202,7 @@ Analysis must be planned before data collection begins. If the analysis method i
 - A task with a success rate below 70% is a critical usability problem requiring immediate redesign.
 
 **Survey analysis:**
+
 - For quantitative questions: calculate means, medians, and distributions per item. Do not report only means -- distributions reveal bimodal responses where the average is meaningless.
 - Cross-tabulate by segment: compare new users vs. experienced users, mobile vs. desktop, role or plan tier. Differences between segments are often more informative than population-level averages.
 - For open-text responses: use thematic analysis as above, but at lower depth. Identify the top 5-7 themes and report frequency as a percentage of respondents.
@@ -461,23 +474,24 @@ AI-assisted transcription (Grain, Otter.ai, Fireflies) and AI-assisted qualitati
 
 ### Research Overview
 
-| Field | Detail |
-|-------|--------|
-| **Primary research question** | What prevents newly signed-up users from creating their first project within 14 days, and what would need to change for them to do so? |
-| **Research type** | Mixed methods -- generative interviews (explain the why) followed by evaluative usability test (identify specific friction points) |
+| Field                              | Detail                                                                                                                                                                                                                |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Primary research question**      | What prevents newly signed-up users from creating their first project within 14 days, and what would need to change for them to do so?                                                                                |
+| **Research type**                  | Mixed methods -- generative interviews (explain the why) followed by evaluative usability test (identify specific friction points)                                                                                    |
 | **Decision this research informs** | Whether to invest engineering and design resources in onboarding flow redesign, project template library, guided setup wizard, or integrated team invitation flow -- and which of these addresses the primary barrier |
-| **Decision deadline** | Q3 planning in 6 weeks |
-| **Primary method** | Semi-structured interviews (8 participants) |
-| **Secondary method** | Moderated usability test of current onboarding flow (6 participants -- 3 from interview pool, 3 new) |
-| **Total timeline** | 5 weeks (recruit weeks 1-2, interviews weeks 2-3, usability test week 3, analysis week 4, report week 5) |
-| **Lead researcher** | [Product designer or UX researcher] |
-| **Stakeholders** | Head of Product, Head of Design, Onboarding squad PM |
+| **Decision deadline**              | Q3 planning in 6 weeks                                                                                                                                                                                                |
+| **Primary method**                 | Semi-structured interviews (8 participants)                                                                                                                                                                           |
+| **Secondary method**               | Moderated usability test of current onboarding flow (6 participants -- 3 from interview pool, 3 new)                                                                                                                  |
+| **Total timeline**                 | 5 weeks (recruit weeks 1-2, interviews weeks 2-3, usability test week 3, analysis week 4, report week 5)                                                                                                              |
+| **Lead researcher**                | [Product designer or UX researcher]                                                                                                                                                                                   |
+| **Stakeholders**                   | Head of Product, Head of Design, Onboarding squad PM                                                                                                                                                                  |
 
 ---
 
 ### Background: What We Know and What We Need to Learn
 
 **What we already know:**
+
 - Product analytics: 40% of signups do not create a project within 14 days (source: Amplitude, trailing 90 days)
 - The drop-off rate has not materially changed despite two UI iterations (new empty state CTA copy in Q1, new onboarding modal in Q2)
 - Of the 40% who do not create a project, approximately 60% log in at least once after signup; 40% never return after the first session (source: Amplitude cohort analysis)
@@ -485,12 +499,14 @@ AI-assisted transcription (Grain, Otter.ai, Fireflies) and AI-assisted qualitati
 - Support ticket analysis shows 12% of first-week support tickets are tagged "getting started confusion" (source: Zendesk, trailing 60 days)
 
 **Critical knowledge gaps:**
+
 - We do not know whether non-activating users understood what a "project" is or represents in our product model
 - We do not know whether users arrive intending to set up a project immediately or intending to evaluate the product before committing
 - We do not know whether the blockers are individual (user cannot figure out the UI) or organizational (user needs to involve teammates or get approval before creating a real project)
 - We do not know at what moment in the session users decide to stop -- is it during signup, during the empty state, during the project creation form, or earlier?
 
 **Hypotheses (researcher reference only):**
+
 - H1: Users arrive intending to evaluate the product, not to immediately set up a real project, and the onboarding asks them to do something they are not yet ready to do
 - H2: The concept of a "project" in our product does not match the user's mental model of how their work is structured, causing confusion at the point of creation
 - H3: Users need teammates involved to set up a meaningful project and drop off when they realize they would need to involve others first
@@ -499,19 +515,20 @@ AI-assisted transcription (Grain, Otter.ai, Fireflies) and AI-assisted qualitati
 
 ### Participant Criteria
 
-| Criterion | Specification |
-|-----------|---------------|
-| **Behavioral include** | Signed up for the product within the last 60 days; has not created a project OR created exactly one project within 7 days of signup |
-| **Contextual include** | Works on a team of 2-20 people; role involves managing, coordinating, or contributing to multi-person projects; uses project management or task coordination tools in their work |
-| **Exclude** | Employees of the company or direct competitors; participants in product research sessions within the past 3 months; freelancers who work entirely solo |
-| **Segment A -- "Visited but didn't convert"** | Signed up 14-60 days ago, logged in at least 2 sessions, never created a project. These are the core drop-off users. Target: 5 interview participants. |
-| **Segment B -- "Signed up and created 1 project quickly"** | Signed up within 30 days, created first project within 7 days. Control group to understand what enabled success. Target: 3 interview participants. |
-| **Sample size** | 8 interviews (5 Segment A + 3 Segment B) + 6 usability test participants (3 from interview pool who consent to a second session + 3 newly recruited Segment A participants) |
-| **Recruitment source** | CRM email to users matching behavioral criteria from product database; $50 gift card per interview session, $75 per usability test session |
-| **Session format** | Remote video call (Zoom); screen share for usability test |
-| **Session length** | 50 minutes for interviews; 60 minutes for usability tests |
+| Criterion                                                  | Specification                                                                                                                                                                    |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Behavioral include**                                     | Signed up for the product within the last 60 days; has not created a project OR created exactly one project within 7 days of signup                                              |
+| **Contextual include**                                     | Works on a team of 2-20 people; role involves managing, coordinating, or contributing to multi-person projects; uses project management or task coordination tools in their work |
+| **Exclude**                                                | Employees of the company or direct competitors; participants in product research sessions within the past 3 months; freelancers who work entirely solo                           |
+| **Segment A -- "Visited but didn't convert"**              | Signed up 14-60 days ago, logged in at least 2 sessions, never created a project. These are the core drop-off users. Target: 5 interview participants.                           |
+| **Segment B -- "Signed up and created 1 project quickly"** | Signed up within 30 days, created first project within 7 days. Control group to understand what enabled success. Target: 3 interview participants.                               |
+| **Sample size**                                            | 8 interviews (5 Segment A + 3 Segment B) + 6 usability test participants (3 from interview pool who consent to a second session + 3 newly recruited Segment A participants)      |
+| **Recruitment source**                                     | CRM email to users matching behavioral criteria from product database; $50 gift card per interview session, $75 per usability test session                                       |
+| **Session format**                                         | Remote video call (Zoom); screen share for usability test                                                                                                                        |
+| **Session length**                                         | 50 minutes for interviews; 60 minutes for usability tests                                                                                                                        |
 
 **Screener Questions:**
+
 1. "Which of the following best describes your primary role?" (options: project manager, team lead, individual contributor, executive/director, other -- all qualify except "freelancer, no direct reports, and no team coordination")
 2. "How many people are on your immediate work team?" (options: just me, 2-5, 6-15, 16-50, 51+; qualify: 2-50)
 3. "You recently signed up for [Product]. Which of the following best describes what happened after you signed up?" (options: I set up projects and started using it regularly; I set up one project but haven't been back; I logged in but haven't set up anything yet; I signed up but haven't logged in again -- all qualify; route to segment based on answer)

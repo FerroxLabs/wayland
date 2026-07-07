@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "proposal writing business-writing"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'proposal writing business-writing'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # RFP Response
 
 ## When to Use
@@ -591,6 +592,7 @@ DataBridge is fully committed to this engagement. We have no conflicting contrac
 ### Section 3.1 -- Legacy Data Warehouse Migration (Oracle On-Premise to Cloud-Native Environment)
 
 **RFP Requirement (Ref: SOW 3.1):**
+
 > "The Contractor shall migrate ODJFS's existing Oracle 19c on-premise data warehouse (approximately 4.8TB of structured data across 312 tables) to a cloud-native data platform. Migration must preserve full data integrity, maintain historical record completeness for a minimum of seven years, and achieve zero loss of data currently accessible to authorized users."
 
 **Compliance Status:** Full Compliance

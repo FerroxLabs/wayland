@@ -27,9 +27,22 @@ const entry = (overrides: Partial<SkillIndexEntry> = {}): SkillIndexEntry => {
 };
 
 const INDEX: SkillIndexEntry[] = [
-  entry({ name: 'kube-deploy', description: 'Deploy to Kubernetes cluster', metadata: { tags: ['k8s'], category: 'devops' } }),
-  entry({ name: 'react-component', description: 'Generate a React component', metadata: { tags: ['react', 'frontend'], category: 'frontend' } }),
-  entry({ name: 'team-skill', description: 'A team-sourced skill', source: 'team', metadata: { tags: ['team'], category: 'collab' } }),
+  entry({
+    name: 'kube-deploy',
+    description: 'Deploy to Kubernetes cluster',
+    metadata: { tags: ['k8s'], category: 'devops' },
+  }),
+  entry({
+    name: 'react-component',
+    description: 'Generate a React component',
+    metadata: { tags: ['react', 'frontend'], category: 'frontend' },
+  }),
+  entry({
+    name: 'team-skill',
+    description: 'A team-sourced skill',
+    source: 'team',
+    metadata: { tags: ['team'], category: 'collab' },
+  }),
   entry({
     name: 'blocked-skill',
     description: 'A blocked skill',
@@ -323,6 +336,8 @@ describe('buildResourceDirCandidates (packaged path resolution, #126/#127)', () 
       'skills-library'
     );
     // app.asar -> app.asar.unpacked, then ../../../skills-library == /A/skills-library
-    expect(candidates).toContain(path.resolve(`/A${path.sep}app.asar.unpacked${path.sep}out${path.sep}main`, '../../../skills-library'));
+    expect(candidates).toContain(
+      path.resolve(`/A${path.sep}app.asar.unpacked${path.sep}out${path.sep}main`, '../../../skills-library')
+    );
   });
 });

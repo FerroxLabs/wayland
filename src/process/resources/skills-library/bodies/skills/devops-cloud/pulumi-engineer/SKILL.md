@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud automation"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud automation'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pulumi Engineer
@@ -54,17 +54,17 @@ infrastructure/
 config:
   aws:region: us-east-1
   my-infra:environment: production
-  my-infra:vpcCidr: "10.0.0.0/16"
+  my-infra:vpcCidr: '10.0.0.0/16'
   my-infra:instanceType: m5.large
   my-infra:dbPassword:
-    secure: AAABAMt1P8K...       # Encrypted secret
+    secure: AAABAMt1P8K... # Encrypted secret
 ```
 
 ## Component Resources
 
 ```typescript
-import * as pulumi from "@pulumi/pulumi";
-import * as aws from "@pulumi/aws";
+import * as pulumi from '@pulumi/pulumi';
+import * as aws from '@pulumi/aws';
 
 export interface VpcArgs {
   cidrBlock: string;
@@ -79,44 +79,73 @@ export class Vpc extends pulumi.ComponentResource {
   public readonly privateSubnetIds: pulumi.Output<string>[];
 
   constructor(name: string, args: VpcArgs, opts?: pulumi.ComponentResourceOptions) {
-    super("custom:networking:Vpc", name, {}, opts);
+    super('custom:networking:Vpc', name, {}, opts);
     const parent = { parent: this };
-    const tags = { ...args.tags, ManagedBy: "pulumi" };
+    const tags = { ...args.tags, ManagedBy: 'pulumi' };
 
-    const vpc = new aws.ec2.Vpc(`${name}-vpc`, {
-      cidrBlock: args.cidrBlock,
-      enableDnsHostnames: true,
-      tags: { ...tags, Name: `${name}-vpc` },
-    }, parent);
+    const vpc = new aws.ec2.Vpc(
+      `${name}-vpc`,
+      {
+        cidrBlock: args.cidrBlock,
+        enableDnsHostnames: true,
+        tags: { ...tags, Name: `${name}-vpc` },
+      },
+      parent
+    );
 
     this.vpcId = vpc.id;
     this.publicSubnetIds = [];
     this.privateSubnetIds = [];
 
-    const igw = new aws.ec2.InternetGateway(`${name}-igw`, {
-      vpcId: vpc.id, tags: { ...tags, Name: `${name}-igw` },
-    }, parent);
+    const igw = new aws.ec2.InternetGateway(
+      `${name}-igw`,
+      {
+        vpcId: vpc.id,
+        tags: { ...tags, Name: `${name}-igw` },
+      },
+      parent
+    );
 
-    const publicRt = new aws.ec2.RouteTable(`${name}-public-rt`, {
-      vpcId: vpc.id,
-      routes: [{ cidrBlock: "0.0.0.0/0", gatewayId: igw.id }],
-    }, parent);
+    const publicRt = new aws.ec2.RouteTable(
+      `${name}-public-rt`,
+      {
+        vpcId: vpc.id,
+        routes: [{ cidrBlock: '0.0.0.0/0', gatewayId: igw.id }],
+      },
+      parent
+    );
 
     args.azs.forEach((az, i) => {
-      const pub = new aws.ec2.Subnet(`${name}-pub-${i}`, {
-        vpcId: vpc.id, cidrBlock: `10.0.${i}.0/24`,
-        availabilityZone: az, mapPublicIpOnLaunch: true,
-      }, parent);
+      const pub = new aws.ec2.Subnet(
+        `${name}-pub-${i}`,
+        {
+          vpcId: vpc.id,
+          cidrBlock: `10.0.${i}.0/24`,
+          availabilityZone: az,
+          mapPublicIpOnLaunch: true,
+        },
+        parent
+      );
       this.publicSubnetIds.push(pub.id);
 
-      new aws.ec2.RouteTableAssociation(`${name}-pub-rta-${i}`, {
-        subnetId: pub.id, routeTableId: publicRt.id,
-      }, parent);
+      new aws.ec2.RouteTableAssociation(
+        `${name}-pub-rta-${i}`,
+        {
+          subnetId: pub.id,
+          routeTableId: publicRt.id,
+        },
+        parent
+      );
 
-      const priv = new aws.ec2.Subnet(`${name}-priv-${i}`, {
-        vpcId: vpc.id, cidrBlock: `10.0.${128 + i}.0/24`,
-        availabilityZone: az,
-      }, parent);
+      const priv = new aws.ec2.Subnet(
+        `${name}-priv-${i}`,
+        {
+          vpcId: vpc.id,
+          cidrBlock: `10.0.${128 + i}.0/24`,
+          availabilityZone: az,
+        },
+        parent
+      );
       this.privateSubnetIds.push(priv.id);
     });
 
@@ -125,9 +154,9 @@ export class Vpc extends pulumi.ComponentResource {
 }
 
 // Usage
-const vpc = new Vpc("main", {
-  cidrBlock: config.require("vpcCidr"),
-  azs: ["us-east-1a", "us-east-1b", "us-east-1c"],
+const vpc = new Vpc('main', {
+  cidrBlock: config.require('vpcCidr'),
+  azs: ['us-east-1a', 'us-east-1b', 'us-east-1c'],
   tags: { Environment: pulumi.getStack() },
 });
 export const vpcId = vpc.vpcId;
@@ -155,9 +184,9 @@ export const vpcId = vpc.vpcId;
 export const privateSubnetIds = vpc.privateSubnetIds;
 
 // compute stack imports
-const netStack = new pulumi.StackReference("myorg/networking/prod");
-const vpcId = netStack.getOutput("vpcId");
-const subnetIds = netStack.getOutput("privateSubnetIds");
+const netStack = new pulumi.StackReference('myorg/networking/prod');
+const vpcId = netStack.getOutput('vpcId');
+const subnetIds = netStack.getOutput('privateSubnetIds');
 ```
 
 ## Secrets
@@ -169,7 +198,7 @@ pulumi stack init prod --secrets-provider="awskms://alias/pulumi-secrets"
 
 ```typescript
 const config = new pulumi.Config();
-const dbPassword = config.requireSecret("dbPassword");  // Output<string>, encrypted
+const dbPassword = config.requireSecret('dbPassword'); // Output<string>, encrypted
 
 // Secrets propagate: interpolating a secret produces a secret
 const connStr = pulumi.interpolate`postgres://admin:${dbPassword}@${db.endpoint}/mydb`;
@@ -204,18 +233,22 @@ export class CustomResource extends pulumi.dynamic.Resource {
 ### Unit Tests
 
 ```typescript
-import * as pulumi from "@pulumi/pulumi";
+import * as pulumi from '@pulumi/pulumi';
 
 pulumi.runtime.setMocks({
-  newResource(args) { return { id: `${args.name}-id`, state: args.inputs }; },
-  call(args) { return args.inputs; },
+  newResource(args) {
+    return { id: `${args.name}-id`, state: args.inputs };
+  },
+  call(args) {
+    return args.inputs;
+  },
 });
 
-describe("VPC Component", () => {
-  it("should create subnets per AZ", async () => {
-    const { Vpc } = await import("../src/components/vpc");
-    const vpc = new Vpc("test", { cidrBlock: "10.0.0.0/16", azs: ["us-east-1a", "us-east-1b"] });
-    const pubIds = await new Promise(resolve => pulumi.all(vpc.publicSubnetIds).apply(resolve));
+describe('VPC Component', () => {
+  it('should create subnets per AZ', async () => {
+    const { Vpc } = await import('../src/components/vpc');
+    const vpc = new Vpc('test', { cidrBlock: '10.0.0.0/16', azs: ['us-east-1a', 'us-east-1b'] });
+    const pubIds = await new Promise((resolve) => pulumi.all(vpc.publicSubnetIds).apply(resolve));
     expect(pubIds).toHaveLength(2);
   });
 });
@@ -224,12 +257,13 @@ describe("VPC Component", () => {
 ### Integration Tests (Automation API)
 
 ```typescript
-import { LocalWorkspace } from "@pulumi/pulumi/automation";
+import { LocalWorkspace } from '@pulumi/pulumi/automation';
 
 const stack = await LocalWorkspace.createOrSelectStack({
-  stackName: `test-${Date.now()}`, projectName: "test-infra",
+  stackName: `test-${Date.now()}`,
+  projectName: 'test-infra',
   program: async () => {
-    const vpc = new aws.ec2.Vpc("test", { cidrBlock: "10.0.0.0/16" });
+    const vpc = new aws.ec2.Vpc('test', { cidrBlock: '10.0.0.0/16' });
     return { vpcId: vpc.id };
   },
 });
@@ -244,10 +278,10 @@ await stack.destroy();
 name: Infrastructure
 on:
   pull_request:
-    paths: ["infrastructure/**"]
+    paths: ['infrastructure/**']
   push:
     branches: [main]
-    paths: ["infrastructure/**"]
+    paths: ['infrastructure/**']
 
 jobs:
   preview:
@@ -354,6 +388,7 @@ RESOURCES:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing pulumi engineer solutions
 - Reviewing or improving existing pulumi engineer approaches
 - Making architectural or implementation decisions about pulumi engineer
@@ -361,6 +396,7 @@ RESOURCES:
 - Troubleshooting pulumi engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -371,21 +407,26 @@ RESOURCES:
 # Pulumi Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

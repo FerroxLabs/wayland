@@ -12,12 +12,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship planning strategy step-by-step"
-  category: "business-operations"
-  depends: "idea-validation business-plan freelance-rate-calculator self-employment-tax budget-planning blog-post-writing cold-outreach-email"
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship planning strategy step-by-step'
+  category: 'business-operations'
+  depends: 'idea-validation business-plan freelance-rate-calculator self-employment-tax budget-planning blog-post-writing cold-outreach-email'
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Start a Side Business

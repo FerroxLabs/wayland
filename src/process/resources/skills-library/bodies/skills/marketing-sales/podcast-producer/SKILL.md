@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "podcast marketing content-marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'podcast marketing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Podcast Producer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on podcast producer
 - User asks about podcast producer best practices or techniques
 - User wants a structured approach to podcast producer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of podcast producer
 
@@ -59,14 +60,14 @@ Before launching any podcast, work through these foundational questions:
 
 ### Format Comparison Matrix
 
-| Format | Prep Time | Production Complexity | Guest Dependency | Scalability | Best For |
-|--------|-----------|----------------------|------------------|-------------|----------|
-| Solo | High (must carry alone) | Low | None | High | Experts with strong opinions |
-| Interview | Medium | Medium | High | Medium | Network builders, curious hosts |
-| Co-hosted | Low-Medium | Medium | Moderate (partner) | Medium | Chemistry-driven shows |
-| Narrative | Very High | Very High | Variable | Low | Storytellers, journalists |
-| Roundtable | Medium | High | High (multiple) | Low | Industry commentary |
-| Hybrid | Variable | Medium | Variable | High | Versatile creators |
+| Format     | Prep Time               | Production Complexity | Guest Dependency   | Scalability | Best For                        |
+| ---------- | ----------------------- | --------------------- | ------------------ | ----------- | ------------------------------- |
+| Solo       | High (must carry alone) | Low                   | None               | High        | Experts with strong opinions    |
+| Interview  | Medium                  | Medium                | High               | Medium      | Network builders, curious hosts |
+| Co-hosted  | Low-Medium              | Medium                | Moderate (partner) | Medium      | Chemistry-driven shows          |
+| Narrative  | Very High               | Very High             | Variable           | Low         | Storytellers, journalists       |
+| Roundtable | Medium                  | High                  | High (multiple)    | Low         | Industry commentary             |
+| Hybrid     | Variable                | Medium                | Variable           | High        | Versatile creators              |
 
 ### Episode Length Guidelines
 
@@ -81,12 +82,14 @@ Before launching any podcast, work through these foundational questions:
 ### Season vs Continuous Structure
 
 **Continuous (rolling episodes)**:
+
 - Builds habit with listeners
 - Constant production pressure
 - Easier to build momentum
 - Best for: evergreen topics, interview shows
 
 **Seasons (8-12 episode batches)**:
+
 - Batch production efficiency
 - Built-in breaks to avoid burnout
 - Creates narrative arcs
@@ -104,6 +107,7 @@ Editing:        Audacity or GarageBand (Mac, free)
 Hosting:        Spotify for Podcasters (free)
 Acoustic:       Record in a closet with clothes (natural dampening)
 ```
+
 **Quality level**: Acceptable. Many successful podcasts started here.
 
 ### Tier 2: Serious Hobbyist ($200-500)
@@ -171,6 +175,7 @@ Camera:         Sony ZV-E10 or similar for video podcasting
 ### Remote Recording Setup
 
 **Best quality approach**: Each person records locally, combine in post
+
 - Use Riverside.fm or SquadCast for synced local recording
 - Backup: Record Zoom/Google Meet as safety track
 - Send guests a recording checklist (quiet room, headphones, mic position)
@@ -179,12 +184,14 @@ Camera:         Sony ZV-E10 or similar for video podcasting
 ### Guest Interview Framework
 
 **Pre-interview:**
+
 1. Send guest a brief (topic, 5-7 questions, logistics)
 2. Do NOT send exact questions - you want natural responses
 3. Confirm recording time with buffer (book 90 min for 60-min interview)
 4. Test tech 24 hours before
 
 **During interview:**
+
 1. Start recording before you begin talking (capture natural warm-up)
 2. Open with an easy question to relax the guest
 3. Listen more than you talk (60/40 guest/host ratio)
@@ -193,6 +200,7 @@ Camera:         Sony ZV-E10 or similar for video podcasting
 6. Leave silence after answers - guests often fill it with gold
 
 **Post-interview:**
+
 1. Send thank-you within 24 hours
 2. Share promotion assets (audiogram, quote graphics)
 3. Tag them when the episode goes live
@@ -203,18 +211,21 @@ Camera:         Sony ZV-E10 or similar for video podcasting
 ### The 4-Pass Editing Method
 
 **Pass 1: Structural Edit (Listen at 1x)**
+
 - Remove false starts and major stumbles
 - Cut tangents that don't serve the episode
 - Rearrange segments if needed for better flow
 - Mark spots needing sound design or music
 
 **Pass 2: Fine Edit (Listen at 1x)**
+
 - Remove excessive "ums," "uhs," and filler words
 - Tighten pauses (but don't eliminate all - sounds unnatural)
 - Fix audio levels between speakers
 - Add intro/outro music and transitions
 
 **Pass 3: Sound Design**
+
 - Apply noise reduction (light touch - heavy processing sounds worse)
 - EQ: Roll off below 80Hz, gentle boost at 2-5kHz for clarity
 - Compression: 3:1 ratio, threshold at -18dB (approximate starting point)
@@ -222,6 +233,7 @@ Camera:         Sony ZV-E10 or similar for video podcasting
 - Add music beds under transitions
 
 **Pass 4: Quality Check (Listen on different devices)**
+
 - Listen on headphones, phone speaker, and car speakers if possible
 - Check beginning and end for clean cuts
 - Verify all links/resources mentioned are correct
@@ -230,15 +242,16 @@ Camera:         Sony ZV-E10 or similar for video podcasting
 ### Editing Time Benchmarks
 
 | Experience Level | Edit Time per Finished Hour |
-|-----------------|---------------------------|
-| Beginner | 4-6 hours |
-| Intermediate | 2-3 hours |
-| Experienced | 1-2 hours |
-| Outsourced | Your time = 15 min review |
+| ---------------- | --------------------------- |
+| Beginner         | 4-6 hours                   |
+| Intermediate     | 2-3 hours                   |
+| Experienced      | 1-2 hours                   |
+| Outsourced       | Your time = 15 min review   |
 
 ### When to Outsource Editing
 
 Consider outsourcing when:
+
 - Your time is worth more than $30-50/hour
 - You're spending more time editing than creating
 - Episode quality is suffering from editing fatigue
@@ -254,11 +267,13 @@ Consider outsourcing when:
 [2-3 sentence compelling summary that includes target keywords]
 
 ## Key Takeaways
+
 - [Takeaway 1]
 - [Takeaway 2]
 - [Takeaway 3]
 
 ## Timestamps
+
 00:00 - Introduction
 02:30 - [Topic 1]
 15:45 - [Topic 2]
@@ -267,15 +282,18 @@ Consider outsourcing when:
 45:00 - Wrap-up
 
 ## Resources Mentioned
+
 - [Resource 1](link)
 - [Resource 2](link)
 
 ## Guest Info
+
 - [Guest Name] - [Title/Company]
 - Website: [link]
 - Twitter/LinkedIn: [handles]
 
 ## Connect With Us
+
 - Website: [link]
 - Newsletter: [link]
 - Social: [handles]
@@ -290,18 +308,18 @@ Your hosting platform generates your RSS feed. This single URL powers all distri
 
 ### Platform Submission Checklist
 
-| Platform | Submission Method | Approval Time |
-|----------|------------------|---------------|
-| Apple Podcasts | Apple Podcasts Connect | 1-5 days |
-| Spotify | Spotify for Podcasters or auto via host | 1-3 days |
-| Google Podcasts | Automatic via RSS | 1-3 days |
-| Amazon Music | Amazon Music for Podcasters | 1-5 days |
-| Stitcher | Stitcher Partner portal | 1-3 days |
-| iHeartRadio | iHeartRadio for Podcasters | 5-10 days |
-| TuneIn | TuneIn submission form | Variable |
-| Podcast Index | Automatic | Immediate |
-| Overcast | Automatic via Apple | After Apple approval |
-| Pocket Casts | Automatic via RSS | 1-3 days |
+| Platform        | Submission Method                       | Approval Time        |
+| --------------- | --------------------------------------- | -------------------- |
+| Apple Podcasts  | Apple Podcasts Connect                  | 1-5 days             |
+| Spotify         | Spotify for Podcasters or auto via host | 1-3 days             |
+| Google Podcasts | Automatic via RSS                       | 1-3 days             |
+| Amazon Music    | Amazon Music for Podcasters             | 1-5 days             |
+| Stitcher        | Stitcher Partner portal                 | 1-3 days             |
+| iHeartRadio     | iHeartRadio for Podcasters              | 5-10 days            |
+| TuneIn          | TuneIn submission form                  | Variable             |
+| Podcast Index   | Automatic                               | Immediate            |
+| Overcast        | Automatic via Apple                     | After Apple approval |
+| Pocket Casts    | Automatic via RSS                       | 1-3 days             |
 
 **Submit to Apple Podcasts first** - many smaller directories pull from Apple's catalog.
 
@@ -321,11 +339,13 @@ Your hosting platform generates your RSS feed. This single URL powers all distri
 **When to seek sponsors**: 500+ downloads per episode minimum (some niches lower)
 
 **CPM (Cost Per Mille) Rates**:
+
 - Pre-roll (15-30 sec): $15-25 CPM
 - Mid-roll (60 sec): $20-50 CPM
 - Host-read vs dynamic insertion: Host-read commands 2-3x premium
 
 **Sponsorship Outreach Template**:
+
 ```
 Subject: Partnership Opportunity - [Podcast Name] ([download numbers])
 
@@ -397,13 +417,13 @@ Great Content
 
 ### Metrics That Matter
 
-| Metric | What It Tells You | Healthy Benchmark |
-|--------|------------------|-------------------|
-| Downloads per episode (30-day) | Audience size | Growing month-over-month |
-| Completion rate | Content quality | 60%+ |
-| Subscriber growth | Channel momentum | 5-10% monthly |
-| Reviews | Listener satisfaction | Actively receiving new ones |
-| Episode-to-episode retention | Consistency | 70%+ listen to next episode |
+| Metric                         | What It Tells You     | Healthy Benchmark           |
+| ------------------------------ | --------------------- | --------------------------- |
+| Downloads per episode (30-day) | Audience size         | Growing month-over-month    |
+| Completion rate                | Content quality       | 60%+                        |
+| Subscriber growth              | Channel momentum      | 5-10% monthly               |
+| Reviews                        | Listener satisfaction | Actively receiving new ones |
+| Episode-to-episode retention   | Consistency           | 70%+ listen to next episode |
 
 ### Avoiding Podfade
 
@@ -418,7 +438,6 @@ Great Content
 7. **Repurpose content**: Reduces ideation burden (blog post becomes episode)
 8. **Track growth**: Small numbers growing steadily is a success signal
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -431,13 +450,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with podcast producer for a mid-size project."
 
 **Output:** A complete podcast producer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

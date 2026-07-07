@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql architecture"
-  category: "data-engineering"
-  subcategory: "data-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql architecture'
+  category: 'data-engineering'
+  subcategory: 'data-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Data Catalog Builder
@@ -58,19 +58,19 @@ A data catalog is the organized inventory of data assets in an organization, mak
 source:
   type: postgres
   config:
-    host_port: "warehouse.company.com:5432"
+    host_port: 'warehouse.company.com:5432'
     database: analytics
-    username: "${DATAHUB_PG_USER}"
-    password: "${DATAHUB_PG_PASSWORD}"
+    username: '${DATAHUB_PG_USER}'
+    password: '${DATAHUB_PG_PASSWORD}'
     include_tables: true
     include_views: true
     schema_pattern:
       allow:
-        - "analytics.*"
-        - "staging.*"
+        - 'analytics.*'
+        - 'staging.*'
       deny:
-        - ".*_tmp$"
-        - ".*_backup$"
+        - '.*_tmp$'
+        - '.*_backup$'
     profiling:
       enabled: true
       profile_table_level_only: false
@@ -91,8 +91,8 @@ source:
 sink:
   type: datahub-rest
   config:
-    server: "[reference URL]"
-    token: "${DATAHUB_TOKEN}"
+    server: '[reference URL]'
+    token: '${DATAHUB_TOKEN}'
 ```
 
 ### Programmatic Metadata Emission
@@ -264,38 +264,38 @@ GROUP BY 1, 2
 ```yaml
 # business-glossary.yaml
 glossary:
-  - term: "Customer"
+  - term: 'Customer'
     definition: >
       An individual or organization that has completed at least one
       purchase. Prospects and leads are not customers until first purchase.
     owner: commerce-team
     related_terms: [Account, Buyer, Client]
-    authoritative_source: "analytics.dim_customers"
+    authoritative_source: 'analytics.dim_customers'
     aliases: [buyer, purchaser, client]
 
-  - term: "Revenue"
+  - term: 'Revenue'
     definition: >
       Net amount received from completed orders after discounts, returns,
       and refunds. Excludes taxes, shipping, and pending orders.
     owner: finance-team
-    calculation: "SUM(order_total) - SUM(refunds) - SUM(discounts)"
+    calculation: 'SUM(order_total) - SUM(refunds) - SUM(discounts)'
     related_terms: [GMV, Net Revenue, ARR]
-    authoritative_source: "analytics.fact_revenue"
+    authoritative_source: 'analytics.fact_revenue'
     important_notes:
-      - "Differs from GMV which includes cancelled orders"
-      - "Does not include subscription revenue (see ARR)"
+      - 'Differs from GMV which includes cancelled orders'
+      - 'Does not include subscription revenue (see ARR)'
 
-  - term: "Active User"
+  - term: 'Active User'
     definition: >
       A user who has performed at least one qualifying action within
       the measurement period. Qualifying actions: login, purchase,
       API call, or dashboard view. Bot traffic is excluded.
     owner: product-team
     variants:
-      DAU: "Active within last 24 hours"
-      WAU: "Active within last 7 days"
-      MAU: "Active within last 30 days"
-    authoritative_source: "analytics.user_activity"
+      DAU: 'Active within last 24 hours'
+      WAU: 'Active within last 7 days'
+      MAU: 'Active within last 30 days'
+    authoritative_source: 'analytics.user_activity'
 ```
 
 ## Data Classification and Tagging
@@ -361,7 +361,7 @@ class DataClassifier:
 ownership_model:
   roles:
     data_owner:
-      description: "Business stakeholder accountable for data quality and access"
+      description: 'Business stakeholder accountable for data quality and access'
       responsibilities:
         - Approve access requests
         - Define data quality requirements
@@ -369,7 +369,7 @@ ownership_model:
         - Ensure regulatory compliance
 
     technical_owner:
-      description: "Engineering team maintaining the pipeline and infrastructure"
+      description: 'Engineering team maintaining the pipeline and infrastructure'
       responsibilities:
         - Maintain ingestion pipelines
         - Fix data quality issues
@@ -377,7 +377,7 @@ ownership_model:
         - Monitor SLAs
 
     data_steward:
-      description: "Subject matter expert who curates metadata and definitions"
+      description: 'Subject matter expert who curates metadata and definitions'
       responsibilities:
         - Maintain descriptions and documentation
         - Manage business glossary entries
@@ -385,10 +385,10 @@ ownership_model:
         - Answer data consumer questions
 
   assignment_rules:
-    - "Every dataset MUST have a data_owner and technical_owner"
-    - "Datasets with PII MUST have a data_steward"
-    - "Ownership reviewed quarterly"
-    - "Orphaned datasets flagged after 90 days without owner activity"
+    - 'Every dataset MUST have a data_owner and technical_owner'
+    - 'Datasets with PII MUST have a data_steward'
+    - 'Ownership reviewed quarterly'
+    - 'Orphaned datasets flagged after 90 days without owner activity'
 ```
 
 ## Search Optimization
@@ -479,6 +479,7 @@ Adoption:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing data catalog builder solutions
 - Reviewing or improving existing data catalog builder approaches
 - Making architectural or implementation decisions about data catalog builder
@@ -486,6 +487,7 @@ Adoption:
 - Troubleshooting data catalog builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -496,21 +498,26 @@ Adoption:
 # Data Catalog Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

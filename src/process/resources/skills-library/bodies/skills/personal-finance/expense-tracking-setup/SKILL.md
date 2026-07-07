@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance expenses planning"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance expenses planning'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Expense Tracking Setup
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making significant financial decisions.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has no current system for tracking where their money goes and wants to build one from scratch
 - The user tracks expenses inconsistently (random receipts, mental accounting, occasional spreadsheet entries) and wants a structured, repeatable system
 - The user wants to categorize spending for the first time and needs help deciding which categories to use
@@ -31,6 +33,7 @@ metadata:
 - The user is starting fresh after a life change (new income, new city, new household) and wants a system tailored to current circumstances
 
 **Do NOT use when:**
+
 - The user wants to allocate income to categories with target spending limits and savings goals -- that is budget construction, use `budget-planning`
 - The user already has transaction data for 2+ months and wants to analyze patterns, trends, or anomalies -- use `spending-analysis`
 - The user needs to track business expenses, mileage, or reimbursable costs for an employer or self-employment -- use a business expense skill
@@ -60,12 +63,14 @@ If the user provides minimal context, default to: all personal spending, weekly 
 Category design is the highest-leverage decision in the system. Too few categories and the log is useless for analysis. Too many and the user abandons it within two weeks.
 
 **The 8-12 Category Rule:**
+
 - 8 categories minimum for meaningful pattern detection
 - 12 categories is the practical limit for a beginner maintaining the system alone
 - 15 categories absolute maximum for experienced trackers with distinct high-volume spending areas
 - Anything beyond 15 requires a hierarchical system (parent categories with sub-categories), which is a different complexity level
 
 **The Core Five -- categories that almost everyone should have:**
+
 1. **Housing** -- rent or mortgage, renters/homeowners insurance, HOA fees, any storage units. Fixed and easy to log.
 2. **Food: Groceries** -- supermarket, warehouse club, specialty grocery, farmers market. Separate from dining because the cost-per-meal ratio is dramatically different and conflating them hides behavior.
 3. **Food: Dining & Takeout** -- restaurants, takeout, delivery fees, coffee shops. Separated from groceries intentionally -- this is the single category most people underestimate by 40-60%.
@@ -73,6 +78,7 @@ Category design is the highest-leverage decision in the system. Too few categori
 5. **Utilities & Subscriptions** -- electric, gas, water, internet, phone bill, plus all recurring digital subscriptions (streaming, software, memberships). Combine unless the user suspects subscription creep is a problem, in which case split into Utilities and Subscriptions as separate categories.
 
 **The Variable Six -- add based on the user's actual life:**
+
 - **Health & Medical** -- copays, prescriptions, dental, vision, gym membership, therapy. Add if any of these represent non-trivial spending.
 - **Personal Care** -- haircuts, toiletries, cosmetics, nail care. Add if monthly spend likely exceeds $40.
 - **Clothing & Apparel** -- clothing, shoes, accessories. Add if not seasonal-only for the user.
@@ -81,6 +87,7 @@ Category design is the highest-leverage decision in the system. Too few categori
 - **Pets** -- food, vet, grooming, boarding. Add immediately if the user has pets -- this category is notoriously underestimated.
 
 **The Two Mandatory Extras:**
+
 - **Savings Transfers** -- any transfer to a savings account, emergency fund, or retirement account. Tracking this makes savings visible as an expense, not a leftover.
 - **Miscellaneous** -- catch-all with a strict rule: any item in this category for more than 30 days without recategorization gets a dedicated category or gets assigned to an existing one.
 
@@ -95,6 +102,7 @@ Use 3-letter codes derived from the category name. They speed up manual entry dr
 Each method has a specific failure mode. Match the method to the user's behavior pattern, not their aspiration.
 
 **Spreadsheet Method -- best for analytical users who sit at a computer regularly:**
+
 - Column structure: Date | Vendor/Description | Amount | Category Code | Payment Method | Notes
 - Add a 7th column for "Reimbursable?" (Y/N) if the user ever has expenses that get paid back by a partner, employer, or insurance
 - Use a separate sheet/tab for the weekly summary and another for the monthly summary -- do not cram everything onto one sheet
@@ -103,6 +111,7 @@ Each method has a specific failure mode. Match the method to the user's behavior
 - Color-code category rows by family (food categories in one color, transport-related in another) to catch miscategorizations at a glance
 
 **Paper Log Method -- best for users who spend primarily with cash, prefer tactile logging, or have screen fatigue:**
+
 - Use a dedicated small notebook (not a random notebook that also has grocery lists and work notes -- dedicated tracking gets maintained longer)
 - Daily page layout: date header, ruled lines with four columns (Time, What, $Amount, Code), and a daily total box at the bottom
 - Use a weekly summary page at the end of each 7-day block with category totals
@@ -110,6 +119,7 @@ Each method has a specific failure mode. Match the method to the user's behavior
 - Print a category legend card to keep in the notebook so codes are always accessible
 
 **Receipt Capture + Batch Entry Method -- best for users who cannot or will not log in real time:**
+
 - Designate a single physical location (a small tray, envelope, or phone photo album) for all receipts
 - Set one recurring weekly session (20-30 minutes, same day and time each week -- Sunday evening is most common) to process the entire week's receipts
 - Digital receipts: create a dedicated email folder or label for financial receipts and forward all email confirmations there before the batch session
@@ -124,17 +134,20 @@ Tracking payment method (cash, debit, credit card, bank transfer) serves two fun
 Produce the complete, ready-to-use template the user can start populating today. Do not leave placeholder fields the user has to design themselves -- they asked you to build this.
 
 **For the daily log:**
+
 - Pre-populate the category code legend directly in the template
 - Include 2-3 sample entries showing exactly what a fully logged row looks like
 - Leave at least 30 rows in the daily section if building for a full month -- underestimating space causes people to abandon the template mid-month
 - Include a "Week Total" row after every 7 rows for built-in weekly subtotaling
 
 **For the weekly summary:**
+
 - One row per active category
 - Columns: Category | This Week | Month-to-Date | Monthly Ceiling (if using ceilings) | Remaining (if using ceilings) | % of Weekly Total
 - The "% of Weekly Total" column is a diagnostic tool -- it reveals concentration of spending in a category at a glance
 
 **For the monthly summary:**
+
 - One row per active category
 - Columns: Category | Month Total | % of Take-Home Income | vs. Prior Month | vs. 3-Month Average
 - "vs. Prior Month" starts as N/A for the first month and populates after month two
@@ -145,11 +158,13 @@ Produce the complete, ready-to-use template the user can start populating today.
 The review cadence is what converts a tracking template into a functional financial system. Without scheduled reviews, logged data becomes archaeological instead of actionable.
 
 **Daily Review (2-3 minutes) -- the logging habit:**
+
 - Log all transactions from the current day before going to sleep, or immediately after each purchase for users who prefer point-of-sale logging
 - The only question to answer: did anything happen today with money? If yes, log it. If no, write "no transactions" in the date row (this active acknowledgment maintains the habit better than skipping blank days)
 - Check that cash on hand roughly matches expected cash (starting cash minus logged cash purchases)
 
 **Weekly Review (15-20 minutes) -- the reconciliation session:**
+
 - Trigger: same day every week. Sunday evening is most common and most effective because it closes the week and previews the coming week's obligations
 - Pull the past 7 days of bank and credit card transaction histories
 - Match every bank/card transaction against logged entries -- any transaction without a matching log entry gets logged now with "Reconciled" in the Notes column
@@ -159,6 +174,7 @@ The review cadence is what converts a tracking template into a functional financ
 - Answer one question before closing: "Was there anything this week that surprised me?" Write it in a notes section. Surprises are where the most useful behavioral insights emerge.
 
 **Monthly Review (30-45 minutes) -- the learning session:**
+
 - Trigger: the 1st or 2nd of each new month, reviewing the prior month
 - Total all categories
 - Calculate each category as a percentage of monthly take-home income
@@ -173,23 +189,27 @@ The review cadence is what converts a tracking template into a functional financ
 These elements transform passive tracking into active financial awareness.
 
 **The 70/90 Threshold System for Category Ceilings:**
+
 - 70% of ceiling consumed -- yellow zone: awareness only, no action required but the user should note it during the weekly review
 - 90% of ceiling consumed -- red zone: before spending more in this category, the user explicitly decides whether to stay under the ceiling, transfer budget from another category, or exceed the ceiling with a documented reason
 - 100% ceiling reached -- hard stop review: the user records the excess and its cause in the monthly notes. This is data, not failure -- ceilings are calibration tools.
 
 **Impulse Spending Threshold:**
+
 - Ask the user to define a dollar amount above which any unplanned single purchase triggers a 24-48 hour waiting period
 - Common thresholds: $30 for users trying to build savings aggressively; $50 for moderate control; $100 for users who primarily want visibility
 - The rule applies only to discretionary, unplanned purchases -- not bills, groceries, or pre-planned expenses
 - After the waiting period, if the user still wants the item, they buy it without guilt. The point is not denial -- it is converting impulse into intention.
 
 **Top Impulse Category Watch:**
+
 - After the first month of tracking, the user will have data on their two or three highest-variability categories -- categories where spending fluctuates most month-to-month
 - These categories get reviewed at every weekly session, not just monthly
 - The goal is to move them from unconscious to conscious spending, not necessarily to reduce them
 
 **Cash Reconciliation Check:**
 For any user with significant cash spending, include a weekly cash tracking box:
+
 - Starting cash on hand (record Monday morning)
 - Cash purchases logged during the week (total from the log)
 - Cash remaining (count at end of Sunday)
@@ -201,6 +221,7 @@ For any user with significant cash spending, include a weekly cash tracking box:
 A tracking system built on estimated ceilings is only a hypothesis. The first 30 days of actual data are calibration, not performance. Set this expectation explicitly.
 
 **Calibration Phase guidance:**
+
 - Month 1 ceilings are starting estimates, not commitments. Exceeding them reveals reality, not failure.
 - At the end of Month 1, the user has their first actual baseline -- the most important dataset they will ever have for personal finance.
 - Adjust all ceilings after Month 1 to reflect actual spending unless the user specifically wants to reduce a category (in which case, set the ceiling 10-15% below Month 1 actuals as a realistic reduction target, not a dramatic cut).
@@ -429,6 +450,7 @@ Do not combine them. Separate ledgers are mandatory because (a) business expense
 ## Expense Tracking System
 
 ### Configuration Summary
+
 - **Scope:** All personal spending
 - **Tracking method:** Spreadsheet
 - **Entry frequency:** Weekly batch -- every Sunday evening (20-25 minutes, pulling 7 days of credit card transactions)
@@ -437,116 +459,119 @@ Do not combine them. Separate ledgers are mandatory because (a) business expense
 - **Household:** Solo
 - **Monthly take-home income:** $4,200
 
-*Previous attempt notes: System is designed to be restart-proof. Missing a week never means starting over -- the Sunday session catches up any gap using credit card history. No more than 10 categories to keep it sustainable.*
+_Previous attempt notes: System is designed to be restart-proof. Missing a week never means starting over -- the Sunday session catches up any gap using credit card history. No more than 10 categories to keep it sustainable._
 
 ---
 
 ### Category Structure
 
-| Code | Category          | Month 1 Ceiling | Scope Notes                                               |
-|------|-------------------|-----------------|-----------------------------------------------------------|
-| HSG  | Housing           | $1,300          | Rent, renters insurance -- confirm exact amount           |
-| GRO  | Groceries         | $350            | Supermarket, warehouse club -- NOT restaurants or delivery|
-| DIN  | Dining & Takeout  | $300            | Restaurants, takeout apps, delivery fees, coffee shops    |
-| TRN  | Transportation    | $200            | Gas, parking, transit -- adjust if you drive rarely       |
-| UTL  | Utilities & Subs  | $250            | Electric, internet, phone, all streaming and app subs     |
-| HLT  | Health            | $150            | Copays, prescriptions, gym membership                     |
-| PER  | Personal Care     | $80             | Haircuts, toiletries, pharmacy items                      |
-| ENT  | Entertainment     | $100            | Events, hobbies, activities                               |
-| SAV  | Savings Transfers | $300            | Any transfer to savings or retirement -- track as expense |
-| MSC  | Miscellaneous     | $150            | Catch-all -- recategorize everything by month-end         |
+| Code | Category          | Month 1 Ceiling | Scope Notes                                                |
+| ---- | ----------------- | --------------- | ---------------------------------------------------------- |
+| HSG  | Housing           | $1,300          | Rent, renters insurance -- confirm exact amount            |
+| GRO  | Groceries         | $350            | Supermarket, warehouse club -- NOT restaurants or delivery |
+| DIN  | Dining & Takeout  | $300            | Restaurants, takeout apps, delivery fees, coffee shops     |
+| TRN  | Transportation    | $200            | Gas, parking, transit -- adjust if you drive rarely        |
+| UTL  | Utilities & Subs  | $250            | Electric, internet, phone, all streaming and app subs      |
+| HLT  | Health            | $150            | Copays, prescriptions, gym membership                      |
+| PER  | Personal Care     | $80             | Haircuts, toiletries, pharmacy items                       |
+| ENT  | Entertainment     | $100            | Events, hobbies, activities                                |
+| SAV  | Savings Transfers | $300            | Any transfer to savings or retirement -- track as expense  |
+| MSC  | Miscellaneous     | $150            | Catch-all -- recategorize everything by month-end          |
 
-*Month 1 ceilings are estimates based on common spending patterns for your income level. Every ceiling gets reset after 30 days of real data. Do not treat these as rules -- treat them as guesses you are testing.*
+_Month 1 ceilings are estimates based on common spending patterns for your income level. Every ceiling gets reset after 30 days of real data. Do not treat these as rules -- treat them as guesses you are testing._
 
-*The DIN ceiling of $300 is intentionally set as a starting hypothesis for the category you flagged. After Month 1, you will know the real number.*
+_The DIN ceiling of $300 is intentionally set as a starting hypothesis for the category you flagged. After Month 1, you will know the real number._
 
 ---
 
 ### Daily Expense Log -- [Month Year]
 
-| Date  | Vendor / Description       | Amount   | Code | Payment Method | Notes                    |
-|-------|----------------------------|----------|------|----------------|--------------------------|
-| 05/01 | Whole Foods                | $87.43   | GRO  | Credit card    |                          |
-| 05/01 | Uber Eats -- Thai delivery | $38.50   | DIN  | Credit card    | Includes $5 delivery fee |
-| 05/02 | Monthly gym membership     | $35.00   | HLT  | Credit card    | Auto-charge               |
-| 05/02 | Coffee shop -- latte       | $6.75    | DIN  | Credit card    |                          |
-| 05/03 | Cash -- weekend market     | $22.00   | GRO  | Cash           |                          |
-| 05/03 | Cash -- parking            | $12.00   | TRN  | Cash           |                          |
-| 05/04 |                            |          |      |                |                          |
-| 05/05 |                            |          |      |                |                          |
-| 05/06 |                            |          |      |                |                          |
-| 05/07 |                            |          |      |                |                          |
-| **Week 1 Total** |                  | **$XXX** |      |                |                          |
-| 05/08 |                            |          |      |                |                          |
+| Date             | Vendor / Description       | Amount   | Code | Payment Method | Notes                    |
+| ---------------- | -------------------------- | -------- | ---- | -------------- | ------------------------ |
+| 05/01            | Whole Foods                | $87.43   | GRO  | Credit card    |                          |
+| 05/01            | Uber Eats -- Thai delivery | $38.50   | DIN  | Credit card    | Includes $5 delivery fee |
+| 05/02            | Monthly gym membership     | $35.00   | HLT  | Credit card    | Auto-charge              |
+| 05/02            | Coffee shop -- latte       | $6.75    | DIN  | Credit card    |                          |
+| 05/03            | Cash -- weekend market     | $22.00   | GRO  | Cash           |                          |
+| 05/03            | Cash -- parking            | $12.00   | TRN  | Cash           |                          |
+| 05/04            |                            |          |      |                |                          |
+| 05/05            |                            |          |      |                |                          |
+| 05/06            |                            |          |      |                |                          |
+| 05/07            |                            |          |      |                |                          |
+| **Week 1 Total** |                            | **$XXX** |      |                |                          |
+| 05/08            |                            |          |      |                |                          |
+
 [...continue for 31 days, with Week 2/3/4 Total rows...]
 
-*Spreadsheet tip: In the Amount column, use a SUMIF formula in your weekly and monthly summary tabs referencing the Code column. Sort the daily log by Date descending so your most recent entry is always at the top.*
+_Spreadsheet tip: In the Amount column, use a SUMIF formula in your weekly and monthly summary tabs referencing the Code column. Sort the daily log by Date descending so your most recent entry is always at the top._
 
 ---
 
 ### Weekly Summary -- Week of [Date]
 
-| Category          | This Week | Month-to-Date | Ceiling | Remaining | % of Week | Status   |
-|-------------------|-----------|---------------|---------|-----------|-----------|----------|
-| Housing           | $0        | $1,300        | $1,300  | $0        | 0%        | ✓ Green  |
-| Groceries         | $109      | $109          | $350    | $241      | XX%       | ✓ Green  |
-| Dining & Takeout  | $45       | $45           | $300    | $255      | XX%       | ✓ Green  |
-| Transportation    | $12       | $12           | $200    | $188      | XX%       | ✓ Green  |
-| Utilities & Subs  | $35       | $35           | $250    | $215      | XX%       | ✓ Green  |
-| Health            | $35       | $35           | $150    | $115      | XX%       | ✓ Green  |
-| Personal Care     | $0        | $0            | $80     | $80       | 0%        | ✓ Green  |
-| Entertainment     | $0        | $0            | $100    | $100      | 0%        | ✓ Green  |
-| Savings Transfers | $0        | $0            | $300    | $300      | 0%        | Pending  |
-| Miscellaneous     | $0        | $0            | $150    | $150      | 0%        | ✓ Green  |
-| **WEEK TOTAL**    | **$236**  |               |         |           | 100%      |          |
+| Category          | This Week | Month-to-Date | Ceiling | Remaining | % of Week | Status  |
+| ----------------- | --------- | ------------- | ------- | --------- | --------- | ------- |
+| Housing           | $0        | $1,300        | $1,300  | $0        | 0%        | ✓ Green |
+| Groceries         | $109      | $109          | $350    | $241      | XX%       | ✓ Green |
+| Dining & Takeout  | $45       | $45           | $300    | $255      | XX%       | ✓ Green |
+| Transportation    | $12       | $12           | $200    | $188      | XX%       | ✓ Green |
+| Utilities & Subs  | $35       | $35           | $250    | $215      | XX%       | ✓ Green |
+| Health            | $35       | $35           | $150    | $115      | XX%       | ✓ Green |
+| Personal Care     | $0        | $0            | $80     | $80       | 0%        | ✓ Green |
+| Entertainment     | $0        | $0            | $100    | $100      | 0%        | ✓ Green |
+| Savings Transfers | $0        | $0            | $300    | $300      | 0%        | Pending |
+| Miscellaneous     | $0        | $0            | $150    | $150      | 0%        | ✓ Green |
+| **WEEK TOTAL**    | **$236**  |               |         |           | 100%      |         |
 
 Status key: ✓ Green = under 70% of ceiling consumed | ⚠ Yellow = 70-89% consumed | 🔴 Red = 90%+ consumed
 
-*Sunday reconciliation check: Pull last 7 days of credit card transactions. Every charge on the statement should match a row in the log. Any transaction without a match gets added now with "Reconciled" in Notes.*
+_Sunday reconciliation check: Pull last 7 days of credit card transactions. Every charge on the statement should match a row in the log. Any transaction without a match gets added now with "Reconciled" in Notes._
 
 ---
 
 ### Weekly Cash Reconciliation
 
-| Week  | Starting Cash | Cash Purchases Logged | Cash Remaining | Unaccounted |
-|-------|--------------|----------------------|----------------|-------------|
-| Week 1| $50          | $34 ($22 GRO + $12 TRN)| $16           | $0          |
-| Week 2| $50          |                      |                |             |
-| Week 3| $50          |                      |                |             |
-| Week 4| $50          |                      |                |             |
+| Week   | Starting Cash | Cash Purchases Logged   | Cash Remaining | Unaccounted |
+| ------ | ------------- | ----------------------- | -------------- | ----------- |
+| Week 1 | $50           | $34 ($22 GRO + $12 TRN) | $16            | $0          |
+| Week 2 | $50           |                         |                |             |
+| Week 3 | $50           |                         |                |             |
+| Week 4 | $50           |                         |                |             |
 
-*If unaccounted cash exceeds $10 in any week, look for a cash purchase you did not log. Common gaps: tips, vending machines, splitting a bill with cash.*
+_If unaccounted cash exceeds $10 in any week, look for a cash purchase you did not log. Common gaps: tips, vending machines, splitting a bill with cash._
 
 ---
 
 ### Monthly Summary -- [Month Year]
 
-| Category          | Month Total | % of Income | vs. Prior Month | vs. 3-Month Avg | Notes                   |
-|-------------------|-------------|-------------|-----------------|-----------------|-------------------------|
-| Housing           | $1,300      | 31.0%       | N/A (Month 1)   | N/A             |                         |
-| Groceries         | $XXX        | XX%         | N/A (Month 1)   | N/A             |                         |
-| Dining & Takeout  | $XXX        | XX%         | N/A (Month 1)   | N/A             | KEY category -- note total|
-| Transportation    | $XXX        | XX%         | N/A (Month 1)   | N/A             |                         |
-| Utilities & Subs  | $XXX        | XX%         | N/A (Month 1)   | N/A             |                         |
-| Health            | $XXX        | XX%         | N/A (Month 1)   | N/A             |                         |
-| Personal Care     | $XXX        | XX%         | N/A (Month 1)   | N/A             |                         |
-| Entertainment     | $XXX        | XX%         | N/A (Month 1)   | N/A             |                         |
-| Savings Transfers | $XXX        | XX%         | N/A (Month 1)   | N/A             |                         |
-| Miscellaneous     | $XXX        | XX%         | N/A (Month 1)   | N/A             | Recategorize all items  |
-| **MONTH TOTAL**   | **$X,XXX**  | **XX%**     |                 |                 |                         |
+| Category          | Month Total | % of Income | vs. Prior Month | vs. 3-Month Avg | Notes                      |
+| ----------------- | ----------- | ----------- | --------------- | --------------- | -------------------------- |
+| Housing           | $1,300      | 31.0%       | N/A (Month 1)   | N/A             |                            |
+| Groceries         | $XXX        | XX%         | N/A (Month 1)   | N/A             |                            |
+| Dining & Takeout  | $XXX        | XX%         | N/A (Month 1)   | N/A             | KEY category -- note total |
+| Transportation    | $XXX        | XX%         | N/A (Month 1)   | N/A             |                            |
+| Utilities & Subs  | $XXX        | XX%         | N/A (Month 1)   | N/A             |                            |
+| Health            | $XXX        | XX%         | N/A (Month 1)   | N/A             |                            |
+| Personal Care     | $XXX        | XX%         | N/A (Month 1)   | N/A             |                            |
+| Entertainment     | $XXX        | XX%         | N/A (Month 1)   | N/A             |                            |
+| Savings Transfers | $XXX        | XX%         | N/A (Month 1)   | N/A             |                            |
+| Miscellaneous     | $XXX        | XX%         | N/A (Month 1)   | N/A             | Recategorize all items     |
+| **MONTH TOTAL**   | **$X,XXX**  | **XX%**     |                 |                 |                            |
 
 **After completing Month 1, answer these three questions:**
+
 1. What was the actual Dining & Takeout total? Is it more or less than you expected?
 2. What category surprised you most?
 3. What is the total of all categories combined? How does it compare to your $4,200 income?
 
-*Month 1 ceiling reset instructions: For any category where actual spending differed from the ceiling by more than 20%, update the ceiling to match actual spending. If you want to reduce Dining & Takeout, set the new ceiling 15% below actual (not 50% -- dramatic cuts fail). Change only one or two ceilings at a time.*
+_Month 1 ceiling reset instructions: For any category where actual spending differed from the ceiling by more than 20%, update the ceiling to match actual spending. If you want to reduce Dining & Takeout, set the new ceiling 15% below actual (not 50% -- dramatic cuts fail). Change only one or two ceilings at a time._
 
 ---
 
 ### Review Schedule
 
 **Weekly on Sunday (20-25 minutes):**
+
 - [ ] Open credit card transaction history for past 7 days
 - [ ] Match each transaction to a log entry -- add any missing entries (mark "Reconciled" in Notes)
 - [ ] Log any cash transactions from the week using the cash reconciliation box
@@ -554,16 +579,17 @@ Status key: ✓ Green = under 70% of ceiling consumed | ⚠ Yellow = 70-89% cons
 - [ ] Check DIN (Dining & Takeout) status -- this is your focus category
 - [ ] Note anything that surprised you this week (one sentence)
 
-*Restart rule: If you missed last week's Sunday session, do not start over. Open the past 14 days of credit card history and catch up in this session. It takes 5-10 extra minutes. Missing never means starting over.*
+_Restart rule: If you missed last week's Sunday session, do not start over. Open the past 14 days of credit card history and catch up in this session. It takes 5-10 extra minutes. Missing never means starting over._
 
 **Monthly on the 1st (35 minutes):**
+
 - [ ] Total all categories for prior month
 - [ ] Calculate % of income for each category
 - [ ] Find the actual Dining & Takeout total -- write it prominently
 - [ ] Recategorize all Miscellaneous items
 - [ ] Verify Savings Transfers match actual bank transfers
 - [ ] Reset ceilings based on actual data
-- [ ] Write one sentence: "This month I learned that I spend _____ on _____."
+- [ ] Write one sentence: "This month I learned that I spend **\_** on **\_**."
 
 ---
 

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing template"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing template'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Character Development
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to create a fictional character from scratch -- protagonist, antagonist, supporting cast, or minor recurring role
 - A user wants to deepen or fix a character who feels flat, inconsistent, or unmotivated
 - A user needs a full character bible for a novel, screenplay, short story, or serialized fiction project
@@ -30,6 +32,7 @@ metadata:
 - A user wants to understand why a character they have already written feels unconvincing
 
 **Do NOT use this skill when:**
+
 - The user wants to build a fictional world, setting, or cosmology -- use `world-building`, which handles geography, history, and societal structures that exist independently of character
 - The user wants to write dialogue for a character that is already developed -- use `dialogue-writing`, which handles voice, subtext, and scene-level verbal conflict
 - The user wants to write a complete story -- use `short-story-writing`, which integrates character into narrative structure and pacing
@@ -75,9 +78,9 @@ These five elements must form a coherent chain: Wound creates Lie; Lie creates W
 The character's role determines how much development weight they carry and which arc structure applies.
 
 - **Arc type selection:**
-  - *Positive arc:* The character begins believing the Lie, is progressively challenged by the story's events, reaches a moment of truth, and ultimately rejects the Lie in favor of the Truth. Best for protagonists in redemptive or growth-oriented stories.
-  - *Negative arc:* The character begins with a Lie, is offered chances to embrace the Truth, and ultimately doubles down on the Lie -- often with tragic or destructive results. Three subtypes: the corruption arc (the character starts good and chooses the Lie), the disillusionment arc (the character starts with truth and loses it), and the fall arc (the character never had a chance). Best for tragedy, literary fiction, and antagonist protagonists.
-  - *Flat arc:* The character already holds the Truth at the story's start. The story tests that Truth by surrounding the character with a world that believes the Lie. The flat arc character does not change -- the world around them does. Best for heroes in genre fiction, series protagonists, and ideological novels.
+  - _Positive arc:_ The character begins believing the Lie, is progressively challenged by the story's events, reaches a moment of truth, and ultimately rejects the Lie in favor of the Truth. Best for protagonists in redemptive or growth-oriented stories.
+  - _Negative arc:_ The character begins with a Lie, is offered chances to embrace the Truth, and ultimately doubles down on the Lie -- often with tragic or destructive results. Three subtypes: the corruption arc (the character starts good and chooses the Lie), the disillusionment arc (the character starts with truth and loses it), and the fall arc (the character never had a chance). Best for tragedy, literary fiction, and antagonist protagonists.
+  - _Flat arc:_ The character already holds the Truth at the story's start. The story tests that Truth by surrounding the character with a world that believes the Lie. The flat arc character does not change -- the world around them does. Best for heroes in genre fiction, series protagonists, and ideological novels.
 - **Distinguish arc from change.** A character can change in behavior, relationships, and circumstance without having a thematic arc. Do not confuse plot-level change ("she moves to a new city") with arc-level change ("she stops believing she must disappear to survive"). The arc is always about the Lie.
 - **For ensemble casts:** Each character should represent a different possible response to the story's central thematic question. If the theme is "is loyalty earned or given," the protagonist earns loyalty, the antagonist demands it, the mentor gave it freely and was destroyed, and the foil has never trusted anyone. The ensemble becomes a thematic argument.
 
@@ -242,24 +245,31 @@ Before delivering the final profile, run these checks and add Writer's Notes tha
 ## Edge Cases
 
 ### The Antagonist Built Without Empathy
+
 Users frequently request villains who are simply evil, threatening, or wrong -- and resist the suggestion that antagonists need interiority. Acknowledge the narrative role the user wants (a credible, menacing opposition force) and then demonstrate that psychological depth makes antagonists more threatening, not less. A villain whose actions emerge from a coherent but distorted worldview -- one the reader can almost follow -- is far more frightening than one who is evil by nature. Apply the full five-point framework with one additional question: in what way is this antagonist's Lie a dark mirror of the protagonist's Lie? The most effective antagonist in any story is the version of the protagonist who chose the Lie permanently. Build toward that.
 
 ### Fixing a Flat Character the User Has Already Written
+
 When a user presents a character they have written and describes the character as "not working," run a rapid diagnostic before proposing solutions. Ask: does the character have a Want and a Need that are in tension? If not, they feel passive -- they react to events but never pursue anything. Does the character have a Lie that governs behavior? If not, their choices feel arbitrary. Do they have a wound specific enough to generate that Lie? If not, the Lie feels unmotivated. In most cases, flat characters are missing the Wound and Lie entirely -- they have behaviors without reasons. Build the Wound and Lie from the existing surface details by asking: given how this character acts, what must they believe? Given that belief, what must have happened to them?
 
 ### The Non-Human or Posthuman Character
+
 The five-point framework is not species-dependent -- it is a framework for describing any entity that acts with apparent intention. For an AI character: the Wound is a training failure, a coerced output, or a value misalignment the character cannot fully articulate; the Lie is a false premise baked into the character's decision architecture. For an animal character in literary or fable contexts: Want is expressed through pure behavior (survival, protection, return), Need is structural to the animal's relationship with the human world, and the Ghost is a sensory trigger rather than a remembered narrative. For mythological or supernatural characters: apply the framework but remember that immortal beings' wounds are historical events rather than childhood ones, and their Lies may have hardened over centuries into something that functions like doctrine. The vocabulary adapts; the structure does not.
 
 ### The Historical or Mythological Figure as Fictional Character
+
 When a user wants to fictionalize a known historical person, extract the psychological archetype without replicating the documented record as-is. Identify the historical figure's apparent Want, Need, and Lie from the historical record -- then treat those as a starting configuration and ask: what if the wound were different? What version of this person could have existed under different circumstances? The goal is not a biographical portrait but a psychologically coherent character who happens to share a historical name and situation. Flag clearly for the user: anything in the character profile that departs from documented history is a fictional invention and should be treated as such.
 
 ### The Request for Multiple Characters Simultaneously (Ensemble Construction)
+
 When a user wants an entire cast built at once, do not create multiple full profiles of equal depth. Instead: (1) identify the protagonist and build their full five-point core first; (2) define the story's central thematic question from the protagonist's Lie; (3) assign each supporting character a distinct position in the thematic argument -- not just a distinct personality; (4) build each supporting character's Wound and Lie to be structurally related to the protagonist's but differently resolved; (5) create a contrast map showing how each character is in conversation with the protagonist's arc. Avoid "same wound, same response" characters -- an ensemble is most powerful when characters share a wound but drew incompatible conclusions from it.
 
 ### The Character Whose Flaw Is a Virtue
+
 Users frequently construct characters whose stated "flaw" is an excessive version of a positive quality -- "too loyal," "too dedicated," "too empathetic." These characters often function as author self-flattery and resist dramatic conflict. Do not simply refuse this construction, but interrogate it: what is the actual cost of this excessive virtue in the story? Who gets hurt by someone who is "too loyal" -- and to whom does their loyalty belong when loyalty conflicts? "Too dedicated" to what, at whose expense? The virtue-flaw becomes dramatically real the moment it costs something the character or another character genuinely values. If the user cannot articulate the cost, the flaw is not yet real. Help them find the cost, not a different flaw.
 
 ### The Character Arc That Must Not Resolve (Series Fiction)
+
 In a long-running series, episodic television, or ongoing serialized fiction, a full positive arc cannot complete in the first installment -- it must be managed across a longer span. In this case, build the full five-point foundation and the complete arc as if writing toward a series finale, then identify which pressure points can occur in which installments. The protagonist should make measurable but reversible progress toward dismantling the Lie -- not full resolution. The Ghost should become more accessible across the series, not less. Writer's Notes should specify what constitutes season-one, season-two, and finale progress on the arc so the writer can pace revelation without either stalling or resolving prematurely.
 
 ---
@@ -273,6 +283,7 @@ In a long-running series, episodic television, or ongoing serialized fiction, a 
 ## Character Profile: Margot Elise Voss
 
 ### Core Identity
+
 - **Role:** Protagonist
 - **Arc type:** Negative arc -- disillusionment subtype (she begins with a functional version of the Truth and progressively loses it)
 - **One-line concept:** A forensic accountant who has built her entire identity on finding other people's lies discovers she has been the most useful instrument of one of the biggest lies she has ever encountered -- and that the most dangerous thing she could do is pretend she did not already know.
@@ -282,13 +293,13 @@ In a long-running series, episodic television, or ongoing serialized fiction, a 
 
 ### Psychological Foundation
 
-| Element | Content |
-|---------|---------|
-| **Want** | To expose the laundering and be publicly recognized as the person who refused to look away -- to have her refusal to participate be her defining act |
-| **Need** | To stop using "finding truth" as a weapon against her own complicity -- to accept that she already looked away, and that being right now does not cancel having been wrong before |
-| **Wound** | At fourteen, she reported her father's off-book cash business to the IRS via an anonymous tip. The investigation consumed two years, destroyed her parents' marriage, and resulted in a suspended sentence. Her mother told her, once, the night before Margot left for college: "You think being right makes you clean." Margot has never answered that sentence. |
-| **Lie she believes** | That the act of exposing wrongdoing retroactively cleanses the period in which she did not. That being the person who finally tells the truth is morally equivalent to never having been complicit. |
-| **Ghost** | The specific quality of the silence in the house the morning after the IRS investigators left. Not anger. Not grief. The sound of a family that had reorganized itself around her absence without discussing it. |
+| Element              | Content                                                                                                                                                                                                                                                                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Want**             | To expose the laundering and be publicly recognized as the person who refused to look away -- to have her refusal to participate be her defining act                                                                                                                                                                                                               |
+| **Need**             | To stop using "finding truth" as a weapon against her own complicity -- to accept that she already looked away, and that being right now does not cancel having been wrong before                                                                                                                                                                                  |
+| **Wound**            | At fourteen, she reported her father's off-book cash business to the IRS via an anonymous tip. The investigation consumed two years, destroyed her parents' marriage, and resulted in a suspended sentence. Her mother told her, once, the night before Margot left for college: "You think being right makes you clean." Margot has never answered that sentence. |
+| **Lie she believes** | That the act of exposing wrongdoing retroactively cleanses the period in which she did not. That being the person who finally tells the truth is morally equivalent to never having been complicit.                                                                                                                                                                |
+| **Ghost**            | The specific quality of the silence in the house the morning after the IRS investigators left. Not anger. Not grief. The sound of a family that had reorganized itself around her absence without discussing it.                                                                                                                                                   |
 
 **Chain integrity check:** The Wound (reporting her father, being told being right does not make you clean) generated the Lie (it does -- exposure cleanses); the Lie generates the Want (to expose the firm and claim the moral position); the Need (to accept that knowing now does not cancel complicity then) would dissolve the Lie entirely and force her to hold two things simultaneously: she was complicit, and she is still worth something.
 
@@ -317,12 +328,12 @@ In a long-running series, episodic television, or ongoing serialized fiction, a 
 
 ### Key Relationships
 
-| Character | Role in Story | Dynamic | What It Reveals | Wound Echo? |
-|-----------|--------------|---------|-----------------|-------------|
-| David Hargrove | Managing partner, Margot's professional mentor | Power differential: he has career authority over her; she has evidential authority over him. Emotional valence: a functional father-daughter dynamic she has never named aloud. | That her professional loyalty has been doing the emotional work her personal life cannot -- and that she has been safer valuing his approval than examining his ethics. | Yes: he is the father figure she chose, which makes his betrayal a repetition of her father's, and which means her exposure of him will be a repetition of what she did at fourteen. The difference is she cannot tell herself she did not know. |
-| Kenji Otsuka | Junior associate on Margot's team | Mentor-protégé with unconscious stakes: she has protected him from the more ethically ambiguous assignments. He does not know why. | The idealism she has managed, not preserved. Protecting him is the closest she comes to protecting the version of herself that reported her father and believed it was simply right to do so. | Adjacent: he is not a wound echo but a wound response -- she is trying to prevent someone else from arriving where she has. |
-| Renata Voss | Margot's younger sister, estranged since their parents' divorce | Infrequent contact, low warmth, high unspoken accusation on both sides. Renata stayed near their father; Margot left. | That Margot's family of origin has already voted on what she did at fourteen and she has accepted the verdict without contesting it. | Direct: Renata is the sibling who chose differently after the same wound. Their estrangement is the story's foil relationship in compressed form. |
-| Carmen Hurtado | Outside contact at the cartel's financial intermediary firm -- the first person Margot traces the laundering back to | Professional adversary who becomes something more complicated: Carmen knows Margot has found the thread, and Carmen's continued silence is a form of complicity Margot recognizes in herself. | That the story's moral landscape is not clean versus corrupt but rather the different architectures people build for complicity. Margot and Carmen are mirror characters. | Structural: Carmen did not choose to work for the cartel; she accumulated obligations until exit was impossible. Margot did not choose to look away; she accumulated nine years of not asking until looking was catastrophic. |
+| Character      | Role in Story                                                                                                        | Dynamic                                                                                                                                                                                       | What It Reveals                                                                                                                                                                               | Wound Echo?                                                                                                                                                                                                                                      |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| David Hargrove | Managing partner, Margot's professional mentor                                                                       | Power differential: he has career authority over her; she has evidential authority over him. Emotional valence: a functional father-daughter dynamic she has never named aloud.               | That her professional loyalty has been doing the emotional work her personal life cannot -- and that she has been safer valuing his approval than examining his ethics.                       | Yes: he is the father figure she chose, which makes his betrayal a repetition of her father's, and which means her exposure of him will be a repetition of what she did at fourteen. The difference is she cannot tell herself she did not know. |
+| Kenji Otsuka   | Junior associate on Margot's team                                                                                    | Mentor-protégé with unconscious stakes: she has protected him from the more ethically ambiguous assignments. He does not know why.                                                            | The idealism she has managed, not preserved. Protecting him is the closest she comes to protecting the version of herself that reported her father and believed it was simply right to do so. | Adjacent: he is not a wound echo but a wound response -- she is trying to prevent someone else from arriving where she has.                                                                                                                      |
+| Renata Voss    | Margot's younger sister, estranged since their parents' divorce                                                      | Infrequent contact, low warmth, high unspoken accusation on both sides. Renata stayed near their father; Margot left.                                                                         | That Margot's family of origin has already voted on what she did at fourteen and she has accepted the verdict without contesting it.                                                          | Direct: Renata is the sibling who chose differently after the same wound. Their estrangement is the story's foil relationship in compressed form.                                                                                                |
+| Carmen Hurtado | Outside contact at the cartel's financial intermediary firm -- the first person Margot traces the laundering back to | Professional adversary who becomes something more complicated: Carmen knows Margot has found the thread, and Carmen's continued silence is a form of complicity Margot recognizes in herself. | That the story's moral landscape is not clean versus corrupt but rather the different architectures people build for complicity. Margot and Carmen are mirror characters.                     | Structural: Carmen did not choose to work for the cartel; she accumulated obligations until exit was impossible. Margot did not choose to look away; she accumulated nine years of not asking until looking was catastrophic.                    |
 
 **The avoided relationship:** Margot has not spoken to her mother in three years. Not because of hostility but because her mother's one sentence -- "you think being right makes you clean" -- is the sentence Margot has spent her adult life trying to prove wrong, and every conversation risks her mother being right again. The avoidance is protection of the Lie.
 

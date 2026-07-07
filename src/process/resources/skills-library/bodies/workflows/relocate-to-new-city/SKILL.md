@@ -11,12 +11,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning checklist step-by-step guide"
-  category: "life-event"
-  depends: "destination-comparison budget-planning job-search-strategy moving-checklist home-safety-inspection project-kickoff"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning checklist step-by-step guide'
+  category: 'life-event'
+  depends: 'destination-comparison budget-planning job-search-strategy moving-checklist home-safety-inspection project-kickoff'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Relocate to a New City
@@ -170,7 +170,6 @@ When this workflow is complete, the user will have:
 4. A smooth physical move with all logistics coordinated
 5. A safe, documented new home ready for daily life
 6. Local services established and a plan for community integration within the first 90 days
-
 
 ### Timeline Considerations
 

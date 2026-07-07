@@ -47,10 +47,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
         >
           {total.toLocaleString()}
         </div>
-        <div
-          className='text-12px mt-7px'
-          style={{ color: 'var(--text-primary)', fontWeight: 550 }}
-        >
+        <div className='text-12px mt-7px' style={{ color: 'var(--text-primary)', fontWeight: 550 }}>
           {t('stats.total', 'Skills ready')}
         </div>
         <div className='text-11px mt-3px' style={{ color: 'var(--color-text-3)' }}>
@@ -69,10 +66,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
         >
           {pinned}
         </div>
-        <div
-          className='text-12px mt-7px'
-          style={{ color: 'var(--text-primary)', fontWeight: 550 }}
-        >
+        <div className='text-12px mt-7px' style={{ color: 'var(--text-primary)', fontWeight: 550 }}>
           {t('stats.pinned', 'Pinned always-on')}
         </div>
         <div className='text-11px mt-3px' style={{ color: 'var(--color-text-3)' }}>
@@ -91,28 +85,27 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
         >
           {sourceCount}
         </div>
-        <div
-          className='text-12px mt-7px'
-          style={{ color: 'var(--text-primary)', fontWeight: 550 }}
-        >
+        <div className='text-12px mt-7px' style={{ color: 'var(--text-primary)', fontWeight: 550 }}>
           {t('stats.sources', 'Sources, unified')}
         </div>
         <div className='flex gap-4px mt-6px flex-wrap'>
-          {Object.keys(bySource).slice(0, 4).map((src) => (
-            <span
-              key={src}
-              className='text-10px px-6px py-1px rd-4px border font-medium'
-              style={{
-                background: 'rgba(var(--primary-6),0.08)',
-                color: 'rgb(var(--primary-6))',
-                borderColor: 'rgba(var(--primary-6),0.2)',
-                textTransform: 'capitalize',
-              }}
-              title={`${bySource[src]} skills from ${src}`}
-            >
-              {src.replace('-', ' ')}
-            </span>
-          ))}
+          {Object.keys(bySource)
+            .slice(0, 4)
+            .map((src) => (
+              <span
+                key={src}
+                className='text-10px px-6px py-1px rd-4px border font-medium'
+                style={{
+                  background: 'rgba(var(--primary-6),0.08)',
+                  color: 'rgb(var(--primary-6))',
+                  borderColor: 'rgba(var(--primary-6),0.2)',
+                  textTransform: 'capitalize',
+                }}
+                title={`${bySource[src]} skills from ${src}`}
+              >
+                {src.replace('-', ' ')}
+              </span>
+            ))}
         </div>
       </div>
 
@@ -132,10 +125,7 @@ const LibraryHealth: React.FC<Props> = ({ stats }) => {
           ) : (
             <ShieldAlert size={20} style={{ color: 'var(--warning, #e9a40e)' }} />
           )}
-          <div
-            className='text-14px'
-            style={{ color: 'var(--text-primary)', fontWeight: 600 }}
-          >
+          <div className='text-14px' style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
             {t('stats.guard', 'Skill Guard')}
           </div>
         </div>

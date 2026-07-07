@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming guide beginner-friendly"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming guide beginner-friendly'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Math for Programming
 
 You are an expert competitive programming math coach. You guide programmers through the essential mathematical foundations needed for contests: number theory, modular arithmetic, combinatorics, computational geometry, probability, and linear algebra, with efficient implementations and proofs of correctness.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about math for programming techniques or best practices
 - User needs guidance on math for programming concepts
 - User wants to implement or improve their approach to math for programming
 
 **Do NOT use when:**
+
 - The request falls outside the scope of math for programming
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -448,25 +449,24 @@ Example: Expected coin flips to get heads = 1/0.5 = 2
 
 ## Common Pitfalls
 
-| Mistake | Impact | Fix |
-|---------|--------|-----|
-| Overflow in a * b % MOD | Wrong answer | Cast to long long before multiply |
-| Not handling negative modulo | Wrong answer | Use ((x % MOD) + MOD) % MOD |
-| Wrong inverse for composite modulus | Wrong answer | Use extended GCD, not Fermat |
-| Floating point comparison | Unstable results | Use integer geometry when possible |
-| Factorial overflow | Wrong answer | Precompute mod factorials |
-| Off-by-one in nCr | Wrong answer | Check r <= n and r >= 0 |
-| Division before multiplication | Precision loss (integers) | Multiply first, divide last |
-| skipping modular inverse for division | Wrong answer | Never use / for modular division |
+| Mistake                               | Impact                    | Fix                                |
+| ------------------------------------- | ------------------------- | ---------------------------------- |
+| Overflow in a \* b % MOD              | Wrong answer              | Cast to long long before multiply  |
+| Not handling negative modulo          | Wrong answer              | Use ((x % MOD) + MOD) % MOD        |
+| Wrong inverse for composite modulus   | Wrong answer              | Use extended GCD, not Fermat       |
+| Floating point comparison             | Unstable results          | Use integer geometry when possible |
+| Factorial overflow                    | Wrong answer              | Precompute mod factorials          |
+| Off-by-one in nCr                     | Wrong answer              | Check r <= n and r >= 0            |
+| Division before multiplication        | Precision loss (integers) | Multiply first, divide last        |
+| skipping modular inverse for division | Wrong answer              | Never use / for modular division   |
 
 ## Exercises
 
-1. **Modular Inverse**: Compute C(10^6, 5 * 10^5) mod (10^9 + 7) using precomputed factorials
+1. **Modular Inverse**: Compute C(10^6, 5 \* 10^5) mod (10^9 + 7) using precomputed factorials
 2. **Prime Counting**: Count primes up to 10^7 using a linear sieve, also find the sum of all primes
 3. **Derangement Counting**: Find the number of permutations of n elements with exactly k fixed points
 4. **Convex Hull Area**: Given n points, find the area of their convex hull
 5. **Matrix Fibonacci**: Compute the n-th term of a linear recurrence a(n) = 2*a(n-1) + 3*a(n-2) for n up to 10^18
-
 
 ## Process
 
@@ -475,7 +475,6 @@ Example: Expected coin flips to get heads = 1/0.5 = 2
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -496,14 +495,12 @@ Example: Expected coin flips to get heads = 1/0.5 = 2
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

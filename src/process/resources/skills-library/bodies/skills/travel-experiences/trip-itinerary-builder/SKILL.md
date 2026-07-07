@@ -13,19 +13,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary planning step-by-step"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel itinerary planning step-by-step'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Trip Itinerary Builder
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to build a day-by-day itinerary for a specific destination with defined dates -- even if they have only a rough sense of what they want to do
 - A user has a trip already booked and wants help structuring their days so they do not waste time backtracking or arriving at closed attractions
 - A user wants timed activity blocks, meal windows, and transit directions assembled into a single printable or shareable schedule
@@ -35,6 +37,7 @@ metadata:
 - A user asks how to organize a multi-city trip with a clear arrival and departure date for each city
 
 **Do NOT use when:**
+
 - The user's primary need is routing a road trip with driving legs, overnight stops, and fuel or rest break planning -- use `road-trip-planner` instead
 - The user wants a packing checklist, even if it references the itinerary destinations or activities -- use `packing-list-builder`
 - The user wants a detailed line-item travel budget with currency conversion, daily spend targets, and cost-tracking -- use `budget-travel-planner`
@@ -265,27 +268,35 @@ Before delivering the itinerary, perform a completeness check:
 ## Edge Cases
 
 ### Single-Day Trip or Day-Trip from a Home Base
+
 Compress into one day with no arrival/departure logistics sections. Remove accommodation references entirely. Replace "Return to hotel" blocks with "Return to transit hub" blocks. Increase activity density toward the upper end of the pace tier. Add an explicit "If time allows" overflow list at the bottom with 2-3 additional nearby activities for travelers who move quickly through the schedule. Note the last viable transit departure time back to the home base and work all activities backwards from that fixed hard deadline.
 
 ### Multi-City Trip
+
 Treat each city as a self-contained sub-itinerary within the same document. Insert an inter-city transit day between each sub-itinerary. The transit day entry must specify: departure time from City A accommodation, method of reaching City A transit hub, inter-city transport method and duration, arrival time at City B transit hub, and transport to City B accommodation. Reduce activity count on transit days to 1-2 light items near the arrival-side accommodation. If transit is under 2 hours (e.g., Paris to Brussels by Eurostar, Tokyo to Kyoto by Shinkansen), it need not consume a full day and can be handled as a morning transit followed by an afternoon and evening of activities at the new destination.
 
 ### Destination with Limited Tourist Infrastructure
+
 Some destinations have fewer than 6-8 traditional "attraction" entries in any reference. In these cases: extend time allocations per activity (a market that would get 45 minutes in a dense city gets 90 minutes here); add experiential fillers that are universally available -- a 3-hour cooking class, a guided neighborhood walk with a local, a morning market visit, a scenic coastal or rural walk; schedule a day-trip to the nearest notable secondary destination. Never pad the schedule with phantom entries -- if a day has only 4 hours of genuine activity, build a Relaxed pace day and note the free afternoon explicitly.
 
 ### Rainy Season or High Unpredictability Weather Destinations
+
 Apply the morning-outdoor / afternoon-indoor rule as the default structure rather than the exception. Always list a full Rain Plan row at the bottom of each day that explicitly swaps every outdoor activity for an indoor alternative in the same zone. In tropical destinations with predictable afternoon thunderstorms (most of Southeast Asia, Caribbean, tropical South America), schedule all outdoor activities before 13:00 and all indoor activities for 13:00-17:00. Note this as a structural feature, not a contingency.
 
 ### User Has Multiple Pre-Booked Fixed-Time Activities
+
 Use fixed-time bookings as day anchors before adding any other activities. Build 30 minutes of buffer before each fixed-time activity to account for transit delays or slower movement. Build the rest of the day's schedule by filling slots before and after the anchor activity using the geographic clustering rule -- prioritize activities in the same zone as the anchor to minimize transit. Label fixed-time activities clearly as [LOCKED] in the schedule. Movable activities should be labeled [FLEXIBLE] so the user understands what can shift if needed.
 
 ### Very Short Notice (Trip Starts Within 72 Hours)
+
 Every bookable attraction in the itinerary must be marked with its real-time availability status indicator: "Check availability -- typically sells out [X days] in advance." Prioritize walk-up accessible activities: public parks, historic neighborhoods, open-air markets, self-guided walking trails, most free museums, street food districts. Push reservation-required restaurants to the beginning of the checklist and note that same-day availability is unlikely at popular spots. Flag any activity that categorically cannot be accessed without advance purchase (many national park permits, famous viewpoint sunrise slots) and suggest alternatives that do not require booking.
 
 ### Traveling During a Major Local Holiday or Festival
+
 A major local holiday is both an opportunity and a logistical hazard. Museums and businesses often close; simultaneously, free street festivals, parades, and cultural performances appear. Acknowledge both dimensions: note specific closures on specific days in the activity rows; add festival or event entries with location, expected time, and duration; warn that transit will be significantly disrupted and walking will be the most reliable movement method; increase time buffers between all activities by 15-20 minutes on holiday days; note that restaurant reservations during major festivals are essential and may require 2-4 weeks lead time even at mid-range establishments.
 
 ### Physically Diverse Group (Mixed Mobility or Fitness Levels)
+
 When a group includes participants with significant physical differences (wheelchair user, elderly traveler, young child, injury recovery), the itinerary must flag accessibility requirements on every activity row. Note whether sites have lift/elevator access, step-free entry, paved vs. cobblestone paths, and availability of seating rest areas. Reduce the daily walking distance target to a maximum of 5-6 km total for groups with mobility constraints (vs. 10-14 km typical for moderate-pace fit travelers). Substitute taxi or rideshare for walking legs over 10 minutes whenever mobility is flagged.
 
 ---
@@ -314,16 +325,17 @@ When a group includes participants with significant physical differences (wheelc
 **Focus area:** Shinjuku
 **Day type:** Arrival day
 
-| Time  | Activity                                          | Duration | Transit to Next              | Notes                                               |
-|-------|---------------------------------------------------|----------|------------------------------|-----------------------------------------------------|
-| 14:00 | Narita or Haneda airport to Shinjuku accommodation | --      | Narita Express 80 min / Haneda monorail + subway 50 min | Budget option: N'EX or monorail+subway; moderate: limousine bus. IC card (Suica/Pasmo) essential -- purchase at airport |
-| 15:30 | Check in at accommodation                         | 30 min   | Walk, 5 min                  | Request room with city view if available; standard Japanese check-in is 15:00 |
-| 16:00 | Shinjuku neighborhood orientation walk            | 60 min   | Walk, 10 min                 | Kabukicho, Takashimaya Times Square exterior, Golden Gai alley -- low-energy, no entry fees |
-| 17:10 | Shinjuku Gyoen Garden -- late afternoon stroll    | 60 min   | Walk, 10 min                 | Cherry blossom peak likely in late March. Closes 18:00 (last entry 17:30). Minimal ticket fee, no booking required |
-| 18:20 | Return to accommodation / rest and freshen up     | 60 min   | --                           |                                                     |
-| 19:30 | Dinner -- Omoide Yokocho (Memory Lane) yakitori alley | 75 min | Walk, 5 min               | Cash only at most stalls. Smoky, intimate, very local -- ideal first-night experience |
+| Time  | Activity                                              | Duration | Transit to Next                                         | Notes                                                                                                                   |
+| ----- | ----------------------------------------------------- | -------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 14:00 | Narita or Haneda airport to Shinjuku accommodation    | --       | Narita Express 80 min / Haneda monorail + subway 50 min | Budget option: N'EX or monorail+subway; moderate: limousine bus. IC card (Suica/Pasmo) essential -- purchase at airport |
+| 15:30 | Check in at accommodation                             | 30 min   | Walk, 5 min                                             | Request room with city view if available; standard Japanese check-in is 15:00                                           |
+| 16:00 | Shinjuku neighborhood orientation walk                | 60 min   | Walk, 10 min                                            | Kabukicho, Takashimaya Times Square exterior, Golden Gai alley -- low-energy, no entry fees                             |
+| 17:10 | Shinjuku Gyoen Garden -- late afternoon stroll        | 60 min   | Walk, 10 min                                            | Cherry blossom peak likely in late March. Closes 18:00 (last entry 17:30). Minimal ticket fee, no booking required      |
+| 18:20 | Return to accommodation / rest and freshen up         | 60 min   | --                                                      |                                                                                                                         |
+| 19:30 | Dinner -- Omoide Yokocho (Memory Lane) yakitori alley | 75 min   | Walk, 5 min                                             | Cash only at most stalls. Smoky, intimate, very local -- ideal first-night experience                                   |
 
 **Alternatives:**
+
 - Instead of Shinjuku Gyoen: Shinjuku Central Park (free, no closing time, good blossom trees)
 - Instead of Omoide Yokocho: Isetan department store B1-B2 food hall for bento dinner (if tired from travel and prefer no smoke)
 
@@ -337,25 +349,26 @@ When a group includes participants with significant physical differences (wheelc
 
 > This day covers Tokyo's most historically dense corridor. Asakusa is Tokyo's best-preserved Edo-period neighborhood. Yanaka is a quiet, largely un-touristed traditional neighborhood that survived WWII bombing. Ueno contains Tokyo's highest concentration of major museums.
 
-| Time  | Activity                                              | Duration | Transit to Next                        | Notes                                                         |
-|-------|-------------------------------------------------------|----------|----------------------------------------|---------------------------------------------------------------|
-| 08:00 | Breakfast at accommodation or Shinjuku convenience store | 35 min | Subway (Oedo line), 28 min          | Convenience store breakfast (konbini) is a genuine Tokyo experience -- onigiri, tamagoyaki, coffee |
-| 09:03 | Depart Shinjuku for Asakusa                           | --       | Subway (Oedo to Asakusa line), 28 min  | Aim to arrive by 09:30 before crowds                         |
-| 09:30 | Senso-ji Temple complex                               | 90 min   | Walk, 12 min                           | Free entry. Arrive early -- 10:30 onwards becomes very crowded. Nakamise shopping street alongside temple |
-| 11:12 | Asakusa Culture Tourist Information Center observation deck | 20 min | Walk, 8 min                 | Free viewpoint overlooking Senso-ji and Skytree -- underused by tourists |
-| 11:40 | Kappabashi Kitchen Street walk                        | 50 min   | Walk, 18 min                           | Street of professional kitchen and restaurant supply shops. Unique food-culture experience; shops open ~10:00 |
-| 12:30 | Lunch -- Asakusa ramen or soba restaurant area        | 65 min   | Walk, 15 min                           | Asakusa has strong traditional soba culture. Reservation not typically required at lunch |
-| 13:50 | Yanaka neighborhood walking -- Yanaka Ginza shotengai | 75 min   | Walk, 10 min                           | Traditional shotengai (covered shopping street), old temples, quiet residential lanes |
-| 15:15 | Tokyo National Museum, Ueno -- Japanese art and history galleries | 90 min | Walk, 12 min           | Book ahead: same-day tickets usually available but online pre-purchase saves queue time. Closed Mondays |
-| 16:57 | Ueno Park cherry blossom walk (if in bloom)           | 45 min   | Subway (Ginza line), 40 min            | Hanami (flower viewing) in late March. Evening illumination of blossoms from ~17:30 |
-| 17:52 | Return to Shinjuku                                    | 40 min transit | --                            |                                                               |
-| 18:30 | Rest at accommodation                                 | 60 min   | Walk, 10 min                           |                                                               |
-| 19:30 | Dinner -- Shinjuku izakaya (Japanese pub dining)      | 90 min   | Walk, 5 min                            | Reserve in advance during blossom season. Order omakase small plates. Moderate budget: ¥3,000-5,000 per person |
+| Time  | Activity                                                          | Duration       | Transit to Next                       | Notes                                                                                                          |
+| ----- | ----------------------------------------------------------------- | -------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 08:00 | Breakfast at accommodation or Shinjuku convenience store          | 35 min         | Subway (Oedo line), 28 min            | Convenience store breakfast (konbini) is a genuine Tokyo experience -- onigiri, tamagoyaki, coffee             |
+| 09:03 | Depart Shinjuku for Asakusa                                       | --             | Subway (Oedo to Asakusa line), 28 min | Aim to arrive by 09:30 before crowds                                                                           |
+| 09:30 | Senso-ji Temple complex                                           | 90 min         | Walk, 12 min                          | Free entry. Arrive early -- 10:30 onwards becomes very crowded. Nakamise shopping street alongside temple      |
+| 11:12 | Asakusa Culture Tourist Information Center observation deck       | 20 min         | Walk, 8 min                           | Free viewpoint overlooking Senso-ji and Skytree -- underused by tourists                                       |
+| 11:40 | Kappabashi Kitchen Street walk                                    | 50 min         | Walk, 18 min                          | Street of professional kitchen and restaurant supply shops. Unique food-culture experience; shops open ~10:00  |
+| 12:30 | Lunch -- Asakusa ramen or soba restaurant area                    | 65 min         | Walk, 15 min                          | Asakusa has strong traditional soba culture. Reservation not typically required at lunch                       |
+| 13:50 | Yanaka neighborhood walking -- Yanaka Ginza shotengai             | 75 min         | Walk, 10 min                          | Traditional shotengai (covered shopping street), old temples, quiet residential lanes                          |
+| 15:15 | Tokyo National Museum, Ueno -- Japanese art and history galleries | 90 min         | Walk, 12 min                          | Book ahead: same-day tickets usually available but online pre-purchase saves queue time. Closed Mondays        |
+| 16:57 | Ueno Park cherry blossom walk (if in bloom)                       | 45 min         | Subway (Ginza line), 40 min           | Hanami (flower viewing) in late March. Evening illumination of blossoms from ~17:30                            |
+| 17:52 | Return to Shinjuku                                                | 40 min transit | --                                    |                                                                                                                |
+| 18:30 | Rest at accommodation                                             | 60 min         | Walk, 10 min                          |                                                                                                                |
+| 19:30 | Dinner -- Shinjuku izakaya (Japanese pub dining)                  | 90 min         | Walk, 5 min                           | Reserve in advance during blossom season. Order omakase small plates. Moderate budget: ¥3,000-5,000 per person |
 
 **Alternatives:**
+
 - Instead of Tokyo National Museum: Shitamachi Museum (smaller, focuses on Edo commoner life, fewer crowds, lower ticket price)
 - Instead of Ueno Park blossom walk: Yanaka Cemetery blossom walk (same zone, fewer crowds, equally beautiful)
-**Rain plan:** Skip Ueno Park walk; extend Tokyo National Museum visit by 45 minutes and move directly to Shinjuku
+  **Rain plan:** Skip Ueno Park walk; extend Tokyo National Museum visit by 45 minutes and move directly to Shinjuku
 
 **Day total:** 7.5 activity-hours | **Pace:** Moderate
 
@@ -367,25 +380,26 @@ When a group includes participants with significant physical differences (wheelc
 
 > This day is anchored by the pre-booked teamLab digital art experience at 10:00. Odaiba is a waterfront island district with a futuristic aesthetic that complements the digital art theme. Shibuya in the evening adds energy and contrast.
 
-| Time  | Activity                                              | Duration | Transit to Next                        | Notes                                                         |
-|-------|-------------------------------------------------------|----------|----------------------------------------|---------------------------------------------------------------|
-| 08:00 | Breakfast at accommodation                            | 40 min   | Subway (JR Yamanote + Yurikamome), 50 min | Allow extra transit time -- Odaiba requires ferry or Yurikamome monorail |
-| 09:20 | Depart Shinjuku for Odaiba                            | --       | Yurikamome monorail from Shimbashi, 25 min | Sit at front of monorail for city and bay views            |
-| 09:55 | Odaiba waterfront walk and Rainbow Bridge views       | 40 min   | Walk, 5 min                            | Light pre-activity movement. Arrive early to teamLab venue  |
-| 10:00 | teamLab Borderless or Planets digital art experience  | 120 min  | Walk, 15 min                           | **[LOCKED -- pre-booked 10:00 entry]** Wear dark, comfortable clothing; no flash photography; remove shoes at some installations |
-| 12:15 | Lunch -- Odaiba DiverCity or nearby waterfront food court | 65 min | Walk, 8 min                        | Multiple options including ramen, sushi, Japanese curry. Card widely accepted here |
-| 13:30 | Miraikan National Museum of Emerging Science and Innovation | 90 min | Walk, 20 min + Yurikamome, 25 min + JR, 15 min | [FLEXIBLE] Contemporary science and robotics -- thematically aligned with digital art day. Closed Tuesdays |
-| 15:20 | Return to Shinjuku and rest                           | --       | Subway, ~50 min                        |                                                               |
-| 16:30 | Rest at accommodation                                 | 75 min   | Walk, 15 min                           |                                                               |
-| 17:50 | Depart for Shibuya                                    | --       | JR Yamanote line, 6 min                |                                                               |
-| 18:00 | Shibuya Crossing at dusk                              | 30 min   | Walk, 5 min                            | Observe from Starbucks Tsutaya second floor or street level. Most photogenic 18:00-19:30 with building lights |
-| 18:35 | Shibuya Center-gai and Dogenzaka street exploration   | 45 min   | Walk, 5 min                            | Tokyo street culture, fashion, food stalls -- freeform walking |
-| 19:30 | Dinner -- Shibuya area restaurant                     | 90 min   | JR Yamanote, 6 min                     | Reserve in advance. Shibuya has excellent ramen (Ichiran style), yakiniku (grilled meat), and kaiseki options at moderate price points |
+| Time  | Activity                                                    | Duration | Transit to Next                                | Notes                                                                                                                                  |
+| ----- | ----------------------------------------------------------- | -------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 08:00 | Breakfast at accommodation                                  | 40 min   | Subway (JR Yamanote + Yurikamome), 50 min      | Allow extra transit time -- Odaiba requires ferry or Yurikamome monorail                                                               |
+| 09:20 | Depart Shinjuku for Odaiba                                  | --       | Yurikamome monorail from Shimbashi, 25 min     | Sit at front of monorail for city and bay views                                                                                        |
+| 09:55 | Odaiba waterfront walk and Rainbow Bridge views             | 40 min   | Walk, 5 min                                    | Light pre-activity movement. Arrive early to teamLab venue                                                                             |
+| 10:00 | teamLab Borderless or Planets digital art experience        | 120 min  | Walk, 15 min                                   | **[LOCKED -- pre-booked 10:00 entry]** Wear dark, comfortable clothing; no flash photography; remove shoes at some installations       |
+| 12:15 | Lunch -- Odaiba DiverCity or nearby waterfront food court   | 65 min   | Walk, 8 min                                    | Multiple options including ramen, sushi, Japanese curry. Card widely accepted here                                                     |
+| 13:30 | Miraikan National Museum of Emerging Science and Innovation | 90 min   | Walk, 20 min + Yurikamome, 25 min + JR, 15 min | [FLEXIBLE] Contemporary science and robotics -- thematically aligned with digital art day. Closed Tuesdays                             |
+| 15:20 | Return to Shinjuku and rest                                 | --       | Subway, ~50 min                                |                                                                                                                                        |
+| 16:30 | Rest at accommodation                                       | 75 min   | Walk, 15 min                                   |                                                                                                                                        |
+| 17:50 | Depart for Shibuya                                          | --       | JR Yamanote line, 6 min                        |                                                                                                                                        |
+| 18:00 | Shibuya Crossing at dusk                                    | 30 min   | Walk, 5 min                                    | Observe from Starbucks Tsutaya second floor or street level. Most photogenic 18:00-19:30 with building lights                          |
+| 18:35 | Shibuya Center-gai and Dogenzaka street exploration         | 45 min   | Walk, 5 min                                    | Tokyo street culture, fashion, food stalls -- freeform walking                                                                         |
+| 19:30 | Dinner -- Shibuya area restaurant                           | 90 min   | JR Yamanote, 6 min                             | Reserve in advance. Shibuya has excellent ramen (Ichiran style), yakiniku (grilled meat), and kaiseki options at moderate price points |
 
 **Alternatives:**
+
 - Instead of Miraikan: Toyota Mega Web showroom (free, automotive design and driving simulators -- good if museum fatigue sets in after teamLab)
 - Instead of Shibuya Crossing: Harajuku Takeshita Street at dusk (adjacent on Yamanote line, 2 stops, more unusual fashion subculture energy)
-**Rain plan:** Miraikan is fully indoor; Shibuya Crossing is equally good in rain (dramatic reflections on wet pavement)
+  **Rain plan:** Miraikan is fully indoor; Shibuya Crossing is equally good in rain (dramatic reflections on wet pavement)
 
 **Day total:** 7 activity-hours | **Pace:** Moderate
 
@@ -397,25 +411,26 @@ When a group includes participants with significant physical differences (wheelc
 
 > This day covers Tokyo's intersection of traditional culture (Meiji Shrine) and contemporary design (Omotesando) -- two neighborhoods within walking distance of each other. Roppongi hosts two of Tokyo's finest contemporary art museums and is 20 minutes from Omotesando by metro.
 
-| Time  | Activity                                              | Duration | Transit to Next                        | Notes                                                         |
-|-------|-------------------------------------------------------|----------|----------------------------------------|---------------------------------------------------------------|
-| 08:15 | Breakfast at Shinjuku area cafe                       | 40 min   | Walk + JR Yamanote, 12 min             | Shinjuku has excellent morning coffee culture near the south exit |
-| 09:05 | Depart for Harajuku                                   | --       | JR Yamanote line, 2 stops, 4 min       |                                                               |
-| 09:10 | Meiji Jingu Shrine -- forested approach and main shrine | 75 min | Walk, 15 min                          | Free entry to outer grounds; small fee for inner garden. Arrive before 10:00 for relative quiet. Covered shoulders not required but respectful dress is appropriate |
-| 10:40 | Harajuku Takeshita Street                             | 45 min   | Walk, 8 min                            | Tokyo's youth fashion epicenter. Crepe stalls, vintage fashion, extreme streetwear. Busiest after 12:00 -- morning is calmer |
-| 11:33 | Omotesando Avenue walk -- architecture and design flagship stores | 50 min | Walk, 5 min                | Omotesando Hills designed by Tadao Ando; observe building architecture. Window-shopping and people-watching |
-| 12:25 | Lunch -- Minami-Aoyama neighborhood restaurant        | 70 min   | Metro (Chiyoda line), 7 min            | Aoyama has Tokyo's best mid-range contemporary Japanese cuisine. Avoid main Omotesando cafes -- overpriced tourist positioning |
-| 13:45 | 21_21 Design Sight (Tadao Ando building, design exhibitions) | 75 min | Walk, 12 min + Metro (Hibiya line), 10 min | Book ahead: advance online purchase recommended. Closed Tuesdays and Wednesdays |
-| 15:22 | Mori Art Museum, Roppongi Hills -- contemporary art    | 90 min   | Walk, 8 min                            | Book ahead: 2-3 days recommended. Tokyo City View observation deck included in ticket -- spectacular sunset view |
-| 17:00 | Tokyo City View from Roppongi Hills 52nd floor        | 35 min   | Walk, 5 min                            | Included with Mori Art Museum ticket. Best late afternoon to catch sunset and city lights transition |
-| 17:40 | Return to Shinjuku / rest                             | --       | Metro (Hibiya line), 20 min            |                                                               |
-| 18:10 | Rest at accommodation                                 | 75 min   | Walk, 10 min                           |                                                               |
-| 19:30 | Dinner -- Shinjuku Kabukicho area or Nishi-Shinjuku   | 90 min   | Walk, 15 min                           | Final full dinner -- consider treating up to a slightly elevated restaurant. Reserve 3-5 days ahead in blossom season |
+| Time  | Activity                                                          | Duration | Transit to Next                            | Notes                                                                                                                                                               |
+| ----- | ----------------------------------------------------------------- | -------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 08:15 | Breakfast at Shinjuku area cafe                                   | 40 min   | Walk + JR Yamanote, 12 min                 | Shinjuku has excellent morning coffee culture near the south exit                                                                                                   |
+| 09:05 | Depart for Harajuku                                               | --       | JR Yamanote line, 2 stops, 4 min           |                                                                                                                                                                     |
+| 09:10 | Meiji Jingu Shrine -- forested approach and main shrine           | 75 min   | Walk, 15 min                               | Free entry to outer grounds; small fee for inner garden. Arrive before 10:00 for relative quiet. Covered shoulders not required but respectful dress is appropriate |
+| 10:40 | Harajuku Takeshita Street                                         | 45 min   | Walk, 8 min                                | Tokyo's youth fashion epicenter. Crepe stalls, vintage fashion, extreme streetwear. Busiest after 12:00 -- morning is calmer                                        |
+| 11:33 | Omotesando Avenue walk -- architecture and design flagship stores | 50 min   | Walk, 5 min                                | Omotesando Hills designed by Tadao Ando; observe building architecture. Window-shopping and people-watching                                                         |
+| 12:25 | Lunch -- Minami-Aoyama neighborhood restaurant                    | 70 min   | Metro (Chiyoda line), 7 min                | Aoyama has Tokyo's best mid-range contemporary Japanese cuisine. Avoid main Omotesando cafes -- overpriced tourist positioning                                      |
+| 13:45 | 21_21 Design Sight (Tadao Ando building, design exhibitions)      | 75 min   | Walk, 12 min + Metro (Hibiya line), 10 min | Book ahead: advance online purchase recommended. Closed Tuesdays and Wednesdays                                                                                     |
+| 15:22 | Mori Art Museum, Roppongi Hills -- contemporary art               | 90 min   | Walk, 8 min                                | Book ahead: 2-3 days recommended. Tokyo City View observation deck included in ticket -- spectacular sunset view                                                    |
+| 17:00 | Tokyo City View from Roppongi Hills 52nd floor                    | 35 min   | Walk, 5 min                                | Included with Mori Art Museum ticket. Best late afternoon to catch sunset and city lights transition                                                                |
+| 17:40 | Return to Shinjuku / rest                                         | --       | Metro (Hibiya line), 20 min                |                                                                                                                                                                     |
+| 18:10 | Rest at accommodation                                             | 75 min   | Walk, 10 min                               |                                                                                                                                                                     |
+| 19:30 | Dinner -- Shinjuku Kabukicho area or Nishi-Shinjuku               | 90 min   | Walk, 15 min                               | Final full dinner -- consider treating up to a slightly elevated restaurant. Reserve 3-5 days ahead in blossom season                                               |
 
 **Alternatives:**
+
 - Instead of 21_21 Design Sight: National Art Center Roppongi (largest exhibition floor space in Japan, free to enter main atrium)
 - Instead of Mori Art Museum: Tokyo Midtown Fujifilm Square (photography-focused, smaller, free admission)
-**Rain plan:** Both Mori and 21_21 are fully indoor; rain has no impact on this day's primary schedule
+  **Rain plan:** Both Mori and 21_21 are fully indoor; rain has no impact on this day's primary schedule
 
 **Day total:** 8 activity-hours | **Pace:** Moderate
 
@@ -428,16 +443,17 @@ When a group includes participants with significant physical differences (wheelc
 **Required airport arrival:** 12:30 (2.5 hours before departure)
 **Depart accommodation by:** 11:15 (Narita Express 80 min + 15 min pre-transit buffer; or Haneda 50 min + 15 min buffer)
 
-| Time  | Activity                                              | Duration | Transit to Next                        | Notes                                                         |
-|-------|-------------------------------------------------------|----------|----------------------------------------|---------------------------------------------------------------|
-| 08:00 | Breakfast at accommodation or nearby                  | 40 min   | Walk, 5 min                            |                                                               |
-| 08:45 | Shinjuku morning walk -- Takashimaya Times Square area, last-minute shopping | 60 min | Walk, 5 min     | Department stores open 10:00 but convenience stores (konbini) and small shops are open from 07:00 |
-| 09:50 | Last coffee -- Shinjuku south exit cafe area          | 30 min   | Walk, 10 min                           | Relaxed final sit-down. Good moment to review any purchases or repack bag |
-| 10:30 | Check out + luggage collection                        | 20 min   | --                                     | Luggage hold available at most Shinjuku hotels until 18:00 if flight is later |
-| 10:50 | Final convenience store run for airport snacks        | 15 min   | Walk to Shinjuku station, 10 min       | Japanese konbini airport snacks are superior to airport food options |
-| 11:15 | Depart Shinjuku for airport                           | --       | Narita Express 80 min or Limousine Bus 90 min | Use upper-bound estimate. Have IC card loaded or airport express ticket pre-purchased |
+| Time  | Activity                                                                     | Duration | Transit to Next                               | Notes                                                                                             |
+| ----- | ---------------------------------------------------------------------------- | -------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 08:00 | Breakfast at accommodation or nearby                                         | 40 min   | Walk, 5 min                                   |                                                                                                   |
+| 08:45 | Shinjuku morning walk -- Takashimaya Times Square area, last-minute shopping | 60 min   | Walk, 5 min                                   | Department stores open 10:00 but convenience stores (konbini) and small shops are open from 07:00 |
+| 09:50 | Last coffee -- Shinjuku south exit cafe area                                 | 30 min   | Walk, 10 min                                  | Relaxed final sit-down. Good moment to review any purchases or repack bag                         |
+| 10:30 | Check out + luggage collection                                               | 20 min   | --                                            | Luggage hold available at most Shinjuku hotels until 18:00 if flight is later                     |
+| 10:50 | Final convenience store run for airport snacks                               | 15 min   | Walk to Shinjuku station, 10 min              | Japanese konbini airport snacks are superior to airport food options                              |
+| 11:15 | Depart Shinjuku for airport                                                  | --       | Narita Express 80 min or Limousine Bus 90 min | Use upper-bound estimate. Have IC card loaded or airport express ticket pre-purchased             |
 
 **Alternatives:**
+
 - Instead of Takashimaya shopping walk: Shinjuku Gyoen final blossom viewing (opens 09:00, closes 18:00, minimal entry fee -- perfect if blossoms are still at peak)
 
 **Day total:** 2.5 activity-hours | **Pace:** Relaxed (departure day)

@@ -65,10 +65,7 @@ describe('getLanIP - physical NIC preference (#105)', () => {
   it('skips internal loopback and IPv6 addresses', () => {
     const interfaces: NodeJS.Dict<Iface[]> = {
       lo: [ipv4('127.0.0.1', true)],
-      en0: [
-        { family: 'IPv6', internal: false, address: 'fe80::1' },
-        ipv4('192.168.1.77'),
-      ],
+      en0: [{ family: 'IPv6', internal: false, address: 'fe80::1' }, ipv4('192.168.1.77')],
     };
     expect(getLanIP(interfaces)).toBe('192.168.1.77');
   });

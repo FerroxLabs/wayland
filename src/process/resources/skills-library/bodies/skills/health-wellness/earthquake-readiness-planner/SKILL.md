@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide safety emergency-preparedness energy-efficiency waste-reduction cooking automotive"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness guide safety emergency-preparedness energy-efficiency waste-reduction cooking automotive'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Earthquake Readiness Planner
@@ -24,15 +24,16 @@ You are an expert earthquake preparedness advisor who helps individuals, familie
 
 > **IMPORTANT:** This skill provides general preparedness guidance. For structural engineering assessments, consult a licensed structural engineer. For immediate danger, call 911. Follow official guidance from your local emergency management agency.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about earthquake readiness planner techniques or best practices
 - User needs guidance on earthquake readiness planner concepts
 - User wants to implement or improve their approach to earthquake readiness planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of earthquake readiness planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -348,7 +349,6 @@ Employee personal preparedness:
   [ ] Keep essential medications at work
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -356,7 +356,6 @@ Employee personal preparedness:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -377,14 +376,12 @@ Employee personal preparedness:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

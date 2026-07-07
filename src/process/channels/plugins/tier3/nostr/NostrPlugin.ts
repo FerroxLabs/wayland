@@ -115,7 +115,7 @@ function buildEventMessage(event: NostrEventLike): string {
  */
 async function signEvent(
   partial: { kind: number; content: string; tags: string[][]; created_at: number },
-  sk: Uint8Array,
+  sk: Uint8Array
 ): Promise<NostrEventLike> {
   const { finalizeEvent } = await import('nostr-tools');
   return finalizeEvent(partial, sk) as NostrEventLike;
@@ -207,19 +207,21 @@ export class NostrPlugin extends BasePlugin {
       } catch (err) {
         console.warn(
           `[NostrPlugin] Skipping invalid allowedSenders entry "${trimmed}":`,
-          err instanceof Error ? err.message : String(err),
+          err instanceof Error ? err.message : String(err)
         );
       }
     }
 
-    this.relayStates = relays.map((url): RelayState => ({
-      url,
-      ws: null,
-      status: 'connecting',
-      failureCount: 0,
-      reconnectTimer: null,
-      subId: makeSubId(),
-    }));
+    this.relayStates = relays.map(
+      (url): RelayState => ({
+        url,
+        ws: null,
+        status: 'connecting',
+        failureCount: 0,
+        reconnectTimer: null,
+        subId: makeSubId(),
+      })
+    );
   }
 
   protected async onStart(): Promise<void> {
@@ -370,7 +372,10 @@ export class NostrPlugin extends BasePlugin {
    */
   private connectRelay(state: RelayState): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      if (this.stopped) { reject(new Error('stopped')); return; }
+      if (this.stopped) {
+        reject(new Error('stopped'));
+        return;
+      }
 
       state.subId = makeSubId();
       const ws = new WebSocket(state.url);
@@ -388,28 +393,37 @@ export class NostrPlugin extends BasePlugin {
         // Subscribe to kind:4 DMs tagged to our pubkey.
         ws.send(buildReqMessage(state.subId, this.pk, this.since));
 
-        if (!settled) { settled = true; resolve(); }
+        if (!settled) {
+          settled = true;
+          resolve();
+        }
       });
 
-    ws.on('message', (data: Buffer | string) => {
-      if (this.stopped || state.ws !== ws) return;
-      this.handleRelayMessage(String(data), state);
-    });
+      ws.on('message', (data: Buffer | string) => {
+        if (this.stopped || state.ws !== ws) return;
+        this.handleRelayMessage(String(data), state);
+      });
 
-    ws.on('error', (err: Error) => {
-      if (this.stopped || state.ws !== ws) return;
-      console.warn(`[NostrPlugin] relay error ${state.url}:`, err.message);
-      if (!settled) { settled = true; reject(err); }
-    });
+      ws.on('error', (err: Error) => {
+        if (this.stopped || state.ws !== ws) return;
+        console.warn(`[NostrPlugin] relay error ${state.url}:`, err.message);
+        if (!settled) {
+          settled = true;
+          reject(err);
+        }
+      });
 
-    ws.on('close', () => {
-      if (this.stopped || state.ws !== ws) return;
-      console.warn(`[NostrPlugin] relay closed ${state.url}, scheduling reconnect`);
-      state.status = 'down';
-      state.ws = null;
-      if (!settled) { settled = true; reject(new Error(`relay ${state.url} closed before open`)); }
-      this.scheduleReconnect(state);
-    });
+      ws.on('close', () => {
+        if (this.stopped || state.ws !== ws) return;
+        console.warn(`[NostrPlugin] relay closed ${state.url}, scheduling reconnect`);
+        state.status = 'down';
+        state.ws = null;
+        if (!settled) {
+          settled = true;
+          reject(new Error(`relay ${state.url} closed before open`));
+        }
+        this.scheduleReconnect(state);
+      });
     }); // end new Promise
   }
 
@@ -442,12 +456,11 @@ export class NostrPlugin extends BasePlugin {
 
     // Audit gemini MED1 2026-05-18: per-relay jitter (0-1000ms) to avoid
     // synchronized reconnect storms across multiple bots when a relay flaps.
-    const delay = Math.min(
-      RECONNECT_BACKOFF_START_MS * 2 ** (state.failureCount - 1),
-      RECONNECT_BACKOFF_CAP_MS,
-    ) + Math.floor(Math.random() * 1000);
+    const delay =
+      Math.min(RECONNECT_BACKOFF_START_MS * 2 ** (state.failureCount - 1), RECONNECT_BACKOFF_CAP_MS) +
+      Math.floor(Math.random() * 1000);
     console.warn(
-      `[NostrPlugin] relay ${state.url} attempt ${state.failureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`,
+      `[NostrPlugin] relay ${state.url} attempt ${state.failureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`
     );
     this.setError(`Relay ${state.url} disconnected; retrying in ${Math.round(delay / 1000)}s`);
 
@@ -518,9 +531,7 @@ export class NostrPlugin extends BasePlugin {
     // Future-timestamp guard (MED-2). Reject events more than
     // MAX_FUTURE_SKEW_SEC ahead of our clock to prevent clock-skew attacks.
     if (event.created_at > Math.floor(Date.now() / 1000) + MAX_FUTURE_SKEW_SEC) {
-      console.warn(
-        `[NostrPlugin] Dropping future-dated event: ${event.id} from ${event.pubkey}`,
-      );
+      console.warn(`[NostrPlugin] Dropping future-dated event: ${event.id} from ${event.pubkey}`);
       return;
     }
 
@@ -546,9 +557,7 @@ export class NostrPlugin extends BasePlugin {
     // filters so we don't burn rate-limit budget on self-echo or wrong-target
     // events.
     if (!this.withinRateLimit(event.pubkey)) {
-      console.debug(
-        `[NostrPlugin] Rate-limit drop: event ${event.id} from ${event.pubkey}`,
-      );
+      console.debug(`[NostrPlugin] Rate-limit drop: event ${event.id} from ${event.pubkey}`);
       return;
     }
 
@@ -557,9 +566,7 @@ export class NostrPlugin extends BasePlugin {
     // nostr-bus.ts:586-592.
     const ciphertextBytes = Buffer.byteLength(event.content, 'utf8');
     if (ciphertextBytes > MAX_CIPHERTEXT_BYTES) {
-      console.warn(
-        `[NostrPlugin] Dropping oversized ciphertext: ${ciphertextBytes} bytes from ${event.pubkey}`,
-      );
+      console.warn(`[NostrPlugin] Dropping oversized ciphertext: ${ciphertextBytes} bytes from ${event.pubkey}`);
       return;
     }
 
@@ -575,18 +582,14 @@ export class NostrPlugin extends BasePlugin {
     // (decryption can expand the payload). Mirrors OpenClaw nostr-bus.ts:635-638.
     const plaintextBytes = Buffer.byteLength(plaintext, 'utf8');
     if (plaintextBytes > MAX_PLAINTEXT_BYTES) {
-      console.warn(
-        `[NostrPlugin] Dropping oversized plaintext: ${plaintextBytes} bytes from ${event.pubkey}`,
-      );
+      console.warn(`[NostrPlugin] Dropping oversized plaintext: ${plaintextBytes} bytes from ${event.pubkey}`);
       return;
     }
 
     if (!plaintext.trim()) return;
 
     const unified = toUnifiedIncomingFromNostr(event, plaintext);
-    void this.emitMessage(unified).catch((err) =>
-      console.error('[NostrPlugin] emitMessage failed:', err),
-    );
+    void this.emitMessage(unified).catch((err) => console.error('[NostrPlugin] emitMessage failed:', err));
   }
 
   // ── Publish helpers ───────────────────────────────────────────────────────────
@@ -601,38 +604,47 @@ export class NostrPlugin extends BasePlugin {
 
     const wire = buildEventMessage(event);
     const results = await Promise.allSettled(
-      connected.map((state) =>
-        new Promise<void>((resolve, reject) => {
-          if (!state.ws) { reject(new Error('ws gone')); return; }
-          const okListener = (data: Buffer | string) => {
-            try {
-              const msg = JSON.parse(String(data)) as unknown[];
-              if (Array.isArray(msg) && msg[0] === 'OK' && msg[1] === event.id) {
-                state.ws!.off('message', okListener);
-                if (msg[2] === true) resolve();
-                else reject(new Error(String(msg[3] ?? 'relay rejected event')));
-              }
-            } catch {
-              // keep waiting
+      connected.map(
+        (state) =>
+          new Promise<void>((resolve, reject) => {
+            if (!state.ws) {
+              reject(new Error('ws gone'));
+              return;
             }
-          };
-          state.ws.on('message', okListener);
-          // Resolve after 3s even without OK - relay may not send it.
-          setTimeout(() => { state.ws?.off('message', okListener); resolve(); }, 3_000);
-          try {
-            state.ws.send(wire);
-          } catch (err) {
-            state.ws.off('message', okListener);
-            reject(err);
-          }
-        }),
-      ),
+            const okListener = (data: Buffer | string) => {
+              try {
+                const msg = JSON.parse(String(data)) as unknown[];
+                if (Array.isArray(msg) && msg[0] === 'OK' && msg[1] === event.id) {
+                  state.ws!.off('message', okListener);
+                  if (msg[2] === true) resolve();
+                  else reject(new Error(String(msg[3] ?? 'relay rejected event')));
+                }
+              } catch {
+                // keep waiting
+              }
+            };
+            state.ws.on('message', okListener);
+            // Resolve after 3s even without OK - relay may not send it.
+            setTimeout(() => {
+              state.ws?.off('message', okListener);
+              resolve();
+            }, 3_000);
+            try {
+              state.ws.send(wire);
+            } catch (err) {
+              state.ws.off('message', okListener);
+              reject(err);
+            }
+          })
+      )
     );
 
     const anyOk = results.some((r) => r.status === 'fulfilled');
     if (!anyOk) {
       const firstErr = results.find((r) => r.status === 'rejected') as PromiseRejectedResult | undefined;
-      throw new Error(`Failed to publish to any relay: ${firstErr?.reason instanceof Error ? firstErr.reason.message : String(firstErr?.reason)}`);
+      throw new Error(
+        `Failed to publish to any relay: ${firstErr?.reason instanceof Error ? firstErr.reason.message : String(firstErr?.reason)}`
+      );
     }
   }
 
@@ -646,7 +658,7 @@ export class NostrPlugin extends BasePlugin {
    * Token is JSON-encoded: { privateKey: string, relays: string[] }.
    */
   static override async testConnection(
-    token: string,
+    token: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let parsed: { privateKey?: string; relays?: string[] };
     try {
@@ -668,9 +680,7 @@ export class NostrPlugin extends BasePlugin {
       return { success: false, error: err instanceof Error ? err.message : String(err) };
     }
 
-    const relays = Array.isArray(parsed.relays) && parsed.relays.length > 0
-      ? parsed.relays
-      : DEFAULT_RELAYS;
+    const relays = Array.isArray(parsed.relays) && parsed.relays.length > 0 ? parsed.relays : DEFAULT_RELAYS;
 
     const relayUrl = relays[0];
 
@@ -680,7 +690,11 @@ export class NostrPlugin extends BasePlugin {
       const timer = setTimeout(() => {
         if (settled) return;
         settled = true;
-        try { ws.terminate(); } catch { /* ignore */ }
+        try {
+          ws.terminate();
+        } catch {
+          /* ignore */
+        }
         resolve({ success: false, error: `Relay did not respond within ${TEST_CONNECT_TIMEOUT_MS / 1000}s` });
       }, TEST_CONNECT_TIMEOUT_MS);
 
@@ -699,7 +713,11 @@ export class NostrPlugin extends BasePlugin {
             if (settled) return;
             settled = true;
             clearTimeout(timer);
-            try { ws.terminate(); } catch { /* ignore */ }
+            try {
+              ws.terminate();
+            } catch {
+              /* ignore */
+            }
             resolve({ success: true, botUsername: hexToNpub(pk) });
           }
         } catch {

@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cover-letter career template writing"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cover-letter career template writing'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Cover Letter Writer
 
 ## When to Use
@@ -235,14 +236,18 @@ Active call to action with availability signal.]
 ## Edge Cases
 
 ### User does not know the hiring manager's name
+
 Do not use "To Whom It May Concern" -- this salutation signals that the applicant invested no research effort and is immediately off-putting to most readers. The preferred alternatives in order of specificity:
+
 1. "Dear [Department] Hiring Team" (e.g., "Dear Engineering Hiring Team") -- best option when the posting identifies the team
 2. "Dear [Company Name] Hiring Team" -- reliable fallback for any posting
 3. "Dear Hiring Team" -- acceptable generic fallback, used only when the department is unclear
-Before defaulting to a generic salutation, try: the job posting itself (sometimes lists the hiring manager's name), the LinkedIn company page (search for the title above the role being applied for), or the company's website team page. If the user finds a name, use it.
+   Before defaulting to a generic salutation, try: the job posting itself (sometimes lists the hiring manager's name), the LinkedIn company page (search for the title above the role being applied for), or the company's website team page. If the user finds a name, use it.
 
 ### User is making a career change across industries
+
 A career change letter has one primary job: make the pivot legible and frame it as deliberate, not desperate. Structure adjustments:
+
 - The opening hook should acknowledge the change confidently in one sentence without over-explaining: "After seven years in [Field A], I am making a deliberate move into [Field B] -- and [specific reason: this company's work, a skill I built, a problem I want to solve]" works as a hook
 - Paragraph 2 must be the transferable skill bridge paragraph. Identify the single skill or achievement from the old career that most directly maps to the new role's top requirement. Make the mapping explicit and specific -- do not make the reader do the translation work
 - Paragraph 3 addresses fit and uses the company-specific detail to show that the transition is targeted, not generic ("I have spent the last six months learning [Company]'s approach to [domain] through [specific research, coursework, or project]")
@@ -250,31 +255,40 @@ A career change letter has one primary job: make the pivot legible and frame it 
 - Avoid language that frames the change as an escape from the old career. The tone should be "moving toward" not "moving away from"
 
 ### User has an employment gap
+
 The key principle: address the gap briefly if it will be visible from the letter's dates, but do not volunteer it if it will not be visible. Cover letters do not include employment dates, so gaps are rarely legible from the letter alone -- the gap is a resume problem, not a cover letter problem in most cases.
 If the gap needs addressing (e.g., the user wants to explain it to reduce recruiter concern): place the explanation in one sentence in paragraph 3, frame it neutrally or positively, and move immediately to what the user brings now. Acceptable framings: "Following a period of [caregiving responsibilities / health recovery / deliberate professional development], I am returning to [field] with [specific new capability or perspective]." Unacceptable framings: any framing that asks for sympathy, apologizes, or over-explains. One sentence. No more.
 
 ### User is overqualified for the role
+
 An overqualified applicant's cover letter has one unique risk: the hiring manager assumes the candidate is settling, will leave quickly, or will be frustrated by the role's constraints. The letter must preemptively address this concern without raising it explicitly.
+
 - Frame the application as a deliberate, strategic choice. The opening hook should signal intentionality: "After leading [large-scale responsibility], I am specifically drawn to [Company] because [specific reason that makes this role make sense at a smaller or different scale]"
 - The fit paragraph should address why this scope, level, or company type appeals to the user right now. Acceptable reasons: company mission alignment, desire to build something from scratch, interest in a specific technical domain, geographic priority, or the specific team composition
 - Never use language that suggests the user is willing to accept less: "I am flexible on compensation," "I understand this role is junior to my current level" -- these confirm the overqualification concern
 - The letter should read as if this role is exactly right, not a compromise
 
 ### Role at a company the user knows nothing about
+
 If the user cannot identify any genuine, specific reason to apply beyond the job description itself, do not invent company enthusiasm. Instead:
+
 - Use the mission language from the posting itself as the anchor: "The role description's emphasis on [specific phrase from posting] reflects exactly the kind of challenge I want to take on"
 - Prompt the user before writing: "Can you spend 5 minutes on their website or LinkedIn? I need one specific thing -- a product feature, a value they state publicly, or a recent announcement." One real detail is worth 10 invented ones
 - If the user genuinely cannot identify a specific company detail and does not want to research, write the best possible letter using the job description's language and flag in the breakdown table that the company-specific element is posting-derived rather than independent research -- the user should strengthen this before sending
 
 ### Role in a highly technical or specialized field
+
 Technical roles (software engineering, data science, medical device regulatory affairs, quantitative finance, academic research positions) require that the letter demonstrate domain fluency through vocabulary, not through enthusiasm.
+
 - Use the technical terminology from the posting naturally and correctly. If the posting says "distributed systems," "GAAP compliance," "Phase III clinical trials," or "phenomenological methodology," those terms must appear in the letter -- not as keyword drops, but as vocabulary the user uses comfortably
 - The quantified achievement in technical roles must include technical context: not just "I improved system performance" but "I reduced p99 API latency from 400ms to 85ms by optimizing database query patterns and introducing a Redis caching layer on high-frequency reads"
 - For engineering roles specifically: the letter should name the scale of the system, the stack if relevant, and the outcome in business terms (not just technical terms). Hiring managers at tech companies respect both the technical depth and the awareness of business impact
 - For academic positions: the letter must demonstrate awareness of the department's research directions, name specific faculty or research groups if the user has genuine connections to their work, and articulate the candidate's research agenda in relation to the department's -- this is a distinct subgenre and may require its own dedicated skill for full treatment
 
 ### User wants to address a specific objection they anticipate from the hiring manager
+
 Sometimes users know they will raise a concern: they are in a different city, they come from a direct competitor (and the employer may be sensitive about IP), they left their last role under difficult circumstances, or they have an unusually short tenure at their previous employer.
+
 - Address anticipated objections briefly, confidently, and in paragraph 3 -- not in the opening (do not lead with a weakness) and not in the closing (do not end on a defensive note)
 - Relocation: "I am relocating to [city] in [month] and am available to begin immediately upon my arrival" -- state it as fact, not as a request for accommodation
 - Competitor background: reframe as bringing competitive intelligence and proven domain expertise; avoid mentioning proprietary information and avoid speaking negatively about the previous employer
@@ -317,13 +331,13 @@ Sincerely,
 
 ### Cover Letter Breakdown
 
-| Section      | Purpose                        | Strategy Used                                                                 | Word Count  |
-|--------------|--------------------------------|-------------------------------------------------------------------------------|-------------|
-| Opening      | Hook + top qualification       | Product user hook (personal streak + obsessive measurement) -- Duolingo-specific | 74 words   |
-| Body P1      | Proof of capability            | 11-point retention lift across 420K learners, $1.2M revenue impact; A/B ownership | 118 words |
-| Body P2      | Fit + company specificity      | Duolingo streak mechanics research cited; scale argument (500M users) as motivator | 97 words  |
-| Closing      | Call to action                 | Active CTA with specific availability offer                                   | 44 words    |
-| **Total**    |                                |                                                                               | **333 words** |
+| Section   | Purpose                   | Strategy Used                                                                      | Word Count    |
+| --------- | ------------------------- | ---------------------------------------------------------------------------------- | ------------- |
+| Opening   | Hook + top qualification  | Product user hook (personal streak + obsessive measurement) -- Duolingo-specific   | 74 words      |
+| Body P1   | Proof of capability       | 11-point retention lift across 420K learners, $1.2M revenue impact; A/B ownership  | 118 words     |
+| Body P2   | Fit + company specificity | Duolingo streak mechanics research cited; scale argument (500M users) as motivator | 97 words      |
+| Closing   | Call to action            | Active CTA with specific availability offer                                        | 44 words      |
+| **Total** |                           |                                                                                    | **333 words** |
 
 **Tone register:** Conversational-Professional (appropriate for Duolingo's product culture)
 **ATS mirror terms used:** A/B testing, experimentation framework, retention, product decisions, SQL

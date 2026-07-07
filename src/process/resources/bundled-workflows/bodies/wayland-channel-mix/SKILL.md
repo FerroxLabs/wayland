@@ -13,14 +13,15 @@ description: >-
   channel skill can answer without sizing the whole mix.
 license: Apache-2.0
 type: workflow
-skills: "convert-temperature market-funnel market-launch"
+skills: 'convert-temperature market-funnel market-launch'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing channels cac budget funnel step-by-step
   category: marketing
-  depends: "convert-temperature market-funnel market-launch"
+  depends: 'convert-temperature market-funnel market-launch'
 ---
+
 # Channel Mix
 
 **Estimated time:** 20-30 minutes

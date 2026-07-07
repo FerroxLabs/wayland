@@ -229,7 +229,12 @@ describe('Watchdog - zombie reclaim', () => {
   });
 
   it('recovers a task orphaned in `verifying` by completing it through with an advisory note', async () => {
-    const stuck = makeTask({ status: 'verifying', leaseOwner: undefined, leaseExpiresAt: undefined, updatedAt: NOW - 10 * 60_000 });
+    const stuck = makeTask({
+      status: 'verifying',
+      leaseOwner: undefined,
+      leaseExpiresAt: undefined,
+      updatedAt: NOW - 10 * 60_000,
+    });
     const { repo, tasks } = makeRepo([stuck]);
     const { logger, events } = makeEventLogger();
     const wd = new Watchdog(repo, logger, { checkIntervalMs: 1000, verifyStaleMs: 5 * 60_000 });

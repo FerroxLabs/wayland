@@ -71,17 +71,13 @@ describe('LinePlugin.testConnection', () => {
   });
 
   it('returns failure when channelAccessToken is missing', async () => {
-    const result = await LinePlugin.testConnection(
-      JSON.stringify({ channelSecret: 'sec' }),
-    );
+    const result = await LinePlugin.testConnection(JSON.stringify({ channelSecret: 'sec' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/channelAccessToken/i);
   });
 
   it('returns failure when channelSecret is missing', async () => {
-    const result = await LinePlugin.testConnection(
-      JSON.stringify({ channelAccessToken: 'tok' }),
-    );
+    const result = await LinePlugin.testConnection(JSON.stringify({ channelAccessToken: 'tok' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/channelSecret/i);
   });

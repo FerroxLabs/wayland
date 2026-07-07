@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance budgeting analysis guide"
-  category: "personal-finance"
-  subcategory: "life-stage-financial"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance budgeting analysis guide'
+  category: 'personal-finance'
+  subcategory: 'life-stage-financial'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Financial Literacy Explainer
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks "what is [financial concept]?" -- including compound interest, APR vs APY, amortization, inflation, diversification, tax-advantaged accounts, dollar-cost averaging, expense ratios, net worth, liquidity, leverage, or any other personal finance mechanism
 - The user wants to understand the mathematical mechanics behind a concept they've encountered on a bank statement, loan disclosure, paycheck, or investment account
 - The user has specific numbers (an account balance, a loan amount, a stated interest rate) and wants to see the concept demonstrated with their own figures
@@ -33,6 +35,7 @@ metadata:
 - The user asks about a concept in the context of a life event -- starting a job with a 401(k), taking out a first car loan, opening a first credit card, buying a first home
 
 **Do NOT use when:**
+
 - The user asks which specific account, fund, broker, or bank they should use -- use an investing research skill instead
 - The user wants a complete household budget built -- use `budget-planning`
 - The user wants a debt payoff strategy with prioritized payment sequencing -- use a debt management skill
@@ -265,40 +268,48 @@ And I'll recalculate the full schedule for your specific situation.
 ## Edge Cases
 
 ### Concept Has No Formula (Diversification, Liquidity, Asset Allocation)
+
 Some core financial concepts are structural rather than mathematical. For these:
+
 - Replace the formula section with a "structure and mechanism" section that describes the principle with concrete scenarios.
 - For diversification: use a portfolio scenario with specific asset classes and correlation behavior. "If you hold 100% in a single-company stock and that company loses 60% of its value (as has happened to large, well-known companies), your portfolio loses 60%. If you hold 20 equal positions across uncorrelated sectors, a 60% loss in one position reduces your total portfolio by 3%. Diversification does not eliminate loss -- it manages the scale of loss from any single event."
 - For liquidity: define the liquidity spectrum with real assets: checking account (same-day, no penalty), savings account (same day to a few days), short-term CD (penalty for early withdrawal, typically 90 days of interest), Series I bond (12-month lockup, then 3-month interest penalty for the first 5 years), real estate (weeks to months to convert to cash, with transaction costs of 6-10% of value).
 - Use a "scenario analysis" table instead of a calculation table, showing outcomes under different conditions.
 
 ### User Asks About a Concept Involving Both Federal and State Rules (Traditional IRA Deductibility, 529 Plans, HSAs)
+
 - Explain the federal mechanism in full detail, as it applies universally.
 - Explicitly note which components are state-specific: "529 plan contributions are not federally deductible, but [approximately 35 states] offer a state income tax deduction for contributions to their own state's plan. The amount, availability, and whether out-of-state plans qualify varies by state."
 - Do not attempt to provide state-specific guidance. Direct the user to their state's department of revenue website or a tax professional for state-specific details.
 - Never assume the user's state based on context clues in their question.
 
 ### User Provides Numbers That Reveal They May Be in a Financially Precarious Situation
+
 - If the user provides numbers suggesting credit card debt at 29.99% APR on a $15,000 balance while asking about compound interest in a savings context, address the compound interest question as asked -- but note the asymmetry. "The same compounding mechanism that grows your savings also grows your debt, and at 29.99% APR your debt is compounding much faster than your savings can grow. Understanding this mechanism in both directions can help you prioritize decisions."
 - Do not lecture or redirect the conversation to debt management unless the user explicitly asks for that discussion. Note the observation once, clearly, and return to answering the question asked. Provide the referral to a debt management skill if appropriate.
 - Never calculate what a user "should do" -- only explain what the numbers mean.
 
 ### User Asks Whether Concept X Is Better Than Concept Y (Roth vs. Traditional, Stocks vs. Bonds)
+
 - This is a comparison request that edges toward advice. Stay in explanation mode: explain both concepts fully and explain the factors that favor each.
 - For Roth vs. traditional: "If your marginal tax rate today is lower than your expected marginal rate in retirement, Roth contributions are mathematically favorable. If your marginal rate today is higher than expected in retirement, traditional pre-tax contributions are mathematically favorable. The challenge is that neither rate is known with certainty."
 - Present the decision framework (the factors that drive the answer) without driving the user toward a conclusion. This is the line between financial literacy and financial advice.
 - If the comparison is highly individual (e.g., "is an FSA or HSA better for me?"), explain the structural differences and eligibility requirements, note that the HSA has significant advantages for those with qualifying high-deductible health plans (carries over indefinitely, triple tax advantage, invested for long-term growth), but explicitly state that the right choice depends on their health plan, expected healthcare costs, and tax situation.
 
 ### User Asks a Concept That Is Commonly Misidentified (APR vs. Interest Rate, NAV vs. Stock Price, Yield vs. Return)
+
 - Identify the confusion upfront: "These terms are often used interchangeably but mean different things. Let me explain both and clarify the distinction."
 - For APR vs. mortgage interest rate: the interest rate is the base borrowing cost; APR includes the interest rate plus lender fees (origination fees, mortgage points, mortgage insurance) spread over the loan term. A loan with a 6.50% interest rate and $5,000 in fees on a $300,000 30-year mortgage will show a higher APR of approximately 6.62-6.75% depending on the fees. The APR is the more complete cost comparison metric.
 - Use a side-by-side table showing the same concept under both interpretations with numbers to make the distinction concrete.
 
 ### User Asks About Inflation and Its Effect on Fixed-Income Investments or Savings
+
 - Apply the inflation-adjusted (real) return formula: Real Return = ((1 + Nominal Return) / (1 + Inflation Rate)) - 1. This is NOT the same as subtracting inflation from the nominal rate (that is an approximation that becomes increasingly inaccurate at higher rates).
 - Example: A savings account earning 2.00% nominal with 3.50% inflation has a real return of ((1.02 / 1.035) - 1) = -1.45%, not -1.50%. The approximation is close at low rates but matters for accuracy.
 - For fixed-income investments, explain the inverse relationship between interest rates and bond prices. If rates rise, existing bond prices fall. A 10-year bond paying 4% in a 6% rate environment trades at a discount to face value. Do not advise whether to buy or sell -- explain the mechanism.
 
 ### User Asks About a Concept They Have Clearly Encountered in a Specific Financial Product (HELOC, ARM, I-Bond, TIPS)
+
 - Explain the underlying concept first (variable rate interest, inflation indexing) in universal terms before applying it to the specific product.
 - Note the specific product's mechanics: "A HELOC is a revolving line of credit secured by home equity. It typically has a draw period (commonly 10 years) during which you can borrow and repay, followed by a repayment period (commonly 20 years). The interest rate is typically tied to the prime rate plus a margin -- so when the Federal Reserve raises its benchmark rate, a HELOC rate rises approximately in parallel."
 - For adjustable-rate products, always show an example of rate adjustment: "If your ARM has an initial rate of 6.25% with a 2/2/5 cap structure, the rate can rise by at most 2% at the first adjustment, 2% at each subsequent adjustment, and 5% total above the initial rate over the life of the loan -- meaning the maximum rate would be 11.25%."
@@ -319,6 +330,7 @@ Some core financial concepts are structural rather than mathematical. For these:
 ---
 
 ### What It Is
+
 Amortization is the process of paying off a loan through regular, fixed payments where each payment covers both the interest owed for that period AND reduces the outstanding balance (principal). The word comes from Latin meaning "to kill off" -- amortization literally kills off your debt over time.
 
 The counterintuitive part: even though your payment amount stays exactly the same every month, the split between interest and principal shifts dramatically over the life of the loan. Early payments are mostly interest. Late payments are mostly principal.
@@ -333,6 +345,7 @@ The counterintuitive part: even though your payment amount stays exactly the sam
 ### How It Works -- The Mechanics
 
 **Step-by-step process each month:**
+
 1. Calculate the interest owed on the current outstanding principal balance (not the original loan amount -- the current remaining balance)
 2. Subtract that interest amount from your fixed monthly payment
 3. Whatever remains after paying interest goes toward reducing the principal
@@ -342,19 +355,20 @@ The counterintuitive part: even though your payment amount stays exactly the sam
 
 **The formula:**
 
-  Mathematical form: Monthly Interest = Outstanding Principal Balance × (Annual Rate ÷ 12)
+Mathematical form: Monthly Interest = Outstanding Principal Balance × (Annual Rate ÷ 12)
 
-  Principal Reduction = Monthly Payment − Monthly Interest
+Principal Reduction = Monthly Payment − Monthly Interest
 
-  In plain language: "Each month, multiply your current remaining balance by one-twelfth of your annual interest rate to get the interest portion of your payment. Subtract that interest from your fixed monthly payment, and the remainder reduces what you owe."
+In plain language: "Each month, multiply your current remaining balance by one-twelfth of your annual interest rate to get the interest portion of your payment. Subtract that interest from your fixed monthly payment, and the remainder reduces what you owe."
 
-  Variable definitions:
-  - Outstanding Principal Balance = The amount you still owe on the loan at the start of the current month (decreases each month)
-  - Annual Rate = Your mortgage interest rate expressed as a decimal (6.875% = 0.06875)
-  - Monthly Rate = Annual Rate ÷ 12 (0.06875 ÷ 12 = 0.005729167)
-  - Monthly Payment = The fixed amount you pay each month ($2,102.54 -- does not change)
-  - Interest Portion = The part of your payment that goes to the lender as interest (decreases over time)
-  - Principal Portion = The part of your payment that reduces what you owe (increases over time)
+Variable definitions:
+
+- Outstanding Principal Balance = The amount you still owe on the loan at the start of the current month (decreases each month)
+- Annual Rate = Your mortgage interest rate expressed as a decimal (6.875% = 0.06875)
+- Monthly Rate = Annual Rate ÷ 12 (0.06875 ÷ 12 = 0.005729167)
+- Monthly Payment = The fixed amount you pay each month ($2,102.54 -- does not change)
+- Interest Portion = The part of your payment that goes to the lender as interest (decreases over time)
+- Principal Portion = The part of your payment that reduces what you owe (increases over time)
 
 **The key variable most people underweight:** Time position in the loan. The same $2,102.54 payment accomplishes radically different amounts of debt reduction depending on whether you make it in month 1 or month 300. This is why extra payments made early in the loan have a much larger impact than the same extra payment made later.
 
@@ -372,12 +386,14 @@ The counterintuitive part: even though your payment amount stays exactly the sam
 | Fixed Monthly Payment | $2,102.54 |
 
 **Step-by-step calculation (Month 1, expanded):**
+
 - Monthly interest = $320,000.00 × 0.005729167 = $1,833.33
 - Principal reduction = $2,102.54 − $1,833.33 = $269.21
 - New outstanding balance = $320,000.00 − $269.21 = $319,730.79
 - Interest as a share of Month 1 payment: $1,833.33 ÷ $2,102.54 = **87.2%** goes to interest, only **12.8%** reduces your balance
 
 **Step-by-step calculation (Month 2, to show the shift):**
+
 - Monthly interest = $319,730.79 × 0.005729167 = $1,831.79 (note: $1.54 less than month 1 because balance is lower)
 - Principal reduction = $2,102.54 − $1,831.79 = $270.75 (note: $1.54 more toward principal than month 1)
 - New outstanding balance = $319,730.79 − $270.75 = $319,460.04
@@ -385,16 +401,16 @@ The counterintuitive part: even though your payment amount stays exactly the sam
 **Full amortization schedule -- selected milestones:**
 
 | Month | Starting Balance | Interest Paid | Principal Paid | Ending Balance | Cumulative Interest Paid |
-|-------|-----------------|---------------|----------------|----------------|--------------------------|
-| 1     | $320,000.00     | $1,833.33     | $269.21        | $319,730.79    | $1,833.33                |
-| 12    | $317,628.94     | $1,818.93     | $283.61        | $317,345.33    | $21,799.65               |
-| 24    | $314,916.83     | $1,803.39     | $299.15        | $314,617.68    | $43,186.26               |
-| 60    | $305,920.01     | $1,752.55     | $349.99        | $305,570.02    | $104,951.94              |
-| 120   | $286,982.22     | $1,643.89     | $458.65        | $286,523.57    | $202,250.27              |
-| 180   | $261,166.05     | $1,496.00     | $606.54        | $260,559.51    | $289,624.25              |
-| 240   | $225,014.83     | $1,289.17     | $813.37        | $224,201.46    | $364,120.84              |
-| 300   | $174,267.30     | $998.30       | $1,104.24      | $173,163.06    | $422,484.01              |
-| 360   | $2,090.50       | $11.98        | $2,090.56      | $0.00          | $437,712.09              |
+| ----- | ---------------- | ------------- | -------------- | -------------- | ------------------------ |
+| 1     | $320,000.00      | $1,833.33     | $269.21        | $319,730.79    | $1,833.33                |
+| 12    | $317,628.94      | $1,818.93     | $283.61        | $317,345.33    | $21,799.65               |
+| 24    | $314,916.83      | $1,803.39     | $299.15        | $314,617.68    | $43,186.26               |
+| 60    | $305,920.01      | $1,752.55     | $349.99        | $305,570.02    | $104,951.94              |
+| 120   | $286,982.22      | $1,643.89     | $458.65        | $286,523.57    | $202,250.27              |
+| 180   | $261,166.05      | $1,496.00     | $606.54        | $260,559.51    | $289,624.25              |
+| 240   | $225,014.83      | $1,289.17     | $813.37        | $224,201.46    | $364,120.84              |
+| 300   | $174,267.30      | $998.30       | $1,104.24      | $173,163.06    | $422,484.01              |
+| 360   | $2,090.50        | $11.98        | $2,090.56      | $0.00          | $437,712.09              |
 
 **Key insight:** Over 30 years, you will pay a total of **$757,712** ($320,000 in principal + approximately $437,712 in interest). Your interest payments exceed your original loan by approximately **37%**. At the halfway point of the loan (month 180 -- 15 years in), you have paid $289,624 in interest but still owe $260,559 -- you have only paid down about 18.6% of your original principal. The loan does not reach the 50% paid-off mark (balance of $160,000) until approximately month 252 -- 21 years in.
 
@@ -419,6 +435,7 @@ If you make one additional principal-only payment of $2,102.54 every January (in
 ### Practical Application
 
 **Where you'll encounter this:**
+
 - Your monthly mortgage statement shows the interest/principal split for that payment, as well as your current outstanding balance
 - Your year-end Form 1098 from your mortgage servicer reports total mortgage interest paid during the tax year -- this is the figure relevant to a potential itemized deduction
 - Refinancing offers will be easier to evaluate when you know your current balance and remaining term -- the key question is whether the lower rate saves more in interest than the refinancing costs over your planned remaining hold period
@@ -426,6 +443,7 @@ If you make one additional principal-only payment of $2,102.54 every January (in
 **What to compare:** When evaluating a refinance, compare total interest paid over your remaining planned hold period under the current loan vs. the new loan (after accounting for closing costs of typically 2-5% of the loan amount). Do not compare only monthly payments -- a longer new term can lower monthly payments while increasing total interest paid.
 
 **Questions to ask your mortgage servicer:**
+
 - "If I make an additional $X principal-only payment on [date], how much does it reduce my total interest paid and my payoff date?"
 - "Does your servicer apply extra payments directly to principal, or are they held until the next billing cycle?" (This matters -- some servicers hold extra payments and apply them as if the next scheduled payment, which does not have the same mathematical impact as same-day principal reduction.)
 
@@ -436,6 +454,7 @@ If you make one additional principal-only payment of $2,102.54 every January (in
 ### Want to Run Your Own Numbers?
 
 Tell me any of the following and I'll recalculate the full schedule:
+
 - A different loan balance (if you've already made payments and want to use your current outstanding balance)
 - The effect of a specific extra monthly or annual principal payment
 - A comparison of your current loan vs. a refinance at a different rate or term

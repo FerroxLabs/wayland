@@ -101,14 +101,10 @@ describe('WebhookReceiver pipeline', () => {
     try {
       const body = JSON.stringify({ event_id: 'evt-bad-sig' });
       const ts = Math.floor(Date.now() / 1000).toString();
-      const res = await postJson(
-        `${baseUrl}/webhooks/slack/${record.token}`,
-        body,
-        {
-          'x-slack-signature': 'v0=0000000000000000000000000000000000000000000000000000000000000000',
-          'x-slack-request-timestamp': ts,
-        }
-      );
+      const res = await postJson(`${baseUrl}/webhooks/slack/${record.token}`, body, {
+        'x-slack-signature': 'v0=0000000000000000000000000000000000000000000000000000000000000000',
+        'x-slack-request-timestamp': ts,
+      });
       expect(res.status).toBe(401);
     } finally {
       await closeServer(server);
@@ -124,11 +120,10 @@ describe('WebhookReceiver pipeline', () => {
       const body = JSON.stringify({ event_id: 'evt-no-dispatcher-' + Date.now() });
       const ts = Math.floor(Date.now() / 1000).toString();
       const sig = signSlack(ts, body);
-      const res = await postJson(
-        `${baseUrl}/webhooks/slack/${record.token}`,
-        body,
-        { 'x-slack-signature': sig, 'x-slack-request-timestamp': ts }
-      );
+      const res = await postJson(`${baseUrl}/webhooks/slack/${record.token}`, body, {
+        'x-slack-signature': sig,
+        'x-slack-request-timestamp': ts,
+      });
       expect(res.status).toBe(503);
     } finally {
       await closeServer(server);
@@ -146,11 +141,10 @@ describe('WebhookReceiver pipeline', () => {
       const body = JSON.stringify({ event_id: 'evt-dispatch-' + Date.now() });
       const ts = Math.floor(Date.now() / 1000).toString();
       const sig = signSlack(ts, body);
-      const res = await postJson(
-        `${baseUrl}/webhooks/slack/${record.token}`,
-        body,
-        { 'x-slack-signature': sig, 'x-slack-request-timestamp': ts }
-      );
+      const res = await postJson(`${baseUrl}/webhooks/slack/${record.token}`, body, {
+        'x-slack-signature': sig,
+        'x-slack-request-timestamp': ts,
+      });
 
       expect(res.status).toBe(202);
       expect(dispatcher).toHaveBeenCalledTimes(1);
@@ -180,11 +174,10 @@ describe('WebhookReceiver pipeline', () => {
       // Pre-seed the replay cache so we exercise the duplicate branch.
       getReplayCache().seen(eventId);
 
-      const res = await postJson(
-        `${baseUrl}/webhooks/slack/${record.token}`,
-        body,
-        { 'x-slack-signature': sig, 'x-slack-request-timestamp': ts }
-      );
+      const res = await postJson(`${baseUrl}/webhooks/slack/${record.token}`, body, {
+        'x-slack-signature': sig,
+        'x-slack-request-timestamp': ts,
+      });
       expect(res.status).toBe(200);
       expect(dispatcher).not.toHaveBeenCalled();
     } finally {

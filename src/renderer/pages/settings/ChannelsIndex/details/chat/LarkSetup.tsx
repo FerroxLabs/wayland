@@ -43,11 +43,7 @@ const LarkSetup: React.FC = () => {
       )}
       showDisconnect={!!pluginStatus?.enabled}
     >
-      <LarkConfigForm
-        pluginStatus={pluginStatus}
-        modelSelection={modelSelection}
-        onStatusChange={setPluginStatus}
-      />
+      <LarkConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
     </ChannelDetailLayout>
   );
 };

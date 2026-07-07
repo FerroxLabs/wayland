@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning research analysis"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning research analysis'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Idea Validation
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has a business idea and wants to determine whether it deserves further investment of time, money, or team before building anything
 - A user asks how to test their assumptions systematically before committing to a product roadmap or fundraise
 - A user wants to apply lean startup methodology -- specifically assumption mapping, riskiest assumption testing (RAT), and experiment design -- to a specific idea
@@ -28,6 +30,7 @@ metadata:
 - A user is evaluating multiple idea directions and wants a structured way to kill the weakest ones quickly
 
 **Do NOT use this skill when:**
+
 - The user wants to build a one-page Lean Canvas (use `lean-canvas` -- assumption mapping here is deeper and experiment-focused)
 - The user wants to define what goes into a first shipped product (use `mvp-definition` -- that skill starts after problem-solution fit is confirmed)
 - The user wants a comprehensive business plan with financials, competitive analysis, and operational detail (use `business-plan`)
@@ -62,6 +65,7 @@ Every business idea is a stack of assumptions. The job is to make them all expli
 Use the following four categories as an exhaustive taxonomy:
 
 **Problem Assumptions (does the problem exist and matter?):**
+
 - This specific problem exists for the target customer segment
 - The problem is experienced frequently enough to drive behavior change (daily frustration vs. annual nuisance)
 - The problem is painful enough that customers would pay money to solve it
@@ -69,6 +73,7 @@ Use the following four categories as an exhaustive taxonomy:
 - Customers actively seek solutions (vs. accepting the status quo)
 
 **Solution Assumptions (does your solution solve the problem better?):**
+
 - The proposed solution actually solves the stated problem
 - The solution is meaningfully better than existing alternatives (10x improvement threshold, not 10%)
 - Customers can and will learn to use the solution (adoption friction is manageable)
@@ -76,6 +81,7 @@ Use the following four categories as an exhaustive taxonomy:
 - Customers trust the solution enough to act on its outputs (especially relevant for AI/data recommendations)
 
 **Market Assumptions (is there a real market here?):**
+
 - The addressable market is large enough to build a sustainable business (even a niche business needs a minimum viable market)
 - Target customers can be identified and reached through accessible, affordable channels
 - Customers will pay the proposed price -- not just "something" but specifically this price point
@@ -83,6 +89,7 @@ Use the following four categories as an exhaustive taxonomy:
 - Customers will switch from their current solution despite switching costs and inertia
 
 **Business Model Assumptions (do the economics work?):**
+
 - Customer acquisition cost (CAC) is sustainable relative to customer lifetime value (LTV) -- typically LTV:CAC ratio of 3:1 or higher
 - The unit economics at scale allow for a viable margin profile (gross margin appropriate to the model: 60-80% for SaaS, 40-60% for marketplaces, 20-40% for services)
 - The business can reach break-even or raise sufficient capital before running out of runway
@@ -98,16 +105,19 @@ List every assumption explicitly in a numbered table. Incomplete assumption mapp
 Risk = Criticality × Uncertainty. Prioritize assumptions that score High on both dimensions.
 
 **Criticality:** If this assumption is wrong, does the entire idea fail?
+
 - High: Yes, the idea is dead or requires a fundamental pivot
 - Medium: The idea survives but requires significant adjustment
 - Low: The idea can work around this if it is wrong
 
 **Uncertainty:** How much evidence do you currently have for or against this assumption?
+
 - High: No evidence, pure hypothesis, or contradictory signals
 - Medium: Some anecdotal evidence or analogous examples, but not specific to this market
 - Low: Direct evidence from data, prior experience, or validated analogies
 
 **Scoring guide:**
+
 - High Criticality + High Uncertainty = Riskiest (test immediately)
 - High Criticality + Medium Uncertainty = Very risky (test in first sprint)
 - Medium Criticality + High Uncertainty = Risky (test in second sprint)
@@ -139,18 +149,21 @@ For each experiment, define:
 Different assumptions require fundamentally different experiment designs. Mismatching experiment type to assumption type produces unreliable data.
 
 **For Problem Assumptions -- use discovery-oriented methods:**
+
 - **Problem interviews (qualitative):** 8-15 conversations with target customers. Ask about the last time they experienced the problem, what they tried, what it cost them, what they use now. Never ask "would you use X." This is the highest-signal method for problem validation when done with discipline.
 - **Search volume and keyword analysis:** Use Google Keyword Planner data to estimate how many people search for the problem actively. 10K+ monthly searches for a problem-framing keyword is a meaningful signal. Zero searches suggests the problem is not front-of-mind.
 - **Online community mining:** Reddit, niche forums, LinkedIn groups, and industry-specific communities contain raw expressions of frustration. Search for complaint patterns without prompting. Recurring, detailed complaints validate problem existence.
 - **Support ticket analysis (if applicable):** If you or an adjacent company have customer support data, volume and sentiment of complaints related to the problem area is strong signal.
 
 **For Solution Assumptions -- use behavioral methods, not surveys:**
+
 - **Concierge MVP:** Deliver the solution manually to 3-5 customers before building anything. Do exactly what the product would do, by hand. If customers adopt the manual version, solution demand is validated. If they do not use the human-delivered version, they will not use the automated one.
 - **Wizard-of-Oz prototype:** Build a front-end interface that looks like a real product but is powered by humans behind the scenes. Users believe they are using the product; the team fulfills requests manually. Tests solution adoption without engineering investment.
 - **Paper or clickable prototype test:** For UI-heavy products, test comprehension and completion rates with a Figma or paper prototype before writing code. Measure task completion rate and time-to-understand. A completion rate below 60% on core tasks indicates usability problems in the solution design.
 - **Beta test with real usage data:** 10-20 users given early access with tracking on feature adoption, return visits, and session depth. If fewer than 30% of beta users return in week 2, retention is failing.
 
 **For Willingness-to-Pay and Market Assumptions:**
+
 - **Fake door / smoke test (landing page + call to action):** Build a single-page description of the product with a "Get early access" or "Join waitlist" or "Pre-order" button. Drive traffic via paid ads (minimum $500 budget to get 500+ visitors). Measure conversion rate on the call to action. A 5%+ conversion rate from cold traffic to waitlist signup is a strong positive signal. Below 1% requires explanation -- price too high, message unclear, or market too small.
 - **Pre-order campaign:** Sell the product before it exists. Collect real money (Stripe payment, crowdfunding). This is the strongest willingness-to-pay signal because real money overrides stated preferences. Even 20-30 paying customers from a targeted outreach validates demand.
 - **Painted door test (B2B):** Add a link to a "feature" that does not exist yet within an existing product or website. Measure click rate. If 15%+ of relevant users click on a non-existent feature, demand is real.
@@ -158,6 +171,7 @@ Different assumptions require fundamentally different experiment designs. Mismat
 - **Direct outreach response rate:** Send 50-100 cold emails or LinkedIn messages to the exact target customer with a concise problem statement and ask for a 20-minute call. A 15%+ response rate indicates the problem resonates. Below 5% suggests the segment or framing is off.
 
 **For Business Model Assumptions:**
+
 - **Unit economics spreadsheet with sensitivity analysis:** Model LTV and CAC at different price points and retention rates. Run three scenarios: pessimistic (churn 8%/month, CAC = $400), base (churn 4%/month, CAC = $200), optimistic (churn 2%/month, CAC = $80). If the pessimistic scenario is a viable business, the model is robust.
 - **Pricing survey (Van Westendorp Price Sensitivity Meter):** Ask four questions -- "At what price would you consider this too cheap to be credible? Acceptable? Getting expensive? Too expensive?" The acceptable range intersection gives a real price window grounded in customer perception, not founder preference.
 - **Comparable company benchmarks:** Find 3-5 analogous businesses (same model, adjacent market) and use their publicly disclosed metrics (average contract value, churn rates, gross margins) as proxies. Not a substitute for your own data, but it frames what "normal" looks like.
@@ -183,20 +197,24 @@ A crucial rule: you must define the failure threshold, not just the success thre
 Structure the validation plan as consecutive two-week sprints, each with a single assumption, a single primary experiment, and a hard decision point at the end.
 
 **Sprint 0 (Days 1-3): Idea sharpening**
+
 - Finalize the idea summary, assumption map, and risk rankings
 - Identify the first 3 experiment designs with pre-committed criteria
 - Identify 8-15 interview candidates for Sprint 1 if problem validation is the first RAT
 
 **Sprint 1 (Days 4-17): Validate the single highest-risk assumption**
+
 - Execute the designed experiment
 - Collect all data before reviewing results (batch analysis, not rolling rationalization)
 - Hold a structured decision meeting: review data against pre-committed criteria, make a proceed/pivot/kill call, document the learning
 
 **Sprint 2 (Days 18-31): Validate the second highest-risk assumption**
+
 - Same structure; update the assumption map based on Sprint 1 learnings
 - If Sprint 1 was a pivot, revise the idea and re-rank the assumption list before beginning Sprint 2
 
 **Sprint 3 (Days 32-45): Validate the third highest-risk assumption**
+
 - By this sprint, problem validation is typically complete and solution validation or willingness-to-pay is being tested
 
 **Gate Decision (Day 46):** After three sprints, make the macro go/no-go call. If the top 3 riskiest assumptions have been validated, proceed to Lean Canvas and MVP definition. If not, either redesign and revalidate or kill.
@@ -367,24 +385,31 @@ After the full validation sprint (or as much as has been completed), synthesize 
 ## Edge Cases
 
 ### B2B Ideas Where the Buyer and User Are Different People
+
 In enterprise or mid-market B2B contexts, the person who signs the contract (buyer: CFO, CTO, department head) is rarely the person who uses the product daily (user: analyst, operations manager, front-line worker). Both must be validated separately with different experiments. Validate with the buyer: "Will they authorize budget and sign a contract?" Validate with the user: "Will they actually adopt and use this?" Products that buyers purchase but users reject become shelfware within 90 days, resulting in non-renewal. Design one problem interview track for each persona and check for alignment -- sometimes the buyer and user have conflicting incentives (e.g., a cost-reduction tool the buyer wants but the user fears as a job-threat).
 
 ### Hardware and Physical Product Ideas
+
 Physical prototypes are expensive, making the standard lean startup loop harder to execute. Apply staged validation: First, validate the problem and willingness-to-pay entirely through interviews, online community research, and fake door tests before touching hardware. Second, validate solution viability using 3D renders, explainer videos, or simulations to test desirability before building anything. Third, use pre-order campaigns (with real payment collection via Stripe or Kickstarter) as the willingness-to-pay test before manufacturing. Only after demand and willingness-to-pay are confirmed should a first physical prototype be built. The cost of the first prototype is the cost of learning, not the cost of the product.
 
 ### Idea in a Two-Sided or Multi-Sided Market
+
 Marketplaces and platforms face a chicken-and-egg problem: neither side has value without the other. The validation challenge is sequencing. Identify which side is the harder supply constraint -- this is almost always the professional, service provider, or inventory side. Validate that side first. Use a "concierge marketplace" approach: manually recruit 10-20 supply-side providers and 10-20 demand-side users and make matches by hand, entirely outside any technology. Track whether transactions actually complete and whether both sides return. If the concierge version does not produce repeated transactions, an automated marketplace version will not solve the underlying problem. Only after manual matching validates both sides should platform development begin.
 
 ### Technical or Deep Technology Ideas
+
 When the solution depends on technology that may not yet work at the required performance level (AI accuracy thresholds, hardware battery life, material cost curves, latency requirements), technical feasibility itself is a critical assumption that must be staged into the validation plan. Separate technical feasibility validation from market demand validation. Test market demand first (interviews, fake door tests, pre-orders) -- there is no point proving the technology works if nobody wants it. Then validate technical feasibility through minimum technical experiments (proof of concept at lab scale, API prototype, trained model on sample data) before full product development. The sequence is: market risk first, technical risk second.
 
 ### Founder with Deep Domain Expertise and Strong Prior Conviction
+
 Domain expertise is a genuine asset for identifying real problems and credible solutions, but it carries a specific validation risk: the founder may assume the problem is so obvious that validation is unnecessary, or may unconsciously design validation experiments that are easy to pass. Counter this by requiring cold outreach to customers the founder does not personally know -- familiar contacts are too likely to provide socially encouraging responses. Specifically, require that at least 60% of interview or experiment participants have no prior relationship with the founder. Also require the founder to write down their strongest counter-argument to the idea before validation begins. This surfaces the most important invalidation scenarios and ensures the experiments are designed to probe weak points, not confirm strong points.
 
 ### Pivot During Validation -- Mid-Sprint Adjustment
+
 Sometimes an experiment produces unexpected signal before the sprint ends -- a different customer profile emerges in interviews, a completely different use case keeps coming up, or the problem as stated is wrong but a related adjacent problem is clearly present. Do not continue the planned experiment mechanically when the data is already pointing elsewhere. Acknowledge the insight, pause the current experiment, and perform a structured pivot assessment: Is the new signal strong enough to change the direction? Does the new direction require a fundamentally different assumption map? Who is the new target customer? Pivots during validation are not failures -- they are the lean startup methodology working correctly. Document the original hypothesis, the unexpected finding, the revised hypothesis, and the new experiment design. Do not simply change direction without updating the formal plan.
 
 ### Validation for a Regulated Industry (Health, Finance, Legal, Education)
+
 Regulatory constraints can invalidate an otherwise well-validated idea. Treat regulatory feasibility as a critical assumption with its own experiment: identify the specific regulatory framework governing the proposed service (HIPAA for health data, SEC/FINRA for investment advice, state bar requirements for legal services, state insurance licensing, FERPA for education data). Identify whether the proposed business model requires a license, certification, or compliance program that the founding team does not yet possess. Consult with a relevant attorney or compliance expert early -- this is a validation experiment with a cost of $500-$2,000 and a potential outcome of "idea is not viable in current form." This consultation belongs in Sprint 1 alongside problem validation, not Sprint 5 after the product is built.
 
 ---
@@ -401,34 +426,34 @@ Regulatory constraints can invalidate an otherwise well-validated idea. Treat re
 
 ### Idea Summary
 
-| Field | Value |
-|-------|-------|
-| **Product/service** | SaaS tool that ingests weekly restaurant POS sales data via CSV and generates automated recommendations on menu item pricing, removal, and promotion |
-| **Target customer** | Independent restaurant owners with 1-3 locations doing $600K-$4M annual revenue who lack a dedicated finance or operations analyst |
-| **Problem statement** | Owners set menu prices and make menu decisions based on gut feel and quarterly accountant reviews, leading to 8-15% gross margin being left unrealized; they have no systematic way to identify underpriced high-performers or margin-dragging slow-movers |
-| **Current alternatives** | Manual Excel analysis (rare), accountant quarterly review (lagging), intuition, or no analysis at all (most common) |
-| **Unique value proposition** | Provides the same menu engineering analysis that F&B consultants charge $3,000-$8,000 per engagement for -- automatically, from existing POS export data, every week, for $149/month |
-| **Revenue model** | Monthly SaaS subscription at $149/month; targeting 200 paying restaurants in year 1 ($358K ARR) |
-| **Founder advantage** | 8 years F&B consulting experience with direct relationships to restaurant owner networks; deep familiarity with menu engineering methodology and POS data formats |
+| Field                        | Value                                                                                                                                                                                                                                                      |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Product/service**          | SaaS tool that ingests weekly restaurant POS sales data via CSV and generates automated recommendations on menu item pricing, removal, and promotion                                                                                                       |
+| **Target customer**          | Independent restaurant owners with 1-3 locations doing $600K-$4M annual revenue who lack a dedicated finance or operations analyst                                                                                                                         |
+| **Problem statement**        | Owners set menu prices and make menu decisions based on gut feel and quarterly accountant reviews, leading to 8-15% gross margin being left unrealized; they have no systematic way to identify underpriced high-performers or margin-dragging slow-movers |
+| **Current alternatives**     | Manual Excel analysis (rare), accountant quarterly review (lagging), intuition, or no analysis at all (most common)                                                                                                                                        |
+| **Unique value proposition** | Provides the same menu engineering analysis that F&B consultants charge $3,000-$8,000 per engagement for -- automatically, from existing POS export data, every week, for $149/month                                                                       |
+| **Revenue model**            | Monthly SaaS subscription at $149/month; targeting 200 paying restaurants in year 1 ($358K ARR)                                                                                                                                                            |
+| **Founder advantage**        | 8 years F&B consulting experience with direct relationships to restaurant owner networks; deep familiarity with menu engineering methodology and POS data formats                                                                                          |
 
 ---
 
 ### Assumption Map
 
-| # | Assumption | Category | Criticality | Uncertainty | Risk |
-|---|-----------|----------|-------------|-------------|------|
-| A1 | Independent restaurant owners experience menu pricing as a significant, recurring business problem -- not a nuisance they have made peace with | Problem | H | H | H |
-| A2 | Owners believe they are leaving meaningful margin on the table due to poor pricing decisions (not that pricing is fine but other problems are bigger) | Problem | H | H | H |
-| A3 | Restaurant owners have POS systems that export structured sales data in a usable CSV format | Problem | H | M | H |
-| A4 | Owners are willing to trust and act on automated data recommendations for decisions they currently make by intuition | Solution | H | H | H |
-| A5 | The CSV upload workflow is low enough friction that owners (or their managers) will complete it weekly without abandonment | Solution | M | H | H |
-| A6 | Automated menu engineering analysis produces recommendations that owners find accurate and credible relative to their own judgment | Solution | H | M | H |
-| A7 | Independent restaurant owners can be reached and acquired through digital channels at a CAC under $300 | Market | H | H | H |
-| A8 | Owners will pay $149/month for menu analytics -- as opposed to paying once for a one-time report or refusing to pay at all | Market | H | H | H |
-| A9 | LTV:CAC ratio achieves 3:1 or better given expected churn rates in the restaurant industry | Business | H | H | H |
-| A10 | The target restaurant segment is large enough (50,000+ qualifying independent restaurants in the US) to support $1M+ ARR | Business | M | L | L |
-| A11 | A restaurant's POS CSV data contains sufficient signal (item-level sales volume, price, time of day) to produce meaningful recommendations without additional integrations | Solution | H | M | H |
-| A12 | Restaurant owners have enough time and digital literacy to evaluate a SaaS tool and sign up without a human sales process | Market | M | M | M |
+| #   | Assumption                                                                                                                                                                 | Category | Criticality | Uncertainty | Risk |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- | ----------- | ---- |
+| A1  | Independent restaurant owners experience menu pricing as a significant, recurring business problem -- not a nuisance they have made peace with                             | Problem  | H           | H           | H    |
+| A2  | Owners believe they are leaving meaningful margin on the table due to poor pricing decisions (not that pricing is fine but other problems are bigger)                      | Problem  | H           | H           | H    |
+| A3  | Restaurant owners have POS systems that export structured sales data in a usable CSV format                                                                                | Problem  | H           | M           | H    |
+| A4  | Owners are willing to trust and act on automated data recommendations for decisions they currently make by intuition                                                       | Solution | H           | H           | H    |
+| A5  | The CSV upload workflow is low enough friction that owners (or their managers) will complete it weekly without abandonment                                                 | Solution | M           | H           | H    |
+| A6  | Automated menu engineering analysis produces recommendations that owners find accurate and credible relative to their own judgment                                         | Solution | H           | M           | H    |
+| A7  | Independent restaurant owners can be reached and acquired through digital channels at a CAC under $300                                                                     | Market   | H           | H           | H    |
+| A8  | Owners will pay $149/month for menu analytics -- as opposed to paying once for a one-time report or refusing to pay at all                                                 | Market   | H           | H           | H    |
+| A9  | LTV:CAC ratio achieves 3:1 or better given expected churn rates in the restaurant industry                                                                                 | Business | H           | H           | H    |
+| A10 | The target restaurant segment is large enough (50,000+ qualifying independent restaurants in the US) to support $1M+ ARR                                                   | Business | M           | L           | L    |
+| A11 | A restaurant's POS CSV data contains sufficient signal (item-level sales volume, price, time of day) to produce meaningful recommendations without additional integrations | Solution | H           | M           | H    |
+| A12 | Restaurant owners have enough time and digital literacy to evaluate a SaaS tool and sign up without a human sales process                                                  | Market   | M           | M           | M    |
 
 **Riskiest assumptions selected for testing:** A1 (H/H), A4 (H/H), A8 (H/H), A7 (H/H)
 
@@ -440,89 +465,89 @@ Regulatory constraints can invalidate an otherwise well-validated idea. Treat re
 
 #### Experiment 1 -- Test A1 + A2: Restaurant owners feel menu pricing is a painful, unsolved problem
 
-| Field | Value |
-|-------|-------|
-| **Full assumption** | Independent restaurant owners (1-3 locations, $600K-$4M revenue) experience menu pricing decisions as a significant source of margin anxiety, not a background nuisance they have accepted |
-| **Hypothesis** | If we conduct 12 problem-focused interviews with qualifying restaurant owners using past-behavior questions about pricing and margin decisions, then at least 7 will describe a specific recent instance of making a pricing or menu change that felt uncertain, costly, or based on incomplete information -- because owners managing $600K+ in revenue are repeatedly exposed to commodity cost volatility and competitive pressure that forces margin trade-off decisions |
-| **Experiment method** | Problem discovery interviews (12 owners; cold outreach to local restaurant owners via LinkedIn, restaurant association membership lists, and Yelp owner contacts -- NOT founder's existing consulting network for first 8 interviews) |
-| **Sample size** | 12 interviews; minimum 8 from cold contacts with no prior founder relationship |
-| **Primary metric** | Number of interviewees who describe a specific, recent, unprompted instance of menu pricing or margin-related pain |
-| **Success threshold** | 8 out of 12 describe specific pricing/margin pain unprompted, AND at least 5 of those describe it in the top 3 operational challenges |
-| **Failure threshold** | Fewer than 5 describe pricing pain in any form, OR pricing is consistently ranked below 5th in their list of operational concerns |
-| **Decision outcome** | Proceed to Experiment 2 if ≥ 8/12 / Pivot (reframe problem or segment) if 5-7/12 / Kill pricing angle if < 5/12 |
-| **Timeline** | Sprint 1, Days 4-17 (14 days) |
-| **Cost** | $0 cash (offer to buy coffee at their restaurant) + 25 hours founder time (outreach, scheduling, conducting, analysis) |
-| **Data collection method** | Structured interview notes with tagged themes; record with permission; code responses for: (1) problem mentioned unprompted, (2) rank among operational challenges, (3) specific dollar consequence described |
+| Field                      | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full assumption**        | Independent restaurant owners (1-3 locations, $600K-$4M revenue) experience menu pricing decisions as a significant source of margin anxiety, not a background nuisance they have accepted                                                                                                                                                                                                                                                                                   |
+| **Hypothesis**             | If we conduct 12 problem-focused interviews with qualifying restaurant owners using past-behavior questions about pricing and margin decisions, then at least 7 will describe a specific recent instance of making a pricing or menu change that felt uncertain, costly, or based on incomplete information -- because owners managing $600K+ in revenue are repeatedly exposed to commodity cost volatility and competitive pressure that forces margin trade-off decisions |
+| **Experiment method**      | Problem discovery interviews (12 owners; cold outreach to local restaurant owners via LinkedIn, restaurant association membership lists, and Yelp owner contacts -- NOT founder's existing consulting network for first 8 interviews)                                                                                                                                                                                                                                        |
+| **Sample size**            | 12 interviews; minimum 8 from cold contacts with no prior founder relationship                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Primary metric**         | Number of interviewees who describe a specific, recent, unprompted instance of menu pricing or margin-related pain                                                                                                                                                                                                                                                                                                                                                           |
+| **Success threshold**      | 8 out of 12 describe specific pricing/margin pain unprompted, AND at least 5 of those describe it in the top 3 operational challenges                                                                                                                                                                                                                                                                                                                                        |
+| **Failure threshold**      | Fewer than 5 describe pricing pain in any form, OR pricing is consistently ranked below 5th in their list of operational concerns                                                                                                                                                                                                                                                                                                                                            |
+| **Decision outcome**       | Proceed to Experiment 2 if ≥ 8/12 / Pivot (reframe problem or segment) if 5-7/12 / Kill pricing angle if < 5/12                                                                                                                                                                                                                                                                                                                                                              |
+| **Timeline**               | Sprint 1, Days 4-17 (14 days)                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| **Cost**                   | $0 cash (offer to buy coffee at their restaurant) + 25 hours founder time (outreach, scheduling, conducting, analysis)                                                                                                                                                                                                                                                                                                                                                       |
+| **Data collection method** | Structured interview notes with tagged themes; record with permission; code responses for: (1) problem mentioned unprompted, (2) rank among operational challenges, (3) specific dollar consequence described                                                                                                                                                                                                                                                                |
 
 ---
 
 #### Experiment 2 -- Test A4 + A6: Owners will trust and act on automated pricing recommendations
 
-| Field | Value |
-|-------|-------|
-| **Full assumption** | Restaurant owners who feel the pricing problem will trust a data-driven automated recommendation enough to act on it -- specifically, they will reprice or remove a menu item based on software output rather than relying solely on their own judgment |
-| **Hypothesis** | If we manually deliver a menu engineering analysis report (concierge MVP) to 5 restaurant owners who expressed pain in Experiment 1 interviews, using their actual POS data, then at least 3 will take at least one concrete menu action (price change, item removal, or promotional push) within 2 weeks of receiving the report -- because owners who described feeling uncertain about pricing decisions will act when given credible, data-backed guidance |
-| **Experiment method** | Concierge MVP: Manually request POS CSV export from 5 willing participants; perform menu engineering analysis manually (founder's domain expertise makes this feasible); deliver a formatted PDF report with 3-5 specific recommendations; follow up after 2 weeks to record actions taken |
-| **Sample size** | 5 restaurant owners (recruited from Experiment 1 participants who described high pain) |
-| **Primary metric** | Number of owners who take at least one concrete menu action based on the report within 2 weeks |
-| **Success threshold** | 3 out of 5 take a concrete action AND at least 2 describe the recommendations as "credible" or "better than what I would have done alone" |
-| **Failure threshold** | Fewer than 2 take any action, OR the majority describe recommendations as obvious/already-known (no incremental value) |
-| **Decision outcome** | Proceed to Experiment 3 if ≥ 3/5 act / Pivot (reframe recommendation format or depth) if 2/5 act with reservations / Kill automated recommendation approach if < 2/5 act or trust is absent |
-| **Timeline** | Sprint 2, Days 18-31 (14 days) |
-| **Cost** | $0 cash + 20 hours founder time (data analysis, report creation, follow-up) |
-| **Data collection method** | Follow-up interview or email at Day 14; record: action taken (yes/no), specific action described, owner's language about credibility and value |
+| Field                      | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full assumption**        | Restaurant owners who feel the pricing problem will trust a data-driven automated recommendation enough to act on it -- specifically, they will reprice or remove a menu item based on software output rather than relying solely on their own judgment                                                                                                                                                                                                        |
+| **Hypothesis**             | If we manually deliver a menu engineering analysis report (concierge MVP) to 5 restaurant owners who expressed pain in Experiment 1 interviews, using their actual POS data, then at least 3 will take at least one concrete menu action (price change, item removal, or promotional push) within 2 weeks of receiving the report -- because owners who described feeling uncertain about pricing decisions will act when given credible, data-backed guidance |
+| **Experiment method**      | Concierge MVP: Manually request POS CSV export from 5 willing participants; perform menu engineering analysis manually (founder's domain expertise makes this feasible); deliver a formatted PDF report with 3-5 specific recommendations; follow up after 2 weeks to record actions taken                                                                                                                                                                     |
+| **Sample size**            | 5 restaurant owners (recruited from Experiment 1 participants who described high pain)                                                                                                                                                                                                                                                                                                                                                                         |
+| **Primary metric**         | Number of owners who take at least one concrete menu action based on the report within 2 weeks                                                                                                                                                                                                                                                                                                                                                                 |
+| **Success threshold**      | 3 out of 5 take a concrete action AND at least 2 describe the recommendations as "credible" or "better than what I would have done alone"                                                                                                                                                                                                                                                                                                                      |
+| **Failure threshold**      | Fewer than 2 take any action, OR the majority describe recommendations as obvious/already-known (no incremental value)                                                                                                                                                                                                                                                                                                                                         |
+| **Decision outcome**       | Proceed to Experiment 3 if ≥ 3/5 act / Pivot (reframe recommendation format or depth) if 2/5 act with reservations / Kill automated recommendation approach if < 2/5 act or trust is absent                                                                                                                                                                                                                                                                    |
+| **Timeline**               | Sprint 2, Days 18-31 (14 days)                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Cost**                   | $0 cash + 20 hours founder time (data analysis, report creation, follow-up)                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Data collection method** | Follow-up interview or email at Day 14; record: action taken (yes/no), specific action described, owner's language about credibility and value                                                                                                                                                                                                                                                                                                                 |
 
 ---
 
 #### Experiment 3 -- Test A8: Owners will pay $149/month for menu analytics
 
-| Field | Value |
-|-------|-------|
-| **Full assumption** | Independent restaurant owners who feel the pricing problem and find the solution credible will pay $149/month for ongoing access to automated menu analytics -- not just a one-time report, and not a $29/month commodity tool price |
-| **Hypothesis** | If we drive 600 unique visitors from targeted Google and Meta ads (targeting keywords: "restaurant menu pricing," "restaurant profit margin," "menu engineering software") to a landing page with a clear value proposition and a $149/month "Start Free Trial" CTA, then at least 30 visitors (5% conversion rate) will click the CTA and enter payment information -- because the $149 price point represents significant value relative to the $3,000-$8,000 consultant alternative for owners who have confirmed this is a real pain |
-| **Experiment method** | Smoke test / fake door landing page with real payment capture. Build a single-page site describing the product (use Carrd or Webflow, no-code). Include a "Start 14-Day Free Trial -- $149/month after" button linking to a Stripe checkout. After payment page is reached, display an "Early access -- we'll contact you within 48 hours" message (do not charge the card; this is the measurement point). Drive traffic via $600 in Google Ads targeting restaurant owner keywords |
-| **Sample size** | Minimum 600 unique visitors (required for statistical confidence on a 5% conversion rate hypothesis) |
-| **Primary metric** | Conversion rate: percentage of unique visitors who click through to the Stripe payment page |
-| **Success threshold** | ≥ 5% of visitors reach payment page (30+ out of 600), AND average CPC is under $1.50 (indicating strong keyword-audience match) |
-| **Failure threshold** | < 2% conversion rate (fewer than 12 out of 600), OR CPC above $3.00 indicating poor audience targeting or weak message-market fit |
-| **Decision outcome** | Proceed to MVP definition if ≥ 5% conversion / Pivot (test $49 or $79 price point, or reframe value prop) if 2-4% / Kill $149 subscription model if < 2% -- test alternative pricing or model |
-| **Timeline** | Sprint 3, Days 32-45 (14 days) |
-| **Cost** | $600 ad spend + $50 landing page tools + 8 hours founder time = $650 cash + 8 hours |
-| **Data collection method** | Google Analytics conversion tracking on payment page reach; Google Ads CPC and CTR data; Hotjar session recordings to identify page abandonment patterns |
+| Field                      | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full assumption**        | Independent restaurant owners who feel the pricing problem and find the solution credible will pay $149/month for ongoing access to automated menu analytics -- not just a one-time report, and not a $29/month commodity tool price                                                                                                                                                                                                                                                                                                     |
+| **Hypothesis**             | If we drive 600 unique visitors from targeted Google and Meta ads (targeting keywords: "restaurant menu pricing," "restaurant profit margin," "menu engineering software") to a landing page with a clear value proposition and a $149/month "Start Free Trial" CTA, then at least 30 visitors (5% conversion rate) will click the CTA and enter payment information -- because the $149 price point represents significant value relative to the $3,000-$8,000 consultant alternative for owners who have confirmed this is a real pain |
+| **Experiment method**      | Smoke test / fake door landing page with real payment capture. Build a single-page site describing the product (use Carrd or Webflow, no-code). Include a "Start 14-Day Free Trial -- $149/month after" button linking to a Stripe checkout. After payment page is reached, display an "Early access -- we'll contact you within 48 hours" message (do not charge the card; this is the measurement point). Drive traffic via $600 in Google Ads targeting restaurant owner keywords                                                     |
+| **Sample size**            | Minimum 600 unique visitors (required for statistical confidence on a 5% conversion rate hypothesis)                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Primary metric**         | Conversion rate: percentage of unique visitors who click through to the Stripe payment page                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Success threshold**      | ≥ 5% of visitors reach payment page (30+ out of 600), AND average CPC is under $1.50 (indicating strong keyword-audience match)                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Failure threshold**      | < 2% conversion rate (fewer than 12 out of 600), OR CPC above $3.00 indicating poor audience targeting or weak message-market fit                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Decision outcome**       | Proceed to MVP definition if ≥ 5% conversion / Pivot (test $49 or $79 price point, or reframe value prop) if 2-4% / Kill $149 subscription model if < 2% -- test alternative pricing or model                                                                                                                                                                                                                                                                                                                                            |
+| **Timeline**               | Sprint 3, Days 32-45 (14 days)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Cost**                   | $600 ad spend + $50 landing page tools + 8 hours founder time = $650 cash + 8 hours                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Data collection method** | Google Analytics conversion tracking on payment page reach; Google Ads CPC and CTR data; Hotjar session recordings to identify page abandonment patterns                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ---
 
 ### Validation Sprint Timeline
 
-| Sprint | Days | Focus | Assumption | Experiment | Primary Metric | Decision Gate |
-|--------|------|-------|-----------|------------|----------------|--------------|
-| 0 | 1-3 | Idea sharpening | All | Assumption mapping and interview recruiting | Complete assumption map; 12 interview candidates identified | Ready to begin Sprint 1 |
-| 1 | 4-17 | Problem validation | A1, A2 | Problem interviews (12 cold contacts) | Owners describing pricing pain unprompted | ≥ 8/12 → Proceed; 5-7 → Pivot; < 5 → Kill |
-| 2 | 18-31 | Solution + trust validation | A4, A6 | Concierge MVP with 5 interview participants | Concrete menu actions taken within 14 days | ≥ 3/5 → Proceed; 2 with issues → Pivot; < 2 → Kill solution approach |
-| 3 | 32-45 | Willingness-to-pay validation | A8 | Fake door landing page + $600 Google Ads | Visitor-to-payment-page conversion rate | ≥ 5% → Proceed; 2-4% → Pivot price/message; < 2% → Kill $149/month model |
-| Gate | 46 | Overall decision | All tested | Synthesis of all three experiments | 3/3 validated = High confidence | Proceed to `mvp-definition` if all pass |
+| Sprint | Days  | Focus                         | Assumption | Experiment                                  | Primary Metric                                              | Decision Gate                                                            |
+| ------ | ----- | ----------------------------- | ---------- | ------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 0      | 1-3   | Idea sharpening               | All        | Assumption mapping and interview recruiting | Complete assumption map; 12 interview candidates identified | Ready to begin Sprint 1                                                  |
+| 1      | 4-17  | Problem validation            | A1, A2     | Problem interviews (12 cold contacts)       | Owners describing pricing pain unprompted                   | ≥ 8/12 → Proceed; 5-7 → Pivot; < 5 → Kill                                |
+| 2      | 18-31 | Solution + trust validation   | A4, A6     | Concierge MVP with 5 interview participants | Concrete menu actions taken within 14 days                  | ≥ 3/5 → Proceed; 2 with issues → Pivot; < 2 → Kill solution approach     |
+| 3      | 32-45 | Willingness-to-pay validation | A8         | Fake door landing page + $600 Google Ads    | Visitor-to-payment-page conversion rate                     | ≥ 5% → Proceed; 2-4% → Pivot price/message; < 2% → Kill $149/month model |
+| Gate   | 46    | Overall decision              | All tested | Synthesis of all three experiments          | 3/3 validated = High confidence                             | Proceed to `mvp-definition` if all pass                                  |
 
 ---
 
 ### Decision Framework
 
-| Decision | Condition | Criteria | Next Step |
-|---------|-----------|----------|-----------|
-| **Proceed to MVP** | All 3 RATs validated | A1: ≥ 8/12 pain; A4: ≥ 3/5 act; A8: ≥ 5% convert | Use `mvp-definition` skill; also validate A3 (POS CSV export) and A7 (CAC) during MVP phase |
-| **Pivot -- problem reframe** | Pricing pain not validated but cost/margin pain is | Interviews reveal waste or labor cost is the primary concern, not pricing | Reframe as "restaurant cost analytics" -- revise all assumptions, restart Sprint 1 |
-| **Pivot -- trust reframe** | Problem validated but owners won't act on automated output | Concierge MVP produced unused recommendations | Explore "coaching" or "advisor" positioning instead of automated tool; humans deliver recommendations supported by data |
-| **Pivot -- pricing model** | Problem + solution validated, but $149/month rejected | Landing page conversion 2-4% or price sensitivity interviews point to $49-$79 | Test $79/month landing page; or test one-time "menu audit" report at $299 |
-| **Kill** | Problem not painful enough to drive behavior change | < 5/12 describe pain + < 2/5 take action | Document all learnings; consider whether founder's consulting skills are the real product |
+| Decision                     | Condition                                                  | Criteria                                                                      | Next Step                                                                                                               |
+| ---------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Proceed to MVP**           | All 3 RATs validated                                       | A1: ≥ 8/12 pain; A4: ≥ 3/5 act; A8: ≥ 5% convert                              | Use `mvp-definition` skill; also validate A3 (POS CSV export) and A7 (CAC) during MVP phase                             |
+| **Pivot -- problem reframe** | Pricing pain not validated but cost/margin pain is         | Interviews reveal waste or labor cost is the primary concern, not pricing     | Reframe as "restaurant cost analytics" -- revise all assumptions, restart Sprint 1                                      |
+| **Pivot -- trust reframe**   | Problem validated but owners won't act on automated output | Concierge MVP produced unused recommendations                                 | Explore "coaching" or "advisor" positioning instead of automated tool; humans deliver recommendations supported by data |
+| **Pivot -- pricing model**   | Problem + solution validated, but $149/month rejected      | Landing page conversion 2-4% or price sensitivity interviews point to $49-$79 | Test $79/month landing page; or test one-time "menu audit" report at $299                                               |
+| **Kill**                     | Problem not painful enough to drive behavior change        | < 5/12 describe pain + < 2/5 take action                                      | Document all learnings; consider whether founder's consulting skills are the real product                               |
 
 ---
 
 ### Validation Confidence Summary (to be filled after experiments)
 
-| Assumption | Status | Evidence | Confidence |
-|-----------|--------|----------|-----------|
-| A1: Pricing pain exists and is acute | [Pending] | [12 interviews completed] | [To be filled] |
-| A4: Owners will trust automated recommendations | [Pending] | [5 concierge MVP deliveries] | [To be filled] |
-| A8: Owners will pay $149/month | [Pending] | [Landing page + ad test results] | [To be filled] |
+| Assumption                                      | Status    | Evidence                         | Confidence     |
+| ----------------------------------------------- | --------- | -------------------------------- | -------------- |
+| A1: Pricing pain exists and is acute            | [Pending] | [12 interviews completed]        | [To be filled] |
+| A4: Owners will trust automated recommendations | [Pending] | [5 concierge MVP deliveries]     | [To be filled] |
+| A8: Owners will pay $149/month                  | [Pending] | [Landing page + ad test results] | [To be filled] |
 
 **Overall Validation Confidence:** To be determined after Sprint 3
 **Recommendation:** Issue at Day 46 gate based on all three experiment outcomes

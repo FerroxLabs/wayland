@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design security"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend api-design security'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Auth Engineer
@@ -233,9 +233,9 @@ HYBRID (Recommended for most apps):
 // Session cookie settings
 const sessionCookie = {
   name: '__session',
-  httpOnly: true,       // Not accessible via JavaScript
-  secure: true,         // HTTPS only
-  sameSite: 'lax',      // CSRF protection ('strict' for high-security)
+  httpOnly: true, // Not accessible via JavaScript
+  secure: true, // HTTPS only
+  sameSite: 'lax', // CSRF protection ('strict' for high-security)
   path: '/',
   domain: '.example.com',
   maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -244,7 +244,7 @@ const sessionCookie = {
 // CSRF token cookie (readable by JavaScript for form submission)
 const csrfCookie = {
   name: '__csrf',
-  httpOnly: false,      // JavaScript needs to read this
+  httpOnly: false, // JavaScript needs to read this
   secure: true,
   sameSite: 'strict',
   path: '/',
@@ -439,6 +439,7 @@ TOKEN SECURITY:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing auth engineer solutions
 - Reviewing or improving existing auth engineer approaches
 - Making architectural or implementation decisions about auth engineer
@@ -446,6 +447,7 @@ TOKEN SECURITY:
 - Troubleshooting auth engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -456,21 +458,26 @@ TOKEN SECURITY:
 # Auth Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

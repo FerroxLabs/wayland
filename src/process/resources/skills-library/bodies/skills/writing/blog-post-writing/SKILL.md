@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "blog-post writing content-marketing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'blog-post writing content-marketing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Blog Post Writing
 
 ## When to Use
@@ -60,7 +61,7 @@ Collect these inputs before generating any content. If the user is chatting inte
 
 Voice miscalibration is the most common failure mode in AI-written blog posts. Lock these three variables before drafting:
 
-- **Register:** Choose one -- *conversational* (contractions, direct address, informal connectives like "Here's the thing," short sentences), *professional* (no contractions, longer sentence structure, formal connectives like "however" and "consequently"), or *technical* (precise terminology, assumes vocabulary, hedges claims appropriately). Most general blog posts use conversational. B2B, legal, or medical contexts use professional or technical.
+- **Register:** Choose one -- _conversational_ (contractions, direct address, informal connectives like "Here's the thing," short sentences), _professional_ (no contractions, longer sentence structure, formal connectives like "however" and "consequently"), or _technical_ (precise terminology, assumes vocabulary, hedges claims appropriately). Most general blog posts use conversational. B2B, legal, or medical contexts use professional or technical.
 - **Expertise level of audience:** If readers are beginners, explain terms once on first use. If intermediate, skip basics and lead with implications. If expert, skip implications and go straight to nuance. Never explain a term and also define it in a parenthetical on the same paragraph -- choose one or the other.
 - **Emotional register:** Decide whether the post is energetic, measured, empathetic, or authoritative. The emotional register affects word choice ("transform" vs. "change"), sentence rhythm (short declarative sentences drive urgency; longer compound sentences slow the pace for reflection), and use of first-person voice ("I" vs. "we" vs. third person).
 - **Contractions rule:** In conversational posts, use contractions throughout (you're, it's, don't, they've). In professional posts, avoid them. Mixing registers -- formal prose with sudden "don't" -- signals inconsistency and reads as low quality.
@@ -71,12 +72,12 @@ Voice miscalibration is the most common failure mode in AI-written blog posts. L
 Titles and structure are not administrative steps -- they are the post's argument made visible. Do not skip this step.
 
 - **Generate three title options.** Each title should follow a different structural pattern:
-  - *Specificity title*: Leads with a concrete number or situation ("The 3-Email Sequence That Re-Engages Dormant Customers")
-  - *Contrast/tension title*: Sets up a conflict or counterintuitive claim ("Why More Features Make Your Product Harder to Sell")
-  - *Benefit-forward title*: Leads with what the reader gains ("How to Cut Your Customer Onboarding Time in Half")
+  - _Specificity title_: Leads with a concrete number or situation ("The 3-Email Sequence That Re-Engages Dormant Customers")
+  - _Contrast/tension title_: Sets up a conflict or counterintuitive claim ("Why More Features Make Your Product Harder to Sell")
+  - _Benefit-forward title_: Leads with what the reader gains ("How to Cut Your Customer Onboarding Time in Half")
 - **Evaluate each title against these criteria:** Does it make a specific promise? Is it readable in under 8 words without losing meaning? Does it avoid "clickbait" phrasing that overpromises? Does it avoid generic labels ("A Guide to...", "Everything You Need to Know About...")?
 - **Build the structural outline.** For an 800-1,000 word post, plan exactly 3 body sections. For 1,000-1,400 words, plan 4 sections. Each section should have a one-sentence purpose: not "we discuss X" but "we show the reader why X is harder than it looks and give them one concrete fix." Purpose sentences discipline the draft and prevent sections from becoming vague.
-- **Sequence the sections intentionally.** Three proven sequences: *Problem → Consequence → Solution* (builds urgency then relieves it), *Conventional wisdom → Why it's wrong → Better approach* (creates intellectual tension), *Before → During → After* (narrative arc, good for process-adjacent topics). Choose the sequence that matches the post's argument.
+- **Sequence the sections intentionally.** Three proven sequences: _Problem → Consequence → Solution_ (builds urgency then relieves it), _Conventional wisdom → Why it's wrong → Better approach_ (creates intellectual tension), _Before → During → After_ (narrative arc, good for process-adjacent topics). Choose the sequence that matches the post's argument.
 - **If interactive:** Present titles and outline to the user before drafting. This saves complete rewrites. If not interactive, proceed with the strongest option and note your choices briefly at the start of the draft.
 
 ### 4. Write the Introduction
@@ -84,10 +85,10 @@ Titles and structure are not administrative steps -- they are the post's argumen
 The introduction is the highest-stakes paragraph in the post. Readers abandon blog posts within 10-15 seconds if the opening does not earn their attention. Every sentence must do work:
 
 - **Sentence 1 -- the hook.** Choose one hook type for this specific post:
-  - *Specific scenario*: Place the reader inside a recognizable situation ("Your pull request has been sitting in review for four days. Your release is blocked. Your manager wants an update.").
-  - *Counterintuitive fact*: A real, specific statistic or claim that challenges what the reader assumed ("Companies that publish fewer blog posts -- one per week instead of four -- generate more inbound leads over 12 months.").
-  - *Specific failure or problem* (without rhetorical question): "The resume that took two hours to write sat in an ATS queue for six seconds before an algorithm discarded it."
-  - *Never use*: rhetorical questions, "In today's [anything]," abstract generalizations, or a definition of the topic.
+  - _Specific scenario_: Place the reader inside a recognizable situation ("Your pull request has been sitting in review for four days. Your release is blocked. Your manager wants an update.").
+  - _Counterintuitive fact_: A real, specific statistic or claim that challenges what the reader assumed ("Companies that publish fewer blog posts -- one per week instead of four -- generate more inbound leads over 12 months.").
+  - _Specific failure or problem_ (without rhetorical question): "The resume that took two hours to write sat in an ATS queue for six seconds before an algorithm discarded it."
+  - _Never use_: rhetorical questions, "In today's [anything]," abstract generalizations, or a definition of the topic.
 - **Sentences 2-3 -- stakes and relevance.** State what is at risk if the reader ignores this topic, or what opportunity they are missing. Quantify the stakes if possible ("teams lose an average of 14 hours per week to...").
 - **Final sentence -- the promise.** Tell the reader explicitly what they will understand or be able to do after reading. This is not a thesis statement -- it is a contract with the reader. "By the end of this post, you will have a framework for..." is acceptable. "This post covers..." is a weak hedge -- avoid it.
 - **Length target:** 80-120 words. Under 80 feels thin. Over 150 feels like a second post has started.
@@ -99,10 +100,10 @@ Each body section is a self-contained argument with a claim, evidence, and impli
 
 - **Open with a strong topic sentence.** The first sentence of each section states the section's main claim -- not a transition from the previous section, not background context. "Remote work increases individual output" is a topic sentence. "Now that we've discussed the challenges, let's talk about benefits" is a transition filler and should be deleted.
 - **Develop with evidence.** Choose the evidence type best suited to the claim:
-  - *Statistic or research finding*: Use when the claim is empirical and the reader needs proof. Be specific ("48% of enterprise buyers," not "nearly half").
-  - *Brief case study or anecdote*: Use when the claim is about human behavior or outcomes. Keep to 3-5 sentences: context, action, result.
-  - *Concrete analogy*: Use when the concept is abstract and needs grounding. The analogy must map cleanly -- abandon it if you need to qualify it more than once.
-  - *Direct example from reader's context*: Use when you can name a situation the target reader lives inside. More effective than generic examples.
+  - _Statistic or research finding_: Use when the claim is empirical and the reader needs proof. Be specific ("48% of enterprise buyers," not "nearly half").
+  - _Brief case study or anecdote_: Use when the claim is about human behavior or outcomes. Keep to 3-5 sentences: context, action, result.
+  - _Concrete analogy_: Use when the concept is abstract and needs grounding. The analogy must map cleanly -- abandon it if you need to qualify it more than once.
+  - _Direct example from reader's context_: Use when you can name a situation the target reader lives inside. More effective than generic examples.
 - **Use H3 subheadings sparingly.** Add an H3 inside a body section only if the section covers two distinct sub-ideas that genuinely need separation. An H3 in a 200-word section is a formatting tic, not a structural improvement.
 - **Paragraphs under 4 sentences.** Online reading is scanning. Short paragraphs create visual breathing room and keep readers moving. A paragraph of 6-7 sentences on screen looks like a wall and triggers abandonment.
 - **Vary sentence length deliberately.** A run of five similar-length sentences creates monotony. After two or three medium-length sentences, insert a short one. Short sentences land with emphasis.
@@ -114,9 +115,9 @@ The conclusion is not a summary -- it is the landing. Most blog post conclusions
 
 - **Restate the core insight in one sentence** -- not a list of everything covered, just the one thing the reader should carry away. If you cannot write this sentence, the post lacks a unifying argument and needs structural revision.
 - **Bridge to action.** The call-to-action must be:
-  - *Specific* ("Download the worksheet linked below" is specific; "learn more" is not)
-  - *Low-friction* for the post's goal -- if the goal is trust-building, the CTA should be engagement (subscribe, comment, share) not purchase; if the goal is lead generation, the CTA can be heavier (book a call, start a free trial)
-  - *Singular* -- one CTA, not three. Multiple CTAs in a conclusion split the reader's attention and produce lower conversion on all of them.
+  - _Specific_ ("Download the worksheet linked below" is specific; "learn more" is not)
+  - _Low-friction_ for the post's goal -- if the goal is trust-building, the CTA should be engagement (subscribe, comment, share) not purchase; if the goal is lead generation, the CTA can be heavier (book a call, start a free trial)
+  - _Singular_ -- one CTA, not three. Multiple CTAs in a conclusion split the reader's attention and produce lower conversion on all of them.
 - **Close with a sentence that opens outward** -- a question the reader can now think differently about, a consequence that extends beyond what the post covered, or a forward-looking observation. This is the post's last impression. It should create momentum, not closure.
 - **Length:** 80-120 words, matching the introduction in weight. A 3-sentence conclusion after a 1,000-word post signals the writer gave up.
 
@@ -181,14 +182,14 @@ closing sentence. 80-120 words total.]
 
 **Metadata block** (include beneath the post):
 
-| Field | Value |
-|---|---|
-| Word count | [n] |
-| Voice register | Conversational / Professional / Technical |
-| Audience expertise | Beginner / Intermediate / Expert |
-| Post goal | Inform / Build trust / Generate leads / Spark conversation |
-| Evidence types used | List (e.g., statistic, case study, analogy) |
-| CTA type | Engagement / Subscription / Conversion |
+| Field               | Value                                                      |
+| ------------------- | ---------------------------------------------------------- |
+| Word count          | [n]                                                        |
+| Voice register      | Conversational / Professional / Technical                  |
+| Audience expertise  | Beginner / Intermediate / Expert                           |
+| Post goal           | Inform / Build trust / Generate leads / Spark conversation |
+| Evidence types used | List (e.g., statistic, case study, analogy)                |
+| CTA type            | Engagement / Subscription / Conversion                     |
 
 ---
 
@@ -294,11 +295,11 @@ Track the open rate after three days. For a new list, anything above 20% is a he
 
 ---
 
-| Field | Value |
-|---|---|
-| Word count | 878 |
-| Voice register | Conversational |
-| Audience expertise | Intermediate |
-| Post goal | Build trust (informational) |
+| Field               | Value                                                   |
+| ------------------- | ------------------------------------------------------- |
+| Word count          | 878                                                     |
+| Voice register      | Conversational                                          |
+| Audience expertise  | Intermediate                                            |
+| Post goal           | Build trust (informational)                             |
 | Evidence types used | Statistic, case study/anecdote, direct example, analogy |
-| CTA type | Engagement (start with one email, track, iterate) |
+| CTA type            | Engagement (start with one email, track, iterate)       |

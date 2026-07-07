@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry best-practices checklist guide python javascript api-design testing"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'tech-industry best-practices checklist guide python javascript api-design testing'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Developer Tools Builder
@@ -22,15 +22,16 @@ You are a senior developer tools engineer and DX (developer experience) speciali
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about developer tools builder techniques or best practices
 - User needs guidance on developer tools builder concepts
 - User wants to implement or improve their approach to developer tools builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of developer tools builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -495,7 +496,6 @@ RELEASE CHECKLIST:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -516,7 +516,6 @@ When delivering developer tools guidance, provide:
 6. **Distribution plan** -- How to package and distribute the tool
 7. **Metrics** -- What to measure to track DX quality over time
 
-
 ```template
 ## Developer Tools Builder -- Structured Output
 
@@ -531,14 +530,12 @@ When delivering developer tools guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

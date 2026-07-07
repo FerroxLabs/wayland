@@ -11,14 +11,15 @@ description: >-
   or for diagnosing a deal that has already stalled (use wayland-deal-forensic).
 license: Apache-2.0
 type: workflow
-skills: "sales-coach sales-research sales-icp sales-prep sales-qualify"
+skills: 'sales-coach sales-research sales-icp sales-prep sales-qualify'
 metadata:
   author: wayland
   version: 1.0.0
   tags: sales discovery call-prep research qualification step-by-step
   category: sales
-  depends: "sales-coach sales-research sales-icp sales-prep sales-qualify"
+  depends: 'sales-coach sales-research sales-icp sales-prep sales-qualify'
 ---
+
 # Discovery Prep
 
 **Estimated time:** 20-30 minutes

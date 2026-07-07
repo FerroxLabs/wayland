@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "investing personal-finance tax-planning retirement-planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'investing personal-finance tax-planning retirement-planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Investment Account Types
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -30,6 +31,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks what the structural differences are between a 401(k), IRA, Roth IRA, HSA, or taxable brokerage account -- even if they cannot name the accounts correctly (e.g., "that account where you don't pay taxes when you take it out")
 - A user is starting a new job and wants to understand their employer-sponsored retirement plan alongside accounts they can open independently
 - A user asks about contribution limits, withdrawal rules, penalties, or required minimum distributions for any investment account
@@ -40,6 +42,7 @@ metadata:
 - A user asks about HSAs as a retirement vehicle, not just a medical spending account
 
 **Do NOT use this skill when:**
+
 - The user wants help selecting specific mutual funds, ETFs, or stocks to hold inside an account -- use `portfolio-allocation-framework` instead
 - The user wants to calculate how much to save for retirement in dollar terms -- use `retirement-savings-calculator` instead
 - The user needs help completing a tax return or understanding how to report retirement distributions -- use `tax-filing-prep` instead
@@ -185,6 +188,7 @@ Note explicitly that this ordering is a widely cited framework -- not a universa
 Tailor next steps to what was revealed in Step 1. Do not give generic advice. If the user doesn't know their employer match formula, the first next step is to find out. If they don't know whether they qualify for Roth IRA contributions, the next step is to check their MAGI against current income limits. If they are self-employed, the next step may be researching whether a SEP IRA or Solo 401(k) better fits their income level and administrative capacity.
 
 Always include the referral to appropriate professional resources and companion skills:
+
 - `risk-tolerance-assessment` if investment selection within accounts is the next question
 - `retirement-savings-calculator` if they want to model how much to save
 - `investment-fee-analyzer` if they want to evaluate the cost of their 401(k) fund options
@@ -403,26 +407,26 @@ In this edge case, note that the user's complexity level exceeds what this skill
 
 ### Your Situation Summary
 
-| Factor | Your Details |
-|--------|-------------|
-| Employment type | W-2 employee (tech company) |
-| Employer plan available | Yes -- 401(k) |
-| Employer match | Yes -- 50% match on first 6% of salary. At $95,000 salary, contributing 6% ($5,700) earns a $2,850 employer match annually. |
-| HDHP enrollment | Yes -- HSA-eligible |
-| Existing accounts | None |
-| Primary goal | Beginning long-term retirement savings |
-| Time horizon | Approximately 34 years to standard retirement age (65), potentially longer |
+| Factor                  | Your Details                                                                                                                |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Employment type         | W-2 employee (tech company)                                                                                                 |
+| Employer plan available | Yes -- 401(k)                                                                                                               |
+| Employer match          | Yes -- 50% match on first 6% of salary. At $95,000 salary, contributing 6% ($5,700) earns a $2,850 employer match annually. |
+| HDHP enrollment         | Yes -- HSA-eligible                                                                                                         |
+| Existing accounts       | None                                                                                                                        |
+| Primary goal            | Beginning long-term retirement savings                                                                                      |
+| Time horizon            | Approximately 34 years to standard retirement age (65), potentially longer                                                  |
 
 ---
 
 ### Account Type Structural Comparison
 
-| Feature | Traditional 401(k) | Roth 401(k) | Roth IRA | HSA | Taxable Brokerage |
-|---------|-------------------|------------|---------|-----|------------------|
-| Contribution tax treatment | Pre-tax -- reduces your $95,000 taxable income in the contribution year | After-tax -- no deduction; contributed from take-home pay | After-tax -- no current deduction | Pre-tax via payroll (also avoids FICA, a unique advantage) | After-tax -- no tax benefit on contribution |
-| Growth tax treatment | Tax-deferred -- grows without annual taxation | Tax-free -- grows without annual taxation | Tax-free -- grows without annual taxation | Tax-free -- grows without annual taxation | Currently taxable -- dividends and realized gains taxed each year |
-| Withdrawal tax treatment | Fully taxable as ordinary income at your retirement tax rate | Tax-free for qualified distributions (account 5+ years old, age 59½+) | Tax-free for qualified distributions (same conditions as Roth 401k) | Tax-free for qualified medical expenses; ordinary income (no penalty) for non-medical after 65 | Long-term capital gains rate on gains held 12+ months; ordinary income on short-term gains and dividends |
-| 2024 contribution limit | $23,000 employee deferral (verify IRS); shared with Roth 401(k) | $23,000 shared limit with Traditional 401(k) | $7,000 (verify IRS); shared with Traditional IRA | $4,150 self-only / $8,300 family HDHP (verify IRS) | No limit |
-| Catch-up (age 50+) | Not yet applicable; $7,500 additional at 50 | Same | $1,000 additional at 50 | $1,000 additional at 55 | N/A |
-| Income limit to contribute | None | None | At $95,000 single income (hypothetical), you are well below the phase-out; verify current limits at IRS | Must maintain HDHP enrollment; you are currently eligible | None |
-| Employer contributions | Your employer contributes $2,850 matching when you contribute 6% ($5,700) -- this does not count
+| Feature                    | Traditional 401(k)                                                                               | Roth 401(k)                                                           | Roth IRA                                                                                                | HSA                                                                                            | Taxable Brokerage                                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Contribution tax treatment | Pre-tax -- reduces your $95,000 taxable income in the contribution year                          | After-tax -- no deduction; contributed from take-home pay             | After-tax -- no current deduction                                                                       | Pre-tax via payroll (also avoids FICA, a unique advantage)                                     | After-tax -- no tax benefit on contribution                                                              |
+| Growth tax treatment       | Tax-deferred -- grows without annual taxation                                                    | Tax-free -- grows without annual taxation                             | Tax-free -- grows without annual taxation                                                               | Tax-free -- grows without annual taxation                                                      | Currently taxable -- dividends and realized gains taxed each year                                        |
+| Withdrawal tax treatment   | Fully taxable as ordinary income at your retirement tax rate                                     | Tax-free for qualified distributions (account 5+ years old, age 59½+) | Tax-free for qualified distributions (same conditions as Roth 401k)                                     | Tax-free for qualified medical expenses; ordinary income (no penalty) for non-medical after 65 | Long-term capital gains rate on gains held 12+ months; ordinary income on short-term gains and dividends |
+| 2024 contribution limit    | $23,000 employee deferral (verify IRS); shared with Roth 401(k)                                  | $23,000 shared limit with Traditional 401(k)                          | $7,000 (verify IRS); shared with Traditional IRA                                                        | $4,150 self-only / $8,300 family HDHP (verify IRS)                                             | No limit                                                                                                 |
+| Catch-up (age 50+)         | Not yet applicable; $7,500 additional at 50                                                      | Same                                                                  | $1,000 additional at 50                                                                                 | $1,000 additional at 55                                                                        | N/A                                                                                                      |
+| Income limit to contribute | None                                                                                             | None                                                                  | At $95,000 single income (hypothetical), you are well below the phase-out; verify current limits at IRS | Must maintain HDHP enrollment; you are currently eligible                                      | None                                                                                                     |
+| Employer contributions     | Your employer contributes $2,850 matching when you contribute 6% ($5,700) -- this does not count |

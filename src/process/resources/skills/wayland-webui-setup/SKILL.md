@@ -30,11 +30,11 @@ Based on the user's question, identify what they need to configure:
 
 ## Comparison of the Three Remote Connection Methods
 
-| Connection Method     | Use Case                          | Difficulty       | Recommendation        |
-| --------------------- | --------------------------------- | ---------------- | --------------------- |
-| **LAN connection**    | Devices on the same Wi-Fi/LAN     | Easy             | Temporary access      |
-| **Tailscale**         | Cross-network access              | Very easy        | Most recommended      |
-| **Server deployment** | Multi-user, 24/7                  | Medium           | Production            |
+| Connection Method     | Use Case                      | Difficulty | Recommendation   |
+| --------------------- | ----------------------------- | ---------- | ---------------- |
+| **LAN connection**    | Devices on the same Wi-Fi/LAN | Easy       | Temporary access |
+| **Tailscale**         | Cross-network access          | Very easy  | Most recommended |
+| **Server deployment** | Multi-user, 24/7              | Medium     | Production       |
 
 ## Recommended Workflow
 

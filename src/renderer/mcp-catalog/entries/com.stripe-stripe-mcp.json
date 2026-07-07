@@ -7,9 +7,7 @@
   "websiteUrl": "https://docs.stripe.com/mcp",
   "repository": { "url": "https://github.com/stripe/stripe-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.stripe.com" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.stripe.com" }],
   "x-wayland": {
     "tier": "builder",
     "categories": ["payments", "developer"],

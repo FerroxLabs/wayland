@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills step-by-step guide beginner-friendly"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'study-skills step-by-step guide beginner-friendly'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Speed Reading
@@ -27,6 +27,7 @@ metadata:
 - User asks for a speed reading for a specific subject or topic
 
 **Do NOT use when:**
+
 - User is an educator creating teaching materials (check teaching subcategory skills)
 - User wants a different study technique (check other self-learning skills)
 - User wants exam-format practice questions (use `exam-practice`)
@@ -133,17 +134,20 @@ metadata:
 ### Technique exercises with WPM measurement and comprehension checks
 
 **Key Concepts:**
+
 - Unconditioned Stimulus (UCS): A stimulus that naturally triggers a response (food)
 - Unconditioned Response (UCR): The natural response to the UCS (salivation to food)
 - Conditioned Stimulus (CS): A previously neutral stimulus paired with the UCS (bell)
 - Conditioned Response (CR): The learned response to the CS (salivation to bell)
 
 **Process:**
+
 1. Before conditioning: Bell (neutral) produces no salivation. Food (UCS) produces salivation (UCR).
 2. During conditioning: Bell + Food paired repeatedly. Bell becomes associated with food.
 3. After conditioning: Bell alone (CS) produces salivation (CR).
 
 **Key Phenomena:**
+
 - Acquisition: The initial learning phase where the CS-UCS association is formed (requires multiple pairings)
 - Extinction: The gradual weakening of the CR when the CS is presented without the UCS
 - Spontaneous recovery: The reappearance of an extinguished CR after a rest period
@@ -155,15 +159,16 @@ metadata:
 ---
 
 ### Self-Check
+
 - Can you diagram the before/during/after conditioning process without notes? [ ] Yes [ ] No
 - Can you explain the difference between generalization and discrimination with a new example? [ ] Yes [ ] No
 - Can you identify UCS, UCR, CS, and CR in a novel scenario? [ ] Yes [ ] No
 
 ### Next Steps
+
 - Review this material on: Tomorrow (Day 1), then Day 4, then Day 11
 - Complementary technique: Create flashcards for the key terms using `flashcard-generation`
 - Connection: Compare classical conditioning with operant conditioning in your next lecture
-
 
 ### Speed Reading Techniques
 
@@ -172,27 +177,31 @@ Use your finger or a pen to guide your eyes along each line. This prevents regre
 
 **Technique 2: Reduce Subvocalization**
 Subvocalization is "hearing" each word in your head. To reduce it:
+
 - Hum or count "1-2-3-4" silently while reading (occupies the inner voice)
 - Focus on seeing word groups rather than individual words
 - Accept that you will not eliminate subvocalization entirely -- reducing it is sufficient
 
 **Technique 3: Expand Peripheral Vision (Chunking)**
 Instead of reading one word at a time, train yourself to see 3-5 word chunks:
+
 - Normal: "The / cat / sat / on / the / mat" (6 fixations)
 - Chunked: "The cat sat / on the mat" (2 fixations)
 - Practice by reading a column of text (newspaper-width) in one fixation per line
 
 **Technique 4: Previewing**
 Before reading in detail:
+
 1. Read headings, subheadings, and bold text
 2. Read the first sentence of each paragraph
 3. Look at diagrams, charts, and images
 4. Read the conclusion or summary
-This creates a mental framework that speeds detailed reading by 20-30%
+   This creates a mental framework that speeds detailed reading by 20-30%
 
 ### Measurement Protocol
 
 **Baseline Test:**
+
 1. Choose a passage of 500-1000 words on a topic you know moderately well
 2. Set a timer
 3. Read at your normal pace

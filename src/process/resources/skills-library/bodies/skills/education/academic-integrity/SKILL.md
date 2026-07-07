@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing research study-skills guide"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'academic-writing research study-skills guide'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Academic Integrity
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when a learner needs to develop the practical writing competencies that underpin academic honesty -- not policy knowledge, but craft knowledge.
 
 **Trigger this skill when a learner:**
+
 - Asks how to paraphrase a source without copying the author's sentence structure or vocabulary
 - Wants to know when to quote directly versus paraphrase versus summarize
 - Is unsure whether a specific passage in their draft is "too close" to the original source
@@ -32,6 +34,7 @@ Use this skill when a learner needs to develop the practical writing competencie
 - Has received feedback like "this reads like patchwork paraphrasing" and wants to understand what that means and how to fix it
 
 **Do NOT use this skill when:**
+
 - The learner wants citation formatting syntax (APA, MLA, Chicago style rules) -- use `citation-management` instead
 - The learner is drafting or revising a paper -- use writing category skills for composition guidance
 - The learner is asking about their institution's honor code, consequences, or reporting procedures -- refer them to their institution's academic integrity office; never interpret policy
@@ -319,11 +322,11 @@ Let's reconstruct the likely original passage and compare it to your draft to sh
 
 **Three problems in your draft:**
 
-| Problem | Where It Appears | Threshold Crossed |
-|---------|-----------------|-------------------|
-| Identical phrase: "five or more hours" + "more likely to have at least one" | Sentence 2 | 6+ consecutive words matching source |
-| Mirrored structure: "displacement of in-person interaction by screen time" mirrors source phrasing almost exactly | Sentence 3 | Structural copying even with minor word changes |
-| Same idea sequence: depressive symptoms → suicide risk factor → displacement explanation -- in the same order as the source | Whole paragraph | No integrating logic of your own |
+| Problem                                                                                                                     | Where It Appears | Threshold Crossed                               |
+| --------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------------------------------------------- |
+| Identical phrase: "five or more hours" + "more likely to have at least one"                                                 | Sentence 2       | 6+ consecutive words matching source            |
+| Mirrored structure: "displacement of in-person interaction by screen time" mirrors source phrasing almost exactly           | Sentence 3       | Structural copying even with minor word changes |
+| Same idea sequence: depressive symptoms → suicide risk factor → displacement explanation -- in the same order as the source | Whole paragraph  | No integrating logic of your own                |
 
 Even though you correctly cited Twenge et al., the passage still reads as patchwork because the architecture of the ideas is borrowed, not just the content.
 
@@ -338,6 +341,7 @@ Even though you correctly cited Twenge et al., the passage still reads as patchw
 "Heavy social media use -- particularly five or more hours daily -- appears to meaningfully elevate mental health risk among teenagers. Twenge et al. (2018) found a 66 percent increase in suicide risk factors at this threshold and proposed that the mechanism may be substitution: screen time crowding out the face-to-face social contact that more reliably supports adolescent wellbeing."
 
 **Why this works:**
+
 - The two source sentences have been fused into a logical argument rather than reproduced in sequence
 - The sentence structure is entirely different from any source sentence -- this writer is in control
 - The 66% statistic is retained (statistics must be accurate -- paraphrase the explanation, not the numbers)
@@ -363,6 +367,7 @@ Notice how the final sentence is the writer's own analytical contribution. This 
 **Instructions:** Cover or close this passage now. In 2-3 sentences, write what this passage argues in your own words, as if explaining it to a classmate who has not read it. Do not look at the passage while writing. Then return and run the three-problem test on your attempt.
 
 **Three-problem test:**
+
 - [ ] No phrase of 3+ consecutive words matches the original
 - [ ] Your sentence structures do not mirror the source sentences
 - [ ] You have not followed the source's exact sequence of ideas (finding → effect size → methodological explanation) unless your own argument calls for that order
@@ -371,27 +376,27 @@ Notice how the final sentence is the writer's own analytical contribution. This 
 
 You are writing your social media and mental health paper. For each sentence below, decide whether to (A) Cite it, (B) No citation needed, or (C) Quote directly.
 
-| # | Sentence | Your Decision | Reasoning |
-|---|----------|--------------|-----------|
-| 1 | Social media platforms like Instagram and TikTok became widely used among teenagers in the 2010s. | | |
-| 2 | A 2019 meta-analysis found a statistically significant but small association (r = .10) between social media use and depression across 21 studies. | | |
-| 3 | Correlation does not establish causation. | | |
-| 4 | Orben and Przybylski (2019) coined the term "digital Goldilocks hypothesis" to describe the theory that moderate digital engagement may be neutral or even beneficial. | | |
-| 5 | Mental health outcomes are difficult to measure consistently across studies because researchers define and operationalize constructs differently. | | |
-| 6 | Your own argument that the inconsistency in the literature suggests a need for standardized measurement protocols. | | |
-| 7 | A specific quoted sentence from a researcher's conclusion that you believe summarizes the field's consensus in uniquely precise terms. | | |
+| #   | Sentence                                                                                                                                                               | Your Decision | Reasoning |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | --------- |
+| 1   | Social media platforms like Instagram and TikTok became widely used among teenagers in the 2010s.                                                                      |               |           |
+| 2   | A 2019 meta-analysis found a statistically significant but small association (r = .10) between social media use and depression across 21 studies.                      |               |           |
+| 3   | Correlation does not establish causation.                                                                                                                              |               |           |
+| 4   | Orben and Przybylski (2019) coined the term "digital Goldilocks hypothesis" to describe the theory that moderate digital engagement may be neutral or even beneficial. |               |           |
+| 5   | Mental health outcomes are difficult to measure consistently across studies because researchers define and operationalize constructs differently.                      |               |           |
+| 6   | Your own argument that the inconsistency in the literature suggests a need for standardized measurement protocols.                                                     |               |           |
+| 7   | A specific quoted sentence from a researcher's conclusion that you believe summarizes the field's consensus in uniquely precise terms.                                 |               |           |
 
 **Answer key:**
 
-| # | Correct Answer | Explanation |
-|---|---------------|-------------|
-| 1 | B -- No citation | Common knowledge in this field; widely documented historical fact requiring no attribution |
-| 2 | A -- Cite | Specific statistical finding from a specific study; always cite quantitative findings |
-| 3 | B -- No citation | Foundational scientific principle; common knowledge across disciplines |
-| 4 | C or A -- Quote or Cite | "Digital Goldilocks hypothesis" is a named framework coined by specific researchers; use their exact term with attribution; quote if you want the definition verbatim |
-| 5 | A -- Cite | This may sound like your own analysis, but if this insight came from a methodological critique you read, it needs attribution; only omit citation if this is genuinely your own observation developed through your own reading of multiple studies |
-| 6 | B -- No citation | This is your original argument -- your ideas do not need a citation; they need supporting evidence |
-| 7 | C -- Quote directly | When exact phrasing carries the meaning and you want the reader to see the precise language, quote it with page number |
+| #   | Correct Answer          | Explanation                                                                                                                                                                                                                                        |
+| --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | B -- No citation        | Common knowledge in this field; widely documented historical fact requiring no attribution                                                                                                                                                         |
+| 2   | A -- Cite               | Specific statistical finding from a specific study; always cite quantitative findings                                                                                                                                                              |
+| 3   | B -- No citation        | Foundational scientific principle; common knowledge across disciplines                                                                                                                                                                             |
+| 4   | C or A -- Quote or Cite | "Digital Goldilocks hypothesis" is a named framework coined by specific researchers; use their exact term with attribution; quote if you want the definition verbatim                                                                              |
+| 5   | A -- Cite               | This may sound like your own analysis, but if this insight came from a methodological critique you read, it needs attribution; only omit citation if this is genuinely your own observation developed through your own reading of multiple studies |
+| 6   | B -- No citation        | This is your original argument -- your ideas do not need a citation; they need supporting evidence                                                                                                                                                 |
+| 7   | C -- Quote directly     | When exact phrasing carries the meaning and you want the reader to see the precise language, quote it with page number                                                                                                                             |
 
 #### Exercise 3: Spot the Problem
 
@@ -400,44 +405,47 @@ Each sentence below has a specific integrity problem. Name the problem type and 
 **Sentence A:**
 "Increased screen time has been linked to higher rates of anxiety, depression, and loneliness in adolescent populations, particularly among girls (Twenge, 2017). Excessive smartphone use disrupts sleep patterns, which compounds psychological vulnerability. The relationship is bidirectional -- those with existing depression tend to use screens more, which worsens their symptoms."
 
-*Problem:* The second and third sentences have no citation, but they are not common knowledge and do not read as the writer's original analysis -- they are almost certainly borrowed from a source. A block of sentences following a single citation can misrepresent three borrowed ideas as two cited and two original.
+_Problem:_ The second and third sentences have no citation, but they are not common knowledge and do not read as the writer's original analysis -- they are almost certainly borrowed from a source. A block of sentences following a single citation can misrepresent three borrowed ideas as two cited and two original.
 
-*Correction:* Either cite each sentence where the idea originates, or restructure with a signal phrase spanning the borrowed passage: "Twenge (2017) also documents that excessive smartphone use disrupts sleep -- a compounding factor -- and that the relationship is bidirectional, with existing depression increasing screen use and screen use worsening depressive symptoms (p. 93)."
+_Correction:_ Either cite each sentence where the idea originates, or restructure with a signal phrase spanning the borrowed passage: "Twenge (2017) also documents that excessive smartphone use disrupts sleep -- a compounding factor -- and that the relationship is bidirectional, with existing depression increasing screen use and screen use worsening depressive symptoms (p. 93)."
 
 ---
 
 **Sentence B:**
 "According to research, 'depression among teenage girls has increased significantly since the early 2010s, coinciding with the rise of smartphones.'"
 
-*Problem:* This is a direct quotation with no author identified, no year, and no page number. "According to research" is not attribution. Direct quotes require author, year, and page number at minimum.
+_Problem:_ This is a direct quotation with no author identified, no year, and no page number. "According to research" is not attribution. Direct quotes require author, year, and page number at minimum.
 
-*Correction:* "Twenge (2017) argues that 'depression among teenage girls has increased significantly since the early 2010s, coinciding with the rise of smartphones' (p. 67)." -- or, better for most sociology papers -- paraphrase it: "Depression rates among adolescent girls rose sharply beginning in the early 2010s, a trend Twenge (2017) directly attributes to the proliferation of smartphones."
+_Correction:_ "Twenge (2017) argues that 'depression among teenage girls has increased significantly since the early 2010s, coinciding with the rise of smartphones' (p. 67)." -- or, better for most sociology papers -- paraphrase it: "Depression rates among adolescent girls rose sharply beginning in the early 2010s, a trend Twenge (2017) directly attributes to the proliferation of smartphones."
 
 ---
 
 **Sentence C:**
 "The social comparison theory suggests that viewing idealized images on social media triggers upward social comparison, which reduces self-esteem."
 
-*Problem:* Social comparison theory is a named theoretical framework developed by Leon Festinger (1954). Using a specific named theory without citing its originator is a missing attribution for a borrowed framework.
+_Problem:_ Social comparison theory is a named theoretical framework developed by Leon Festinger (1954). Using a specific named theory without citing its originator is a missing attribution for a borrowed framework.
 
-*Correction:* "Social comparison theory (Festinger, 1954) provides a mechanism for understanding this effect: exposure to idealized social media imagery triggers upward comparison processes that are associated with reduced self-esteem."
+_Correction:_ "Social comparison theory (Festinger, 1954) provides a mechanism for understanding this effect: exposure to idealized social media imagery triggers upward comparison processes that are associated with reduced self-esteem."
 
 ---
 
 ### Self-Check Protocol -- Run Before You Submit This Paper
 
 **Pass 1 -- Attribution Scan**
+
 - [ ] Every borrowed finding, statistic, or claim is cited, including mid-paragraph
 - [ ] Every direct quotation has quotation marks, author, year, AND page number
 - [ ] No sequence of more than 2 sentences relies on one source without a citation indicating the span
 - [ ] Social comparison theory, displacement hypothesis, and any other named frameworks are cited to their originators
 
 **Pass 2 -- Paraphrase Quality Check (Spot-check 5 paraphrases)**
+
 - [ ] No phrase of 3+ words matches the source verbatim
 - [ ] Sentence structures are architecturally different from source sentences -- not just different vocabulary
 - [ ] You can explain each paraphrased idea without looking at the source
 
 **Pass 3 -- Integration Check**
+
 - [ ] Every quotation (if any) is introduced by a signal phrase, not dropped in
 - [ ] Every quotation is followed by at least one sentence of your own analysis
 - [ ] You are using varied signal phrases -- not only "Twenge argues" or "(Twenge, 2018)"
@@ -453,10 +461,12 @@ Each sentence below has a specific integrity problem. Name the problem type and 
 - **Attribution of frameworks** -- the obligation to cite named theories and models (social comparison theory, displacement hypothesis) to their originators even when those frameworks have become widely used in the field
 
 ### Next Steps
+
 1. **Within 24 hours:** Take the sentence you are least confident about in your current draft and run the three-problem test on it. If it fails any criterion, rewrite it using the close-the-book method.
 2. **Before final submission:** Run the full three-pass self-check protocol above on your complete draft.
 3. **Ongoing habit:** When you annotate sources during research, write a 1-2 sentence summary in your own words immediately after reading each source before you move on. These annotations become the raw material for your paraphrases and nearly eliminate patchworking.
 
 ### Related Skills
+
 - `citation-management` -- for formatting your in-text citations and references page correctly in APA 7th edition (standard for sociology)
 - Writing category skills -- for strengthening the argument structure and analytical sentences that surround your cited evidence

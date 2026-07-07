@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices guide step-by-step"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'best-practices guide step-by-step'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Dependency Manager
@@ -32,25 +32,26 @@ Format: `MAJOR.MINOR.PATCH` (e.g., `2.4.1`)
 
 ### Version Range Specifiers
 
-| Specifier | Meaning | Example: `1.4.2` matches |
-|-----------|---------|-------------------------|
-| `1.4.2` | Exact | Only `1.4.2` |
-| `^1.4.2` | Compatible (caret) | `>=1.4.2, <2.0.0` |
-| `~1.4.2` | Approximately (tilde) | `>=1.4.2, <1.5.0` |
-| `>=1.4.2` | At least | `1.4.2` and above |
-| `*` | Any | All versions |
+| Specifier | Meaning               | Example: `1.4.2` matches |
+| --------- | --------------------- | ------------------------ |
+| `1.4.2`   | Exact                 | Only `1.4.2`             |
+| `^1.4.2`  | Compatible (caret)    | `>=1.4.2, <2.0.0`        |
+| `~1.4.2`  | Approximately (tilde) | `>=1.4.2, <1.5.0`        |
+| `>=1.4.2` | At least              | `1.4.2` and above        |
+| `*`       | Any                   | All versions             |
 
 ### Pinning Strategy Decision Matrix
 
-| Context | Strategy | Why |
-|---------|----------|-----|
-| Application (deployed) | Pin exact + lockfile | Reproducibility in production |
-| Library (published) | Use ranges (`^`) | Allow consumers to resolve conflicts |
-| CI/CD tools | Pin exact | Reproducibility of builds |
-| Development tools | Ranges (`^` or `~`) | Less maintenance friction |
-| Security-critical deps | Pin exact + monitor | Control update timing |
+| Context                | Strategy             | Why                                  |
+| ---------------------- | -------------------- | ------------------------------------ |
+| Application (deployed) | Pin exact + lockfile | Reproducibility in production        |
+| Library (published)    | Use ranges (`^`)     | Allow consumers to resolve conflicts |
+| CI/CD tools            | Pin exact            | Reproducibility of builds            |
+| Development tools      | Ranges (`^` or `~`)  | Less maintenance friction            |
+| Security-critical deps | Pin exact + monitor  | Control update timing                |
 
 ### Lockfile Rules
+
 1. **Always commit the lockfile** (`package-lock.json`, `yarn.lock`, `Pipfile.lock`, `Cargo.lock` for binaries, `go.sum`).
 2. **Never edit the lockfile manually**. Let the package manager generate it.
 3. **Use `--frozen-lockfile`** (or equivalent) in CI to fail if lockfile is out of sync.
@@ -59,24 +60,28 @@ Format: `MAJOR.MINOR.PATCH` (e.g., `2.4.1`)
 ## Vulnerability Scanning
 
 ### Automated Scanning Tools
-| Ecosystem | Tool | Command |
-|-----------|------|---------|
-| npm | `npm audit` | `npm audit --production` |
-| yarn | `yarn audit` | `yarn audit --level moderate` |
-| Python | `pip-audit`, `safety` | `pip-audit` |
-| Java | OWASP Dependency Check | Gradle/Maven plugin |
-| Go | `govulncheck` | `govulncheck ./...` |
-| Rust | `cargo audit` | `cargo audit` |
-| Multi | Snyk, Dependabot, Renovate | SaaS/CI integration |
+
+| Ecosystem | Tool                       | Command                       |
+| --------- | -------------------------- | ----------------------------- |
+| npm       | `npm audit`                | `npm audit --production`      |
+| yarn      | `yarn audit`               | `yarn audit --level moderate` |
+| Python    | `pip-audit`, `safety`      | `pip-audit`                   |
+| Java      | OWASP Dependency Check     | Gradle/Maven plugin           |
+| Go        | `govulncheck`              | `govulncheck ./...`           |
+| Rust      | `cargo audit`              | `cargo audit`                 |
+| Multi     | Snyk, Dependabot, Renovate | SaaS/CI integration           |
 
 ### Vulnerability Response Protocol
+
 1. **Critical (CVSS 9.0-10.0)**: Fix within 24 hours. Actively exploited vulnerabilities are emergencies.
 2. **High (CVSS 7.0-8.9)**: Fix within 1 week. Prioritize if the affected code path is reachable.
 3. **Medium (CVSS 4.0-6.9)**: Fix within 1 month. Schedule in regular maintenance.
 4. **Low (CVSS 0.1-3.9)**: Fix in next dependency update cycle.
 
 ### Assessing Real Risk
+
 Not every vulnerability applies to your usage. Check:
+
 1. Is the vulnerable function actually called in your code?
 2. Is the attack vector reachable (e.g., is it a server-side lib, but the vuln requires client-side input)?
 3. Is there a workaround that mitigates without upgrading?
@@ -85,18 +90,21 @@ Not every vulnerability applies to your usage. Check:
 ## Update Strategies
 
 ### Continuous Updates (Recommended)
+
 - Use Dependabot or Renovate to create PRs for every update.
 - Configure automerge for patch updates if tests pass.
 - Review minor and major updates manually.
 - Update frequency: patches weekly, minors biweekly, majors quarterly.
 
 ### Batched Updates
+
 - Group all dependency updates into a monthly maintenance window.
 - Update all patches and minors at once.
 - Test the full suite before merging.
 - Handle major updates individually.
 
 ### Renovate Configuration Example
+
 ```json
 {
   "extends": ["config:base"],
@@ -122,6 +130,7 @@ Not every vulnerability applies to your usage. Check:
 ## Breaking Change Detection
 
 ### Before Updating a Major Version
+
 1. Read the CHANGELOG or migration guide.
 2. Search for breaking changes that affect your usage.
 3. Check the package's GitHub issues for known upgrade problems.
@@ -129,6 +138,7 @@ Not every vulnerability applies to your usage. Check:
 5. Fix compilation/import errors first, then runtime errors, then test failures.
 
 ### Common Breaking Change Patterns
+
 - Removed or renamed exports/functions
 - Changed function signatures (parameter order, types)
 - Changed default values
@@ -137,6 +147,7 @@ Not every vulnerability applies to your usage. Check:
 - Changed peer dependency requirements
 
 ### Automated Detection
+
 ```shell
 # TypeScript: compare type declarations
 npx @arethetypeswrong/cli package-name
@@ -152,11 +163,13 @@ gorelease -base=v1.0.0 -version=v2.0.0
 ## Monorepo Dependency Management
 
 ### Shared Dependencies
+
 - Hoist common dependencies to the workspace root.
 - Pin shared dependency versions using workspace constraints.
 - Avoid version conflicts between packages in the same monorepo.
 
 ### npm/yarn/pnpm Workspaces
+
 ```json
 // Root package.json
 {
@@ -168,13 +181,15 @@ gorelease -base=v1.0.0 -version=v2.0.0
 ```
 
 ### Internal Package Versioning
-| Strategy | When to use |
-|----------|-------------|
-| Fixed versioning | All packages share one version (simpler) |
-| Independent versioning | Packages evolve at different rates |
+
+| Strategy                           | When to use                                 |
+| ---------------------------------- | ------------------------------------------- |
+| Fixed versioning                   | All packages share one version (simpler)    |
+| Independent versioning             | Packages evolve at different rates          |
 | Workspace protocol (`workspace:*`) | Always use local version during development |
 
 ### Dependency Deduplication
+
 ```shell
 # npm: deduplicate dependency tree
 npm dedupe
@@ -190,15 +205,16 @@ pnpm dedupe
 
 ### License Categories
 
-| Category | Licenses | Commercial Use |
-|----------|----------|----------------|
-| **Permissive** | MIT, BSD, Apache 2.0, ISC | Safe for all use |
-| **Weak copyleft** | LGPL, MPL | Safe if not modifying the library itself |
-| **Strong copyleft** | GPL, AGPL | Must open-source your code if distributed |
-| **Proprietary** | Custom | Must comply with specific terms |
-| **No license** | None specified | Legally risky; avoid or contact author |
+| Category            | Licenses                  | Commercial Use                            |
+| ------------------- | ------------------------- | ----------------------------------------- |
+| **Permissive**      | MIT, BSD, Apache 2.0, ISC | Safe for all use                          |
+| **Weak copyleft**   | LGPL, MPL                 | Safe if not modifying the library itself  |
+| **Strong copyleft** | GPL, AGPL                 | Must open-source your code if distributed |
+| **Proprietary**     | Custom                    | Must comply with specific terms           |
+| **No license**      | None specified            | Legally risky; avoid or contact author    |
 
 ### License Scanning Tools
+
 ```shell
 # Node.js
 npx license-checker --summary
@@ -216,6 +232,7 @@ fossa analyze
 ```
 
 ### License Compliance Checklist
+
 - [ ] All dependencies have a license.
 - [ ] No GPL/AGPL dependencies in proprietary software (unless compliant).
 - [ ] Attribution requirements are met (MIT, Apache 2.0 require notices).
@@ -225,6 +242,7 @@ fossa analyze
 ## Dependency Audit Workflow
 
 ### Monthly Audit Checklist
+
 1. [ ] Run vulnerability scanner. Fix critical/high issues.
 2. [ ] Update all patch versions.
 3. [ ] Review and update minor versions.
@@ -235,6 +253,7 @@ fossa analyze
 8. [ ] Remove unused dependencies.
 
 ### Detecting Unused Dependencies
+
 ```shell
 # Node.js
 npx depcheck
@@ -247,17 +266,19 @@ go mod tidy
 ```
 
 ### Dependency Health Indicators
-| Indicator | Healthy | Warning | Critical |
-|-----------|---------|---------|----------|
-| Last release | < 6 months | 6-18 months | > 18 months |
-| Open issues | Growing + triaged | Growing + untriaged | Many stale |
-| Contributors | Multiple active | Single maintainer | No recent activity |
-| Downloads | Stable/growing | Declining | Near zero |
-| Known vulns | 0 | Low severity | High/Critical |
+
+| Indicator    | Healthy           | Warning             | Critical           |
+| ------------ | ----------------- | ------------------- | ------------------ |
+| Last release | < 6 months        | 6-18 months         | > 18 months        |
+| Open issues  | Growing + triaged | Growing + untriaged | Many stale         |
+| Contributors | Multiple active   | Single maintainer   | No recent activity |
+| Downloads    | Stable/growing    | Declining           | Near zero          |
+| Known vulns  | 0                 | Low severity        | High/Critical      |
 
 ## Supply Chain Security
 
 ### Protections
+
 1. **Use lockfiles** to prevent unexpected version changes.
 2. **Enable npm audit signatures** to verify package provenance.
 3. **Pin GitHub Actions** to commit SHA, not tags (tags can be moved).
@@ -267,7 +288,9 @@ go mod tidy
 7. **Avoid typosquatting**: Double-check package names before installing.
 
 ### Evaluating a New Dependency
+
 Before adding any dependency, answer:
+
 1. Can we solve this with existing dependencies or stdlib?
 2. How many transitive dependencies does it pull in?
 3. Is it actively maintained?
@@ -281,6 +304,7 @@ If the answer to any question is concerning, consider alternatives or implementi
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing dependency manager solutions
 - Reviewing or improving existing dependency manager approaches
 - Making architectural or implementation decisions about dependency manager
@@ -288,6 +312,7 @@ If the answer to any question is concerning, consider alternatives or implementi
 - Troubleshooting dependency manager-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -298,21 +323,26 @@ If the answer to any question is concerning, consider alternatives or implementi
 # Dependency Manager Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

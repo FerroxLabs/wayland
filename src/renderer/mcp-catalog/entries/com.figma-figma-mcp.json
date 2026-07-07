@@ -14,17 +14,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "design",
-      "developer",
-      "productivity"
-    ],
-    "tags": [
-      "figma",
-      "design",
-      "dev-mode",
-      "ui"
-    ],
+    "categories": ["design", "developer", "productivity"],
+    "tags": ["figma", "design", "dev-mode", "ui"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-05-27",
@@ -70,11 +61,7 @@
       "estimatedMinutes": 1,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

@@ -82,10 +82,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
   const handleTestAndEnable = useCallback(async () => {
     if (!serviceAccountJson.trim()) {
       Message.warning(
-        t(
-          'settings.channels.googleChat.credentials.serviceAccountRequired',
-          'Service Account JSON is required',
-        ),
+        t('settings.channels.googleChat.credentials.serviceAccountRequired', 'Service Account JSON is required')
       );
       return;
     }
@@ -93,8 +90,8 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
       Message.warning(
         t(
           'settings.channels.googleChat.credentials.audienceRequired',
-          'JWT audience is required for the webhook transport',
-        ),
+          'JWT audience is required for the webhook transport'
+        )
       );
       return;
     }
@@ -102,8 +99,8 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
       Message.warning(
         t(
           'settings.channels.googleChat.credentials.subscriptionRequired',
-          'Subscription name is required for the Pub/Sub transport',
-        ),
+          'Subscription name is required for the Pub/Sub transport'
+        )
       );
       return;
     }
@@ -124,8 +121,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.googleChat.connectionFailed', 'Google Chat connection failed'),
+          testResult.data?.error ?? t('settings.channels.googleChat.connectionFailed', 'Google Chat connection failed')
         );
         return;
       }
@@ -134,7 +130,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
         t('settings.channels.googleChat.connectionSuccess', {
           email: testResult.data.botUsername ?? 'service account',
           defaultValue: `Connected as ${testResult.data.botUsername ?? 'service account'}`,
-        }),
+        })
       );
 
       const enableResult = await channel.enablePlugin.invoke({
@@ -148,9 +144,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
       });
 
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.googleChat.pluginEnabled', 'Google Chat plugin enabled'),
-        );
+        Message.success(t('settings.channels.googleChat.pluginEnabled', 'Google Chat plugin enabled'));
         // Webhook transport needs an inbound URL minted for the WebhookReceiver.
         // The Pub/Sub transport pulls events itself, so no public URL is minted.
         if (transport === 'webhook') {
@@ -171,8 +165,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
         }
       } else {
         Message.error(
-          enableResult.msg ??
-            t('settings.channels.googleChat.enableFailed', 'Failed to enable Google Chat plugin'),
+          enableResult.msg ?? t('settings.channels.googleChat.enableFailed', 'Failed to enable Google Chat plugin')
         );
       }
     } catch (error: unknown) {
@@ -189,19 +182,16 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
           type='warning'
           content={t(
             'settings.channels.googleChat.replaceWarning',
-            'Saving new credentials will replace the existing Google Chat bot connection.',
+            'Saving new credentials will replace the existing Google Chat bot connection.'
           )}
         />
       )}
 
       <PreferenceRow
-        label={t(
-          'settings.channels.googleChat.credentials.serviceAccountJson.label',
-          'Service Account JSON',
-        )}
+        label={t('settings.channels.googleChat.credentials.serviceAccountJson.label', 'Service Account JSON')}
         description={t(
           'settings.channels.googleChat.credentials.serviceAccountJson.help',
-          'Paste the full contents of your Google Cloud service-account keyfile (JSON). The bot must have the Chat API scope (chat.bot).',
+          'Paste the full contents of your Google Cloud service-account keyfile (JSON). The bot must have the Chat API scope (chat.bot).'
         )}
         required
       >
@@ -210,7 +200,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
           onChange={setServiceAccountJson}
           placeholder={t(
             'settings.channels.googleChat.credentials.serviceAccountJson.placeholder',
-            '{ "type": "service_account", "project_id": "...", ... }',
+            '{ "type": "service_account", "project_id": "...", ... }'
           )}
           autoSize={{ minRows: 4, maxRows: 8 }}
           style={{ width: 320 }}
@@ -221,7 +211,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
         label={t('settings.channels.googleChat.transport.label', 'Inbound Transport')}
         description={t(
           'settings.channels.googleChat.transport.help',
-          'Webhook needs a public HTTPS URL. Pub/Sub pulls events from a Google Cloud subscription and works with no public URL (recommended for desktop).',
+          'Webhook needs a public HTTPS URL. Pub/Sub pulls events from a Google Cloud subscription and works with no public URL (recommended for desktop).'
         )}
         required
       >
@@ -244,13 +234,10 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
 
       {transport === 'webhook' && (
         <PreferenceRow
-          label={t(
-            'settings.channels.googleChat.credentials.audience.label',
-            'JWT Audience',
-          )}
+          label={t('settings.channels.googleChat.credentials.audience.label', 'JWT Audience')}
           description={t(
             'settings.channels.googleChat.credentials.audience.help',
-            'The expected `aud` claim in Google Chat\'s Bearer JWT. Use your Google Cloud project number (e.g. 123456789012) or the registered app URL.',
+            "The expected `aud` claim in Google Chat's Bearer JWT. Use your Google Cloud project number (e.g. 123456789012) or the registered app URL."
           )}
           required
         >
@@ -259,7 +246,7 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
             onChange={setAudience}
             placeholder={t(
               'settings.channels.googleChat.credentials.audience.placeholder',
-              '123456789012 OR https://your-app-url',
+              '123456789012 OR https://your-app-url'
             )}
             style={{ width: 320 }}
           />
@@ -268,13 +255,10 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
 
       {transport === 'pubsub' && (
         <PreferenceRow
-          label={t(
-            'settings.channels.googleChat.credentials.subscriptionName.label',
-            'Pub/Sub Subscription',
-          )}
+          label={t('settings.channels.googleChat.credentials.subscriptionName.label', 'Pub/Sub Subscription')}
           description={t(
             'settings.channels.googleChat.credentials.subscriptionName.help',
-            'Full pull-subscription path the Chat app publishes to. Format: projects/<project>/subscriptions/<sub>. The service account needs the Pub/Sub Subscriber role on it.',
+            'Full pull-subscription path the Chat app publishes to. Format: projects/<project>/subscriptions/<sub>. The service account needs the Pub/Sub Subscriber role on it.'
           )}
           required
         >
@@ -292,16 +276,12 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
           label={t('settings.channels.googleChat.webhookUrl.label', 'Inbound Webhook URL')}
           description={t(
             'settings.channels.googleChat.webhookUrl.help',
-            'Paste this URL into Google Cloud Console → Google Chat API → Configuration → App URL.',
+            'Paste this URL into Google Cloud Console → Google Chat API → Configuration → App URL.'
           )}
         >
           <div className='flex items-center gap-8px'>
             <Input value={inboundUrl} readOnly style={{ width: 360 }} />
-            <Button
-              type='outline'
-              icon={<Copy size={14} />}
-              onClick={handleCopyInboundUrl}
-            >
+            <Button type='outline' icon={<Copy size={14} />} onClick={handleCopyInboundUrl}>
               {t('settings.channels.googleChat.webhookUrl.copyButton', 'Copy')}
             </Button>
           </div>
@@ -314,7 +294,6 @@ const GoogleChatConfigForm: React.FC<GoogleChatConfigFormProps> = ({
         </Button>
       </div>
       <ChannelAgentModelSelector platform='google-chat' modelSelection={modelSelection} />
-
     </div>
   );
 };

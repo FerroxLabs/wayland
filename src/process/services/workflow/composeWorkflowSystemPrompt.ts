@@ -9,11 +9,7 @@
 // system-prompt assembly. Must be IDENTICAL for two calls with the same
 // session - prompt caching depends on this. All dynamic per-step content
 // lives in `WORKFLOW_STEP_CONTEXT` (§7.2), which is composed elsewhere.
-import type {
-  ResolvedSkill,
-  StepState,
-  WorkflowSession,
-} from '@/common/types/workflowTypes';
+import type { ResolvedSkill, StepState, WorkflowSession } from '@/common/types/workflowTypes';
 
 const SKILL_DESC_MAX_CHARS = 80;
 
@@ -40,9 +36,7 @@ function renderStepList(steps: ReadonlyArray<StepState>): string {
 
 function renderSkillList(skills: ReadonlyArray<ResolvedSkill>): string {
   if (skills.length === 0) return 'SKILLS ACTIVE: (none)';
-  const lines = skills.map(
-    (skill) => `  • ${skill.display_name} - ${truncateDescription(skill.description)}`
-  );
+  const lines = skills.map((skill) => `  • ${skill.display_name} - ${truncateDescription(skill.description)}`);
   return ['SKILLS ACTIVE:', ...lines].join('\n');
 }
 

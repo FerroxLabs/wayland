@@ -14,12 +14,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning step-by-step guide"
-  category: "career"
-  depends: "career-pivot-roadmap skill-gap-analysis industry-research-framework portfolio-building-plan networking-message-writer job-search-strategy"
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'career planning step-by-step guide'
+  category: 'career'
+  depends: 'career-pivot-roadmap skill-gap-analysis industry-research-framework portfolio-building-plan networking-message-writer job-search-strategy'
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Switch Careers

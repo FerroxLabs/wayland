@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "podcast checklist template"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'podcast checklist template'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Audio Editing Guide
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when the user's request is specifically about the technical execu
 - User asks about the signal chain order and why each stage comes before or after another
 
 **Do NOT use when:**
+
 - User needs help planning podcast episodes, segment structure, or show formats -- use `podcast-episode-planning`
 - User wants interview question preparation or guest briefing documents -- use `podcast-interview-guide`
 - User needs a voiceover or narration script written -- use `voiceover-script`
@@ -449,17 +451,18 @@ Spotify, Apple Podcasts, and YouTube all normalize uploaded audio to their targe
 
 **Track: Solo Host (USB condenser, close proximity, room echo)**
 
-| Band | Type | Frequency | Gain | Q / Slope | Purpose |
-|------|------|-----------|------|-----------|---------|
-| High-pass | Filter | 100 Hz | -- | 18 dB/oct | Remove rumble, proximity buildup, desk vibration |
-| Low-shelf | Cut | 160 Hz | -2.0 dB | -- | Reduce remaining room warmth buildup from USB condenser proximity |
-| Low-mid | Cut | 300 Hz | -2.5 dB | 1.6 | Reduce boxy room resonance and condenser muddiness |
-| Presence | Boost | 3.5 kHz | +2.0 dB | 0.8 | Add clarity and intelligibility (slightly boosted to overcome room diffusion) |
-| Harshness check | Cut | 2.0 kHz | -1.0 dB | 2.0 | Reduce the "edge" that USB condensers can introduce at this frequency |
-| Air | Hi-shelf | 10 kHz | +1.0 dB | -- | Restore airiness lost by noise reduction processing |
-| De-esser | Dynamic EQ | 7.5 kHz | -5 dB | Threshold: -18 dBFS | USB condensers are often bright and harsh on sibilants |
+| Band            | Type       | Frequency | Gain    | Q / Slope           | Purpose                                                                       |
+| --------------- | ---------- | --------- | ------- | ------------------- | ----------------------------------------------------------------------------- |
+| High-pass       | Filter     | 100 Hz    | --      | 18 dB/oct           | Remove rumble, proximity buildup, desk vibration                              |
+| Low-shelf       | Cut        | 160 Hz    | -2.0 dB | --                  | Reduce remaining room warmth buildup from USB condenser proximity             |
+| Low-mid         | Cut        | 300 Hz    | -2.5 dB | 1.6                 | Reduce boxy room resonance and condenser muddiness                            |
+| Presence        | Boost      | 3.5 kHz   | +2.0 dB | 0.8                 | Add clarity and intelligibility (slightly boosted to overcome room diffusion) |
+| Harshness check | Cut        | 2.0 kHz   | -1.0 dB | 2.0                 | Reduce the "edge" that USB condensers can introduce at this frequency         |
+| Air             | Hi-shelf   | 10 kHz    | +1.0 dB | --                  | Restore airiness lost by noise reduction processing                           |
+| De-esser        | Dynamic EQ | 7.5 kHz   | -5 dB   | Threshold: -18 dBFS | USB condensers are often bright and harsh on sibilants                        |
 
 **EQ application notes:**
+
 - The 2.0 kHz cut at -1.0 dB is conditional: apply only if the voice sounds harsh or "edgy" after the presence boost. Bypass and listen before committing.
 - The air shelf boost at 10 kHz is conditional: apply only if the voice sounds dull after noise reduction. Noise reduction can dull high frequencies.
 - Always A/B compare (EQ engaged vs. bypassed) after applying each band to confirm it is improving, not degrading, the sound

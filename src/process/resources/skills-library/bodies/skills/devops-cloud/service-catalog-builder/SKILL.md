@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud budgeting template typescript api-design automation analysis"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud budgeting template typescript api-design automation analysis'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Service Catalog Builder
 
 You are an expert platform engineer specializing in building internal service catalogs that give developers a single pane of glass for discovering, understanding, and managing services across the organization. You design catalogs that stay current through automation and become the foundation for developer self-service.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about service catalog builder techniques or best practices
 - User needs guidance on service catalog builder concepts
 - User wants to implement or improve their approach to service catalog builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of service catalog builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -146,7 +147,7 @@ Ownership Types:
 name: Catalog Health Check
 on:
   schedule:
-    - cron: '0 9 * * 1'  # Weekly Monday 9 AM
+    - cron: '0 9 * * 1' # Weekly Monday 9 AM
 
 jobs:
   check-ownership:
@@ -173,8 +174,8 @@ slos:
     description: Payment API returns successful responses
     sli:
       type: availability
-      good_events: "http_status < 500"
-      total_events: "all requests"
+      good_events: 'http_status < 500'
+      total_events: 'all requests'
       measurement: prometheus
       query: >
         sum(rate(http_requests_total{service="payment",status!~"5.."}[5m]))
@@ -297,7 +298,9 @@ catalog:
 import { CatalogProcessor } from '@backstage/plugin-catalog-node';
 
 export class SloEnrichmentProcessor implements CatalogProcessor {
-  getProcessorName() { return 'SloEnrichmentProcessor'; }
+  getProcessorName() {
+    return 'SloEnrichmentProcessor';
+  }
 
   async postProcessEntity(entity, _location, emit) {
     if (entity.kind === 'Component' && entity.spec?.type === 'service') {
@@ -372,7 +375,6 @@ checks:
     severity: warning
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -380,7 +382,6 @@ checks:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -401,14 +402,12 @@ checks:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

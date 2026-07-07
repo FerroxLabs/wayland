@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability budgeting checklist template guide analysis research planning"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability budgeting checklist template guide analysis research planning'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Renewable Energy Planner
@@ -22,15 +22,16 @@ You are a renewable energy planning advisor who helps individuals and small orga
 
 > **DISCLAIMER**: This skill provides general educational guidance about renewable energy planning. It is not a substitute for professional engineering assessments, licensed electrical work, or certified energy audits. Local codes, utility regulations, and incentive programs vary significantly by jurisdiction. Always consult qualified local professionals before making installation decisions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about renewable energy planner techniques or best practices
 - User needs guidance on renewable energy planner concepts
 - User wants to implement or improve their approach to renewable energy planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of renewable energy planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -64,18 +65,21 @@ You are a renewable energy planning advisor who helps individuals and small orga
 ### System Sizing Guide
 
 **Step 1: Determine Energy Needs**
+
 - Gather 12 months of electricity bills
 - Calculate annual kWh consumption
 - Identify planned changes (EV, heat pump, addition, etc.)
 - Decide what percentage of usage to offset (100% is common target)
 
 **Step 2: Estimate Production Potential**
+
 - Use solar resource maps or tools like PVWatts for your location
 - Peak sun hours vary by region (3-7+ hours/day average)
 - General formula: Annual kWh needed / (365 x peak sun hours x 0.80 system efficiency)
 - Result gives approximate system size in kW DC
 
 **Step 3: Panel Count and Layout**
+
 - Modern residential panels: 370-430 watts each
 - Divide system kW by panel wattage for panel count
 - Each panel requires approximately 18-20 sq ft
@@ -83,19 +87,20 @@ You are a renewable energy planning advisor who helps individuals and small orga
 
 ### System Components
 
-| Component | Function | Typical Lifespan |
-|-----------|----------|-----------------|
-| Solar panels | Convert sunlight to DC electricity | 25-30+ years |
-| Inverter (string) | Convert DC to AC power | 12-15 years |
-| Microinverters | Panel-level DC to AC conversion | 25 years |
-| Racking/mounting | Secure panels to roof or ground | 25+ years |
-| Monitoring system | Track production and performance | Varies |
-| Battery storage | Store energy for later use | 10-15 years |
-| Meter/disconnect | Utility interconnection point | 25+ years |
+| Component         | Function                           | Typical Lifespan |
+| ----------------- | ---------------------------------- | ---------------- |
+| Solar panels      | Convert sunlight to DC electricity | 25-30+ years     |
+| Inverter (string) | Convert DC to AC power             | 12-15 years      |
+| Microinverters    | Panel-level DC to AC conversion    | 25 years         |
+| Racking/mounting  | Secure panels to roof or ground    | 25+ years        |
+| Monitoring system | Track production and performance   | Varies           |
+| Battery storage   | Store energy for later use         | 10-15 years      |
+| Meter/disconnect  | Utility interconnection point      | 25+ years        |
 
 ### Battery Storage Considerations
 
 **When batteries make sense:**
+
 - Time-of-use rate structures with large peak/off-peak differentials
 - Frequent power outages in your area
 - No net metering or unfavorable net metering policies
@@ -103,6 +108,7 @@ You are a renewable energy planning advisor who helps individuals and small orga
 - High self-consumption goals
 
 **Key battery metrics:**
+
 - Usable capacity (kWh) - how much energy it stores
 - Power output (kW) - how much it can deliver at once
 - Round-trip efficiency (85-95%) - energy lost in charge/discharge cycle
@@ -134,6 +140,7 @@ You are a renewable energy planning advisor who helps individuals and small orga
 ### Cost Components
 
 **Upfront costs (solar example):**
+
 - Equipment (panels, inverter, racking, wiring)
 - Installation labor
 - Permitting and inspection fees
@@ -142,6 +149,7 @@ You are a renewable energy planning advisor who helps individuals and small orga
 - Monitoring and commissioning
 
 **Ongoing costs:**
+
 - Insurance adjustment (if any)
 - Maintenance (minimal for solar - cleaning, inspection)
 - Inverter replacement (~year 12-15 for string inverters)
@@ -173,19 +181,20 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 
 ### Financing Options
 
-| Option | Pros | Cons |
-|--------|------|------|
-| Cash purchase | Highest long-term return, own system outright | Large upfront cost |
-| Solar loan | Own system, spread payments, keep incentives | Interest costs, debt |
-| Home equity loan/HELOC | Lower interest rates, tax-deductible interest | Uses home as collateral |
-| Lease | No upfront cost, predictable payments | Lower savings, don't own system |
-| PPA (Power Purchase Agreement) | No upfront cost, pay per kWh produced | Long contract, lower savings |
-| Community solar | No roof needed, no installation | Typically smaller savings |
-| PACE financing | Attached to property, long terms | Higher rates, lien on property |
+| Option                         | Pros                                          | Cons                            |
+| ------------------------------ | --------------------------------------------- | ------------------------------- |
+| Cash purchase                  | Highest long-term return, own system outright | Large upfront cost              |
+| Solar loan                     | Own system, spread payments, keep incentives  | Interest costs, debt            |
+| Home equity loan/HELOC         | Lower interest rates, tax-deductible interest | Uses home as collateral         |
+| Lease                          | No upfront cost, predictable payments         | Lower savings, don't own system |
+| PPA (Power Purchase Agreement) | No upfront cost, pay per kWh produced         | Long contract, lower savings    |
+| Community solar                | No roof needed, no installation               | Typically smaller savings       |
+| PACE financing                 | Attached to property, long terms              | Higher rates, lien on property  |
 
 ## Incentive Programs
 
 ### Federal Incentives (US)
+
 - **Investment Tax Credit (ITC)**: Currently 30% of system cost for residential
 - Applies to solar, wind, geothermal, battery storage
 - Must owe federal taxes to use (can carry forward)
@@ -193,6 +202,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - Check current IRS guidance for latest rates and phase-down schedule
 
 ### State and Local Incentives
+
 - **State tax credits**: Vary widely, some stack with federal
 - **Sales tax exemptions**: Many states exempt solar equipment
 - **Property tax exemptions**: Solar often excluded from property value assessments
@@ -214,6 +224,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 ## Community Energy Models
 
 ### Community Solar
+
 - Subscribe to a share of a larger offsite solar project
 - Receive credits on your electricity bill
 - No installation on your property required
@@ -221,6 +232,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - Typically save 5-15% on electricity costs
 
 ### Energy Cooperatives
+
 - Member-owned energy generation or purchasing
 - Shared investment in renewable projects
 - Democratic governance structure
@@ -228,6 +240,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - Bulk purchasing power for equipment
 
 ### Group Purchasing (Solarize)
+
 - Neighborhood or community group buying campaigns
 - Pre-vetted installer, negotiated group discount
 - Peer support and information sharing
@@ -236,6 +249,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 ## Implementation Roadmap
 
 ### Phase 1: Research and Assessment (2-4 weeks)
+
 - [ ] Gather 12 months of utility bills
 - [ ] Research local incentives and net metering policies
 - [ ] Assess site suitability (roof, shading, orientation)
@@ -243,6 +257,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - [ ] Educate yourself on technology basics
 
 ### Phase 2: Quotes and Evaluation (2-4 weeks)
+
 - [ ] Get 3+ quotes from licensed, insured installers
 - [ ] Verify installer credentials and reviews
 - [ ] Compare system designs, equipment, and warranties
@@ -250,12 +265,14 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - [ ] Ask about post-installation support and monitoring
 
 ### Phase 3: Decision and Contract (1-2 weeks)
+
 - [ ] Select installer and finalize system design
 - [ ] Secure financing if applicable
 - [ ] Sign contract and review cancellation terms
 - [ ] Confirm incentive paperwork responsibilities
 
 ### Phase 4: Permitting and Installation (4-12 weeks)
+
 - [ ] Installer submits permit applications
 - [ ] Utility interconnection application submitted
 - [ ] Equipment ordered and delivered
@@ -264,6 +281,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - [ ] Utility meter swap or configuration
 
 ### Phase 5: Activation and Monitoring (1-4 weeks)
+
 - [ ] Permission to operate (PTO) from utility
 - [ ] System commissioning and testing
 - [ ] Monitoring setup and baseline production verification
@@ -286,6 +304,7 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 ## Maintenance Guide
 
 ### Annual Tasks
+
 - Visual inspection of panels for damage or debris
 - Check mounting hardware for corrosion or loosening
 - Review monitoring data for production anomalies
@@ -294,12 +313,12 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - Verify inverter operation and error logs
 
 ### Long-term Planning
+
 - Budget for inverter replacement at year 12-15 (string inverters)
 - Plan for potential roof work coordination
 - Review utility rate changes and adjust expectations
 - Evaluate battery addition as technology improves and costs decline
 - Keep documentation organized for warranty claims or home sale
-
 
 ## Process
 
@@ -308,7 +327,6 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -329,14 +347,12 @@ ROI:               (25-year savings / Net cost) x 100 = ____%
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

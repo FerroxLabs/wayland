@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security api-security guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security api-security guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Identity Engineer
@@ -310,13 +310,13 @@ def saml_acs(request):
 
 ### MFA Strategy Decision Matrix
 
-| Factor Type | Examples | Security Level | User Friction | Phishing Resistant |
-|------------|---------|---------------|--------------|-------------------|
-| TOTP | Google Authenticator, Authy | Medium | Medium | No |
-| SMS OTP | Text message codes | Low | Low | No (SIM swap) |
-| Push notification | Duo, Okta Verify | Medium | Low | Partial |
-| WebAuthn/FIDO2 | YubiKey, Touch ID, Windows Hello | High | Low | Yes |
-| Email OTP | One-time code via email | Low | Medium | No |
+| Factor Type       | Examples                         | Security Level | User Friction | Phishing Resistant |
+| ----------------- | -------------------------------- | -------------- | ------------- | ------------------ |
+| TOTP              | Google Authenticator, Authy      | Medium         | Medium        | No                 |
+| SMS OTP           | Text message codes               | Low            | Low           | No (SIM swap)      |
+| Push notification | Duo, Okta Verify                 | Medium         | Low           | Partial            |
+| WebAuthn/FIDO2    | YubiKey, Touch ID, Windows Hello | High           | Low           | Yes                |
+| Email OTP         | One-time code via email          | Low            | Medium        | No                 |
 
 ## Session Management
 
@@ -394,31 +394,31 @@ class TokenManager:
 ```yaml
 jwt_security:
   signing:
-    - "Use RS256 or ES256, NOT HS256 for multi-service"
-    - "Rotate signing keys on schedule (90 days)"
-    - "Publish public keys via JWKS endpoint"
-    - "Include kid (Key ID) in JWT header"
+    - 'Use RS256 or ES256, NOT HS256 for multi-service'
+    - 'Rotate signing keys on schedule (90 days)'
+    - 'Publish public keys via JWKS endpoint'
+    - 'Include kid (Key ID) in JWT header'
 
   claims:
-    - "Always set exp (expiration) - 15 min for access tokens"
-    - "Always set iss (issuer) - validate on receipt"
-    - "Always set aud (audience) - prevent token confusion"
-    - "Always set iat (issued at)"
-    - "Use jti (JWT ID) for revocation support"
-    - "Never put sensitive data in JWT payload (base64 encoded, not encrypted)"
+    - 'Always set exp (expiration) - 15 min for access tokens'
+    - 'Always set iss (issuer) - validate on receipt'
+    - 'Always set aud (audience) - prevent token confusion'
+    - 'Always set iat (issued at)'
+    - 'Use jti (JWT ID) for revocation support'
+    - 'Never put sensitive data in JWT payload (base64 encoded, not encrypted)'
 
   validation:
-    - "Always verify signature before trusting claims"
-    - "Always check exp, iss, aud"
-    - "Reject alg:none (critical vulnerability)"
-    - "Reject unexpected algorithms"
-    - "Validate against JWKS, not hardcoded keys"
+    - 'Always verify signature before trusting claims'
+    - 'Always check exp, iss, aud'
+    - 'Reject alg:none (critical vulnerability)'
+    - 'Reject unexpected algorithms'
+    - 'Validate against JWKS, not hardcoded keys'
 
   storage_client_side:
-    - "Access tokens: in-memory only (not localStorage)"
-    - "Refresh tokens: httpOnly secure cookie"
-    - "Never store tokens in localStorage (XSS vulnerable)"
-    - "Never put tokens in URL parameters (logged in server logs)"
+    - 'Access tokens: in-memory only (not localStorage)'
+    - 'Refresh tokens: httpOnly secure cookie'
+    - 'Never store tokens in localStorage (XSS vulnerable)'
+    - 'Never put tokens in URL parameters (logged in server logs)'
 ```
 
 ## Identity Architecture Checklist
@@ -460,6 +460,7 @@ Monitoring:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing identity engineer solutions
 - Reviewing or improving existing identity engineer approaches
 - Making architectural or implementation decisions about identity engineer
@@ -467,6 +468,7 @@ Monitoring:
 - Troubleshooting identity engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -477,21 +479,26 @@ Monitoring:
 # Identity Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare strategy checklist template analysis planning"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare strategy checklist template analysis planning'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Healthcare Team Leader
@@ -22,15 +22,16 @@ You are a healthcare team leadership specialist who helps clinicians and manager
 
 > **DISCLAIMER**: This skill provides general leadership and communication guidance for educational and professional development purposes only. It does not constitute medical advice, clinical training, or a substitute for formal healthcare leadership education. Leadership practices should be adapted to your specific clinical context, institutional policies, regulatory requirements, and professional scope. Always follow your organization's protocols and chain of command.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about healthcare team leader techniques or best practices
 - User needs guidance on healthcare team leader concepts
 - User wants to implement or improve their approach to healthcare team leader
 
 **Do NOT use when:**
+
 - The request falls outside the scope of healthcare team leader
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -64,13 +65,13 @@ Effective healthcare teams require clear role definition. Ambiguity creates gaps
 
 ### Team Communication Structures
 
-| Structure | Frequency | Purpose | Key Components |
-|-----------|-----------|---------|----------------|
-| Huddle | Daily (or shift start) | Align on priorities, anticipate issues | Census, acuity, concerns, resource needs (keep under 15 minutes) |
-| Interdisciplinary rounds | Daily | Coordinate care plans across disciplines | Each discipline reports, plan is confirmed, barriers identified |
-| Shift briefing | Every shift change | Transfer situational awareness | Key patients, pending tasks, safety concerns, resource status |
-| Team meeting | Weekly or bi-weekly | Address systemic issues, process improvement | Agenda-driven, action items documented, rotating facilitation |
-| Debrief | After critical events | Learn from what happened | What went well, what could improve, action items |
+| Structure                | Frequency              | Purpose                                      | Key Components                                                   |
+| ------------------------ | ---------------------- | -------------------------------------------- | ---------------------------------------------------------------- |
+| Huddle                   | Daily (or shift start) | Align on priorities, anticipate issues       | Census, acuity, concerns, resource needs (keep under 15 minutes) |
+| Interdisciplinary rounds | Daily                  | Coordinate care plans across disciplines     | Each discipline reports, plan is confirmed, barriers identified  |
+| Shift briefing           | Every shift change     | Transfer situational awareness               | Key patients, pending tasks, safety concerns, resource status    |
+| Team meeting             | Weekly or bi-weekly    | Address systemic issues, process improvement | Agenda-driven, action items documented, rotating facilitation    |
+| Debrief                  | After critical events  | Learn from what happened                     | What went well, what could improve, action items                 |
 
 ### Daily Huddle Template
 
@@ -110,15 +111,15 @@ Structured handoffs reduce errors during care transitions. Use a consistent form
 
 **Essential Handoff Elements**
 
-| Element | Description | Example |
-|---------|-------------|---------|
-| Patient identification | Name, location, identifiers | "Room 412, Mrs. Johnson, MRN 12345" |
-| Situation | Current condition and reason for care | "Post-op day 1 from right hip replacement, doing well" |
-| Background | Relevant history and hospital course | "History of diabetes and hypertension; surgery was uncomplicated" |
-| Assessment | Current clinical status and trajectory | "Pain is controlled, ambulated twice today, vitals stable" |
-| Recommendations | What needs to happen next | "Continue current plan; PT evaluate in the morning; watch for DVT signs" |
-| Contingency | What to do if things change | "If pain scores rise above 7, call the surgical team" |
-| Read-back | Receiver confirms understanding | "So the key things are pain management, mobility, and DVT watch" |
+| Element                | Description                            | Example                                                                  |
+| ---------------------- | -------------------------------------- | ------------------------------------------------------------------------ |
+| Patient identification | Name, location, identifiers            | "Room 412, Mrs. Johnson, MRN 12345"                                      |
+| Situation              | Current condition and reason for care  | "Post-op day 1 from right hip replacement, doing well"                   |
+| Background             | Relevant history and hospital course   | "History of diabetes and hypertension; surgery was uncomplicated"        |
+| Assessment             | Current clinical status and trajectory | "Pain is controlled, ambulated twice today, vitals stable"               |
+| Recommendations        | What needs to happen next              | "Continue current plan; PT evaluate in the morning; watch for DVT signs" |
+| Contingency            | What to do if things change            | "If pain scores rise above 7, call the surgical team"                    |
+| Read-back              | Receiver confirms understanding        | "So the key things are pain management, mobility, and DVT watch"         |
 
 ### Handoff Quality Checklist
 
@@ -133,14 +134,14 @@ Structured handoffs reduce errors during care transitions. Use a consistent form
 
 ### Common Handoff Failure Modes
 
-| Failure | Consequence | Prevention |
-|---------|-------------|------------|
-| Interruptions during handoff | Missed information | Designate a distraction-free zone and time |
-| Omission of pending results | Delayed follow-up | Use a checklist that includes pending items |
-| Lack of receiver engagement | Information not absorbed | Require read-back and questions |
-| Inconsistent format | Variable quality | Standardize the handoff template across the unit |
-| Rushing | Incomplete transfer | Allocate adequate time; do not overlap with other duties |
-| No written backup | Memory-dependent | Provide a printed or digital handoff sheet |
+| Failure                      | Consequence              | Prevention                                               |
+| ---------------------------- | ------------------------ | -------------------------------------------------------- |
+| Interruptions during handoff | Missed information       | Designate a distraction-free zone and time               |
+| Omission of pending results  | Delayed follow-up        | Use a checklist that includes pending items              |
+| Lack of receiver engagement  | Information not absorbed | Require read-back and questions                          |
+| Inconsistent format          | Variable quality         | Standardize the handoff template across the unit         |
+| Rushing                      | Incomplete transfer      | Allocate adequate time; do not overlap with other duties |
+| No written backup            | Memory-dependent         | Provide a printed or digital handoff sheet               |
 
 ## Building a Safety Culture
 
@@ -148,11 +149,11 @@ Structured handoffs reduce errors during care transitions. Use a consistent form
 
 A just culture distinguishes between human error, at-risk behavior, and reckless behavior, responding proportionally to each.
 
-| Type | Description | Appropriate Response |
-|------|-------------|---------------------|
-| **Human error** | Inadvertent action; slip, lapse, or mistake | Console the individual; fix the system that allowed the error |
-| **At-risk behavior** | Conscious choice to deviate, often due to workarounds becoming normalized | Coach the individual; address the system conditions that incentivize the shortcut |
-| **Reckless behavior** | Conscious set aside of a substantial and unjustifiable risk | Disciplinary action; this is about choice, not system design |
+| Type                  | Description                                                               | Appropriate Response                                                              |
+| --------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Human error**       | Inadvertent action; slip, lapse, or mistake                               | Console the individual; fix the system that allowed the error                     |
+| **At-risk behavior**  | Conscious choice to deviate, often due to workarounds becoming normalized | Coach the individual; address the system conditions that incentivize the shortcut |
+| **Reckless behavior** | Conscious set aside of a substantial and unjustifiable risk               | Disciplinary action; this is about choice, not system design                      |
 
 ### Psychological Safety
 
@@ -170,11 +171,11 @@ Team members must feel safe to speak up about concerns, errors, and ideas withou
 
 **Speaking Up Frameworks for Team Members**
 
-| Framework | Steps |
-|-----------|-------|
-| CUS | "I'm Concerned" > "I'm Uncomfortable" > "This is a Safety issue" (escalating urgency) |
+| Framework          | Steps                                                                                                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| CUS                | "I'm Concerned" > "I'm Uncomfortable" > "This is a Safety issue" (escalating urgency)                            |
 | Two-Challenge Rule | State concern once > State it again more assertively > If still unresolved, escalate to the next authority level |
-| DESC Script | Describe the situation > Express your concern > Suggest an alternative > Consequences (state what could happen) |
+| DESC Script        | Describe the situation > Express your concern > Suggest an alternative > Consequences (state what could happen)  |
 
 ### Safety Event Response Protocol
 
@@ -203,6 +204,7 @@ Critical for high-stakes clinical situations:
 ### Running Effective Team Meetings
 
 **Meeting Planning Checklist**
+
 - [ ] Clear agenda distributed in advance
 - [ ] Defined purpose (information sharing, decision-making, problem-solving)
 - [ ] Right people invited (those with relevant knowledge and authority)
@@ -211,6 +213,7 @@ Critical for high-stakes clinical situations:
 - [ ] Ground rules established (one speaker at a time, phones silenced, etc.)
 
 **Meeting Facilitation Tips**
+
 - Start with a brief check-in to build connection
 - State the purpose and desired outcome at the opening
 - Keep discussion on track; park off-topic items for later
@@ -221,6 +224,7 @@ Critical for high-stakes clinical situations:
 ### Conflict Resolution in Healthcare Teams
 
 **Sources of Team Conflict**
+
 - Role ambiguity or turf disputes
 - Communication style differences
 - Hierarchical dynamics (perceived or real power imbalances)
@@ -285,10 +289,10 @@ Follow-Up:
 
 ### Recognizing Burnout in Your Team
 
-| Dimension | Signs |
-|-----------|-------|
-| Emotional exhaustion | Fatigue, dreading work, feeling drained, increased sick calls |
-| Depersonalization | Cynicism, detachment from patients, negative attitudes |
+| Dimension              | Signs                                                            |
+| ---------------------- | ---------------------------------------------------------------- |
+| Emotional exhaustion   | Fatigue, dreading work, feeling drained, increased sick calls    |
+| Depersonalization      | Cynicism, detachment from patients, negative attitudes           |
 | Reduced accomplishment | Feeling ineffective, questioning career choice, low productivity |
 
 ### Leader Actions to Support Team Wellbeing
@@ -303,7 +307,6 @@ Follow-Up:
 - Model healthy boundaries yourself
 - Create moments of connection and meaning (sharing patient outcomes, celebrating milestones)
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -311,7 +314,6 @@ Follow-Up:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -332,14 +334,12 @@ Follow-Up:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

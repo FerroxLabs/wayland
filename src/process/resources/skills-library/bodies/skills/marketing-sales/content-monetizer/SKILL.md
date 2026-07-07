@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing marketing entrepreneurship"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'content-marketing marketing entrepreneurship'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Content Monetizer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on content monetizer
 - User asks about content monetizer best practices or techniques
 - User wants a structured approach to content monetizer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of content monetizer
 
@@ -76,6 +77,7 @@ Before building a monetization strategy, clarify your situation:
 ### Revenue Stack by Audience Size
 
 **Micro Creator (1,000-10,000 followers)**
+
 ```
 Primary:    Affiliate marketing (low barrier to start)
 Secondary:  Small digital products ($10-50)
@@ -84,6 +86,7 @@ Goal:       $500-2,000/month
 ```
 
 **Growing Creator (10,000-50,000 followers)**
+
 ```
 Primary:    Sponsorships + affiliate marketing
 Secondary:  Digital products + mini-courses ($50-200)
@@ -92,6 +95,7 @@ Goal:       $2,000-8,000/month
 ```
 
 **Established Creator (50,000-250,000 followers)**
+
 ```
 Primary:    Sponsorships + own products
 Secondary:  Flagship course ($200-1,000)
@@ -101,6 +105,7 @@ Goal:       $8,000-30,000/month
 ```
 
 **Large Creator (250,000+ followers)**
+
 ```
 Primary:    Product ecosystem (courses, tools, software)
 Secondary:  Premium sponsorship deals
@@ -113,30 +118,33 @@ Goal:       $30,000-200,000+/month
 
 ### Platform Ad Revenue Comparison
 
-| Platform | Revenue Model | Typical RPM/CPM | Minimum Requirements |
-|----------|--------------|-----------------|---------------------|
-| YouTube | AdSense | $3-15 RPM | 1,000 subs + 4,000 watch hours |
-| TikTok | Creator Fund/Creativity Program | $0.50-2.00 per 1K views | 10,000 followers + 100K views/30 days |
-| Instagram | Reels Play Bonus | Variable, invitation | Invitation only |
-| Podcast | Dynamic insertion | $15-50 CPM | Varies by network |
-| Blog | Display ads (Mediavine, AdThrive) | $15-40 RPM | 50,000 sessions/month |
-| Twitch | Pre-roll/mid-roll ads | $3.50-10 CPM | Affiliate/Partner status |
+| Platform  | Revenue Model                     | Typical RPM/CPM         | Minimum Requirements                  |
+| --------- | --------------------------------- | ----------------------- | ------------------------------------- |
+| YouTube   | AdSense                           | $3-15 RPM               | 1,000 subs + 4,000 watch hours        |
+| TikTok    | Creator Fund/Creativity Program   | $0.50-2.00 per 1K views | 10,000 followers + 100K views/30 days |
+| Instagram | Reels Play Bonus                  | Variable, invitation    | Invitation only                       |
+| Podcast   | Dynamic insertion                 | $15-50 CPM              | Varies by network                     |
+| Blog      | Display ads (Mediavine, AdThrive) | $15-40 RPM              | 50,000 sessions/month                 |
+| Twitch    | Pre-roll/mid-roll ads             | $3.50-10 CPM            | Affiliate/Partner status              |
 
 ### Maximizing Ad Revenue
 
 **YouTube:**
+
 - Longer videos (8+ minutes) allow mid-roll ads
 - Place mid-rolls at natural break points (not mid-sentence)
 - Higher CPM niches: finance, business, tech, insurance, legal
 - Upload when your audience is most active (ad rates vary by viewer geography)
 
 **Podcasts:**
+
 - Host-read ads command 2-3x premium over dynamic insertion
 - Pre-roll ($15-25 CPM), mid-roll ($20-50 CPM), post-roll ($10-15 CPM)
 - Bundle ad spots (pre + mid) for higher total deal value
 - Negotiate based on downloads per episode, not total downloads
 
 **Blog/Website:**
+
 - Apply to premium ad networks (Mediavine at 50K sessions, AdThrive at 100K)
 - Optimize page speed (faster load = more ad impressions)
 - Increase pages per session with internal linking
@@ -147,11 +155,13 @@ Goal:       $30,000-200,000+/month
 ### Finding Sponsors
 
 **Inbound (they come to you):**
+
 - Optimize your profile/about page with contact information
 - Create a media kit and link it visibly
 - As you grow, brands will reach out through DMs and email
 
 **Outbound (you approach them):**
+
 1. List 20 brands your audience already uses
 2. Check if they have an influencer program (many have landing pages)
 3. Find the right contact (marketing manager, influencer coordinator)
@@ -161,6 +171,7 @@ Goal:       $30,000-200,000+/month
 ### Sponsorship Pricing Framework
 
 **The Base Rate Formula:**
+
 ```
 Views-based:      Average views per post x $0.02-0.10 = base rate
 Followers-based:  Total followers x $0.005-0.02 = base rate
@@ -244,15 +255,15 @@ Page 5: Partnership Options
 
 ### High-Commission Affiliate Categories
 
-| Category | Typical Commission | Examples |
-|----------|-------------------|----------|
-| Online courses/software | 20-50% | Teachable, ConvertKit, Kajabi |
-| SaaS tools | 20-40% recurring | Canva Pro, Notion, Grammarly |
-| Web hosting | $50-200 per signup | Bluehost, SiteGround |
-| Financial products | $50-500 per lead | Credit cards, investment platforms |
-| Amazon products | 1-10% | Physical products (low but high volume) |
-| Digital products | 30-50% | Ebooks, templates, other creators' courses |
-| VPN services | 30-50% | NordVPN, ExpressVPN |
+| Category                | Typical Commission | Examples                                   |
+| ----------------------- | ------------------ | ------------------------------------------ |
+| Online courses/software | 20-50%             | Teachable, ConvertKit, Kajabi              |
+| SaaS tools              | 20-40% recurring   | Canva Pro, Notion, Grammarly               |
+| Web hosting             | $50-200 per signup | Bluehost, SiteGround                       |
+| Financial products      | $50-500 per lead   | Credit cards, investment platforms         |
+| Amazon products         | 1-10%              | Physical products (low but high volume)    |
+| Digital products        | 30-50%             | Ebooks, templates, other creators' courses |
+| VPN services            | 30-50%             | NordVPN, ExpressVPN                        |
 
 ### Affiliate Content Strategies
 
@@ -275,15 +286,15 @@ Page 5: Partnership Options
 
 ### Product Ideas by Creator Type
 
-| Creator Type | Product Ideas | Price Range |
-|-------------|--------------|-------------|
-| Educator | Courses, workshops, ebooks | $27-997 |
-| Designer | Templates, presets, fonts | $10-100 |
-| Writer | Ebooks, prompt packs, swipe files | $10-50 |
-| Photographer | Presets, guides, stock packs | $15-100 |
-| Developer | Code snippets, themes, tools | $19-200 |
-| Coach | Workbooks, frameworks, journals | $15-75 |
-| Any creator | Notion templates, checklists | $5-30 |
+| Creator Type | Product Ideas                     | Price Range |
+| ------------ | --------------------------------- | ----------- |
+| Educator     | Courses, workshops, ebooks        | $27-997     |
+| Designer     | Templates, presets, fonts         | $10-100     |
+| Writer       | Ebooks, prompt packs, swipe files | $10-50      |
+| Photographer | Presets, guides, stock packs      | $15-100     |
+| Developer    | Code snippets, themes, tools      | $19-200     |
+| Coach        | Workbooks, frameworks, journals   | $15-75      |
+| Any creator  | Notion templates, checklists      | $5-30       |
 
 ### Digital Product Launch Sequence
 
@@ -300,20 +311,21 @@ Post-launch: Evergreen sales through content funnel
 
 ### Platforms for Selling Digital Products
 
-| Platform | Best For | Fees |
-|----------|---------|------|
-| Gumroad | Simple products, creators | 10% flat |
-| Lemon Squeezy | Digital products, SaaS | 5% + payment processing |
-| Shopify | Physical + digital | $29/mo + 2.9% |
-| Payhip | Ebooks, courses | 5% (free plan) |
-| Stan Store | Creator storefronts | $29/mo |
-| Your own website | Maximum control | Payment processing only |
+| Platform         | Best For                  | Fees                    |
+| ---------------- | ------------------------- | ----------------------- |
+| Gumroad          | Simple products, creators | 10% flat                |
+| Lemon Squeezy    | Digital products, SaaS    | 5% + payment processing |
+| Shopify          | Physical + digital        | $29/mo + 2.9%           |
+| Payhip           | Ebooks, courses           | 5% (free plan)          |
+| Stan Store       | Creator storefronts       | $29/mo                  |
+| Your own website | Maximum control           | Payment processing only |
 
 ## Merchandise
 
 ### When Merchandise Makes Sense
 
 Merchandise works when:
+
 - You have a recognizable brand, catchphrase, or visual identity
 - Your audience expresses identity through your community
 - You have 10,000+ engaged followers minimum
@@ -322,6 +334,7 @@ Merchandise works when:
 ### Merchandise Models
 
 **Print-on-demand (low risk, lower margin):**
+
 - Platforms: Printful, Printify, Teespring, Spring
 - No upfront inventory cost
 - $3-10 profit per item
@@ -329,6 +342,7 @@ Merchandise works when:
 - Quality can vary
 
 **Inventory-based (higher risk, higher margin):**
+
 - Higher quality control
 - Better margins ($10-30 per item)
 - Requires upfront investment
@@ -351,14 +365,14 @@ Margin (inventory): $5,000-12,000
 
 ### Productizing Your Expertise
 
-| Service Type | Time Investment | Price Range | Scalability |
-|-------------|----------------|-------------|-------------|
-| 1-on-1 coaching | High | $100-500/hour | Low |
-| Group coaching | Medium | $500-2,000/cohort | Medium |
-| Consulting | High | $200-1,000/hour | Low |
-| Done-for-you | Very high | $1,000-10,000+ | Low |
-| Workshops | Medium | $50-500/person | High |
-| Office hours | Low | $20-100/month | High |
+| Service Type    | Time Investment | Price Range       | Scalability |
+| --------------- | --------------- | ----------------- | ----------- |
+| 1-on-1 coaching | High            | $100-500/hour     | Low         |
+| Group coaching  | Medium          | $500-2,000/cohort | Medium      |
+| Consulting      | High            | $200-1,000/hour   | Low         |
+| Done-for-you    | Very high       | $1,000-10,000+    | Low         |
+| Workshops       | Medium          | $50-500/person    | High        |
+| Office hours    | Low             | $20-100/month     | High        |
 
 ### Coaching Package Template
 
@@ -476,6 +490,7 @@ Net annual (after churn):   ~$62,000
 ### Revenue Dashboard Template
 
 Track monthly:
+
 ```
 Revenue Source         | This Month | Last Month | % Change | % of Total
 --------------------- | ---------- | ---------- | -------- | ----------
@@ -506,7 +521,6 @@ No single revenue stream should exceed 40% of your total income. If one source d
 5. Which audience segment spends the most? How do I serve them better?
 6. What new revenue experiment should I run next month?
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -519,13 +533,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with content monetizer for a mid-size project."
 
 **Output:** A complete content monetizer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -13,15 +13,7 @@
  * Source of truth: SPEC.md §13.
  */
 
-export type PaletteKey =
-  | 'business-ops'
-  | 'violet'
-  | 'rose'
-  | 'blue'
-  | 'amber'
-  | 'emerald'
-  | 'slate'
-  | 'orange';
+export type PaletteKey = 'business-ops' | 'violet' | 'rose' | 'blue' | 'amber' | 'emerald' | 'slate' | 'orange';
 
 export const WORKFLOW_CATEGORY_PALETTE: Readonly<Record<string, PaletteKey>> = {
   'Business Operations': 'business-ops',

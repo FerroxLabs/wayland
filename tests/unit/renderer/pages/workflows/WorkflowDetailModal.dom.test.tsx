@@ -211,9 +211,7 @@ describe('WorkflowDetailModal - launch wiring (v0.6.1 picker)', () => {
 
     render(<WorkflowDetailModal entry={makeEntry()} onClose={vi.fn()} />);
 
-    await waitFor(() =>
-      expect(screen.getByText(/loads this workflow as its first directive/i)).toBeTruthy()
-    );
+    await waitFor(() => expect(screen.getByText(/loads this workflow as its first directive/i)).toBeTruthy());
   });
 
   it('defaults picker to guid.lastSelectedAgent from ConfigStorage', async () => {

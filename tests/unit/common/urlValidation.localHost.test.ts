@@ -27,7 +27,15 @@ describe('isLoopbackOrPrivateHost', () => {
   });
 
   it('classifies RFC-1918 + link-local + ULA hosts as local', () => {
-    for (const host of ['10.0.0.1', '172.16.5.4', '172.31.255.1', '192.168.1.10', '169.254.1.1', 'fe80::1', 'fd12::1']) {
+    for (const host of [
+      '10.0.0.1',
+      '172.16.5.4',
+      '172.31.255.1',
+      '192.168.1.10',
+      '169.254.1.1',
+      'fe80::1',
+      'fd12::1',
+    ]) {
       expect(isLoopbackOrPrivateHost(host), host).toBe(true);
     }
   });

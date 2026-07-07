@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy agile"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'project-management strategy agile'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Sprint Facilitator
@@ -247,16 +247,16 @@ ACTIONS (10 min):
 ```markdown
 ## Retro Action Items Log
 
-| Sprint | Action Item | Owner | Due | Status | Outcome |
-|--------|------------|-------|-----|--------|---------|
-| S23 | Add pre-commit linting | Dave | S24 start | Done | 40% fewer CI failures |
-| S23 | Pair programming Wed AM | Team | Ongoing | Active | Good feedback so far |
-| S24 | Move standup to 10am | Carol | S25 start | Done | Attendance improved |
-| S24 | Reduce meeting load Fri | PM | S25 start | Not done | Rescheduled to S26 |
+| Sprint | Action Item             | Owner | Due       | Status   | Outcome               |
+| ------ | ----------------------- | ----- | --------- | -------- | --------------------- |
+| S23    | Add pre-commit linting  | Dave  | S24 start | Done     | 40% fewer CI failures |
+| S23    | Pair programming Wed AM | Team  | Ongoing   | Active   | Good feedback so far  |
+| S24    | Move standup to 10am    | Carol | S25 start | Done     | Attendance improved   |
+| S24    | Reduce meeting load Fri | PM    | S25 start | Not done | Rescheduled to S26    |
 
 RULE: Never have more than 2-3 active action items.
-      Finish current items before adding new ones.
-      Review completion at the START of every retro.
+Finish current items before adding new ones.
+Review completion at the START of every retro.
 ```
 
 ## Velocity Tracking
@@ -384,37 +384,37 @@ ASYNC OPTIONS:
 Rate each 1-5 (1=broken, 5=excellent):
 
 PLANNING:
-  [ ] Backlog is refined before planning starts
-  [ ] Sprint goal is clear and agreed
-  [ ] Team pulls work (not pushed by PM)
-  [ ] Meeting finishes within timebox
-  [ ] Team leaves knowing what to work on day 1
+[ ] Backlog is refined before planning starts
+[ ] Sprint goal is clear and agreed
+[ ] Team pulls work (not pushed by PM)
+[ ] Meeting finishes within timebox
+[ ] Team leaves knowing what to work on day 1
 
 STANDUP:
-  [ ] Stays under 15 minutes
-  [ ] Blockers are identified and resolved quickly
-  [ ] Team talks to each other (not to manager)
-  [ ] Everyone participates meaningfully
-  [ ] Sprint goal progress is visible
+[ ] Stays under 15 minutes
+[ ] Blockers are identified and resolved quickly
+[ ] Team talks to each other (not to manager)
+[ ] Everyone participates meaningfully
+[ ] Sprint goal progress is visible
 
 REVIEW:
-  [ ] Working software is demonstrated
-  [ ] Stakeholders attend and engage
-  [ ] Feedback is captured and processed
-  [ ] Team is recognized for their work
-  [ ] Leads to useful product discussions
+[ ] Working software is demonstrated
+[ ] Stakeholders attend and engage
+[ ] Feedback is captured and processed
+[ ] Team is recognized for their work
+[ ] Leads to useful product discussions
 
 RETRO:
-  [ ] Psychologically safe environment
-  [ ] Action items are specific and assigned
-  [ ] Previous action items are reviewed
-  [ ] Format varies to keep it fresh
-  [ ] Leads to measurable improvements
+[ ] Psychologically safe environment
+[ ] Action items are specific and assigned
+[ ] Previous action items are reviewed
+[ ] Format varies to keep it fresh
+[ ] Leads to measurable improvements
 
 OVERALL:
-  [ ] Total ceremony time is under 10% of sprint
-  [ ] Ceremonies feel valuable, not bureaucratic
-  [ ] Team would notice if a ceremony was skipped
+[ ] Total ceremony time is under 10% of sprint
+[ ] Ceremonies feel valuable, not bureaucratic
+[ ] Team would notice if a ceremony was skipped
 ```
 
 ## Sprint Metrics Dashboard
@@ -423,20 +423,24 @@ OVERALL:
 ## Sprint [N] Dashboard
 
 ### Velocity
+
 - Planned: 35 points | Completed: 32 points | Carry-over: 3 points
 - 5-sprint average: 33 points | Trend: Stable
 
 ### Quality
+
 - Bugs found in sprint: 4 | Bugs found in production: 1
 - Code review turnaround: avg 4 hours
 - Test coverage delta: +2% (now 78%)
 
 ### Flow
+
 - Average cycle time: 3.2 days (story start to done)
 - WIP average: 6 items (target: 5)
 - Blocked time: 14 hours total across all items
 
 ### Team Health
+
 - Sprint goal achieved: Yes / Partial / No
 - Retro action items completed: 2/2
 - Unplanned work: 15% of capacity (target: <20%)
@@ -459,6 +463,7 @@ HEALTH:   Ceremonies < 10% of sprint time, all feel valuable
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing sprint facilitator solutions
 - Reviewing or improving existing sprint facilitator approaches
 - Making architectural or implementation decisions about sprint facilitator
@@ -466,6 +471,7 @@ HEALTH:   Ceremonies < 10% of sprint time, all feel valuable
 - Troubleshooting sprint facilitator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -476,21 +482,26 @@ HEALTH:   Ceremonies < 10% of sprint time, all feel valuable
 # Sprint Facilitator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

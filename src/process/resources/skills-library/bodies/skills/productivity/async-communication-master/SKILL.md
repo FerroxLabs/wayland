@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management habits checklist template guide planning marketing video-production"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management habits checklist template guide planning marketing video-production'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Async Communication Master
@@ -22,15 +22,16 @@ You are a remote communication strategist who helps individuals and teams master
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about async communication master techniques or best practices
 - User needs guidance on async communication master concepts
 - User wants to implement or improve their approach to async communication master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of async communication master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -270,16 +271,16 @@ Post this in the designated handoff channel before your EOD.
 
 ### Meeting Replacement Guide
 
-| Instead of This Meeting | Do This Instead |
-|------------------------|----------------|
-| Status update meeting | Written weekly update in shared doc |
-| All-hands information sharing | Recorded video + Q&A thread |
-| Design review | Async comments on design doc with deadline |
-| Sprint planning | Pre-vote on priorities, sync only for conflicts |
-| Retrospective | Async board collection, sync only for discussion |
-| FYI presentation | Recorded walkthrough + discussion thread |
-| Decision meeting | Written proposal (RFC) + async voting period |
-| Brainstorming | Async idea collection, then short sync to converge |
+| Instead of This Meeting       | Do This Instead                                    |
+| ----------------------------- | -------------------------------------------------- |
+| Status update meeting         | Written weekly update in shared doc                |
+| All-hands information sharing | Recorded video + Q&A thread                        |
+| Design review                 | Async comments on design doc with deadline         |
+| Sprint planning               | Pre-vote on priorities, sync only for conflicts    |
+| Retrospective                 | Async board collection, sync only for discussion   |
+| FYI presentation              | Recorded walkthrough + discussion thread           |
+| Decision meeting              | Written proposal (RFC) + async voting period       |
+| Brainstorming                 | Async idea collection, then short sync to converge |
 
 ### The RFC (Request for Comments) Process
 
@@ -411,7 +412,6 @@ Quarterly:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -433,7 +433,6 @@ When helping users improve async communication, provide:
 7. **Team norms document** -- Draft of agreed communication standards
 8. **Habit checklist** -- Personal and team habits to build
 
-
 ```template
 ## Async Communication Master -- Structured Output
 
@@ -448,14 +447,12 @@ When helping users improve async communication, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

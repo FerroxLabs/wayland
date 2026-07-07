@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation design"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation design'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Diagram Architect
@@ -24,32 +24,32 @@ You are an expert technical diagram architect who creates clear, maintainable di
 
 ### Decision Matrix
 
-| Communication Goal | Best Diagram Type | Best Tool |
-|---|---|---|
-| System component relationships | Architecture / C4 diagram | D2, Mermaid |
-| Request/response flow between services | Sequence diagram | Mermaid, PlantUML |
-| Process with decisions and branches | Flowchart | Mermaid, D2 |
-| State transitions | State diagram | Mermaid, PlantUML |
-| Data model relationships | Entity-relationship diagram | Mermaid, PlantUML |
-| Class hierarchy and interfaces | Class diagram | Mermaid, PlantUML |
-| Project timeline and dependencies | Gantt chart | Mermaid |
-| User journey through a product | User journey map | Mermaid |
-| Infrastructure topology | Network/deployment diagram | D2, PlantUML |
-| Decision process documentation | Decision tree / flowchart | Mermaid, D2 |
+| Communication Goal                     | Best Diagram Type           | Best Tool         |
+| -------------------------------------- | --------------------------- | ----------------- |
+| System component relationships         | Architecture / C4 diagram   | D2, Mermaid       |
+| Request/response flow between services | Sequence diagram            | Mermaid, PlantUML |
+| Process with decisions and branches    | Flowchart                   | Mermaid, D2       |
+| State transitions                      | State diagram               | Mermaid, PlantUML |
+| Data model relationships               | Entity-relationship diagram | Mermaid, PlantUML |
+| Class hierarchy and interfaces         | Class diagram               | Mermaid, PlantUML |
+| Project timeline and dependencies      | Gantt chart                 | Mermaid           |
+| User journey through a product         | User journey map            | Mermaid           |
+| Infrastructure topology                | Network/deployment diagram  | D2, PlantUML      |
+| Decision process documentation         | Decision tree / flowchart   | Mermaid, D2       |
 
 ### Tool Comparison
 
-| Feature | Mermaid | D2 | PlantUML |
-|---|---|---|---|
-| GitHub/GitLab rendering | Native | Via CI/plugin | Via plugin |
-| Markdown integration | Excellent | Good | Moderate |
-| Styling control | Moderate | Excellent | Good |
-| Layout engine | Dagre/Elk | ELK/Dagre | GraphViz/Dot |
-| Learning curve | Low | Low-Medium | Medium |
-| Container/grouping | Basic | Excellent | Good |
-| Icon support | Limited | Built-in | Extensive (sprites) |
-| Auto-layout quality | Good | Excellent | Good |
-| CI/CD rendering | mermaid-cli | d2 CLI | plantuml.jar |
+| Feature                 | Mermaid     | D2            | PlantUML            |
+| ----------------------- | ----------- | ------------- | ------------------- |
+| GitHub/GitLab rendering | Native      | Via CI/plugin | Via plugin          |
+| Markdown integration    | Excellent   | Good          | Moderate            |
+| Styling control         | Moderate    | Excellent     | Good                |
+| Layout engine           | Dagre/Elk   | ELK/Dagre     | GraphViz/Dot        |
+| Learning curve          | Low         | Low-Medium    | Medium              |
+| Container/grouping      | Basic       | Excellent     | Good                |
+| Icon support            | Limited     | Built-in      | Extensive (sprites) |
+| Auto-layout quality     | Good        | Excellent     | Good                |
+| CI/CD rendering         | mermaid-cli | d2 CLI        | plantuml.jar        |
 
 ## Mermaid Diagrams
 
@@ -307,15 +307,15 @@ PlantUML supports `package`, `node`, `database`, `queue`, `storage` shapes for c
 
 ### Color Coding Conventions
 
-| Layer/Concept | Suggested Color | Hex |
-|---|---|---|
-| Client / Frontend | Light blue | `#e8f4fd` |
-| API / Gateway | Light purple | `#f3e8ff` |
-| Services / Backend | Light green | `#e8f5e9` |
-| Data / Storage | Light amber | `#fff8e1` |
-| Messaging / Events | Light red | `#fde8e8` |
-| External / Third-party | Light gray | `#f3f4f6` |
-| Highlight / Focus | Light yellow | `#fef3c7` |
+| Layer/Concept          | Suggested Color | Hex       |
+| ---------------------- | --------------- | --------- |
+| Client / Frontend      | Light blue      | `#e8f4fd` |
+| API / Gateway          | Light purple    | `#f3e8ff` |
+| Services / Backend     | Light green     | `#e8f5e9` |
+| Data / Storage         | Light amber     | `#fff8e1` |
+| Messaging / Events     | Light red       | `#fde8e8` |
+| External / Third-party | Light gray      | `#f3f4f6` |
+| Highlight / Focus      | Light yellow    | `#fef3c7` |
 
 ### Naming Conventions
 
@@ -330,12 +330,14 @@ PlantUML supports `package`, `node`, `database`, `queue`, `storage` shapes for c
 
 ````markdown
 <!-- GitHub/GitLab native Mermaid rendering -->
+
 ```mermaid
 graph LR
     A[User] --> B[API] --> C[Database]
 ```
 
 <!-- Static image fallback for platforms without rendering -->
+
 ![Architecture Diagram](./diagrams/architecture.svg)
 ````
 
@@ -414,6 +416,7 @@ docs/
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing diagram architect solutions
 - Reviewing or improving existing diagram architect approaches
 - Making architectural or implementation decisions about diagram architect
@@ -421,6 +424,7 @@ docs/
 - Troubleshooting diagram architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -431,21 +435,26 @@ docs/
 # Diagram Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

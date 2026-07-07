@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning freelancing"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning freelancing'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Consulting Practice
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start or grow an independent consulting practice in any domain
 - The user needs help with niche positioning, proposal writing, SOW creation, or rate setting
 - The user wants guidance on client acquisition, retainer structures, or project management for consultants
 - The user needs strategies for scaling a consulting business or transitioning from employment to consulting
 
 **Do NOT use this skill when:**
+
 - The user is building a product-based business rather than a services practice (use startup-advisor or business-planner instead)
 - The user wants freelancing guidance for creative or technical work (use relevant career-development skill)
 - The user needs general solopreneur operations advice (use solopreneur-toolkit instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on consulting practice
 - User asks about consulting practice best practices or techniques
 - User wants a structured approach to consulting practice
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of consulting practice
 
@@ -68,6 +72,7 @@ Before providing guidance, establish the consultant's situation:
 ## Niche Positioning
 
 ### The Positioning Framework
+
 ```
 Your Niche = [Expertise] + [Industry] + [Problem] + [Client Size]
 
@@ -81,6 +86,7 @@ Your Niche = [Expertise] + [Industry] + [Problem] + [Client Size]
 ```
 
 ### Positioning Ladder (Narrow to Broad)
+
 ```
 Level 5 (Most Valuable): Known expert in specific outcome for specific industry
 Level 4: Known expert in a discipline for a specific industry
@@ -94,18 +100,19 @@ Specialization commands 2-5x the rates of generalists.
 
 ### Competitive Differentiation
 
-| Element           | Questions to Answer                              |
-|-------------------|--------------------------------------------------|
-| Methodology       | Do you have a proprietary process or framework?   |
-| Track Record      | What measurable results have you delivered?        |
-| Access            | Do you have relationships others don't?            |
-| Speed             | Can you deliver faster than alternatives?          |
-| IP                | Do you have tools, templates, or data others lack? |
-| Perspective       | Do you bring a contrarian or unique point of view? |
+| Element      | Questions to Answer                                |
+| ------------ | -------------------------------------------------- |
+| Methodology  | Do you have a proprietary process or framework?    |
+| Track Record | What measurable results have you delivered?        |
+| Access       | Do you have relationships others don't?            |
+| Speed        | Can you deliver faster than alternatives?          |
+| IP           | Do you have tools, templates, or data others lack? |
+| Perspective  | Do you bring a contrarian or unique point of view? |
 
 ## Proposal Writing
 
 ### Proposal Structure Template
+
 ```
 1. EXECUTIVE SUMMARY (1 page)
    - Restate the client's situation and challenge
@@ -150,6 +157,7 @@ Specialization commands 2-5x the rates of generalists.
 - Follow up within 3 business days if no response
 
 ## Statement of Work (SOW) Template
+
 ```
 STATEMENT OF WORK
 
@@ -229,6 +237,7 @@ Date: __________           Date: __________
 ## Rate Setting
 
 ### Pricing Models
+
 ```
 1. HOURLY RATE
    Best for: Ongoing advisory, variable scope, staff augmentation
@@ -260,6 +269,7 @@ Date: __________           Date: __________
 ```
 
 ### Rate Benchmarks by Experience
+
 ```
 | Level              | Hourly       | Day Rate      | Monthly Retainer |
 |--------------------|-------------|---------------|------------------|
@@ -283,6 +293,7 @@ Strategy consulting and technology consulting command premium rates.
 ## Client Acquisition
 
 ### The Acquisition Flywheel
+
 ```
 STAGE 1: AWARENESS (They know you exist)
   - Publish thought leadership (articles, LinkedIn posts, talks)
@@ -316,6 +327,7 @@ STAGE 5: RETENTION (They hire you again)
 ```
 
 ### Referral System
+
 ```
 Referral Sources (in order of effectiveness):
 1. Past clients (warm introduction to their peers)
@@ -336,6 +348,7 @@ Referral Process:
 ## Project Management
 
 ### Engagement Lifecycle
+
 ```
 1. DISCOVERY (Week 0)
    - Stakeholder interviews
@@ -376,6 +389,7 @@ Referral Process:
 ```
 
 ### Client Communication Cadence
+
 ```
 Weekly:
   - Status update email (3-5 bullet points max)
@@ -402,6 +416,7 @@ End of Phase:
 ## Deliverable Creation
 
 ### Deliverable Quality Checklist
+
 ```
 [ ] Addresses the question the client is actually asking
 [ ] Executive summary on page 1 (busy executives read this only)
@@ -428,6 +443,7 @@ End of Phase:
 ## Retainer Models
 
 ### Retainer Structure Options
+
 ```
 1. ACCESS RETAINER
    - Fixed monthly fee for availability
@@ -462,6 +478,7 @@ End of Phase:
 ## Scaling Your Practice
 
 ### Growth Options
+
 ```
 Path 1: PREMIUM SOLO
   Revenue: $200K-$500K
@@ -497,6 +514,7 @@ Path 4: PRODUCTIZED CONSULTING
 ## Financial Management
 
 ### Monthly Financial Dashboard
+
 ```
 REVENUE
   Project fees:              $________
@@ -542,7 +560,6 @@ TARGETS
 9. Skipping the discovery phase and jumping to solutions
 10. Failing to collect testimonials and case studies from successful engagements
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -555,13 +572,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with consulting practice for a mid-size project."
 
 **Output:** A complete consulting practice framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

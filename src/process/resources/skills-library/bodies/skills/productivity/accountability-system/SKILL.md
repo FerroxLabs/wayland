@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting planning template"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting planning template'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Personal Accountability System
@@ -210,6 +210,7 @@ metadata:
 **Primary failure mode:** skipping (goals fade from awareness after initial motivation wears off)
 **Response style:** Needs external reminders and structured check-ins (internal motivation fades within 2 weeks)
 **Selected mechanisms:**
+
 1. Self-reporting with structured weekly check-ins (addresses skipping)
 2. Consequence structure with pre-committed rewards and costs (addresses motivation decay after week 2)
 3. Environment design changes (makes goals visible and reduces friction)
@@ -226,10 +227,10 @@ metadata:
 
 **Progress Milestones:**
 
-| Mark | Date | "On Track" | "Behind" | "At Risk" | Consequence |
-|------|------|-----------|---------|-----------|-------------|
-| Week 2 | [date] | 7+ workouts total | 5-6 workouts total | Under 5 workouts | Behind: review and commit to 3 specific days next week |
-| Week 4 | [date] | 14+ workouts total | 10-13 workouts total | Under 10 workouts | On track: buy new workout gear item ($30 budget). At risk: donate $20 to a charity you feel neutral about |
+| Mark   | Date   | "On Track"         | "Behind"             | "At Risk"         | Consequence                                                                                                     |
+| ------ | ------ | ------------------ | -------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| Week 2 | [date] | 7+ workouts total  | 5-6 workouts total   | Under 5 workouts  | Behind: review and commit to 3 specific days next week                                                          |
+| Week 4 | [date] | 14+ workouts total | 10-13 workouts total | Under 10 workouts | On track: buy new workout gear item ($30 budget). At risk: donate $20 to a charity you feel neutral about       |
 | Week 8 | [date] | 28+ workouts total | 22-27 workouts total | Under 22 workouts | On track: book a massage or experience you have been wanting. At risk: forfeit a planned discretionary purchase |
 
 #### Goal 2: Read 2 books/month
@@ -240,10 +241,10 @@ metadata:
 
 **Progress Milestones:**
 
-| Mark | Date | "On Track" | "Behind" | "At Risk" | Consequence |
-|------|------|-----------|---------|-----------|-------------|
-| Month 1 end | [date] | 2 books complete | 1 book complete, 2nd started | Under 1 book | On track: buy next 2 books guilt-free. Behind: reading replaces phone time before bed for 2 weeks |
-| Month 2 end | [date] | 4 books total | 3 books total | Under 3 books | On track: dinner at a restaurant you have been wanting to try. At risk: no new book purchases until caught up |
+| Mark        | Date   | "On Track"       | "Behind"                     | "At Risk"     | Consequence                                                                                                   |
+| ----------- | ------ | ---------------- | ---------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------- |
+| Month 1 end | [date] | 2 books complete | 1 book complete, 2nd started | Under 1 book  | On track: buy next 2 books guilt-free. Behind: reading replaces phone time before bed for 2 weeks             |
+| Month 2 end | [date] | 4 books total    | 3 books total                | Under 3 books | On track: dinner at a restaurant you have been wanting to try. At risk: no new book purchases until caught up |
 
 ---
 
@@ -255,7 +256,8 @@ metadata:
 **Location:** At desk with tracker visible
 
 **Check-in questions:**
-1. How many workouts did I complete this week? ___/4. Which days? _______________
+
+1. How many workouts did I complete this week? **\_/4. Which days? ******\_********
 2. How many pages/chapters did I read this week? Am I on pace to finish the current book this month?
 3. What blocked me from completing any missed workouts or reading sessions?
 4. Am I on track, behind, or at risk for each goal? (Check the milestone table above)
@@ -269,41 +271,41 @@ metadata:
 
 #### Rewards (earned when milestones are met)
 
-| Milestone | Reward | Pre-committed? |
-|-----------|--------|---------------|
-| Exercise: 4 weeks on track | New workout gear item (up to $30) | Yes |
-| Exercise: 8 weeks on track | Book a massage or experience ($50) | Yes |
-| Reading: Month 1 on track | Buy next 2 books guilt-free | Yes |
-| Reading: Month 2 on track | Dinner at a restaurant of your choice | Yes |
+| Milestone                  | Reward                                | Pre-committed? |
+| -------------------------- | ------------------------------------- | -------------- |
+| Exercise: 4 weeks on track | New workout gear item (up to $30)     | Yes            |
+| Exercise: 8 weeks on track | Book a massage or experience ($50)    | Yes            |
+| Reading: Month 1 on track  | Buy next 2 books guilt-free           | Yes            |
+| Reading: Month 2 on track  | Dinner at a restaurant of your choice | Yes            |
 
 #### Costs (incurred when milestones are missed)
 
-| Milestone | Cost | Pre-committed? |
-|-----------|------|---------------|
-| Exercise: at risk at week 4 | Donate $20 to a cause you feel neutral about (not a charity you love) | Yes |
-| Exercise: at risk at week 8 | Forfeit one planned discretionary purchase | Yes |
-| Reading: behind at month 1 | Replace phone screen time with reading for 2 weeks (set phone to grayscale after 8 PM) | Yes |
-| Reading: at risk at month 2 | No new book purchases until caught up | Yes |
+| Milestone                   | Cost                                                                                   | Pre-committed? |
+| --------------------------- | -------------------------------------------------------------------------------------- | -------------- |
+| Exercise: at risk at week 4 | Donate $20 to a cause you feel neutral about (not a charity you love)                  | Yes            |
+| Exercise: at risk at week 8 | Forfeit one planned discretionary purchase                                             | Yes            |
+| Reading: behind at month 1  | Replace phone screen time with reading for 2 weeks (set phone to grayscale after 8 PM) | Yes            |
+| Reading: at risk at month 2 | No new book purchases until caught up                                                  | Yes            |
 
 ---
 
 ### Environment Design Changes (Implement This Week)
 
-| Change | Goal | Action |
-|--------|------|--------|
-| Exercise visibility | Exercise | Write your 3 workout days on a sticky note on your bathroom mirror. Move workout clothes next to your bed (night before) |
-| Reading accessibility | Reading | Place current book on pillow. Remove phone charger from bedroom (charge in another room) |
-| Check-in reminder | Both | Set a recurring Sunday 7 PM alarm labeled "ACCOUNTABILITY CHECK-IN -- 10 min" |
-| Progress visibility | Both | Print the milestone table and tape it next to your desk where you see it daily |
+| Change                | Goal     | Action                                                                                                                   |
+| --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Exercise visibility   | Exercise | Write your 3 workout days on a sticky note on your bathroom mirror. Move workout clothes next to your bed (night before) |
+| Reading accessibility | Reading  | Place current book on pillow. Remove phone charger from bedroom (charge in another room)                                 |
+| Check-in reminder     | Both     | Set a recurring Sunday 7 PM alarm labeled "ACCOUNTABILITY CHECK-IN -- 10 min"                                            |
+| Progress visibility   | Both     | Print the milestone table and tape it next to your desk where you see it daily                                           |
 
 ---
 
 ### Accountability Dashboard
 
-| Goal | Status | Next Check-in | Next Milestone | Escalation Count |
-|------|--------|--------------|----------------|------------------|
-| Exercise 4x/week | Not started | [Sunday date] | Week 2 check (7+ workouts) | 0 |
-| Read 2 books/month | Not started | [Sunday date] | Month 1 end (2 books) | 0 |
+| Goal               | Status      | Next Check-in | Next Milestone             | Escalation Count |
+| ------------------ | ----------- | ------------- | -------------------------- | ---------------- |
+| Exercise 4x/week   | Not started | [Sunday date] | Week 2 check (7+ workouts) | 0                |
+| Read 2 books/month | Not started | [Sunday date] | Month 1 end (2 books)      | 0                |
 
 ---
 
@@ -317,4 +319,4 @@ metadata:
 - [ ] Are consequences motivating? Too easy? Too harsh?
 - [ ] Have escalation triggers been hit? What action was taken?
 - [ ] Any goals to add, modify, or remove?
-- [ ] Adjustments for next month: _________________
+- [ ] Adjustments for next month: ********\_********

@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "business-planner market-researcher pricing-strategist brand-strategist social-media-strategist budget-builder"
+skills: 'business-planner market-researcher pricing-strategist brand-strategist social-media-strategist budget-builder'
 trigger_phrases: >-
   I want to start a business help me launch a company new business checklist how
   to start a small business entrepreneur guide business launch plan
@@ -22,8 +22,9 @@ metadata:
   version: 1.0.0
   tags: entrepreneurship planning marketing personal-finance step-by-step
   category: business-operations
-  depends: "business-planner market-researcher pricing-strategist brand-strategist social-media-strategist budget-builder"
+  depends: 'business-planner market-researcher pricing-strategist brand-strategist social-media-strategist budget-builder'
 ---
+
 # Start A Business
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -172,6 +173,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-image-generation design template"
-  category: "design-creative"
-  subcategory: "ai-image-generation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-image-generation design template'
+  category: 'design-creative'
+  subcategory: 'ai-image-generation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Prompt Translation
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user provides an explicit prompt and asks to convert it from one AI image model to another (e.g., "convert this Midjourney prompt to Stable Diffusion")
 - The user has a working prompt in one model and wants to achieve the same visual result using a different model they have access to
 - The user asks how specific syntax elements from one model would be expressed in another model's format
@@ -29,6 +31,7 @@ metadata:
 - The user asks what the equivalent of a specific parameter or technique is in another model
 
 **Do NOT use when:**
+
 - The user wants to create a new prompt from scratch -- use a model-specific prompting skill instead
 - The user has a prompt that is not producing good results in its native model -- use `ai-image-prompt-debugging` first, then translate once the source prompt is working
 - The user wants to reproduce a specific visual style or artist aesthetic across models -- use `ai-image-style-transfer` which handles style analysis separately from syntax translation
@@ -58,6 +61,7 @@ If the source model is ambiguous, look for syntax clues: double colons `::` and 
 Decompose the source prompt systematically. Do not begin translation until every component is catalogued.
 
 **For Midjourney prompts, extract:**
+
 - Primary subject and action (what is shown and what is happening)
 - Setting and environment (location, time of day, weather, spatial context)
 - Style directives (artistic medium, genre, era, aesthetic references like "blade runner atmosphere")
@@ -69,6 +73,7 @@ Decompose the source prompt systematically. Do not begin translation until every
 - Exclusions from `--no`: treat each comma-separated term as a distinct exclusion
 
 **For Stable Diffusion prompts, extract:**
+
 - Positive prompt: separate quality booster tokens from content tokens. Quality boosters are terms like `masterpiece, best quality, 8k, ultra detailed` that have no meaning in other models
 - Negative prompt: all tokens, noting which are quality-related (e.g., `worst quality, lowres`) vs. content-based (e.g., `cars, text`)
 - Parenthetical weights: `(term:1.4)` -- note the term and the weight value separately
@@ -79,6 +84,7 @@ Decompose the source prompt systematically. Do not begin translation until every
 - VAE specification if present: `vae:filename`
 
 **For DALL-E prompts, extract:**
+
 - The complete natural-language description as discrete conceptual units
 - Embedded exclusions phrased as negations ("without any text", "not photorealistic")
 - Style and medium references phrased as sentences
@@ -86,6 +92,7 @@ Decompose the source prompt systematically. Do not begin translation until every
 - Size/format selection if specified in the API call (1024x1024, 1792x1024, 1024x1792)
 
 **For Flux prompts, extract:**
+
 - Flux responds best to natural-language descriptions closer to DALL-E than SD
 - Flux does not use quality booster tokens -- these are counterproductive
 - Note any LoRA references in Flux format (`<lora:name:weight>` in some implementations)
@@ -96,6 +103,7 @@ Decompose the source prompt systematically. Do not begin translation until every
 Before writing the translation, classify every extracted component into one of three transfer classes:
 
 **Direct Transfer** -- The concept translates 1:1 with minimal change to wording:
+
 - Subject description, named objects, people, animals -- these work the same across all models
 - Setting descriptions with standard vocabulary
 - Basic color references
@@ -103,6 +111,7 @@ Before writing the translation, classify every extracted component into one of t
 - Film references used as atmospheric shorthand (Blade Runner, Wes Anderson palette)
 
 **Adapted Transfer** -- The concept must be expressed differently but the result should be close:
+
 - Quality and detail level (each model has its own vocabulary for this)
 - Aspect ratio (each model uses a different format)
 - Stylization level (MJ's `--s` parameter, SD's CFG scale, DALL-E's adjectives all control a similar continuum)
@@ -110,6 +119,7 @@ Before writing the translation, classify every extracted component into one of t
 - Camera and technical photography terms (mostly direct, but some terms work better in some models)
 
 **Approximate Transfer** -- No clean equivalent exists; the best-effort attempt will produce a related but different result:
+
 - `--cref` (MJ character reference) -- no equivalent in DALL-E; SD approximates with IP-Adapter or ControlNet reference mode
 - `--sref` (MJ style reference) -- no equivalent in DALL-E; SD approximates with style LoRA or img2img
 - LoRA references (SD) -- no equivalent in MJ or DALL-E; must describe the visual effect in text
@@ -118,6 +128,7 @@ Before writing the translation, classify every extracted component into one of t
 - DALL-E's text-in-image rendering -- far superior to SD/MJ; cannot be matched
 
 **Non-Transferable** -- Feature is model-exclusive with no meaningful equivalent:
+
 - MJ `--tile` (seamless tile generation) -- DALL-E has no equivalent; SD handles this with tiling settings outside the prompt
 - SD LoRA activation keywords for very specific fine-tuned models -- no conceptual equivalent; must describe the visual output
 - DALL-E's safety revision transparency -- a DALL-E behavioral feature, not a prompt feature
@@ -129,94 +140,94 @@ Use these translation rules for each model pair:
 
 **Midjourney -> Stable Diffusion:**
 
-| MJ Element | SD Translation | Notes |
-|---|---|---|
-| Descriptive text | Keep core tags, remove connective prose | "a woman standing in a forest" becomes "woman, forest, standing" |
-| `--ar 16:9` | Resolution 1344x768 (SDXL) or 768x432 (SD1.5) | SD uses pixel dimensions, not ratios |
-| `--ar 2:3` | Resolution 832x1216 (SDXL) or 512x768 (SD1.5) | Stay close to native training resolutions |
-| `--ar 1:1` | Resolution 1024x1024 (SDXL) or 512x512 (SD1.5) | SD1.5 native resolution is 512x512 |
-| `--ar 4:3` | Resolution 1152x896 (SDXL) | |
-| `--ar 3:2` | Resolution 1216x832 (SDXL) | |
-| `--v 6.1` | SDXL 1.0 checkpoint | Most comparable output quality |
-| `--v 5.2` | SDXL 1.0 or Juggernaut XL | |
-| `--style raw` | Lower CFG (5.0-6.5), avoid quality boosters | raw mode suppresses MJ's aesthetic processing |
-| `--s 0-100` | CFG 5-6 | Low stylize = more literal = lower CFG |
-| `--s 100-300` | CFG 7 | Moderate stylize = balanced |
-| `--s 300-1000` | CFG 8-10 | High stylize = more model influence = higher CFG |
-| `--q 0.5` | Steps 15-20 | Low quality setting |
-| `--q 1` | Steps 25-30 | Standard quality |
-| `--q 2` | Steps 35-50 | High quality (diminishing returns above 50) |
-| `--chaos N` | Vary seed; no direct parameter | Suggest generating 4+ variants |
-| `--no [terms]` | Negative prompt: [terms] + standard quality negatives | Always add standard SD quality negatives |
-| `--seed N` | Seed field: N | Direct transfer |
-| `--cref [url]` | IP-Adapter or ControlNet reference | Non-prompt method; note for user |
-| `--sref [url]` | Style LoRA or img2img with reference | Non-prompt method; note for user |
-| MJ quality (implicit) | Add: masterpiece, best quality, highly detailed | SD requires explicit quality tokens |
-| `subject::2 bg::1` | `(subject:1.4), background` | Convert MJ weight to SD emphasis weight |
+| MJ Element            | SD Translation                                        | Notes                                                            |
+| --------------------- | ----------------------------------------------------- | ---------------------------------------------------------------- |
+| Descriptive text      | Keep core tags, remove connective prose               | "a woman standing in a forest" becomes "woman, forest, standing" |
+| `--ar 16:9`           | Resolution 1344x768 (SDXL) or 768x432 (SD1.5)         | SD uses pixel dimensions, not ratios                             |
+| `--ar 2:3`            | Resolution 832x1216 (SDXL) or 512x768 (SD1.5)         | Stay close to native training resolutions                        |
+| `--ar 1:1`            | Resolution 1024x1024 (SDXL) or 512x512 (SD1.5)        | SD1.5 native resolution is 512x512                               |
+| `--ar 4:3`            | Resolution 1152x896 (SDXL)                            |                                                                  |
+| `--ar 3:2`            | Resolution 1216x832 (SDXL)                            |                                                                  |
+| `--v 6.1`             | SDXL 1.0 checkpoint                                   | Most comparable output quality                                   |
+| `--v 5.2`             | SDXL 1.0 or Juggernaut XL                             |                                                                  |
+| `--style raw`         | Lower CFG (5.0-6.5), avoid quality boosters           | raw mode suppresses MJ's aesthetic processing                    |
+| `--s 0-100`           | CFG 5-6                                               | Low stylize = more literal = lower CFG                           |
+| `--s 100-300`         | CFG 7                                                 | Moderate stylize = balanced                                      |
+| `--s 300-1000`        | CFG 8-10                                              | High stylize = more model influence = higher CFG                 |
+| `--q 0.5`             | Steps 15-20                                           | Low quality setting                                              |
+| `--q 1`               | Steps 25-30                                           | Standard quality                                                 |
+| `--q 2`               | Steps 35-50                                           | High quality (diminishing returns above 50)                      |
+| `--chaos N`           | Vary seed; no direct parameter                        | Suggest generating 4+ variants                                   |
+| `--no [terms]`        | Negative prompt: [terms] + standard quality negatives | Always add standard SD quality negatives                         |
+| `--seed N`            | Seed field: N                                         | Direct transfer                                                  |
+| `--cref [url]`        | IP-Adapter or ControlNet reference                    | Non-prompt method; note for user                                 |
+| `--sref [url]`        | Style LoRA or img2img with reference                  | Non-prompt method; note for user                                 |
+| MJ quality (implicit) | Add: masterpiece, best quality, highly detailed       | SD requires explicit quality tokens                              |
+| `subject::2 bg::1`    | `(subject:1.4), background`                           | Convert MJ weight to SD emphasis weight                          |
 
 **Midjourney -> DALL-E 3:**
 
-| MJ Element | DALL-E Translation | Notes |
-|---|---|---|
-| Tag-based text | Expand to natural language sentences | DALL-E 3 uses GPT-4 preprocessing |
-| `--ar 16:9` | Size: 1792x1024 | Only three sizes available |
-| `--ar 9:16` | Size: 1024x1792 | |
-| `--ar 1:1` | Size: 1024x1024 | |
-| All other aspect ratios | Closest available size + describe framing | DALL-E has no custom resolution |
-| `--no [terms]` | "without [terms]" or "avoid [terms]" | Embed in sentence structure |
-| `--style raw` | "realistic interpretation, without artistic embellishment" | |
-| `--s` values | Adjectives: "realistic" (low) or "highly stylized, artistic" (high) | No numeric equivalent |
-| `--cref`, `--sref` | Describe the reference visually in 1-2 sentences | No equivalent feature |
-| Quality boosters | Not needed; DALL-E 3 applies quality by default | Adding quality tokens is unnecessary |
-| `subject::2 bg::1` | Lead sentence with subject, secondary clause for background | Sentence structure conveys emphasis |
-| Camera terms | Keep -- DALL-E understands "shot on 85mm f/1.4, shallow depth of field" | Usually direct transfer |
+| MJ Element              | DALL-E Translation                                                      | Notes                                |
+| ----------------------- | ----------------------------------------------------------------------- | ------------------------------------ |
+| Tag-based text          | Expand to natural language sentences                                    | DALL-E 3 uses GPT-4 preprocessing    |
+| `--ar 16:9`             | Size: 1792x1024                                                         | Only three sizes available           |
+| `--ar 9:16`             | Size: 1024x1792                                                         |                                      |
+| `--ar 1:1`              | Size: 1024x1024                                                         |                                      |
+| All other aspect ratios | Closest available size + describe framing                               | DALL-E has no custom resolution      |
+| `--no [terms]`          | "without [terms]" or "avoid [terms]"                                    | Embed in sentence structure          |
+| `--style raw`           | "realistic interpretation, without artistic embellishment"              |                                      |
+| `--s` values            | Adjectives: "realistic" (low) or "highly stylized, artistic" (high)     | No numeric equivalent                |
+| `--cref`, `--sref`      | Describe the reference visually in 1-2 sentences                        | No equivalent feature                |
+| Quality boosters        | Not needed; DALL-E 3 applies quality by default                         | Adding quality tokens is unnecessary |
+| `subject::2 bg::1`      | Lead sentence with subject, secondary clause for background             | Sentence structure conveys emphasis  |
+| Camera terms            | Keep -- DALL-E understands "shot on 85mm f/1.4, shallow depth of field" | Usually direct transfer              |
 
 **Stable Diffusion -> Midjourney:**
 
-| SD Element | MJ Translation | Notes |
-|---|---|---|
-| Quality boosters (masterpiece, best quality) | Drop entirely | MJ applies quality automatically |
-| `(term:1.2)` | term (first mention, or repeat for emphasis) | MJ has no inline weighting |
-| `(term:1.5)` | `term::2` multi-prompt or describe more specifically | High weights need special handling |
-| `[term]` (de-emphasis) | Move to `--no` or remove | MJ has limited de-emphasis |
-| Negative prompt (quality) | Drop quality negatives entirely | MJ doesn't use quality negatives |
-| Negative prompt (content) | `--no [content terms]` | Direct transfer |
-| CFG 5-6 | `--style raw --s 50-100` | |
-| CFG 7-8 | `--s 150-250` | |
-| CFG 9-10 | `--s 400-600` | |
-| Steps 20-25 | `--q 0.5` | |
-| Steps 30-40 | (default, no param needed) | |
-| Steps 50+ | `--q 2` | |
-| BREAK token | Separate into multi-prompt segments with `::` | Approximate |
-| LoRA visual effect | Describe the aesthetic in text terms | Must translate what the LoRA does visually |
-| Resolution 1344x768 | `--ar 16:9` | |
-| Resolution 1216x832 | `--ar 3:2` | |
-| Resolution 832x1216 | `--ar 2:3` | |
-| Resolution 1024x1024 | `--ar 1:1` | |
+| SD Element                                   | MJ Translation                                       | Notes                                      |
+| -------------------------------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| Quality boosters (masterpiece, best quality) | Drop entirely                                        | MJ applies quality automatically           |
+| `(term:1.2)`                                 | term (first mention, or repeat for emphasis)         | MJ has no inline weighting                 |
+| `(term:1.5)`                                 | `term::2` multi-prompt or describe more specifically | High weights need special handling         |
+| `[term]` (de-emphasis)                       | Move to `--no` or remove                             | MJ has limited de-emphasis                 |
+| Negative prompt (quality)                    | Drop quality negatives entirely                      | MJ doesn't use quality negatives           |
+| Negative prompt (content)                    | `--no [content terms]`                               | Direct transfer                            |
+| CFG 5-6                                      | `--style raw --s 50-100`                             |                                            |
+| CFG 7-8                                      | `--s 150-250`                                        |                                            |
+| CFG 9-10                                     | `--s 400-600`                                        |                                            |
+| Steps 20-25                                  | `--q 0.5`                                            |                                            |
+| Steps 30-40                                  | (default, no param needed)                           |                                            |
+| Steps 50+                                    | `--q 2`                                              |                                            |
+| BREAK token                                  | Separate into multi-prompt segments with `::`        | Approximate                                |
+| LoRA visual effect                           | Describe the aesthetic in text terms                 | Must translate what the LoRA does visually |
+| Resolution 1344x768                          | `--ar 16:9`                                          |                                            |
+| Resolution 1216x832                          | `--ar 3:2`                                           |                                            |
+| Resolution 832x1216                          | `--ar 2:3`                                           |                                            |
+| Resolution 1024x1024                         | `--ar 1:1`                                           |                                            |
 
 **Stable Diffusion -> DALL-E 3:**
 
-| SD Element | DALL-E Translation | Notes |
-|---|---|---|
-| Tag list | Expand each tag cluster into a sentence | Group related tags into coherent phrases |
-| Quality boosters | Drop all | DALL-E 3 does not respond to booster tokens |
-| Parenthetical weights | Translate to adjective emphasis in prose | `(cinematic lighting:1.4)` -> "dramatically cinematic lighting" |
-| Negative prompt | Embed exclusions naturally | "without low quality, without blurriness" |
-| LoRA reference | Describe the visual effect in a sentence | |
-| CFG/Steps/Sampler | No equivalent; these are runner settings | Note that DALL-E has no settable inference parameters |
-| BREAK token | Use paragraph or sentence breaks for emphasis | |
+| SD Element            | DALL-E Translation                            | Notes                                                           |
+| --------------------- | --------------------------------------------- | --------------------------------------------------------------- |
+| Tag list              | Expand each tag cluster into a sentence       | Group related tags into coherent phrases                        |
+| Quality boosters      | Drop all                                      | DALL-E 3 does not respond to booster tokens                     |
+| Parenthetical weights | Translate to adjective emphasis in prose      | `(cinematic lighting:1.4)` -> "dramatically cinematic lighting" |
+| Negative prompt       | Embed exclusions naturally                    | "without low quality, without blurriness"                       |
+| LoRA reference        | Describe the visual effect in a sentence      |                                                                 |
+| CFG/Steps/Sampler     | No equivalent; these are runner settings      | Note that DALL-E has no settable inference parameters           |
+| BREAK token           | Use paragraph or sentence breaks for emphasis |                                                                 |
 
 **DALL-E -> Midjourney:**
 
-| DALL-E Element | MJ Translation | Notes |
-|---|---|---|
-| Full sentences | Extract key noun-adjective pairs as comma-separated tags | Preserve most important 8-12 descriptors |
-| Embedded exclusions | `--no [extracted terms]` | Extract negative phrases |
-| "realistic" descriptions | Camera terms + `--style raw` | Photography language translates well |
-| "without text/watermarks" | `--no text, watermark, signature` | |
-| Size 1792x1024 | `--ar 16:9` | |
-| Size 1024x1792 | `--ar 9:16` | |
-| Size 1024x1024 | `--ar 1:1` | |
+| DALL-E Element            | MJ Translation                                           | Notes                                    |
+| ------------------------- | -------------------------------------------------------- | ---------------------------------------- |
+| Full sentences            | Extract key noun-adjective pairs as comma-separated tags | Preserve most important 8-12 descriptors |
+| Embedded exclusions       | `--no [extracted terms]`                                 | Extract negative phrases                 |
+| "realistic" descriptions  | Camera terms + `--style raw`                             | Photography language translates well     |
+| "without text/watermarks" | `--no text, watermark, signature`                        |                                          |
+| Size 1792x1024            | `--ar 16:9`                                              |                                          |
+| Size 1024x1792            | `--ar 9:16`                                              |                                          |
+| Size 1024x1024            | `--ar 1:1`                                               |                                          |
 
 ### Step 5: Handle Quality Booster Translation
 
@@ -230,6 +241,7 @@ Quality boosters require special attention because they are model-specific and c
 
 **MJ implicit quality that MUST be made explicit for SD:**
 MJ v6.1 applies significant quality processing by default. When translating to SD, the following additions to the positive prompt compensate:
+
 - Photorealistic target: add `photograph, (photorealistic:1.2), DSLR, film grain`
 - Cinematic target: add `masterpiece, best quality, cinematic, highly detailed, sharp focus`
 - Artistic/illustrated: add `masterpiece, best quality, professional artwork, detailed illustration`
@@ -251,6 +263,7 @@ When the target model is any Stable Diffusion variant, always produce a complete
 **Append source-specific exclusions** (from MJ `--no` or DALL-E embedded exclusions) after the baseline.
 
 **Style-specific negative additions:**
+
 - Photorealistic subjects: also add `cartoon, anime, illustration, painting, sketch, 3d render, cgi`
 - Anime/illustration: also add `photograph, realistic skin, 3d, photorealistic`
 - Portraits: also add `(extra hands:1.2), (extra arms:1.2), (clone:1.2), (duplicate:1.2)`
@@ -374,17 +387,21 @@ Settings: [list all source model settings]
 ## Edge Cases
 
 ### Very Short Source Prompts (Under 15 Words)
+
 Short prompts behave very differently across models. Midjourney v6.1 responds well to terse, evocative prompts because it applies extensive default processing. "misty mountain temple at dawn" produces a beautiful, detailed MJ image. In SD, this prompt produces a flat, underdetailed result because SD requires explicit specification. When translating a short MJ prompt to SD: expand to at least 30-40 tokens by inferring appropriate style (realistic/painterly/cinematic based on subject matter), adding compositional detail (foreground, middle ground, background elements implied by the setting), quality boosters, and lighting specifics. When translating to DALL-E: expand to 2-3 descriptive sentences that specify mood, light, perspective, and atmosphere. Tell the user you are expanding the prompt and why.
 
 ### Multi-Prompt Syntax (MJ `::` Weights)
+
 Midjourney's double-colon multi-prompt system splits the prompt into weighted segments that are processed semi-independently. `"golden samurai warrior::3 cherry blossom storm::2 dark void::0.5"` gives the warrior three times the compositional weight of the cherry blossoms and keeps the void minimal.
 
-**Translating to SD:** Use parenthetical weight emphasis. The conversion formula is: MJ weight / max weight * 1.4 = SD weight. For the example: warrior gets `(golden samurai warrior:1.4)`, cherry blossoms get `(cherry blossom storm:1.0)`, and the void becomes `(dark void:0.5)` or moves to the negative prompt if weight is very low. SDXL interprets emphasis weights between 0.8 and 1.5 reliably; values outside this range produce artifacts.
+**Translating to SD:** Use parenthetical weight emphasis. The conversion formula is: MJ weight / max weight \* 1.4 = SD weight. For the example: warrior gets `(golden samurai warrior:1.4)`, cherry blossoms get `(cherry blossom storm:1.0)`, and the void becomes `(dark void:0.5)` or moves to the negative prompt if weight is very low. SDXL interprets emphasis weights between 0.8 and 1.5 reliably; values outside this range produce artifacts.
 
 **Translating to DALL-E:** Express the weight hierarchy through sentence structure and explicit language. Lead with the highest-weight element, use "dominated by" or "with secondary" framing: "A golden samurai warrior is the central focus, surrounded by a swirling storm of cherry blossoms, with dark void barely visible at the edges of the frame."
 
 ### LoRA References in SD Source Prompts
+
 When a SD source prompt contains `<lora:filename:weight>` references, never simply drop them. Always:
+
 1. Identify what the LoRA likely achieves visually (anime style, specific artist style, specific character, lighting technique, lens flare effect)
 2. Describe that visual effect in text for the target model
 3. Note in the Non-Transferable Elements table that the exact effect cannot be replicated without the LoRA
@@ -394,7 +411,9 @@ When a SD source prompt contains `<lora:filename:weight>` references, never simp
 For example: `<lora:vanGogh_painting:0.8>` translates to "in the style of Vincent van Gogh, post-impressionist painting, impasto brushwork, swirling skies" in MJ and DALL-E. This is a reasonable approximation because van Gogh's style is well-represented in these models' training data. A custom trained LoRA for an original character has no equivalent and should be flagged as non-transferable with High impact.
 
 ### DALL-E 3 Prompt Revision Behavior
+
 DALL-E 3 uses a GPT-4 preprocessing step that automatically revises the user's prompt before image generation. This means the actual prompt used internally may differ significantly from what the user submitted. When creating a DALL-E 3 translation:
+
 - Write the prompt for the GPT-4 preprocessor, not just for image generation. This means natural, clear, unambiguous language works better than compressed technical description.
 - Avoid conflicting instructions -- the preprocessor will arbitrate them in unpredictable ways.
 - Avoid overly long prompts (over 400 characters) -- the preprocessor may summarize and lose details.
@@ -402,16 +421,20 @@ DALL-E 3 uses a GPT-4 preprocessing step that automatically revises the user's p
 - For the `natural` vs `vivid` style parameter in the API: `vivid` produces more hyper-real, dramatic images; `natural` produces more subdued, realistic images. This partially corresponds to MJ's `--style raw` (use `natural`) vs default MJ aesthetic (use `vivid`).
 
 ### Translating Between Models for Same Photorealistic Subject
+
 Photorealistic human portraiture behaves very differently across models:
+
 - **MJ v6.1** produces polished, idealized faces by default. Very difficult to produce gritty or natural-looking portraits without `--style raw` and specific camera terms.
 - **DALL-E 3** produces safe, somewhat generalized faces. Struggles with extreme age, extreme emotion, very specific ethnic features.
 - **SD SDXL** with a portrait-fine-tuned checkpoint (Juggernaut XL, RealVisXL, DreamShaper XL) produces the most control and photorealism. But base SDXL struggles with faces.
-When translating a photorealistic portrait across models, explicitly note which checkpoint or model variant is recommended for SD, because this significantly affects whether the translation will succeed. Base SDXL 1.0 is not the right target for photorealistic portraits. Always recommend a tested checkpoint variant (Juggernaut XL v9, RealVisXL V4, or similar) and include face-specific positive/negative prompt tokens (`close-up portrait, detailed eyes, realistic skin texture` positive; `(extra eyes:1.3), doll, plastic skin, oversmoothed` negative).
+  When translating a photorealistic portrait across models, explicitly note which checkpoint or model variant is recommended for SD, because this significantly affects whether the translation will succeed. Base SDXL 1.0 is not the right target for photorealistic portraits. Always recommend a tested checkpoint variant (Juggernaut XL v9, RealVisXL V4, or similar) and include face-specific positive/negative prompt tokens (`close-up portrait, detailed eyes, realistic skin texture` positive; `(extra eyes:1.3), doll, plastic skin, oversmoothed` negative).
 
 ### Source Prompt Uses Non-Standard Aspect Ratios
+
 MJ supports arbitrary aspect ratios like `--ar 7:4`, `--ar 21:9`, `--ar 9:2`. SD does not support arbitrary aspect ratios at the native resolution level -- deviating from the recommended SDXL resolutions causes quality degradation.
 
 **Resolution selection logic for non-standard ratios targeting SDXL:**
+
 - Calculate the decimal ratio (width/height) of the source
 - Find the nearest SDXL recommended resolution: 1536x640 (2.4:1), 1344x768 (1.75:1), 1216x832 (1.46:1), 1152x896 (1.29:1), 1024x1024 (1:1), 896x1152 (0.78:1), 832x1216 (0.68:1), 768x1344 (0.57:1), 640x1536 (0.42:1)
 - Use that resolution and note the rounding
@@ -419,9 +442,11 @@ MJ supports arbitrary aspect ratios like `--ar 7:4`, `--ar 21:9`, `--ar 9:2`. SD
 **For DALL-E 3** with non-standard ratios: only three sizes exist (1024x1024, 1792x1024, 1024x1792). Suggest the closest match and note that significant cropping or compositional adjustment will occur at the edges.
 
 ### Translating Anime/Illustration Style Prompts
+
 Anime-style SD prompts use Danbooru tagging conventions (`1girl, solo, long hair, looking at viewer, school uniform`) that are completely foreign to MJ and DALL-E. When translating:
 
 **SD anime -> MJ:**
+
 - Replace Danbooru tags with descriptive English: `1girl, solo` becomes "a young woman, solo portrait"
 - Drop count tags (`1girl`, `2boys`) and use descriptive phrasing
 - Add anime-specific style terms that MJ understands: "anime art style", "Studio Ghibli aesthetic", or specific artist names if the style warrants it
@@ -429,6 +454,7 @@ Anime-style SD prompts use Danbooru tagging conventions (`1girl, solo, long hair
 - Add `--niji 6` parameter if the user wants anime-specific output (MJ's niji model is purpose-built for anime)
 
 **SD anime -> DALL-E:**
+
 - Write as natural description with explicit anime medium declaration: "Anime-style illustration of..."
 - DALL-E 3 has reasonable anime output but will not match SD's fine-tuned anime models
 
@@ -443,6 +469,7 @@ Anime-style SD prompts use Danbooru tagging conventions (`1girl, solo, long hair
 ## Prompt Translation: Midjourney v6.1 -> Stable Diffusion SDXL (Juggernaut XL v9)
 
 ### Source Prompt (Midjourney v6.1)
+
 ```
 a solitary lighthouse keeper watching an approaching storm, dramatic storm clouds, turbulent dark ocean, lighthouse beam cutting through fog, volumetric light, coastal rocks in foreground, painterly realism, Andrew Wyeth influenced --ar 3:2 --v 6.1 --s 250 --no cartoon, text, people --q 2
 ```
@@ -454,16 +481,19 @@ Settings: v6.1 | Aspect 3:2 | Stylize 250 (moderate-high) | Quality 2 | Exclusio
 ### Translated Prompt (Stable Diffusion SDXL -- Juggernaut XL v9)
 
 **Positive Prompt:**
+
 ```
 masterpiece, best quality, highly detailed, a solitary lighthouse keeper standing on coastal rocks watching an approaching storm, dramatic storm clouds roiling overhead, turbulent dark churning ocean waves, lighthouse beam cutting through thick fog, volumetric god rays through storm mist, rugged coastal rocks in sharp foreground, painterly realism, Andrew Wyeth painting style, tempera paint texture, muted earth tones, grey-green palette, desaturated coastal atmosphere, cinematic composition, lone figure silhouette, desolate melancholy mood, oil painting texture, natural lighting, dramatic chiaroscuro, detailed weathered rock textures, angry sea foam, 8k uhd
 ```
 
 **Negative Prompt:**
+
 ```
 cartoon, anime, illustration style, text, watermark, signature, logo, people (besides keeper), crowds, sunny weather, cheerful, bright colors, smooth digital art, 3d render, cgi, (worst quality:1.4), (low quality:1.4), (normal quality:1.2), lowres, jpeg artifacts, blurry, overexposed, flat lighting, extra limbs, deformed hands, bad anatomy, plastic skin
 ```
 
 **Recommended Settings:**
+
 - Model: Juggernaut XL v9
 - Sampler: DPM++ 2M Karras
 - Steps: 40
@@ -476,33 +506,33 @@ cartoon, anime, illustration style, text, watermark, signature, logo, people (be
 
 ### Translation Map
 
-| Component | Source (MJ) | Target (SD) | Transfer Class | Notes |
-|---|---|---|---|---|
-| Subject | solitary lighthouse keeper watching storm | solitary lighthouse keeper standing on coastal rocks watching storm | Direct | Added "standing on coastal rocks" to anchor figure spatially |
-| Setting -- sky | dramatic storm clouds | dramatic storm clouds roiling overhead | Direct | Added "roiling overhead" to reinforce vertical composition |
-| Setting -- sea | turbulent dark ocean | turbulent dark churning ocean waves, angry sea foam | Direct | Extended for SD specificity |
-| Lighting feature | lighthouse beam cutting through fog | lighthouse beam cutting through thick fog, volumetric god rays through storm mist | Direct | "God rays" is strong SD vocabulary for volumetric light |
-| Foreground | coastal rocks in foreground | rugged coastal rocks in sharp foreground | Direct | "Sharp" added to reinforce foreground focus |
-| Style | painterly realism | painterly realism, tempera paint texture, muted earth tones, oil painting texture | Adapted | MJ interprets style references; SD needs explicit texture vocabulary |
-| Style reference | Andrew Wyeth influenced | Andrew Wyeth painting style, tempera paint texture, muted earth tones, grey-green palette | Adapted | Wyeth is in SDXL training data; added visual descriptors of Wyeth's signature style as reinforcement |
-| Mood | (implicit in subject) | desolate melancholy mood, lone figure silhouette, desaturated coastal atmosphere | Adapted | Made implicit mood explicit for SD |
-| Aspect ratio | --ar 3:2 | Resolution: 1216x832 | Direct | Exact SDXL native 3:2 resolution |
-| Quality | --q 2 (high quality) | Steps: 40, masterpiece, best quality, 8k uhd | Adapted | --q 2 in MJ ~= 40+ steps + quality tokens in SD |
-| Stylization | --s 250 (moderate-high) | CFG 7.5 | Approximate | --s 250 is moderate-high; CFG 7.5 gives model meaningful influence while staying prompt-adherent |
-| Exclusion: cartoon | --no cartoon | Negative: cartoon, anime, illustration style | Direct | Expanded to cover related styles |
-| Exclusion: text | --no text | Negative: text, watermark, signature, logo | Direct | |
-| Exclusion: people | --no people | Negative: people (besides keeper), crowds | Adapted | Clarified intent -- exclude crowds, not the keeper |
-| MJ implicit quality | (built into MJ v6.1 default) | masterpiece, best quality, highly detailed, 8k uhd | Adapted | Required addition for SD |
+| Component           | Source (MJ)                               | Target (SD)                                                                               | Transfer Class | Notes                                                                                                |
+| ------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| Subject             | solitary lighthouse keeper watching storm | solitary lighthouse keeper standing on coastal rocks watching storm                       | Direct         | Added "standing on coastal rocks" to anchor figure spatially                                         |
+| Setting -- sky      | dramatic storm clouds                     | dramatic storm clouds roiling overhead                                                    | Direct         | Added "roiling overhead" to reinforce vertical composition                                           |
+| Setting -- sea      | turbulent dark ocean                      | turbulent dark churning ocean waves, angry sea foam                                       | Direct         | Extended for SD specificity                                                                          |
+| Lighting feature    | lighthouse beam cutting through fog       | lighthouse beam cutting through thick fog, volumetric god rays through storm mist         | Direct         | "God rays" is strong SD vocabulary for volumetric light                                              |
+| Foreground          | coastal rocks in foreground               | rugged coastal rocks in sharp foreground                                                  | Direct         | "Sharp" added to reinforce foreground focus                                                          |
+| Style               | painterly realism                         | painterly realism, tempera paint texture, muted earth tones, oil painting texture         | Adapted        | MJ interprets style references; SD needs explicit texture vocabulary                                 |
+| Style reference     | Andrew Wyeth influenced                   | Andrew Wyeth painting style, tempera paint texture, muted earth tones, grey-green palette | Adapted        | Wyeth is in SDXL training data; added visual descriptors of Wyeth's signature style as reinforcement |
+| Mood                | (implicit in subject)                     | desolate melancholy mood, lone figure silhouette, desaturated coastal atmosphere          | Adapted        | Made implicit mood explicit for SD                                                                   |
+| Aspect ratio        | --ar 3:2                                  | Resolution: 1216x832                                                                      | Direct         | Exact SDXL native 3:2 resolution                                                                     |
+| Quality             | --q 2 (high quality)                      | Steps: 40, masterpiece, best quality, 8k uhd                                              | Adapted        | --q 2 in MJ ~= 40+ steps + quality tokens in SD                                                      |
+| Stylization         | --s 250 (moderate-high)                   | CFG 7.5                                                                                   | Approximate    | --s 250 is moderate-high; CFG 7.5 gives model meaningful influence while staying prompt-adherent     |
+| Exclusion: cartoon  | --no cartoon                              | Negative: cartoon, anime, illustration style                                              | Direct         | Expanded to cover related styles                                                                     |
+| Exclusion: text     | --no text                                 | Negative: text, watermark, signature, logo                                                | Direct         |                                                                                                      |
+| Exclusion: people   | --no people                               | Negative: people (besides keeper), crowds                                                 | Adapted        | Clarified intent -- exclude crowds, not the keeper                                                   |
+| MJ implicit quality | (built into MJ v6.1 default)              | masterpiece, best quality, highly detailed, 8k uhd                                        | Adapted        | Required addition for SD                                                                             |
 
 ---
 
 ### Non-Transferable Elements
 
-| Feature | Source Behavior | Target Alternative | Impact Level |
-|---|---|---|---|
-| MJ default aesthetic processing | MJ v6.1 applies cinematic, gallery-quality processing automatically | Juggernaut XL v9 provides similar automatic enhancement; quality boosters in positive prompt reinforce this | Low -- Juggernaut XL compensates well |
-| --s 250 stylization control | Precise control over how much MJ's aesthetic interpretation overrides literal prompt | CFG 7.5 is a close approximation but controls prompt adherence, not aesthetic stylization specifically | Medium -- visual quality similar but mechanism differs |
-| MJ's Wyeth interpretation | MJ v6.1 has nuanced understanding of named artist styles | SDXL + Juggernaut XL has reasonable Wyeth knowledge but benefits from additional descriptive reinforcement | Low -- well-known artist, covered adequately |
+| Feature                         | Source Behavior                                                                      | Target Alternative                                                                                          | Impact Level                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| MJ default aesthetic processing | MJ v6.1 applies cinematic, gallery-quality processing automatically                  | Juggernaut XL v9 provides similar automatic enhancement; quality boosters in positive prompt reinforce this | Low -- Juggernaut XL compensates well                  |
+| --s 250 stylization control     | Precise control over how much MJ's aesthetic interpretation overrides literal prompt | CFG 7.5 is a close approximation but controls prompt adherence, not aesthetic stylization specifically      | Medium -- visual quality similar but mechanism differs |
+| MJ's Wyeth interpretation       | MJ v6.1 has nuanced understanding of named artist styles                             | SDXL + Juggernaut XL has reasonable Wyeth knowledge but benefits from additional descriptive reinforcement  | Low -- well-known artist, covered adequately           |
 
 ---
 

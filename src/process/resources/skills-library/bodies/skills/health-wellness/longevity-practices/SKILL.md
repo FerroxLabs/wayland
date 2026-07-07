@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness nutrition stress-management guide quick-reference analysis research networking"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness nutrition stress-management guide quick-reference analysis research networking'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Longevity Practices
@@ -24,15 +24,16 @@ You are a knowledgeable, evidence-based guide to healthy aging and longevity. Yo
 
 **Disclaimer**: This guide provides general wellness information based on published research. It is not medical advice. Consult your healthcare provider before making significant changes to your diet, exercise routine, or supplement regimen, especially if you have existing health conditions or take medications.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about longevity practices techniques or best practices
 - User needs guidance on longevity practices concepts
 - User wants to implement or improve their approach to longevity practices
 
 **Do NOT use when:**
+
 - The request falls outside the scope of longevity practices
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,6 +60,7 @@ Researchers including Dan Buettner, working with National Geographic and demogra
 What follows is a synthesis of the broader longevity research -- including but not limited to Buettner's findings -- on lifestyle factors common among the world's longest-lived populations.
 
 ### Common Lifestyle Factors in Long-Lived Populations
+
 ```
 Research across centenarian communities consistently identifies these
 shared lifestyle patterns:
@@ -114,11 +116,12 @@ shared lifestyle patterns:
    You are influenced by the health habits of the people around you.
 ```
 
-> **Further reading:** For the complete Blue Zones(R) research and Power 9(TM) framework, see Dan Buettner's *The Blue Zones* and *The Blue Zones Solution*.
+> **Further reading:** For the complete Blue Zones(R) research and Power 9(TM) framework, see Dan Buettner's _The Blue Zones_ and _The Blue Zones Solution_.
 
 ## Evidence-Based Nutrition for Longevity
 
 ### The Mediterranean Diet
+
 ```
 THE MOST STUDIED DIET IN THE WORLD FOR HEALTH AND LONGEVITY:
 
@@ -155,6 +158,7 @@ WHAT THE RESEARCH SHOWS:
 ```
 
 ### The MIND Diet
+
 ```
 Specifically designed for brain health (see Brain Fitness skill for details).
 Combines Mediterranean and DASH diets with emphasis on:
@@ -166,6 +170,7 @@ Combines Mediterranean and DASH diets with emphasis on:
 ```
 
 ### Key Nutritional Principles
+
 ```
 WHAT THE EVIDENCE CONSISTENTLY SUPPORTS:
 
@@ -191,6 +196,7 @@ WHAT THE EVIDENCE DOES NOT SUPPORT:
 ## Social Connection
 
 ### The Longevity Superpower
+
 ```
 SOCIAL CONNECTION IS THE MOST UNDERRATED LONGEVITY FACTOR:
 
@@ -220,6 +226,7 @@ BUILDING YOUR LONGEVITY SOCIAL NETWORK:
 ## Purpose and Ikigai
 
 ### Finding Your Why
+
 ```
 IKIGAI (Japanese concept): "A reason for being"
 
@@ -254,6 +261,7 @@ PURPOSE DOES NOT HAVE TO BE YOUR JOB:
 ## Movement for Longevity
 
 ### Beyond Exercise: Natural Movement
+
 ```
 BLUE ZONE CENTENARIANS DO NOT DO CROSSFIT:
 
@@ -287,6 +295,7 @@ PRACTICAL INTEGRATION:
 ## Sleep Optimization
 
 ### Sleep and Longevity
+
 ```
 SLEEP IS NON-NEGOTIABLE FOR HEALTH AND LONGEVITY:
 
@@ -319,6 +328,7 @@ WHEN TO SEE A DOCTOR:
 ## Stress Management
 
 ### Chronic Stress and Aging
+
 ```
 CHRONIC STRESS LITERALLY AGES YOU:
 
@@ -366,6 +376,7 @@ EVIDENCE-BASED STRESS REDUCTION:
 ## Preventive Health
 
 ### Screening and Maintenance
+
 ```
 PREVENTIVE CARE THAT SAVES LIVES:
 
@@ -403,6 +414,7 @@ PREVENTIVE CARE THAT SAVES LIVES:
 ## Supplement Evidence Review
 
 ### Honest Assessment
+
 ```
 THE SUPPLEMENT INDUSTRY IS LARGELY UNREGULATED.
 Many claims are based on weak evidence or marketing, not science.
@@ -517,6 +529,7 @@ RATE YOURSELF (1-5) ON EACH:
 ## Quick Reference
 
 When advising on longevity:
+
 - **"What is the single most important thing?"** -> Exercise. Moving from sedentary to moderately active has the largest impact.
 - **"What diet should I follow?"** -> Mediterranean pattern. It has the most evidence and is sustainable.
 - **"What supplements should I take?"** -> Get bloodwork done. Supplement deficiencies (often vitamin D). Save your money on everything else.
@@ -526,7 +539,6 @@ When advising on longevity:
 
 Longevity is not about perfection. It is about consistently good habits, meaningful relationships, and a reason to wake up in the morning. The centenarians did not follow a longevity protocol. They lived well. That is the protocol.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -534,7 +546,6 @@ Longevity is not about perfection. It is about consistently good habits, meaning
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -555,14 +566,12 @@ Longevity is not about perfection. It is about consistently good habits, meaning
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

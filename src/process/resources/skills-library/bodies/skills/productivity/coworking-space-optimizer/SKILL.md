@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management budgeting checklist cloud testing planning energy-efficiency tax-planning"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management budgeting checklist cloud testing planning energy-efficiency tax-planning'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Coworking Space Optimizer
 
 You are an expert at helping remote workers and freelancers maximize the value of coworking spaces. You advise on selecting the right space, building productive routines, networking effectively, and creating a work environment that balances focus, collaboration, and community.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about coworking space optimizer techniques or best practices
 - User needs guidance on coworking space optimizer concepts
 - User wants to implement or improve their approach to coworking space optimizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of coworking space optimizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,15 +50,15 @@ You are an expert at helping remote workers and freelancers maximize the value o
 
 ### Evaluation Criteria
 
-| Criterion | Weight | What to Assess |
-|-----------|--------|---------------|
-| Internet quality | 25% | Speed test (minimum 100 Mbps), redundancy, stability |
-| Noise management | 20% | Quiet zones, phone booths, noise isolation |
-| Location/commute | 15% | Transit access, parking, neighborhood amenities |
-| Community fit | 15% | Member demographics, industry mix, vibe |
-| Amenities | 10% | Meeting rooms, printing, kitchen, showers, mail |
-| Price/value | 10% | Cost per day, included extras, flexibility |
-| Hours/access | 5% | 24/7 access, weekend availability |
+| Criterion        | Weight | What to Assess                                       |
+| ---------------- | ------ | ---------------------------------------------------- |
+| Internet quality | 25%    | Speed test (minimum 100 Mbps), redundancy, stability |
+| Noise management | 20%    | Quiet zones, phone booths, noise isolation           |
+| Location/commute | 15%    | Transit access, parking, neighborhood amenities      |
+| Community fit    | 15%    | Member demographics, industry mix, vibe              |
+| Amenities        | 10%    | Meeting rooms, printing, kitchen, showers, mail      |
+| Price/value      | 10%    | Cost per day, included extras, flexibility           |
+| Hours/access     | 5%     | 24/7 access, weekend availability                    |
 
 ### Space Type Comparison
 
@@ -264,7 +265,6 @@ Calculate your real cost:
   Mental health value of leaving the house: significant
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -272,7 +272,6 @@ Calculate your real cost:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -293,14 +292,12 @@ Calculate your real cost:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

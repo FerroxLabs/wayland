@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization design planning"
-  category: "data-analysis"
-  subcategory: "data-visualization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-visualization design planning'
+  category: 'data-analysis'
+  subcategory: 'data-visualization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Infographic Planning
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a defined dataset, research findings, or process documentation and needs a structured plan before opening any design tool -- they are asking "what goes where" not "what chart do I use"
 - The user wants to communicate a single, coherent argument or finding to a non-specialist audience through a static, single-canvas visual document
 - The user is briefing a designer, preparing a content spec for a freelancer, or starting work in a tool such as Canva, Adobe Illustrator, Figma, Piktochart, or Visme and needs a section-by-section blueprint before touching visuals
@@ -30,6 +32,7 @@ metadata:
 - The distribution target is a static channel -- printed handout, PDF download, email attachment, webpage embed, or slide backdrop -- not an interactive or scrollable dashboard
 
 **Do NOT use when:**
+
 - The user needs help deciding which chart type (bar, line, scatter, pie) is most appropriate for a specific dataset -- use `chart-type-selector` instead
 - The user is building a multi-panel, interactive, or filterable data display -- use `dashboard-design` instead
 - The user needs a multi-page structured document with narrative sections, executive summary, and appendices -- use `report-formatting` instead
@@ -81,15 +84,15 @@ Infographics fail most often because too much content is forced onto a single ca
 
 Match the dominant content type to the correct structural archetype. Mismatching content type to archetype is the most common structural error:
 
-| Archetype | Dominant content type | Structural logic | Visual signature | Common misuse |
-|---|---|---|---|---|
-| **Statistical** | Disconnected facts, survey results, research highlights | Items are independent -- no causal or sequential relationship | Large numbers, icon arrays, donut charts, bold percentages | Forcing unrelated facts into a fake narrative sequence |
-| **Process / How-to** | Ordered steps, workflow, protocol, recipe, method | Items are causally or sequentially linked -- Step A must precede Step B | Numbered nodes, horizontal or vertical flow, connector arrows | Using for lists that are not truly sequential |
-| **Comparison** | Two or three options, products, strategies, scenarios | Items share the same attributes and are evaluated in parallel | Split-column layout, mirrored bars, feature check matrices | Using for more than 4 items (becomes a table) |
-| **Timeline** | Historical events, project milestones, biographical sequence | Items are ordered by date and the date order carries meaning | Horizontal or diagonal chronological spine with milestone markers | Using when dates are not meaningful to the story |
-| **Geographic** | Regional variation, coverage, demographic distribution | Spatial relationships are meaningful -- where something is located matters | Map base layer with proportional symbols or choropleth shading | Using when geography is incidental, not the story |
-| **Hierarchical** | Org structure, priority ranking, category taxonomy | Items have parent-child relationships or ordered importance levels | Tree diagram, pyramid, concentric rings, nested boxes | Using when items are actually parallel, not hierarchical |
-| **Narrative / Explainer** | A cause-and-effect story, a problem-solution arc, a "how it works" | Items form a beginning-middle-end argument | Scene-based layout, character or object metaphor as visual anchor | Using for data that has no narrative arc |
+| Archetype                 | Dominant content type                                              | Structural logic                                                           | Visual signature                                                  | Common misuse                                            |
+| ------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------- |
+| **Statistical**           | Disconnected facts, survey results, research highlights            | Items are independent -- no causal or sequential relationship              | Large numbers, icon arrays, donut charts, bold percentages        | Forcing unrelated facts into a fake narrative sequence   |
+| **Process / How-to**      | Ordered steps, workflow, protocol, recipe, method                  | Items are causally or sequentially linked -- Step A must precede Step B    | Numbered nodes, horizontal or vertical flow, connector arrows     | Using for lists that are not truly sequential            |
+| **Comparison**            | Two or three options, products, strategies, scenarios              | Items share the same attributes and are evaluated in parallel              | Split-column layout, mirrored bars, feature check matrices        | Using for more than 4 items (becomes a table)            |
+| **Timeline**              | Historical events, project milestones, biographical sequence       | Items are ordered by date and the date order carries meaning               | Horizontal or diagonal chronological spine with milestone markers | Using when dates are not meaningful to the story         |
+| **Geographic**            | Regional variation, coverage, demographic distribution             | Spatial relationships are meaningful -- where something is located matters | Map base layer with proportional symbols or choropleth shading    | Using when geography is incidental, not the story        |
+| **Hierarchical**          | Org structure, priority ranking, category taxonomy                 | Items have parent-child relationships or ordered importance levels         | Tree diagram, pyramid, concentric rings, nested boxes             | Using when items are actually parallel, not hierarchical |
+| **Narrative / Explainer** | A cause-and-effect story, a problem-solution arc, a "how it works" | Items form a beginning-middle-end argument                                 | Scene-based layout, character or object metaphor as visual anchor | Using for data that has no narrative arc                 |
 
 **Hybrid note:** Up to 30% of infographics benefit from a primary archetype with one secondary element. For example, a Statistical infographic may include a short Timeline in one section to show trend. Plan the primary archetype first, then add the secondary element as a single section.
 
@@ -119,11 +122,13 @@ Every infographic follows the same reading psychology regardless of archetype: *
 Visual inconsistency is the second most common reason infographics fail. Define these specifications before any design work begins:
 
 **Dimensions and orientation:**
+
 - Vertical (most common): 800-1080px wide, height determined by content (typically 1800-2400px for social/web)
 - Square (social media): 1080x1080px -- forces aggressive content curation, often best for single-stat or two-section infographics
 - Horizontal (presentations, wide-format print): 1920x1080px or A3 landscape
 
 **Color palette (maximum 4 colors):**
+
 - **Primary:** Used for the most important numbers and section headings. Typically the brand's dominant color. Must pass WCAG AA contrast ratio (4.5:1) against the background.
 - **Secondary:** Used for supporting visuals, chart fills, and icon fills. Harmonically related to primary (analogous, complementary, or triadic, not random).
 - **Accent:** Used sparingly for CTAs, highlights, and emphasized callouts. Should appear in no more than 15-20% of the visual area -- overuse destroys its attention-directing function.
@@ -131,16 +136,19 @@ Visual inconsistency is the second most common reason infographics fail. Define 
 - Never use more than one shade of each primary and secondary color in the same infographic -- tints and shades create ambiguity about whether two elements are related.
 
 **Typography (maximum 2 families):**
+
 - **Heading family:** A geometric or humanist sans-serif performs best at large sizes and with numbers (Montserrat, Poppins, Inter, Nunito Sans). Avoid decorative or script fonts -- they reduce legibility of key statistics.
 - **Body family:** Either the same family at a lighter weight, or a complementary high-legibility face (Open Sans, Source Sans Pro, Lato). Never two serif families together.
 - **Minimum type sizes:** Key statistics at 48-96pt equivalent (these are the visual anchors), section headings at 18-24pt, body text at 10-12pt minimum for web, 8pt minimum for print at 300 DPI.
 
 **Icon system:**
+
 - All icons must come from a single family (same stroke weight, same corner radius, same level of detail). Mixing icon families is immediately visible as inconsistency.
 - Choose one of three styles and apply uniformly: Outlined (clean, minimal, works on any background), Filled (bolder, better for small sizes), Duotone (sophisticated, requires careful color control).
 - Minimum icon size: 32x32px at 1x for web. Below this, filled icons only.
 
 **Grid and alignment:**
+
 - Define a base grid before placing any elements: 4-column or 6-column for 800px wide, 12-column for 1080px wide
 - Margins: minimum 40px on all sides for web, minimum 10mm for print
 - Internal gutters: 24-32px between sections
@@ -380,34 +388,34 @@ When the distribution channels require both screen and print output from the sam
 
 ### 1. Strategic Overview
 
-| Element | Specification |
-|---------|--------------|
-| Working title | "Our People Are Thriving: 2025 Employee Experience Results" |
-| Infographic archetype | Statistical (primary) with minor Before/After Comparison treatment per section |
-| Core message (one sentence) | Every key measure of employee health -- engagement, tenure, management quality, and retention -- improved significantly between 2022 and 2025 |
-| Primary audience | All employees; assumes no prior HR literacy, plain language required, motivational framing |
-| Secondary audience | LinkedIn connections: HR professionals, potential recruits, industry peers |
-| Desired viewer action | Inform (employees feel proud and recognized) and Share (HR professionals recognize benchmarks and reshare on LinkedIn) |
-| Distribution channels | LinkedIn feed post (1080x1350px, RGB, under 8MB); A4 print handout (210x297mm, 300 DPI, CMYK, 3mm bleed) |
-| Canvas dimensions | Screen version: 1080x2160px (will compress to 1080x1350px for LinkedIn -- design all critical content in top 1350px); Print version: A4 at 300 DPI |
-| Orientation | Vertical |
-| Color mode | RGB for screen master; CMYK export required for print (specify CMYK equivalents in Section 4) |
+| Element                     | Specification                                                                                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Working title               | "Our People Are Thriving: 2025 Employee Experience Results"                                                                                        |
+| Infographic archetype       | Statistical (primary) with minor Before/After Comparison treatment per section                                                                     |
+| Core message (one sentence) | Every key measure of employee health -- engagement, tenure, management quality, and retention -- improved significantly between 2022 and 2025      |
+| Primary audience            | All employees; assumes no prior HR literacy, plain language required, motivational framing                                                         |
+| Secondary audience          | LinkedIn connections: HR professionals, potential recruits, industry peers                                                                         |
+| Desired viewer action       | Inform (employees feel proud and recognized) and Share (HR professionals recognize benchmarks and reshare on LinkedIn)                             |
+| Distribution channels       | LinkedIn feed post (1080x1350px, RGB, under 8MB); A4 print handout (210x297mm, 300 DPI, CMYK, 3mm bleed)                                           |
+| Canvas dimensions           | Screen version: 1080x2160px (will compress to 1080x1350px for LinkedIn -- design all critical content in top 1350px); Print version: A4 at 300 DPI |
+| Orientation                 | Vertical                                                                                                                                           |
+| Color mode                  | RGB for screen master; CMYK export required for print (specify CMYK equivalents in Section 4)                                                      |
 
 ---
 
 ### 2. Content Inventory and Tier Assignment
 
-| Item | Tier | Visual treatment |
-|------|------|-----------------|
-| Voluntary turnover dropped from 23% to 11% (12-point reduction) | 1 -- Anchor | Large "-12 points" with down-arrow, before/after comparison bar |
-| Engagement rose from 61% to 78% (+17 points, 4,200 respondents) | 2 -- Supporting | Before/after comparison with large 78% number and upward arrow |
-| 90-day retention improved from 73% to 91% (+18 points) | 2 -- Supporting | Horizontal progress bar or large percentage with "before" ghost bar |
-| Manager effectiveness: 64 → 81 out of 100 (+17 points) | 2 -- Supporting | Score gauge or before/after callout |
-| Avg. tenure: 2.1 → 3.8 years (+1.7 years) | 2 -- Supporting | Simple icon array (person icons) or large number with timeline |
-| Survey sample size: 4,200 employees | 3 -- Contextual | Small "n=4,200" label under engagement stat |
-| Year range: 2022 vs. 2025 | 3 -- Contextual | Applied as label to all before/after comparisons |
+| Item                                                            | Tier            | Visual treatment                                                    |
+| --------------------------------------------------------------- | --------------- | ------------------------------------------------------------------- |
+| Voluntary turnover dropped from 23% to 11% (12-point reduction) | 1 -- Anchor     | Large "-12 points" with down-arrow, before/after comparison bar     |
+| Engagement rose from 61% to 78% (+17 points, 4,200 respondents) | 2 -- Supporting | Before/after comparison with large 78% number and upward arrow      |
+| 90-day retention improved from 73% to 91% (+18 points)          | 2 -- Supporting | Horizontal progress bar or large percentage with "before" ghost bar |
+| Manager effectiveness: 64 → 81 out of 100 (+17 points)          | 2 -- Supporting | Score gauge or before/after callout                                 |
+| Avg. tenure: 2.1 → 3.8 years (+1.7 years)                       | 2 -- Supporting | Simple icon array (person icons) or large number with timeline      |
+| Survey sample size: 4,200 employees                             | 3 -- Contextual | Small "n=4,200" label under engagement stat                         |
+| Year range: 2022 vs. 2025                                       | 3 -- Contextual | Applied as label to all before/after comparisons                    |
 
-*No Tier 4 exclusions -- all items are relevant and supportable. Note: 2022 baseline year should be confirmed with the data owner before publication.*
+_No Tier 4 exclusions -- all items are relevant and supportable. Note: 2022 baseline year should be confirmed with the data owner before publication._
 
 **Hook rationale:** Voluntary turnover (-12 points, 23% → 11%) was selected as the hook over engagement because it is the most financially tangible metric for a LinkedIn HR audience (turnover cost is a known pain point), it has the largest absolute improvement in business terms, and it is universally understood without jargon. Engagement at 78% is the second most compelling and will appear as the first body section immediately after the hook.
 
@@ -416,12 +424,14 @@ When the distribution channels require both screen and print output from the sam
 ### 3. Section-by-Section Content Plan
 
 #### Section A: Header (9% of canvas height -- ~195px at 2160px)
+
 - **Title:** "Our People Are Thriving: 2025 Results"
 - **Subtitle:** "2022 vs. 2025 employee experience survey -- n=4,200"
 - **Visual element:** Company logo top-right, thin horizontal color band in primary color beneath the title, consistent with all-hands brand materials
 - **Word count:** 11 words
 
 #### Section B: Hook (16% of canvas height -- ~346px)
+
 - **Anchor stat:** "Voluntary Turnover Cut Nearly in Half"
 - **Key number display:** "23% → 11%" with a bold downward arrow between the two numbers
 - **"So what" sentence:** "A 12-point drop -- our lowest turnover rate in company history."
@@ -430,6 +440,7 @@ When the distribution channels require both screen and print output from the sam
 - **Word count:** 14 words
 
 #### Section C: Employee Engagement (18% of canvas height -- ~389px)
+
 - **Heading:** "Engagement at a 3-Year High"
 - **Key data point:** "78% engaged" (up from 61% in 2022)
 - **Supporting text:** "17-point increase over three years. Based on responses from 4,200 employees surveyed Q4 2025."
@@ -438,6 +449,7 @@ When the distribution channels require both screen and print output from the sam
 - **Word count:** 19 words
 
 #### Section D: New Hire Retention (15% of canvas height -- ~324px)
+
 - **Heading:** "91% of New Hires Stay Through Day 90"
 - **Key data point:** 91% first-90-day completion rate (vs. 73% before onboarding redesign)
 - **Supporting text:** "Following our 2023 onboarding redesign, 18 more employees per 100 reach their first milestone."
@@ -446,6 +458,7 @@ When the distribution channels require both screen and print output from the sam
 - **Word count:** 22 words
 
 #### Section E: Manager Effectiveness (13% of canvas height -- ~281px)
+
 - **Heading:** "Managers Rated 81 Out of 100"
 - **Key data point:** Manager effectiveness score: 81/100 (up from 64/100 in 2022)
 - **Supporting text:** "26% improvement in manager effectiveness scores, reflecting two years of leadership development investment."
@@ -454,6 +467,7 @@ When the distribution channels require both screen and print output from the sam
 - **Word count:** 18 words
 
 #### Section F: Average Tenure (12% of canvas height -- ~259px)
+
 - **Heading:** "People Are Staying Longer"
 - **Key data point:** Average tenure: 3.8 years (up from 2.1 years in 2022)
 - **Supporting text:** "Average employee tenure nearly doubled in three years -- a signal of sustained commitment."
@@ -462,12 +476,14 @@ When the distribution channels require both screen and print output from the sam
 - **Word count:** 15 words
 
 #### Section G: Call to Action (9% of canvas height -- ~195px)
+
 - **Action statement:** "Read the full 2025 People Report"
 - **Destination:** [Company intranet URL or QR code placeholder -- to be inserted by designer]
 - **Visual treatment:** Accent-color button-style banner, full width minus margins, with right-pointing arrow icon (24px). Text in white (confirm contrast ratio against accent color). For print version: QR code (64x64px) to the right of the text.
 - **Word count:** 8 words (excluding URL)
 
 #### Section H: Footer (5% of canvas height -- ~108px)
+
 - **Source citations:** "2025 Employee Experience Survey, n=4,200, conducted October-November 2025. 2022 baseline from 2022 Annual People Survey, n=3,812. Manager effectiveness scores from 360-degree review data, HR Analytics team."
 - **Organization/branding:** Company name and HR department wordmark, left-aligned
 - **Legal/copyright:** "© [Company Name] 2025. Internal use and LinkedIn distribution only."
@@ -477,39 +493,39 @@ When the distribution channels require both screen and print output from the sam
 
 ### 4. Visual Framework Specification
 
-| Element | Specification | Usage rule |
-|---------|--------------|-----------|
-| Primary color | #1E6FBF (medium blue, RGB) / C85 M43 Y0 K25 (CMYK) | Key statistics (2025 values), filled chart elements, primary bar fills, CTA background |
-| Secondary color | #2D3748 (dark slate, RGB) / C62 M50 Y26 K68 (CMYK) | All headings, body text, icon outlines |
-| Accent color | #F6AD55 (amber, RGB) / C0 M35 Y67 K4 (CMYK) | Improvement callouts ("+17 pts" badges), gap highlights, CTA arrow, never background |
-| Neutral / "before" color | #9B9B9B (mid gray, RGB) / C0 M0 Y0 K39 (CMYK) | All 2022 "before" data representations -- consistent use signals "historical/before" state |
-| Background color | #FAFAFA (off-white, RGB) / C0 M0 Y1 K2 (CMYK) | Canvas background -- not pure white to reduce harshness in print |
-| Primary on background contrast | #1E6FBF on #FAFAFA = 5.1:1 | Passes WCAG AA for both normal and large text |
-| Accent on white contrast | #F6AD55 on #FFFFFF = 2.9:1 | Fails WCAG AA for normal text -- use only with large text (18pt+) or white text on amber (confirm white-on-amber passes) |
-| Heading font | Poppins, SemiBold (600), 20-24pt | All section headings -- never used for body text |
-| Body font | Inter, Regular (400), 11pt | All supporting text, labels, legend text |
-| Stat/number font | Poppins, ExtraBold (800), 48-96pt | Anchor statistics only (turnover hook numbers, large callout values) |
-| Icon system | Heroicons, Filled variant, 48px base (32px for footnotes) | All icons -- do not substitute icons from other families |
-| Grid | 6-column grid, 40px margins, 24px gutters | For 1080px canvas width: columns are ~127px each |
-| Alignment standard | Left-aligned within sections; section-level elements may center-align within column span | Apply uniformly; do not mix left and center within the same section |
+| Element                        | Specification                                                                            | Usage rule                                                                                                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Primary color                  | #1E6FBF (medium blue, RGB) / C85 M43 Y0 K25 (CMYK)                                       | Key statistics (2025 values), filled chart elements, primary bar fills, CTA background                                   |
+| Secondary color                | #2D3748 (dark slate, RGB) / C62 M50 Y26 K68 (CMYK)                                       | All headings, body text, icon outlines                                                                                   |
+| Accent color                   | #F6AD55 (amber, RGB) / C0 M35 Y67 K4 (CMYK)                                              | Improvement callouts ("+17 pts" badges), gap highlights, CTA arrow, never background                                     |
+| Neutral / "before" color       | #9B9B9B (mid gray, RGB) / C0 M0 Y0 K39 (CMYK)                                            | All 2022 "before" data representations -- consistent use signals "historical/before" state                               |
+| Background color               | #FAFAFA (off-white, RGB) / C0 M0 Y1 K2 (CMYK)                                            | Canvas background -- not pure white to reduce harshness in print                                                         |
+| Primary on background contrast | #1E6FBF on #FAFAFA = 5.1:1                                                               | Passes WCAG AA for both normal and large text                                                                            |
+| Accent on white contrast       | #F6AD55 on #FFFFFF = 2.9:1                                                               | Fails WCAG AA for normal text -- use only with large text (18pt+) or white text on amber (confirm white-on-amber passes) |
+| Heading font                   | Poppins, SemiBold (600), 20-24pt                                                         | All section headings -- never used for body text                                                                         |
+| Body font                      | Inter, Regular (400), 11pt                                                               | All supporting text, labels, legend text                                                                                 |
+| Stat/number font               | Poppins, ExtraBold (800), 48-96pt                                                        | Anchor statistics only (turnover hook numbers, large callout values)                                                     |
+| Icon system                    | Heroicons, Filled variant, 48px base (32px for footnotes)                                | All icons -- do not substitute icons from other families                                                                 |
+| Grid                           | 6-column grid, 40px margins, 24px gutters                                                | For 1080px canvas width: columns are ~127px each                                                                         |
+| Alignment standard             | Left-aligned within sections; section-level elements may center-align within column span | Apply uniformly; do not mix left and center within the same section                                                      |
 
 ---
 
 ### 5. Content Word Count Summary
 
-| Section | Word count |
-|---------|-----------|
-| Header | 11 |
-| Hook (Section B) | 14 |
-| Engagement (Section C) | 19 |
-| New Hire Retention (Section D) | 22 |
-| Manager Effectiveness (Section E) | 18 |
-| Average Tenure (Section F) | 15 |
-| Call to Action (Section G) | 8 |
-| Footer | 34 (functional -- excluded from visual word ceiling) |
-| **Total visual copy** | **107 words** |
-| Target ceiling | 300 words (ideally under 200) |
-| Status | **Well under budget -- 107 words. Strong for social sharing.** |
+| Section                           | Word count                                                     |
+| --------------------------------- | -------------------------------------------------------------- |
+| Header                            | 11                                                             |
+| Hook (Section B)                  | 14                                                             |
+| Engagement (Section C)            | 19                                                             |
+| New Hire Retention (Section D)    | 22                                                             |
+| Manager Effectiveness (Section E) | 18                                                             |
+| Average Tenure (Section F)        | 15                                                             |
+| Call to Action (Section G)        | 8                                                              |
+| Footer                            | 34 (functional -- excluded from visual word ceiling)           |
+| **Total visual copy**             | **107 words**                                                  |
+| Target ceiling                    | 300 words (ideally under 200)                                  |
+| Status                            | **Well under budget -- 107 words. Strong for social sharing.** |
 
 ---
 

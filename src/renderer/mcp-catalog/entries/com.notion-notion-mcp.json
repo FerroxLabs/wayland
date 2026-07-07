@@ -7,9 +7,7 @@
   "websiteUrl": "https://www.notion.so/help/mcp",
   "repository": { "url": "https://github.com/makenotion/notion-mcp-server", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.notion.com/mcp" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.notion.com/mcp" }],
   "x-wayland": {
     "tier": "core",
     "categories": ["productivity", "files-and-docs", "knowledge"],

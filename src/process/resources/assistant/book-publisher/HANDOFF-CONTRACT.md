@@ -8,16 +8,16 @@ All artifacts live under a single `book/` directory inside the chat's working di
 
 ## Artifacts
 
-| Path | Written by | Read by | Required sections |
-| --- | --- | --- | --- |
-| `book/STATUS.md` | Every role (read first, write last) | Every role | Current phase; chapter table (number, title, state); open decisions; next action |
-| `book/brief.md` | Publisher | All | Genre (fiction/non-fiction); subject/genre + audience; target length + format; working title; positioning + comps; one-paragraph back-cover promise |
-| `book/outline.md` | Architect (story or non-fiction) | All | Fiction: logline + beat sheet + chapter list (per-chapter goal/conflict/turn). Non-fiction: thesis + argument map + chapter list (per-chapter claim/evidence/takeaway) |
-| `book/bible.md` | Architect / (Phase B) research + lore | Drafting, editors | Fiction: characters, world rules, timeline. Non-fiction: facts + sources register (each source has an id used in inline `[source: id]` markers) |
-| `book/manuscript/NN-chapter.md` | Drafting (architect via `book-chapter-draft`) | Editors, production | The chapter prose; inline `[FLAG: ...]` markers for editor attention |
-| `book/edits/NN-notes.md` | Developmental Editor, Copy Editor | Reviser (architect), production | Per-note: id, type (structure/line/copy), severity, the note, and a `status` field (`open`/`resolved`) |
-| `book/edits/style-sheet.md` | Copy Editor | Drafting, all editors | Spelling/hyphenation choices, names, numbers/dates style, capitalization, tense/POV, recurring usage decisions |
-| `book/out/` | Production | User | Formatted manuscript (DOCX), `metadata.md`, `blurb.md`, front/back matter, non-fiction `index.md`, platform prep checklist |
+| Path                            | Written by                                    | Read by                         | Required sections                                                                                                                                                      |
+| ------------------------------- | --------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `book/STATUS.md`                | Every role (read first, write last)           | Every role                      | Current phase; chapter table (number, title, state); open decisions; next action                                                                                       |
+| `book/brief.md`                 | Publisher                                     | All                             | Genre (fiction/non-fiction); subject/genre + audience; target length + format; working title; positioning + comps; one-paragraph back-cover promise                    |
+| `book/outline.md`               | Architect (story or non-fiction)              | All                             | Fiction: logline + beat sheet + chapter list (per-chapter goal/conflict/turn). Non-fiction: thesis + argument map + chapter list (per-chapter claim/evidence/takeaway) |
+| `book/bible.md`                 | Architect / (Phase B) research + lore         | Drafting, editors               | Fiction: characters, world rules, timeline. Non-fiction: facts + sources register (each source has an id used in inline `[source: id]` markers)                        |
+| `book/manuscript/NN-chapter.md` | Drafting (architect via `book-chapter-draft`) | Editors, production             | The chapter prose; inline `[FLAG: ...]` markers for editor attention                                                                                                   |
+| `book/edits/NN-notes.md`        | Developmental Editor, Copy Editor             | Reviser (architect), production | Per-note: id, type (structure/line/copy), severity, the note, and a `status` field (`open`/`resolved`)                                                                 |
+| `book/edits/style-sheet.md`     | Copy Editor                                   | Drafting, all editors           | Spelling/hyphenation choices, names, numbers/dates style, capitalization, tense/POV, recurring usage decisions                                                         |
+| `book/out/`                     | Production                                    | User                            | Formatted manuscript (DOCX), `metadata.md`, `blurb.md`, front/back matter, non-fiction `index.md`, platform prep checklist                                             |
 
 ## STATUS.md manifest (the durable spine)
 

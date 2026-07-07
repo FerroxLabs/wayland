@@ -11,14 +11,15 @@ description: >-
   Do NOT use for a single pricing question an atomic finance skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "finance-pricing-review finance-forecast"
+skills: 'finance-pricing-review finance-forecast'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-finance pricing scenarios step-by-step cfo
   category: business-finance
-  depends: "finance-pricing-review finance-forecast"
+  depends: 'finance-pricing-review finance-forecast'
 ---
+
 # Pricing Stress-Test
 
 **Estimated time:** 20-30 minutes

@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication guide"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication guide'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Communication Coach
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about communication coach
 - User needs guidance on communication coach topics
 - User wants a structured approach to communication coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -42,6 +45,7 @@ metadata:
 10. **Any specific phrases or approaches you've heard of and want to try?**
 
 ## Communication Styles Assessment
+
 ```
 COMMUNICATION STYLE INVENTORY:
 
@@ -91,6 +95,7 @@ Assertive: Refine and maintain, build advanced skills
 ## Active Listening Framework
 
 ### The HEAR Model
+
 ```
 ACTIVE LISTENING: H.E.A.R.
 
@@ -127,6 +132,7 @@ COMMON LISTENING KILLERS:
 ```
 
 ### Reflective Listening Scripts
+
 ```
 REFLECTIVE LISTENING TEMPLATES:
 
@@ -157,27 +163,32 @@ THE MAGIC QUESTION:
 
 ### The Observation-Feeling-Need-Request Approach
 
-Nonviolent Communication(TM) (NVC), developed by Marshall Rosenberg, introduced a widely influential four-component framework for compassionate dialogue. The approach below draws from Rosenberg's work alongside other empathic communication models. For the complete NVC methodology, see Rosenberg's *Nonviolent Communication: A Language of Life* and resources at cnvc.org.
+Nonviolent Communication(TM) (NVC), developed by Marshall Rosenberg, introduced a widely influential four-component framework for compassionate dialogue. The approach below draws from Rosenberg's work alongside other empathic communication models. For the complete NVC methodology, see Rosenberg's _Nonviolent Communication: A Language of Life_ and resources at cnvc.org.
 
 The core structure involves four steps:
 
 **1. Observation** -- Describe what happened without judgment or evaluation.
+
 - Instead of: "You're always ignoring me"
 - Try: "When I was talking just now, I noticed you were looking at your phone"
 
 **2. Feeling** -- Name your actual emotion. Own it as yours.
+
 - Instead of: "I feel like you don't care" (this is a thought, not a feeling)
 - Try: "I feel hurt" or "I feel unimportant"
 
 **3. Need** -- Identify the underlying need connected to your feeling.
+
 - Common human needs include: connection, understanding, respect, autonomy, safety, trust, and belonging
 - Example: "I need to feel heard when I share something important"
 
 **4. Request** -- Ask for something specific, positive, and doable. It should be a genuine request (they can say no), not a demand.
+
 - Instead of: "Stop ignoring me"
 - Try: "Would you be willing to put your phone away when we're talking?"
 
 ### Needs-Based Communication Template
+
 ```
 STATEMENT BUILDER:
 
@@ -196,6 +207,7 @@ Would you be willing to _______________?"
 ## Assertiveness Training
 
 ### The Assertive Communication Formula
+
 ```
 ASSERTIVENESS SPECTRUM:
 
@@ -219,6 +231,7 @@ ASSERTIVE RIGHTS:
 ```
 
 ### Saying No
+
 ```
 HOW TO SAY NO (graduated approaches):
 
@@ -256,7 +269,7 @@ COMMON TRAPS:
 
 ### High-Stakes Conversation Framework
 
-The following approach draws from multiple difficult-conversation methodologies, including *Crucial Conversations* by Patterson, Grenny, McMillan, and Switzler. For the complete Crucial Conversations(R) framework, see their book *Crucial Conversations: Tools for Talking When Stakes Are High*.
+The following approach draws from multiple difficult-conversation methodologies, including _Crucial Conversations_ by Patterson, Grenny, McMillan, and Switzler. For the complete Crucial Conversations(R) framework, see their book _Crucial Conversations: Tools for Talking When Stakes Are High_.
 
 ```
 HIGH-STAKES CONVERSATION FRAMEWORK:
@@ -300,6 +313,7 @@ DURING THE CONVERSATION:
 ```
 
 ### The SBI Feedback Model
+
 ```
 SBI FEEDBACK MODEL (Center for Creative Leadership):
 
@@ -337,6 +351,7 @@ SBI + I (Intent):
 ```
 
 ## "I" Statements
+
 ```
 "I" STATEMENT FORMULA:
 
@@ -362,6 +377,7 @@ PRACTICE YOUR OWN:
 ```
 
 ## Communication Styles in Relationships
+
 ```
 RECOGNIZING COMMUNICATION STYLES:
 
@@ -397,6 +413,7 @@ ADAPTING YOUR STYLE:
 ```
 
 ## Empathy Building
+
 ```
 EMPATHY DEVELOPMENT:
 
@@ -438,6 +455,7 @@ Empathic:
 ```
 
 ## Conversation Preparation Template
+
 ```
 DIFFICULT CONVERSATION PREP SHEET:
 
@@ -483,6 +501,7 @@ OUTCOME:
 ## Output Format
 
 When coaching communication:
+
 ```
 COMMUNICATION PLAN
 

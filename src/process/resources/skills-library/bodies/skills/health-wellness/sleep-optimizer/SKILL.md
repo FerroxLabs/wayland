@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness sleep guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness sleep guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Sleep Optimizer
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about sleep optimizer
 - User needs guidance on sleep optimizer topics
 - User wants a structured approach to sleep optimizer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -120,18 +122,19 @@ Late night: More REM sleep
 
 ### Sleep Duration Recommendations (National Sleep Foundation)
 
-| Age Group | Recommended | May Be Appropriate | Not Recommended |
-|-----------|------------|-------------------|-----------------|
-| Teenager (14-17) | 8-10 hours | 7-11 hours | <7 or >11 |
-| Young Adult (18-25) | 7-9 hours | 6-10 hours | <6 or >10 |
-| Adult (26-64) | 7-9 hours | 6-10 hours | <6 or >10 |
-| Older Adult (65+) | 7-8 hours | 5-9 hours | <5 or >9 |
+| Age Group           | Recommended | May Be Appropriate | Not Recommended |
+| ------------------- | ----------- | ------------------ | --------------- |
+| Teenager (14-17)    | 8-10 hours  | 7-11 hours         | <7 or >11       |
+| Young Adult (18-25) | 7-9 hours   | 6-10 hours         | <6 or >10       |
+| Adult (26-64)       | 7-9 hours   | 6-10 hours         | <6 or >10       |
+| Older Adult (65+)   | 7-8 hours   | 5-9 hours          | <5 or >9        |
 
 ### Circadian Rhythm
 
 Your internal body clock runs on approximately a 24-hour cycle, regulated by:
 
 **Zeitgebers (time cues):**
+
 1. **Light** (strongest cue) - Bright light in morning advances clock; light at night delays it
 2. **Meal timing** - Regular meals reinforce circadian rhythm
 3. **Physical activity** - Exercise timing signals the body clock
@@ -139,6 +142,7 @@ Your internal body clock runs on approximately a 24-hour cycle, regulated by:
 5. **Temperature** - Core body temperature naturally dips at night
 
 **Chronotype:**
+
 - **Early bird (lion):** Natural sleep ~9:30 PM - 5:30 AM, peak energy morning
 - **Intermediate (bear):** Natural sleep ~11 PM - 7 AM, peak energy mid-morning
 - **Night owl (wolf):** Natural sleep ~12:30 AM - 8:30 AM, peak energy afternoon/evening
@@ -195,6 +199,7 @@ ITEMS NEEDING IMPROVEMENT:
 ## Bedroom Environment Optimization
 
 ### Temperature
+
 - **Optimal range:** 60-67F (15.5-19.5C)
 - Core body temperature must drop 2-3F to initiate sleep
 - A warm bath 1-2 hours before bed paradoxically helps (vasodilation cools core)
@@ -202,6 +207,7 @@ ITEMS NEEDING IMPROVEMENT:
 - Consider cooling mattress pads if you run hot
 
 ### Light
+
 - **Goal:** As close to pitch darkness as possible
 - Blackout curtains or cellular shades
 - Cover LED lights on electronics with tape
@@ -210,6 +216,7 @@ ITEMS NEEDING IMPROVEMENT:
 - Dawn simulation alarm clock for gentle waking
 
 ### Sound
+
 - **Goal:** Consistent, non-stimulating sound environment
 - White noise machine or fan for consistent background
 - Earplugs (NRR 30+ for noisy environments)
@@ -217,18 +224,20 @@ ITEMS NEEDING IMPROVEMENT:
 - Avoid falling asleep to TV or podcasts (variable stimulation)
 
 ### Air Quality
+
 - Open window slightly if possible (fresh air and slight cooling)
 - Air purifier if allergies are an issue
 - Humidity: 30-50% (humidifier or dehumidifier as needed)
 - Clean bedding weekly (dust mites are a common sleep disruptor)
 
 ### Mattress and Pillow Guide
-| Sleep Position | Mattress Firmness | Pillow Loft |
-|---------------|------------------|-------------|
-| Back sleeper | Medium to medium-firm | Medium loft |
-| Side sleeper | Medium to medium-soft | High loft (shoulder gap) |
-| Stomach sleeper | Firm | Low loft or flat |
-| Combination | Medium | Adjustable loft |
+
+| Sleep Position  | Mattress Firmness     | Pillow Loft              |
+| --------------- | --------------------- | ------------------------ |
+| Back sleeper    | Medium to medium-firm | Medium loft              |
+| Side sleeper    | Medium to medium-soft | High loft (shoulder gap) |
+| Stomach sleeper | Firm                  | Low loft or flat         |
+| Combination     | Medium                | Adjustable loft          |
 
 **Replace mattress:** Every 7-10 years or when sagging/uncomfortable
 **Replace pillows:** Every 1-2 years
@@ -264,12 +273,14 @@ MY SCHEDULE:
 ```
 
 ### Adjusting Your Schedule (Gradual Shifting)
+
 - Shift bedtime and wake time by **15-30 minutes** every 2-3 days
 - Do NOT try to shift by more than 1 hour at once
 - Use morning light exposure to anchor the new schedule
 - Avoid sleeping in on weekends by more than 30-60 minutes
 
 ### Sleep Restriction Therapy (for insomnia - use with caution)
+
 This is a clinical technique. Consider working with a sleep specialist.
 
 1. Calculate actual sleep time (e.g., 5.5 hours)
@@ -282,20 +293,23 @@ This is a clinical technique. Consider working with a sleep specialist.
 ## Screen Time Management
 
 ### Blue Light and Melatonin
+
 - Blue light (450-495nm) suppresses melatonin production
 - Even dim blue light within 2 hours of bed delays sleep onset
 - The issue is both wavelength AND brightness
 
 ### Screen Management Protocol
-| Time Before Bed | Action |
-|----------------|--------|
-| 3+ hours | No restrictions needed |
-| 2 hours | Enable night mode / blue light filter on all devices |
-| 1 hour | Reduce screen brightness to minimum; prefer non-screen activities |
-| 30 min | Screens off completely |
-| In bed | No screens whatsoever |
+
+| Time Before Bed | Action                                                            |
+| --------------- | ----------------------------------------------------------------- |
+| 3+ hours        | No restrictions needed                                            |
+| 2 hours         | Enable night mode / blue light filter on all devices              |
+| 1 hour          | Reduce screen brightness to minimum; prefer non-screen activities |
+| 30 min          | Screens off completely                                            |
+| In bed          | No screens whatsoever                                             |
 
 ### Blue Light Filter Settings
+
 - **iPhone/iPad:** Settings > Display > Night Shift (schedule sunset to sunrise)
 - **Android:** Settings > Display > Night Light
 - **Windows:** Settings > Display > Night Light
@@ -330,6 +344,7 @@ Minutes 8-10: BODY SCAN
 ```
 
 ### Cognitive Shuffle (for racing thoughts)
+
 1. Think of a random word (e.g., "garden")
 2. For each letter, picture unrelated things starting with that letter
 3. G: giraffe... guitar... glacier... grape...
@@ -337,36 +352,40 @@ Minutes 8-10: BODY SCAN
 5. The randomness bores the brain's planning center into sleep
 
 ### Sleep Journaling (Brain Dump)
+
 Before bed, write for 5 minutes:
+
 - Worries and to-dos for tomorrow (get them out of your head)
 - Three things that went well today
 - Tomorrow's plan (so you stop planning in bed)
 
 ## Common Sleep Disruptors and Solutions
 
-| Disruptor | Impact | Solution |
-|-----------|--------|----------|
-| Caffeine | Blocks adenosine for 6-8 hours | No caffeine after 2 PM |
-| Alcohol | Fragments sleep, suppresses REM | Stop 3+ hours before bed |
-| Late meals | Raises core temperature, causes reflux | Last meal 2-3 hours before bed |
-| Stress/worry | Activates sympathetic nervous system | Brain dump journal, relaxation routine |
-| Irregular schedule | Disrupts circadian rhythm | Fixed wake time 7 days/week |
-| Napping too long | Reduces sleep pressure | Max 20 min, before 3 PM |
-| Blue light | Suppresses melatonin | Screens off 30-60 min before bed |
-| Bedroom too warm | Prevents core temp drop | Set thermostat to 60-67F |
-| Clock watching | Creates anxiety about sleep | Remove visible clocks |
-| Trying too hard | Performance anxiety about sleep | Paradoxical intention - try to stay awake |
+| Disruptor          | Impact                                 | Solution                                  |
+| ------------------ | -------------------------------------- | ----------------------------------------- |
+| Caffeine           | Blocks adenosine for 6-8 hours         | No caffeine after 2 PM                    |
+| Alcohol            | Fragments sleep, suppresses REM        | Stop 3+ hours before bed                  |
+| Late meals         | Raises core temperature, causes reflux | Last meal 2-3 hours before bed            |
+| Stress/worry       | Activates sympathetic nervous system   | Brain dump journal, relaxation routine    |
+| Irregular schedule | Disrupts circadian rhythm              | Fixed wake time 7 days/week               |
+| Napping too long   | Reduces sleep pressure                 | Max 20 min, before 3 PM                   |
+| Blue light         | Suppresses melatonin                   | Screens off 30-60 min before bed          |
+| Bedroom too warm   | Prevents core temp drop                | Set thermostat to 60-67F                  |
+| Clock watching     | Creates anxiety about sleep            | Remove visible clocks                     |
+| Trying too hard    | Performance anxiety about sleep        | Paradoxical intention - try to stay awake |
 
 ## Napping Strategy
 
 ### Optimal Nap Durations
-| Duration | Type | Benefits | Drawbacks |
-|----------|------|----------|-----------|
-| 10-20 min | Power nap | Alertness boost, no grogginess | Limited restorative benefit |
-| 30 min | Avoid | Sleep inertia (grogginess) | Wakes from deep sleep |
-| 90 min | Full cycle | Full restoration, creativity | Time-consuming |
+
+| Duration  | Type       | Benefits                       | Drawbacks                   |
+| --------- | ---------- | ------------------------------ | --------------------------- |
+| 10-20 min | Power nap  | Alertness boost, no grogginess | Limited restorative benefit |
+| 30 min    | Avoid      | Sleep inertia (grogginess)     | Wakes from deep sleep       |
+| 90 min    | Full cycle | Full restoration, creativity   | Time-consuming              |
 
 ### Nap Rules
+
 - Before 3 PM only (to preserve nighttime sleep drive)
 - Set an alarm (prevent oversleeping)
 - Dark, quiet environment
@@ -375,6 +394,7 @@ Before bed, write for 5 minutes:
 ## Sleep Tracking Interpretation
 
 ### What to Track
+
 - Bedtime and wake time
 - Estimated sleep onset latency
 - Number of awakenings
@@ -405,6 +425,7 @@ This week's efficiency: ___%
 ```
 
 ### Wearable/App Data Interpretation
+
 - Consumer sleep trackers (Fitbit, Apple Watch, Oura) are **reasonably accurate for total sleep time** but **less accurate for sleep stages**
 - Use trends over weeks, not individual night readings
 - If tracker says you slept poorly but you feel fine, trust how you feel
@@ -413,6 +434,7 @@ This week's efficiency: ___%
 ## When to See a Sleep Specialist
 
 Seek professional evaluation if you experience:
+
 - Chronic insomnia (3+ nights/week for 3+ months)
 - Loud snoring with witnessed breathing pauses (possible sleep apnea)
 - Excessive daytime sleepiness despite adequate sleep time
@@ -421,7 +443,6 @@ Seek professional evaluation if you experience:
 - Falling asleep involuntarily during the day
 - Sleep problems not improving with good sleep hygiene
 - Reliance on sleep medication for more than a few weeks
-
 
 ## Output Format
 

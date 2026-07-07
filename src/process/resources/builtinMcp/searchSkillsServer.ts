@@ -99,8 +99,7 @@ export type SearchSkillsDeps = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const clamp = (value: number, min: number, max: number): number =>
-  Math.min(Math.max(Math.trunc(value), min), max);
+const clamp = (value: number, min: number, max: number): number => Math.min(Math.max(Math.trunc(value), min), max);
 
 const estimateTokens = (chars: number): number => Math.ceil(chars / CHARS_PER_TOKEN);
 
@@ -149,9 +148,7 @@ export const createSearchSkillsServer = (deps: SearchSkillsDeps = {}) => {
 
       // Re-clamp every size knob here so oversized output is impossible no
       // matter what the caller sends. Inlining bodies tightens the cap further.
-      const effectiveLimit = includeBody
-        ? clamp(limit, 1, INCLUDE_BODY_LIMIT_CAP)
-        : clamp(limit, 1, MAX_LIMIT);
+      const effectiveLimit = includeBody ? clamp(limit, 1, INCLUDE_BODY_LIMIT_CAP) : clamp(limit, 1, MAX_LIMIT);
       const bodyCap = clamp(maxBodyChars, 1, MAX_INLINE_BODY_CHARS);
 
       const hits = retrieverInstance!.retrieve(query, effectiveLimit);

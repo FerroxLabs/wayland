@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design guide"
-  category: "backend-systems"
-  subcategory: "api-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'backend api-design guide'
+  category: 'backend-systems'
+  subcategory: 'api-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # API Gateway Builder
@@ -51,7 +51,7 @@ CHOOSE NGINX:       Maximum raw performance, simple routing needs
 ### Declarative Config (kong.yml)
 
 ```yaml
-_format_version: "3.0"
+_format_version: '3.0'
 
 services:
   - name: user-service
@@ -73,7 +73,7 @@ plugins:
       hour: 5000
       policy: redis
       redis_host: redis
-      fault_tolerant: true        # Fail open if Redis down
+      fault_tolerant: true # Fail open if Redis down
 
   - name: correlation-id
     config:
@@ -83,7 +83,7 @@ plugins:
 
   - name: request-size-limiting
     config:
-      allowed_payload_size: 10    # MB
+      allowed_payload_size: 10 # MB
 ```
 
 ### Service-Level Plugins
@@ -93,7 +93,7 @@ plugins:
   - name: rate-limiting
     route: login-route
     config:
-      minute: 10                  # Strict limit on login attempts
+      minute: 10 # Strict limit on login attempts
 
   - name: jwt
     service: user-service
@@ -105,7 +105,7 @@ plugins:
     service: user-service
     config:
       add:
-        headers: ["X-Gateway-Version:1.0"]
+        headers: ['X-Gateway-Version:1.0']
       remove:
         headers: [Cookie]
 ```
@@ -151,7 +151,7 @@ Resources:
     Properties:
       StageName: prod
       CorsConfiguration:
-        AllowOrigins: ["[reference URL]"]
+        AllowOrigins: ['[reference URL]']
         AllowMethods: [GET, POST, PUT, DELETE]
         AllowHeaders: [Authorization, Content-Type]
       Auth:
@@ -170,15 +170,15 @@ Resources:
 ### REST API with Usage Plans
 
 ```yaml
-  UsagePlan:
-    Type: AWS::ApiGateway::UsagePlan
-    Properties:
-      Throttle:
-        BurstLimit: 200
-        RateLimit: 100
-      Quota:
-        Limit: 100000
-        Period: MONTH
+UsagePlan:
+  Type: AWS::ApiGateway::UsagePlan
+  Properties:
+    Throttle:
+      BurstLimit: 200
+      RateLimit: 100
+    Quota:
+      Limit: 100000
+      Period: MONTH
 ```
 
 ## Rate Limiting
@@ -241,7 +241,7 @@ plugins:
       key_names: [X-API-Key, apikey]
       key_in_header: true
       key_in_query: true
-      hide_credentials: true      # Remove key before proxying
+      hide_credentials: true # Remove key before proxying
 ```
 
 ## Request/Response Transformation
@@ -253,9 +253,9 @@ plugins:
     config:
       add:
         headers:
-          - "Strict-Transport-Security:max-age=31536000; includeSubDomains"
-          - "X-Content-Type-Options:nosniff"
-          - "X-Frame-Options:DENY"
+          - 'Strict-Transport-Security:max-age=31536000; includeSubDomains'
+          - 'X-Content-Type-Options:nosniff'
+          - 'X-Frame-Options:DENY'
       remove:
         headers: [Server, X-Powered-By]
 ```
@@ -290,7 +290,7 @@ plugins:
       response_code: [200, 301]
       cache_ttl: 300
       vary_headers: [Authorization, Accept-Encoding]
-      cache_control: true         # Respect Cache-Control headers
+      cache_control: true # Respect Cache-Control headers
 ```
 
 ## Health Checks
@@ -307,8 +307,8 @@ upstreams:
         healthy: { successes: 5 }
         unhealthy: { http_failures: 5, timeouts: 3 }
     targets:
-      - { target: "user-service-1:8080", weight: 100 }
-      - { target: "user-service-2:8080", weight: 100 }
+      - { target: 'user-service-1:8080', weight: 100 }
+      - { target: 'user-service-2:8080', weight: 100 }
 ```
 
 ## Monitoring
@@ -357,6 +357,7 @@ OBSERVABILITY:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing api gateway builder solutions
 - Reviewing or improving existing api gateway builder approaches
 - Making architectural or implementation decisions about api gateway builder
@@ -364,6 +365,7 @@ OBSERVABILITY:
 - Troubleshooting api gateway builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -374,21 +376,26 @@ OBSERVABILITY:
 # Api Gateway Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml journaling template advanced api-design testing automation research"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml journaling template advanced api-design testing automation research'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Notion Master
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about notion master techniques or best practices
 - User needs guidance on notion master concepts
 - User wants to implement or improve their approach to notion master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of notion master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -101,13 +102,13 @@ Relations link items across databases -- the most powerful feature in Notion.
 
 Rollups aggregate data from related database items:
 
-| Property in Related DB | Rollup Function | Use Case |
-|----------------------|-----------------|----------|
-| Number (hours) | Sum | Total hours on a project |
-| Number (amount) | Sum | Total revenue per client |
-| Checkbox (complete) | Percent checked | Project completion % |
-| Date (due date) | Latest date | Project deadline |
-| Any property | Count all | Number of related items |
+| Property in Related DB | Rollup Function | Use Case                 |
+| ---------------------- | --------------- | ------------------------ |
+| Number (hours)         | Sum             | Total hours on a project |
+| Number (amount)        | Sum             | Total revenue per client |
+| Checkbox (complete)    | Percent checked | Project completion %     |
+| Date (due date)        | Latest date     | Project deadline         |
+| Any property           | Count all       | Number of related items  |
 
 ### Advanced Relation Patterns
 
@@ -122,6 +123,7 @@ Rollups aggregate data from related database items:
 Database templates pre-fill properties and content when creating new items.
 
 **Meeting Notes Template:**
+
 ```
 Properties: Date: Today, Status: Draft, Type: Meeting Notes
 
@@ -169,11 +171,13 @@ Use linked database views as dashboard widgets:
 ### Essential Formula Patterns
 
 **Days Until Deadline:**
+
 ```
 dateBetween(prop("Due Date"), now(), "days")
 ```
 
 **Status Color Coding:**
+
 ```
 if(prop("Status") == "Complete", "Done",
   if(dateBetween(prop("Due Date"), now(), "days") < 0, "OVERDUE",
@@ -182,11 +186,13 @@ if(prop("Status") == "Complete", "Done",
 ```
 
 **Progress Percentage:**
+
 ```
 round(prop("Tasks Complete") / prop("Total Tasks") * 100)
 ```
 
 **Time Tracking:**
+
 ```
 dateBetween(prop("End Time"), prop("Start Time"), "hours")
 ```
@@ -268,12 +274,12 @@ Teamspace: Personal
 
 ### Access and Permissions
 
-| Level | Can See | Can Edit | Best For |
-|-------|---------|----------|----------|
-| Full Access | Everything | Everything | Team members, admins |
-| Can Edit | Shared pages | Shared pages | Collaborators |
-| Can Comment | Shared pages | Comments only | Stakeholders |
-| Can View | Shared pages | Nothing | External viewers |
+| Level       | Can See      | Can Edit      | Best For             |
+| ----------- | ------------ | ------------- | -------------------- |
+| Full Access | Everything   | Everything    | Team members, admins |
+| Can Edit    | Shared pages | Shared pages  | Collaborators        |
+| Can Comment | Shared pages | Comments only | Stakeholders         |
+| Can View    | Shared pages | Nothing       | External viewers     |
 
 ## Advanced Tips
 
@@ -294,7 +300,6 @@ Teamspace: Personal
 5. **Not using filtered views**: One database with 10 views beats 10 separate databases
 6. **No archive strategy**: Old data clutters views and slows performance
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -302,7 +307,6 @@ Teamspace: Personal
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -323,14 +327,12 @@ Teamspace: Personal
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

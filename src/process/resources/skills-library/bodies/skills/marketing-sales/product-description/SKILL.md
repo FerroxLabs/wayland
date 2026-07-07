@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing marketing-copy writing template"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'marketing marketing-copy writing template'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Product Description
 
 ## When to Use
@@ -34,6 +35,7 @@ Use this skill when the user's request maps to one of these specific scenarios:
 - User needs to adapt a description to a new platform (e.g., moving from their own site to a marketplace) with different character limits, formatting rules, and buyer intent
 
 **Do NOT use this skill when:**
+
 - User needs a full-page sales letter or long-form conversion page -- use `landing-page-copy` instead, which handles above-the-fold hero copy, objection sections, and multi-section persuasion architecture
 - User needs paid ad copy for Google Shopping, Meta product ads, or sponsored listings -- use `paid-ad-copy`, which handles character limits, ad fatigue rotation, and bidding-aligned messaging
 - User is planning a full product launch campaign across channels -- use `campaign-planning`, which coordinates messaging hierarchy across awareness, consideration, and conversion touchpoints
@@ -361,55 +363,55 @@ If you've been putting off cast iron because of the reputation, this is the vers
 
 ### Specifications
 
-| Specification | Detail |
-|---------------|--------|
-| Diameter | 12 inches (30.5 cm) |
-| Cooking surface diameter | 10.25 inches (26 cm) -- measured at base |
-| Weight | 7.8 lbs (3.5 kg) |
-| Material | 100% virgin cast iron |
-| Seasoning | 3-coat flaxseed oil, polymerized at 500°F |
-| Oven safe | Up to 500°F (260°C) |
-| Broiler safe | Yes |
-| Cooktop compatibility | Gas, electric, induction, ceramic glass, wood-burning |
-| Handle length | 5.5 inches (14 cm) |
-| Handle type | Integrated cast iron; includes silicone grip sleeve |
-| Side handles | Dual pour spouts; small helper handle opposite main handle |
-| Dishwasher safe | Not recommended (hand wash preserves seasoning) |
-| Warranty | Lifetime, unconditional |
-| Made in | [Country of manufacture] |
+| Specification            | Detail                                                     |
+| ------------------------ | ---------------------------------------------------------- |
+| Diameter                 | 12 inches (30.5 cm)                                        |
+| Cooking surface diameter | 10.25 inches (26 cm) -- measured at base                   |
+| Weight                   | 7.8 lbs (3.5 kg)                                           |
+| Material                 | 100% virgin cast iron                                      |
+| Seasoning                | 3-coat flaxseed oil, polymerized at 500°F                  |
+| Oven safe                | Up to 500°F (260°C)                                        |
+| Broiler safe             | Yes                                                        |
+| Cooktop compatibility    | Gas, electric, induction, ceramic glass, wood-burning      |
+| Handle length            | 5.5 inches (14 cm)                                         |
+| Handle type              | Integrated cast iron; includes silicone grip sleeve        |
+| Side handles             | Dual pour spouts; small helper handle opposite main handle |
+| Dishwasher safe          | Not recommended (hand wash preserves seasoning)            |
+| Warranty                 | Lifetime, unconditional                                    |
+| Made in                  | [Country of manufacture]                                   |
 
 ---
 
 ### Social Proof Placement Notes
 
-| Placement Location | Content |
-|-------------------|---------|
-| Below product title, above price | Star rating widget (4.6 stars, 2,400+ reviews) |
+| Placement Location                  | Content                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Below product title, above price    | Star rating widget (4.6 stars, 2,400+ reviews)                                                                                                                                                                                                                                                                  |
 | After benefit bullets, before specs | Review excerpt: "I was terrified to buy cast iron because I killed my last one. This arrived with a real seasoning on it -- not that chalky gray coating. I cooked scrambled eggs my first morning and nothing stuck. I've had it 8 months and it just keeps getting better." -- Verified Purchaser, [Platform] |
-| Adjacent to Add to Cart button | Usage stat: "23,000+ sold -- the most-gifted item in our cookware line" |
-| Q&A section (Amazon only) | Top question: "Can I use soap to clean it?" Answer: "Yes -- modern dish soap won't strip a well-established seasoning. If in doubt, hot water and a stiff brush work for 95% of cleaning. Dry immediately on the burner after washing." |
+| Adjacent to Add to Cart button      | Usage stat: "23,000+ sold -- the most-gifted item in our cookware line"                                                                                                                                                                                                                                         |
+| Q&A section (Amazon only)           | Top question: "Can I use soap to clean it?" Answer: "Yes -- modern dish soap won't strip a well-established seasoning. If in doubt, hot water and a stiff brush work for 95% of cleaning. Dry immediately on the burner after washing."                                                                         |
 
 ---
 
 ### SEO Keyword Audit
 
-| Keyword | Appears In | Frequency | Reads Naturally? |
-|---------|-----------|-----------|-----------------|
-| pre-seasoned cast iron skillet 12 inch | SEO title, paragraph 1 | 2 | Yes |
-| cast iron skillet induction compatible | Amazon title, bullet 2 | 1 | Yes |
-| cast iron skillet for beginners | Hook headline (implied), paragraph 1, bullet 5 | Contextual | Yes -- avoid exact phrase, context covers it |
-| oven safe skillet | Amazon title, bullet 3 | 1 | Yes |
-| lifetime warranty | Amazon title, bullet 6, closing | 2 | Yes |
+| Keyword                                | Appears In                                     | Frequency  | Reads Naturally?                             |
+| -------------------------------------- | ---------------------------------------------- | ---------- | -------------------------------------------- |
+| pre-seasoned cast iron skillet 12 inch | SEO title, paragraph 1                         | 2          | Yes                                          |
+| cast iron skillet induction compatible | Amazon title, bullet 2                         | 1          | Yes                                          |
+| cast iron skillet for beginners        | Hook headline (implied), paragraph 1, bullet 5 | Contextual | Yes -- avoid exact phrase, context covers it |
+| oven safe skillet                      | Amazon title, bullet 3                         | 1          | Yes                                          |
+| lifetime warranty                      | Amazon title, bullet 6, closing                | 2          | Yes                                          |
 
 ---
 
 ### FBP Matrix (Reference)
 
-| Feature | Functional Benefit | Emotional Benefit | Proof |
-|---------|--------------------|-------------------|-------|
-| 3-coat flaxseed oil seasoning, polymerized at 500°F | Nonstick from first use; no prep required | Confidence -- no ritual, no failure mode on day one | 3 coats, specific curing process, specific oil type |
-| Compatible with all cooktop types including induction | Usable in any kitchen, now and after upgrades | Never need to rebuy; investment lasts regardless of kitchen changes | Explicit compatibility list: gas, electric, induction, ceramic glass, wood-burning |
-| Oven-safe to 500°F | Stovetop-to-oven cooking in one pan | Fewer dishes, professional technique accessible at home | Stated temperature rating; broiler-safe confirmation |
-| High thermal mass cast iron construction | Temperature stability under cold-protein load | Restaurant-quality crust achievable at home | Physical property of cast iron vs. thin stainless/nonstick |
-| 30-second post-cook maintenance routine | Low ongoing effort | Cast iron's intimidating reputation is a myth -- you can handle this | Specific steps, specific time, no special equipment |
-| Lifetime unconditional warranty | Zero long-term financial risk | Buy once, done | Stated policy: no questions, no receipt, no expiration |
+| Feature                                               | Functional Benefit                            | Emotional Benefit                                                    | Proof                                                                              |
+| ----------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 3-coat flaxseed oil seasoning, polymerized at 500°F   | Nonstick from first use; no prep required     | Confidence -- no ritual, no failure mode on day one                  | 3 coats, specific curing process, specific oil type                                |
+| Compatible with all cooktop types including induction | Usable in any kitchen, now and after upgrades | Never need to rebuy; investment lasts regardless of kitchen changes  | Explicit compatibility list: gas, electric, induction, ceramic glass, wood-burning |
+| Oven-safe to 500°F                                    | Stovetop-to-oven cooking in one pan           | Fewer dishes, professional technique accessible at home              | Stated temperature rating; broiler-safe confirmation                               |
+| High thermal mass cast iron construction              | Temperature stability under cold-protein load | Restaurant-quality crust achievable at home                          | Physical property of cast iron vs. thin stainless/nonstick                         |
+| 30-second post-cook maintenance routine               | Low ongoing effort                            | Cast iron's intimidating reputation is a myth -- you can handle this | Specific steps, specific time, no special equipment                                |
+| Lifetime unconditional warranty                       | Zero long-term financial risk                 | Buy once, done                                                       | Stated policy: no questions, no receipt, no expiration                             |

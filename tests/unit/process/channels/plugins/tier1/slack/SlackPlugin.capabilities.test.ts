@@ -59,7 +59,7 @@ describe('hasPluginCredentials - slack', () => {
       hasPluginCredentials('slack', {
         botToken: 'xoxb-fake',
         // appToken / signingSecret omitted on purpose
-      }),
+      })
     ).toBe(true);
   });
 });

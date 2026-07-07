@@ -187,19 +187,14 @@ export class NextcloudTalkPlugin extends BasePlugin {
       const body: Record<string, unknown> = { message: chunk };
       if (replyTo) body['replyTo'] = Number(replyTo);
 
-      const resp = await this.ncFetch(
-        `${this.creds.serverUrl}/ocs/v2.php/apps/spreed/api/v1/chat/${chatId}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        },
-      );
+      const resp = await this.ncFetch(`${this.creds.serverUrl}/ocs/v2.php/apps/spreed/api/v1/chat/${chatId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
 
       if (!resp.ok) {
-        throw new Error(
-          `Nextcloud Talk sendMessage failed: ${resp.status} ${resp.statusText}`,
-        );
+        throw new Error(`Nextcloud Talk sendMessage failed: ${resp.status} ${resp.statusText}`);
       }
 
       const json = (await resp.json()) as OcsEnvelope<NextcloudTalkChatMessage>;
@@ -210,11 +205,7 @@ export class NextcloudTalkPlugin extends BasePlugin {
     return lastMessageId;
   }
 
-  async editMessage(
-    chatId: string,
-    messageId: string,
-    message: IUnifiedOutgoingMessage,
-  ): Promise<void> {
+  async editMessage(chatId: string, messageId: string, message: IUnifiedOutgoingMessage): Promise<void> {
     if (!this.creds) throw new Error('Nextcloud Talk plugin not started');
     const text = (message.text ?? '').trim();
     if (!text) return;
@@ -225,13 +216,11 @@ export class NextcloudTalkPlugin extends BasePlugin {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text }),
-      },
+      }
     );
 
     if (!resp.ok) {
-      throw new Error(
-        `Nextcloud Talk editMessage failed: ${resp.status} ${resp.statusText}`,
-      );
+      throw new Error(`Nextcloud Talk editMessage failed: ${resp.status} ${resp.statusText}`);
     }
   }
 
@@ -248,13 +237,11 @@ export class NextcloudTalkPlugin extends BasePlugin {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reaction: emoji }),
-      },
+      }
     );
 
     if (!resp.ok) {
-      throw new Error(
-        `Nextcloud Talk addReaction failed: ${resp.status} ${resp.statusText}`,
-      );
+      throw new Error(`Nextcloud Talk addReaction failed: ${resp.status} ${resp.statusText}`);
     }
   }
 
@@ -283,10 +270,7 @@ export class NextcloudTalkPlugin extends BasePlugin {
           }
         } catch (err) {
           if (this.stopped) return;
-          console.warn(
-            `[NextcloudTalkPlugin] poll error for room ${roomToken}:`,
-            err,
-          );
+          console.warn(`[NextcloudTalkPlugin] poll error for room ${roomToken}:`, err);
           // Schedule reconnect and stop this loop. scheduleReconnect will
           // restart all loops when it reconnects.
           this.scheduleReconnect();
@@ -307,9 +291,7 @@ export class NextcloudTalkPlugin extends BasePlugin {
     if (!this.creds || !this.selfUserId) return 'idle';
 
     const lastId = this.lastKnownIds.get(roomToken) ?? 0;
-    const url = new URL(
-      `${this.creds.serverUrl}/ocs/v2.php/apps/spreed/api/v1/chat/${roomToken}`,
-    );
+    const url = new URL(`${this.creds.serverUrl}/ocs/v2.php/apps/spreed/api/v1/chat/${roomToken}`);
     url.searchParams.set('lookIntoFuture', '1');
     url.searchParams.set('timeout', String(LONG_POLL_TIMEOUT_S));
     url.searchParams.set('limit', '200');
@@ -338,28 +320,21 @@ export class NextcloudTalkPlugin extends BasePlugin {
     // surface an actionable error so the user knows to re-test credentials.
     if (resp.status === 401) {
       this.stopped = true;
-      this.setStatus(
-        'error',
-        'Nextcloud Talk: app-password revoked or invalid - re-test credentials',
-      );
+      this.setStatus('error', 'Nextcloud Talk: app-password revoked or invalid - re-test credentials');
       return 'stop';
     }
 
     // 404 = room/token not found. Skip this room without consuming reconnect
     // attempts; other rooms continue polling normally.
     if (resp.status === 404) {
-      console.warn(
-        `[NextcloudTalkPlugin] Room ${roomToken} not found (404) - skipping further polls for this room`,
-      );
+      console.warn(`[NextcloudTalkPlugin] Room ${roomToken} not found (404) - skipping further polls for this room`);
       this.rooms = this.rooms.filter((r) => r !== roomToken);
       this.lastKnownIds.delete(roomToken);
       return 'stop';
     }
 
     if (!resp.ok) {
-      throw new Error(
-        `Nextcloud Talk poll failed: ${resp.status} ${resp.statusText}`,
-      );
+      throw new Error(`Nextcloud Talk poll failed: ${resp.status} ${resp.statusText}`);
     }
 
     const json = (await resp.json()) as OcsEnvelope<NextcloudTalkChatMessage[]>;
@@ -375,17 +350,11 @@ export class NextcloudTalkPlugin extends BasePlugin {
         this.lastKnownIds.set(roomToken, msg.id);
       }
 
-      const unified = toUnifiedIncomingFromNextcloudTalk(
-        msg,
-        roomToken,
-        this.selfUserId,
-      );
+      const unified = toUnifiedIncomingFromNextcloudTalk(msg, roomToken, this.selfUserId);
       if (!unified) continue;
 
       this.activeUsers.add(unified.user.id);
-      void this.emitMessage(unified).catch((err) =>
-        console.error('[NextcloudTalkPlugin] emitMessage failed:', err),
-      );
+      void this.emitMessage(unified).catch((err) => console.error('[NextcloudTalkPlugin] emitMessage failed:', err));
     }
     return 'ok';
   }
@@ -420,10 +389,10 @@ export class NextcloudTalkPlugin extends BasePlugin {
 
     const delay = Math.min(
       RECONNECT_BACKOFF_START_MS * 2 ** (this.reconnectFailureCount - 1),
-      RECONNECT_BACKOFF_CAP_MS,
+      RECONNECT_BACKOFF_CAP_MS
     );
     console.warn(
-      `[NextcloudTalkPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`,
+      `[NextcloudTalkPlugin] reconnect attempt ${this.reconnectFailureCount}/${RECONNECT_BACKOFF_MAX_ATTEMPTS} in ${delay}ms`
     );
     this.setError(`Nextcloud Talk poll failed; retrying in ${delay}ms`);
 
@@ -442,10 +411,7 @@ export class NextcloudTalkPlugin extends BasePlugin {
    * Authenticated fetch wrapper - injects Basic auth, OCS-APIRequest, and
    * Accept headers for every request to the Nextcloud instance.
    */
-  private async ncFetch(
-    url: string,
-    init: RequestInit = {},
-  ): Promise<Response> {
+  private async ncFetch(url: string, init: RequestInit = {}): Promise<Response> {
     if (!this.creds) throw new Error('Nextcloud Talk plugin not started');
     const { username, appPassword } = this.creds;
     const basic = Buffer.from(`${username}:${appPassword}`).toString('base64');
@@ -474,9 +440,7 @@ export class NextcloudTalkPlugin extends BasePlugin {
       },
     });
     if (!resp.ok) {
-      throw new Error(
-        `Nextcloud Talk whoami failed: ${resp.status} ${resp.statusText}`,
-      );
+      throw new Error(`Nextcloud Talk whoami failed: ${resp.status} ${resp.statusText}`);
     }
     const json = (await resp.json()) as OcsEnvelope<OcsUserData>;
     const data = json?.ocs?.data;
@@ -491,7 +455,7 @@ export class NextcloudTalkPlugin extends BasePlugin {
    * The token argument is a JSON-encoded {serverUrl, username, appPassword} blob.
    */
   static override async testConnection(
-    token: string,
+    token: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let creds: Creds;
     try {

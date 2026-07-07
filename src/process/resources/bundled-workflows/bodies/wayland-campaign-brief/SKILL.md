@@ -13,14 +13,15 @@ description: >-
   atomic copy skill can answer without building the full brief.
 license: Apache-2.0
 type: workflow
-skills: "market-copy market-launch"
+skills: 'market-copy market-launch'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing campaign brief creative launch step-by-step
   category: marketing
-  depends: "market-copy market-launch"
+  depends: 'market-copy market-launch'
 ---
+
 # Campaign Brief
 
 **Estimated time:** 25-35 minutes

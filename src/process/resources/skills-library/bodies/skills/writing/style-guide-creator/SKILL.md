@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation best-practices"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation best-practices'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Style Guide Creator
@@ -55,38 +55,41 @@ Technical Style Guide Table of Contents:
 
 Our documentation voice is:
 
-| Attribute | We are... | We are NOT... |
-|-----------|-----------|---------------|
-| **Clear** | Direct, specific, unambiguous | Vague, wordy, jargon-heavy |
-| **Helpful** | Anticipating questions, providing context | Condescending, overly brief |
-| **Professional** | Confident, accurate, trustworthy | Stiff, bureaucratic, cold |
-| **Inclusive** | Welcoming to all skill levels | Assuming expertise, exclusionary |
-| **Concise** | Saying enough, then stopping | Verbose, repetitive, padded |
+| Attribute        | We are...                                 | We are NOT...                    |
+| ---------------- | ----------------------------------------- | -------------------------------- |
+| **Clear**        | Direct, specific, unambiguous             | Vague, wordy, jargon-heavy       |
+| **Helpful**      | Anticipating questions, providing context | Condescending, overly brief      |
+| **Professional** | Confident, accurate, trustworthy          | Stiff, bureaucratic, cold        |
+| **Inclusive**    | Welcoming to all skill levels             | Assuming expertise, exclusionary |
+| **Concise**      | Saying enough, then stopping              | Verbose, repetitive, padded      |
 
 ### Voice in Practice
 
 **Too casual:**
+
 > So basically, you just grab the API key and slap it in the header
 > and you're good to go!
 
 **Too formal:**
+
 > The aforementioned authentication credential shall be transmitted
 > via the HTTP Authorization header in accordance with RFC 7235.
 
 **Just right:**
+
 > Include your API key in the `Authorization` header of each request.
 > See [Authentication](#authentication) for details.
 ```
 
 ### Tone Adjustments by Context
 
-| Context | Tone Adjustment | Example |
-|---------|----------------|---------|
-| Error messages | Empathetic, solution-focused | "This field requires a value. Enter a product name to continue." |
-| Tutorials | Encouraging, step-by-step | "You now have a working API. Next, you will add authentication." |
-| API reference | Precise, factual | "Returns a paginated list of products. Maximum 100 per page." |
-| Release notes | Informative, forward-looking | "You can now search products by category. This replaces the legacy filter parameter." |
-| Warnings | Direct, clear about consequences | "Deleting a workspace removes all projects within it. This action cannot be undone." |
+| Context        | Tone Adjustment                  | Example                                                                               |
+| -------------- | -------------------------------- | ------------------------------------------------------------------------------------- |
+| Error messages | Empathetic, solution-focused     | "This field requires a value. Enter a product name to continue."                      |
+| Tutorials      | Encouraging, step-by-step        | "You now have a working API. Next, you will add authentication."                      |
+| API reference  | Precise, factual                 | "Returns a paginated list of products. Maximum 100 per page."                         |
+| Release notes  | Informative, forward-looking     | "You can now search products by category. This replaces the legacy filter parameter." |
+| Warnings       | Direct, clear about consequences | "Deleting a workspace removes all projects within it. This action cannot be undone."  |
 
 ### Second Person and Active Voice
 
@@ -127,21 +130,23 @@ Our documentation voice is:
 Use these terms consistently. The "Preferred" column is the only acceptable
 form in our documentation.
 
-| Preferred | Avoid | Notes |
-|-----------|-------|-------|
-| API key | api key, API Key, Api Key | Always "API key" (noun) |
-| app | application | Use "app" in user-facing docs |
-| back end (noun) | back-end | Two words as a noun |
-| back-end (adj) | backend | Hyphenated as an adjective |
-| command line (noun) | commandline | Two words as a noun |
+| Preferred           | Avoid                     | Notes                         |
+| ------------------- | ------------------------- | ----------------------------- |
+| API key             | api key, API Key, Api Key | Always "API key" (noun)       |
+| app                 | application               | Use "app" in user-facing docs |
+| back end (noun)     | back-end                  | Two words as a noun           |
+| back-end (adj)      | backend                   | Hyphenated as an adjective    |
+| command line (noun) | commandline               | Two words as a noun           |
+
 # ... (condensed) ...
+
 ### Product-Specific Terms
 
-| Term | Definition | Usage |
-|------|-----------|-------|
-| Workspace | A container for projects and team members | "Create a workspace for your team." |
-| Pipeline | An automated sequence of build and deploy steps | "The pipeline runs on every push to main." |
-| Runner | A compute instance that executes pipeline jobs | "Self-hosted runners run in your infrastructure." |
+| Term      | Definition                                      | Usage                                             |
+| --------- | ----------------------------------------------- | ------------------------------------------------- |
+| Workspace | A container for projects and team members       | "Create a workspace for your team."               |
+| Pipeline  | An automated sequence of build and deploy steps | "The pipeline runs on every push to main."        |
+| Runner    | A compute instance that executes pipeline jobs  | "Self-hosted runners run in your infrastructure." |
 ```
 
 ## Formatting Standards
@@ -179,16 +184,19 @@ form in our documentation.
 ## When to Use Bold, Italic, and Code
 
 **Bold** for:
+
 - UI element names: Click **Save**.
 - Key terms on first use: A **workspace** contains projects.
 - Emphasis (sparingly): Do **not** delete the configuration file.
 
-*Italic* for:
-- Introducing new terms: This is called a *circuit breaker*.
-- Titles of books or documents: See *The Pragmatic Programmer*.
-- Mathematical variables: Where *n* is the number of retries.
+_Italic_ for:
+
+- Introducing new terms: This is called a _circuit breaker_.
+- Titles of books or documents: See _The Pragmatic Programmer_.
+- Mathematical variables: Where _n_ is the number of retries.
 
 `Code font` for:
+
 - Inline code: Set the `timeout` parameter to `30`.
 - File names: Edit `config.yaml`.
 - Command names: Run `add the package dependency`.
@@ -199,6 +207,7 @@ form in our documentation.
 - Key names in JSON/YAML: The `name` field is required.
 
 > Blockquotes for:
+>
 > - Notes, tips, warnings
 > - Quoted text from external sources
 ```
@@ -226,6 +235,7 @@ Use these callout types consistently:
 > Less severe than a warning but still requires attention.
 
 Rules:
+
 - Maximum one callout per section (overuse reduces impact)
 - Place callouts BEFORE the action they relate to
 - Keep callout text to 1-3 sentences
@@ -236,17 +246,19 @@ Rules:
 
 ### Code Block Standards
 
-```markdown
+````markdown
 ## Code Sample Rules
 
 1. Always specify the language for syntax highlighting
-   \```python   ← Language identifier required
+   \```python ← Language identifier required
    print("hello")
    \```
 
 2. Include a comment with the file path for file-based examples
    \```python
+
    # src/config.py
+
    DATABASE_URL = environment-variables["DATABASE_URL"]
    \```
 
@@ -255,15 +267,16 @@ Rules:
 
 4. Use obviously-fake example values, not realistic-looking credentials
    - GOOD: `api_key = "sk_test_EXAMPLE_KEY_REPLACE_ME"`
+
    # ... (condensed) ...
    - `<placeholder>` for values the reader must replace
    - Describe each placeholder below the code block
    - Example: Replace `<project-id>` with your project ID from the dashboard.
 
-7. Line length maximum: 80 characters
+5. Line length maximum: 80 characters
    - Break long lines for readability
    - Use continuation characters appropriate to the language
-```
+````
 
 ## Inclusive Language
 
@@ -274,13 +287,14 @@ Rules:
 
 ### Terms to Replace
 
-| Avoid | Use Instead | Reason |
-|-------|-------------|--------|
-| whitelist | allowlist | Racial connotation |
-| blacklist | denylist, blocklist | Racial connotation |
-| master (branch) | main | Loaded term |
-| slave | replica, secondary, follower | Loaded term |
-| master/slave | primary/replica, leader/follower | Loaded term |
+| Avoid           | Use Instead                      | Reason             |
+| --------------- | -------------------------------- | ------------------ |
+| whitelist       | allowlist                        | Racial connotation |
+| blacklist       | denylist, blocklist              | Racial connotation |
+| master (branch) | main                             | Loaded term        |
+| slave           | replica, secondary, follower     | Loaded term        |
+| master/slave    | primary/replica, leader/follower | Loaded term        |
+
 # ... (condensed) ...
 
 - Do not assume all readers use a mouse
@@ -371,6 +385,7 @@ Rules:
    - If one item needs a period, all items in that list get periods
 
 4. Minimum 2 items; maximum 10 items per list
+
    # ... (condensed) ...
    - Set the API key
    - Start the server
@@ -404,7 +419,9 @@ Rules:
 4. Link to the most specific location
    - GOOD: "See [rate limiting](/docs/api/rate-limits#headers)"
    - BAD: "See [the API docs](/docs/api)"
+
 # ... (condensed) ...
+
 6. Verify links regularly
    - Run automated link checker in CI
    - Broken links are documentation bugs
@@ -422,6 +439,7 @@ Rules:
 ## Review Checklist
 
 ### Content Accuracy
+
 - [ ] Technical information is correct and verified
 - [ ] Code samples run without errors
 - [ ] Commands produce the described output
@@ -429,6 +447,7 @@ Rules:
 - [ ] Screenshots match the current UI
 
 ### Style Compliance
+
 - [ ] Headings use sentence case
 - [ ] Active voice used throughout
 - [ ] Reader addressed as "you"
@@ -438,9 +457,11 @@ Rules:
 - [ ] Lists use parallel structure
 
 # ... (condensed) ...
+
 - [ ] Heading structure supports screen readers
 
 ### Completeness
+
 - [ ] All steps include verification ("you should see...")
 - [ ] Error scenarios are addressed
 - [ ] Prerequisites are listed
@@ -493,21 +514,26 @@ Style Guide Governance:
 # Style Guide Creator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

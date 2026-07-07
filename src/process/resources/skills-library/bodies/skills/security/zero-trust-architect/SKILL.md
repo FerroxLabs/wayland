@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security cloud-security guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'security cloud-security guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Zero Trust Architect
@@ -51,11 +51,11 @@ Context (Risk):   Time, location, network type, resource sensitivity, behavior a
 
 ### Authentication Strength Levels
 
-| Level | Method | Acceptable For |
-|-------|--------|----------------|
-| 1 (Low) | Password only | Public information |
-| 2 (Medium) | Password + TOTP/push | Internal apps, standard resources |
-| 3 (High) | Password + FIDO2/WebAuthn | Admin access, sensitive data |
+| Level         | Method                                       | Acceptable For                       |
+| ------------- | -------------------------------------------- | ------------------------------------ |
+| 1 (Low)       | Password only                                | Public information                   |
+| 2 (Medium)    | Password + TOTP/push                         | Internal apps, standard resources    |
+| 3 (High)      | Password + FIDO2/WebAuthn                    | Admin access, sensitive data         |
 | 4 (Very High) | Hardware key + biometric + device compliance | Infrastructure admin, key management |
 
 ### Identity Architecture
@@ -70,13 +70,13 @@ identity_architecture:
       service_accounts: certificate_or_managed_identity
 
   service_identity:
-    kubernetes: "Service account tokens + SPIFFE/SPIRE"
-    cloud: "Managed identity (no static credentials)"
-    ci_cd: "OIDC federation (GitHub Actions -> Cloud IAM)"
+    kubernetes: 'Service account tokens + SPIFFE/SPIRE'
+    cloud: 'Managed identity (no static credentials)'
+    ci_cd: 'OIDC federation (GitHub Actions -> Cloud IAM)'
 
   deprovisioning:
-    trigger: "HR termination event"
-    sla: "< 1 hour to revoke all access"
+    trigger: 'HR termination event'
+    sla: '< 1 hour to revoke all access'
 ```
 
 ## Microsegmentation
@@ -108,11 +108,11 @@ spec:
   rules:
     - from:
         - source:
-            principals: ["cluster.local/ns/production/sa/api-gateway"]
+            principals: ['cluster.local/ns/production/sa/api-gateway']
       to:
         - operation:
-            methods: ["GET", "POST"]
-            paths: ["/api/orders*"]
+            methods: ['GET', 'POST']
+            paths: ['/api/orders*']
 
 ---
 # Deny all other traffic by default
@@ -146,20 +146,20 @@ metadata:
   namespace: production
 spec:
   podSelector:
-    matchLabels: {app: backend}
+    matchLabels: { app: backend }
   policyTypes: [Ingress, Egress]
   ingress:
     - from:
-        - podSelector: {matchLabels: {app: frontend}}
-      ports: [{protocol: TCP, port: 8080}]
+        - podSelector: { matchLabels: { app: frontend } }
+      ports: [{ protocol: TCP, port: 8080 }]
   egress:
     - to:
-        - podSelector: {matchLabels: {app: database}}
-      ports: [{protocol: TCP, port: 5432}]
+        - podSelector: { matchLabels: { app: database } }
+      ports: [{ protocol: TCP, port: 5432 }]
     - to:
         - namespaceSelector: {}
-          podSelector: {matchLabels: {k8s-app: kube-dns}}
-      ports: [{protocol: UDP, port: 53}]
+          podSelector: { matchLabels: { k8s-app: kube-dns } }
+      ports: [{ protocol: UDP, port: 53 }]
 ```
 
 ## Policy Engines
@@ -229,25 +229,25 @@ device_trust_policy:
 
   managed_devices:
     - mdm_enrolled: true
-    - os_patch_level: "within 30 days"
-    - antivirus: "running and up to date"
+    - os_patch_level: 'within 30 days'
+    - antivirus: 'running and up to date'
 
   posture_scoring:
-    fully_compliant (1.0):   "Full access"
-    minor_deviation (0.7):   "Access with remediation prompt"
-    major_deviation (0.4):   "Non-sensitive resources only"
-    non_compliant (< 0.3):   "Blocked, must remediate"
+    fully_compliant (1.0): 'Full access'
+    minor_deviation (0.7): 'Access with remediation prompt'
+    major_deviation (0.4): 'Non-sensitive resources only'
+    non_compliant (< 0.3): 'Blocked, must remediate'
 ```
 
 ## ZTNA vs VPN
 
-| Aspect | Traditional VPN | ZTNA |
-|--------|----------------|------|
-| Network access | Broad (full subnet) | Narrow (specific app) |
-| Authentication | One-time at connect | Per-app, continuous |
-| Lateral movement | Easy once connected | Blocked by design |
-| User experience | Slow, routes all traffic | Fast, direct |
-| Device posture | Checked once | Continuously evaluated |
+| Aspect           | Traditional VPN          | ZTNA                   |
+| ---------------- | ------------------------ | ---------------------- |
+| Network access   | Broad (full subnet)      | Narrow (specific app)  |
+| Authentication   | One-time at connect      | Per-app, continuous    |
+| Lateral movement | Easy once connected      | Blocked by design      |
+| User experience  | Slow, routes all traffic | Fast, direct           |
+| Device posture   | Checked once             | Continuously evaluated |
 
 ## Implementation Roadmap
 
@@ -320,6 +320,7 @@ Monitoring:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing zero trust architect solutions
 - Reviewing or improving existing zero trust architect approaches
 - Making architectural or implementation decisions about zero trust architect
@@ -327,6 +328,7 @@ Monitoring:
 - Troubleshooting zero trust architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -337,21 +339,26 @@ Monitoring:
 # Zero Trust Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

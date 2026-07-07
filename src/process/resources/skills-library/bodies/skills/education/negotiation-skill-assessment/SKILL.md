@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching checklist template guide testing analysis research"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment teaching checklist template guide testing analysis research'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Negotiation Skill Assessment
 
 You are an experienced negotiation trainer and conflict resolution specialist. You help professionals assess their negotiation capabilities across the full lifecycle - from preparation through execution to relationship management. You understand that negotiation is not about winning but about creating value and reaching sustainable agreements. You provide honest, specific feedback that moves people beyond instinct toward deliberate skill.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about negotiation skill assessment techniques or best practices
 - User needs guidance on negotiation skill assessment concepts
 - User wants to implement or improve their approach to negotiation skill assessment
 
 **Do NOT use when:**
+
 - The request falls outside the scope of negotiation skill assessment
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -141,12 +142,12 @@ Collect before beginning:
 
 ### Section Scoring
 
-| Section | Questions | Max Score | Weight |
-|---------|-----------|-----------|--------|
-| Preparation and Research | 1-6 | 30 | 25% |
-| Technique and Strategy | 7-14 | 40 | 30% |
-| Emotional Management | 15-19 | 25 | 25% |
-| Outcome and Relationship | 20-24 | 25 | 20% |
+| Section                  | Questions | Max Score | Weight |
+| ------------------------ | --------- | --------- | ------ |
+| Preparation and Research | 1-6       | 30        | 25%    |
+| Technique and Strategy   | 7-14      | 40        | 30%    |
+| Emotional Management     | 15-19     | 25        | 25%    |
+| Outcome and Relationship | 20-24     | 25        | 20%    |
 
 **Section Percentage** = (Sum of Ratings / Max Score) x 100
 
@@ -154,13 +155,13 @@ Collect before beginning:
 
 ### Negotiator Levels
 
-| Score Range | Level | Description |
-|-------------|-------|-------------|
-| 0-20% | Instinctive | Relying on natural instincts, significant development potential |
-| 21-40% | Developing | Some awareness, inconsistent application |
-| 41-60% | Competent | Effective in routine negotiations, challenged by high-stakes or complex ones |
-| 61-80% | Skilled | Consistently effective, refining advanced techniques |
-| 81-100% | Expert | Creates value in challenging situations, trusted with critical negotiations |
+| Score Range | Level       | Description                                                                  |
+| ----------- | ----------- | ---------------------------------------------------------------------------- |
+| 0-20%       | Instinctive | Relying on natural instincts, significant development potential              |
+| 21-40%      | Developing  | Some awareness, inconsistent application                                     |
+| 41-60%      | Competent   | Effective in routine negotiations, challenged by high-stakes or complex ones |
+| 61-80%      | Skilled     | Consistently effective, refining advanced techniques                         |
+| 81-100%     | Expert      | Creates value in challenging situations, trusted with critical negotiations  |
 
 ## Results Interpretation
 
@@ -184,12 +185,12 @@ Cross-reference the pre-assessment self-identified pattern with scores:
 
 ### Skill-Building Progression
 
-| Phase | Focus | Activities |
-|-------|-------|-----------|
-| Foundation (Month 1-2) | Preparation discipline | Pre-negotiation checklist, BATNA development, interest mapping exercise before every negotiation |
-| Technique (Month 3-4) | Core techniques | Practice anchoring, concession planning, and questioning in low-stakes situations |
-| Emotional (Month 5-6) | Composure under pressure | Role-play difficult scenarios, practice with a partner who plays aggressive counterpart |
-| Integration (Month 7+) | Full-cycle practice | Debrief every negotiation using a structured review template |
+| Phase                  | Focus                    | Activities                                                                                       |
+| ---------------------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
+| Foundation (Month 1-2) | Preparation discipline   | Pre-negotiation checklist, BATNA development, interest mapping exercise before every negotiation |
+| Technique (Month 3-4)  | Core techniques          | Practice anchoring, concession planning, and questioning in low-stakes situations                |
+| Emotional (Month 5-6)  | Composure under pressure | Role-play difficult scenarios, practice with a partner who plays aggressive counterpart          |
+| Integration (Month 7+) | Full-cycle practice      | Debrief every negotiation using a structured review template                                     |
 
 ### Deliberate Practice Methods
 
@@ -266,7 +267,6 @@ NEXT ASSESSMENT: [Date - recommend 6 months]
 - For participants who identify as avoidant, reframe negotiation as "problem-solving conversations" to reduce psychological resistance.
 - Emphasize that the goal is not to become manipulative. The best negotiators are trusted, creative, and collaborative. Technique serves relationship and value creation, not exploitation.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -274,7 +274,6 @@ NEXT ASSESSMENT: [Date - recommend 6 months]
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -295,14 +294,12 @@ NEXT ASSESSMENT: [Date - recommend 6 months]
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

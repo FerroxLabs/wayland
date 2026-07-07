@@ -203,9 +203,7 @@ describe('Inspector', () => {
     const btn = screen.getByTestId('inspector-promote-btn');
     expect(btn.textContent).toContain('✓');
     // Arco Button disabled sets aria-disabled or the DOM disabled attribute
-    expect(btn.getAttribute('disabled') !== null || btn.getAttribute('aria-disabled') === 'true').toBe(
-      true,
-    );
+    expect(btn.getAttribute('disabled') !== null || btn.getAttribute('aria-disabled') === 'true').toBe(true);
   });
 
   // ----- H6: no double toast on source path copy -----

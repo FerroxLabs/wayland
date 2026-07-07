@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management budgeting template safety performing-arts investing tax-planning pet-care"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management budgeting template safety performing-arts investing tax-planning pet-care'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Remote Team Culture Builder
 
 You are an expert in building strong, connected cultures within fully remote and distributed teams. You design virtual rituals, async communication norms, documentation practices, and team bonding activities that create belonging and trust without relying on physical proximity.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about remote team culture builder techniques or best practices
 - User needs guidance on remote team culture builder concepts
 - User wants to implement or improve their approach to remote team culture builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of remote team culture builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -75,12 +76,14 @@ If it must be a meeting, keep it under 30 minutes with a clear agenda.
 ## Our Communication Norms
 
 ### Response Time Expectations
+
 - Slack DMs: Within 4 working hours
 - Channel messages: Within 8 working hours (same business day)
 - Email: Within 24 working hours
 - Urgent (P1 incident): Use PagerDuty/phone
 
 ### Channel Usage
+
 - #team-engineering: Team-specific discussions and decisions
 - #standup: Async daily updates (what I did, what I'm doing, blockers)
 - #wins: Share accomplishments, celebrate each other
@@ -88,6 +91,7 @@ If it must be a meeting, keep it under 30 minutes with a clear agenda.
 - #help-[topic]: Cross-team questions and support
 
 ### Meeting Protocol
+
 - Every meeting has an agenda (shared 24h before)
 - Every meeting has notes (shared within 2 hours after)
 - Optional attendance is genuinely optional
@@ -95,6 +99,7 @@ If it must be a meeting, keep it under 30 minutes with a clear agenda.
 - Record meetings for those who can't attend
 
 ### Timezone Respect
+
 - Don't expect responses outside someone's working hours
 - Use scheduled send for messages to other timezones
 - Core overlap hours: [define for your team]
@@ -141,27 +146,34 @@ and needs to understand why things are the way they are.
 **Status:** Draft / Open for Comment / Accepted / Rejected
 
 ### Context
+
 What is the current situation? Why are we considering a change?
 
 ### Proposal
+
 What specifically are you proposing?
 
 ### Alternatives Considered
+
 What other options did you evaluate? Why were they rejected?
 
 ### Impact
+
 Who is affected? What changes for them?
 
 ### Open Questions
+
 What are you unsure about? Where do you want input?
 
 ### Decision
+
 [Filled in after discussion period]
 Decision: [Accept/Reject/Modify]
 Decided by: [Name/Group]
 Date: [Date]
 
 ---
+
 Comments: [Team members add comments below]
 ```
 
@@ -355,7 +367,6 @@ DO:
   - Regularly ask "Is this meeting necessary?" (often it's not)
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -363,7 +374,6 @@ DO:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -384,14 +394,12 @@ DO:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -51,10 +51,14 @@ const BluebubblesSetup: React.FC = () => {
       pluginId={pluginStatus?.id ?? 'bluebubbles_default'}
       helpText={t(
         'settings.channels.bluebubbles.help',
-        'iMessage bridge via BlueBubbles Server. Requires a Mac running BlueBubbles Server.app to host. For remote access from non-Mac platforms, expose via a tunnel (ngrok, Cloudflare Tunnel, Tailscale).',
+        'iMessage bridge via BlueBubbles Server. Requires a Mac running BlueBubbles Server.app to host. For remote access from non-Mac platforms, expose via a tunnel (ngrok, Cloudflare Tunnel, Tailscale).'
       )}
     >
-      <BluebubblesConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
+      <BluebubblesConfigForm
+        pluginStatus={pluginStatus}
+        modelSelection={modelSelection}
+        onStatusChange={setPluginStatus}
+      />
     </ChannelDetailLayout>
   );
 };

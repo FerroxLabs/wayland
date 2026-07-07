@@ -52,7 +52,7 @@ describe('MattermostPlugin.testConnection - happy path', () => {
         headers: expect.objectContaining({
           Authorization: 'Bearer valid-token-abc',
         }),
-      }),
+      })
     );
   });
 
@@ -81,17 +81,13 @@ describe('MattermostPlugin.testConnection - credential errors', () => {
   });
 
   it('returns failure when serverUrl is missing', async () => {
-    const result = await MattermostPlugin.testConnection(
-      JSON.stringify({ accessToken: 'tok' }),
-    );
+    const result = await MattermostPlugin.testConnection(JSON.stringify({ accessToken: 'tok' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/server url/i);
   });
 
   it('returns failure when accessToken is missing', async () => {
-    const result = await MattermostPlugin.testConnection(
-      JSON.stringify({ serverUrl: 'https://mm.example.com' }),
-    );
+    const result = await MattermostPlugin.testConnection(JSON.stringify({ serverUrl: 'https://mm.example.com' }));
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/access token/i);
   });

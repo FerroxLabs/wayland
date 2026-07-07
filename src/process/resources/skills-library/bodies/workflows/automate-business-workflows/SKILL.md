@@ -30,6 +30,7 @@ metadata:
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Automate Business Workflows
 
 **Estimated time:** 3-6 weeks
@@ -110,7 +111,7 @@ set up automation monitoring: execution success/failure rates, processing times,
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Expand audit to more teams/departments
   - If **After Step 2**: Focus only on quick wins with clear payback
   - If **After Step 4**: Stabilize quick wins before adding complexity
@@ -159,6 +160,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

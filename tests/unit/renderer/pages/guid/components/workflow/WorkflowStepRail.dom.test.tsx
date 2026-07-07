@@ -23,9 +23,7 @@ vi.mock('react-i18next', () => ({
       // Minimal {{key}} interpolation so default-value strings like
       // "Run Step {{n}} autonomously?" render with their substituted values
       // exactly the way react-i18next would in the app.
-      return fallback.replace(/\{\{(\w+)\}\}/g, (_, name: string) =>
-        opts[name] != null ? String(opts[name]) : ''
-      );
+      return fallback.replace(/\{\{(\w+)\}\}/g, (_, name: string) => (opts[name] != null ? String(opts[name]) : ''));
     },
   }),
 }));
@@ -239,9 +237,7 @@ describe('WorkflowStepRail', () => {
     const runningRow = rows[3];
     expect(runningRow).toHaveAttribute('data-running', 'true');
     expect(within(runningRow).queryByTestId('workflow-step-rail-run-btn')).toBeNull();
-    expect(within(runningRow).getByTestId('workflow-step-rail-running-label')).toHaveTextContent(
-      /Running/i
-    );
+    expect(within(runningRow).getByTestId('workflow-step-rail-running-label')).toHaveTextContent(/Running/i);
   });
 
   it('renders the children prop as the bottom slot', () => {

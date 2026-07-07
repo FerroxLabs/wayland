@@ -82,7 +82,8 @@ export const slackVerifier: WebhookVerifier = (input, secret) => {
   }
 
   const eventId =
-    (payload as { event_id?: string }).event_id ?? (payload as { event?: { client_msg_id?: string } }).event?.client_msg_id;
+    (payload as { event_id?: string }).event_id ??
+    (payload as { event?: { client_msg_id?: string } }).event?.client_msg_id;
 
   return { ok: true, payload, eventId, timestamp: tsNum * 1000 };
 };

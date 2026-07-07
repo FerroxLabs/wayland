@@ -9,13 +9,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'technical-writing documentation guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Technical Specification Writing
@@ -146,9 +146,11 @@ services, arrows for data flow, labels for protocols.]
 **[Operation name]**
 
 ```
+
 [METHOD] /[path]
 Request: { [fields] }
 Response: { [fields] }
+
 ```
 
 ### 3.4 Key Flows
@@ -252,22 +254,22 @@ Users must manually refresh the application to see updates to their tasks, menti
 
 ### 2.1 Functional Requirements
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| FR-1 | System must deliver notification to user within 2 seconds of triggering event | Must |
-| FR-2 | System must support notification types: mention, task-assignment, status-change | Must |
-| FR-3 | Users must be able to mark notifications as read individually or in bulk | Must |
-| FR-4 | System must persist notifications for users who are offline and deliver on reconnect | Must |
-| FR-5 | Users should be able to configure which notification types they receive | Should |
+| ID   | Requirement                                                                          | Priority |
+| ---- | ------------------------------------------------------------------------------------ | -------- |
+| FR-1 | System must deliver notification to user within 2 seconds of triggering event        | Must     |
+| FR-2 | System must support notification types: mention, task-assignment, status-change      | Must     |
+| FR-3 | Users must be able to mark notifications as read individually or in bulk             | Must     |
+| FR-4 | System must persist notifications for users who are offline and deliver on reconnect | Must     |
+| FR-5 | Users should be able to configure which notification types they receive              | Should   |
 
 ### 2.2 Non-Functional Requirements
 
-| ID | Requirement | Target |
-|----|-------------|--------|
-| NFR-1 | End-to-end notification latency | < 2 seconds at p99 |
-| NFR-2 | WebSocket connection reliability | 99.9% uptime |
+| ID    | Requirement                      | Target                    |
+| ----- | -------------------------------- | ------------------------- |
+| NFR-1 | End-to-end notification latency  | < 2 seconds at p99        |
+| NFR-2 | WebSocket connection reliability | 99.9% uptime              |
 | NFR-3 | Concurrent connections supported | 5,000 per server instance |
-| NFR-4 | Notification storage retention | 90 days |
+| NFR-4 | Notification storage retention   | 90 days                   |
 
 ### 2.3 Out of Scope
 
@@ -285,14 +287,15 @@ When an event occurs (mention, assignment, status change), the source service pu
 
 ### 3.2 Data Model
 
-| Entity | Key Fields | Relationships |
-|--------|-----------|---------------|
-| Notification | id: uuid, user_id: uuid, type: enum, payload: jsonb, read: boolean, created_at: timestamp | belongs-to User |
-| NotificationPreference | user_id: uuid, type: enum, enabled: boolean | belongs-to User |
+| Entity                 | Key Fields                                                                                | Relationships   |
+| ---------------------- | ----------------------------------------------------------------------------------------- | --------------- |
+| Notification           | id: uuid, user_id: uuid, type: enum, payload: jsonb, read: boolean, created_at: timestamp | belongs-to User |
+| NotificationPreference | user_id: uuid, type: enum, enabled: boolean                                               | belongs-to User |
 
 ### 3.3 Key Flows
 
 **User receives a real-time notification:**
+
 1. Source service publishes event to Redis channel `notifications:{user_id}`
 2. Notification Service writes the notification to PostgreSQL
 3. WebSocket Gateway receives the Redis message and looks up active connection for `user_id`
@@ -301,36 +304,39 @@ When an event occurs (mention, assignment, status change), the source service pu
 
 ## 4. Alternatives Considered
 
-| Criteria | Option A: WebSocket + Redis Pub/Sub | Option B: Server-Sent Events (SSE) | Option C: Long Polling |
-|----------|--------------------------------------|-------------------------------------|----------------------|
-| Latency | Sub-second delivery | Sub-second delivery | 1-30 second delay (poll interval) |
-| Bidirectional | Yes (read receipts over same connection) | No (requires separate POST for reads) | No |
-| Browser support | All modern browsers | All modern browsers | All browsers |
-| Infrastructure | Requires WebSocket-aware load balancer | Standard HTTP infrastructure | Standard HTTP infrastructure |
-| Scalability | Horizontal with Redis | Horizontal with Redis | Higher server load per connection |
-| **Verdict** | **Selected** | Rejected: no bidirectional support | Rejected: latency unacceptable |
+| Criteria        | Option A: WebSocket + Redis Pub/Sub      | Option B: Server-Sent Events (SSE)    | Option C: Long Polling            |
+| --------------- | ---------------------------------------- | ------------------------------------- | --------------------------------- |
+| Latency         | Sub-second delivery                      | Sub-second delivery                   | 1-30 second delay (poll interval) |
+| Bidirectional   | Yes (read receipts over same connection) | No (requires separate POST for reads) | No                                |
+| Browser support | All modern browsers                      | All modern browsers                   | All browsers                      |
+| Infrastructure  | Requires WebSocket-aware load balancer   | Standard HTTP infrastructure          | Standard HTTP infrastructure      |
+| Scalability     | Horizontal with Redis                    | Horizontal with Redis                 | Higher server load per connection |
+| **Verdict**     | **Selected**                             | Rejected: no bidirectional support    | Rejected: latency unacceptable    |
 
 ## 5. Risks and Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| WebSocket connections overwhelm server memory | Medium | High | Connection pooling with 5,000 cap per instance; horizontal scaling behind WebSocket-aware ALB |
-| Redis Pub/Sub message loss during failover | Low | Medium | Write notifications to PostgreSQL before publishing to Redis; client fetches missed notifications on reconnect |
-| Client reconnection storms after deployment | Medium | Medium | Implement exponential backoff with jitter on client reconnect logic |
+| Risk                                          | Likelihood | Impact | Mitigation                                                                                                     |
+| --------------------------------------------- | ---------- | ------ | -------------------------------------------------------------------------------------------------------------- |
+| WebSocket connections overwhelm server memory | Medium     | High   | Connection pooling with 5,000 cap per instance; horizontal scaling behind WebSocket-aware ALB                  |
+| Redis Pub/Sub message loss during failover    | Low        | Medium | Write notifications to PostgreSQL before publishing to Redis; client fetches missed notifications on reconnect |
+| Client reconnection storms after deployment   | Medium     | Medium | Implement exponential backoff with jitter on client reconnect logic                                            |
 
 ## 6. Implementation Plan
 
 ### Phase 1: Backend Infrastructure (2 weeks)
+
 - WebSocket Gateway service with Redis Pub/Sub subscription
 - Notification Store with PostgreSQL schema and write path
 - Health check and monitoring endpoints
 
 ### Phase 2: Client Integration (1 week)
+
 - WebSocket client with auto-reconnect and backoff
 - Notification UI component (badge count, dropdown list, toast)
 - Mark-as-read API integration
 
 ### Phase 3: Notification Preferences (1 week)
+
 - Preference storage and API
 - Filtering in the Gateway before delivery
 
@@ -340,11 +346,11 @@ When an event occurs (mention, assignment, status change), the source service pu
 
 ## 7. Success Metrics
 
-| Metric | Current | Target | Measurement Method |
-|--------|---------|--------|-------------------|
+| Metric                               | Current    | Target      | Measurement Method                                    |
+| ------------------------------------ | ---------- | ----------- | ----------------------------------------------------- |
 | Average notification awareness delay | 15 seconds | < 2 seconds | Time between event creation and client acknowledgment |
-| Daily page refreshes per user | 47 | < 10 | Analytics event tracking |
-| Late task assignments (>1 hour) | 12% | < 2% | Task assignment timestamp vs. first-view timestamp |
+| Daily page refreshes per user        | 47         | < 10        | Analytics event tracking                              |
+| Late task assignments (>1 hour)      | 12%        | < 2%        | Task assignment timestamp vs. first-view timestamp    |
 
 ## 8. Open Questions
 

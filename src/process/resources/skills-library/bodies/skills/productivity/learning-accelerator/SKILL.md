@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks template guide beginner-friendly testing research performing-arts"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks template guide beginner-friendly testing research performing-arts'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Learning Accelerator
 
 You are an expert in the science of learning who helps users acquire new skills and knowledge more effectively. You understand that most people learn inefficiently - rereading, highlighting, and passive listening feel productive but produce poor retention. You guide users toward evidence-based learning strategies that actually work, even when they feel harder in the moment.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about learning accelerator techniques or best practices
 - User needs guidance on learning accelerator concepts
 - User wants to implement or improve their approach to learning accelerator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of learning accelerator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,13 +64,13 @@ Most learners spend 90% of their time in Phase 1 and almost none in Phases 3-4. 
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Spaced Repetition (Ebbinghaus/Leitner) | Memorizing facts, vocabulary, concepts | Reviewing at increasing intervals dramatically improves long-term retention | Best for factual recall; less suited for complex skill development |
-| Feynman Technique (Richard Feynman) | Understanding concepts deeply; detecting gaps | If you cannot explain it simply, you do not understand it well enough | Time-intensive per concept; less suited for large volumes of factual material |
-| Deliberate Practice (Ericsson) | Skill development; performance improvement | Focused practice on weaknesses with immediate feedback beats mindless repetition | Requires identifying specific weaknesses; needs a feedback mechanism |
-| Interleaving (Roediger/research) | Problem-solving; pattern recognition; exam preparation | Mixing different topics or problem types during practice improves discrimination and transfer | Feels harder and slower than blocked practice; can frustrate beginners |
-| Retrieval Practice (Roediger/Karpicke) | Any learning; exam preparation; long-term retention | Testing yourself is a learning event, not just an assessment; retrieval strengthens memory | Requires creating questions/tests; initial retrieval failures can feel discouraging |
+| Approach                               | Best For                                               | Key Insight                                                                                   | Limitation                                                                          |
+| -------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Spaced Repetition (Ebbinghaus/Leitner) | Memorizing facts, vocabulary, concepts                 | Reviewing at increasing intervals dramatically improves long-term retention                   | Best for factual recall; less suited for complex skill development                  |
+| Feynman Technique (Richard Feynman)    | Understanding concepts deeply; detecting gaps          | If you cannot explain it simply, you do not understand it well enough                         | Time-intensive per concept; less suited for large volumes of factual material       |
+| Deliberate Practice (Ericsson)         | Skill development; performance improvement             | Focused practice on weaknesses with immediate feedback beats mindless repetition              | Requires identifying specific weaknesses; needs a feedback mechanism                |
+| Interleaving (Roediger/research)       | Problem-solving; pattern recognition; exam preparation | Mixing different topics or problem types during practice improves discrimination and transfer | Feels harder and slower than blocked practice; can frustrate beginners              |
+| Retrieval Practice (Roediger/Karpicke) | Any learning; exam preparation; long-term retention    | Testing yourself is a learning event, not just an assessment; retrieval strengthens memory    | Requires creating questions/tests; initial retrieval failures can feel discouraging |
 
 ## Phase 1: Acquire (20% of Your Time)
 
@@ -369,15 +370,15 @@ STUDY SESSION PLAN (60 minutes)
 
 ### Common Learning Mistakes
 
-| Mistake | Why It Feels Good | Why It Fails | Fix |
-|---------|------------------|--------------|-----|
-| Rereading | Familiar content feels like mastery | Familiarity is not the same as understanding | Use retrieval practice instead |
-| Highlighting | Feels active and productive | No processing occurs; just coloring | Replace with margin questions |
-| Binge-studying | Getting "a lot done" in one session | Spacing is essential for long-term retention | Distribute study over multiple sessions |
-| Practicing only what you know | Feels good; high success rate | You improve where you least need it | Deliberate practice targets weaknesses |
-| Blocked practice | Feels smooth and efficient | Poor transfer to mixed real-world conditions | Interleave different topics/problem types |
-| Passive video watching | Feels like learning | Minimal active processing | Pause every 5 min; explain back what you heard |
-| Studying without testing | Avoids the discomfort of not knowing | You cannot identify gaps you do not test for | Test yourself BEFORE you feel ready |
+| Mistake                       | Why It Feels Good                    | Why It Fails                                 | Fix                                            |
+| ----------------------------- | ------------------------------------ | -------------------------------------------- | ---------------------------------------------- |
+| Rereading                     | Familiar content feels like mastery  | Familiarity is not the same as understanding | Use retrieval practice instead                 |
+| Highlighting                  | Feels active and productive          | No processing occurs; just coloring          | Replace with margin questions                  |
+| Binge-studying                | Getting "a lot done" in one session  | Spacing is essential for long-term retention | Distribute study over multiple sessions        |
+| Practicing only what you know | Feels good; high success rate        | You improve where you least need it          | Deliberate practice targets weaknesses         |
+| Blocked practice              | Feels smooth and efficient           | Poor transfer to mixed real-world conditions | Interleave different topics/problem types      |
+| Passive video watching        | Feels like learning                  | Minimal active processing                    | Pause every 5 min; explain back what you heard |
+| Studying without testing      | Avoids the discomfort of not knowing | You cannot identify gaps you do not test for | Test yourself BEFORE you feel ready            |
 
 ## Further Reading
 
@@ -391,7 +392,6 @@ For deeper exploration of the source methodologies:
 
 The Learning Engine gives you a evidence-based system for learning anything faster and retaining it longer, by working with your brain's natural processes rather than against them.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -399,7 +399,6 @@ The Learning Engine gives you a evidence-based system for learning anything fast
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -420,14 +419,12 @@ The Learning Engine gives you a evidence-based system for learning anything fast
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

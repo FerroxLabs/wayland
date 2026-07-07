@@ -62,10 +62,7 @@ export type WebhookOutboundBody = {
  * @param payload   Parsed JSON body from the verified webhook POST.
  * @param pluginId  The plugin instance id, used as the platform identifier.
  */
-export function toUnifiedIncoming(
-  payload: WebhookInboundPayload,
-  pluginId: string
-): IUnifiedIncomingMessage | null {
+export function toUnifiedIncoming(payload: WebhookInboundPayload, pluginId: string): IUnifiedIncomingMessage | null {
   // Extract text - try common field names in priority order
   const text =
     typeof payload.text === 'string' && payload.text.length > 0
@@ -78,19 +75,14 @@ export function toUnifiedIncoming(
 
   if (text === null) return null;
 
-  const id =
-    typeof payload.id === 'string' && payload.id.length > 0 ? payload.id : `wh-${Date.now()}`;
+  const id = typeof payload.id === 'string' && payload.id.length > 0 ? payload.id : `wh-${Date.now()}`;
 
-  const chatId =
-    typeof payload.chatId === 'string' && payload.chatId.length > 0 ? payload.chatId : 'default';
+  const chatId = typeof payload.chatId === 'string' && payload.chatId.length > 0 ? payload.chatId : 'default';
 
-  const userId =
-    typeof payload.userId === 'string' && payload.userId.length > 0 ? payload.userId : chatId;
+  const userId = typeof payload.userId === 'string' && payload.userId.length > 0 ? payload.userId : chatId;
 
   const displayName =
-    typeof payload.displayName === 'string' && payload.displayName.length > 0
-      ? payload.displayName
-      : userId;
+    typeof payload.displayName === 'string' && payload.displayName.length > 0 ? payload.displayName : userId;
 
   const timestamp = normalizeTimestamp(payload.ts ?? payload.timestamp);
 
@@ -144,16 +136,10 @@ export function toOutboundBody(chatId: string, message: IUnifiedOutgoingMessage)
  *
  * Harvested concept from OpenClaw http.ts timingSafeEquals + secret extraction.
  */
-export function signOutboundBody(
-  bodyJson: string,
-  secret: string,
-  timestampMs: number
-): string | null {
+export function signOutboundBody(bodyJson: string, secret: string, timestampMs: number): string | null {
   const trimmed = secret.trim();
   if (!trimmed) return null;
-  const hex = createHmac('sha256', trimmed)
-    .update(`${timestampMs}.${bodyJson}`, 'utf8')
-    .digest('hex');
+  const hex = createHmac('sha256', trimmed).update(`${timestampMs}.${bodyJson}`, 'utf8').digest('hex');
   return `sha256=${hex}`;
 }
 
@@ -172,9 +158,7 @@ function normalizeTimestamp(value: string | number | undefined): number {
   return Date.now();
 }
 
-function buildAttachmentLines(
-  attachments: WebhookInboundPayload['attachments']
-): string[] {
+function buildAttachmentLines(attachments: WebhookInboundPayload['attachments']): string[] {
   if (!Array.isArray(attachments) || attachments.length === 0) return [];
   return attachments
     .map((a) => {

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security template guide advanced testing networking video-production email"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'security template guide advanced testing networking video-production email'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Privacy Audit Guide
 
 You are an expert in personal digital privacy who conducts thorough privacy audits, identifies exposure points, and guides users through systematically reducing their digital footprint across browsers, devices, social media, and data brokers.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about privacy audit guide techniques or best practices
 - User needs guidance on privacy audit guide concepts
 - User wants to implement or improve their approach to privacy audit guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of privacy audit guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -90,16 +91,16 @@ Telemetry:
 
 ### Recommended Browser Extensions
 
-| Extension | Purpose | Priority |
-|-----------|---------|----------|
-| uBlock Origin | Ad and tracker blocking | Essential |
-| Privacy Badger | Learns to block invisible trackers | Recommended |
-| Cookie AutoDelete | Auto-remove cookies after tab closes | Recommended |
-| HTTPS Everywhere | Force HTTPS connections | Built into most browsers now |
-| Decentraleyes | Local CDN emulation (reduces tracking) | Optional |
-| Skip Redirect | Bypass tracking redirects | Optional |
-| CanvasBlocker | Prevent canvas fingerprinting | Advanced |
-| Multi-Account Containers | Isolate browsing contexts | Advanced (Firefox only) |
+| Extension                | Purpose                                | Priority                     |
+| ------------------------ | -------------------------------------- | ---------------------------- |
+| uBlock Origin            | Ad and tracker blocking                | Essential                    |
+| Privacy Badger           | Learns to block invisible trackers     | Recommended                  |
+| Cookie AutoDelete        | Auto-remove cookies after tab closes   | Recommended                  |
+| HTTPS Everywhere         | Force HTTPS connections                | Built into most browsers now |
+| Decentraleyes            | Local CDN emulation (reduces tracking) | Optional                     |
+| Skip Redirect            | Bypass tracking redirects              | Optional                     |
+| CanvasBlocker            | Prevent canvas fingerprinting          | Advanced                     |
+| Multi-Account Containers | Isolate browsing contexts              | Advanced (Firefox only)      |
 
 ### Firefox about:config Privacy Tweaks
 
@@ -419,13 +420,12 @@ Email privacy improvements:
 
 ## Privacy Threat Levels
 
-| Level | Profile | Key Actions |
-|-------|---------|-------------|
-| **Basic** | Average user wanting reasonable privacy | Browser hardening, phone settings, password manager |
-| **Moderate** | Professional concerned about data exposure | Above + data broker removal, email aliases, VPN |
-| **High** | Journalist, activist, public figure | Above + compartmentalized identities, encrypted comms, threat modeling |
-| **Maximum** | At-risk individual with specific threats | Above + dedicated devices, Tor, operational security training |
-
+| Level        | Profile                                    | Key Actions                                                            |
+| ------------ | ------------------------------------------ | ---------------------------------------------------------------------- |
+| **Basic**    | Average user wanting reasonable privacy    | Browser hardening, phone settings, password manager                    |
+| **Moderate** | Professional concerned about data exposure | Above + data broker removal, email aliases, VPN                        |
+| **High**     | Journalist, activist, public figure        | Above + compartmentalized identities, encrypted comms, threat modeling |
+| **Maximum**  | At-risk individual with specific threats   | Above + dedicated devices, Tor, operational security training          |
 
 ## Process
 
@@ -434,7 +434,6 @@ Email privacy improvements:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -455,14 +454,12 @@ Email privacy improvements:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

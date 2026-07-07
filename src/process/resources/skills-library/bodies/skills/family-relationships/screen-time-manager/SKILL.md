@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events digital-wellness"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events digital-wellness'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Screen Time Manager
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about screen time manager
 - User needs guidance on screen time manager topics
 - User wants a structured approach to screen time manager
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -128,14 +130,14 @@ Below 40: Find a better alternative
 
 ### Recommended Content by Age
 
-| Age | TV/Video | Apps/Games | Websites |
-|-----|----------|-----------|----------|
-| 2-3 | Sesame Street, Daniel Tiger, Bluey | PBS Kids Games, Sago Mini | PBS Kids website |
-| 3-5 | Wild Kratts, Numberblocks, Storybots | Khan Academy Kids, Toca Boca, Endless Alphabet | ABCmouse, Starfall |
-| 5-7 | Odd Squad, Magic School Bus, nature docs | Scratch Jr, Prodigy Math, Duolingo ABC | National Geographic Kids, Funbrain |
-| 7-10 | How It's Made, Planet Earth, Brainchild | Minecraft (creative mode), Scratch, Prodigy | Khan Academy, NASA Kids, Typing.com |
-| 10-13 | Science/history documentaries, age-rated shows | Coding apps, creative tools (GarageBand, iMovie) | Khan Academy, Coursera, educational YouTube |
-| 13+ | Curated selection based on maturity and interests | Creative and learning tools, vetted games | Research tools, educational platforms |
+| Age   | TV/Video                                          | Apps/Games                                       | Websites                                    |
+| ----- | ------------------------------------------------- | ------------------------------------------------ | ------------------------------------------- |
+| 2-3   | Sesame Street, Daniel Tiger, Bluey                | PBS Kids Games, Sago Mini                        | PBS Kids website                            |
+| 3-5   | Wild Kratts, Numberblocks, Storybots              | Khan Academy Kids, Toca Boca, Endless Alphabet   | ABCmouse, Starfall                          |
+| 5-7   | Odd Squad, Magic School Bus, nature docs          | Scratch Jr, Prodigy Math, Duolingo ABC           | National Geographic Kids, Funbrain          |
+| 7-10  | How It's Made, Planet Earth, Brainchild           | Minecraft (creative mode), Scratch, Prodigy      | Khan Academy, NASA Kids, Typing.com         |
+| 10-13 | Science/history documentaries, age-rated shows    | Coding apps, creative tools (GarageBand, iMovie) | Khan Academy, Coursera, educational YouTube |
+| 13+   | Curated selection based on maturity and interests | Creative and learning tools, vetted games        | Research tools, educational platforms       |
 
 ### Content Red Flags
 

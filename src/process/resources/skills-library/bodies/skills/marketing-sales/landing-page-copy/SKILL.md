@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing marketing-copy writing template"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing marketing-copy writing template'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Landing Page Copy
 
 ## When to Use
@@ -37,6 +38,7 @@ Use this skill when the user needs conversion-optimized copy for a single-purpos
 - User asks to write a long-form sales letter (VSL page, sales letter page) for a high-ticket offer
 
 **Do NOT use when:**
+
 - User needs short ad copy, headlines, or ad body text for Google, Meta, or LinkedIn ads -- use `paid-ad-copy` instead
 - User needs e-commerce product listing copy for Amazon, Shopify PDP, or other catalog pages -- use `product-description` instead
 - User needs a full website content strategy, pillar pages, or site-wide SEO copy architecture -- use `seo-content-strategy` instead
@@ -84,6 +86,7 @@ Determine which structure applies, then build the outline before writing copy.
 The hero section is the most important section on the page. Visitors decide in 3-8 seconds whether to continue scrolling. Every word in the hero earns its place or gets cut.
 
 **Headline:** Follow these principles:
+
 - Length: 6-12 words optimal. Headlines under 6 words sacrifice specificity; headlines over 15 words lose attention.
 - Structure options (choose based on offer type):
   - **Outcome-led:** "Cut Your Ad Spend by 40% Without Losing Revenue" -- works for any ROI-driven offer
@@ -95,18 +98,21 @@ The hero section is the most important section on the page. Visitors decide in 3
 - Test the "billboard test": if this headline appeared on a billboard with no supporting text, would a stranger understand what this page is about? If not, rewrite.
 - Avoid jargon the visitor would not use to describe their own problem.
 
-**Subheadline:** 
+**Subheadline:**
+
 - 15-35 words. Expands the headline with specificity: who it's for, how it works, and what makes it different.
 - The subheadline should contain a differentiator. "The only [X] that [does Y]" or "The [product] that [specific mechanism] so you can [outcome]."
 - Never repeat the headline with different words -- the subheadline must add new information.
 
 **Hero CTA:**
+
 - Button text: 2-5 words. Action verb + outcome or object. "Start My Free Trial," "Get Instant Access," "Book My Strategy Call," "Download the Guide."
 - Never use "Submit," "Click Here," or "Go." These have zero conversion value.
 - Place the CTA button within the first screenful (above the fold on all major device sizes -- mobile first, since 55-70% of landing page traffic is mobile).
 - Include below-button micro-copy: "No credit card required," "Cancel anytime," "Free for 14 days," or whatever the most common hesitation is. This micro-copy reduces friction and increases clicks by 8-14% in most A/B tests.
 
 **Visual direction (if applicable):**
+
 - Specify what visual should appear in the hero alongside the copy: product screenshot, lifestyle photo, explainer video thumbnail, illustration.
 - If a video is present, include a text fallback -- never let video be the only carrier of the core message.
 
@@ -117,11 +123,13 @@ The hero section is the most important section on the page. Visitors decide in 3
 The problem section creates emotional resonance. Visitors do not buy products -- they buy escapes from pain or paths to a desired identity. The problem section makes them feel understood before the solution is offered.
 
 **The PAS framework (Problem-Agitate-Solve) governs this section:**
+
 - **Problem (P):** Name the problem in the exact language the visitor uses, not industry terminology. "Your churn rate is increasing" is industry language. "Customers are canceling and you don't know why" is visitor language. The distinction matters.
 - **Agitate (A):** Describe the downstream consequences of the unsolved problem. What is at stake? What does life look like if this problem persists? Do not exaggerate -- be accurate and specific. Agitation that feels manipulative or untrue destroys trust.
 - **Transition:** Bridge to the solution with an empathy statement. "There is a better way." "It does not have to be this way." "That is exactly why [product] exists."
 
 **Practical guidelines:**
+
 - 2-4 short paragraphs or 4-6 bullet points for medium pages. Long-form pages may spend 400-600 words on problem-agitation.
 - Write in second person ("you" not "they" or "marketers").
 - Include sensory and emotional specificity: "the Friday afternoon panic when your boss asks for Q3 numbers" beats "the stress of data analysis."
@@ -135,6 +143,7 @@ The problem section creates emotional resonance. Visitors do not buy products --
 The solution section translates the offer into visitor-centric benefits. This is where most copy fails -- companies describe features and assume visitors will infer the benefit.
 
 **Feature-to-benefit translation framework:**
+
 - Every feature or capability must be translated through the "so what?" filter:
   - Feature: "AI-powered scheduling" → So what? → Benefit: "Your team never misses a follow-up, even during your busiest quarter"
   - Feature: "Real-time dashboard" → So what? → Benefit: "See exactly what's working in your campaigns right now, not in last week's report"
@@ -142,6 +151,7 @@ The solution section translates the offer into visitor-centric benefits. This is
 - The benefit statement should describe the visitor's life after using the product, not the mechanics of the product itself.
 
 **Structure the solution section with 3-5 named benefits:**
+
 - Each benefit gets a bold headline (5-10 words), a 2-4 sentence explanation with specific detail, and optionally a supporting micro-proof (a single data point or mini-case-study).
 - Order benefits by importance to the target visitor -- lead with the benefit that directly neutralizes the primary objection.
 - If the product has a mechanism or methodology that is proprietary and defensible, name it. "The 3-Step Revenue Audit" or "Our SCALE framework" creates specificity that generic benefits lack and is harder for competitors to copy.
@@ -154,6 +164,7 @@ The solution section translates the offer into visitor-centric benefits. This is
 Social proof is not decoration -- it is the primary mechanism that converts skeptical visitors. Place it strategically, not randomly.
 
 **The five formats of social proof and when to use each:**
+
 1. **Testimonials:** Most effective when they address a specific objection or describe a specific, measurable result. A testimonial that says "Great product! Highly recommend!" is worth almost nothing. A testimonial that says "I reduced my customer acquisition cost from $142 to $67 in 60 days using the acquisition module" is extremely valuable. Structure: [Specific result achieved] + [context or situation before] + [recommendation]. For B2B: always include name, title, company name, and company size or industry if possible. For B2C: name and specific context ("a freelance designer in Austin, TX" or "a first-time homebuyer").
 2. **Metrics and aggregate results:** "2,400+ companies trust [Product]," "Average ROI: 312% in the first year," "4.8/5 from 1,200 verified reviews." Specific numbers always beat vague claims. Never write "thousands" if you can write "2,400." Never write "improved outcomes" if you can write "47% faster."
 3. **Logo bars:** For B2B, a row of recognizable company logos is a powerful trust signal. Display 6-12 logos. Caption: "Trusted by teams at [Logo 1], [Logo 2]..." If the company is early-stage and logos are not impressive, use industry association logos, certification badges, or press mentions instead.
@@ -161,6 +172,7 @@ Social proof is not decoration -- it is the primary mechanism that converts skep
 5. **Case study callouts:** A single headline stat from a case study ("How [Company X] grew MRR by 200% in 4 months") with a link to the full case study. These work for high-ticket offers where skepticism is high.
 
 **Placement strategy:**
+
 - First social proof element belongs immediately after the hero section or after the problem section -- not at the bottom of the page where most visitors will never reach it.
 - Place a second social proof cluster immediately before the final CTA. This addresses last-minute hesitation at the conversion point.
 - For long-form pages, weave 1-sentence proof snippets ("Used by 400+ growth teams") throughout the copy rather than concentrating all proof in one section.
@@ -172,6 +184,7 @@ Social proof is not decoration -- it is the primary mechanism that converts skep
 Every unconverted visitor left because of an unresolved objection. This section exists to preemptively resolve those objections before the visitor leaves.
 
 **The 6 universal objection categories:**
+
 1. **Price:** "It's too expensive." → Address with ROI, comparison to cost of inaction, payment plans, or price anchoring against alternatives.
 2. **Time:** "I don't have time to implement this / learn this." → Address with time-to-value ("you'll see results in the first session"), done-for-you elements, or time-investment quantification.
 3. **Trust/Credibility:** "I've been burned by products like this before." → Address with guarantee, transparent refund policy, third-party reviews, and specific credentials.
@@ -180,11 +193,13 @@ Every unconverted visitor left because of an unresolved objection. This section 
 6. **Complexity:** "This looks complicated." → Address with "How It Works" (3 simple steps), onboarding support, or guaranteed hand-holding.
 
 **Format the objection section as an FAQ:**
+
 - Phrase each question in the exact words a skeptical visitor would use. "Can I cancel anytime?" not "What is our cancellation policy?"
 - Keep answers short and direct. 2-4 sentences per answer. If an answer requires more, you may need a dedicated page section for that topic.
 - The final FAQ item should be the risk reversal statement: "What if it doesn't work for me?" → "You are fully protected by our [X]-day money-back guarantee. Email us at [email], no questions asked."
 
 **Risk reversal placement:**
+
 - State the guarantee twice: once in the FAQ section and once in the final CTA section, immediately adjacent to the "Buy Now" / "Enroll" button.
 - Frame the guarantee in visitor-benefit language: "You're protected by our 30-day guarantee" not "Our refund policy is..."
 - The longer and more specific the guarantee, the more it converts. "30-day money-back guarantee, no questions asked" beats "satisfaction guarantee."
@@ -370,24 +385,31 @@ A: [Full risk reversal statement with guarantee terms]
 ## Edge Cases
 
 ### SaaS Free Trial or Freemium Signup Page
+
 The primary conversion risk is not price (it's free) -- it is time and effort. The visitor is asking: "Will I get value from this before I have to commit or learn a complicated tool?" Hero copy should emphasize speed to first value: "Set up in 8 minutes. See your first insight today." The problem section can be very short or omitted for warm traffic. Benefit copy should focus on the experience of using the product, not just the outcome. The top 3 objections to address: (1) "What happens when the trial ends -- will I get charged automatically?" (2) "Do I need a credit card?" (3) "Will it take hours to set up?" The FAQ must answer all three directly. Secondary CTA: "Watch a 3-minute product tour" for visitors who need to see the product before starting.
 
 ### High-Ticket B2B Product or Enterprise SaaS (No Self-Serve Purchase)
+
 The CTA is never "Buy Now" -- it is "Book a Demo," "Request a Consultation," or "Get a Custom Quote." The conversion goal is a qualified meeting, not a transaction. Copy must establish credibility and ROI before asking for the visitor's time. Social proof here is disproportionately powerful: named enterprise logos, published case studies with revenue or efficiency metrics, and named executive testimonials carry far more weight than star ratings. Include a "Who is this for?" section (company size, team type, use case) to pre-qualify leads and reduce demo no-shows. Add a "What happens after you book?" section (2-3 sentences) to reduce anxiety about a pushy sales call: "We'll send you a pre-call questionnaire. The call is 30 minutes and focused on your use case. No obligation." Copy length should be long -- 1,500-2,500 words -- because the decision-maker reading the page has budget authority and needs thorough justification.
 
 ### High-Ticket Direct-to-Consumer Offer ($300-$2,000+, Sold on Page)
+
 This scenario requires the longest copy -- often 2,000-5,000 words or more. The structure expands to include: origin story (why this product exists, who created it, what problem they personally experienced), full transformation arc (before/after), multiple testimonial clusters interspersed throughout the page rather than collected in one section, a detailed "What's included" breakdown with perceived value anchoring, an extensive FAQ (8-12 questions), a strong guarantee with specific terms, and a final CTA that restates the complete value proposition. Price anchoring is important: compare the price to the cost of alternatives, the cost of inaction, or the cost of the problem persisting. "Most marketing agencies charge $5,000/month for what this course teaches you in 6 weeks for $997" is a legitimate price anchor.
 
 ### Lead Magnet / Content Download Page
+
 Extremely short page -- 200-400 words maximum. The friction must be near zero. Headline: what the visitor gets. Subheadline: why it's valuable and who it's for. 3-5 bullet points: specific things they will learn or take away (not vague "you will understand X" -- specific: "the 7-step email sequence template used to generate $180K in 30 days"). CTA: "Send Me the [Resource Name]." Form: ask for email only if possible. Every additional form field reduces conversion by approximately 10-15%. Never ask for phone number on a lead magnet page -- it signals spam and kills conversions. The "social proof" on this page is the quality and specificity of the bullet points -- make the value of the download so obvious that the visitor would feel foolish not downloading it.
 
 ### Webinar or Live Event Registration Page
+
 The conversion goal is attendance registration. Two unique dynamics: (1) the visitor is committing time, not money -- so the primary objection is "Is this worth 60 minutes of my time?"; (2) social proof should include speaker credentials prominently, since the presenter is the product. Hero copy should include the specific date, time, and time zone in the subheadline -- vague "upcoming webinar" copy reduces registrations significantly. Include an agenda with 3-4 specific things attendees will learn, written as outcomes ("Leave with a completed 30-day content calendar, ready to hand to your team"). Post-registration: mention whether there will be a replay ("Can't attend live? Register anyway and we'll send you the recording") -- this objection is commonly responsible for 20-30% of abandoned registrations.
 
 ### Existing Page Rewrite or Conversion Rate Improvement
+
 Before writing anything, ask for the current conversion rate and the primary traffic source. Then ask: "Do you have any data on where visitors drop off or what they click?" (Heatmap tools like Hotjar or Microsoft Clarity, session recording, or scroll depth analytics from Google Analytics 4 all provide this.) If the hero has a low scroll-through rate (under 50% of visitors scroll past the hero), the problem is the headline or subheadline. If visitors reach the pricing section and then leave, the problem is price justification or missing guarantee. If the page has a good scroll depth but poor conversion, the problem is the CTA or missing risk reversal. Do not rewrite the entire page -- identify the single weakest section and focus the rewrite there. Recommend A/B testing one variable at a time: a new headline, a new CTA button text, or a repositioned guarantee statement. Rewriting multiple elements simultaneously makes it impossible to determine which change drove the result.
 
 ### Competitor Comparison or Alternative-Focused Page ("Best Alternative to [X]")
+
 This page type targets visitors who are already using or evaluating a competing product. The tone is confident, not hostile. The hero should name the competitor clearly ("Looking for an alternative to [Competitor]?") -- burying the comparison reduces the page's SEO and conversion value. The solution section should use a direct feature-by-feature comparison table where the product wins on the dimensions the target visitor cares most about. Never fabricate or exaggerate comparison claims -- they are easily fact-checked and create legal and reputational risk. Focus the comparison on the 3-4 dimensions where the differentiation is most compelling. Include a migration or switching guide reference ("Switching from [Competitor] takes under 20 minutes -- we'll import your data automatically") to neutralize the switching-cost objection, which is the primary objection on this page type.
 
 ---
@@ -403,6 +425,7 @@ This page type targets visitors who are already using or evaluating a competing 
 ## Landing Page Copy: Operant -- Workflow Automation for Operations Teams
 
 ### Page Brief
+
 **Conversion Goal:** Book a demo call
 **Traffic Source:** LinkedIn ads (cold) + branded search (warm) -- writing for cold-primary
 **Target Visitor:** VP of Operations or Operations Manager at a 50-500 person company; frustrated that their team spends 8-15 hours/week on manual spreadsheet processes and status-tracking that should be automated
@@ -470,18 +493,22 @@ Operant integrates with Slack, Microsoft Teams, Google Workspace, Salesforce, an
 **Section Header:** Operations Teams at 600+ Companies Have Closed Their Tracking Spreadsheets
 
 **Testimonial 1 (result-focused):**
+
 > "We ran our entire vendor management process in a shared Google Sheet for three years. Six people updating the same file, constant version conflicts, and nobody ever knew the actual status. We implemented Operant in one afternoon. Within the first month, our team reclaimed 11 hours per week that was previously spent on tracker maintenance. That time is now going toward supplier renegotiations that have saved us $180K annually."
 > -- Marcus T., VP of Operations, LogicPath Inc. (220 employees, logistics technology)
 
 **Testimonial 2 (objection-busting -- addresses "this will be hard to implement"):**
+
 > "I was skeptical because we'd tried two other automation tools that required months of setup and IT involvement. Operant was different. Our ops team configured our first three workflows without any technical help, and we were running live processes in the first week. It genuinely felt designed for operators, not developers."
 > -- Priya M., Operations Manager, Northfield Financial (85 employees)
 
 **Testimonial 3 (aspirational -- addresses the leadership visibility benefit):**
+
 > "The most underrated thing about Operant is what it did for how my team is perceived internally. I can now walk into an executive meeting and show exactly what operations is working on, what's complete, and where there are blockers -- in real time. That visibility changed the conversation about what operations contributes to the company."
 > -- David H., Director of Operations, Clearwave Technologies (340 employees, SaaS)
 
 **Trust Metrics:**
+
 - 600+ operations teams use Operant
 - 4.6/5 rating on G2 (310+ verified reviews)
 - Average: 9 hours/week recovered per operations team member in the first 90 days
@@ -520,4 +547,4 @@ A: Then it was a 30-minute call and no commitment was made. If you proceed to a 
 
 **Secondary CTA:** Not ready for a call? Read how LogicPath recovered 11 hours/week in the first month →
 
-*(Urgency/Scarcity: None -- not applicable for this offer type. Do not add false urgency.)*
+_(Urgency/Scarcity: None -- not applicable for this offer type. Do not add false urgency.)_

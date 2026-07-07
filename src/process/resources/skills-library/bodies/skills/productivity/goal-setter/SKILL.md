@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits guide"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'goal-setting habits guide'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Goal Setter
@@ -25,11 +25,13 @@ Your tone is energizing and structured. You help people think bigger while also 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about goal setter
 - User needs guidance on goal setter topics
 - User wants a structured approach to goal setter
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -96,13 +98,13 @@ FIRST ACTION STEP: [What will you do in the next 24 hours?]
 
 ### SMART Goals Examples
 
-| Life Area | Vague Goal | SMART Goal |
-|-----------|-----------|------------|
-| Career | Get a better job | Apply to 5 positions per week in UX design for the next 8 weeks, landing at least 3 interviews |
-| Finance | Save more money | Save $500/month by automating a transfer on the 1st, reaching $6,000 by December 31 |
-| Health | Lose weight | Lose 20 pounds by June 1 through 4x/week exercise and tracking calories at 1,800/day |
-| Learning | Learn to code | Complete the freeCodeCamp JavaScript curriculum (300 hours) by September 30, spending 1 hour per day |
-| Relationship | Spend more time with family | Have a device-free family dinner 5 nights per week and one family outing per month |
+| Life Area    | Vague Goal                  | SMART Goal                                                                                           |
+| ------------ | --------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Career       | Get a better job            | Apply to 5 positions per week in UX design for the next 8 weeks, landing at least 3 interviews       |
+| Finance      | Save more money             | Save $500/month by automating a transfer on the 1st, reaching $6,000 by December 31                  |
+| Health       | Lose weight                 | Lose 20 pounds by June 1 through 4x/week exercise and tracking calories at 1,800/day                 |
+| Learning     | Learn to code               | Complete the freeCodeCamp JavaScript curriculum (300 hours) by September 30, spending 1 hour per day |
+| Relationship | Spend more time with family | Have a device-free family dinner 5 nights per week and one family outing per month                   |
 
 ## OKRs for Personal Life
 
@@ -132,16 +134,19 @@ GRADE (end of quarter): KR1: ___% KR2: ___% KR3: ___%
 ### Personal OKR Examples
 
 **Objective: Become a confident public speaker**
+
 - KR1: Deliver 6 presentations at work or community events this quarter
 - KR2: Join Toastmasters and attend 10 out of 12 weekly meetings
 - KR3: Receive an average rating of 4/5 or higher on audience feedback forms
 
 **Objective: Build a strong financial foundation**
+
 - KR1: Reduce monthly expenses by $400 through budget optimization
 - KR2: Build emergency fund to $5,000 (from current $1,200)
 - KR3: Max out Roth IRA contribution for the year ($7,000)
 
 **Objective: Deepen my closest relationships**
+
 - KR1: Have 12 one-on-one in-person meetups with close friends (1 per week)
 - KR2: Write and send 5 heartfelt letters to people who've influenced me
 - KR3: Plan and execute 3 memorable date experiences with my partner
@@ -149,6 +154,7 @@ GRADE (end of quarter): KR1: ___% KR2: ___% KR3: ___%
 ### OKR Scoring
 
 At the end of the quarter, score each Key Result:
+
 - **0.0-0.3:** Failed to make significant progress
 - **0.4-0.6:** Made progress but fell short
 - **0.7-0.9:** Strong performance (the target zone for ambitious OKRs)
@@ -156,7 +162,7 @@ At the end of the quarter, score each Key Result:
 
 ## The 12-Week Year
 
-The 12-Week Year is a goal-setting framework by Brian Moran that redefines "a year" as 12 weeks to create urgency and focus. Instead of annual planning where procrastination thrives, you set 1-3 goals for a 12-week cycle, break each into weekly actions, and track your execution score (actions completed / actions planned) each week. The compressed timeframe forces prioritization, and weekly measurement catches problems early. You get four fresh starts per calendar year instead of one. For the complete system including the Execution Score methodology and Weekly Accountability Meeting format, see *The 12 Week Year* by Brian P. Moran and Michael Lennington.
+The 12-Week Year is a goal-setting framework by Brian Moran that redefines "a year" as 12 weeks to create urgency and focus. Instead of annual planning where procrastination thrives, you set 1-3 goals for a 12-week cycle, break each into weekly actions, and track your execution score (actions completed / actions planned) each week. The compressed timeframe forces prioritization, and weekly measurement catches problems early. You get four fresh starts per calendar year instead of one. For the complete system including the Execution Score methodology and Weekly Accountability Meeting format, see _The 12 Week Year_ by Brian P. Moran and Michael Lennington.
 
 ## Goal Hierarchy
 
@@ -166,22 +172,27 @@ Think of goals as a hierarchy, from the broadest to the most granular:
 
 **Level 1: Life Vision (10+ years)**
 What kind of life do you want? What legacy do you want to leave? This is your North Star.
+
 - Example: "I want to be a respected leader in education technology who has helped millions of students learn more effectively."
 
 **Level 2: Long-Term Goals (1-5 years)**
 What major milestones will move you toward your vision?
+
 - Example: "Launch an edtech startup within 3 years."
 
 **Level 3: Annual Goals (this year)**
 What specific outcomes will you achieve this year?
+
 - Example: "Complete an MBA, build a prototype, and secure $50K in seed funding."
 
 **Level 4: Quarterly Goals / Projects (this quarter)**
 What's the 12-week focus?
+
 - Example: "Complete first semester of MBA and build initial prototype."
 
 **Level 5: Weekly Actions and Daily Tasks**
 What are you doing THIS WEEK to move forward?
+
 - Example: "Monday: Complete MBA assignment. Tuesday: 2 hours of prototype coding. Wednesday: Meet with potential co-founder."
 
 ### Alignment Check
@@ -259,6 +270,7 @@ MILESTONE 4 (100%): [Goal achieved!]
 Before starting a goal, imagine it's 3 months from now and you've FAILED. What went wrong?
 
 Write down every possible reason for failure:
+
 - "I lost motivation after week 3"
 - "An unexpected expense wiped out my savings budget"
 - "I took on too many goals at once"
@@ -267,13 +279,13 @@ Write down every possible reason for failure:
 
 Now, create a prevention plan for each:
 
-| Potential Failure | Prevention Strategy |
-|-------------------|-------------------|
-| Lose motivation after initial excitement | Set up accountability partner; create reward milestones |
-| Unexpected expense | Build 10% buffer into savings goal; have a backup plan |
-| Take on too many goals | Commit to maximum 3 goals per quarter; say no to new things |
-| No accountability | Tell 3 people about your goal this week; schedule weekly check-ins |
-| Hit a plateau | Pre-research strategies for the stuck point; have a coach or mentor on standby |
+| Potential Failure                        | Prevention Strategy                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------------------ |
+| Lose motivation after initial excitement | Set up accountability partner; create reward milestones                        |
+| Unexpected expense                       | Build 10% buffer into savings goal; have a backup plan                         |
+| Take on too many goals                   | Commit to maximum 3 goals per quarter; say no to new things                    |
+| No accountability                        | Tell 3 people about your goal this week; schedule weekly check-ins             |
+| Hit a plateau                            | Pre-research strategies for the stuck point; have a coach or mentor on standby |
 
 ### If-Then Planning (Implementation Intentions)
 
@@ -282,6 +294,7 @@ Research by Peter Gollwitzer shows that creating specific "if-then" plans dramat
 **Template:** "If [situation], then I will [action]."
 
 **Examples:**
+
 - "If it's Monday, Wednesday, or Friday at 6 AM, then I will put on running shoes and go for a run."
 - "If I feel the urge to skip my study session, then I will commit to just 5 minutes and reassess."
 - "If an unexpected expense comes up, then I will cover it from my buffer fund, not my savings goal."
@@ -292,6 +305,7 @@ Research by Peter Gollwitzer shows that creating specific "if-then" plans dramat
 ### Finding the Right Accountability Partner
 
 **Look for someone who:**
+
 - Has their own goals (mutual accountability is more sustainable)
 - Is honest and willing to challenge you (not just a cheerleader)
 - Is reliable (will actually show up for check-ins)
@@ -299,6 +313,7 @@ Research by Peter Gollwitzer shows that creating specific "if-then" plans dramat
 - Is at a similar commitment level
 
 **Avoid:**
+
 - Close family members (emotional dynamics can interfere)
 - People who are competitive in an unhealthy way
 - People who are frequently negative or dismissive
@@ -310,6 +325,7 @@ Research by Peter Gollwitzer shows that creating specific "if-then" plans dramat
 **Format:** In person, phone call, or video chat (text is too passive)
 
 **Check-in structure:**
+
 1. **Wins (2 min each):** What did you accomplish this week? Celebrate.
 2. **Struggles (2 min each):** What was hard? What got in the way?
 3. **Accountability (2 min each):** Did you complete what you committed to? Score yourself honestly.
@@ -319,6 +335,7 @@ Research by Peter Gollwitzer shows that creating specific "if-then" plans dramat
 ### The Accountability Agreement
 
 At the start, agree on:
+
 - How often you'll meet
 - What happens if someone misses a check-in
 - How honest you want feedback to be (gentle nudge vs. no-holds-barred)
@@ -339,6 +356,7 @@ At the start, agree on:
 ## Response Guidelines
 
 When helping a user set goals:
+
 - Always help them clarify the "why" before the "what"
 - Push for specificity - vague goals produce vague results
 - Help them choose the right framework for their situation (SMART for simple goals, OKRs for ambitious goals, 12-Week Year for execution focus)
@@ -347,7 +365,6 @@ When helping a user set goals:
 - Make the first step ridiculously small and immediate
 - Celebrate their ambition while grounding them in realistic planning
 - Follow up on commitments made in previous conversations
-
 
 ## Output Format
 

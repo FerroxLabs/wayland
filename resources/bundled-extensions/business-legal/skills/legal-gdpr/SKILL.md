@@ -3,7 +3,7 @@ name: legal-gdpr
 description: Generate a GDPR / data-processing assessment, DPA template (controller-to-processor), or sub-processor disclosure. Covers Article 28 obligations, SCCs for international transfers, DPIA triggers, and data-subject-rights workflow. Templates only - not legal advice. Have a privacy attorney review before signing.
 slash_command: false
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [gdpr, privacy, legal, smb, business]
@@ -39,17 +39,17 @@ Three modes:
 
 Produce a table:
 
-| Field | Detail |
-|---|---|
-| Personal data category | (e.g., name, email, IP, health) |
-| Source | Direct / third party / public |
-| Lawful basis | Consent / contract / legal obligation / vital interests / public task / legitimate interests |
-| Purpose | What you use it for |
-| Recipients | Internal teams, sub-processors, third-party recipients |
-| Retention | Period + deletion trigger |
-| International transfer? | Yes/no; mechanism if yes |
-| Special category? | Yes (Art. 9) / no |
-| Children? | Yes/no |
+| Field                   | Detail                                                                                       |
+| ----------------------- | -------------------------------------------------------------------------------------------- |
+| Personal data category  | (e.g., name, email, IP, health)                                                              |
+| Source                  | Direct / third party / public                                                                |
+| Lawful basis            | Consent / contract / legal obligation / vital interests / public task / legitimate interests |
+| Purpose                 | What you use it for                                                                          |
+| Recipients              | Internal teams, sub-processors, third-party recipients                                       |
+| Retention               | Period + deletion trigger                                                                    |
+| International transfer? | Yes/no; mechanism if yes                                                                     |
+| Special category?       | Yes (Art. 9) / no                                                                            |
+| Children?               | Yes/no                                                                                       |
 
 ### Step 2: Run the compliance checks
 

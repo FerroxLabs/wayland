@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis report"
-  category: "data-analysis"
-  subcategory: "research-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis report'
+  category: 'data-analysis'
+  subcategory: 'research-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Research Synthesis
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user provides 3 or more discrete sources (reports, studies, articles, white papers, government publications, internal data analyses) and asks for a unified understanding of what the evidence says
 - The user needs to present an evidence-based recommendation to a decision-making audience (executive team, board, policymakers, investors) and must justify the recommendation with cited, quality-weighted evidence
 - The user explicitly asks to compare conclusions across sources -- "some studies say X, others say Y, which is right?" -- requiring contradiction mapping and root-cause analysis of disagreement
@@ -29,6 +31,7 @@ metadata:
 - The user has a mix of academic, industry, and internal sources and needs a single coherent synthesis that weights each appropriately rather than treating them as equivalent
 
 **Do NOT use when:**
+
 - The user wants to code open-ended interview or survey responses into themes and categories -- that is qualitative data reduction, not research synthesis (use `qualitative-coding`)
 - The user wants to computationally process hundreds or thousands of documents using NLP, topic modeling, or keyword extraction (use `text-mining-protocol`) -- research synthesis is a judgment-intensive process suited to 3-50 sources, not large corpora
 - The user wants to design a survey, measurement instrument, or primary research protocol (use `survey-design`) -- synthesis works with existing evidence; primary research creates new evidence
@@ -151,26 +154,27 @@ The synthesis output is not a summary of sources -- it is a structured argument 
 
 ### Synthesis Overview
 
-| Field | Content |
-|-------|---------|
-| **Research question** | [Specific, answerable question this synthesis addresses] |
-| **Decision context** | [What decision this brief supports; who makes it] |
-| **Sources reviewed** | [N sources: breakdown by type, e.g., 3 peer-reviewed, 2 industry surveys, 1 internal] |
-| **Date of synthesis** | [Month, Year] |
-| **Audience** | [Specific role or team] |
-| **Synthesis shelf life** | [Estimated date by which key findings may be outdated and should be revisited] |
-| **Key conclusion** | [One or two sentences: the answer to the research question at the current level of evidence] |
+| Field                    | Content                                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------------------- |
+| **Research question**    | [Specific, answerable question this synthesis addresses]                                     |
+| **Decision context**     | [What decision this brief supports; who makes it]                                            |
+| **Sources reviewed**     | [N sources: breakdown by type, e.g., 3 peer-reviewed, 2 industry surveys, 1 internal]        |
+| **Date of synthesis**    | [Month, Year]                                                                                |
+| **Audience**             | [Specific role or team]                                                                      |
+| **Synthesis shelf life** | [Estimated date by which key findings may be outdated and should be revisited]               |
+| **Key conclusion**       | [One or two sentences: the answer to the research question at the current level of evidence] |
 
 ---
 
 ### Source Quality Assessment
 
-| # | Source Name / Citation | Type | Methodology | Recency | Authority | Bias Risk | Relevance | Tier |
-|---|----------------------|------|-------------|---------|-----------|-----------|-----------|------|
-| S1 | [Full citation] | [Peer-reviewed / Industry survey / Consulting report / Internal data / etc.] | [Strong / Adequate / Weak] | [Current / Recent / Dated] | [High / Medium / Low] | [Low / Moderate / High / Unknown] | [Direct / Partial / Tangential] | [1 / 2 / 3] |
-| S2 | [Full citation] | ... | ... | ... | ... | ... | ... | ... |
+| #   | Source Name / Citation | Type                                                                         | Methodology                | Recency                    | Authority             | Bias Risk                         | Relevance                       | Tier        |
+| --- | ---------------------- | ---------------------------------------------------------------------------- | -------------------------- | -------------------------- | --------------------- | --------------------------------- | ------------------------------- | ----------- |
+| S1  | [Full citation]        | [Peer-reviewed / Industry survey / Consulting report / Internal data / etc.] | [Strong / Adequate / Weak] | [Current / Recent / Dated] | [High / Medium / Low] | [Low / Moderate / High / Unknown] | [Direct / Partial / Tangential] | [1 / 2 / 3] |
+| S2  | [Full citation]        | ...                                                                          | ...                        | ...                        | ...                   | ...                               | ...                             | ...         |
 
 **Notes on source pool:**
+
 - [Any citation circularity identified]
 - [Any methodological clustering that limits the overall evidence base]
 - [Any notable gaps in the source pool -- e.g., no peer-reviewed evidence included]
@@ -180,6 +184,7 @@ The synthesis output is not a summary of sources -- it is a structured argument 
 ### Key Findings by Source
 
 #### S[N]: [Source Name]
+
 - **Primary finding:** [Precise statement of the main conclusion relevant to the synthesis question]
 - **Supporting evidence:** [Specific data: sample size, effect size, confidence intervals, response rate, or key reasoning chain]
 - **Variable definitions:** [How the source defines the key variable(s)]
@@ -201,9 +206,9 @@ The synthesis output is not a summary of sources -- it is a structured argument 
 
 **Supporting sources:**
 
-| Source | Quality Tier | How It Supports This Theme | Finding Magnitude |
-|--------|-------------|---------------------------|-------------------|
-| S[N] | [Tier] | [Specific finding from this source] | [Effect size or qualitative magnitude if available] |
+| Source | Quality Tier | How It Supports This Theme          | Finding Magnitude                                   |
+| ------ | ------------ | ----------------------------------- | --------------------------------------------------- |
+| S[N]   | [Tier]       | [Specific finding from this source] | [Effect size or qualitative magnitude if available] |
 
 **Confidence rationale:** [Why this theme received this evidence-strength rating -- number of sources, tier composition, methodological diversity, consistency of direction and magnitude]
 
@@ -217,12 +222,12 @@ The synthesis output is not a summary of sources -- it is a structured argument 
 
 #### Contradiction [N]: [Description of the specific disagreement]
 
-| Dimension | Position A | Position B |
-|-----------|-----------|-----------|
-| **Claim** | [Statement of Position A] | [Statement of Position B] |
-| **Sources** | S[N], S[N] | S[N], S[N] |
-| **Quality tiers** | [Tier composition] | [Tier composition] |
-| **Methodology** | [Method used] | [Method used] |
+| Dimension         | Position A                | Position B                |
+| ----------------- | ------------------------- | ------------------------- |
+| **Claim**         | [Statement of Position A] | [Statement of Position B] |
+| **Sources**       | S[N], S[N]                | S[N], S[N]                |
+| **Quality tiers** | [Tier composition]        | [Tier composition]        |
+| **Methodology**   | [Method used]             | [Method used]             |
 
 **Type of contradiction:** [Definitional / Population / Temporal / Methodological / Genuine empirical]
 
@@ -238,8 +243,8 @@ The synthesis output is not a summary of sources -- it is a structured argument 
 
 ### Evidence Gaps
 
-| Gap | Why It Matters | What Evidence Would Fill It | Priority |
-|-----|---------------|----------------------------|---------|
+| Gap                   | Why It Matters       | What Evidence Would Fill It          | Priority              |
+| --------------------- | -------------------- | ------------------------------------ | --------------------- |
 | [Unanswered question] | [Decision relevance] | [Specific study type or data source] | [High / Medium / Low] |
 
 ---
@@ -296,27 +301,35 @@ The synthesis output is not a summary of sources -- it is a structured argument 
 ## Edge Cases
 
 ### Very Sparse Evidence Base (Fewer Than 4 Sources)
+
 A synthesis of 2-3 sources is still analytically legitimate but requires explicit disclosure. Label the synthesis "preliminary" or "exploratory" in the overview. Most themes will rate as weak or insufficient evidence -- this is accurate, not a failure. The evidence gaps section becomes the most important part of the output. Recommend specific source types that would strengthen the evidence base (e.g., "This synthesis currently rests on 2 industry surveys; peer-reviewed evidence and internal data would substantially increase confidence"). Do not pad the source pool by including tangentially relevant sources just to increase source count -- that inflates apparent confidence without adding real evidentiary weight.
 
 ### All Sources Agree (No Apparent Contradictions)
+
 Treat apparent consensus with analytical suspicion before concluding it is genuine. Check for: (a) citation circularity -- all sources tracing to the same original study; (b) methodological clustering -- all sources using the same method, making them subject to the same systematic bias; (c) publication bias -- negative findings may be systematically absent; (d) selection bias in the user's source set -- did the user select sources that support a predetermined conclusion? If consensus survives these checks, it is genuine. If not, document what is driving the apparent agreement. A note in the Synthesis Methodology section stating "apparent consensus in this source pool reflects [X sources citing the same original study / all survey-based methodology] and should not be interpreted as broad independent replication" is honest and necessary.
 
 ### Sources in Multiple Languages or from Multiple Geographic and Cultural Contexts
+
 Findings from different national or cultural contexts may reflect genuine variation in the phenomenon (e.g., remote work productivity may differ across cultures with different norms around work-life separation) rather than methodological disagreement. Treat geographic variation as a substantive moderating variable, not a data quality problem. Note the geographic scope of each source in the quality assessment table. Do not combine findings across geographic contexts without explicitly testing whether the finding appears to be universal or context-specific. If the synthesis question requires a global conclusion but sources are predominantly from one region, flag this as a significant limitation.
 
 ### Rapidly Evolving Topic (AI, Regulatory Policy, Platform Dynamics)
+
 Downgrade the effective recency rating of any source older than 12-18 months when the topic involves technology capability, regulatory posture, or platform behavior that has demonstrably changed. In the synthesis overview, include a "shelf life" estimate: "This synthesis reflects evidence available as of [date]. Key findings in the [technology capability / regulatory] dimensions are likely to shift within 12 months as [specific factors] evolve. Findings in the [stable dimensions] are likely to remain valid." Identify which themes are most time-sensitive and which are more stable so readers know which parts of the brief to treat as provisional.
 
 ### User Has Mixed Internal and External Sources
+
 Internal company data and external research serve different but complementary roles. External research provides population-level context and causal mechanisms. Internal data provides organizational specificity and current operational reality. When they diverge, investigate why -- the most common causes are that the company is an outlier (its practices, culture, or market position differ from the studied population) or that the internal data measures something different from what the external research measured. Present them as complementary evidence streams in different columns of the source table, not interchangeable sources. Explicitly note when the internal data contradicts or confirms the external baseline.
 
 ### User's Source Set Has an Obvious Ideological or Commercial Skew
+
 If the user provides 6 sources from advocacy organizations with a clear directional interest, note this as a structural limitation in the Synthesis Methodology section. Do not decline to synthesize -- that is not the appropriate response. Do synthesize, tier the sources accurately (high-advocacy sources carry high bias risk and will generally be Tier 2-3), and explicitly state in the overview: "This synthesis is constrained by a source pool that skews toward [pro-X / anti-Y] perspectives. Sources representing alternative positions were not available for review. Conclusions should be treated as the strongest available evidence from one side of an active debate, not as the full evidentiary picture." Recommend specific counterbalancing sources the user should seek to complete the synthesis.
 
 ### Sources Span Very Long Time Periods (10+ Years)
+
 When sources range from 2010 to 2025, do not synthesize across the full range without explicit temporal segmentation. Determine whether the older sources reflect a different baseline condition that makes their findings incomparable to recent sources (e.g., smartphone adoption rates in 2010 versus 2025 represent entirely different behavioral contexts). If the topic has structurally changed, split the synthesis into temporal segments or explicitly treat the older sources as historical context rather than current evidence. A contradiction analysis that pits a 2012 finding against a 2024 finding is usually not a real contradiction -- it is a temporal sequence.
 
 ### Evidence Is Technically Strong But the Research Question Is Under-Specified
+
 Sometimes the user's research question contains ambiguity that the evidence cannot resolve because different valid interpretations of the question lead to different answers. For example, "Does AI increase worker productivity?" could mean: for which workers? what type of AI? what type of tasks? measured over what time horizon? compared to what baseline? Before synthesizing, surface the ambiguity and ask the user to specify. If that is not possible, synthesize against each plausible interpretation of the question separately and note that the answer varies by how the question is defined. This is more honest and more useful than forcing an answer to a question that was never precisely asked.
 
 ---
@@ -335,33 +348,34 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 
 ### Synthesis Overview
 
-| Field | Content |
-|-------|---------|
-| **Research question** | Do LLM-based customer support assistants deliver net operational and customer experience improvement for enterprise deployments, and what conditions determine success or failure? |
-| **Decision context** | Go/no-go deployment decision for LLM-based support assistant; decision-maker is VP of Customer Experience; implementation budget and risk threshold are organizational inputs not addressed by this evidence brief |
-| **Sources reviewed** | 9 sources: 3 peer-reviewed studies, 2 enterprise vendor case studies, 2 industry analyst reports, 1 academic working paper (pre-peer-review), 1 internal customer satisfaction baseline dataset |
-| **Date of synthesis** | June 2025 |
-| **Audience** | Executive team; decision on LLM support assistant deployment |
-| **Synthesis shelf life** | December 2025. LLM capability is advancing rapidly; findings on accuracy and hallucination rates are likely to improve or shift within 6-9 months. Revisit if major model releases or regulatory guidance occurs before the decision. |
-| **Key conclusion** | LLMs reduce Tier 1 support volume by 30-45% and decrease cost-per-ticket by 25-40% in enterprise deployments with controlled knowledge bases, but generate material hallucination risk (2-8% of responses contain factual errors) in open-domain query handling. Deployment success depends critically on scope constraint, human escalation architecture, and ongoing output monitoring. A phased pilot deployment is supported by moderate-to-strong evidence; full autonomous deployment is not. |
+| Field                    | Content                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Research question**    | Do LLM-based customer support assistants deliver net operational and customer experience improvement for enterprise deployments, and what conditions determine success or failure?                                                                                                                                                                                                                                                                                                                  |
+| **Decision context**     | Go/no-go deployment decision for LLM-based support assistant; decision-maker is VP of Customer Experience; implementation budget and risk threshold are organizational inputs not addressed by this evidence brief                                                                                                                                                                                                                                                                                  |
+| **Sources reviewed**     | 9 sources: 3 peer-reviewed studies, 2 enterprise vendor case studies, 2 industry analyst reports, 1 academic working paper (pre-peer-review), 1 internal customer satisfaction baseline dataset                                                                                                                                                                                                                                                                                                     |
+| **Date of synthesis**    | June 2025                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Audience**             | Executive team; decision on LLM support assistant deployment                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Synthesis shelf life** | December 2025. LLM capability is advancing rapidly; findings on accuracy and hallucination rates are likely to improve or shift within 6-9 months. Revisit if major model releases or regulatory guidance occurs before the decision.                                                                                                                                                                                                                                                               |
+| **Key conclusion**       | LLMs reduce Tier 1 support volume by 30-45% and decrease cost-per-ticket by 25-40% in enterprise deployments with controlled knowledge bases, but generate material hallucination risk (2-8% of responses contain factual errors) in open-domain query handling. Deployment success depends critically on scope constraint, human escalation architecture, and ongoing output monitoring. A phased pilot deployment is supported by moderate-to-strong evidence; full autonomous deployment is not. |
 
 ---
 
 ### Source Quality Assessment
 
-| # | Source Name / Citation | Type | Methodology | Recency | Authority | Bias Risk | Relevance | Tier |
-|---|----------------------|------|-------------|---------|-----------|-----------|-----------|------|
-| S1 | Brynjolfsson et al. (2023), "Generative AI at Work," NBER Working Paper | Academic working paper | Strong (RCT with 5,179 agents, pre-registered) | Current | High (NBER, established economists) | Low | Direct | 1 |
-| S2 | Salesforce Research (2024), "State of Service Report," n=5,500 service professionals | Industry survey | Adequate (large n, self-reported, quota-sampled) | Current | Medium-High (established firm; large dataset) | Moderate (Salesforce sells service automation tools) | Direct | 2 |
-| S3 | Stanford HAI (2024), "Enterprise AI Deployment Risks," working paper | Academic working paper | Adequate (case study analysis of 14 enterprise deployments) | Current | High (Stanford HAI, independent) | Low | Direct | 2 |
-| S4 | Gartner (2024), "Hype Cycle for Customer Service Technologies" | Analyst report | Adequate (proprietary Gartner methodology; 200+ vendor and customer interviews) | Current | High (established analyst firm) | Low-Moderate (consulting revenue from enterprise clients) | Partial | 2 |
-| S5 | Vendor A Case Study: TeleCo deployment (published by LLM vendor) | Vendor case study | Weak (single case, vendor-authored, no control group, cherry-picked metrics) | Current | Low (self-published) | High (vendor marketing material) | Direct | 3 |
-| S6 | Vendor B Case Study: FinanceCo deployment (published by LLM vendor) | Vendor case study | Weak (single case, vendor-authored, outcome metrics not independently verified) | Current | Low (self-published) | High (vendor marketing material) | Direct | 3 |
-| S7 | Liu et al. (2024), "Hallucination Rates in Customer-Facing LLM Deployments," ACL Proceedings | Peer-reviewed study | Strong (systematic measurement across 6 deployed systems, n=50,000 interactions) | Current | High (peer-reviewed, top-tier NLP venue) | Low | Direct | 1 |
-| S8 | Forrester (2024), "The Total Economic Impact of AI-Assisted Customer Service" | Analyst report | Adequate (commissioned TEI study framework; composite enterprise, 3 companies) | Current | High (established analyst firm) | Moderate (commissioned by vendor; Forrester methodology is standardized) | Direct | 2 |
-| S9 | Internal CSAT baseline dataset (2024-2025, n=12,400 resolved tickets) | Internal operational data | Adequate (complete operational log; no sampling; unknown data collection consistency in early months) | Current | High (direct organizational relevance) | Low | Direct | 2 |
+| #   | Source Name / Citation                                                                       | Type                      | Methodology                                                                                           | Recency | Authority                                     | Bias Risk                                                                | Relevance | Tier |
+| --- | -------------------------------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------- | ------- | --------------------------------------------- | ------------------------------------------------------------------------ | --------- | ---- |
+| S1  | Brynjolfsson et al. (2023), "Generative AI at Work," NBER Working Paper                      | Academic working paper    | Strong (RCT with 5,179 agents, pre-registered)                                                        | Current | High (NBER, established economists)           | Low                                                                      | Direct    | 1    |
+| S2  | Salesforce Research (2024), "State of Service Report," n=5,500 service professionals         | Industry survey           | Adequate (large n, self-reported, quota-sampled)                                                      | Current | Medium-High (established firm; large dataset) | Moderate (Salesforce sells service automation tools)                     | Direct    | 2    |
+| S3  | Stanford HAI (2024), "Enterprise AI Deployment Risks," working paper                         | Academic working paper    | Adequate (case study analysis of 14 enterprise deployments)                                           | Current | High (Stanford HAI, independent)              | Low                                                                      | Direct    | 2    |
+| S4  | Gartner (2024), "Hype Cycle for Customer Service Technologies"                               | Analyst report            | Adequate (proprietary Gartner methodology; 200+ vendor and customer interviews)                       | Current | High (established analyst firm)               | Low-Moderate (consulting revenue from enterprise clients)                | Partial   | 2    |
+| S5  | Vendor A Case Study: TeleCo deployment (published by LLM vendor)                             | Vendor case study         | Weak (single case, vendor-authored, no control group, cherry-picked metrics)                          | Current | Low (self-published)                          | High (vendor marketing material)                                         | Direct    | 3    |
+| S6  | Vendor B Case Study: FinanceCo deployment (published by LLM vendor)                          | Vendor case study         | Weak (single case, vendor-authored, outcome metrics not independently verified)                       | Current | Low (self-published)                          | High (vendor marketing material)                                         | Direct    | 3    |
+| S7  | Liu et al. (2024), "Hallucination Rates in Customer-Facing LLM Deployments," ACL Proceedings | Peer-reviewed study       | Strong (systematic measurement across 6 deployed systems, n=50,000 interactions)                      | Current | High (peer-reviewed, top-tier NLP venue)      | Low                                                                      | Direct    | 1    |
+| S8  | Forrester (2024), "The Total Economic Impact of AI-Assisted Customer Service"                | Analyst report            | Adequate (commissioned TEI study framework; composite enterprise, 3 companies)                        | Current | High (established analyst firm)               | Moderate (commissioned by vendor; Forrester methodology is standardized) | Direct    | 2    |
+| S9  | Internal CSAT baseline dataset (2024-2025, n=12,400 resolved tickets)                        | Internal operational data | Adequate (complete operational log; no sampling; unknown data collection consistency in early months) | Current | High (direct organizational relevance)        | Low                                                                      | Direct    | 2    |
 
 **Notes on source pool:**
+
 - S5 and S6 are vendor marketing materials and are Tier 3. They are included for completeness but no conclusions are anchored on them. Both cite cost savings of 50-60% without control groups -- these figures are not used in evidence-strength ratings.
 - S8 was commissioned by a major LLM vendor. The Forrester TEI methodology is standardized and disclosed, reducing but not eliminating bias risk. Findings are treated as Tier 2, not Tier 1.
 - The source pool has no independent peer-reviewed evidence on long-term customer satisfaction outcomes post-LLM deployment beyond 12 months. This is a significant gap.
@@ -372,6 +386,7 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 ### Key Findings by Source
 
 #### S1: Brynjolfsson et al. (2023), NBER -- "Generative AI at Work"
+
 - **Primary finding:** AI-assisted customer support agents resolved 14% more issues per hour. The productivity gain was concentrated among newer/lower-skill agents (34% improvement for bottom quartile performers) with minimal effect on top performers (4% improvement).
 - **Supporting evidence:** Pre-registered RCT; 5,179 agents randomly assigned to AI-assisted vs. standard condition across a large enterprise customer support center; 6-month study window; measured by tickets resolved per hour, customer satisfaction scores, and escalation rates.
 - **Variable definitions:** "Productivity" = tickets resolved per hour. "AI-assisted" = real-time next-best-response suggestions from an LLM trained on the company's historical support transcripts.
@@ -380,6 +395,7 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 - **Quality flag:** None. High-quality RCT. Results are directionally consistent with two other sources (S4, S8).
 
 #### S2: Salesforce State of Service Report (2024)
+
 - **Primary finding:** 68% of service organizations using AI report reduced average handle time (AHT). 45% report measurable cost reduction. However, 54% report that AI-generated incorrect information was a "significant concern" for their team.
 - **Supporting evidence:** Survey of 5,500 service professionals across industries; quota-sampled by company size and region; self-reported outcomes; no verification of reported metrics against operational data.
 - **Variable definitions:** "Using AI" = any AI-assisted functionality in the support workflow (very broad; includes basic chatbots through LLMs).
@@ -388,6 +404,7 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 - **Quality flag:** "Using AI" definition is broad enough that many respondents may be reporting results from rule-based chatbots rather than LLMs. Findings are directionally useful but cannot be attributed specifically to LLM deployments.
 
 #### S3: Stanford HAI (2024) -- "Enterprise AI Deployment Risks"
+
 - **Primary finding:** Of 14 enterprise LLM deployments studied, 9 (64%) experienced at least one material accuracy incident within the first 6 months. In 4 cases (29%), accuracy incidents resulted in customer escalations that reached the executive level. Incidents were significantly less common when the LLM was constrained to a curated knowledge base (3/8 constrained deployments vs. 6/6 unconstrained deployments had material incidents).
 - **Supporting evidence:** Case study analysis; semi-structured interviews with deployment leads at 14 companies; incident logs reviewed where available; no standardized incident definition across companies.
 - **Variable definitions:** "Material accuracy incident" = customer-facing incorrect information that required human correction and was documented in an incident log or interview account.
@@ -396,6 +413,7 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 - **Quality flag:** Finding that constrained knowledge base significantly reduces accuracy incidents is directionally consistent with S7 (peer-reviewed).
 
 #### S4: Gartner (2024) -- Hype Cycle for Customer Service Technologies
+
 - **Primary finding:** LLM-based support assistants are currently at the "Peak of Inflated Expectations" with expected time to productivity of 2-5 years for full deployment maturity. Gartner projects 40% reduction in Tier 1 ticket volume by 2027 for organizations with structured deployment programs. 30% of 2024 LLM pilots are expected to be paused or abandoned due to accuracy and governance concerns.
 - **Supporting evidence:** Gartner proprietary methodology: 200+ vendor briefings, 300+ customer interviews, and analyst assessment.
 - **Variable definitions:** "Productivity" defined by Gartner as full return on deployment investment; "Tier 1 ticket volume reduction" measured as percentage of inbound contacts resolved without human agent involvement.
@@ -404,16 +422,19 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 - **Quality flag:** "40% Tier 1 reduction by 2027" is a projection, not a measured outcome. Treat as directional, not quantified evidence.
 
 #### S5: Vendor A Case Study (TeleCo)
+
 - **Primary finding:** 58% reduction in Tier 1 support cost within 6 months of deployment.
 - **Supporting evidence:** Single-company case study authored by the LLM vendor; metrics provided by the client; no independent verification; no control group; pre/post comparison without controlling for seasonal variation or other concurrent changes.
 - **Quality flag:** No independent verification, no control group, vendor-authored. 58% figure far exceeds Tier 1-2 source estimates of 25-40%. Likely reflects cherry-picked metrics or measurement period. Not used in evidence-strength ratings.
 
 #### S6: Vendor B Case Study (FinanceCo)
+
 - **Primary finding:** 52% reduction in average handle time; CSAT improved 8 points within 90 days.
 - **Supporting evidence:** Same structural limitations as S5 -- vendor-authored, no control group, single company, outcomes not independently verified.
 - **Quality flag:** 8-point CSAT improvement in 90 days is implausibly large for a channel-level intervention; likely reflects novelty effect or measurement artifact. Not used in evidence-strength ratings.
 
 #### S7: Liu et al. (2024), ACL -- "Hallucination Rates in Customer-Facing LLM Deployments"
+
 - **Primary finding:** Across 6 production LLM support deployments, hallucination rate (defined as LLM generating factually incorrect information in response to a customer query) averaged 4.3% of interactions. Range was 1.8% (highly constrained deployment with curated knowledge base) to 8.1% (open-domain deployment with general-purpose LLM). Hallucination rate correlated strongly with query domain breadth (r=0.81).
 - **Supporting evidence:** Systematic audit of 50,000 LLM-generated customer interactions across 6 deployments; expert human review panel for hallucination classification; inter-rater reliability κ=0.84.
 - **Variable definitions:** "Hallucination" = response judged by human expert panel to contain a factual claim that is verifiably incorrect based on the company's official product/policy documentation.
@@ -422,6 +443,7 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 - **Quality flag:** None. This is the highest-quality study specifically addressing hallucination risk and its moderators.
 
 #### S8: Forrester TEI Report (2024)
+
 - **Primary finding:** Composite enterprise model (constructed from 3 companies) showed 37% reduction in cost-per-ticket and 28% reduction in Tier 1 ticket volume over 12 months. 3-year ROI for LLM support deployment was 212% in the composite model. Time-to-value was 6-9 months.
 - **Supporting evidence:** Forrester Total Economic Impact (TEI) methodology; data from 3 undisclosed enterprise deployments; composite model constructed from weighted averages; interviewed n=12 stakeholders; financial model independently reviewed by Forrester analyst.
 - **Variable definitions:** "Cost-per-ticket" includes agent labor, technology license, and overhead allocation. "Tier 1 ticket volume" = contacts resolved without human agent escalation.
@@ -430,6 +452,7 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 - **Quality flag:** 212% 3-year ROI is a projected model output, not a measured outcome. Use directionally; do not cite as a precise figure.
 
 #### S9: Internal CSAT Baseline Dataset (2024-2025, n=12,400 tickets)
+
 - **Primary finding:** Current human-only support achieves: average CSAT of 7.4/10; average first-contact resolution (FCR) rate of 68%; average handle time of 8.3 minutes; Tier 1 ticket volume represents 61% of total inbound volume. Volume peaks on Mondays (37% above daily average) and during product release windows.
 - **Supporting evidence:** Complete operational log of 12,400 resolved tickets; CSAT from post-contact survey (response rate 31%); AHT from system timestamp; FCR from ticket recurrence analysis (30-day window).
 - **Variable definitions:** CSAT = 1-10 post-contact survey score; FCR = ticket not re-opened within 30 days; Tier 1 = password resets, billing inquiries, standard feature questions, and order status queries (as defined in ticket taxonomy).
@@ -449,13 +472,13 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 
 **Supporting sources:**
 
-| Source | Quality Tier | How It Supports This Theme | Finding Magnitude |
-|--------|-------------|---------------------------|-------------------|
-| S1 | 1 | 14% productivity increase per agent; agent capacity effectively expands by equivalent of 14% headcount | 14% per-agent productivity |
-| S7 | 1 | 1.8-8.1% hallucination range implies 92-98% accurate self-resolution for constrained deployments | Indirect: supports feasibility of self-resolution |
-| S8 | 2 | 37% cost-per-ticket reduction; 28% Tier 1 volume reduction in 3-company composite | 37% cost, 28% volume |
-| S4 | 2 | Projects 40% Tier 1 volume reduction by 2027 for structured deployments | 40% projection |
-| S2 | 2 | 68% of surveyed organizations report AHT reduction; 45% report cost reduction | Broad directionality |
+| Source | Quality Tier | How It Supports This Theme                                                                             | Finding Magnitude                                 |
+| ------ | ------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| S1     | 1            | 14% productivity increase per agent; agent capacity effectively expands by equivalent of 14% headcount | 14% per-agent productivity                        |
+| S7     | 1            | 1.8-8.1% hallucination range implies 92-98% accurate self-resolution for constrained deployments       | Indirect: supports feasibility of self-resolution |
+| S8     | 2            | 37% cost-per-ticket reduction; 28% Tier 1 volume reduction in 3-company composite                      | 37% cost, 28% volume                              |
+| S4     | 2            | Projects 40% Tier 1 volume reduction by 2027 for structured deployments                                | 40% projection                                    |
+| S2     | 2            | 68% of surveyed organizations report AHT reduction; 45% report cost reduction                          | Broad directionality                              |
 
 **Confidence rationale:** Two Tier 1 sources (RCT and peer-reviewed audit) provide strong methodological grounding. Three Tier 2 sources with different methodologies (analyst interviews, TEI framework, large survey) are consistent in direction. Magnitude estimates converge in the 25-40% range when excluding Tier 3 outlier claims of 50-60%.
 
@@ -471,11 +494,11 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 
 **Supporting sources:**
 
-| Source | Quality Tier | How It Supports This Theme | Finding Magnitude |
-|--------|-------------|---------------------------|-------------------|
-| S7 | 1 | Systematic audit of 50K interactions; hallucination range 1.8-8.1%; strong correlation with query domain breadth | 1.8% constrained, 8.1% unconstrained |
-| S3 | 2 | 64% of deployments had material accuracy incidents; constrained deployments had significantly fewer | 3/8 constrained vs. 6/6 unconstrained had incidents |
-| S2 | 2 | 54% of service organizations cite AI inaccuracy as a significant operational concern | 54% concern rate |
+| Source | Quality Tier | How It Supports This Theme                                                                                       | Finding Magnitude                                   |
+| ------ | ------------ | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| S7     | 1            | Systematic audit of 50K interactions; hallucination range 1.8-8.1%; strong correlation with query domain breadth | 1.8% constrained, 8.1% unconstrained                |
+| S3     | 2            | 64% of deployments had material accuracy incidents; constrained deployments had significantly fewer              | 3/8 constrained vs. 6/6 unconstrained had incidents |
+| S2     | 2            | 54% of service organizations cite AI inaccuracy as a significant operational concern                             | 54% concern rate                                    |
 
 **Confidence rationale:** S7 provides the most rigorous quantification, backed by S3's case study corroboration. The pattern is consistent: constraint architecture is the dominant moderating variable. This is a strong, actionable finding.
 
@@ -491,6 +514,6 @@ Sometimes the user's research question contains ambiguity that the evidence cann
 
 **Supporting sources:**
 
-| Source | Quality Tier | How It Supports This Theme | Finding Magnitude |
-|--------|-------------|---------------------------|-------------------|
-| S1 | 1 | RCT directly measured by agent skill
+| Source | Quality Tier | How It Supports This Theme           | Finding Magnitude |
+| ------ | ------------ | ------------------------------------ | ----------------- |
+| S1     | 1            | RCT directly measured by agent skill |

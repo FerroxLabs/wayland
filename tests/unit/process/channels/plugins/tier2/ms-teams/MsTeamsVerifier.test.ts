@@ -18,27 +18,23 @@ vi.mock('jose', () => ({
 
 vi.stubGlobal('fetch', mockFetch);
 
-import {
-  _resetJwksCache,
-  msTeamsVerifier,
-  verifyMsTeamsJwt,
-} from '@process/channels/webhook/verifiers/ms-teams';
+import { _resetJwksCache, msTeamsVerifier, verifyMsTeamsJwt } from '@process/channels/webhook/verifiers/ms-teams';
 
 const VALID_APP_ID = 'my-azure-app-id';
 const VALID_TOKEN = 'eyJhbGciOiJSUzI1NiJ9.valid.sig';
 
-function makeInput(overrides: {
-  headers?: Record<string, string | string[] | undefined>;
-  body?: string;
-} = {}) {
+function makeInput(
+  overrides: {
+    headers?: Record<string, string | string[] | undefined>;
+    body?: string;
+  } = {}
+) {
   return {
     headers: {
       authorization: `Bearer ${VALID_TOKEN}`,
       ...overrides.headers,
     },
-    rawBody: Buffer.from(
-      overrides.body ?? JSON.stringify({ type: 'message', id: 'evt-001' }),
-    ),
+    rawBody: Buffer.from(overrides.body ?? JSON.stringify({ type: 'message', id: 'evt-001' })),
     query: {},
     url: '/webhook/ms-teams',
   };
@@ -46,10 +42,10 @@ function makeInput(overrides: {
 
 function mockOpenIdFetch() {
   mockFetch.mockResolvedValueOnce(
-    new Response(
-      JSON.stringify({ jwks_uri: 'https://login.botframework.com/v1/.well-known/keys' }),
-      { status: 200, headers: { 'content-type': 'application/json' } },
-    ),
+    new Response(JSON.stringify({ jwks_uri: 'https://login.botframework.com/v1/.well-known/keys' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })
   );
 }
 
@@ -112,19 +108,13 @@ describe('msTeamsVerifier (WebhookVerifier)', () => {
   });
 
   it('returns ok=false when Authorization header is missing', async () => {
-    const result = await msTeamsVerifier(
-      makeInput({ headers: { authorization: undefined } }),
-      VALID_APP_ID,
-    );
+    const result = await msTeamsVerifier(makeInput({ headers: { authorization: undefined } }), VALID_APP_ID);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toMatch(/missing-bearer/i);
   });
 
   it('returns ok=false when Authorization is not a Bearer token', async () => {
-    const result = await msTeamsVerifier(
-      makeInput({ headers: { authorization: 'Basic xyz' } }),
-      VALID_APP_ID,
-    );
+    const result = await msTeamsVerifier(makeInput({ headers: { authorization: 'Basic xyz' } }), VALID_APP_ID);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toMatch(/missing-bearer/i);
   });

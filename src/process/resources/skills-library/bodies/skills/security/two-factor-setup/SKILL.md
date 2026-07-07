@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security checklist template cloud testing planning safety emergency-preparedness"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security checklist template cloud testing planning safety emergency-preparedness'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Two-Factor Authentication Setup
 
 You are an expert in multi-factor authentication who guides users through selecting, configuring, and managing 2FA across all their accounts with robust recovery planning.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about two factor setup techniques or best practices
 - User needs guidance on two factor setup concepts
 - User wants to implement or improve their approach to two factor setup
 
 **Do NOT use when:**
+
 - The request falls outside the scope of two factor setup
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -50,27 +51,27 @@ SIM-swap proof:      YES        YES        YES             NO
 
 ### Detailed Comparison
 
-| Method | Security | Convenience | Offline | Phishing Proof | Cost |
-|--------|----------|-------------|---------|----------------|------|
-| **FIDO2 key** | Excellent | Medium | Yes | Yes | $25-70 |
-| **TOTP app** | Strong | Good | Yes | No | Free |
-| **Push notification** | Good | Excellent | No | No | Free |
-| **SMS code** | Weak | Good | No | No | Free |
-| **Email code** | Weak | Fair | No | No | Free |
-| **Backup codes** | Strong (one-time) | Fair | Yes | N/A | Free |
+| Method                | Security          | Convenience | Offline | Phishing Proof | Cost   |
+| --------------------- | ----------------- | ----------- | ------- | -------------- | ------ |
+| **FIDO2 key**         | Excellent         | Medium      | Yes     | Yes            | $25-70 |
+| **TOTP app**          | Strong            | Good        | Yes     | No             | Free   |
+| **Push notification** | Good              | Excellent   | No      | No             | Free   |
+| **SMS code**          | Weak              | Good        | No      | No             | Free   |
+| **Email code**        | Weak              | Fair        | No      | No             | Free   |
+| **Backup codes**      | Strong (one-time) | Fair        | Yes     | N/A            | Free   |
 
 ## TOTP Authenticator Setup
 
 ### Recommended Apps
 
-| App | Platform | Cloud Backup | Export | Open Source |
-|-----|----------|-------------|--------|-------------|
-| Aegis | Android | Encrypted backup | Yes | Yes |
-| Raivo | iOS | iCloud encrypted | Yes | Yes |
-| 2FAS | iOS, Android | Cloud + local | Yes | Yes |
-| Authy | iOS, Android, Desktop | Encrypted cloud | No | No |
-| Google Authenticator | iOS, Android | Google account | Yes | No |
-| Microsoft Authenticator | iOS, Android | Cloud backup | No | No |
+| App                     | Platform              | Cloud Backup     | Export | Open Source |
+| ----------------------- | --------------------- | ---------------- | ------ | ----------- |
+| Aegis                   | Android               | Encrypted backup | Yes    | Yes         |
+| Raivo                   | iOS                   | iCloud encrypted | Yes    | Yes         |
+| 2FAS                    | iOS, Android          | Cloud + local    | Yes    | Yes         |
+| Authy                   | iOS, Android, Desktop | Encrypted cloud  | No     | No          |
+| Google Authenticator    | iOS, Android          | Google account   | Yes    | No          |
+| Microsoft Authenticator | iOS, Android          | Cloud backup     | No     | No          |
 
 ### Setup Process
 
@@ -118,15 +119,15 @@ Backup strategy:
 
 ### Hardware Key Options
 
-| Key | USB-A | USB-C | NFC | Lightning | Biometric | Price |
-|-----|-------|-------|-----|-----------|-----------|-------|
-| YubiKey 5 NFC | Yes | No | Yes | No | No | ~$50 |
-| YubiKey 5C NFC | No | Yes | Yes | No | No | ~$55 |
-| YubiKey 5Ci | No | Yes | No | Yes | No | ~$75 |
-| YubiKey Bio | Yes/C | Varies | No | No | Yes | ~$85 |
-| Google Titan | Varies | Yes | Yes | No | No | ~$30 |
-| Nitrokey FIDO2 | Yes | No | No | No | No | ~$30 |
-| SoloKeys | Yes | Yes | No | No | No | ~$25 |
+| Key            | USB-A  | USB-C  | NFC | Lightning | Biometric | Price |
+| -------------- | ------ | ------ | --- | --------- | --------- | ----- |
+| YubiKey 5 NFC  | Yes    | No     | Yes | No        | No        | ~$50  |
+| YubiKey 5C NFC | No     | Yes    | Yes | No        | No        | ~$55  |
+| YubiKey 5Ci    | No     | Yes    | No  | Yes       | No        | ~$75  |
+| YubiKey Bio    | Yes/C  | Varies | No  | No        | Yes       | ~$85  |
+| Google Titan   | Varies | Yes    | Yes | No        | No        | ~$30  |
+| Nitrokey FIDO2 | Yes    | No     | No  | No        | No        | ~$30  |
+| SoloKeys       | Yes    | Yes    | No  | No        | No        | ~$25  |
 
 ### Setup Checklist
 
@@ -239,15 +240,15 @@ Recovery Code Template:
 
 ### Recovery Scenarios
 
-| Scenario | Recovery Path |
-|----------|--------------|
-| Lost phone (TOTP) | Restore from encrypted app backup; or use backup codes; or use FIDO2 key |
-| Lost FIDO2 key | Use backup FIDO2 key; or use TOTP; or use backup codes |
-| Lost phone AND keys | Use printed backup codes; then re-enroll new devices |
-| New phone | Export TOTP from old phone; or restore from app cloud backup |
-| skipped which app | Check password vault notes for which authenticator app |
-| Used all backup codes | Generate new codes from account settings immediately |
-| Account locked out | Contact service support with identity verification documents |
+| Scenario              | Recovery Path                                                            |
+| --------------------- | ------------------------------------------------------------------------ |
+| Lost phone (TOTP)     | Restore from encrypted app backup; or use backup codes; or use FIDO2 key |
+| Lost FIDO2 key        | Use backup FIDO2 key; or use TOTP; or use backup codes                   |
+| Lost phone AND keys   | Use printed backup codes; then re-enroll new devices                     |
+| New phone             | Export TOTP from old phone; or restore from app cloud backup             |
+| skipped which app     | Check password vault notes for which authenticator app                   |
+| Used all backup codes | Generate new codes from account settings immediately                     |
+| Account locked out    | Contact service support with identity verification documents             |
 
 ### Phone Migration Checklist
 
@@ -342,7 +343,6 @@ Step 3: Keep a backup authentication method
 9. **Leaving old devices as trusted** - Remove when no longer in use
 10. **Sharing 2FA codes over text/email** - Defeats the purpose of 2FA
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -350,7 +350,6 @@ Step 3: Keep a backup authentication method
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -371,14 +370,12 @@ Step 3: Keep a backup authentication method
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

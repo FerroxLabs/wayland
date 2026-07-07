@@ -9,19 +9,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "social-media writing marketing-copy"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'social-media writing marketing-copy'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Instagram Caption Writing
 
 ## When to Use
 
 Use this skill when:
+
 - A user needs a caption for a static Instagram photo post and asks for help with copy, tone, or structure
 - A user is posting a carousel and wants a caption that drives swipe-through behavior and saves
 - A user is publishing a reel and needs short-form copy that contextualizes the video and drives comments or follows
@@ -31,6 +33,7 @@ Use this skill when:
 - A user wants to repurpose a blog post, email, or long-form story into an Instagram-native caption format
 
 Do NOT use this skill when:
+
 - The user wants a LinkedIn post -- use `linkedin-post` instead (different tone, structure, audience expectations, and no hashtag caps)
 - The user wants a Twitter/X thread -- use `twitter-thread` instead (threading logic, character constraints, and retweet mechanics are entirely different)
 - The user wants a blog post or article -- use `blog-post-writing` instead (SEO structure, heading hierarchy, and word count do not apply to Instagram)
@@ -94,16 +97,19 @@ The hook is the most critical sentence in the caption. Instagram truncates capti
 The body delivers the promise the hook made. Structure it using micro-story logic or value-delivery logic, depending on the post type.
 
 **Micro-story structure (for personal brand, creator, lifestyle posts):**
+
 - Sentence 1-2: Set the scene or establish the problem with one specific detail that makes it real ("I was sitting in a client call trying to explain why their brand colors were wrong when my screen went black")
 - Sentence 3-4: Develop or complicate -- this is where authenticity lives. Resist the urge to resolve too quickly.
 - Sentence 5-6: Deliver the takeaway, lesson, or pivot. Make it transferable -- the reader should see themselves in it.
 
 **Value-delivery structure (for educational, tip, tutorial, or product posts):**
+
 - Lead sentence: state the value promise clearly ("Here is the process I use to price every freelance project")
 - Body: deliver 3-5 specific, numbered or bullet-pointed items using line breaks for readability
 - Close: synthesize the insight in one sentence before the CTA
 
 **Universal body rules:**
+
 - Target 150-300 words for static posts, 50-100 words for reels, 100-200 words for carousels
 - Use double line breaks between paragraphs -- Instagram does not render markdown headers, bold, or bullet formatting, so white space is your only structural tool
 - Include one specific detail that is not in the image and cannot be inferred from it -- this is what the caption adds that the visual cannot
@@ -174,17 +180,17 @@ Deliver captions in this exact structure. Do not add markdown headers or bold la
 
 **Caption metadata block (deliver alongside the caption, not as part of the post):**
 
-| Field | Value |
-|---|---|
-| Character count (excl. hashtags) | [number] |
-| Word count | [number] |
-| Hook length (characters) | [number] |
-| Post type | [static / carousel / reel] |
-| Primary goal | [reach / engagement / conversion / growth] |
-| CTA type | [comment / save / tag / link in bio / DM] |
-| Hashtag count | [number] |
-| Hashtag placement | [caption / first comment] |
-| Recommended posting time | [based on account niche] |
+| Field                            | Value                                      |
+| -------------------------------- | ------------------------------------------ |
+| Character count (excl. hashtags) | [number]                                   |
+| Word count                       | [number]                                   |
+| Hook length (characters)         | [number]                                   |
+| Post type                        | [static / carousel / reel]                 |
+| Primary goal                     | [reach / engagement / conversion / growth] |
+| CTA type                         | [comment / save / tag / link in bio / DM]  |
+| Hashtag count                    | [number]                                   |
+| Hashtag placement                | [caption / first comment]                  |
+| Recommended posting time         | [based on account niche]                   |
 
 ---
 
@@ -219,10 +225,13 @@ Deliver captions in this exact structure. Do not add markdown headers or bold la
 ## Edge Cases
 
 ### The User Has No Image Yet
+
 The user wants the caption written before the photo is taken or the reel is edited. Write the caption fully and append a visual brief at the bottom: "Suggested visual: [specific description of what would pair with this caption, including composition, lighting mood, and what should or should not be visible in the frame]." The caption should be self-contained but the visual brief helps the user shoot or select a matching image. Note that writing caption-first can actually produce stronger content -- the caption drives intentional visuals rather than forcing copy to fit an existing image.
 
 ### The User Wants a Carousel Caption
+
 Carousels are the highest-save format on Instagram because they deliver chunked, multi-screen value. Caption strategy changes significantly:
+
 - The caption should tease one specific slide or insight to make swiping feel like a reward
 - Use "Swipe to [specific outcome]" not "Swipe for more" -- specificity drives action
 - Do not summarize the carousel in the caption -- the caption creates anticipation, the slides deliver the content
@@ -230,14 +239,18 @@ Carousels are the highest-save format on Instagram because they deliver chunked,
 - Carousel captions can be slightly longer (200-300 words) because save-intent is higher and users are already committed to the content
 
 ### The User Is a Business Running a Product Promotion
+
 The greatest mistake in product promotional captions is leading with the product. Lead with the problem it solves or the life it enables instead:
+
 - Wrong: "Introducing our new productivity planner. Available now at the link in bio."
 - Right: "I used to start every Monday by losing an hour deciding what to work on. This is what fixed that."
 - Follow the structure: problem (1-2 sentences) -- solution framing without product name (1-2 sentences) -- product reveal (1 sentence) -- social proof or specificity (1 sentence) -- CTA
 - For products with a price point, never hide the price if the CTA is a purchase. "Starting at $47 -- link in bio" outperforms mysterious CTAs because it pre-qualifies clicks and reduces bounce rate.
 
 ### The User Wants a Personal Story or Vulnerable Post
+
 Authentic personal posts are among Instagram's highest-performing content types when written well and among the most cringeworthy when written poorly. The difference is specificity:
+
 - Good: "I sent a proposal at 11pm that I knew was underpriced. I clicked send anyway because I was scared."
 - Bad: "There were times I doubted myself. I had to learn to believe in my own value."
 - One specific moment beats a general reflection every time
@@ -246,7 +259,9 @@ Authentic personal posts are among Instagram's highest-performing content types 
 - End with a takeaway that transfers to the reader -- the story is the delivery vehicle, the insight is the value
 
 ### The User Wants the Caption to Drive DMs
+
 DM-driving captions are a specific conversion tactic used by creators and coaches to initiate sales conversations. The structure is different:
+
 - The caption body must diagnose a specific, painful problem the reader has right now
 - The CTA is "DM me [specific word]" or "Comment [word] and I'll send you [specific thing]" -- the keyword triggers a DM automation workflow
 - Keep the caption focused and short -- 100-150 words max. The DM is the destination, the caption is just the bridge.
@@ -254,21 +269,27 @@ DM-driving captions are a specific conversion tactic used by creators and coache
 - This format generates high comment volume and DM volume simultaneously, which strong-signals the algorithm
 
 ### The User Has an Existing Caption That Needs Editing
+
 When editing rather than drafting from scratch:
+
 - Read the existing caption and identify which of the four failure modes it suffers from: weak hook, image description instead of context, missing CTA, or generic hashtags
 - Rewrite the hook first -- this single change produces the largest improvement
 - Do not rewrite the voice entirely -- edit to strengthen, not replace. The user's authentic voice has value even if it is rough.
 - Check the character count on the hook line even if the body seems fine
 
 ### The Account Is Under 1,000 Followers
+
 Small accounts need discoverability more than large accounts. Adjust the hashtag strategy:
+
 - Increase niche hashtag count to 8-10 (under 50K posts) because the account can rank in these smaller pools
 - Reduce broad hashtag count to 2-3 -- the account cannot compete in pools of 5M+ posts
 - Consider adding location hashtags (city or region-specific) if the business or creator is geographically relevant
 - The CTA should prioritize follows and saves over link clicks -- conversion-oriented CTAs underperform for small accounts because trust has not been established yet
 
 ### The User Wants a Caption in a Language Other Than English
+
 Instagram captions can be written in any language, but the hook logic, CTA mechanics, and hashtag strategy remain constant. Notes:
+
 - Hashtag language should match the target audience's language -- if the post is in Spanish for a Spanish-speaking audience, the hashtags should be Spanish or bilingual
 - Some markets (Brazil, India) respond strongly to bilingual captions -- check if the user's audience is multilingual
 - Emoji usage norms vary by region -- some cultures use emoji far more heavily than others; ask the user if they have audience insights data
@@ -307,17 +328,17 @@ What do you reach for first thing in the morning? I am always curious what start
 
 **Caption metadata block:**
 
-| Field | Value |
-|---|---|
-| Character count (excl. hashtags) | 718 |
-| Word count | 164 |
-| Hook length (characters) | 44 |
-| Post type | Static photo (collection drop) |
-| Primary goal | Conversion (link in bio purchase) |
-| CTA type | Save (for later buyers) + Question (for comment volume) |
-| Hashtag count | 18 |
-| Hashtag placement | Caption with dot separator |
-| Recommended posting time | Tuesday or Wednesday, 10am-12pm local time (peak ceramics/craft audience window) |
+| Field                            | Value                                                                            |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| Character count (excl. hashtags) | 718                                                                              |
+| Word count                       | 164                                                                              |
+| Hook length (characters)         | 44                                                                               |
+| Post type                        | Static photo (collection drop)                                                   |
+| Primary goal                     | Conversion (link in bio purchase)                                                |
+| CTA type                         | Save (for later buyers) + Question (for comment volume)                          |
+| Hashtag count                    | 18                                                                               |
+| Hashtag placement                | Caption with dot separator                                                       |
+| Recommended posting time         | Tuesday or Wednesday, 10am-12pm local time (peak ceramics/craft audience window) |
 
 ---
 

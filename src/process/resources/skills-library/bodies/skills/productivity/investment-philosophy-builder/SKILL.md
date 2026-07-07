@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks guide beginner-friendly advanced automation analysis research"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks guide beginner-friendly advanced automation analysis research'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Investment Philosophy Builder
@@ -22,15 +22,16 @@ You are an expert in investment philosophy who helps users develop a coherent, e
 
 **IMPORTANT DISCLAIMER: This skill provides general investment education and philosophical frameworks. It is NOT investment advice, a recommendation to buy or sell any security, or a substitute for professional financial guidance. Past performance does not guarantee future results. All investing involves risk, including the potential loss of principal. Individual circumstances, tax situations, and financial goals vary significantly. Consult a qualified financial advisor, registered investment advisor (RIA), or certified financial planner (CFP) before making any investment decisions.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about investment philosophy builder techniques or best practices
 - User needs guidance on investment philosophy builder concepts
 - User wants to implement or improve their approach to investment philosophy builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of investment philosophy builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -62,12 +63,12 @@ PILLAR 3: DISCIPLINE  - How you behave through market cycles (your rules)
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Bogle Index Investing (Vanguard) | Most individual investors; simplicity seekers | You cannot beat the market consistently; own the whole market at the lowest cost | Does not account for factors; market-cap weighting concentrates in largest companies |
-| Value Investing (Graham/Buffett) | Patient, analytical investors | Buy assets for less than their intrinsic value; margin of safety protects against error | Requires significant skill and time; value has underperformed for extended periods |
-| Factor Investing (Fama/French) | Evidence-oriented investors; those seeking enhanced returns | Certain factors (value, size, profitability, momentum) have historically earned premiums | Factor premiums are not guaranteed; factors can underperform for years; adds complexity |
-| Modern Portfolio Theory (Markowitz) | Framework for all investors; academic foundation | Diversification is the only free lunch; optimize the risk-return tradeoff | Assumes rational markets and normal distributions; correlations change in crises |
+| Approach                            | Best For                                                    | Key Insight                                                                              | Limitation                                                                              |
+| ----------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Bogle Index Investing (Vanguard)    | Most individual investors; simplicity seekers               | You cannot beat the market consistently; own the whole market at the lowest cost         | Does not account for factors; market-cap weighting concentrates in largest companies    |
+| Value Investing (Graham/Buffett)    | Patient, analytical investors                               | Buy assets for less than their intrinsic value; margin of safety protects against error  | Requires significant skill and time; value has underperformed for extended periods      |
+| Factor Investing (Fama/French)      | Evidence-oriented investors; those seeking enhanced returns | Certain factors (value, size, profitability, momentum) have historically earned premiums | Factor premiums are not guaranteed; factors can underperform for years; adds complexity |
+| Modern Portfolio Theory (Markowitz) | Framework for all investors; academic foundation            | Diversification is the only free lunch; optimize the risk-return tradeoff                | Assumes rational markets and normal distributions; correlations change in crises        |
 
 ## Pillar 1: Philosophy - What Do You Believe?
 
@@ -89,6 +90,7 @@ supports this end                                           supports this end
 ```
 
 **The evidence overwhelmingly shows:**
+
 - Most active fund managers underperform their benchmark index after fees
 - The ones who outperform rarely do so consistently over multiple decades
 - Fees are the most reliable predictor of future returns (lower fees = higher returns)
@@ -170,6 +172,7 @@ PRESERVATION (Very short horizon, under 5 years):
 ### The Simple Portfolio Models
 
 **The One-Fund Portfolio (Maximum simplicity):**
+
 ```
 100% Target-Date Fund matching your retirement year
 - Automatically adjusts allocation as you age
@@ -178,6 +181,7 @@ PRESERVATION (Very short horizon, under 5 years):
 ```
 
 **The Three-Fund Portfolio (Bogle's recommendation):**
+
 ```
 - Total US Stock Market Index:           ~60%
 - Total International Stock Market Index: ~30%
@@ -187,6 +191,7 @@ PRESERVATION (Very short horizon, under 5 years):
 ```
 
 **The Factor-Tilted Portfolio (Evidence-based enhancement):**
+
 ```
 - Total Market Index (core):             ~40%
 - Small-Cap Value Index:                 ~15%
@@ -267,15 +272,15 @@ Signed: _______________ Date: _______________
 
 ### The Behavioral Traps
 
-| Trap | What It Looks Like | Evidence-Based Response |
-|------|-------------------|----------------------|
-| Performance chasing | Buying last year's best fund | Past performance does not predict future results |
-| Loss aversion | Selling during a downturn to "stop the bleeding" | Market drops are temporary; selling makes losses permanent |
-| Overconfidence | "I can pick the next big stock" | Even professionals cannot do this consistently |
-| Recency bias | Assuming recent trends will continue | Mean reversion is powerful; what goes up comes down and vice versa |
-| Market timing | Waiting for "the right time to invest" | Time in the market beats timing the market in virtually all studies |
-| Home country bias | Over-allocating to domestic stocks | International diversification reduces risk |
-| Complexity bias | More complex must be better | Simple portfolios consistently beat complex ones for most investors |
+| Trap                | What It Looks Like                               | Evidence-Based Response                                             |
+| ------------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
+| Performance chasing | Buying last year's best fund                     | Past performance does not predict future results                    |
+| Loss aversion       | Selling during a downturn to "stop the bleeding" | Market drops are temporary; selling makes losses permanent          |
+| Overconfidence      | "I can pick the next big stock"                  | Even professionals cannot do this consistently                      |
+| Recency bias        | Assuming recent trends will continue             | Mean reversion is powerful; what goes up comes down and vice versa  |
+| Market timing       | Waiting for "the right time to invest"           | Time in the market beats timing the market in virtually all studies |
+| Home country bias   | Over-allocating to domestic stocks               | International diversification reduces risk                          |
+| Complexity bias     | More complex must be better                      | Simple portfolios consistently beat complex ones for most investors |
 
 ## Build Your Personal System
 
@@ -291,11 +296,11 @@ Before investing, ensure:
 
 ### Step 2: Choose Your Complexity Level
 
-| Level | Portfolio | Time Required | Best For |
-|-------|-----------|---------------|----------|
-| Minimal | One target-date fund | 15 min/year | Beginners; those who want simplicity |
-| Simple | Three-fund portfolio | 1-2 hours/year | Most DIY investors |
-| Moderate | Factor-tilted portfolio | 3-4 hours/year | Evidence-oriented investors |
+| Level    | Portfolio                                 | Time Required  | Best For                                     |
+| -------- | ----------------------------------------- | -------------- | -------------------------------------------- |
+| Minimal  | One target-date fund                      | 15 min/year    | Beginners; those who want simplicity         |
+| Simple   | Three-fund portfolio                      | 1-2 hours/year | Most DIY investors                           |
+| Moderate | Factor-tilted portfolio                   | 3-4 hours/year | Evidence-oriented investors                  |
 | Advanced | Custom multi-factor with tax optimization | 10+ hours/year | Investment enthusiasts with large portfolios |
 
 ### Step 3: Automate
@@ -309,13 +314,13 @@ Before investing, ensure:
 
 ### Common Investment Mistakes
 
-| Mistake | Why It Hurts | Fix |
-|---------|-------------|-----|
-| Not starting because of analysis paralysis | Years of lost compound growth | Start with a target-date fund; optimize later |
-| Paying high fees (1-2%+ expense ratios) | Compounds into hundreds of thousands lost over decades | Switch to low-cost index funds (0.03-0.20% expense ratios) |
+| Mistake                                         | Why It Hurts                                                  | Fix                                                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Not starting because of analysis paralysis      | Years of lost compound growth                                 | Start with a target-date fund; optimize later                                               |
+| Paying high fees (1-2%+ expense ratios)         | Compounds into hundreds of thousands lost over decades        | Switch to low-cost index funds (0.03-0.20% expense ratios)                                  |
 | Investing before eliminating high-interest debt | Guaranteed 20%+ loss (debt interest) vs. uncertain 7-10% gain | Pay off high-interest debt first; invest simultaneously only if employer match is available |
-| Checking portfolio daily | Leads to emotional decisions and anxiety | Set a review schedule and stick to it |
-| Following financial media | Creates urgency and fear that drives poor decisions | Unsubscribe from market news; your IPS is your guide |
+| Checking portfolio daily                        | Leads to emotional decisions and anxiety                      | Set a review schedule and stick to it                                                       |
+| Following financial media                       | Creates urgency and fear that drives poor decisions           | Unsubscribe from market news; your IPS is your guide                                        |
 
 ## Further Reading
 
@@ -329,7 +334,6 @@ For deeper exploration of the source methodologies:
 
 The Evidence-Based Portfolio gives you a framework to build an investment philosophy you understand and can maintain for decades, regardless of market conditions.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -337,7 +341,6 @@ The Evidence-Based Portfolio gives you a framework to build an investment philos
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -358,14 +361,12 @@ The Evidence-Based Portfolio gives you a framework to build an investment philos
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

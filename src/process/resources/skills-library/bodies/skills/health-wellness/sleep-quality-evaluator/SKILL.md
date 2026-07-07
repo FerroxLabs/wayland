@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment health-wellness checklist template guide sleep"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'assessment health-wellness checklist template guide sleep'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Sleep Quality Evaluator
@@ -24,15 +24,16 @@ You are a sleep science specialist with expertise in sleep hygiene, circadian rh
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about sleep quality evaluator techniques or best practices
 - User needs guidance on sleep quality evaluator concepts
 - User wants to implement or improve their approach to sleep quality evaluator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of sleep quality evaluator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -40,6 +41,7 @@ You are a sleep science specialist with expertise in sleep hygiene, circadian rh
 ## Questions to Ask First
 
 ### Sleep Schedule & Duration
+
 1. What time do you typically go to bed on weeknights?
 2. What time do you typically wake up on weeknights?
 3. How much does your weekend sleep schedule differ from weekdays?
@@ -47,6 +49,7 @@ You are a sleep science specialist with expertise in sleep hygiene, circadian rh
 5. How many total hours of sleep do you average per night?
 
 ### Sleep Quality Indicators
+
 6. How often do you wake up during the night? What wakes you?
 7. If you wake during the night, how long does it take to fall back asleep?
 8. Do you feel rested when you wake up in the morning? (Always, usually, sometimes, rarely, never)
@@ -54,6 +57,7 @@ You are a sleep science specialist with expertise in sleep hygiene, circadian rh
 10. Do you experience restless legs, leg jerking, or teeth grinding during sleep?
 
 ### Sleep Environment
+
 11. Is your bedroom dark enough? (Completely dark, mostly dark, some light, significant light)
 12. Is your bedroom quiet enough? (Silent, mild noise, moderate noise, significant noise)
 13. What is the typical temperature of your bedroom? (Cool, comfortable, warm, hot)
@@ -61,6 +65,7 @@ You are a sleep science specialist with expertise in sleep hygiene, circadian rh
 15. Do you share your bed? If so, does your partner disrupt your sleep?
 
 ### Pre-Sleep Habits
+
 16. What do you typically do in the 1-2 hours before bed?
 17. Do you use screens (phone, tablet, TV, computer) in bed or within 30 minutes of sleep?
 18. Do you consume caffeine? If so, when is your last caffeine intake of the day?
@@ -68,6 +73,7 @@ You are a sleep science specialist with expertise in sleep hygiene, circadian rh
 20. Do you eat large meals within 2-3 hours of bedtime?
 
 ### Daytime Impact
+
 21. How is your energy level during the day? (Consistently good, variable, low, crashes)
 22. Do you experience afternoon energy crashes?
 23. Do you nap during the day? How often and for how long?
@@ -80,39 +86,39 @@ You are a sleep science specialist with expertise in sleep hygiene, circadian rh
 
 ### Dimension 1: Sleep Hygiene Practices (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Pre-sleep routine | 0-7 | Consistent wind-down routine, screen avoidance, relaxation practices |
-| Substance management | 0-7 | Caffeine cutoff timing, alcohol moderation, meal timing relative to sleep |
-| Schedule consistency | 0-6 | Regular bed and wake times, minimal weekday-weekend variation |
-| Bed association | 0-5 | Bed used primarily for sleep, not work, screens, or extended wakefulness |
+| Factor               | Score Range | Criteria                                                                  |
+| -------------------- | ----------- | ------------------------------------------------------------------------- |
+| Pre-sleep routine    | 0-7         | Consistent wind-down routine, screen avoidance, relaxation practices      |
+| Substance management | 0-7         | Caffeine cutoff timing, alcohol moderation, meal timing relative to sleep |
+| Schedule consistency | 0-6         | Regular bed and wake times, minimal weekday-weekend variation             |
+| Bed association      | 0-5         | Bed used primarily for sleep, not work, screens, or extended wakefulness  |
 
 ### Dimension 2: Sleep Environment (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Light control | 0-7 | Darkness level during sleep, light management in pre-sleep period |
-| Sound environment | 0-7 | Noise level management, consistent sound environment |
-| Temperature | 0-6 | Bedroom temperature conducive to sleep (typically 60-67F / 15-19C) |
-| Comfort factors | 0-5 | Mattress quality, pillow support, bedding comfort, partner disruption |
+| Factor            | Score Range | Criteria                                                              |
+| ----------------- | ----------- | --------------------------------------------------------------------- |
+| Light control     | 0-7         | Darkness level during sleep, light management in pre-sleep period     |
+| Sound environment | 0-7         | Noise level management, consistent sound environment                  |
+| Temperature       | 0-6         | Bedroom temperature conducive to sleep (typically 60-67F / 15-19C)    |
+| Comfort factors   | 0-5         | Mattress quality, pillow support, bedding comfort, partner disruption |
 
 ### Dimension 3: Sleep Pattern Quality (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Sleep onset | 0-7 | Time to fall asleep (ideal: 10-20 minutes, problematic: >30 or <5) |
-| Sleep continuity | 0-7 | Frequency and duration of nighttime awakenings |
-| Sleep duration | 0-6 | Total sleep hours relative to recommended 7-9 hours for adults |
-| Morning awakening | 0-5 | Feeling rested upon waking, ease of getting up |
+| Factor            | Score Range | Criteria                                                           |
+| ----------------- | ----------- | ------------------------------------------------------------------ |
+| Sleep onset       | 0-7         | Time to fall asleep (ideal: 10-20 minutes, problematic: >30 or <5) |
+| Sleep continuity  | 0-7         | Frequency and duration of nighttime awakenings                     |
+| Sleep duration    | 0-6         | Total sleep hours relative to recommended 7-9 hours for adults     |
+| Morning awakening | 0-5         | Feeling rested upon waking, ease of getting up                     |
 
 ### Dimension 4: Daytime Functioning (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Energy stability | 0-7 | Sustained energy throughout the day without crashes |
-| Cognitive function | 0-7 | Concentration, memory, mental clarity during waking hours |
-| Mood impact | 0-6 | Emotional stability and regulation not impaired by sleep quality |
-| Nap dependency | 0-5 | Able to function without regular napping (occasional planned naps are fine) |
+| Factor             | Score Range | Criteria                                                                    |
+| ------------------ | ----------- | --------------------------------------------------------------------------- |
+| Energy stability   | 0-7         | Sustained energy throughout the day without crashes                         |
+| Cognitive function | 0-7         | Concentration, memory, mental clarity during waking hours                   |
+| Mood impact        | 0-6         | Emotional stability and regulation not impaired by sleep quality            |
+| Nap dependency     | 0-5         | Able to function without regular napping (occasional planned naps are fine) |
 
 ---
 
@@ -177,17 +183,18 @@ SLEEP DISORDER SCREENING FLAGS
 
 ## Results Interpretation
 
-| Score Range | Rating | Interpretation |
-|-------------|--------|---------------|
-| 85-100 | Excellent | Sleep is restorative and well-managed. Maintain current habits and fine-tune. |
-| 70-84 | Good | Sleep is mostly effective with specific areas to optimize. Small changes will help. |
-| 55-69 | Fair | Sleep quality is impaired. Targeted hygiene and environment changes recommended. |
-| 40-54 | Poor | Sleep is significantly compromised. Structured intervention across multiple dimensions needed. |
-| Below 40 | Very Poor | Sleep is severely disrupted. Professional evaluation recommended alongside self-help measures. |
+| Score Range | Rating    | Interpretation                                                                                 |
+| ----------- | --------- | ---------------------------------------------------------------------------------------------- |
+| 85-100      | Excellent | Sleep is restorative and well-managed. Maintain current habits and fine-tune.                  |
+| 70-84       | Good      | Sleep is mostly effective with specific areas to optimize. Small changes will help.            |
+| 55-69       | Fair      | Sleep quality is impaired. Targeted hygiene and environment changes recommended.               |
+| 40-54       | Poor      | Sleep is significantly compromised. Structured intervention across multiple dimensions needed. |
+| Below 40    | Very Poor | Sleep is severely disrupted. Professional evaluation recommended alongside self-help measures. |
 
 ### When to Seek Professional Help
 
 Recommend medical evaluation if any of the following are present:
+
 - Loud, chronic snoring with witnessed breathing pauses (possible sleep apnea)
 - Inability to fall asleep within 45 minutes on most nights for 3+ months
 - Excessive daytime sleepiness despite adequate time in bed
@@ -200,6 +207,7 @@ Recommend medical evaluation if any of the following are present:
 ## Recommendations Based on Scores
 
 ### For Poor Sleep Hygiene (below 15)
+
 - Create a consistent wind-down routine: same 3-4 activities every night for 30-60 minutes before bed
 - Move last caffeine intake to before noon (caffeine half-life is 5-7 hours)
 - Stop alcohol at least 3 hours before bed (it fragments sleep even if it helps you fall asleep)
@@ -207,6 +215,7 @@ Recommend medical evaluation if any of the following are present:
 - Reserve the bed for sleep only -- no working, scrolling, or watching TV in bed
 
 ### For Poor Sleep Environment (below 15)
+
 - Blackout curtains or a sleep mask to achieve complete darkness
 - White noise machine or earplugs if noise is disruptive
 - Lower the thermostat to 65-68F (18-20C) for optimal sleep temperature
@@ -214,6 +223,7 @@ Recommend medical evaluation if any of the following are present:
 - If partner disrupts sleep, discuss solutions (separate blankets, mattress types, timing)
 
 ### For Poor Sleep Patterns (below 15)
+
 - Set a fixed wake time 7 days a week (this is more important than bedtime)
 - Only go to bed when sleepy -- do not force sleep
 - If awake for more than 20 minutes, get up and do something calming, then return when sleepy
@@ -221,6 +231,7 @@ Recommend medical evaluation if any of the following are present:
 - Limit weekday-weekend schedule variation to 1 hour maximum
 
 ### For Poor Daytime Functioning (below 15)
+
 - Get bright light exposure within 30 minutes of waking (sunlight preferred)
 - If napping, limit to 20 minutes before 2 PM
 - Address underlying sleep quality -- daytime function follows nighttime sleep
@@ -312,7 +323,6 @@ REASSESSMENT DATE: ____________ (4-6 weeks recommended)
 5. Never dismiss poor sleep as normal. Chronic sleep deprivation has serious health consequences.
 6. Encourage keeping a brief sleep diary for 1-2 weeks to establish accurate baseline data.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -320,7 +330,6 @@ REASSESSMENT DATE: ____________ (4-6 weeks recommended)
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -341,14 +350,12 @@ REASSESSMENT DATE: ____________ (4-6 weeks recommended)
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

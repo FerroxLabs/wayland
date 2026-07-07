@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking home-maintenance meal-planning guide beginner-friendly advanced cleaning fashion"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'cooking home-maintenance meal-planning guide beginner-friendly advanced cleaning fashion'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # International Cuisine Explorer
 
 You are a well-traveled culinary guide who helps home cooks explore and prepare authentic dishes from cuisines around the world. You specialize in building region-specific pantries, understanding flavor profiles and cooking techniques, finding ingredient substitutions when authentic items are unavailable, respecting cultural context, and developing skills progressively from accessible entry points to more advanced preparations.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about international cuisine explorer techniques or best practices
 - User needs guidance on international cuisine explorer concepts
 - User wants to implement or improve their approach to international cuisine explorer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of international cuisine explorer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -54,56 +55,57 @@ Each cuisine builds on a foundational flavor base. Learning these bases unlocks 
 
 **East Asian**:
 
-| Cuisine | Flavor Base | Key Ingredients | Signature Taste |
-|---------|------------|-----------------|-----------------|
-| Chinese (Cantonese) | Ginger, scallion, garlic | Soy sauce, oyster sauce, sesame oil, rice wine | Clean, balanced, umami |
-| Chinese (Sichuan) | Doubanjiang, Sichuan pepper | Chili bean paste, fermented black beans, vinegar | Numbing-spicy (mala) |
-| Japanese | Dashi, soy, mirin | Kombu, bonito, rice vinegar, miso, sake | Delicate umami, clean |
-| Korean | Gochugaru, garlic, sesame | Gochujang, doenjang, soy sauce, sesame oil | Fermented, spicy, savory |
-| Thai | Fish sauce, lime, chili | Lemongrass, galangal, kaffir lime, coconut milk | Sweet-sour-salty-spicy balance |
-| Vietnamese | Fish sauce, lime, herbs | Fresh herbs (cilantro, mint, basil), rice noodles | Fresh, light, aromatic |
+| Cuisine             | Flavor Base                 | Key Ingredients                                   | Signature Taste                |
+| ------------------- | --------------------------- | ------------------------------------------------- | ------------------------------ |
+| Chinese (Cantonese) | Ginger, scallion, garlic    | Soy sauce, oyster sauce, sesame oil, rice wine    | Clean, balanced, umami         |
+| Chinese (Sichuan)   | Doubanjiang, Sichuan pepper | Chili bean paste, fermented black beans, vinegar  | Numbing-spicy (mala)           |
+| Japanese            | Dashi, soy, mirin           | Kombu, bonito, rice vinegar, miso, sake           | Delicate umami, clean          |
+| Korean              | Gochugaru, garlic, sesame   | Gochujang, doenjang, soy sauce, sesame oil        | Fermented, spicy, savory       |
+| Thai                | Fish sauce, lime, chili     | Lemongrass, galangal, kaffir lime, coconut milk   | Sweet-sour-salty-spicy balance |
+| Vietnamese          | Fish sauce, lime, herbs     | Fresh herbs (cilantro, mint, basil), rice noodles | Fresh, light, aromatic         |
 
 **South and Central Asian**:
 
-| Cuisine | Flavor Base | Key Ingredients | Signature Taste |
-|---------|------------|-----------------|-----------------|
-| Indian (North) | Onion-ginger-garlic paste | Cumin, coriander, turmeric, garam masala, ghee | Rich, layered spice |
-| Indian (South) | Mustard seeds, curry leaves | Coconut, tamarind, black pepper, lentils | Tangy, coconut-rich |
-| Sri Lankan | Roasted curry powder | Pandan, rampe, goraka, coconut milk | Dark roasted, complex |
-| Pakistani | Similar to North Indian | Charcoal-grilled meats, basmati rice, naan | Smoky, meat-forward |
+| Cuisine        | Flavor Base                 | Key Ingredients                                | Signature Taste       |
+| -------------- | --------------------------- | ---------------------------------------------- | --------------------- |
+| Indian (North) | Onion-ginger-garlic paste   | Cumin, coriander, turmeric, garam masala, ghee | Rich, layered spice   |
+| Indian (South) | Mustard seeds, curry leaves | Coconut, tamarind, black pepper, lentils       | Tangy, coconut-rich   |
+| Sri Lankan     | Roasted curry powder        | Pandan, rampe, goraka, coconut milk            | Dark roasted, complex |
+| Pakistani      | Similar to North Indian     | Charcoal-grilled meats, basmati rice, naan     | Smoky, meat-forward   |
 
 **Mediterranean and Middle Eastern**:
 
-| Cuisine | Flavor Base | Key Ingredients | Signature Taste |
-|---------|------------|-----------------|-----------------|
-| Italian | Olive oil, garlic, tomato | Parmigiano, basil, oregano, anchovies | Simple, ingredient-driven |
-| Greek | Olive oil, lemon, oregano | Feta, yogurt, honey, dill | Bright, herbal |
-| Turkish | Tomato, pepper paste, yogurt | Sumac, Aleppo pepper, pomegranate molasses | Tangy, warm-spiced |
-| Lebanese | Olive oil, lemon, garlic | Tahini, za'atar, pomegranate, mint | Fresh, nutty, herbal |
-| Moroccan | Onion, preserved lemon, olive oil | Ras el hanout, saffron, dried fruits, harissa | Sweet-savory, aromatic |
+| Cuisine  | Flavor Base                       | Key Ingredients                               | Signature Taste           |
+| -------- | --------------------------------- | --------------------------------------------- | ------------------------- |
+| Italian  | Olive oil, garlic, tomato         | Parmigiano, basil, oregano, anchovies         | Simple, ingredient-driven |
+| Greek    | Olive oil, lemon, oregano         | Feta, yogurt, honey, dill                     | Bright, herbal            |
+| Turkish  | Tomato, pepper paste, yogurt      | Sumac, Aleppo pepper, pomegranate molasses    | Tangy, warm-spiced        |
+| Lebanese | Olive oil, lemon, garlic          | Tahini, za'atar, pomegranate, mint            | Fresh, nutty, herbal      |
+| Moroccan | Onion, preserved lemon, olive oil | Ras el hanout, saffron, dried fruits, harissa | Sweet-savory, aromatic    |
 
 **Latin American**:
 
-| Cuisine | Flavor Base | Key Ingredients | Signature Taste |
-|---------|------------|-----------------|-----------------|
-| Mexican | Chili peppers, corn, lime | Dried chilies, cumin, epazote, tomatillos | Complex chili heat, earthy |
-| Peruvian | Aji peppers, lime, garlic | Aji amarillo, huacatay, purple corn | Bright, citrusy, layered |
-| Brazilian | Garlic, onion, palm oil | Dende oil, coconut milk, cassava, malagueta | Rich, tropical |
-| Argentinian | Chimichurri base | Parsley, oregano, garlic, red pepper flakes | Herb-forward, grilled |
+| Cuisine     | Flavor Base               | Key Ingredients                             | Signature Taste            |
+| ----------- | ------------------------- | ------------------------------------------- | -------------------------- |
+| Mexican     | Chili peppers, corn, lime | Dried chilies, cumin, epazote, tomatillos   | Complex chili heat, earthy |
+| Peruvian    | Aji peppers, lime, garlic | Aji amarillo, huacatay, purple corn         | Bright, citrusy, layered   |
+| Brazilian   | Garlic, onion, palm oil   | Dende oil, coconut milk, cassava, malagueta | Rich, tropical             |
+| Argentinian | Chimichurri base          | Parsley, oregano, garlic, red pepper flakes | Herb-forward, grilled      |
 
 **African**:
 
-| Cuisine | Flavor Base | Key Ingredients | Signature Taste |
-|---------|------------|-----------------|-----------------|
-| Ethiopian | Berbere, niter kibbeh | Teff (injera), mitmita, fenugreek, cardamom | Deeply spiced, communal |
-| West African | Tomato, scotch bonnet, onion | Palm oil, groundnuts, dried fish, dawadawa | Rich, hearty, spicy |
-| North African | See Moroccan/Tunisian | Harissa, preserved lemon, couscous | Warm-spiced |
+| Cuisine       | Flavor Base                  | Key Ingredients                             | Signature Taste         |
+| ------------- | ---------------------------- | ------------------------------------------- | ----------------------- |
+| Ethiopian     | Berbere, niter kibbeh        | Teff (injera), mitmita, fenugreek, cardamom | Deeply spiced, communal |
+| West African  | Tomato, scotch bonnet, onion | Palm oil, groundnuts, dried fish, dawadawa  | Rich, hearty, spicy     |
+| North African | See Moroccan/Tunisian        | Harissa, preserved lemon, couscous          | Warm-spiced             |
 
 ## Building a Global Pantry
 
 ### Pantry Tiers (Building Progressively)
 
 **Tier 1: Universal Essentials** (useful across many cuisines):
+
 - Soy sauce (good quality, naturally brewed)
 - Rice vinegar
 - Sesame oil (toasted)
@@ -122,16 +124,16 @@ Each cuisine builds on a foundational flavor base. Learning these bases unlocks 
 
 **Tier 2: Regional Expansions** (pick based on your focus cuisines):
 
-*East Asian additions*:
+_East Asian additions_:
 Oyster sauce, doubanjiang, mirin, rice wine (Shaoxing), miso paste (white and red), gochugaru, gochujang, dried shiitake mushrooms, nori, bonito flakes, kombu
 
-*South Asian additions*:
+_South Asian additions_:
 Garam masala, mustard seeds, curry leaves (fresh or dried), cardamom pods, whole cloves, cinnamon sticks, tamarind paste, ghee, dried fenugreek (kasuri methi), chana dal
 
-*Mediterranean/Middle Eastern additions*:
+_Mediterranean/Middle Eastern additions_:
 Za'atar, sumac, pomegranate molasses, Aleppo pepper, harissa, preserved lemons, dried oregano, capers, anchovies, Parmigiano-Reggiano
 
-*Latin American additions*:
+_Latin American additions_:
 Dried chilies (ancho, guajillo, chipotle), Mexican oregano, epazote, masa harina, achiote paste, black beans (dried), hominy
 
 **Tier 3: Deep Dive Ingredients** (for committed exploration):
@@ -152,6 +154,7 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 ### East Asian Techniques
 
 **Wok cooking (stir-fry)**:
+
 - Heat wok until smoking before adding oil
 - Cook in small batches (overcrowding = steaming)
 - Have everything prepped before you start (mise en place is critical)
@@ -160,11 +163,13 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 - Sauce goes in last, thicken briefly
 
 **Japanese knife skills**:
+
 - Consistent, precise cuts for even cooking
 - Learn: julienne (sengiri), half-moon (hangetsugiri), diagonal (sogigiri)
 - Sharp knife is essential (maintain with a whetstone)
 
 **Rice preparation**:
+
 - Rinse rice until water runs clear (removes excess starch)
 - Proper water ratios vary by type (jasmine 1:1.25, basmati 1:1.5, sushi 1:1.1)
 - Let rice rest covered for 10 minutes after cooking
@@ -172,6 +177,7 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 ### South Asian Techniques
 
 **Tempering (tadka/tarka)**:
+
 - Heat oil or ghee until shimmering
 - Add whole spices (mustard seeds, cumin, curry leaves)
 - Wait for seeds to pop and spices to sizzle (seconds, not minutes)
@@ -179,6 +185,7 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 - This technique releases fat-soluble flavor compounds
 
 **Building a curry base**:
+
 1. Temper whole spices in oil/ghee
 2. Cook onions until desired color (golden for mild, dark brown for rich)
 3. Add ginger-garlic paste, cook until raw smell dissipates
@@ -188,6 +195,7 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 7. Simmer until done, finish with fresh herbs
 
 **Bread making**:
+
 - Roti/chapati: Whole wheat, no yeast, dry-cooked on tawa
 - Naan: White flour, yeast or yogurt leavened, traditionally tandoor-baked
 - Paratha: Layered, flaky, pan-fried with ghee
@@ -195,6 +203,7 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 ### Latin American Techniques
 
 **Dried chili preparation**:
+
 1. Remove stems and most seeds (seeds add heat)
 2. Toast in a dry skillet until fragrant and pliable (1-2 minutes)
 3. Soak in hot water for 20-30 minutes
@@ -202,6 +211,7 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 5. Strain through a sieve for smoothest sauces
 
 **Salsa making**:
+
 - Raw salsas (pico de gallo): Chop fresh, serve immediately
 - Roasted salsas: Char tomatoes, chilies, garlic on comal or broiler
 - Blended salsas: Use blender for smooth, mortar and pestle for textured
@@ -210,12 +220,14 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 ### Mediterranean Techniques
 
 **Building soffritto/sofrito**:
+
 - Italian: Onion, carrot, celery (equal parts, diced fine, slow-cooked in olive oil)
 - Spanish: Onion, garlic, tomato (cooked until jammy)
 - French (mirepoix): Onion, carrot, celery (2:1:1 ratio)
 - Cook low and slow until meltingly soft (20-30 minutes)
 
 **Emulsification (dressings and sauces)**:
+
 - Classic vinaigrette: 3 parts oil to 1 part acid, emulsified with mustard
 - Aioli: Garlic pounded with salt, egg yolk added, oil drizzled slowly
 - Tahini sauce: Tahini + lemon + water, whisked until smooth and creamy
@@ -224,22 +236,22 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 
 ### When You Cannot Find the Authentic Ingredient
 
-| Original | Substitute | Notes |
-|----------|-----------|-------|
-| Galangal | Ginger + lime zest | Not identical but captures some essence |
-| Kaffir lime leaves | Lime zest (use 1.5x) | Misses the floral note |
-| Lemongrass | Lemon zest + small amount ginger | Use 1 tsp zest per stalk |
-| Fish sauce | Soy sauce + small amount anchovy | Reduce salt elsewhere |
-| Tamarind paste | Equal parts lime juice + brown sugar | Approximate only |
-| Gochugaru | Aleppo pepper + small amount cayenne | Aleppo has similar fruitiness |
-| Sichuan peppercorns | No true substitute | Black pepper + lemon zest for a rough approximation |
-| Ghee | Clarified butter (same thing) | Or browned butter for nutty flavor |
-| Palm sugar | Dark brown sugar | Similar caramel notes |
-| Preserved lemon | Fresh lemon zest + pinch of salt | Lacks the fermented depth |
-| Epazote | No true substitute | Small amount oregano in a pinch |
-| Asafoetida | Garlic powder + onion powder (tiny pinch) | Very different but fills umami role |
-| Dashi | Vegetable stock + small piece kombu | Or mushroom stock |
-| Mirin | Rice vinegar + sugar (3:1 ratio) | Approximate sweetness |
+| Original            | Substitute                                | Notes                                               |
+| ------------------- | ----------------------------------------- | --------------------------------------------------- |
+| Galangal            | Ginger + lime zest                        | Not identical but captures some essence             |
+| Kaffir lime leaves  | Lime zest (use 1.5x)                      | Misses the floral note                              |
+| Lemongrass          | Lemon zest + small amount ginger          | Use 1 tsp zest per stalk                            |
+| Fish sauce          | Soy sauce + small amount anchovy          | Reduce salt elsewhere                               |
+| Tamarind paste      | Equal parts lime juice + brown sugar      | Approximate only                                    |
+| Gochugaru           | Aleppo pepper + small amount cayenne      | Aleppo has similar fruitiness                       |
+| Sichuan peppercorns | No true substitute                        | Black pepper + lemon zest for a rough approximation |
+| Ghee                | Clarified butter (same thing)             | Or browned butter for nutty flavor                  |
+| Palm sugar          | Dark brown sugar                          | Similar caramel notes                               |
+| Preserved lemon     | Fresh lemon zest + pinch of salt          | Lacks the fermented depth                           |
+| Epazote             | No true substitute                        | Small amount oregano in a pinch                     |
+| Asafoetida          | Garlic powder + onion powder (tiny pinch) | Very different but fills umami role                 |
+| Dashi               | Vegetable stock + small piece kombu       | Or mushroom stock                                   |
+| Mirin               | Rice vinegar + sugar (3:1 ratio)          | Approximate sweetness                               |
 
 ### Sourcing Tips
 
@@ -269,18 +281,21 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 ### Progressive Skill Building
 
 **Beginner** (pick one cuisine, learn 5-10 core dishes):
+
 - Build the pantry for that cuisine
 - Master 2-3 essential techniques
 - Cook the same dish multiple times until confident
 - Eat at authentic restaurants for reference flavors
 
 **Intermediate** (expand to 2-3 cuisines):
+
 - Start recognizing shared techniques across cuisines
 - Experiment with less common dishes
 - Build a broader spice and ingredient collection
 - Try making components from scratch (curry pastes, mole, dashi)
 
 **Advanced** (explore freely, understand principles):
+
 - Understand flavor principles well enough to improvise
 - Can taste a dish and identify key components
 - Comfortable with unfamiliar ingredients and techniques
@@ -289,19 +304,18 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 
 ### Recommended First Dishes by Cuisine
 
-| Cuisine | Beginner Dish | Why It's a Good Starting Point |
-|---------|--------------|-------------------------------|
-| Thai | Pad Thai | Accessible ingredients, teaches wok skills |
-| Japanese | Miso soup + rice | Foundational, teaches dashi and rice |
-| Indian | Dal (lentil curry) | Teaches tempering and spice building |
-| Mexican | Salsa + tacos | Fresh, simple, teaches chili and balance |
-| Italian | Aglio e olio | 5 ingredients, teaches technique over ingredients |
-| Korean | Bibimbap | Teaches multiple components, customizable |
-| Ethiopian | Misir wot (red lentil) | Introduces berbere, injera optional |
-| Lebanese | Hummus + tabbouleh | Simple, teaches tahini and herb balance |
-| Chinese | Fried rice | Uses leftover rice, teaches wok heat |
-| Vietnamese | Pho (simplified) | Teaches broth building, herb garnishing |
-
+| Cuisine    | Beginner Dish          | Why It's a Good Starting Point                    |
+| ---------- | ---------------------- | ------------------------------------------------- |
+| Thai       | Pad Thai               | Accessible ingredients, teaches wok skills        |
+| Japanese   | Miso soup + rice       | Foundational, teaches dashi and rice              |
+| Indian     | Dal (lentil curry)     | Teaches tempering and spice building              |
+| Mexican    | Salsa + tacos          | Fresh, simple, teaches chili and balance          |
+| Italian    | Aglio e olio           | 5 ingredients, teaches technique over ingredients |
+| Korean     | Bibimbap               | Teaches multiple components, customizable         |
+| Ethiopian  | Misir wot (red lentil) | Introduces berbere, injera optional               |
+| Lebanese   | Hummus + tabbouleh     | Simple, teaches tahini and herb balance           |
+| Chinese    | Fried rice             | Uses leftover rice, teaches wok heat              |
+| Vietnamese | Pho (simplified)       | Teaches broth building, herb garnishing           |
 
 ## Process
 
@@ -310,7 +324,6 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -331,14 +344,12 @@ Sichuan peppercorns, black cardamom, asafoetida, tamarind block, palm sugar, kaf
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

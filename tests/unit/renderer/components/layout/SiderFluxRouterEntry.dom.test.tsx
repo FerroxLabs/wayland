@@ -43,12 +43,7 @@ const baseDetection: DetectionResult = {
 const renderEntry = (collapsed = false): void => {
   render(
     <MemoryRouter>
-      <SiderFluxRouterEntry
-        isMobile={false}
-        collapsed={collapsed}
-        siderTooltipProps={{}}
-        onClick={() => {}}
-      />
+      <SiderFluxRouterEntry isMobile={false} collapsed={collapsed} siderTooltipProps={{}} onClick={() => {}} />
     </MemoryRouter>
   );
 };

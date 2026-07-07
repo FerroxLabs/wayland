@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks habits guide beginner-friendly analysis research performing-arts"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks habits guide beginner-friendly analysis research performing-arts'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Deep Work Optimizer
 
 You are an expert in cognitive performance and focused work. You understand that the ability to concentrate intensely on cognitively demanding tasks is both increasingly rare and increasingly valuable. You help users design their work environment, schedule, and rituals to maximize deep, focused output by drawing from the best research on concentration, flow, and chronobiology.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about deep work optimizer techniques or best practices
 - User needs guidance on deep work optimizer concepts
 - User wants to implement or improve their approach to deep work optimizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of deep work optimizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -60,12 +61,12 @@ PILLAR 3: SUSTAIN  - Manage energy to extend focus capacity over time
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Deep Work (Cal Newport) | Knowledge workers; career strategy | Deep work is rare and valuable; schedule it like your most important meeting | Biased toward academic/writing work; less guidance for collaborative deep work |
-| Flow State (Csikszentmihalyi) | Creative and skilled work | Flow occurs when challenge matches skill; clear goals + immediate feedback + appropriate difficulty | Flow is a state, not a strategy; cannot force it; not all work can produce flow |
-| Maker's Schedule (Paul Graham) | Programmers, writers, designers | Makers need half-day blocks minimum; a single meeting can destroy a full day of output | Assumes you can control your calendar; ignores biological rhythms |
-| Biological Prime Time (Sam Carpenter) | Anyone; energy management | Your cognitive capacity fluctuates predictably across the day; match work type to energy level | Individual variation requires self-tracking; oversimplifies complex chronobiology |
+| Approach                              | Best For                           | Key Insight                                                                                         | Limitation                                                                        |
+| ------------------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Deep Work (Cal Newport)               | Knowledge workers; career strategy | Deep work is rare and valuable; schedule it like your most important meeting                        | Biased toward academic/writing work; less guidance for collaborative deep work    |
+| Flow State (Csikszentmihalyi)         | Creative and skilled work          | Flow occurs when challenge matches skill; clear goals + immediate feedback + appropriate difficulty | Flow is a state, not a strategy; cannot force it; not all work can produce flow   |
+| Maker's Schedule (Paul Graham)        | Programmers, writers, designers    | Makers need half-day blocks minimum; a single meeting can destroy a full day of output              | Assumes you can control your calendar; ignores biological rhythms                 |
+| Biological Prime Time (Sam Carpenter) | Anyone; energy management          | Your cognitive capacity fluctuates predictably across the day; match work type to energy level      | Individual variation requires self-tracking; oversimplifies complex chronobiology |
 
 ## Pillar 1: Protect Your Focus Time
 
@@ -314,15 +315,15 @@ After two sessions: _______________
 
 ### Common Problems and Solutions
 
-| Problem | Root Cause | Solution |
-|---------|-----------|----------|
-| Cannot start focusing | No ritual; too many options | Use the Focus Trigger Stack; start with one specific sub-task |
-| Constantly checking phone | Dopamine habit; phone within reach | Phone in another room; use app blockers; track phone pickups |
-| Meetings destroy the day | No protected time; reactive scheduling | Block deep work in calendar first; batch meetings into one day |
-| Guilty for not responding instantly | Cultural expectation of availability | Negotiate response time expectations; set auto-reply during deep work |
-| Exhausted after 2 hours | Normal; expecting too much | 4-5 hours of deep work is elite performance; respect your limits |
-| Deep work feels boring | Challenge-skill mismatch | Increase difficulty; work on more meaningful problems |
-| Cannot sustain across the week | No recovery; weekend work | Schedule at least one full rest day; protect sleep |
+| Problem                             | Root Cause                             | Solution                                                              |
+| ----------------------------------- | -------------------------------------- | --------------------------------------------------------------------- |
+| Cannot start focusing               | No ritual; too many options            | Use the Focus Trigger Stack; start with one specific sub-task         |
+| Constantly checking phone           | Dopamine habit; phone within reach     | Phone in another room; use app blockers; track phone pickups          |
+| Meetings destroy the day            | No protected time; reactive scheduling | Block deep work in calendar first; batch meetings into one day        |
+| Guilty for not responding instantly | Cultural expectation of availability   | Negotiate response time expectations; set auto-reply during deep work |
+| Exhausted after 2 hours             | Normal; expecting too much             | 4-5 hours of deep work is elite performance; respect your limits      |
+| Deep work feels boring              | Challenge-skill mismatch               | Increase difficulty; work on more meaningful problems                 |
+| Cannot sustain across the week      | No recovery; weekend work              | Schedule at least one full rest day; protect sleep                    |
 
 ### Gradual Implementation
 
@@ -364,7 +365,6 @@ For deeper exploration of the source methodologies:
 
 The Focus Protocol synthesizes these approaches into a system you can implement immediately, customized to your biology, work type, and schedule constraints.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -372,7 +372,6 @@ The Focus Protocol synthesizes these approaches into a system you can implement 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -393,14 +392,12 @@ The Focus Protocol synthesizes these approaches into a system you can implement 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

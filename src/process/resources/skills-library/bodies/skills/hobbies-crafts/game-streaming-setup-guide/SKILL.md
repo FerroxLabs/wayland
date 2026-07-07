@@ -15,14 +15,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly step-by-step checklist guide"
-  category: "hobbies-crafts"
-  subcategory: "games-puzzles"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly step-by-step checklist guide'
+  category: 'hobbies-crafts'
+  subcategory: 'games-puzzles'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Game Streaming Setup Guide
 
 ## When to Use
@@ -40,6 +41,7 @@ Use this skill when the user's request clearly falls into one of these scenarios
 - The user wants a pre-stream checklist or a systematic approach to their first live stream
 
 Do NOT use this skill when:
+
 - The user wants to design a tabletop RPG campaign or game session (use `tabletop-rpg-campaign-builder` -- streaming and tabletop are entirely separate domains)
 - The user wants board game recommendations or game selection advice (use `board-game-selection-guide`)
 - The user wants to edit recorded video, create YouTube content, or produce post-stream VODs (use design-creative video production skills -- streaming and video editing have different toolchains and workflows)
@@ -69,27 +71,32 @@ Before recommending anything, gather the following information. If the user has 
 After gathering the profile, assess hardware needs systematically. Address each component category:
 
 **CPU Requirements for Streaming:**
+
 - 4-core CPU (e.g., older Intel Core i5 or AMD Ryzen 3): Can stream at 720p30 using hardware encoding only. Software encoding (x264) will cause encoding overload warnings during demanding games. This is a hard limitation.
 - 6-core CPU (e.g., Intel Core i5-10th gen or newer, AMD Ryzen 5 3600 or newer): Comfortable 1080p30 with hardware encoding. Software encoding is possible at the "fast" or "veryfast" preset, not slower presets.
 - 8-core CPU or better: Can run software encoding at "medium" preset while gaming without significant performance impact. This is the threshold where dual-PC streaming setups become unnecessary for most game types.
 - For a dual-PC setup (gaming PC + dedicated streaming PC), the streaming PC only needs a 4-core CPU with decent single-threaded performance -- it handles only encoding, not gameplay.
 
 **GPU Requirements and Hardware Encoding:**
+
 - NVIDIA GPUs (GTX 1000 series and newer) support NVENC hardware encoding. GTX 1060 and older use NVENC 6.0 with lower quality. RTX 2000 series and newer use NVENC 7.0, which is significantly better -- nearly matching x264 "slow" preset quality at the same bitrate.
 - AMD GPUs (RX 400 series and newer) support VCE/AMF hardware encoding. Quality is generally below NVENC 7.0 but acceptable for streaming.
 - Intel Arc GPUs (2022 and newer) support QuickSync hardware encoding with competitive quality to NVENC.
 - If the GPU supports hardware encoding, use it for single-PC setups. The performance impact on the GPU for encoding is typically 0-5% on modern GPUs.
 
 **RAM:**
+
 - 16 GB minimum for streaming. The game, streaming software, operating system, and browser (for alerts/chat monitoring) together consume 10-14 GB in typical use.
 - 32 GB is recommended if the user also wants to run a voice chat application, a browser with extensions, and a music streaming app simultaneously.
 - RAM speed matters less than total capacity for streaming. Do not recommend expensive high-speed kits over capacity.
 
 **Storage:**
+
 - SSD for OS and game installations is essential. HDD boot drives create startup latency and occasional streaming hitches when the drive is accessed. This is not optional for a quality experience.
 - If the user wants to record locally while streaming (recommended), they need sufficient free space. At 1080p60 recording (lossless or near-lossless), expect 4-8 GB per hour. At re-encoded 1080p30, expect 1-2 GB per hour.
 
 **Internet Connection:**
+
 - Upload speed thresholds are firm ceilings, not targets. The stream bitrate must never exceed 80% of the measured upload speed to leave headroom for connection variability.
 - For a 10 Mbps upload: maximum sustainable stream bitrate is 8000 Kbps. In practice, stay at 6000 Kbps.
 - For a 6 Mbps upload: cap at 4500 Kbps maximum. This limits practical streaming to 720p60 or 1080p30 at lower quality.
@@ -98,17 +105,18 @@ After gathering the profile, assess hardware needs systematically. Address each 
 
 **Peripheral Recommendations by Budget Tier:**
 
-| Budget | Microphone | Webcam | Lighting | Other |
-|--------|-----------|--------|---------|-------|
-| $0 (use existing) | Gaming headset mic with noise gate filter | Built-in laptop cam or skip | Desk lamp facing you | Second monitor from TV or old monitor |
-| Under $100 | USB dynamic microphone ($50-60) | 1080p USB webcam ($30-40) | Ring light ($15-25) | External USB hub if needed |
-| $100-$300 | USB condenser mic or dynamic mic with USB interface ($80-130) | 1080p 60fps webcam ($70-100) | Two-point lighting kit ($40-60) | Capture card for console ($100-160) |
-| $300-$500 | XLR dynamic mic + USB audio interface ($150-200) | 4K webcam or mirrorless camera with capture card ($150-250) | Full 3-point lighting setup ($60-100) | Stream deck controller ($100-150) |
-| $500+ | Professional XLR condenser or dynamic mic + quality interface ($200-400) | Mirrorless or DSLR via HDMI with capture card ($300-600) | Softbox lighting ($100-200) | Second monitor, acoustic panels, premium stream deck |
+| Budget            | Microphone                                                               | Webcam                                                      | Lighting                              | Other                                                |
+| ----------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------- | ------------------------------------- | ---------------------------------------------------- |
+| $0 (use existing) | Gaming headset mic with noise gate filter                                | Built-in laptop cam or skip                                 | Desk lamp facing you                  | Second monitor from TV or old monitor                |
+| Under $100        | USB dynamic microphone ($50-60)                                          | 1080p USB webcam ($30-40)                                   | Ring light ($15-25)                   | External USB hub if needed                           |
+| $100-$300         | USB condenser mic or dynamic mic with USB interface ($80-130)            | 1080p 60fps webcam ($70-100)                                | Two-point lighting kit ($40-60)       | Capture card for console ($100-160)                  |
+| $300-$500         | XLR dynamic mic + USB audio interface ($150-200)                         | 4K webcam or mirrorless camera with capture card ($150-250) | Full 3-point lighting setup ($60-100) | Stream deck controller ($100-150)                    |
+| $500+             | Professional XLR condenser or dynamic mic + quality interface ($200-400) | Mirrorless or DSLR via HDMI with capture card ($300-600)    | Softbox lighting ($100-200)           | Second monitor, acoustic panels, premium stream deck |
 
 **Microphone type guidance:** Dynamic microphones (cardioid pickup pattern) reject off-axis sound -- keyboard noise, PC fans, room echo -- because of their tighter polar pattern and lower sensitivity. Condenser microphones are more sensitive and capture higher frequency detail but pick up every sound in the room. For untreated rooms with ambient noise, dynamic microphones are the better choice for streaming. Condenser microphones reward acoustic treatment.
 
 **Capture Card Selection (console streamers):**
+
 - USB external capture cards: plug into any USB 3.0 port, no PC case slot required. Latency is slightly higher than internal cards but imperceptible for streaming purposes (not for gaming response time). Best choice for most beginners.
 - PCIe internal capture cards: sit inside the PC case, connect via PCIe slot. Lower latency on the capture preview, higher throughput for 4K30 or 1080p60 HDR capture. Necessary for high-fidelity console capture at premium quality.
 - Passthrough requirement: verify the capture card supports 4K60 HDMI passthrough if using a 4K TV. Some budget capture cards cap passthrough at 1080p60, which means the TV display is limited even if the console outputs 4K.
@@ -118,6 +126,7 @@ After gathering the profile, assess hardware needs systematically. Address each 
 Streaming software is the hub where all hardware inputs combine into a broadcast. Guide the user through initial configuration:
 
 **Software Overview:**
+
 - OBS Studio is the dominant free, open-source streaming application for Windows, macOS, and Linux. It is the reference for this skill's configuration guidance because it is universally available and used as the basis for most other streaming applications.
 - Streamlabs (built on OBS) adds a built-in alert system and theme store but uses more RAM and CPU than OBS Studio. Appropriate for beginners who want an easier first-time setup.
 - OBS with the StreamElements or similar plugin provides alerts and overlays while keeping OBS's lightweight footprint. Recommended for users with mid-range hardware.
@@ -132,23 +141,25 @@ Every stream needs at least four scenes before going live. Having fewer creates 
    - Overlay graphics (top layer): follower/subscriber alerts, donation alerts, stream info panels. Implemented as browser sources pointing to an alert service.
    - Webcam (second layer): positioned in a lower corner, typically 15-20% of total frame width. Use the built-in color key or chroma key filter if using a green screen.
    - Game capture (bottom layer): full-screen game capture source.
-   
 3. **Be Right Back (BRB) scene:** A holding image with background music. The image should include the stream name and an indication that the streamer will return. Do not show gameplay while away -- it continues without commentary and is not engaging.
 
 4. **Ending scene:** Displayed during the last 1-3 minutes of the stream. Include the stream name, social media handles, a "thanks for watching" message, and potentially an auto-playing clip from a highlight moment if the platform supports it.
 
 **Optional advanced scenes:**
+
 - **Intermission/Transition scene:** A brief animated transition (0.5-1 second) used between scene switches. Created using a "Stinger" transition in OBS (a video file with transparency that plays between scenes).
 - **Facecam-only scene:** Used when the game audio is silent or during discussions. Webcam takes 80% of the frame.
 - **Chat overlay scene:** For games where showing chat on-screen is part of the content.
 
 **Game Capture Configuration -- Specific Settings:**
+
 - Use "Game Capture" source type (not "Window Capture" or "Display Capture") whenever possible. Game Capture hooks directly into the game's render pipeline for lower latency capture and better compatibility with anti-cheat software.
 - Set Game Capture to "Capture specific window" and select the game process. This prevents accidentally capturing the wrong window during an alt-tab.
 - If Game Capture shows a black screen: (1) Run the streaming software as administrator (right-click the shortcut, "Run as administrator"). (2) In the game's settings, disable hardware acceleration or switch from DirectX 12 to DirectX 11 mode. (3) Try Window Capture as a fallback.
 - For multi-monitor setups: make sure the game is running on the primary monitor when using Game Capture (or specify the correct window).
 
 **Webcam Configuration:**
+
 - Set webcam properties: 1920x1080 resolution, 30 fps (or 60 fps if the webcam supports it). In OBS, right-click the webcam source, click "Properties," and set resolution and FPS manually rather than leaving them on "Device Default."
 - Apply a slight crop to remove webcam edges. Use the Alt+drag shortcut in OBS to crop without adding a crop filter.
 - Add a "Color Correction" filter to adjust brightness, contrast, and saturation if the webcam image looks flat or overexposed. A -5 to -10 brightness reduction and +10-15 saturation boost is common.
@@ -159,6 +170,7 @@ Every stream needs at least four scenes before going live. Having fewer creates 
 Audio quality is the most critical factor in viewer retention. A stream with mediocre video but excellent audio is far more watchable than the reverse. Configure audio with care:
 
 **Audio Sources in Streaming Software:**
+
 - **Desktop Audio:** Captures all system audio -- game sounds, Windows notifications, music players, video calls. This appears in the mixer as a single channel. If the user is playing music from a subscription service (for copyright reasons, this is risky -- flag the concern), it is captured here.
 - **Microphone/Auxiliary Input:** The streamer's voice. Appears as a separate mixer channel.
 - **Browser Source Audio:** Alert sounds from the streaming overlay service. These appear as part of the browser source's audio output.
@@ -187,6 +199,7 @@ Apply these three filters in this order (order matters -- they chain in sequence
 4. **Optional -- Gain Filter:** If the microphone is still too quiet after the compressor, add a Gain filter after the compressor and add +3 to +6 dB. Do not add more than +12 dB total -- this amplifies noise floor.
 
 **Audio Level Targets (in the streaming software mixer, represented by the VU meter):**
+
 - Microphone while speaking normally: peaks at -6 to -3 dB. The meter should be in the yellow zone, never hitting red.
 - Game audio: consistently around -15 to -12 dB. It should be clearly audible but subordinate to the voice.
 - Alert sounds: -12 to -9 dB. Loud enough to be heard but not startling.
@@ -202,17 +215,18 @@ Stream settings are the most technically impactful configuration area. Wrong set
 
 **Resolution and Frame Rate Selection:**
 
-| Stream Profile | Resolution | Frame Rate | Bitrate Range | Min Upload Needed | Best For |
-|----------------|-----------|-----------|--------------|-------------------|----------|
-| Entry Level | 1280x720 | 30 fps | 3000-4000 Kbps | 6 Mbps | Low-end PCs, slow internet |
-| Standard | 1280x720 | 60 fps | 4000-5000 Kbps | 7 Mbps | Fast-paced games, OK hardware |
-| Improved | 1920x1080 | 30 fps | 4500-6000 Kbps | 8 Mbps | Good hardware, stable internet |
-| High Quality | 1920x1080 | 60 fps | 6000-8000 Kbps | 10 Mbps | Recommended target for 1080p |
-| Premium | 1920x1080 | 60 fps | 8000 Kbps | 12 Mbps | Most platforms' quality ceiling |
+| Stream Profile | Resolution | Frame Rate | Bitrate Range  | Min Upload Needed | Best For                        |
+| -------------- | ---------- | ---------- | -------------- | ----------------- | ------------------------------- |
+| Entry Level    | 1280x720   | 30 fps     | 3000-4000 Kbps | 6 Mbps            | Low-end PCs, slow internet      |
+| Standard       | 1280x720   | 60 fps     | 4000-5000 Kbps | 7 Mbps            | Fast-paced games, OK hardware   |
+| Improved       | 1920x1080  | 30 fps     | 4500-6000 Kbps | 8 Mbps            | Good hardware, stable internet  |
+| High Quality   | 1920x1080  | 60 fps     | 6000-8000 Kbps | 10 Mbps           | Recommended target for 1080p    |
+| Premium        | 1920x1080  | 60 fps     | 8000 Kbps      | 12 Mbps           | Most platforms' quality ceiling |
 
 Note: Most major streaming platforms cap accepted bitrate at 6000-8000 Kbps for standard accounts. Partner or affiliate tiers on some platforms allow higher bitrates. Check the specific platform's documented ingest limits before setting bitrate higher than 8000 Kbps.
 
 **Encoder Selection Decision Tree:**
+
 - If GPU is NVIDIA RTX 2000 series or newer: use NVENC H.264 as the default encoder. Set preset to "Quality" or "Max Quality" in OBS encoder settings. Enable "Psycho Visual Tuning" and "Lookahead" for improved perceived quality.
 - If GPU is NVIDIA GTX 1000 series or older: use NVENC H.264, but lower quality. Consider x264 "veryfast" preset if the CPU has 6+ cores and headroom.
 - If GPU is AMD RX 5000 series or newer: use AV1 encoding in the AMF stack if supported and the target platform accepts AV1. Otherwise use H.264 AMF.
@@ -220,6 +234,7 @@ Note: Most major streaming platforms cap accepted bitrate at 6000-8000 Kbps for 
 - If none of the above or on an older GPU: use software x264 encoding. Start with the "veryfast" preset and monitor CPU usage during gameplay. If CPU usage is under 70%, try "faster." Never use "medium" or slower presets on a single-PC gaming setup without a high-core-count CPU.
 
 **Critical Settings That Are Commonly Missed:**
+
 - **Keyframe interval:** Set to exactly 2 seconds (or "2" in the interval field). This is a technical requirement for most platforms' ingest servers to properly index the stream. If set to 0 (automatic), some platforms will reject or degrade the stream.
 - **Rate control:** Use CBR (Constant Bit Rate) for streaming, not VBR or CQP. CBR maintains a steady upload rate, which is what streaming ingest servers expect. VBR can cause buffer underflows on the ingest server side.
 - **B-frames:** For NVENC on RTX GPUs, set B-frames to 2. This improves compression efficiency at the same bitrate. On older NVENC (GTX), set B-frames to 0 -- older NVENC handles B-frames less efficiently.
@@ -227,6 +242,7 @@ Note: Most major streaming platforms cap accepted bitrate at 6000-8000 Kbps for 
 - **Output canvas vs. downscale filter:** In OBS, the base canvas resolution should match the monitor resolution (typically 1920x1080 or 2560x1440). The output resolution is the stream resolution. If streaming at 1280x720 from a 1920x1080 canvas, OBS will downscale. Set the downscale filter to "Lanczos (32 samples)" for the best quality downscale.
 
 **Network Settings (in OBS under Advanced Output):**
+
 - Bind to IP: leave as "Default" unless on a machine with multiple network interfaces and a specific NIC is preferred.
 - Network Optimization: enable "Dynamically change bitrate to manage congestion" (OBS' adaptive bitrate feature, called Dynamic Bitrate in some versions) as a safety net. This automatically reduces bitrate temporarily if network congestion occurs, then restores it.
 - Enable "New Networking Code" in OBS if available -- it uses better socket management for lower packet loss.
@@ -236,21 +252,25 @@ Note: Most major streaming platforms cap accepted bitrate at 6000-8000 Kbps for 
 The streaming software setup is meaningless without a properly configured channel on the streaming platform. Guide the user through channel basics:
 
 **Stream Key Setup:**
+
 - The stream key is a secret authentication token generated by the platform. It is found in the platform's dashboard under Settings > Stream or Channel > Stream Key.
 - In OBS: Settings > Stream > Service (select platform or use "Custom RTMP") > paste the stream key. Never share the stream key publicly -- anyone with it can stream to the channel.
 - Some platforms offer OAuth integration in OBS (connect account directly without pasting a key) -- this is more secure and enables additional features like automatic scene switching.
 
 **Ingest Server Selection:**
+
 - Most platforms offer multiple geographic ingest servers. OBS has a built-in "Auto" option that pings all servers and selects the lowest latency. Use this unless a specific server is known to perform better.
 - For manual server selection: choose the geographically nearest server. A server with 20 ms ping will always outperform a server with 80 ms ping at the same bitrate.
 
 **Channel Configuration on the Platform:**
+
 - Set a stream title that includes the game name and an angle ("Learning [Game Name] from scratch" performs better than "Playing games").
 - Set the correct game category/tag. Platform algorithms surface streams to viewers who follow or watch that game category. Miscategorizing will hurt discoverability.
 - Configure the channel page: profile picture, banner, panel descriptions, and social links. These elements build legitimacy for first-time visitors.
 - Age restriction settings: if streaming content intended for adults, configure the appropriate mature content flag to avoid platform policy violations.
 
 **Low Latency Mode:**
+
 - Most platforms offer a low latency or ultra-low latency streaming mode. This reduces the delay between the streamer's actions and what viewers see (from 15-20 seconds on standard latency to 2-5 seconds on ultra-low latency).
 - Ultra-low latency increases the ingest server's processing demands and can increase dropped frames on unstable connections. For beginners, start with "Low Latency" mode, not "Ultra-Low Latency."
 - Low latency modes are enabled on the platform dashboard, not in the streaming software.
@@ -260,6 +280,7 @@ The streaming software setup is meaningless without a properly configured channe
 Before going live, the user should complete every item on this checklist. Skipping items is the most common cause of embarrassing first-stream failures (no audio for 30 minutes, black screen instead of game capture, microphone picking up keyboard so loudly viewers leave):
 
 **Technical Verification (30-60 minutes before going live):**
+
 - [ ] Run a speed test on the streaming PC via wired Ethernet. Confirm upload speed exceeds the stream bitrate by at least 25%. (For a 5000 Kbps stream, upload must be at least 6250 Kbps = 6.25 Mbps.)
 - [ ] Run a 2-3 minute test stream using the platform's private stream feature (or a secondary test account/channel). Watch the playback immediately after.
 - [ ] In the test playback, verify: audio is present and clear, game video is visible and not black, microphone is louder than game audio, no echo or feedback.
@@ -268,12 +289,14 @@ Before going live, the user should complete every item on this checklist. Skippi
 - [ ] Disable system notifications: in Windows, enable Focus Assist (Do Not Disturb) to suppress notification pop-ups that would appear on screen if using Display Capture.
 
 **Environment Check (10 minutes before going live):**
+
 - [ ] Webcam framing: face occupies the upper 2/3 of the webcam overlay box. Top of head should have a small amount of headroom (5-10% of frame). Eyes should be at the upper-third line of the frame.
 - [ ] Lighting: the key light is positioned in front of and slightly above eye level. There should be no harsh shadow across the face. Check in the OBS preview, not just by looking at the webcam software.
 - [ ] Background: visible in webcam feed. Tidy, intentional, or replaced with a virtual background. Nothing embarrassing or distracting (moving objects, other people in the background, cluttered desk).
 - [ ] Microphone position: USB microphone positioned 6-10 inches from the mouth, slightly off-axis (angled slightly to the side of the mouth, not directly in front). Direct positioning causes plosive sounds ("p" and "b" sounds that pop loudly).
 
 **Platform Setup (5 minutes before going live):**
+
 - [ ] Stream title set (includes game name, angle, or hook)
 - [ ] Game category selected correctly
 - [ ] Relevant tags applied (if the platform supports tags)
@@ -284,11 +307,13 @@ Before going live, the user should complete every item on this checklist. Skippi
 The first stream is a data-gathering exercise. Guide the user through systematic review to improve the second stream:
 
 **Immediate post-stream review:**
+
 - Watch 10 minutes from the local recording: the opening 5 minutes and a random middle section. Is the audio balance good? Is the video quality acceptable? Are overlays displaying correctly?
 - Review the OBS log file (Help > Log Files > Current Log in OBS). Look for lines containing "warning," "encoder," "frame dropped," or "Network congestion." These identify the root cause of any quality issues during the stream.
 - Note the OBS Stats for dropped frames. Under 0.5% is acceptable. Over 1% requires investigation (reduce bitrate, check network, close background apps).
 
 **Iterative improvement framework:**
+
 - First 3 streams: focus exclusively on technical stability. If the stream runs without dropped frames and audio is intelligible, it is a success. Do not add complexity (alerts, channel points, subscriptions) until the base is stable.
 - Streams 4-10: optimize audio quality. Tune microphone filters. Experiment with game audio balance. Get feedback from viewers on audio levels.
 - Streams 10+: add overlay polish, transition stingers, alert animations, and channel branding. These elements matter more once an audience exists to see them.
@@ -490,6 +515,7 @@ This user is not limited by hardware or internet. The configuration is simpler: 
 ## Game Streaming Setup Plan
 
 ### Streamer Profile
+
 - Platform target: Twitch
 - Game type: PC games (first-person shooters -- fast-paced, 60 fps recommended)
 - PC specs: Intel Core i5-12400 (6-core, 12th gen), NVIDIA

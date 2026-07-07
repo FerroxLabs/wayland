@@ -38,11 +38,12 @@ Title:`;
  * cap the length, and capitalize. Returns `null` if nothing usable remains.
  */
 function cleanTitle(raw: string): string | null {
-  let cleaned = raw
-    .replace(/\r/g, '')
-    .split('\n')
-    .map((line) => line.trim())
-    .find((line) => line.length > 0) ?? '';
+  let cleaned =
+    raw
+      .replace(/\r/g, '')
+      .split('\n')
+      .map((line) => line.trim())
+      .find((line) => line.length > 0) ?? '';
 
   cleaned = cleaned
     .replace(/^["']|["']$/g, '')

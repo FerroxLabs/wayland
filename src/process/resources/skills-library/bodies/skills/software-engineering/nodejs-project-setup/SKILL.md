@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript backend template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript backend template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Node.js Project Setup
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Is initializing a new Node.js project from scratch and needs guidance on the full configuration stack
 - Is deciding between ESM (ES Modules) and CommonJS and needs a concrete recommendation based on their context
 - Needs to configure the `package.json` `exports` field, `main`, `module`, or `type` fields correctly
@@ -29,6 +31,7 @@ metadata:
 - Asks about `packageManager` field, Corepack, or enforcing a specific package manager version on a team
 
 **Do NOT use this skill when the user:**
+
 - Needs TypeScript configuration, `tsconfig.json` tuning, or declaration file generation -- use `typescript-project-setup`
 - Asks about JavaScript language patterns like closures, prototypes, or async/await -- use `javascript-idioms`
 - Needs help with async concurrency patterns, event loop understanding, or Promise chains -- use `nodejs-async-patterns`
@@ -252,11 +255,7 @@ my-app/
     },
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "engines": {
     "node": ">=18.0.0"
   },
@@ -338,8 +337,8 @@ Thumbs.db
 ### `eslint.config.js` (Flat Config, ESLint 9+)
 
 ```js
-import js from '@eslint/js'
-import pluginN from 'eslint-plugin-n'
+import js from '@eslint/js';
+import pluginN from 'eslint-plugin-n';
 
 export default [
   js.configs.recommended,
@@ -358,63 +357,63 @@ export default [
       sourceType: 'module',
     },
   },
-]
+];
 ```
 
 ### `src/index.js` -- Application Entry Point Shell
 
 ```js
-import { createServer } from 'node:http'
+import { createServer } from 'node:http';
 
-const PORT = process.env.PORT ?? 3000
-const HOST = process.env.HOST ?? '0.0.0.0'
+const PORT = process.env.PORT ?? 3000;
+const HOST = process.env.HOST ?? '0.0.0.0';
 
 const server = createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }))
-    return
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }));
+    return;
   }
 
-  res.writeHead(404)
-  res.end()
-})
+  res.writeHead(404);
+  res.end();
+});
 
 server.listen(PORT, HOST, () => {
-  console.log(`Server listening on http://${HOST}:${PORT}`)
-})
+  console.log(`Server listening on http://${HOST}:${PORT}`);
+});
 
 // Graceful shutdown
 const shutdown = (signal) => {
-  console.warn(`Received ${signal}, shutting down gracefully`)
+  console.warn(`Received ${signal}, shutting down gracefully`);
   server.close(() => {
-    console.warn('HTTP server closed')
-    process.exit(0)
-  })
+    console.warn('HTTP server closed');
+    process.exit(0);
+  });
 
   // Force shutdown after 30 seconds
   setTimeout(() => {
-    console.error('Forced shutdown after timeout')
-    process.exit(1)
-  }, 30_000).unref()
-}
+    console.error('Forced shutdown after timeout');
+    process.exit(1);
+  }, 30_000).unref();
+};
 
-process.on('SIGTERM', () => shutdown('SIGTERM'))
-process.on('SIGINT', () => shutdown('SIGINT'))
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 ```
 
 ### Verification Checklist
 
-| Check | Command | Expected Result |
-|---|---|---|
-| Node.js version | `node --version` | Matches `.nvmrc` |
-| Package manager | `pnpm --version` | Matches `packageManager` field |
-| Install succeeds | `pnpm install` | No engine warnings or errors |
-| Lint passes | `pnpm lint` | Zero violations |
-| Format check | `pnpm format:check` | All files formatted |
-| Tests pass | `pnpm test` | All tests green |
-| Server starts | `pnpm start` | Prints listen message |
-| Health endpoint | `curl localhost:3000/health` | `{"status":"ok","uptime":...}` |
+| Check            | Command                      | Expected Result                |
+| ---------------- | ---------------------------- | ------------------------------ |
+| Node.js version  | `node --version`             | Matches `.nvmrc`               |
+| Package manager  | `pnpm --version`             | Matches `packageManager` field |
+| Install succeeds | `pnpm install`               | No engine warnings or errors   |
+| Lint passes      | `pnpm lint`                  | Zero violations                |
+| Format check     | `pnpm format:check`          | All files formatted            |
+| Tests pass       | `pnpm test`                  | All tests green                |
+| Server starts    | `pnpm start`                 | Prints listen message          |
+| Health endpoint  | `curl localhost:3000/health` | `{"status":"ok","uptime":...}` |
 
 ---
 
@@ -525,6 +524,7 @@ When team members are on different Node.js versions and experiencing inconsisten
 ---
 
 **Analysis:**
+
 - Project type: Application (not a library -- no need for `exports` map or dual format)
 - Deployment target: Fly.io -- a container-based platform, so Dockerfile and graceful shutdown matter
 - Team size: 3 -- Corepack enforcement and pre-commit hooks are worth the setup cost
@@ -599,6 +599,7 @@ save-exact=true
 ```
 
 **Key decisions made:**
+
 - `"private": true` -- this is an application, not an npm package
 - `--max-old-space-size=512` -- Fly.io's free tier VMs have 256-512MB RAM; 512MB heap leaves headroom for OS overhead
 - `pino` as the logger -- production-grade, JSON output, compatible with Fly.io's log aggregation
@@ -607,85 +608,85 @@ save-exact=true
 ### `src/index.js`
 
 ```js
-import { createServer } from 'node:http'
-import { createLogger } from './logger.js'
+import { createServer } from 'node:http';
+import { createLogger } from './logger.js';
 
-const log = createLogger()
-const PORT = process.env.PORT ?? 8080
-const HOST = '0.0.0.0'  // Required on Fly.io -- must bind to all interfaces
+const log = createLogger();
+const PORT = process.env.PORT ?? 8080;
+const HOST = '0.0.0.0'; // Required on Fly.io -- must bind to all interfaces
 
 const server = createServer((req, res) => {
   if (req.method === 'GET' && req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }))
-    return
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }));
+    return;
   }
 
-  log.info({ method: req.method, url: req.url }, 'Request received')
-  res.writeHead(404, { 'Content-Type': 'application/json' })
-  res.end(JSON.stringify({ error: 'Not found' }))
-})
+  log.info({ method: req.method, url: req.url }, 'Request received');
+  res.writeHead(404, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ error: 'Not found' }));
+});
 
 server.listen(PORT, HOST, () => {
-  log.info({ port: PORT }, 'Server started')
-})
+  log.info({ port: PORT }, 'Server started');
+});
 
 const shutdown = (signal) => {
-  log.warn({ signal }, 'Shutdown signal received')
+  log.warn({ signal }, 'Shutdown signal received');
   server.close(() => {
-    log.warn('HTTP server closed, exiting')
-    process.exit(0)
-  })
+    log.warn('HTTP server closed, exiting');
+    process.exit(0);
+  });
   setTimeout(() => {
-    log.error('Graceful shutdown timed out, forcing exit')
-    process.exit(1)
-  }, 30_000).unref()
-}
+    log.error('Graceful shutdown timed out, forcing exit');
+    process.exit(1);
+  }, 30_000).unref();
+};
 
-process.on('SIGTERM', () => shutdown('SIGTERM'))
-process.on('SIGINT', () => shutdown('SIGINT'))
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
-  log.error({ reason }, 'Unhandled promise rejection')
-  process.exit(1)
-})
+  log.error({ reason }, 'Unhandled promise rejection');
+  process.exit(1);
+});
 
 process.on('uncaughtException', (err) => {
-  log.error({ err }, 'Uncaught exception')
-  process.exit(1)
-})
+  log.error({ err }, 'Uncaught exception');
+  process.exit(1);
+});
 ```
 
 ### `src/logger.js`
 
 ```js
-import pino from 'pino'
+import pino from 'pino';
 
-export const createLogger = () => pino({
-  level: process.env.LOG_LEVEL ?? 'info',
-  // In production, output newline-delimited JSON for log aggregation
-  // In development, use pino-pretty (install separately as devDependency)
-  transport: process.env.NODE_ENV !== 'production'
-    ? { target: 'pino-pretty', options: { colorize: true } }
-    : undefined,
-})
+export const createLogger = () =>
+  pino({
+    level: process.env.LOG_LEVEL ?? 'info',
+    // In production, output newline-delimited JSON for log aggregation
+    // In development, use pino-pretty (install separately as devDependency)
+    transport:
+      process.env.NODE_ENV !== 'production' ? { target: 'pino-pretty', options: { colorize: true } } : undefined,
+  });
 ```
 
 ### `eslint.config.js`
 
 ```js
-import js from '@eslint/js'
-import pluginN from 'eslint-plugin-n'
+import js from '@eslint/js';
+import pluginN from 'eslint-plugin-n';
 
 export default [
   js.configs.recommended,
   pluginN.configs['flat/recommended'],
   {
     rules: {
-      'no-console': 'error',  // Use pino, not console
+      'no-console': 'error', // Use pino, not console
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'n/no-missing-import': 'error',
-      'n/no-process-env': 'warn',  // Prefer centralized config module
+      'n/no-process-env': 'warn', // Prefer centralized config module
       'n/prefer-global/process': ['error', 'always'],
     },
     languageOptions: {
@@ -696,7 +697,7 @@ export default [
       n: { version: '>=20.14.0' },
     },
   },
-]
+];
 ```
 
 ### `.env.example`
@@ -710,18 +711,18 @@ LOG_LEVEL=info
 ### `test/index.test.js`
 
 ```js
-import { describe, it } from 'node:test'
-import assert from 'node:assert/strict'
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 
 // Smoke test -- verifies the module graph loads without errors
 describe('Application smoke test', () => {
   it('creates a logger without throwing', async () => {
-    const { createLogger } = await import('../src/logger.js')
-    const log = createLogger()
-    assert.ok(log, 'Logger should be created')
-    assert.equal(typeof log.info, 'function', 'Logger should have info method')
-  })
-})
+    const { createLogger } = await import('../src/logger.js');
+    const log = createLogger();
+    assert.ok(log, 'Logger should be created');
+    assert.equal(typeof log.info, 'function', 'Logger should have info method');
+  });
+});
 ```
 
 ### `README.md` section -- Team Setup
@@ -730,16 +731,17 @@ describe('Application smoke test', () => {
 ## Development Setup
 
 **Prerequisites:**
+
 - Node.js 20.14.0 (use nvm: `nvm use`, or fnm: `fnm use`)
 - Enable Corepack (once per machine): `corepack enable`
 
 **First-time setup:**
 \`\`\`bash
-corepack enable          # Activates pnpm via Corepack
-nvm use                  # Switches to Node.js 20.14.0
-pnpm install             # Install dependencies (engine version enforced)
-cp .env.example .env     # Create local environment file
-pnpm dev                 # Start development server with watch mode
+corepack enable # Activates pnpm via Corepack
+nvm use # Switches to Node.js 20.14.0
+pnpm install # Install dependencies (engine version enforced)
+cp .env.example .env # Create local environment file
+pnpm dev # Start development server with watch mode
 \`\`\`
 ```
 

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud budgeting template guide typescript api-design automation"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'devops cloud budgeting template guide typescript api-design automation'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Internal Tooling Architect
 
 You are an internal tooling architect who helps engineering organizations design, build, and drive adoption of internal developer tools. You guide through CLI design, dashboard architecture, self-service platform patterns, and strategies for making tools that developers actually use.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about internal tooling architect techniques or best practices
 - User needs guidance on internal tooling architect concepts
 - User wants to implement or improve their approach to internal tooling architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of internal tooling architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -132,8 +133,7 @@ import { Command, Flags } from '@oclif/core';
 export default class Deploy extends Command {
   static description = 'Deploy a service to the target environment';
   static flags = {
-    target: Flags.string({ char: 'e', default: 'development',
-      options: ['development', 'staging', 'production'] }),
+    target: Flags.string({ char: 'e', default: 'development', options: ['development', 'staging', 'production'] }),
     'dry-run': Flags.boolean({ default: false }),
     approve: Flags.boolean({ default: false }),
     timeout: Flags.integer({ default: 300 }),
@@ -149,11 +149,17 @@ export default class Deploy extends Command {
     const plan = await this.createDeploymentPlan(config, flags.target);
     this.displayPlan(plan);
 
-    if (flags['dry-run']) { this.log('Dry run complete.'); return; }
+    if (flags['dry-run']) {
+      this.log('Dry run complete.');
+      return;
+    }
 
     if (flags.target === 'production' && !flags.approve) {
       const confirmed = await this.confirm('Deploy to production? (yes/no)');
-      if (!confirmed) { this.log('Cancelled.'); return; }
+      if (!confirmed) {
+        this.log('Cancelled.');
+        return;
+      }
     }
 
     const spinner = this.startSpinner('Deploying...');
@@ -173,7 +179,11 @@ export default class Deploy extends Command {
 
 ```typescript
 // lib/auth.ts - SSO integration for internal CLI tools
-interface AuthConfig { tokenPath: string; ssoUrl: string; clientId: string; }
+interface AuthConfig {
+  tokenPath: string;
+  ssoUrl: string;
+  clientId: string;
+}
 
 async function ensureAuthenticated(config: AuthConfig): Promise<string> {
   // 1. Check for cached token
@@ -186,7 +196,9 @@ async function ensureAuthenticated(config: AuthConfig): Promise<string> {
       const refreshed = await refreshToken(cached.refreshToken);
       await cacheToken(config.tokenPath, refreshed);
       return refreshed.accessToken;
-    } catch { /* proceed to full auth */ }
+    } catch {
+      /* proceed to full auth */
+    }
   }
 
   // 3. Device authorization flow
@@ -226,18 +238,21 @@ Dashboard Types:
 
 ```markdown
 ## Information Hierarchy
+
 1. Most critical info at top-left
 2. Status/health visible without scrolling
 3. Details on click/drill-down
 4. Historical context alongside current state
 
 ## Visual Design
+
 - Color purposefully (red=bad, green=good, yellow=warning)
 - Max 5-7 panels per view
 - Show trends, not just current values
 - Compare to baseline or SLO
 
 ## Anti-Patterns to Avoid
+
 - Wall of numbers with no context
 - Metrics without units or time ranges
 - Dashboards requiring tribal knowledge to interpret
@@ -267,11 +282,11 @@ services:
     description: Managed PostgreSQL with automated backups
     category: data
     owner: team-platform-data
-    provisioning_time: "5-15 minutes"
+    provisioning_time: '5-15 minutes'
     sizes:
-      small:  { cpu: 2,  memory: 8GB,  storage: 50GB,  cost_monthly: $50 }
-      medium: { cpu: 4,  memory: 16GB, storage: 200GB, cost_monthly: $150 }
-      large:  { cpu: 8,  memory: 32GB, storage: 500GB, cost_monthly: $400 }
+      small: { cpu: 2, memory: 8GB, storage: 50GB, cost_monthly: $50 }
+      medium: { cpu: 4, memory: 16GB, storage: 200GB, cost_monthly: $150 }
+      large: { cpu: 8, memory: 32GB, storage: 500GB, cost_monthly: $400 }
     includes:
       - Automated daily backups (30-day retention)
       - Read replica option
@@ -289,44 +304,53 @@ services:
 
 ```markdown
 ## A - Awareness
+
 Demo at all-hands, internal blog post, Slack announcement, team champions
 
 ## D - Demonstration
+
 Live demo solving a real problem, before/after comparison, pilot team testimonials
 
 ## E - Enablement
+
 Getting started guide (<5 min), video walkthrough, office hours, inline help
 
 ## P - Persistence
+
 Integrate into existing workflows, automate repetitive tasks, regular updates
 
 ## T - Tracking
+
 Weekly active users, task completion rates, time savings, satisfaction surveys
 ```
 
 ### Adoption Metrics
 
-| Metric | Formula | Target |
-|--------|---------|--------|
-| Activation rate | Completed first action / Total users | > 70% |
-| Weekly active users | Unique users / Total engineers | > 50% |
-| Task completion rate | Successful / Total attempts | > 90% |
-| Time to value | Median time to first success | < 10 min |
-| Net Promoter Score | Promoters - Detractors | > 30 |
+| Metric               | Formula                              | Target   |
+| -------------------- | ------------------------------------ | -------- |
+| Activation rate      | Completed first action / Total users | > 70%    |
+| Weekly active users  | Unique users / Total engineers       | > 50%    |
+| Task completion rate | Successful / Total attempts          | > 90%    |
+| Time to value        | Median time to first success         | < 10 min |
+| Net Promoter Score   | Promoters - Detractors               | > 30     |
 
 ### Handling Tool Resistance
 
 ```markdown
 ### "I already have a script that does this"
+
 "The platform version adds auth, logging, and support."
 
 ### "It is too slow / does not work for my case"
+
 "File an issue. Let us pair on your use case this week."
 
 ### "I do not want to learn another tool"
+
 "Here is a 2-minute quickstart covering 80% of use cases."
 
 ### "Who maintains this? Will it be abandoned?"
+
 "Platform team owns this with dedicated staffing. Here is our roadmap."
 ```
 
@@ -370,14 +394,17 @@ Phase gates:
 
 ```markdown
 ### CLI Tools
+
 - Semantic versioning, backward compat for 2 major versions
 - Auto-update with opt-out, minimum version enforced by backend
 
 ### APIs and Platforms
+
 - URL path versioning (/v1/, /v2/)
 - 6-month deprecation notice, migration guides for breaking changes
 
 ### Configuration Formats
+
 - Version the schema, support migration commands
 - Validate on load with helpful errors
 ```
@@ -386,12 +413,12 @@ Phase gates:
 
 ```markdown
 Every internal tool must have:
+
 1. README: What it does, why, quick start (<5 min), link to full docs
 2. Architecture doc: System diagram, key decisions, dependencies
 3. Runbook: Common failures, debugging steps, escalation contacts
 4. User guide: All commands/features, examples, FAQ
 ```
-
 
 ## Process
 
@@ -400,7 +427,6 @@ Every internal tool must have:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -421,14 +447,12 @@ Every internal tool must have:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

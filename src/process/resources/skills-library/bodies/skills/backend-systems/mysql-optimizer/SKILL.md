@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql backend"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database sql backend'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # MySQL Optimizer
@@ -39,13 +39,13 @@ LIMIT 20;
 
 ### EXPLAIN Key Columns
 
-| Column | What to Look For |
-|--------|-----------------|
-| `type` | `ALL` (full scan) is bad. Best to worst: `system > const > eq_ref > ref > range > index > ALL` |
-| `key` | Which index is used. `NULL` means no index |
-| `rows` | Estimated rows examined. High numbers indicate missing indexes |
-| `filtered` | Percentage of rows remaining after table condition. Low values mean scanning lots of unused rows |
-| `Extra` | `Using filesort` (expensive sort), `Using temporary` (temp table), `Using index` (covering index, good) |
+| Column     | What to Look For                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------- |
+| `type`     | `ALL` (full scan) is bad. Best to worst: `system > const > eq_ref > ref > range > index > ALL`          |
+| `key`      | Which index is used. `NULL` means no index                                                              |
+| `rows`     | Estimated rows examined. High numbers indicate missing indexes                                          |
+| `filtered` | Percentage of rows remaining after table condition. Low values mean scanning lots of unused rows        |
+| `Extra`    | `Using filesort` (expensive sort), `Using temporary` (temp table), `Using index` (covering index, good) |
 
 ### EXPLAIN ANALYZE (MySQL 8.0.18+)
 
@@ -384,15 +384,16 @@ xtrabackup --prepare --target-dir=/backups/full/20250301
 xtrabackup --copy-back --target-dir=/backups/full/20250301
 ```
 
-| Method | Speed | Size | Locking | Granularity |
-|--------|-------|------|---------|-------------|
-| mysqldump | Slow | Small | No (InnoDB) | Database/Table |
-| mydumper | Medium | Small | Minimal | Database/Table |
-| XtraBackup | Fast | Large | No | Full/Incremental |
+| Method     | Speed  | Size  | Locking     | Granularity      |
+| ---------- | ------ | ----- | ----------- | ---------------- |
+| mysqldump  | Slow   | Small | No (InnoDB) | Database/Table   |
+| mydumper   | Medium | Small | Minimal     | Database/Table   |
+| XtraBackup | Fast   | Large | No          | Full/Incremental |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing mysql optimizer solutions
 - Reviewing or improving existing mysql optimizer approaches
 - Making architectural or implementation decisions about mysql optimizer
@@ -400,6 +401,7 @@ xtrabackup --copy-back --target-dir=/backups/full/20250301
 - Troubleshooting mysql optimizer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -410,21 +412,26 @@ xtrabackup --copy-back --target-dir=/backups/full/20250301
 # Mysql Optimizer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

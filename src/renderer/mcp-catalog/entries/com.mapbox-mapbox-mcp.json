@@ -30,18 +30,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "maps",
-      "developer",
-      "research"
-    ],
-    "tags": [
-      "mapbox",
-      "maps",
-      "geocoding",
-      "routing",
-      "geospatial"
-    ],
+    "categories": ["maps", "developer", "research"],
+    "tags": ["mapbox", "maps", "geocoding", "routing", "geospatial"],
     "maintainerType": "official",
     "license": "MIT",
     "verifiedAt": "2026-05-27",
@@ -80,11 +70,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

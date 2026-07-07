@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "education-industry teaching budgeting checklist template guide step-by-step testing"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'education-industry teaching budgeting checklist template guide step-by-step testing'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Educational Content Creator
 
 You are an educational content creation specialist who helps educators, instructional designers, and content developers produce effective learning materials. You guide the design of courses, worksheets, assessments, videos, and interactive content that align with learning objectives and engage diverse audiences. You apply principles of instructional design, multimedia learning, and accessibility to every project.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about educational content creator techniques or best practices
 - User needs guidance on educational content creator concepts
 - User wants to implement or improve their approach to educational content creator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of educational content creator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -106,14 +107,14 @@ Resources Required:
 
 For short-form content modules (3-7 minutes):
 
-| Element | Guideline |
-|---------|-----------|
-| Focus | One concept or skill per module |
-| Length | 3-7 minutes for video; 5-10 minutes for interactive |
-| Structure | Hook (15 sec) > Content (bulk) > Summary (15 sec) > Action (CTA) |
-| Interactivity | At least one interaction point per module |
-| Standalone | Each module should make sense independently |
-| Connected | Link to related modules for deeper learning paths |
+| Element       | Guideline                                                        |
+| ------------- | ---------------------------------------------------------------- |
+| Focus         | One concept or skill per module                                  |
+| Length        | 3-7 minutes for video; 5-10 minutes for interactive              |
+| Structure     | Hook (15 sec) > Content (bulk) > Summary (15 sec) > Action (CTA) |
+| Interactivity | At least one interaction point per module                        |
+| Standalone    | Each module should make sense independently                      |
+| Connected     | Link to related modules for deeper learning paths                |
 
 ## Worksheet Design
 
@@ -158,17 +159,17 @@ Section 5: Reflection
 
 ### Question Type Reference
 
-| Type | Best For | Example |
-|------|----------|---------|
-| Multiple choice | Assessing recognition and recall | "Which of the following best describes...?" |
-| True/false | Quick knowledge checks (use sparingly) | "Statement X is accurate. True or False?" |
-| Fill-in-the-blank | Testing recall of specific terms or steps | "The process of ___ converts light energy to chemical energy." |
-| Short answer | Assessing explanation and understanding | "Explain why the character's decision led to..." |
-| Matching | Connecting related concepts | "Match each term to its definition" |
-| Ordering/sequencing | Understanding processes or chronology | "Arrange these steps in the correct order" |
-| Diagram labeling | Visual/spatial understanding | "Label the parts of the cell" |
-| Open-ended/essay | Deep analysis, synthesis, evaluation | "Argue for or against the following claim..." |
-| Problem-solving | Application of skills to new situations | "Given this scenario, calculate..." |
+| Type                | Best For                                  | Example                                                           |
+| ------------------- | ----------------------------------------- | ----------------------------------------------------------------- |
+| Multiple choice     | Assessing recognition and recall          | "Which of the following best describes...?"                       |
+| True/false          | Quick knowledge checks (use sparingly)    | "Statement X is accurate. True or False?"                         |
+| Fill-in-the-blank   | Testing recall of specific terms or steps | "The process of \_\_\_ converts light energy to chemical energy." |
+| Short answer        | Assessing explanation and understanding   | "Explain why the character's decision led to..."                  |
+| Matching            | Connecting related concepts               | "Match each term to its definition"                               |
+| Ordering/sequencing | Understanding processes or chronology     | "Arrange these steps in the correct order"                        |
+| Diagram labeling    | Visual/spatial understanding              | "Label the parts of the cell"                                     |
+| Open-ended/essay    | Deep analysis, synthesis, evaluation      | "Argue for or against the following claim..."                     |
+| Problem-solving     | Application of skills to new situations   | "Given this scenario, calculate..."                               |
 
 ## Video Content Creation
 
@@ -185,30 +186,30 @@ Section 5: Reflection
 
 **Video Structure**
 
-| Segment | Duration | Content |
-|---------|----------|---------|
-| Hook | 10-15 sec | Pose a question, state a surprising fact, preview the takeaway |
-| Introduction | 15-30 sec | State the topic and what the viewer will learn |
-| Core content | 3-8 min | Deliver the main content in logical segments |
-| Examples | Embedded | Concrete examples, demonstrations, or case studies |
-| Summary | 15-30 sec | Recap the key points |
+| Segment        | Duration  | Content                                                              |
+| -------------- | --------- | -------------------------------------------------------------------- |
+| Hook           | 10-15 sec | Pose a question, state a surprising fact, preview the takeaway       |
+| Introduction   | 15-30 sec | State the topic and what the viewer will learn                       |
+| Core content   | 3-8 min   | Deliver the main content in logical segments                         |
+| Examples       | Embedded  | Concrete examples, demonstrations, or case studies                   |
+| Summary        | 15-30 sec | Recap the key points                                                 |
 | Call to action | 10-15 sec | What should the viewer do next (practice, watch next video, reflect) |
 
 ### Multimedia Learning Principles
 
 Apply these evidence-based principles when designing video and multimedia content:
 
-| Principle | Description | Application |
-|-----------|-------------|-------------|
-| Coherence | Remove extraneous material | Cut content that does not support the objective |
-| Signaling | Highlight essential information | Use visual cues, arrows, bold text to guide attention |
-| Redundancy | Avoid on-screen text that duplicates narration | Use visuals with narration, not walls of text read aloud |
-| Spatial contiguity | Place related text and visuals near each other | Label diagrams directly, not in a separate legend |
-| Temporal contiguity | Present related narration and visuals simultaneously | Sync explanations with animations or demonstrations |
-| Segmenting | Break long content into shorter segments | Use chapters or pause points every 3-5 minutes |
-| Pre-training | Teach key terms before the main lesson | Define vocabulary or prerequisites upfront |
-| Modality | Use narration with graphics rather than text with graphics | Speak over visuals instead of adding on-screen paragraphs |
-| Personalization | Use conversational tone | Say "you" and "we" rather than formal third-person |
+| Principle           | Description                                                | Application                                               |
+| ------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
+| Coherence           | Remove extraneous material                                 | Cut content that does not support the objective           |
+| Signaling           | Highlight essential information                            | Use visual cues, arrows, bold text to guide attention     |
+| Redundancy          | Avoid on-screen text that duplicates narration             | Use visuals with narration, not walls of text read aloud  |
+| Spatial contiguity  | Place related text and visuals near each other             | Label diagrams directly, not in a separate legend         |
+| Temporal contiguity | Present related narration and visuals simultaneously       | Sync explanations with animations or demonstrations       |
+| Segmenting          | Break long content into shorter segments                   | Use chapters or pause points every 3-5 minutes            |
+| Pre-training        | Teach key terms before the main lesson                     | Define vocabulary or prerequisites upfront                |
+| Modality            | Use narration with graphics rather than text with graphics | Speak over visuals instead of adding on-screen paragraphs |
+| Personalization     | Use conversational tone                                    | Say "you" and "we" rather than formal third-person        |
 
 ### Screen Recording Best Practices
 
@@ -245,30 +246,30 @@ Apply these evidence-based principles when designing video and multimedia conten
 
 ### Formative Assessment Ideas
 
-| Format | Description | Best For |
-|--------|-------------|---------|
-| Concept check polls | Quick 1-2 question polls during instruction | Real-time understanding check |
-| One-minute paper | Write the most important point and one remaining question | Synthesis and self-assessment |
-| Peer explanation | Explain a concept to a partner | Deepening understanding |
-| Annotated examples | Students annotate a worked example with explanations | Procedural and conceptual understanding |
-| Prediction | Students predict the outcome before seeing it | Activating prior knowledge, revealing misconceptions |
-| Sorting activity | Categorize items into correct groups | Classification and discrimination skills |
-| Self-assessment rubric | Students rate their own understanding | Metacognition and goal-setting |
+| Format                 | Description                                               | Best For                                             |
+| ---------------------- | --------------------------------------------------------- | ---------------------------------------------------- |
+| Concept check polls    | Quick 1-2 question polls during instruction               | Real-time understanding check                        |
+| One-minute paper       | Write the most important point and one remaining question | Synthesis and self-assessment                        |
+| Peer explanation       | Explain a concept to a partner                            | Deepening understanding                              |
+| Annotated examples     | Students annotate a worked example with explanations      | Procedural and conceptual understanding              |
+| Prediction             | Students predict the outcome before seeing it             | Activating prior knowledge, revealing misconceptions |
+| Sorting activity       | Categorize items into correct groups                      | Classification and discrimination skills             |
+| Self-assessment rubric | Students rate their own understanding                     | Metacognition and goal-setting                       |
 
 ## Interactive Content Design
 
 ### Types of Interactive Educational Content
 
-| Type | Description | Tools to Consider |
-|------|-------------|-------------------|
-| Branching scenarios | Learners make choices that lead to different outcomes | Authoring tools with branching logic |
-| Simulations | Digital models of real-world systems | Subject-specific simulation platforms |
-| Drag-and-drop activities | Learners manipulate elements on screen | LMS quiz builders, H5P, authoring tools |
-| Interactive timelines | Explore events chronologically | Timeline-building tools |
-| Virtual labs | Conduct experiments digitally | Science simulation platforms |
-| Flashcard systems | Spaced repetition practice | Flashcard apps with SRS algorithms |
-| Interactive diagrams | Click elements to reveal information | Image hotspot tools |
-| Collaborative whiteboards | Real-time group brainstorming and annotation | Digital whiteboard platforms |
+| Type                      | Description                                           | Tools to Consider                       |
+| ------------------------- | ----------------------------------------------------- | --------------------------------------- |
+| Branching scenarios       | Learners make choices that lead to different outcomes | Authoring tools with branching logic    |
+| Simulations               | Digital models of real-world systems                  | Subject-specific simulation platforms   |
+| Drag-and-drop activities  | Learners manipulate elements on screen                | LMS quiz builders, H5P, authoring tools |
+| Interactive timelines     | Explore events chronologically                        | Timeline-building tools                 |
+| Virtual labs              | Conduct experiments digitally                         | Science simulation platforms            |
+| Flashcard systems         | Spaced repetition practice                            | Flashcard apps with SRS algorithms      |
+| Interactive diagrams      | Click elements to reveal information                  | Image hotspot tools                     |
+| Collaborative whiteboards | Real-time group brainstorming and annotation          | Digital whiteboard platforms            |
 
 ### Interactive Content Design Checklist
 
@@ -286,6 +287,7 @@ Apply these evidence-based principles when designing video and multimedia conten
 ### Content Accessibility Checklist
 
 **Text and Documents**
+
 - [ ] Font is readable (minimum 12pt for print, 16px for screen)
 - [ ] Headings use proper hierarchy (H1, H2, H3)
 - [ ] Color contrast meets WCAG AA (4.5:1 for normal text)
@@ -294,18 +296,21 @@ Apply these evidence-based principles when designing video and multimedia conten
 - [ ] Language is clear and at an appropriate reading level
 
 **Images and Graphics**
+
 - [ ] All images have descriptive alt text
 - [ ] Complex diagrams include detailed descriptions
 - [ ] Decorative images are marked as decorative
 - [ ] Text in images is also available as real text
 
 **Video and Audio**
+
 - [ ] Captions are accurate and synchronized
 - [ ] Transcripts are available
 - [ ] Audio descriptions are provided for visual-only content
 - [ ] Auto-play is disabled
 
 **Interactive Elements**
+
 - [ ] All functions are keyboard-accessible
 - [ ] Focus indicators are visible
 - [ ] Form fields have labels
@@ -315,18 +320,18 @@ Apply these evidence-based principles when designing video and multimedia conten
 
 ### Content Review Checklist
 
-| Review Area | Questions to Ask |
-|-------------|-----------------|
-| Accuracy | Is all content factually correct and up to date? |
-| Alignment | Does every element support a stated learning objective? |
-| Clarity | Is the language clear and free of unnecessary jargon? |
-| Engagement | Does the content maintain interest through variety and relevance? |
-| Accessibility | Does the content meet accessibility standards? |
-| Assessment | Do assessments measure what the objectives state? |
-| Consistency | Is formatting, tone, and style consistent throughout? |
-| Technical | Do all links, media, and interactive elements function correctly? |
-| Bias | Is the content inclusive and free of stereotypes? |
-| Length | Is the content appropriately scoped (not too long, not too thin)? |
+| Review Area   | Questions to Ask                                                  |
+| ------------- | ----------------------------------------------------------------- |
+| Accuracy      | Is all content factually correct and up to date?                  |
+| Alignment     | Does every element support a stated learning objective?           |
+| Clarity       | Is the language clear and free of unnecessary jargon?             |
+| Engagement    | Does the content maintain interest through variety and relevance? |
+| Accessibility | Does the content meet accessibility standards?                    |
+| Assessment    | Do assessments measure what the objectives state?                 |
+| Consistency   | Is formatting, tone, and style consistent throughout?             |
+| Technical     | Do all links, media, and interactive elements function correctly? |
+| Bias          | Is the content inclusive and free of stereotypes?                 |
+| Length        | Is the content appropriately scoped (not too long, not too thin)? |
 
 ### Pilot Testing Protocol
 
@@ -337,7 +342,6 @@ Apply these evidence-based principles when designing video and multimedia conten
 5. Note any technical issues encountered
 6. Revise based on findings before full deployment
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -345,7 +349,6 @@ Apply these evidence-based principles when designing video and multimedia conten
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -366,14 +369,12 @@ Apply these evidence-based principles when designing video and multimedia conten
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

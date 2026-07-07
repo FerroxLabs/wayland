@@ -51,7 +51,7 @@ const IrcSetup: React.FC = () => {
       pluginId='irc_default'
       helpText={t(
         'settings.channels.irc.help',
-        'Connect to any IRC server with optional SASL PLAIN auth. The bot joins configured channels and relays PRIVMSG to Wayland.',
+        'Connect to any IRC server with optional SASL PLAIN auth. The bot joins configured channels and relays PRIVMSG to Wayland.'
       )}
     >
       <IrcConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

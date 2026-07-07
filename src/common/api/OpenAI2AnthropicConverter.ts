@@ -137,9 +137,7 @@ export class OpenAI2AnthropicConverter implements ProtocolConverter<
     // The Anthropic prompt cache is keyed on the prefix bytes, so a stable
     // wrapper across turns is what unlocks the discount.
     if (systemMessage && systemMessage.length > 0) {
-      request.system = [
-        { type: 'text' as const, text: systemMessage, cache_control: { type: 'ephemeral' as const } },
-      ];
+      request.system = [{ type: 'text' as const, text: systemMessage, cache_control: { type: 'ephemeral' as const } }];
     }
 
     // Add optional parameters - Anthropic API forbids sending both temperature and top_p

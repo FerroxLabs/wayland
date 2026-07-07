@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing creative-writing presentation"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing creative-writing presentation'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Storytelling Master
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on storytelling master
 - User asks about storytelling master best practices or techniques
 - User wants a structured approach to storytelling master
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of storytelling master
 
@@ -443,21 +444,27 @@ BRAND STORY CONSISTENCY CHECKLIST:
 ## Practice Exercises
 
 ### Exercise 1: Story Spine Drill
+
 Take any business situation and run it through the Pixar framework. Time yourself at 60 seconds. Repeat until it flows naturally.
 
 ### Exercise 2: Sensory Detail
+
 Rewrite a bland story by adding one detail for each sense (sight, sound, touch, smell, taste). Notice how it transforms engagement.
 
 ### Exercise 3: The 3-Version Test
+
 Tell the same story in 30 seconds, 2 minutes, and 5 minutes. This teaches you what's essential and what's embellishment.
 
 ### Exercise 4: Story Collection
+
 For one week, write down every interesting thing that happens to you. At the end of the week, identify which ones have story potential and craft them into 90-second stories.
 
 ### Exercise 5: Audience Adaptation
+
 Take one story and adapt it for three audiences: a C-suite executive, a technical team, and a customer. Notice what changes and what stays the same.
 
 ### Exercise 6: Data Story Creation
+
 Take a data set or report you've worked with. Build a complete narrative arc around the single most important insight. Present the insight as a story before showing the data.
 
 ## Common Storytelling Mistakes
@@ -486,7 +493,6 @@ Take a data set or report you've worked with. Build a complete narrative arc aro
    Fix: Replace emotion words with actions, sensations, and details
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -499,13 +505,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with storytelling master for a mid-size project."
 
 **Output:** A complete storytelling master framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel planning checklist step-by-step"
-  category: "travel-experiences"
-  subcategory: "experiences-activities"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel planning checklist step-by-step'
+  category: 'travel-experiences'
+  subcategory: 'experiences-activities'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Adventure Activity Planner
@@ -193,17 +193,18 @@ metadata:
 
 ### Activity Shortlist
 
-| # | Activity | Type | Difficulty (1-5) | Duration | Price/Person | Best Months | Min Age |
-|---|----------|------|-------------------|----------|--------------|-------------|---------|
-| 1 | Rainforest canopy zipline tour | Air | 2 | Half-day (3-4 hr) | $50-85 | Year-round | 6 |
-| 2 | Guided volcano hike | Land | 3 | Full-day (6-8 hr) | $40-70 | Dec-Apr (dry) | 8 |
-| 3 | Snorkeling boat excursion | Water | 2 | Half-day (3-4 hr) | $45-75 | Dec-Apr (calm) | 6 |
-| 4 | Whitewater rafting (Class II-III) | Water | 3 | Full-day (5-6 hr) | $70-100 | Year-round | 12 |
-| 5 | Night wildlife walking tour | Land | 1 | Evening (2-3 hr) | $30-50 | Year-round | 5 |
+| #   | Activity                          | Type  | Difficulty (1-5) | Duration          | Price/Person | Best Months    | Min Age |
+| --- | --------------------------------- | ----- | ---------------- | ----------------- | ------------ | -------------- | ------- |
+| 1   | Rainforest canopy zipline tour    | Air   | 2                | Half-day (3-4 hr) | $50-85       | Year-round     | 6       |
+| 2   | Guided volcano hike               | Land  | 3                | Full-day (6-8 hr) | $40-70       | Dec-Apr (dry)  | 8       |
+| 3   | Snorkeling boat excursion         | Water | 2                | Half-day (3-4 hr) | $45-75       | Dec-Apr (calm) | 6       |
+| 4   | Whitewater rafting (Class II-III) | Water | 3                | Full-day (5-6 hr) | $70-100      | Year-round     | 12      |
+| 5   | Night wildlife walking tour       | Land  | 1                | Evening (2-3 hr)  | $30-50       | Year-round     | 5       |
 
 ### Booking Sequence
 
 #### Activity 1: Rainforest Canopy Zipline Tour
+
 - **Book by:** 1-2 weeks before travel
 - **Deposit:** Full payment at booking (most operators)
 - **Cancellation:** Free cancellation 48-72 hours before, no refund within 24 hours
@@ -216,6 +217,7 @@ metadata:
   - What to wear: Closed-toe shoes required, lightweight long pants recommended, no loose scarves or dangling jewelry
 
 #### Activity 2: Guided Volcano Hike
+
 - **Book by:** 1 week before travel (longer for peak season weekends)
 - **Deposit:** Full payment or 50% deposit
 - **Cancellation:** Free reschedule for weather, 48-hour free cancellation otherwise
@@ -228,6 +230,7 @@ metadata:
   - What to wear: Hiking shoes with ankle support, layers (temperature drops at elevation), rain shell
 
 #### Activity 3: Snorkeling Boat Excursion
+
 - **Book by:** 3-5 days before (walk-up possible but not guaranteed)
 - **Deposit:** Full payment at booking
 - **Cancellation:** Weather-dependent cancellation with full refund or reschedule
@@ -240,6 +243,7 @@ metadata:
   - What to wear: Swimsuit, reef-safe sunscreen, cover-up for boat
 
 #### Activity 4: Whitewater Rafting (Class II-III)
+
 - **Book by:** 1-2 weeks before travel
 - **Deposit:** Full payment at booking
 - **Cancellation:** 48-hour free cancellation, weather cancellations fully refunded
@@ -252,6 +256,7 @@ metadata:
   - What to wear: Quick-dry clothing, secured footwear (water sandals with heel strap or old sneakers)
 
 #### Activity 5: Night Wildlife Walking Tour
+
 - **Book by:** 2-3 days before (smaller groups, limited spots)
 - **Deposit:** Full payment at booking
 - **Cancellation:** 24-hour free cancellation
@@ -265,53 +270,53 @@ metadata:
 
 ### Consolidated Gear Checklist
 
-| Item | Activity | Provided | Bring | Rent Available | Rental Cost | Airline Notes |
-|------|----------|----------|-------|----------------|-------------|---------------|
-| Hiking shoes | Volcano hike | No | Yes | No | N/A | Wear on plane or pack in checked bag |
-| Rain shell | Volcano hike | No | Yes | No | N/A | Lightweight, packable |
-| Snorkel + mask | Snorkeling | Yes | Optional (own is better fit) | Yes at marina | $5-10 | Pack in carry-on if bringing own |
-| Reef-safe sunscreen | Snorkeling | No | Yes | Limited | $8-15 | Liquid rules apply for carry-on |
-| Water sandals | Rafting | No | Yes | Limited | $5-8 | Pack in checked bag |
-| Headlamp or flashlight | Night tour | Sometimes | Recommended | Limited | $3-5 | Pack in checked bag (batteries removed) |
-| Insect repellent | Night tour | Sometimes | Yes | Yes locally | $5-10 | Liquid rules apply |
-| Daypack (20-30L) | All activities | No | Yes | No | N/A | Use as personal item on flight |
-| Reusable water bottle | All activities | No | Yes | No | N/A | Empty through security, fill after |
+| Item                   | Activity       | Provided  | Bring                        | Rent Available | Rental Cost | Airline Notes                           |
+| ---------------------- | -------------- | --------- | ---------------------------- | -------------- | ----------- | --------------------------------------- |
+| Hiking shoes           | Volcano hike   | No        | Yes                          | No             | N/A         | Wear on plane or pack in checked bag    |
+| Rain shell             | Volcano hike   | No        | Yes                          | No             | N/A         | Lightweight, packable                   |
+| Snorkel + mask         | Snorkeling     | Yes       | Optional (own is better fit) | Yes at marina  | $5-10       | Pack in carry-on if bringing own        |
+| Reef-safe sunscreen    | Snorkeling     | No        | Yes                          | Limited        | $8-15       | Liquid rules apply for carry-on         |
+| Water sandals          | Rafting        | No        | Yes                          | Limited        | $5-8        | Pack in checked bag                     |
+| Headlamp or flashlight | Night tour     | Sometimes | Recommended                  | Limited        | $3-5        | Pack in checked bag (batteries removed) |
+| Insect repellent       | Night tour     | Sometimes | Yes                          | Yes locally    | $5-10       | Liquid rules apply                      |
+| Daypack (20-30L)       | All activities | No        | Yes                          | No             | N/A         | Use as personal item on flight          |
+| Reusable water bottle  | All activities | No        | Yes                          | No             | N/A         | Empty through security, fill after      |
 
 ### Risk Assessment Summary
 
-| Activity | Key Risks | Weather Dependency | Nearest Medical | Insurance Note |
-|----------|-----------|-------------------|-----------------|----------------|
-| Zipline | Equipment failure (mitigated by dual cable systems), minor abrasion | Closed in lightning storms | Town clinic, 20-30 min | Covered by most travel policies |
-| Volcano hike | Altitude fatigue, ankle injury on uneven terrain, sudden weather change | Cancelled in heavy rain or volcanic activity | Park ranger station, town clinic 45-60 min | Covered by most travel policies |
-| Snorkeling | Jellyfish stings, sunburn, exhaustion in current | Cancelled in high surf or poor visibility | Boat carries first aid, marina clinic 15 min | Covered by most travel policies |
-| Whitewater rafting | Falling from raft, cold water exposure, impact with rocks | Cancelled in flood conditions, runs in rain | River base has first aid, hospital 30-45 min | Verify policy covers water sports |
-| Night wildlife tour | Insect bites, uneven terrain in low light | Runs in light rain, cancelled in heavy storms | Lodge or park station, 10-20 min | Covered by most travel policies |
+| Activity            | Key Risks                                                               | Weather Dependency                            | Nearest Medical                              | Insurance Note                    |
+| ------------------- | ----------------------------------------------------------------------- | --------------------------------------------- | -------------------------------------------- | --------------------------------- |
+| Zipline             | Equipment failure (mitigated by dual cable systems), minor abrasion     | Closed in lightning storms                    | Town clinic, 20-30 min                       | Covered by most travel policies   |
+| Volcano hike        | Altitude fatigue, ankle injury on uneven terrain, sudden weather change | Cancelled in heavy rain or volcanic activity  | Park ranger station, town clinic 45-60 min   | Covered by most travel policies   |
+| Snorkeling          | Jellyfish stings, sunburn, exhaustion in current                        | Cancelled in high surf or poor visibility     | Boat carries first aid, marina clinic 15 min | Covered by most travel policies   |
+| Whitewater rafting  | Falling from raft, cold water exposure, impact with rocks               | Cancelled in flood conditions, runs in rain   | River base has first aid, hospital 30-45 min | Verify policy covers water sports |
+| Night wildlife tour | Insect bites, uneven terrain in low light                               | Runs in light rain, cancelled in heavy storms | Lodge or park station, 10-20 min             | Covered by most travel policies   |
 
 ### Day-by-Day Activity Schedule
 
-| Day | Date | Activity | Time | Notes |
-|-----|------|----------|------|-------|
-| 1 | Arrival | Travel day | -- | Settle in, no activity |
-| 2 | Day 2 | Night wildlife tour | 5:30 PM | Low-intensity start |
-| 3 | Day 3 | Rainforest zipline tour | 7:30 AM | Half-day, afternoon free |
-| 4 | Day 4 | Free / explore town | -- | Rest day before hike |
-| 5 | Day 5 | Guided volcano hike | 6:00 AM | Full-day, rest evening |
-| 6 | Day 6 | Free / beach day | -- | Recovery day |
-| 7 | Day 7 | Snorkeling boat excursion | 8:00 AM | Half-day, afternoon free |
-| 8 | Day 8 | Free / local exploration | -- | Rest before rafting |
-| 9 | Day 9 | Whitewater rafting | 7:00 AM | Full-day adventure |
-| 10 | Day 10 | Departure | -- | Pack and travel |
+| Day | Date    | Activity                  | Time    | Notes                    |
+| --- | ------- | ------------------------- | ------- | ------------------------ |
+| 1   | Arrival | Travel day                | --      | Settle in, no activity   |
+| 2   | Day 2   | Night wildlife tour       | 5:30 PM | Low-intensity start      |
+| 3   | Day 3   | Rainforest zipline tour   | 7:30 AM | Half-day, afternoon free |
+| 4   | Day 4   | Free / explore town       | --      | Rest day before hike     |
+| 5   | Day 5   | Guided volcano hike       | 6:00 AM | Full-day, rest evening   |
+| 6   | Day 6   | Free / beach day          | --      | Recovery day             |
+| 7   | Day 7   | Snorkeling boat excursion | 8:00 AM | Half-day, afternoon free |
+| 8   | Day 8   | Free / local exploration  | --      | Rest before rafting      |
+| 9   | Day 9   | Whitewater rafting        | 7:00 AM | Full-day adventure       |
+| 10  | Day 10  | Departure                 | --      | Pack and travel          |
 
 ### Budget Summary
 
-| Activity | Price/Person | Travelers | Subtotal |
-|----------|-------------|-----------|----------|
-| Zipline tour | $65 (mid-range) | 2 | $130 |
-| Volcano hike | $55 (mid-range) | 2 | $110 |
-| Snorkeling excursion | $60 (mid-range) | 2 | $120 |
-| Whitewater rafting | $85 (mid-range) | 2 | $170 |
-| Night wildlife tour | $40 (mid-range) | 2 | $80 |
-| **Total Activity Budget** | | | **$610** |
+| Activity                  | Price/Person    | Travelers | Subtotal |
+| ------------------------- | --------------- | --------- | -------- |
+| Zipline tour              | $65 (mid-range) | 2         | $130     |
+| Volcano hike              | $55 (mid-range) | 2         | $110     |
+| Snorkeling excursion      | $60 (mid-range) | 2         | $120     |
+| Whitewater rafting        | $85 (mid-range) | 2         | $170     |
+| Night wildlife tour       | $40 (mid-range) | 2         | $80      |
+| **Total Activity Budget** |                 |           | **$610** |
 
 **Per-person total: $305** (slightly over $300 target -- drop night tour to stay within budget, or look for combo discounts on zipline + rafting packages)
 

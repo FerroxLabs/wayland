@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning cleaning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking meal-planning cleaning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # One-Pot Meals
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants a complete weeknight dinner with minimal cleanup and asks for a recipe, formula, or guidance on combining ingredients they already have on hand
 - A user explicitly asks for a one-pot meal, one-pan dinner, sheet pan dinner, skillet dinner, Dutch oven dinner, or requests a dish where protein, starch, and vegetables cook together in the same vessel
 - A user describes a handful of ingredients (chicken thighs, a can of tomatoes, some rice) and asks "what can I make with this?" -- the one-pot formula is the most useful structure for combining disparate ingredients into a cohesive meal
@@ -34,6 +36,7 @@ metadata:
 - A user asks how to stretch a limited protein (half a rotisserie chicken, four Italian sausages, one pound of ground beef) into a full meal by combining it with pantry starches and vegetables
 
 **Do NOT use this skill when:**
+
 - The user wants to cook large batches for the entire week and store multiple portions -- use `meal-prep-workflow`, which addresses scaling, portioning, and food safety over time
 - The user wants to master a specific technique in isolation (braising, sautéing, deglazing) rather than produce a complete meal -- use `cooking-techniques`
 - The user is asking about baking bread, muffins, casseroles with pastry, or any dish where precise flour-to-leavener chemistry matters -- use `baking-fundamentals`
@@ -62,16 +65,17 @@ If the user has not provided some of these, make reasonable assumptions based on
 
 The vessel determines the entire cooking method -- do not skip this mapping:
 
-| Vessel | Best For | Capacity | Stovetop | Oven-Safe |
-|--------|----------|----------|----------|-----------|
-| 12-inch skillet with lid | 2-4 servings, rice or pasta dishes, quick proteins | 2-3 quarts of liquid | Yes | Most yes (check handle) |
-| 5-7 quart Dutch oven | 4-8 servings, braises, soups, bone-in proteins | 5-7 quarts | Yes | Yes (to 500F) |
-| Rimmed sheet pan (18x13) | Roasted proteins and vegetables, oven method | No liquid dishes | No | Yes |
-| 6-quart slow cooker | Bone-in proteins, long cook, hands-off | 4-6 servings | No | No |
-| 6-quart pressure cooker | Fastest cooking, dried beans, tough cuts | 4-6 servings | Yes (sauté mode) | No |
-| 4-quart saucepan | Grain-forward dishes, soups, 2-person meals | 2-3 servings | Yes | No |
+| Vessel                   | Best For                                           | Capacity             | Stovetop         | Oven-Safe               |
+| ------------------------ | -------------------------------------------------- | -------------------- | ---------------- | ----------------------- |
+| 12-inch skillet with lid | 2-4 servings, rice or pasta dishes, quick proteins | 2-3 quarts of liquid | Yes              | Most yes (check handle) |
+| 5-7 quart Dutch oven     | 4-8 servings, braises, soups, bone-in proteins     | 5-7 quarts           | Yes              | Yes (to 500F)           |
+| Rimmed sheet pan (18x13) | Roasted proteins and vegetables, oven method       | No liquid dishes     | No               | Yes                     |
+| 6-quart slow cooker      | Bone-in proteins, long cook, hands-off             | 4-6 servings         | No               | No                      |
+| 6-quart pressure cooker  | Fastest cooking, dried beans, tough cuts           | 4-6 servings         | Yes (sauté mode) | No                      |
+| 4-quart saucepan         | Grain-forward dishes, soups, 2-person meals        | 2-3 servings         | Yes              | No                      |
 
 Critical vessel rules:
+
 - A skillet without a lid cannot make rice-based one-pot meals reliably -- the steam escape prevents proper absorption. Substitute aluminum foil as a makeshift lid.
 - Sheet pan meals cannot contain liquid-based sauces or soups by definition. They are a dry-heat roasting method, not a braising method.
 - Pressure cookers require minimum liquid (at least 1 cup) and cannot be used to brown in sauce the same way stovetop methods can.
@@ -83,29 +87,34 @@ Critical vessel rules:
 Every one-pot meal follows the same five-layer flavor architecture. The sequence matters because each layer builds on the previous one. Skipping or reordering steps produces a flat, one-dimensional dish.
 
 **Layer 1 -- Fat + Dry Aromatics (2-4 min over medium to medium-high heat)**
+
 - Fat choice signals flavor direction: olive oil for Mediterranean and Italian; neutral oil (avocado, canola) for Asian or Mexican; butter for French or comfort food; rendered bacon fat or sausage fat for American Southern
 - Aromatics: diced onion (1 medium per 4 servings) is the baseline. Add garlic (2-4 cloves, minced) after the onion softens -- never add garlic to a dry cold pan (it burns in 60 seconds and turns bitter). Fresh ginger (1 tbsp grated) for Asian profiles. Diced celery and carrot with onion forms a soffritto base for Italian dishes. Leek slices replace onion for a milder, sweeter base.
 - Bloom dried spices in the fat with the aromatics for 30-45 seconds. This releases fat-soluble flavor compounds (terpenes in cumin, paprika, and curry powder). Spices added to liquid later taste flat by comparison.
 
 **Layer 2 -- Brown the Protein (3-8 min, do not crowd the pan)**
+
 - The goal is Maillard browning, not full cooking. Surface browning creates hundreds of flavor compounds that define the dish's depth. A gray, steamed protein produces a pale, bland one-pot meal.
 - Crowding is the single most common mistake: protein pieces touching each other generate steam rather than dry heat, preventing browning. Leave at least 1/4 inch between pieces. If the pan is not large enough to brown all protein in one layer, do two batches.
 - Do not move the protein for 2-3 minutes after placing it in the pan. Let the crust form. It will release from the pan naturally when properly seared -- if it sticks, it is not ready to flip.
 - Exception: canned beans, shrimp, and delicate fish should not be browned in advance. Canned beans are added with liquid; shrimp and fish are added in the final 3-5 minutes only.
 
 **Layer 3 -- Deglaze + Build the Liquid Base**
+
 - After browning the protein, there will be brown bits on the pan bottom. This is fond -- it is the most concentrated flavor in the dish. Add the liquid while the pan is still hot and scrape vigorously with a wooden spoon or silicone spatula to dissolve it into the sauce. This step is non-negotiable for maximum flavor.
 - Deglazing liquids by flavor direction: white wine (2-4 oz) then broth for French or Italian; crushed tomatoes + broth for Mediterranean; coconut milk for Southeast Asian or Caribbean; beer (lager or stout) for Mexican or German-inspired; soy sauce + broth for Japanese or Korean
 - Liquid ratios by starch (see Rules section for precise numbers)
 - Add the starch now if it will cook in the liquid (rice, orzo, farro, lentils). Bring to a boil, then reduce to a simmer before covering.
 
 **Layer 4 -- Vegetable Addition by Tier (see Step 1 for tier definitions)**
+
 - Tier 1 (hard) vegetables go in with the liquid before covering -- they need full cooking time
 - Tier 2 (medium) vegetables go in when 8-10 minutes of covered cooking remain
 - Tier 3 (soft) vegetables go in when 3-5 minutes remain, or are stirred in off-heat and allowed to wilt from residual heat
 - The most common beginner error is adding all vegetables at the same time, which produces mushy soft vegetables alongside underdone hard vegetables
 
 **Layer 5 -- The Finish (60-90 seconds, always do this)**
+
 - Acid brightens: 1 tbsp lemon juice per 4 servings for Mediterranean/Italian; 1 tbsp lime juice for Mexican/Asian; 1-2 tsp red wine vinegar for Spanish or Eastern European profiles
 - Fresh herbs added off-heat: parsley, cilantro, basil, chives, dill. These lose their brightness if cooked -- they are always a finishing element.
 - Fat enrichment: 1 tbsp cold butter stirred in off-heat creates a silky finish in pan sauces (this is called mounting). Drizzle of olive oil or sesame oil for similar effect.
@@ -119,6 +128,7 @@ Every one-pot meal follows the same five-layer flavor architecture. The sequence
 Every recipe must include explicit timing because one-pot meals fail when the cook does not know when to add each component. Generate the recipe with a cumulative time format (0:00 -- 5:00 -- 22:00 etc.) rather than just "step 1, step 2."
 
 Timing benchmarks by protein and starch combination:
+
 - Shrimp + orzo: 20 minutes total
 - Ground beef + small pasta: 25 minutes total
 - Boneless chicken thighs + white rice: 33-38 minutes total
@@ -132,6 +142,7 @@ Timing benchmarks by protein and starch combination:
 ### Step 5 -- Write the complete recipe with doneness indicators
 
 Every recipe you generate must include:
+
 - Ingredient list with amounts, cut specifications (1.5-inch pieces vs. "chunked"), and any prep notes (pat dry, press tofu, drain and rinse beans)
 - Step-by-step instructions with cumulative timestamps
 - Explicit visual and tactile doneness cues (not just temperature) -- what the food looks like, smells like, and how it behaves at the pan when done
@@ -145,6 +156,7 @@ Every recipe you generate must include:
 After the primary recipe, show exactly how to change the seasoning profile to produce a completely different cuisine from the same formula. The protein and starch may stay identical -- only the aromatics, liquid base, spice blend, and finish change.
 
 **The five reliable seasoning profiles:**
+
 - Mediterranean/Greek: olive oil, garlic, oregano, lemon, tomato, olives, feta finish
 - Mexican/Tex-Mex: neutral oil, cumin, chili powder, smoked paprika, salsa or canned tomatoes, lime, cilantro finish
 - South/Southeast Asian: coconut milk base, ginger, lemongrass or lime leaves, fish sauce or soy sauce, lime and Thai basil finish
@@ -168,6 +180,7 @@ After the recipe, include a short "What If It Goes Wrong" section for the specif
 ### Step 8 -- Offer storage, leftover, and reheating guidance
 
 One-pot meals are among the best leftover candidates. Include:
+
 - Refrigerator storage: 3-4 days in an airtight container for most one-pot meals
 - Reheating: rice and pasta based dishes require added liquid when reheating (2-4 tbsp broth or water per serving) to prevent dryness -- cover and microwave at 70% power, or reheat stovetop over medium-low with a splash of broth
 - Freezing: broth-based and tomato-based one-pot meals freeze well for 2-3 months; cream-based dishes and potato-based dishes do not freeze well (cream splits, potatoes become granular)
@@ -385,9 +398,11 @@ Common disasters and their real-world fixes:
 ### Ingredients
 
 **Protein:**
+
 - 4 bone-in, skin-on chicken thighs (approximately 2 to 2.5 lbs total) -- pat completely dry with paper towels before cooking
 
 **Aromatics & Seasoning:**
+
 - 1 large yellow onion -- diced into 1/2-inch pieces
 - 3 cloves garlic -- minced
 - 1.5 tsp smoked paprika
@@ -398,16 +413,20 @@ Common disasters and their real-world fixes:
 - 2 tbsp olive oil
 
 **Liquid Base:**
+
 - 1 can (14.5 oz) diced tomatoes with juice -- do not drain
 - 1.5 cups low-sodium chicken broth
 
 **Starch:**
+
 - 1 cup jasmine rice -- rinsed under cold water until water runs clear, then drained (this removes surface starch and prevents gumminess)
 
 **Vegetables:**
+
 - 4 cups fresh baby spinach (Tier 3 -- adds at the end)
 
 **Finish:**
+
 - 1 lemon -- zested and halved (use both zest and juice)
 - Fresh parsley, roughly chopped -- optional but strongly recommended
 
@@ -415,20 +434,20 @@ Common disasters and their real-world fixes:
 
 ### Timing Sequence
 
-| Clock Time | Action |
-|------------|--------|
-| 0:00 -- 2:00 | Preheat Dutch oven, add oil, heat until shimmering |
-| 2:00 -- 9:00 | Brown chicken skin-side down, flip, brown second side |
-| 9:00 -- 10:00 | Remove chicken to plate, reduce heat |
-| 10:00 -- 13:00 | Sauté onion in chicken fat |
-| 13:00 -- 14:00 | Add garlic and bloom spices |
-| 14:00 -- 16:00 | Add tomatoes, deglaze, scrape fond, add broth |
-| 16:00 -- 17:00 | Add rinsed rice, stir to combine, bring to boil |
-| 17:00 -- 18:00 | Nestle chicken skin-side up into rice, bring back to gentle boil |
-| 18:00 -- 36:00 | Cover, reduce to low, cook 18 minutes -- do not lift the lid |
-| 36:00 -- 38:00 | Uncover, scatter spinach, replace lid, steam 2 minutes |
+| Clock Time     | Action                                                                      |
+| -------------- | --------------------------------------------------------------------------- |
+| 0:00 -- 2:00   | Preheat Dutch oven, add oil, heat until shimmering                          |
+| 2:00 -- 9:00   | Brown chicken skin-side down, flip, brown second side                       |
+| 9:00 -- 10:00  | Remove chicken to plate, reduce heat                                        |
+| 10:00 -- 13:00 | Sauté onion in chicken fat                                                  |
+| 13:00 -- 14:00 | Add garlic and bloom spices                                                 |
+| 14:00 -- 16:00 | Add tomatoes, deglaze, scrape fond, add broth                               |
+| 16:00 -- 17:00 | Add rinsed rice, stir to combine, bring to boil                             |
+| 17:00 -- 18:00 | Nestle chicken skin-side up into rice, bring back to gentle boil            |
+| 18:00 -- 36:00 | Cover, reduce to low, cook 18 minutes -- do not lift the lid                |
+| 36:00 -- 38:00 | Uncover, scatter spinach, replace lid, steam 2 minutes                      |
 | 38:00 -- 40:00 | Finish: lemon zest, lemon juice, taste and adjust, rest 3 minutes uncovered |
-| 43:00 | Serve |
+| 43:00          | Serve                                                                       |
 
 ---
 
@@ -466,6 +485,7 @@ Serve directly from the Dutch oven. Squeeze remaining lemon at the table for gue
 ---
 
 ### Doneness Checklist
+
 - [ ] **Chicken:** Internal temperature 165F/74C at the thickest part without touching bone. Juices run completely clear when pierced. Skin is deeply golden and crisp on top.
 - [ ] **Rice (jasmine):** Tender throughout with no chalky crunch. All liquid absorbed. Individual grains separate cleanly when stirred -- not clumped or gummy.
 - [ ] **Spinach:** Fully wilted and bright green. If it is dark, slimy, and olive-colored, it overcooked -- reduce the covered steam time to 90 seconds next time.
@@ -474,24 +494,25 @@ Serve directly from the Dutch oven. Squeeze remaining lemon at the table for gue
 ---
 
 ### If Something Goes Wrong
-| Problem | Likely Cause | Fix |
-|---------|--------------|-----|
-| Rice is still crunchy after 18 min covered | Heat too low, lid not sealed, or rice not fully submerged | Add 3-4 tbsp broth or water, replace lid, cook 5 more min |
-| Chicken skin is soft, not crisp | Skin submerged in liquid during cooking | For next time, ensure skin stays above liquid surface; in this cook, broil the finished dish for 3-4 min to re-crisp |
-| Bottom is dry and rice is sticking | Heat too high, too little liquid | Add 1/4 cup hot water around the edges, reduce heat, cover 5 min |
-| Dish tastes flat | Forgot the acid finish | Squeeze the entire lemon over the dish now -- it will noticeably change the flavor |
-| Too salty | Broth was full-sodium or tomatoes were salted | Stir in 1/4 cup hot water, a pat of unsalted butter, and extra lemon to shift the balance |
+
+| Problem                                    | Likely Cause                                              | Fix                                                                                                                  |
+| ------------------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Rice is still crunchy after 18 min covered | Heat too low, lid not sealed, or rice not fully submerged | Add 3-4 tbsp broth or water, replace lid, cook 5 more min                                                            |
+| Chicken skin is soft, not crisp            | Skin submerged in liquid during cooking                   | For next time, ensure skin stays above liquid surface; in this cook, broil the finished dish for 3-4 min to re-crisp |
+| Bottom is dry and rice is sticking         | Heat too high, too little liquid                          | Add 1/4 cup hot water around the edges, reduce heat, cover 5 min                                                     |
+| Dish tastes flat                           | Forgot the acid finish                                    | Squeeze the entire lemon over the dish now -- it will noticeably change the flavor                                   |
+| Too salty                                  | Broth was full-sodium or tomatoes were salted             | Stir in 1/4 cup hot water, a pat of unsalted butter, and extra lemon to shift the balance                            |
 
 ---
 
 ### Cuisine Variations
 
-| Variation Name | Aromatic Swap | Spice Profile | Liquid Swap | Finish |
-|----------------|---------------|---------------|-------------|--------|
-| Mexican-Inspired | Add 1 chipotle pepper in adobo (minced) with garlic | Cumin + chili powder, skip oregano | Replace broth with salsa (1 cup) + water (1 cup) | Lime juice, cilantro, sour cream dollop |
-| Coconut-Ginger Asian | Replace onion with scallion whites + 1 tbsp fresh ginger | Turmeric + coriander, skip paprika | Replace broth with 1 can full-fat coconut milk + 1/2 cup water + 1 tbsp soy sauce | Lime juice, scallion greens, Thai basil, sesame oil drizzle |
-| French Country | Replace olive oil with butter. Add 1 tbsp tomato paste with garlic. | Herbes de Provence + thyme, skip cumin | Replace tomatoes with 1/2 cup dry white wine + 1.5 cups broth | 1 tsp Dijon mustard stirred in at finish, fresh tarragon or parsley |
-| Spanish Arroz con Pollo | Add 1 tsp saffron threads (bloom in 2 tbsp warm water, add with liquid) | Smoked paprika + bay leaf | Replace some broth with 1/2 cup dry sherry | Pitted green olives scattered over top, sliced jarred piquillo peppers |
+| Variation Name          | Aromatic Swap                                                           | Spice Profile                          | Liquid Swap                                                                       | Finish                                                                 |
+| ----------------------- | ----------------------------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Mexican-Inspired        | Add 1 chipotle pepper in adobo (minced) with garlic                     | Cumin + chili powder, skip oregano     | Replace broth with salsa (1 cup) + water (1 cup)                                  | Lime juice, cilantro, sour cream dollop                                |
+| Coconut-Ginger Asian    | Replace onion with scallion whites + 1 tbsp fresh ginger                | Turmeric + coriander, skip paprika     | Replace broth with 1 can full-fat coconut milk + 1/2 cup water + 1 tbsp soy sauce | Lime juice, scallion greens, Thai basil, sesame oil drizzle            |
+| French Country          | Replace olive oil with butter. Add 1 tbsp tomato paste with garlic.     | Herbes de Provence + thyme, skip cumin | Replace tomatoes with 1/2 cup dry white wine + 1.5 cups broth                     | 1 tsp Dijon mustard stirred in at finish, fresh tarragon or parsley    |
+| Spanish Arroz con Pollo | Add 1 tsp saffron threads (bloom in 2 tbsp warm water, add with liquid) | Smoked paprika + bay leaf              | Replace some broth with 1/2 cup dry sherry                                        | Pitted green olives scattered over top, sliced jarred piquillo peppers |
 
 ---
 
@@ -502,6 +523,7 @@ Fat + Aromatics (3-4 min, medium heat) -> Brown Bone-In Chicken Skin-Down (5-6 m
 ---
 
 ### Storage
+
 - **Fridge:** 3-4 days in an airtight container. The chicken will be best if stored bone-in and removed before reheating.
 - **Reheat:** Add 2-3 tbsp chicken broth or water per serving. Cover and microwave at 70% power for 2-2.5 minutes, stirring once. Or reheat stovetop over medium-low with a splash of broth, covered, 5-6 minutes.
 - **Freezes:** Yes -- this dish freezes well for up to 2 months. The tomato-broth base protects the rice texture. Freeze chicken and rice together in portions. Thaw overnight in the refrigerator before reheating with added liquid.

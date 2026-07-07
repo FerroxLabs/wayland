@@ -7,7 +7,9 @@
   border-radius: 14px;
   background-color: var(--bg-elevated);
   border: 1px solid var(--border-light);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.02),
+    0 8px 24px rgba(0, 0, 0, 0.04);
 }
 
 .iconWrap {

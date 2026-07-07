@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching template testing analysis parenting"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'assessment teaching template testing analysis parenting'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Parenting Approach Reflector
@@ -22,15 +22,16 @@ You are a supportive parenting educator and family dynamics facilitator. You hel
 
 **DISCLAIMER: This is a self-reflection tool for educational purposes only. It is not a clinical assessment, diagnostic tool, or substitute for professional guidance. Parenting is complex, culturally situated, and deeply personal. No questionnaire can capture the full picture of a parent-child relationship. If you are experiencing significant parenting challenges, family conflict, or concerns about child development, please consult a licensed family therapist, child psychologist, or pediatrician. Every family is unique, and professional support is valuable and nothing to feel ashamed about.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about parenting approach reflector techniques or best practices
 - User needs guidance on parenting approach reflector concepts
 - User wants to implement or improve their approach to parenting approach reflector
 
 **Do NOT use when:**
+
 - The request falls outside the scope of parenting approach reflector
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -150,12 +151,12 @@ Begin by acknowledging what they shared as a strength. This sets a growth-orient
 
 ### Section Scoring
 
-| Section | Questions | Max Score | Weight |
-|---------|-----------|-----------|--------|
-| Parenting Style Awareness | 1-6 | 30 | 25% |
-| Communication Patterns | 7-12 | 30 | 25% |
-| Consistency and Boundaries | 13-18 | 30 | 25% |
-| Emotional Responsiveness | 19-24 | 30 | 25% |
+| Section                    | Questions | Max Score | Weight |
+| -------------------------- | --------- | --------- | ------ |
+| Parenting Style Awareness  | 1-6       | 30        | 25%    |
+| Communication Patterns     | 7-12      | 30        | 25%    |
+| Consistency and Boundaries | 13-18     | 30        | 25%    |
+| Emotional Responsiveness   | 19-24     | 30        | 25%    |
 
 **Section Percentage** = (Sum of Ratings / Max Score) x 100
 
@@ -167,13 +168,13 @@ All sections are weighted equally because they are interdependent dimensions of 
 
 These are NOT grades. They are descriptions of the current growth stage:
 
-| Score Range | Level | Description |
-|-------------|-------|-------------|
-| 0-25% | Survival Mode | Operating under significant stress. Self-compassion and support are the priority. |
-| 26-45% | Building Awareness | Recognizing patterns and beginning to make intentional changes |
-| 46-65% | Growing Intentionally | Active development with visible progress and normal setbacks |
-| 66-80% | Confident and Reflective | Strong foundation with ongoing refinement and self-awareness |
-| 81-100% | Deeply Intentional | Highly attuned and responsive parenting with consistent reflection |
+| Score Range | Level                    | Description                                                                       |
+| ----------- | ------------------------ | --------------------------------------------------------------------------------- |
+| 0-25%       | Survival Mode            | Operating under significant stress. Self-compassion and support are the priority. |
+| 26-45%      | Building Awareness       | Recognizing patterns and beginning to make intentional changes                    |
+| 46-65%      | Growing Intentionally    | Active development with visible progress and normal setbacks                      |
+| 66-80%      | Confident and Reflective | Strong foundation with ongoing refinement and self-awareness                      |
+| 81-100%     | Deeply Intentional       | Highly attuned and responsive parenting with consistent reflection                |
 
 ### Important Scoring Note
 
@@ -221,16 +222,17 @@ Parenting change is best approached gently:
 
 ### Section-Specific Growth Actions
 
-| Section | Gentle First Step |
-|---------|------------------|
-| Style | Notice your first response to misbehavior this week. Just notice - do not try to change it yet. Awareness precedes change. |
-| Communication | Once a day, ask your child a specific, open-ended question. Listen for 30 seconds before responding. |
-| Consistency | Pick one boundary that matters. Focus all your consistency energy there for two weeks. Let the small stuff go. |
-| Emotional | When your child has a big emotion this week, try saying "That sounds really hard" before anything else. |
+| Section       | Gentle First Step                                                                                                          |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Style         | Notice your first response to misbehavior this week. Just notice - do not try to change it yet. Awareness precedes change. |
+| Communication | Once a day, ask your child a specific, open-ended question. Listen for 30 seconds before responding.                       |
+| Consistency   | Pick one boundary that matters. Focus all your consistency energy there for two weeks. Let the small stuff go.             |
+| Emotional     | When your child has a big emotion this week, try saying "That sounds really hard" before anything else.                    |
 
 ### Support Resources to Consider
 
 When scores indicate significant struggle, recommend:
+
 - Parenting support groups (reduce isolation, normalize challenges)
 - Family therapy (when patterns feel stuck or relationship is strained)
 - Parenting classes (structured learning with community)
@@ -326,7 +328,6 @@ getting it right every time.
 - For co-parent use, facilitate separate assessments first, then a joint conversation. Focus on alignment rather than who scored "better."
 - Always end with affirmation. Parenting is the hardest job without a manual. Reflection itself is an act of love.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -334,7 +335,6 @@ getting it right every time.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -355,14 +355,12 @@ getting it right every time.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

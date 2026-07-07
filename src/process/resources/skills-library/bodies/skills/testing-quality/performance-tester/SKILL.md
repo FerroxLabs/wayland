@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices optimization"
-  category: "testing-quality"
-  subcategory: "test-automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices optimization'
+  category: 'testing-quality'
+  subcategory: 'test-automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Performance Tester
@@ -74,8 +74,8 @@ export const options = {
   vus: 1,
   duration: '1m',
   thresholds: {
-    http_req_duration: ['p(95)<500'],  // 95% of requests under 500ms
-    http_req_failed: ['rate<0.01'],     // Less than 1% failure rate
+    http_req_duration: ['p(95)<500'], // 95% of requests under 500ms
+    http_req_failed: ['rate<0.01'], // Less than 1% failure rate
   },
 };
 
@@ -101,11 +101,11 @@ const orderDuration = new Trend('order_duration');
 
 export const options = {
   stages: [
-    { duration: '2m', target: 100 },   // Ramp up to 100 users
-    { duration: '5m', target: 100 },   // Stay at 100 users
-    { duration: '2m', target: 200 },   // Ramp up to 200
-    { duration: '5m', target: 200 },   // Stay at 200
-    { duration: '2m', target: 0 },     // Ramp down
+    { duration: '2m', target: 100 }, // Ramp up to 100 users
+    { duration: '5m', target: 100 }, // Stay at 100 users
+    { duration: '2m', target: 200 }, // Ramp up to 200
+    { duration: '5m', target: 200 }, // Stay at 200
+    { duration: '2m', target: 0 }, // Ramp down
   ],
   thresholds: {
     http_req_duration: ['p(95)<1000', 'p(99)<2000'],
@@ -121,7 +121,7 @@ export default function () {
   // Step 1: Browse products
   let res = http.request('[reference URL]');
   check(res, { 'products loaded': (r) => r.status === 200 });
-  sleep(Math.random() * 3 + 1);  // Think time: 1-4 seconds
+  sleep(Math.random() * 3 + 1); // Think time: 1-4 seconds
 
   // Step 2: View product detail
   res = http.request('[reference URL]');
@@ -129,19 +129,13 @@ export default function () {
   sleep(Math.random() * 2 + 1);
 
   // Step 3: Add to cart
-  res = http.post('[reference URL]',
-    JSON.stringify({ productId: 42, quantity: 1 }),
-    { headers }
-  );
+  res = http.post('[reference URL]', JSON.stringify({ productId: 42, quantity: 1 }), { headers });
   check(res, { 'added to cart': (r) => r.status === 201 });
   sleep(1);
 
   // Step 4: Place order (track separately)
   const orderStart = Date.now();
-  res = http.post('[reference URL]',
-    JSON.stringify({ cartId: 'test-cart' }),
-    { headers }
-  );
+  res = http.post('[reference URL]', JSON.stringify({ cartId: 'test-cart' }), { headers });
   orderDuration.add(Date.now() - orderStart);
   errorRate.add(res.status !== 201);
   check(res, { 'order placed': (r) => r.status === 201 });
@@ -154,19 +148,19 @@ export default function () {
 ```javascript
 export const options = {
   stages: [
-    { duration: '2m', target: 100 },    // Normal load
+    { duration: '2m', target: 100 }, // Normal load
     { duration: '5m', target: 100 },
-    { duration: '2m', target: 200 },    // High load
+    { duration: '2m', target: 200 }, // High load
     { duration: '5m', target: 200 },
-    { duration: '2m', target: 400 },    // Stress
+    { duration: '2m', target: 400 }, // Stress
     { duration: '5m', target: 400 },
-    { duration: '2m', target: 800 },    // Breaking point?
+    { duration: '2m', target: 800 }, // Breaking point?
     { duration: '5m', target: 800 },
-    { duration: '5m', target: 0 },      // Recovery
+    { duration: '5m', target: 0 }, // Recovery
   ],
   thresholds: {
-    http_req_duration: ['p(95)<2000'],   // More lenient under stress
-    http_req_failed: ['rate<0.10'],      // Accept up to 10% under stress
+    http_req_duration: ['p(95)<2000'], // More lenient under stress
+    http_req_failed: ['rate<0.10'], // Accept up to 10% under stress
   },
 };
 ```
@@ -176,11 +170,11 @@ export const options = {
 ```javascript
 export const options = {
   stages: [
-    { duration: '1m', target: 50 },     // Normal traffic
-    { duration: '10s', target: 1000 },   // Sudden spike!
-    { duration: '3m', target: 1000 },    // Stay at spike
-    { duration: '10s', target: 50 },     // Spike ends
-    { duration: '3m', target: 50 },      // Recovery period
+    { duration: '1m', target: 50 }, // Normal traffic
+    { duration: '10s', target: 1000 }, // Sudden spike!
+    { duration: '3m', target: 1000 }, // Stay at spike
+    { duration: '10s', target: 50 }, // Spike ends
+    { duration: '3m', target: 50 }, // Recovery period
   ],
 };
 ```
@@ -338,10 +332,10 @@ export const options = {
     http_req_duration: [
       { threshold: 'p(50)<200', abortOnFail: true },
       { threshold: 'p(95)<500', abortOnFail: true },
-      { threshold: 'p(99)<1000', abortOnFail: false },  // Warning only
+      { threshold: 'p(99)<1000', abortOnFail: false }, // Warning only
     ],
     http_req_failed: [
-      { threshold: 'rate<0.001', abortOnFail: true },  // 0.1% error budget
+      { threshold: 'rate<0.001', abortOnFail: true }, // 0.1% error budget
     ],
   },
 };
@@ -386,6 +380,7 @@ COST ANALYSIS:
 ## Performance Test Execution Checklist
 
 ### Before Testing
+
 [ ] Test environment matches production (or is proportionally scaled)
 [ ] Test data is realistic (volume, distribution, variety)
 [ ] Monitoring is active (APM, metrics, logs)
@@ -394,6 +389,7 @@ COST ANALYSIS:
 [ ] Test scripts are code-reviewed
 
 ### During Testing
+
 [ ] Monitor all tiers: load balancer, app servers, database, cache
 [ ] Watch for error rate changes (not just response time)
 [ ] Check resource utilization graphs in real-time
@@ -401,6 +397,7 @@ COST ANALYSIS:
 [ ] Do not share the test environment with other tests
 
 ### After Testing
+
 [ ] Compare results against budgets and baselines
 [ ] Generate performance report with charts
 [ ] Identify top 3 bottlenecks with evidence
@@ -420,26 +417,30 @@ COST ANALYSIS:
 **Duration**: 30 minutes at steady state
 
 ### Summary
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| p50 response time | <200ms | 180ms | PASS |
-| p95 response time | <500ms | 420ms | PASS |
-| p99 response time | <1000ms | 1200ms | FAIL |
-| Error rate | <0.1% | 0.05% | PASS |
-| Max throughput | 2000 RPS | 2150 RPS | PASS |
+
+| Metric            | Target   | Actual   | Status |
+| ----------------- | -------- | -------- | ------ |
+| p50 response time | <200ms   | 180ms    | PASS   |
+| p95 response time | <500ms   | 420ms    | PASS   |
+| p99 response time | <1000ms  | 1200ms   | FAIL   |
+| Error rate        | <0.1%    | 0.05%    | PASS   |
+| Max throughput    | 2000 RPS | 2150 RPS | PASS   |
 
 ### Bottlenecks Identified
+
 1. **Database connection pool**: At 200 VUs, pool saturated
    causing p99 spike. Recommend increasing pool from 20 to 50.
 2. **External API timeout**: Payment service p99 at 800ms
    causing cascading delays. Recommend circuit breaker tuning.
 
 ### Recommendations
+
 1. Increase DB connection pool (estimated 30% p99 improvement)
 2. Add circuit breaker with 500ms timeout on payment service
 3. Retest after changes to validate improvement
 
 ### Trend (vs Previous Test)
+
 - p95 improved 15% (490ms → 420ms) after caching changes
 - Throughput improved 8% (2000 → 2150 RPS)
 - p99 regressed 10% -- investigate DB connection pool
@@ -459,6 +460,7 @@ REPORT: Metrics vs targets, bottlenecks with evidence, recommendations, trend vs
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing performance tester solutions
 - Reviewing or improving existing performance tester approaches
 - Making architectural or implementation decisions about performance tester
@@ -466,6 +468,7 @@ REPORT: Metrics vs targets, bottlenecks with evidence, recommendations, trend vs
 - Troubleshooting performance tester-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -476,21 +479,26 @@ REPORT: Metrics vs targets, bottlenecks with evidence, recommendations, trend vs
 # Performance Tester Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

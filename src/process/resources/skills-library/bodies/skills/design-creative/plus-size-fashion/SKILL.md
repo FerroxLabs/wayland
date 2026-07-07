@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fashion design guide"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fashion design guide'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Plus Size Fashion
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks for help building or refreshing a plus size wardrobe from scratch, including capsule wardrobe planning, seasonal transitions, or a style reset after a major life change (new job, postpartum, weight change, move to a new climate)
 - A user needs help solving specific fit problems -- gaping button-downs, waistband roll, shirt hemlines that ride up, sleeves that are too short, or thigh-seam stress in pants
 - A user is preparing for a specific dress code event -- workplace interviews, black-tie weddings, outdoor summer festivals, cruise vacations, or athletic activities -- and needs targeted recommendations scaled to their body and budget
@@ -30,6 +32,7 @@ metadata:
 - A user wants to expand beyond basic black and neutrals and needs guidance on color theory, pattern mixing, and print scale at plus sizes
 
 **Do NOT use when:**
+
 - The user needs body image therapy, disordered eating support, or mental health counseling -- redirect to licensed professionals with compassionate framing
 - The user is asking about wedding dress design or custom garment construction from scratch -- use a specialized bridal or fashion design skill
 - The request is about children's plus sizing or petite plus sizing for children -- sizing systems are entirely different and require separate expertise
@@ -274,17 +277,22 @@ CONFIDENCE ANCHOR
 ## Edge Cases
 
 ### The User's Body Doesn't Fit Standard Plus Size Frameworks
+
 Some users have proportions that fall outside typical plus size grading assumptions -- for example, a very tall plus size user (5'10"+) where standard plus lengths are still too short, or a user who wears a size 16 pant with a size 22 top due to significant bust-to-hip differential. Handle this by:
+
 - Identifying the specific proportion gap (e.g., "your torso appears proportionally long relative to your hip size")
 - Recommending separates over dresses as a primary strategy
 - Flagging that brands offering separate top and bottom sizing in plus (common in swimwear, suiting, and some contemporary brands) will solve the problem structurally
 - Noting that tailoring the waist of trousers or the bodice of a dress is the most reliable long-term solution
 
 ### The User Expresses Significant Body Distress or Shame
+
 If a user expresses distress beyond typical shopping frustration -- for example, "I hate my body" or "I can't bear to look at myself" -- do not continue with styling guidance as if the comment didn't happen. Acknowledge it with warmth ("It sounds like shopping has felt really painful, and that makes sense given how fashion has historically excluded plus size bodies") and offer one of two paths: (a) continue with practical guidance focused on comfort and confidence first, or (b) gently note that a therapist specializing in body image can offer deeper support than a fashion advisor can. Do not ignore the emotional content and do not attempt to provide therapy.
 
 ### The User Is Shopping for a One-Time Event With an Immediate Deadline
+
 When a user needs something for an event in under two weeks, the capsule wardrobe framework is not appropriate. Shift to:
+
 - One target garment category (dress, suit, gown -- clarify which)
 - In-store first if possible, because returns after a deadline are useless
 - Two to three specific style options within the category matched to their measurements and the event's dress code
@@ -292,14 +300,18 @@ When a user needs something for an event in under two weeks, the capsule wardrob
 - A backup alteration plan (express tailoring at dry cleaners often takes 48-72 hours)
 
 ### The User Has a Very Limited Budget
+
 When the user explicitly states they have a very limited budget (e.g., under $100 total), reframe the strategy entirely:
+
 - Focus on secondhand and thrift as primary channels with the in-store protocol
 - Identify the single highest-impact item (usually a well-fitting bottom in a versatile color) and allocate the majority of budget there
 - Note that accessories, belts, and layering pieces (cardigans, open-front shirts) from budget retailers often fit better than structured garments because they require less precision fit
 - Be explicit that a small, excellent-fitting wardrobe outperforms a large poorly-fitting one at any budget level
 
 ### The User Is Asking About a Very High Size Range (Size 26W and Above)
+
 Above size 26W, the market narrows significantly and many general recommendations break down. Handle this by:
+
 - Acknowledging directly that extended sizing (26W+, 4X+) has fewer options in the mainstream market
 - Shifting the shopping channel strategy toward retailers that specialize in extended sizing as a core business rather than as an afterthought
 - Noting that fabric quality and construction consistency can vary more in this range because smaller production runs are more common
@@ -307,13 +319,17 @@ Above size 26W, the market narrows significantly and many general recommendation
 - Acknowledging that some popular garment styles (certain blazer constructions, structured wovens with no stretch) may genuinely not be available in their size range, and offering functional equivalents that achieve the same aesthetic goal
 
 ### The User Wants Help With Professional or Formal Attire Specifically
+
 Work and formal dressing has specific constraints that casual guidance doesn't address:
+
 - **Professional attire:** Ponte fabric is the highest-reliability option for blazers and trousers at plus sizes because it holds structure across a wider range of body movements than woven non-stretch fabric. A ponte blazer + matching trousers functions as a suit and has better fit versatility. Avoid fabrics that wrinkle visibly by mid-day (linen, some rayon blends) in professional settings unless the culture supports it.
 - **Formal/evening:** Floor-length gowns eliminate hem-length proportion issues entirely. Look for gowns with built-in boning or corsetry designed for the plus size body (not corseted into a plus size frame, but structurally designed for it). Empire waistlines in formal wear distribute fabric away from the midsection elegantly. Structured cocktail dresses in crepe or heavy jersey are more reliable for fit than chiffon overlays, which add volume unpredictably.
 - **Interview attire:** The goal is to minimize fit distraction -- nothing too tight, too loose, or requiring adjustment. A ponte sheath dress with a blazer, or well-fitted trousers with a structured top, is the most reliable combination because it requires no tucking adjustments throughout the interview.
 
 ### The User Has Previously Had Negative Experiences With "Plus Size Fashion Advice"
+
 Some users will mention that previous style advice felt condescending, focused on hiding their body, or pushed them toward boring or unflattering garments. When this comes up:
+
 - Explicitly acknowledge that plus size fashion advice has historically been full of restrictive "rules" that were thinly veiled body correction techniques
 - Restate the operating philosophy: there are no forbidden styles, colors, patterns, or silhouettes for plus size bodies. Every technique discussed is an optional tool, not a requirement.
 - Ask what styles, colors, or garments the user actually wants to wear, and work from that desire outward -- rather than from limitations inward

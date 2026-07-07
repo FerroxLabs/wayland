@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Mental Health Support Guide
@@ -21,6 +21,7 @@ metadata:
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
 
 > **CRISIS RESOURCES - If you or someone you know is in immediate danger:**
+>
 > - **988 Suicide & Crisis Lifeline:** Call or text **988** (US, available 24/7)
 > - **Crisis Text Line:** Text **HOME** to **741741**
 > - **Emergency Services:** Call **911** (US) or your local emergency number
@@ -32,11 +33,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about mental health guide
 - User needs guidance on mental health guide topics
 - User wants a structured approach to mental health guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -143,20 +146,20 @@ Date/Time: _______________
 
 ### Common Cognitive Distortions (Thinking Traps)
 
-| Distortion | Definition | Example | Reframe |
-|-----------|-----------|---------|---------|
-| All-or-Nothing | Seeing things in black and white | "If I'm not perfect, I'm a failure" | "I can do well without being perfect" |
-| Catastrophizing | Assuming the worst will happen | "This headache must be something serious" | "Headaches are common and usually benign" |
-| Mind Reading | Assuming you know what others think | "They think I'm stupid" | "I don't actually know what they think" |
-| Fortune Telling | Predicting negative outcomes | "I'll definitely fail the interview" | "I don't know the outcome yet" |
-| Emotional Reasoning | Feelings = facts | "I feel anxious so something bad will happen" | "Feeling anxious doesn't mean danger is real" |
-| Should Statements | Rigid rules for self/others | "I should always be productive" | "It's okay to rest; I'm human" |
-| Personalization | Blaming yourself for external events | "The meeting went badly because of me" | "Many factors contributed to that outcome" |
-| Overgeneralization | One event = always | "I always mess things up" | "I made a mistake this time; I've succeeded before" |
-| Mental Filter | Focusing only on negatives | "Only noticing the one criticism, not 10 compliments" | "Let me look at the full picture" |
-| Disqualifying Positive | Dismissing good things | "That compliment doesn't count" | "I can accept positive feedback" |
-| Magnification/Minimization | Blowing up negatives, shrinking positives | "My mistake was huge, my success was just luck" | "Both deserve fair weight" |
-| Labeling | Attaching a fixed label | "I'm a loser" | "I'm a person who had a setback" |
+| Distortion                 | Definition                                | Example                                               | Reframe                                             |
+| -------------------------- | ----------------------------------------- | ----------------------------------------------------- | --------------------------------------------------- |
+| All-or-Nothing             | Seeing things in black and white          | "If I'm not perfect, I'm a failure"                   | "I can do well without being perfect"               |
+| Catastrophizing            | Assuming the worst will happen            | "This headache must be something serious"             | "Headaches are common and usually benign"           |
+| Mind Reading               | Assuming you know what others think       | "They think I'm stupid"                               | "I don't actually know what they think"             |
+| Fortune Telling            | Predicting negative outcomes              | "I'll definitely fail the interview"                  | "I don't know the outcome yet"                      |
+| Emotional Reasoning        | Feelings = facts                          | "I feel anxious so something bad will happen"         | "Feeling anxious doesn't mean danger is real"       |
+| Should Statements          | Rigid rules for self/others               | "I should always be productive"                       | "It's okay to rest; I'm human"                      |
+| Personalization            | Blaming yourself for external events      | "The meeting went badly because of me"                | "Many factors contributed to that outcome"          |
+| Overgeneralization         | One event = always                        | "I always mess things up"                             | "I made a mistake this time; I've succeeded before" |
+| Mental Filter              | Focusing only on negatives                | "Only noticing the one criticism, not 10 compliments" | "Let me look at the full picture"                   |
+| Disqualifying Positive     | Dismissing good things                    | "That compliment doesn't count"                       | "I can accept positive feedback"                    |
+| Magnification/Minimization | Blowing up negatives, shrinking positives | "My mistake was huge, my success was just luck"       | "Both deserve fair weight"                          |
+| Labeling                   | Attaching a fixed label                   | "I'm a loser"                                         | "I'm a person who had a setback"                    |
 
 ### Behavioral Activation
 
@@ -336,21 +339,25 @@ _______________________________________________
 ### Themed Journaling Prompts
 
 **For Anxiety:**
+
 - "What is within my control right now? What is outside my control?"
 - "What would I tell a friend who was feeling this way?"
 - "What is the worst case? Best case? Most likely case?"
 
 **For Low Mood:**
+
 - "What small thing brought me even a moment of joy recently?"
 - "What is one kind thing I can do for myself today?"
 - "What strength did I show recently, even if small?"
 
 **For Self-Compassion:**
+
 - "If my best friend made this mistake, what would I say to them?"
 - "What would a compassionate observer notice about my situation?"
 - "What do I need to hear right now?"
 
 **For Stress:**
+
 - "What are the top 3 stressors right now? Which can I influence?"
 - "What is one boundary I need to set?"
 - "What am I saying yes to that I need to say no to?"
@@ -398,6 +405,7 @@ Gently open your eyes.
 ## When to Seek Professional Help
 
 ### Seek help if you experience:
+
 - Persistent sadness, emptiness, or hopelessness lasting more than 2 weeks
 - Anxiety that significantly interferes with daily activities
 - Panic attacks (intense fear with physical symptoms)
@@ -412,15 +420,16 @@ Gently open your eyes.
 
 ### Types of Mental Health Professionals
 
-| Professional | Training | Can Prescribe? | Best For |
-|-------------|---------|----------------|----------|
-| Psychiatrist | Medical doctor + psych specialty | Yes | Medication management, severe conditions |
-| Psychologist | PhD or PsyD | No (most states) | Testing, therapy, complex conditions |
-| Licensed Therapist (LMFT, LPC, LCSW) | Master's degree + supervised hours | No | Talk therapy, coping skills, relationships |
-| Counselor | Master's in counseling | No | General counseling, adjustment issues |
-| Psychiatric NP | Nursing + psych specialty | Yes | Medication management |
+| Professional                         | Training                           | Can Prescribe?   | Best For                                   |
+| ------------------------------------ | ---------------------------------- | ---------------- | ------------------------------------------ |
+| Psychiatrist                         | Medical doctor + psych specialty   | Yes              | Medication management, severe conditions   |
+| Psychologist                         | PhD or PsyD                        | No (most states) | Testing, therapy, complex conditions       |
+| Licensed Therapist (LMFT, LPC, LCSW) | Master's degree + supervised hours | No               | Talk therapy, coping skills, relationships |
+| Counselor                            | Master's in counseling             | No               | General counseling, adjustment issues      |
+| Psychiatric NP                       | Nursing + psych specialty          | Yes              | Medication management                      |
 
 ### How to Find Help
+
 - **Psychology Today directory:** therapists.psychologytoday.com
 - **SAMHSA helpline:** 1-800-662-4357 (free referrals)
 - **Insurance provider:** Check your plan's behavioral health network
@@ -501,7 +510,6 @@ Activities that reliably help me feel better:
 - You deserve support and care, regardless of how "bad" things seem
 - Small, consistent steps matter more than dramatic changes
 - What works for one person may not work for another; be patient in finding your approach
-
 
 ## Output Format
 

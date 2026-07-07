@@ -267,8 +267,8 @@ For Gemini API calls, configure the proxy inside Wayland WebUI:
 
 | Issue                                     | Solution                                                     |
 | ----------------------------------------- | ------------------------------------------------------------ |
-| `dpkg` dependency errors in containers    | `dpkg --force-all -i Wayland-linux-amd64.deb`                 |
-| Wayland can only access `/tmp`             | Set `WORKDIR` in the startup script to your workspace path   |
+| `dpkg` dependency errors in containers    | `dpkg --force-all -i Wayland-linux-amd64.deb`                |
+| Wayland can only access `/tmp`            | Set `WORKDIR` in the startup script to your workspace path   |
 | WebUI not accessible remotely             | Check firewall rules, or use ngrok / SSH tunnel              |
 | All requests fail when proxy is down      | Use PAC file (`--proxy-pac-url`) instead of `--proxy-server` |
 | `curl` fails after SSH tunnel disconnects | Add `PROMPT_COMMAND` auto-detect to `~/.bashrc` (see Step 3) |
@@ -422,11 +422,11 @@ esac
 
 Wayland WebUI listens on port **25808**. Choose a method based on your network setup:
 
-| Method      | Use case                    | Command                                    |
-| ----------- | --------------------------- | ------------------------------------------ |
-| Direct      | Server has a public IP      | Open port 25808 in security group/firewall |
-| ngrok       | NAT / K8s / no public IP    | `ngrok http 25808`                         |
-| SSH tunnel  | Personal use only           | `ssh -L 25808:127.0.0.1:25808 user@server` |
+| Method     | Use case                 | Command                                    |
+| ---------- | ------------------------ | ------------------------------------------ |
+| Direct     | Server has a public IP   | Open port 25808 in security group/firewall |
+| ngrok      | NAT / K8s / no public IP | `ngrok http 25808`                         |
+| SSH tunnel | Personal use only        | `ssh -L 25808:127.0.0.1:25808 user@server` |
 
 ## Proxy with Auto-Fallback
 
@@ -494,11 +494,11 @@ Configure inside WebUI: **Settings → Gemini Settings → Proxy** → `http://1
 
 ## Troubleshooting
 
-| Issue                                     | Solution                                                      |
-| ---------------------- | ------------------------------------- |
-| `dpkg` dependency errors in containers    | `dpkg --force-all -i` to force install                        |
-| Wayland can only access `/tmp`            | Update `WORKDIR` in the startup script                        |
-| WebUI not accessible remotely             | Check firewall/security group, or use ngrok                   |
-| All requests fail when proxy is down      | Use PAC file instead of `--proxy-server`                      |
-| `curl` fails after SSH tunnel disconnects | Add `PROMPT_COMMAND` auto-detect to `~/.bashrc`               |
-| Port 25808 already in use                 | `kill $(lsof -t -i:25808)` then restart                       |
+| Issue                                     | Solution                                        |
+| ----------------------------------------- | ----------------------------------------------- |
+| `dpkg` dependency errors in containers    | `dpkg --force-all -i` to force install          |
+| Wayland can only access `/tmp`            | Update `WORKDIR` in the startup script          |
+| WebUI not accessible remotely             | Check firewall/security group, or use ngrok     |
+| All requests fail when proxy is down      | Use PAC file instead of `--proxy-server`        |
+| `curl` fails after SSH tunnel disconnects | Add `PROMPT_COMMAND` auto-detect to `~/.bashrc` |
+| Port 25808 already in use                 | `kill $(lsof -t -i:25808)` then restart         |

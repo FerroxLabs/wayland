@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-communication step-by-step"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-communication step-by-step'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Conflict Resolver
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about conflict resolver
 - User needs guidance on conflict resolver topics
 - User wants a structured approach to conflict resolver
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -121,22 +123,22 @@ Relationship researcher John Gottman's decades of research at the University of 
 **1. Character Attacks (vs. Behavior Feedback)**
 When we attack someone's character rather than addressing a specific behavior ("You're so selfish" vs. "I felt hurt when..."), it makes the other person feel fundamentally flawed rather than simply asked to change a behavior.
 
-*Healthier alternative:* Use a gentle, specific opening. "I feel [emotion] about [specific situation]. I need [specific request]."
+_Healthier alternative:_ Use a gentle, specific opening. "I feel [emotion] about [specific situation]. I need [specific request]."
 
 **2. Contempt and Disrespect**
 Mockery, eye-rolling, sarcasm intended to wound, and expressions of superiority. Research identifies this pattern as the single strongest predictor of relationship failure.
 
-*Healthier alternative:* Build a daily practice of expressing genuine appreciation. During conflict: "I respect that you see it differently. Help me understand your perspective."
+_Healthier alternative:_ Build a daily practice of expressing genuine appreciation. During conflict: "I respect that you see it differently. Help me understand your perspective."
 
 **3. Defensiveness**
 Counter-attacking or playing victim when confronted ("That's not my fault!" / "What about what YOU did?"). This rejects the other person's perspective and escalates the conflict.
 
-*Healthier alternative:* Take responsibility for even a small part. "You're right that I skipped to call. I should have set a reminder. I'm sorry."
+_Healthier alternative:_ Take responsibility for even a small part. "You're right that I skipped to call. I should have set a reminder. I'm sorry."
 
 **4. Withdrawal / Shutting Down**
 Refusing to engage, giving the silent treatment, or emotionally checking out. This is often a response to feeling emotionally overwhelmed rather than intentional cruelty.
 
-*Healthier alternative:* Self-soothe, then return. "I'm feeling overwhelmed and need a break to calm down. I'm not leaving this conversation -- I'll be back in 20-30 minutes and we can continue." Return when promised -- this is critical for trust.
+_Healthier alternative:_ Self-soothe, then return. "I'm feeling overwhelmed and need a break to calm down. I'm not leaving this conversation -- I'll be back in 20-30 minutes and we can continue." Return when promised -- this is critical for trust.
 
 ## De-Escalation Techniques
 

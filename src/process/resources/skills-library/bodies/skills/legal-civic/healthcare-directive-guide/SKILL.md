@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide checklist"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide checklist'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Healthcare Directive Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you. Always consult a physician for medical guidance.
@@ -26,6 +27,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks about living wills, advance directives, advance healthcare directives, or personal directives for medical care
 - The user wants to understand what specific medical decisions can and should be documented before a health crisis
 - The user is preparing for an attorney meeting about estate planning and has been told they need a healthcare directive
@@ -37,6 +39,7 @@ metadata:
 - The user wants a values clarification worksheet or a question list to bring to a physician or attorney consultation
 
 **Do NOT use when:**
+
 - The user wants to draft, complete, or review actual healthcare directive language -- this requires a licensed attorney; do not produce document text
 - The user is facing an immediate or unfolding medical emergency or needs real-time clinical guidance -- redirect to their healthcare provider or emergency services
 - The user asks for medical advice about specific treatment options, prognoses, or clinical recommendations -- redirect to a physician
@@ -370,12 +373,12 @@ She needs two related things: (1) a legal document that names someone she trusts
 
 ### SECTION 1: Document Overview
 
-| Document | Legal Character | Who Drafts It | When It Activates | Immediate Clinical Force |
-|---|---|---|---|---|
-| Living Will / Advance Directive | Legal document | Attorney or statutory form | Incapacity + qualifying condition (terminal, permanent unconsciousness, end-stage) | No -- provider must interpret and act |
-| Healthcare Power of Attorney | Legal document | Attorney | Any incapacity to communicate | No -- agent makes the decision |
-| POLST / MOLST Form | Physician medical order | Physician + patient together | Immediately -- it is an order | Yes -- travels across care settings |
-| DNR / DNI Order | Facility-specific medical order | Physician at that facility | At that facility only | Yes -- at that facility only |
+| Document                        | Legal Character                 | Who Drafts It                | When It Activates                                                                  | Immediate Clinical Force              |
+| ------------------------------- | ------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------- |
+| Living Will / Advance Directive | Legal document                  | Attorney or statutory form   | Incapacity + qualifying condition (terminal, permanent unconsciousness, end-stage) | No -- provider must interpret and act |
+| Healthcare Power of Attorney    | Legal document                  | Attorney                     | Any incapacity to communicate                                                      | No -- agent makes the decision        |
+| POLST / MOLST Form              | Physician medical order         | Physician + patient together | Immediately -- it is an order                                                      | Yes -- travels across care settings   |
+| DNR / DNI Order                 | Facility-specific medical order | Physician at that facility   | At that facility only                                                              | Yes -- at that facility only          |
 
 **For your mother specifically:** Because she has a progressive neurological condition, she should discuss POLST/MOLST timing with her neurologist and primary care physician. She doesn't necessarily need it today while her condition is early-stage, but she should understand it exists and plan to revisit the question as her disease progresses.
 
@@ -387,53 +390,53 @@ She needs two related things: (1) a legal document that names someone she trusts
 
 Your mother should reflect on these questions before meeting with an attorney. Her answers will guide what the directive says.
 
-| Reflection Question | Notes for Discussion |
-|---------------------|----------------------|
+| Reflection Question                                                                           | Notes for Discussion                                                                                                                                         |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Does she prioritize length of life above all, or does quality of life matter equally or more? | Parkinson's disease has a very wide range of progression -- quality of life at different stages varies enormously. This question matters especially for her. |
-| Are there conditions in which she would not want her life prolonged? | Common reference points: unable to recognize family, requiring 24-hour nursing care, unable to communicate in any meaningful way, constant pain or distress |
-| What has she observed in others' end-of-life experiences that shaped her preferences? | Her own parents' deaths, friends' experiences, or medical history as a patient |
-| What role does faith or spirituality play in her medical decision-making? | Some faith traditions have specific teachings about life-sustaining treatment -- document if applicable |
-| How concerned is she about being a burden to family during a prolonged illness? | This is a legitimate value to document, not a selfish one |
+| Are there conditions in which she would not want her life prolonged?                          | Common reference points: unable to recognize family, requiring 24-hour nursing care, unable to communicate in any meaningful way, constant pain or distress  |
+| What has she observed in others' end-of-life experiences that shaped her preferences?         | Her own parents' deaths, friends' experiences, or medical history as a patient                                                                               |
+| What role does faith or spirituality play in her medical decision-making?                     | Some faith traditions have specific teachings about life-sustaining treatment -- document if applicable                                                      |
+| How concerned is she about being a burden to family during a prolonged illness?               | This is a legitimate value to document, not a selfish one                                                                                                    |
 
 #### PART B -- Specific Medical Interventions
 
 Your mother should indicate her general preference for each. These are discussion starting points, not final legal decisions.
 
-| Intervention | Generally WANT | Only in certain conditions | Generally do NOT want | Want agent to decide |
-|---|---|---|---|---|
-| CPR | | | | |
-| Mechanical ventilation (breathing machine) | | | | |
-| Time-limited trial of ventilation then reassess | | | | |
-| Artificial feeding tube (long-term) | | | | |
-| Artificial nutrition (short-term during recovery) | | | | |
-| IV fluids for hydration | | | | |
-| Dialysis | | | | |
-| Aggressive pain management (even if it may shorten life) | | | | |
-| Hospice / comfort care only when curative treatment no longer helps | | | | |
-| Organ donation | | | | |
-| Tissue donation (corneas, bone, skin, heart valves) | | | | |
+| Intervention                                                        | Generally WANT | Only in certain conditions | Generally do NOT want | Want agent to decide |
+| ------------------------------------------------------------------- | -------------- | -------------------------- | --------------------- | -------------------- |
+| CPR                                                                 |                |                            |                       |                      |
+| Mechanical ventilation (breathing machine)                          |                |                            |                       |                      |
+| Time-limited trial of ventilation then reassess                     |                |                            |                       |                      |
+| Artificial feeding tube (long-term)                                 |                |                            |                       |                      |
+| Artificial nutrition (short-term during recovery)                   |                |                            |                       |                      |
+| IV fluids for hydration                                             |                |                            |                       |                      |
+| Dialysis                                                            |                |                            |                       |                      |
+| Aggressive pain management (even if it may shorten life)            |                |                            |                       |                      |
+| Hospice / comfort care only when curative treatment no longer helps |                |                            |                       |                      |
+| Organ donation                                                      |                |                            |                       |                      |
+| Tissue donation (corneas, bone, skin, heart valves)                 |                |                            |                       |                      |
 
 #### PART C -- Conditions Requiring Special Guidance for Her Agent
 
 **This section is especially important given your mother's Parkinson's diagnosis.**
 
-| Condition | Her Preference |
-|-----------|----------------|
-| If terminally ill (any cause) with death expected within weeks | |
-| If permanently unconscious with no reasonable chance of recovery | |
-| If Parkinson's progresses to the point where she cannot recognize family, cannot communicate, and requires full-time nursing care | This is a scenario standard directive language may not clearly cover -- ask the attorney specifically about this |
-| If she develops dementia in addition to Parkinson's (Lewy body dementia or Parkinson's disease dementia is a recognized progression in some patients) | Ask attorney about dementia-specific provision |
-| If she has a reversible acute illness (pneumonia, infection) during advanced Parkinson's -- does she want aggressive treatment? | |
+| Condition                                                                                                                                             | Her Preference                                                                                                   |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| If terminally ill (any cause) with death expected within weeks                                                                                        |                                                                                                                  |
+| If permanently unconscious with no reasonable chance of recovery                                                                                      |                                                                                                                  |
+| If Parkinson's progresses to the point where she cannot recognize family, cannot communicate, and requires full-time nursing care                     | This is a scenario standard directive language may not clearly cover -- ask the attorney specifically about this |
+| If she develops dementia in addition to Parkinson's (Lewy body dementia or Parkinson's disease dementia is a recognized progression in some patients) | Ask attorney about dementia-specific provision                                                                   |
+| If she has a reversible acute illness (pneumonia, infection) during advanced Parkinson's -- does she want aggressive treatment?                       |                                                                                                                  |
 
 ---
 
 ### SECTION 3: Healthcare Agent Selection
 
-| Role | Candidate | Relationship | Phone / Location | Agreed to serve? | Values conversation had? |
-|---|---|---|---|---|---|
-| Primary Healthcare Agent | You (her child) are one candidate -- discuss as a family | | | | |
-| Successor Agent #1 | | | | | |
-| Successor Agent #2 | | | | | |
+| Role                     | Candidate                                                | Relationship | Phone / Location | Agreed to serve? | Values conversation had? |
+| ------------------------ | -------------------------------------------------------- | ------------ | ---------------- | ---------------- | ------------------------ |
+| Primary Healthcare Agent | You (her child) are one candidate -- discuss as a family |              |                  |                  |                          |
+| Successor Agent #1       |                                                          |              |                  |                  |                          |
+| Successor Agent #2       |                                                          |              |                  |                  |                          |
 
 **Important considerations for your mother's situation:**
 
@@ -447,6 +450,7 @@ Your mother should indicate her general preference for each. These are discussio
 ### SECTION 4: Questions for the Attorney
 
 **Standard questions for any healthcare directive consultation:**
+
 1. What is the correct statutory form for healthcare directives in this state -- should we use the state form or do you draft a custom document?
 2. What are the exact witnessing and notarization requirements in this state?
 3. Should the healthcare power of attorney include an explicit HIPAA release for her agent?
@@ -454,12 +458,7 @@ Your mother should indicate her general preference for each. These are discussio
 5. Does this state have an advance directive registry where the document can be filed?
 6. How do we ensure her primary care physician and neurologist have this on file?
 
-**Additional questions specific to your mother's situation:**
-7. Her diagnosis is early-stage Parkinson's disease. Does this create any urgency in the type or timing of documents we execute today?
-8. Parkinson's can progress to include cognitive changes and, in some cases, dementia. Does this state allow a dementia-specific provision in the advance directive? How would we draft it?
-9. Is it too early to discuss POLST/MOLST, or should we address it now? At what point in the disease progression would you recommend it?
-10. Should the living will address specifically the scenario of advanced-stage Parkinson's with loss of communication and recognition -- and if so, how would you draft that language?
-11. How does her advance directive interact with her other estate planning documents (will, financial POA, any trusts)?
+**Additional questions specific to your mother's situation:** 7. Her diagnosis is early-stage Parkinson's disease. Does this create any urgency in the type or timing of documents we execute today? 8. Parkinson's can progress to include cognitive changes and, in some cases, dementia. Does this state allow a dementia-specific provision in the advance directive? How would we draft it? 9. Is it too early to discuss POLST/MOLST, or should we address it now? At what point in the disease progression would you recommend it? 10. Should the living will address specifically the scenario of advanced-stage Parkinson's with loss of communication and recognition -- and if so, how would you draft that language? 11. How does her advance directive interact with her other estate planning documents (will, financial POA, any trusts)?
 
 ---
 
@@ -490,13 +489,13 @@ Your mother should indicate her general preference for each. These are discussio
 
 Given your mother's progressive diagnosis, the review schedule should be more active than for a healthy adult.
 
-| Trigger | Action |
-|---------|--------|
-| Every 1--2 years given progressive condition | Review with attorney and physician |
-| Any significant change in neurological function or ability to communicate | Review immediately -- POLST may become appropriate |
-| Any change in relationship with healthcare agent | Update immediately |
-| If disease progresses to involve cognitive changes | Return to attorney to update dementia-specific provisions |
-| If she moves to assisted living or memory care | Review and update with the new facility's patient registration |
+| Trigger                                                                   | Action                                                         |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Every 1--2 years given progressive condition                              | Review with attorney and physician                             |
+| Any significant change in neurological function or ability to communicate | Review immediately -- POLST may become appropriate             |
+| Any change in relationship with healthcare agent                          | Update immediately                                             |
+| If disease progresses to involve cognitive changes                        | Return to attorney to update dementia-specific provisions      |
+| If she moves to assisted living or memory care                            | Review and update with the new facility's patient registration |
 
 ---
 

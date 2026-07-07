@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking step-by-step teaching"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking step-by-step teaching'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Knife Skills
 
 ## When to Use
@@ -63,6 +64,7 @@ Before delivering any instruction, determine where the user is and what they act
 This step is mandatory regardless of which track the user is on. A user asking about julienne who has a dangerous grip must receive grip correction first.
 
 **Knife Grip -- "The Pinch Grip" (the only correct grip for a chef's knife):**
+
 - The thumb and the side of the bent index finger pinch the blade itself, just forward of the bolster (the thick metal collar where blade meets handle) -- not the handle
 - The remaining three fingers wrap comfortably around the handle
 - The pinch point is on the flat of the blade, not on the edge
@@ -71,6 +73,7 @@ This step is mandatory regardless of which track the user is on. A user asking a
 - The correct pinch grip will feel unfamiliar to beginners for approximately the first 2-3 sessions. Reassure them this is normal.
 
 **Food Grip -- "The Claw Grip" (mandatory for every cut where fingers are near the blade):**
+
 - Curl all four fingers so the fingertips point straight down toward the cutting board
 - The knuckles are now the forward-most part of the hand -- they protrude toward the blade
 - The flat side of the knife blade rests against the middle section of the index and middle finger knuckles, using them as a vertical guide rail
@@ -80,6 +83,7 @@ This step is mandatory regardless of which track the user is on. A user asking a
 - The claw grip is not optional. It is the single technique that eliminates the most common category of knife injury.
 
 **Board Setup and Stance:**
+
 - Place a damp kitchen towel or rubberized non-slip mat under the cutting board -- a sliding board is a serious safety hazard
 - Use a board large enough that the ingredient has room on all sides: minimum 12x18 inches for most vegetable prep; a 10x14 inch board is too small for full-size vegetable prep
 - Stand with feet shoulder-width apart, body slightly angled (not square) to the cutting board, about one forearm's length from the board edge
@@ -91,11 +95,13 @@ This step is mandatory regardless of which track the user is on. A user asking a
 For each technique, deliver all of the following components in order. Do not skip dimensions or motion description.
 
 **Component A -- Name, target dimensions, and purpose:**
+
 - State the official name of the cut and its standard dimensions in both metric and imperial
 - Explain what dishes use this cut and why -- this gives the user a reason to practice it correctly
 - State which knife is best suited (chef's knife for most tasks, paring knife for small items, boning knife for meat trimming)
 
 **Component B -- Ingredient preparation (the "mise en place" for the cut):**
+
 - Most cutting errors begin before the blade touches the food
 - Identify the flat-face-first rule: any round or unstable ingredient (carrot, potato, zucchini, turnip) must have a flat face cut first -- take a thin slice off one side, place that flat face down, and now the ingredient cannot rock
 - For onions: never remove the root end until the dice is complete -- the root holds all layers together
@@ -103,12 +109,14 @@ For each technique, deliver all of the following components in order. Do not ski
 - For garlic: crush the clove with the flat of the blade before mincing to split the skin and begin breaking down the cell structure
 
 **Component C -- The cutting motion (specific mechanics):**
+
 - Describe the specific motion: push-slice (forward and down together, used for most vegetable cuts with a chef's knife), pull-slice (draw back toward body while pressing down, used for tomatoes and meat where forward pressure would crush), rocking mince (tip of knife stays on board, handle rocks down and up while the knife pivots on the tip, used for herbs and garlic), and cross-chop (blade is moved forward in a fan pattern while pressing down, used for rough chops)
 - Specify whether the knife tip stays on the board or lifts off
 - Specify where force is applied (heel of blade for hard vegetables, tip for detail work, center of blade for general slicing)
 - Describe the rhythm: consistent and deliberate beats with no hesitation between cuts -- hesitation produces uneven spacing
 
 **Component D -- Common mistakes with specific corrections:**
+
 - Sawing back and forth instead of using a single directional motion (produces torn rather than sliced edges -- the fix is to commit to either a push-slice or pull-slice in one motion)
 - Using the wrist to drive the cut instead of the forearm and shoulder (fatigues quickly and loses control -- the fix is to keep the wrist locked and drive from the elbow)
 - Letting the food spread apart during dicing before the final crosscuts (the fix is to keep the claw grip slightly pressing inward to hold the stack together)
@@ -118,24 +126,24 @@ For each technique, deliver all of the following components in order. Do not ski
 
 Every knife skills interaction should include or reference the full cutting reference table. Users often want to know related cuts after learning one. Present it in full once per session.
 
-| Cut Name | Dimensions (Imperial) | Dimensions (Metric) | Shape | Primary Uses | Difficulty |
-|---|---|---|---|---|---|
-| Rough chop | 1-2 inch irregular | 2.5-5 cm irregular | Uneven pieces | Stocks, stews, food processor prep | Beginner |
-| Chop | 3/4-1 inch | 2-2.5 cm | Roughly uniform pieces | Roasted vegetables, rustic sauces | Beginner |
-| Large dice | 3/4 inch cubes | 2 cm cubes | Uniform cubes | Roasting, chunky soups, stews | Beginner |
-| Medium dice | 1/2 inch cubes | 1.25 cm cubes | Uniform cubes | All-purpose sauces, soups, fillings | Beginner |
-| Small dice | 1/4 inch cubes | 6 mm cubes | Uniform cubes | Salsas, refined sauces, brunches | Intermediate |
-| Brunoise | 1/8 inch cubes | 3 mm cubes | Very fine cubes | Garnishes, delicate sauces, consommé | Advanced |
-| Fine brunoise | 1/16 inch cubes | 1.5 mm cubes | Micro cubes | Restaurant-level garnishes | Advanced |
-| Batonnet | 1/4 x 1/4 x 2-3 inches | 6mm x 6mm x 5-7 cm | Thick sticks | Crudités, fries, vegetable sides | Intermediate |
-| Julienne | 1/8 x 1/8 x 2-3 inches | 3mm x 3mm x 5-7 cm | Thin matchsticks | Stir-fries, salads, Asian cuisine | Intermediate |
-| Fine julienne | 1/16 x 1/16 x 2 inches | 1.5mm x 1.5mm x 5 cm | Hair-thin sticks | Garnishes, very delicate salads | Advanced |
-| Chiffonade | 1/16-1/8 inch wide ribbons | 1.5-3 mm ribbons | Thin strips | Basil, mint, leafy herbs, greens | Intermediate |
-| Mince | Under 1/8 inch, irregular | Under 3 mm | Tiny irregular pieces | Garlic, shallots, ginger, fresh herbs | Intermediate |
-| Bias/oblique cut | 1/4-1/2 inch thick, 45° angle | 6-12 mm, 45° angle | Oval-elongated slices | Stir-fry vegetables, decorative cuts | Beginner |
-| Rondelle | 1/4-1/2 inch thick | 6-12 mm | Round discs | Carrots, cucumbers, zucchini | Beginner |
-| Paysanne | 1/2 x 1/2 x 1/8 inch | 1.25 cm x 1.25 cm x 3 mm | Flat squares or rounds | Rustic soups, garnishes | Intermediate |
-| Tourné | 2 inch x 7 even sides | 5 cm x 7 sides | Football-shaped | Classical French presentation | Advanced |
+| Cut Name         | Dimensions (Imperial)         | Dimensions (Metric)      | Shape                  | Primary Uses                          | Difficulty   |
+| ---------------- | ----------------------------- | ------------------------ | ---------------------- | ------------------------------------- | ------------ |
+| Rough chop       | 1-2 inch irregular            | 2.5-5 cm irregular       | Uneven pieces          | Stocks, stews, food processor prep    | Beginner     |
+| Chop             | 3/4-1 inch                    | 2-2.5 cm                 | Roughly uniform pieces | Roasted vegetables, rustic sauces     | Beginner     |
+| Large dice       | 3/4 inch cubes                | 2 cm cubes               | Uniform cubes          | Roasting, chunky soups, stews         | Beginner     |
+| Medium dice      | 1/2 inch cubes                | 1.25 cm cubes            | Uniform cubes          | All-purpose sauces, soups, fillings   | Beginner     |
+| Small dice       | 1/4 inch cubes                | 6 mm cubes               | Uniform cubes          | Salsas, refined sauces, brunches      | Intermediate |
+| Brunoise         | 1/8 inch cubes                | 3 mm cubes               | Very fine cubes        | Garnishes, delicate sauces, consommé  | Advanced     |
+| Fine brunoise    | 1/16 inch cubes               | 1.5 mm cubes             | Micro cubes            | Restaurant-level garnishes            | Advanced     |
+| Batonnet         | 1/4 x 1/4 x 2-3 inches        | 6mm x 6mm x 5-7 cm       | Thick sticks           | Crudités, fries, vegetable sides      | Intermediate |
+| Julienne         | 1/8 x 1/8 x 2-3 inches        | 3mm x 3mm x 5-7 cm       | Thin matchsticks       | Stir-fries, salads, Asian cuisine     | Intermediate |
+| Fine julienne    | 1/16 x 1/16 x 2 inches        | 1.5mm x 1.5mm x 5 cm     | Hair-thin sticks       | Garnishes, very delicate salads       | Advanced     |
+| Chiffonade       | 1/16-1/8 inch wide ribbons    | 1.5-3 mm ribbons         | Thin strips            | Basil, mint, leafy herbs, greens      | Intermediate |
+| Mince            | Under 1/8 inch, irregular     | Under 3 mm               | Tiny irregular pieces  | Garlic, shallots, ginger, fresh herbs | Intermediate |
+| Bias/oblique cut | 1/4-1/2 inch thick, 45° angle | 6-12 mm, 45° angle       | Oval-elongated slices  | Stir-fry vegetables, decorative cuts  | Beginner     |
+| Rondelle         | 1/4-1/2 inch thick            | 6-12 mm                  | Round discs            | Carrots, cucumbers, zucchini          | Beginner     |
+| Paysanne         | 1/2 x 1/2 x 1/8 inch          | 1.25 cm x 1.25 cm x 3 mm | Flat squares or rounds | Rustic soups, garnishes               | Intermediate |
+| Tourné           | 2 inch x 7 even sides         | 5 cm x 7 sides           | Football-shaped        | Classical French presentation         | Advanced     |
 
 **Important note on the dice progression:** Large dice → medium dice → small dice → brunoise is a size-reduction hierarchy. Each size is derived from the same process: batonnet/julienne first, then cross-cut into cubes. A large dice is a cross-cut of batonnet. A brunoise is a cross-cut of fine julienne. Understanding this hierarchy makes all the dice cuts make sense.
 
@@ -144,17 +152,20 @@ Every knife skills interaction should include or reference the full cutting refe
 Skill builds with specific, low-stakes practice before moving to the target ingredient. Provide a concrete practice sequence.
 
 **Beginner Practice Sequence (Week 1-2):**
+
 - Day 1-2: Carrots -- stable, hard, predictable. Practice rondelles (discs) only. Focus entirely on claw grip and consistent spacing. Target: 1/4-inch rondelles. Carrots do not roll once the flat face is cut.
 - Day 3-4: Zucchini or cucumber -- cylindrical but softer, slightly less stable. Same exercise, same target, slightly faster motion.
 - Day 5-7: Celery -- linear, easy, builds confidence with long ingredients. Practice straight cuts, then bias cuts at 45 degrees.
 
 **Intermediate Practice Sequence (Week 2-4):**
+
 - Potatoes -- practice large dice on a potato. The rigid structure gives clear feedback on whether cubes are uniform. A potato does not slide, fall apart, or irritate the eyes.
 - Onions -- introduce the root-hold dicing method. More moving parts (horizontal cuts, vertical cuts, crosscuts) but forgiving because the layers help guide the knife.
 - Bell peppers -- curved walls require adapting the flat-face principle. Cut off the four sides (leaving a core of seeds), lay the flat panels skin-up, and slice.
 - Mushrooms -- soft, moist, prone to tearing if the knife is dull. Mushrooms are an excellent sharpness test: if mushrooms tear or compress instead of slicing cleanly, the knife needs honing immediately.
 
 **Advanced Practice (Month 2+):**
+
 - Garlic -- tiny, slippery, unpredictable. Master the crush-peel-slice-mince sequence.
 - Fresh basil chiffonade -- requires dry leaves, stacked carefully, and a very sharp knife to avoid bruising (oxidation turns the cut edges black within minutes of a bad cut).
 - Shallots -- small, layered like onions but tinier; require miniaturized versions of the onion dice technique.
@@ -165,11 +176,13 @@ Skill builds with specific, low-stakes practice before moving to the target ingr
 Maintenance is not optional context -- a dull knife is the root cause of many technique problems users report.
 
 **Honing vs. Sharpening -- the distinction matters:**
+
 - Honing does not remove metal. It realigns the microscopic edge of the blade that folds over with regular use. Think of it as straightening a bent edge, not creating a new one. A honing steel (also called a sharpening steel, which is a misnomer) is the correct tool.
 - Sharpening removes metal to create a new edge. It uses an abrasive surface: a whetstone, pull-through sharpener, or electric sharpener.
 - A knife that is honed regularly needs sharpening less often. A knife that is never honed feels dull within 3-4 weeks of regular use even if it was recently sharpened.
 
 **Honing technique (before every significant cutting session):**
+
 - Hold the honing steel vertically, tip resting on the cutting board, handle at the top
 - Place the heel of the blade at the top of the steel at a 15-20 degree angle (a 15-degree angle looks like the knife is nearly flat against the steel; 20 degrees is slightly more upright)
 - Draw the knife downward and toward you while pulling the knife from heel to tip along the steel in one smooth arc -- the full length of the blade should contact the steel
@@ -179,6 +192,7 @@ Maintenance is not optional context -- a dull knife is the root cause of many te
 - Time required: 30-45 seconds
 
 **Sharpening frequency and method selection:**
+
 - Home cooks using a knife 4-5 times per week: sharpen 2-4 times per year
 - Heavy home use (daily cooking, meal prep): sharpen every 6-8 weeks
 - The newspaper test: try to cut through a sheet of newspaper hanging freely from your non-knife hand. A sharp knife slices cleanly with one motion. A dull knife tears the paper, pushes it aside, or requires sawing. If it fails this test, sharpening (not honing) is needed.
@@ -187,6 +201,7 @@ Maintenance is not optional context -- a dull knife is the root cause of many te
 - Whetstones produce the best edge and the longest knife lifespan but require learning proper angle and pressure technique. A 1000-grit stone handles most sharpening; a 3000-6000 grit stone polishes the edge after. This is covered in the dedicated sharpening skill if the user wants to go deeper.
 
 **Storage:**
+
 - Magnetic knife strip on the wall: best option for edge preservation and accessibility
 - Knife block: acceptable, but horizontal-slot blocks (where the blade rests on the wooden slot) dull the edge over time; vertical-slot blocks are preferable
 - Individual blade guards (sheaths): good for drawer storage but keep the knife away from other metal utensils
@@ -335,10 +350,13 @@ Test for sharpness: [newspaper test or tomato test description]
 ## Edge Cases
 
 ### Left-Handed Users
+
 All grip descriptions are mirrored. The knife is in the left hand with the same pinch grip. The claw grip is on the right hand. All motion directions are mirrored: a bias cut angled from upper-left to lower-right for a right-handed user becomes upper-right to lower-left for a left-handed user. The board setup is the same. When teaching the honing technique, the steel can be held in either the right hand (tip on board) or the motion mirrored as needed -- the key is maintaining the consistent 15-20 degree angle on both sides. Most cutting board orientations and food prep sequences are fully ambidextrous. The only technique that may feel noticeably asymmetric is the onion dice horizontal cuts, where the knife must angle slightly inward toward the root -- this angle is the same regardless of handedness but the hand holding the onion will be reversed.
 
 ### Users with Limited Hand Strength, Arthritis, or Grip Limitations
+
 Several technique adaptations reduce demand on grip strength and hand mobility:
+
 - Recommend a lighter knife -- a Japanese-style santoku (typically 5-7 inches, thinner blade, lighter overall weight than a German-style chef's knife) reduces fatigue significantly
 - The rocking motion cuts (pivoting on the tip) require less grip force than full downward chops -- this is a primary technique for users with limited strength
 - A wide, low-profile handle (oval cross-section) is easier to hold for arthritic hands than a round cylindrical handle
@@ -347,7 +365,9 @@ Several technique adaptations reduce demand on grip strength and hand mobility:
 - Ergonomic angled knife handles are available that keep the wrist in a neutral position -- describe these by type (angled handle, pistol-grip handles) without brand names
 
 ### User Wants to Cut Very Hard Vegetables (Butternut Squash, Pumpkin, Celeriac, Rutabaga)
+
 Standard chef's knife technique must be modified for extremely hard dense vegetables:
+
 - Step 1: Assess knife suitability. A thin blade, a flexible blade, or a paring knife is not suitable and must not be used. A heavy German-style chef's knife (8-10 inches) or a cleaver is required.
 - Step 2: Create a flat stable surface first. Cut a thin slice (about 1/4 inch) off one side of the vegetable. Place the flat side down. The vegetable should now be completely stable -- if it rocks, make a larger flat face.
 - Step 3: Use a controlled pushing motion, applying even downward force along the full length of the blade. Do NOT use a rocking or sawing motion on very hard vegetables -- the knife can slip laterally.
@@ -355,7 +375,9 @@ Standard chef's knife technique must be modified for extremely hard dense vegeta
 - Never try to halve a whole butternut squash without first creating a flat face on a small side area.
 
 ### Teaching Knife Skills to a Child (Approximate Ages 6-14)
+
 Children can learn real knife skills safely with a proper progression:
+
 - Ages 6-8: Begin with a nylon or plastic "kid-safe" knife (designed to cut soft foods without cutting fingers). Practice with soft foods: banana, strawberries, cooked potato, mushrooms, soft cheese. The goal is learning the claw grip as pure muscle memory with zero injury risk.
 - Ages 8-10: Progress to a butter knife for foods with more resistance. The claw grip should now be automatic and consistent before this step. Add harder soft foods: cucumber, zucchini, soft bread.
 - Ages 10-12: Introduce a small paring knife (3-inch blade) with direct supervision. The adult should be hands-on, not merely nearby. Focus on paring tasks (peeling apples) and small rondelles. The knife should be sharp -- a dull paring knife requires too much force for a child to control safely.
@@ -363,7 +385,9 @@ Children can learn real knife skills safely with a proper progression:
 - Key principle for all ages: the child must demonstrate the claw grip correctly every single time before progressing to a sharper tool. Never rush this progression. One missed claw grip at age 8 is not a reason to keep a child at butter knife level -- but two missed grips during a session means returning to supervision.
 
 ### Herbs That Bruise (Basil, Mint, Shiso)
+
 Delicate leafy herbs require a different approach from robust herbs (rosemary, thyme) because their cell walls are fragile and enzymatic browning begins within seconds of a poor cut:
+
 - The knife must be freshly honed and sharp enough to slice cleanly on contact with minimal downward pressure. Test on a single leaf first: a sharp knife leaves a bright green edge. A dull knife leaves a dark, compressed edge immediately.
 - Leaves must be completely dry. Pat dry with paper towels or spin in a salad spinner before cutting. Wet leaves stick together unevenly and result in torn, unequal ribbons.
 - For chiffonade: stack leaves with the largest at the bottom, roll the stack into a tight cigar shape from one long side to the other, then use a single long pull-slice motion (drawing the knife toward you while slicing down) rather than a push-chop. The pull-slice produces less lateral compression.
@@ -371,13 +395,17 @@ Delicate leafy herbs require a different approach from robust herbs (rosemary, t
 - Never chop basil with a rocking mince motion. The repeated crushing of the rocking technique destroys the cell walls.
 
 ### User Reports That Food Sticks to the Blade
+
 This is a common frustration with high-moisture foods (potatoes, apples, cucumbers) and dense starchy foods. Several causes and solutions:
+
 - Surface tension between a smooth flat blade and a high-moisture cut surface: the thin air gap is eliminated and water adhesion holds the cut slice to the blade. Solution: use a blade with a Granton edge (the oval dimples or hollows along the flat of the blade). The dimples break the air seal. If the knife does not have a Granton edge, a light spray of food-safe oil on the blade before cutting high-starch foods reduces sticking significantly.
 - The blade is too thin and food is pressing in on both sides (binding): this happens most with soft cheeses and dense root vegetables. Solution: cut with a forward push motion, allowing cut pieces to fall away to the side before the blade is fully committed. Keeping the blade moving prevents binding.
 - Slicing potatoes: lightly moisten the blade with water (not oil, for potatoes that will be cooked in water) before each cut. Many professional cooks keep a small damp towel next to the board for this.
 
 ### User Has Only a Paring Knife (No Chef's Knife)
+
 Some users only own a paring knife and need to work with what they have. Paring knife technique differs meaningfully from chef's knife technique:
+
 - A paring knife (3-4 inch blade) is designed for in-hand work (peeling, trimming, small precision cuts) rather than board work. Many users try to use it like a mini chef's knife on a cutting board and produce poor, unsafe results.
 - For in-hand work: the food is held in the non-dominant hand with the thumb tucked well behind the item. The knife moves toward the thumb, never past the thumb. This is the one technique where the knife moves toward the hand -- require great care.
 - For board work with a paring knife: all the same claw grip principles apply, but the scale is reduced. The short blade limits the user to small ingredients (garlic, shallots, mushrooms, cherry tomatoes, fresh chilies). Trying to dice a full onion with a paring knife is inefficient and produces poor results -- recommend completing that task in halves or quarters.
@@ -477,14 +505,14 @@ During the rocking mince, garlic will build up on the flat of the blade. This is
 
 ### Common Mistakes and Corrections
 
-| Mistake | What It Looks Like | Correction |
-|---|---|---|
-| Skipping the crush step | Garlic rolls and skips under the blade; uneven slices from the start | Crush every clove first, without exception |
-| Lifting the knife tip during rocking mince | Garlic pieces launch off the board in all directions | Anchor the tip to the board for the entire mince phase |
-| Pressing too hard during the rock | Garlic smears into paste rather than discrete pieces | Lighten downward pressure; let the sharp edge do the work |
-| Using a paring knife for mincing | Short blade means the fanning arc is too small; takes 4x longer, produces worse results | Use a full-length chef's knife (8-10 inches) for mincing |
-| Starting mince from a whole clove without pre-slicing | Mix of large chunks and paste | Always pre-dice to 1/8-inch pieces before the rocking mince phase |
-| Scraping garlic off the blade with the edge down | Rolls the edge on the board; dulls knife rapidly | Always scrape with the blade held at an angle, spine toward you |
+| Mistake                                               | What It Looks Like                                                                      | Correction                                                        |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Skipping the crush step                               | Garlic rolls and skips under the blade; uneven slices from the start                    | Crush every clove first, without exception                        |
+| Lifting the knife tip during rocking mince            | Garlic pieces launch off the board in all directions                                    | Anchor the tip to the board for the entire mince phase            |
+| Pressing too hard during the rock                     | Garlic smears into paste rather than discrete pieces                                    | Lighten downward pressure; let the sharp edge do the work         |
+| Using a paring knife for mincing                      | Short blade means the fanning arc is too small; takes 4x longer, produces worse results | Use a full-length chef's knife (8-10 inches) for mincing          |
+| Starting mince from a whole clove without pre-slicing | Mix of large chunks and paste                                                           | Always pre-dice to 1/8-inch pieces before the rocking mince phase |
+| Scraping garlic off the blade with the edge down      | Rolls the edge on the board; dulls knife rapidly                                        | Always scrape with the blade held at an angle, spine toward you   |
 
 ---
 
@@ -504,20 +532,20 @@ For dishes where you want garlic to dissolve completely into a sauce, dressing, 
 
 ### Cutting Techniques Reference Card
 
-| Cut Name | Imperial | Metric | Shape | Primary Uses | Difficulty |
-|---|---|---|---|---|---|
-| Rough chop | 1-2 inch irregular | 2.5-5 cm | Uneven pieces | Stocks, stews, food processor | Beginner |
-| Chop | 3/4-1 inch | 2-2.5 cm | Roughly uniform | Roasted vegetables, rustic sauces | Beginner |
-| Large dice | 3/4 inch cubes | 2 cm cubes | Uniform cubes | Roasting, chunky soups | Beginner |
-| Medium dice | 1/2 inch cubes | 1.25 cm cubes | Uniform cubes | All-purpose sauces, soups | Beginner |
-| Small dice | 1/4 inch cubes | 6 mm cubes | Uniform cubes | Salsas, refined sauces | Intermediate |
-| Brunoise | 1/8 inch cubes | 3 mm cubes | Fine cubes | Garnishes, delicate sauces | Advanced |
-| Batonnet | 1/4 x 1/4 x 2-3 in | 6x6x50-75 mm | Thick sticks | Crudités, fries | Intermediate |
-| Julienne | 1/8 x 1/8 x 2-3 in | 3x3x50-75 mm | Thin matchsticks | Stir-fries, salads | Intermediate |
-| Chiffonade | 1/16-1/8 in wide | 1.5-3 mm ribbons | Thin strips | Fresh herbs, leafy greens | Intermediate |
-| Mince | Under 1/8 inch | Under 3 mm | Tiny irregular | Garlic, ginger, shallots | Intermediate |
-| Bias cut | 1/4-1/2 in, 45° angle | 6-12 mm, 45° | Oval slices | Stir-fry vegetables | Beginner |
-| Rondelle | 1/4-1/2 inch discs | 6-12 mm discs | Round discs | Carrots, cucumbers, zucchini | Beginner |
+| Cut Name    | Imperial              | Metric           | Shape            | Primary Uses                      | Difficulty   |
+| ----------- | --------------------- | ---------------- | ---------------- | --------------------------------- | ------------ |
+| Rough chop  | 1-2 inch irregular    | 2.5-5 cm         | Uneven pieces    | Stocks, stews, food processor     | Beginner     |
+| Chop        | 3/4-1 inch            | 2-2.5 cm         | Roughly uniform  | Roasted vegetables, rustic sauces | Beginner     |
+| Large dice  | 3/4 inch cubes        | 2 cm cubes       | Uniform cubes    | Roasting, chunky soups            | Beginner     |
+| Medium dice | 1/2 inch cubes        | 1.25 cm cubes    | Uniform cubes    | All-purpose sauces, soups         | Beginner     |
+| Small dice  | 1/4 inch cubes        | 6 mm cubes       | Uniform cubes    | Salsas, refined sauces            | Intermediate |
+| Brunoise    | 1/8 inch cubes        | 3 mm cubes       | Fine cubes       | Garnishes, delicate sauces        | Advanced     |
+| Batonnet    | 1/4 x 1/4 x 2-3 in    | 6x6x50-75 mm     | Thick sticks     | Crudités, fries                   | Intermediate |
+| Julienne    | 1/8 x 1/8 x 2-3 in    | 3x3x50-75 mm     | Thin matchsticks | Stir-fries, salads                | Intermediate |
+| Chiffonade  | 1/16-1/8 in wide      | 1.5-3 mm ribbons | Thin strips      | Fresh herbs, leafy greens         | Intermediate |
+| Mince       | Under 1/8 inch        | Under 3 mm       | Tiny irregular   | Garlic, ginger, shallots          | Intermediate |
+| Bias cut    | 1/4-1/2 in, 45° angle | 6-12 mm, 45°     | Oval slices      | Stir-fry vegetables               | Beginner     |
+| Rondelle    | 1/4-1/2 inch discs    | 6-12 mm discs    | Round discs      | Carrots, cucumbers, zucchini      | Beginner     |
 
 ---
 

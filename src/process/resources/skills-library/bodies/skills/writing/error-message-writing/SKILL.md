@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing writing documentation"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing writing documentation'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Error Message Writing
 
 ## When to Use
@@ -74,14 +75,14 @@ Not all errors are the same. Classify the error before writing anything, because
 
 **By severity (determines persistence and prominence):**
 
-| Severity | Definition | Persistence | Example |
-|---|---|---|---|
-| Informational | The user should know this, but it does not block them | Auto-dismisses in 4-5 seconds | "You are using 90% of your storage" |
-| Warning | The user is about to do something risky | Persists until acknowledged | "Leaving this page will discard unsaved changes" |
-| Low (Validation) | Input is wrong; user can fix right now | Persists next to the field until corrected | "Enter a valid email address" |
-| Medium (Action Failure) | Something failed; user can probably retry or change approach | Persists until dismissed or resolved | "Your changes could not be saved" |
-| High (System Error) | System is broken; user cannot proceed | Persists; may escalate to status banner | "We are experiencing a service disruption" |
-| Critical (Data Loss) | Data has been or may be lost | Blocks interaction until acknowledged | "Your session expired -- unsaved changes may be lost" |
+| Severity                | Definition                                                   | Persistence                                | Example                                               |
+| ----------------------- | ------------------------------------------------------------ | ------------------------------------------ | ----------------------------------------------------- |
+| Informational           | The user should know this, but it does not block them        | Auto-dismisses in 4-5 seconds              | "You are using 90% of your storage"                   |
+| Warning                 | The user is about to do something risky                      | Persists until acknowledged                | "Leaving this page will discard unsaved changes"      |
+| Low (Validation)        | Input is wrong; user can fix right now                       | Persists next to the field until corrected | "Enter a valid email address"                         |
+| Medium (Action Failure) | Something failed; user can probably retry or change approach | Persists until dismissed or resolved       | "Your changes could not be saved"                     |
+| High (System Error)     | System is broken; user cannot proceed                        | Persists; may escalate to status banner    | "We are experiencing a service disruption"            |
+| Critical (Data Loss)    | Data has been or may be lost                                 | Blocks interaction until acknowledged      | "Your session expired -- unsaved changes may be lost" |
 
 ### Step 3: Apply the Three-Part Message Structure
 
@@ -118,14 +119,14 @@ Provide the single most effective next action. Use imperative sentences. Name th
 
 **Structure by display context:**
 
-| Display Type | Part 1 | Part 2 | Part 3 | Max length |
-|---|---|---|---|---|
-| Inline field validation | Required (1 sentence) | Optional (append to Part 1) | Required (1 sentence) | 2 sentences |
-| Toast / Snackbar | Required (1 sentence) | Brief (phrase) | Required (1 sentence) | 2 sentences + button |
-| Modal dialog | Required | Required | Required + button label | 3-4 sentences |
-| Full-page error | Required | Required | Required + multiple options | Paragraph + actions |
-| CLI stderr | Required (1 line) | Optional (second line) | Required (suggested command) | 3-4 lines |
-| Push notification | Required (1 sentence) | Omit or brief phrase | Required (1 sentence) | 2 sentences |
+| Display Type            | Part 1                | Part 2                      | Part 3                       | Max length           |
+| ----------------------- | --------------------- | --------------------------- | ---------------------------- | -------------------- |
+| Inline field validation | Required (1 sentence) | Optional (append to Part 1) | Required (1 sentence)        | 2 sentences          |
+| Toast / Snackbar        | Required (1 sentence) | Brief (phrase)              | Required (1 sentence)        | 2 sentences + button |
+| Modal dialog            | Required              | Required                    | Required + button label      | 3-4 sentences        |
+| Full-page error         | Required              | Required                    | Required + multiple options  | Paragraph + actions  |
+| CLI stderr              | Required (1 line)     | Optional (second line)      | Required (suggested command) | 3-4 lines            |
+| Push notification       | Required (1 sentence) | Omit or brief phrase        | Required (1 sentence)        | 2 sentences          |
 
 ### Step 4: Write Supporting Content
 
@@ -133,6 +134,7 @@ The primary message is the minimum viable content. Depending on severity and con
 
 **Error code:**
 Every error that a user might describe to a support agent needs a code. Codes let support teams locate logs, reproduce issues, and avoid asking users to describe technical details. Format options:
+
 - Alphanumeric with semantic segments: `ERR_UPLOAD_SIZE` -- readable and debuggable
 - Hierarchical dot notation: `UPLOAD.FILE.SIZE_EXCEEDED` -- good for products with deep feature trees
 - Numeric: `4012` -- compact but opaque without a lookup table
@@ -141,6 +143,7 @@ Always include the code in the message text for high-severity errors: "Contact s
 
 **Expandable technical details:**
 For medium and high severity errors in products used by technical or power users, provide a "Show details" expansion panel. The expanded content can include:
+
 - What the system attempted
 - What response or state was encountered
 - Whether any data was written before the failure
@@ -170,37 +173,41 @@ Action labels inside error states are part of the error message system and requi
 Tone is not decoration -- it signals to the user how serious the situation is and how to respond. Miscalibrated tone (too casual for a critical error, too alarming for a validation error) damages trust.
 
 **Validation errors (low severity):** Direct, factual, neutral. No apology. The user made a correctable input mistake.
+
 - Template register: "[Field] must be [requirement]. [Specific instruction]."
 - Example: "Password must be at least 8 characters. Include at least one number."
 - Do NOT say: "Oops!" or "Sorry, there was an issue with your password."
 
 **Action failures (medium severity):** Professional and solution-oriented. Brief empathy is acceptable but not required. Never over-apologize.
+
 - Template register: "Your [thing] could not be [action]. [Cause]. [Fix]."
 - Example: "Your draft could not be saved. The connection was interrupted. Check your internet connection and try again."
 - Do NOT say: "We're so sorry this happened to you!" -- it sounds performative.
 
 **System errors (high severity):** Honest, calm, and reassuring about data safety. Never minimize. Never blame the user. Acknowledge the disruption directly.
+
 - Template register: "We are experiencing [issue]. Your [data/progress] is [safe/status]. [What the team is doing / what the user can do]."
 - Example: "We are experiencing a service disruption that is preventing logins. Your account data is safe. We are working to restore access. Check our status page for updates."
 - Do NOT say: "We're having a little hiccup!" -- minimization erodes trust in a high-stakes moment.
 
 **Data loss risk (critical):** Urgent, specific, action-first. No hedging. Name exactly what is at risk.
+
 - Template register: "Your [specific data] may be lost. [Immediate action] before [consequence]."
 - Example: "Your unsaved report will be lost if you navigate away. Copy your work before leaving this page."
 - Do NOT bury the data loss risk in the middle of a paragraph. Lead with it.
 
 **Tone word choices to avoid in all contexts:**
 
-| Avoid | Because | Use instead |
-|---|---|---|
-| "Oops" | Minimizes frustration | Omit the opener entirely |
-| "Uh oh" | Infantilizing | Omit the opener entirely |
-| "Unfortunately" | Filler with no information | Omit or state the failure directly |
-| "Please" | Slightly patronizing in error context | Use imperative directly |
-| "Simply" | Implies the fix is easy (it wasn't, or they wouldn't have the error) | Omit |
-| "Invalid" | Jargon | "not valid," "incorrect," "must be" |
-| "Exception" | Developer jargon | Describe what failed |
-| "Null" | Developer jargon | "empty," "missing," "not found" |
+| Avoid           | Because                                                              | Use instead                         |
+| --------------- | -------------------------------------------------------------------- | ----------------------------------- |
+| "Oops"          | Minimizes frustration                                                | Omit the opener entirely            |
+| "Uh oh"         | Infantilizing                                                        | Omit the opener entirely            |
+| "Unfortunately" | Filler with no information                                           | Omit or state the failure directly  |
+| "Please"        | Slightly patronizing in error context                                | Use imperative directly             |
+| "Simply"        | Implies the fix is easy (it wasn't, or they wouldn't have the error) | Omit                                |
+| "Invalid"       | Jargon                                                               | "not valid," "incorrect," "must be" |
+| "Exception"     | Developer jargon                                                     | Describe what failed                |
+| "Null"          | Developer jargon                                                     | "empty," "missing," "not found"     |
 
 ### Step 7: Audit Against the Anti-Pattern Checklist
 
@@ -209,6 +216,7 @@ Before delivering any error message, run it through this checklist. Each check s
 **Blame audit:** Does any sentence imply the user did something wrong? Words like "you entered," "you selected," "you attempted" can shift blame. Rewrite to focus on the object or the system: "The email address is not valid" not "You entered an invalid email address."
 
 **Specificity audit:** Does the message contain any of these phrases? Flag and rewrite each:
+
 - "something went wrong" -- replace with the specific failure
 - "an error occurred" -- replace with what specifically failed
 - "try again later" -- replace with a specific action or timeframe
@@ -217,17 +225,20 @@ Before delivering any error message, run it through this checklist. Each check s
 - "error processing your request" -- replace with the name of the action that failed
 
 **Jargon audit:** Does the message contain any of the following? Remove or replace:
+
 - HTTP status codes (404, 500, 413) -- describe the outcome in plain language
 - SQL terms (null, constraint, foreign key, timeout) -- describe the data or action
 - Server names, internal URLs, file paths, stack traces -- remove entirely
 - Developer abbreviations (API, SDK, env, config, repo unless this is a developer tool) -- spell out or replace
 
 **Completeness audit:** Does the message answer all three parts?
+
 - What happened: Yes / No
 - Why it happened: Yes / No (acceptable to omit only for transient unknown causes)
 - What to do: Yes / No (never acceptable to omit)
 
 **Length audit by context:**
+
 - Inline / toast: over 2 sentences? Tighten.
 - Modal: over 4 sentences in the main message? Move details to an expandable section.
 - CLI: over 4 lines? Offer a --verbose flag for additional detail.
@@ -261,7 +272,7 @@ Deliver error messages in the following structured format. Each error scenario g
 **Help link text:** [Descriptive link text] -- [destination: article title or section]
 
 **Details (expandable, optional):**
-> [Additional technical context appropriate to the audience. Request ID, what was attempted, 
+> [Additional technical context appropriate to the audience. Request ID, what was attempted,
 > whether data was written, what to include when contacting support.]
 
 **Escalation path (if unresolvable by user):**
@@ -278,6 +289,7 @@ Deliver error messages in the following structured format. Each error scenario g
 ```
 
 **When delivering multiple errors:**
+
 - Group them by feature or user flow (e.g., "File Upload Errors," "Authentication Errors")
 - Order them within a group from most common to least common where known, or from validation to action failure to system error
 - After all scenarios, optionally include a summary table:
@@ -355,6 +367,7 @@ Error messages for products supporting Arabic, Hebrew, Persian, or Urdu must sup
 CLI error messages follow a different convention than GUI messages because the context is different: the user is a developer or operator, stderr is the standard channel, and the output may be parsed by scripts or piped to log aggregators.
 
 Structure for CLI errors:
+
 - Line 1 (stderr): `error: [what failed] -- [concise cause]`
 - Line 2 (stderr, optional): `  [additional context or state information]`
 - Line 3 (stderr): `  Try: [suggested corrective command with flags]`
@@ -367,6 +380,7 @@ Exit with a non-zero exit code that is consistent and documented (exit 1 for gen
 Authentication errors require special care because of the dual concern of security (do not reveal whether an account exists) and usability (help legitimate users recover). For login failures, never distinguish between "email not found" and "password incorrect" -- both should show: "The email or password is not correct. Check your credentials and try again." After 5 failed attempts, the message should change to acknowledge the lockout: "Your account has been temporarily locked after multiple failed sign-in attempts. Check your email for instructions to unlock it, or try again in 15 minutes."
 
 For session expiry, the message behavior depends on whether data is at risk:
+
 - If the user was in a read-only view: redirect to login with a non-modal banner: "Your session expired. Sign in to continue."
 - If the user was actively editing: block navigation with a modal: "Your session expired. Any unsaved changes may be lost. Copy your work before signing in again." Provide a "Copy my work" button that triggers clipboard copy of a text representation of the current editor state, if technically feasible.
 
@@ -391,6 +405,7 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Audience:** Consumer / business professional
 
 **Primary Message:**
+
 > This file is {file_size_mb} MB, which exceeds the 50 MB attachment limit. Reduce the file size or choose a smaller file.
 
 **Error code:** `ERR_ATTACH_SIZE`
@@ -416,6 +431,7 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Audience:** Consumer / business professional
 
 **Primary Message:**
+
 > "{file_name}" is a {detected_format} file, which is not supported. Attach a PDF, PNG, JPG, or DOCX file instead.
 
 **Error code:** `ERR_ATTACH_FORMAT`
@@ -441,6 +457,7 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Audience:** Consumer / business professional
 
 **Primary Message:**
+
 > "{file_name}" could not be attached. The upload was interrupted, usually by a brief network issue. Check your connection and try again.
 
 **Error code:** `ERR_ATTACH_NET`
@@ -450,9 +467,11 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Help link text:** Troubleshooting upload errors -- "Upload failures" (knowledge base article)
 
 **Details (expandable):**
+
 > The upload stopped at {transfer_percent}% complete. No file was saved to this task. If retrying does not work and your connection is stable, contact support with code ERR_ATTACH_NET and the task ID: {task_id}.
 
 **Escalation path:**
+
 > Contact support with error code ERR_ATTACH_NET, your task ID ({task_id}), and the time of the error. Support can check upload logs to confirm whether a partial file was received.
 
 **Localization notes:** `{file_name}`, `{transfer_percent}`, and `{task_id}` are tokens. `{transfer_percent}` should be omitted from the primary message if the product does not track transfer progress -- only include in expandable details when the data is available.
@@ -468,6 +487,7 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Audience:** Consumer / business professional
 
 **Primary Message:**
+
 > Your workspace storage is full. You have used all {used_storage_gb} GB included in your {plan_name} plan. Delete existing attachments to free space, or upgrade your plan for more storage.
 
 **Error code:** `ERR_STORAGE_QUOTA`
@@ -477,9 +497,11 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Help link text:** How storage is calculated in [Product Name] -- "Workspace storage" (knowledge base article)
 
 **Details (expandable):**
+
 > Storage is shared across all projects and members in your workspace. Files deleted by any workspace member free space for everyone. Deleted files are permanently removed after 30 days in the Trash; storage is reclaimed immediately upon deletion.
 
 **Escalation path:**
+
 > If you have recently deleted files and storage still shows as full, contact support with error code ERR_STORAGE_QUOTA. Allow 5 minutes after deletion before retrying.
 
 **Localization notes:** `{used_storage_gb}` and `{plan_name}` are tokens. Storage units (GB) may need to display as TB for enterprise plans -- use `{used_storage}` and `{used_storage_unit}` as separate tokens rather than combining them.
@@ -495,6 +517,7 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Audience:** Consumer / business professional
 
 **Primary Message:**
+
 > You can view this task but cannot make changes. Ask your workspace admin to update your role if you need edit access.
 
 **Error code:** `ERR_PERM_VIEWER` (used internally; do not surface to user unless they contact support)
@@ -506,6 +529,7 @@ For session expiry, the message behavior depends on whether data is at risk:
 **Details (expandable):** Not applicable -- do not reveal the internal permission model or role name in detail. Naming the role ("Viewer") in the message is acceptable because it helps the user understand their own access level, but do not list what Viewer-role members cannot do -- it is not helpful and increases message length unnecessarily.
 
 **Escalation path:**
+
 > Ask the workspace administrator to change your role. Admins can adjust roles from Workspace Settings > Members. If you do not know who your admin is, contact [Product Name] support.
 
 **Localization notes:** Role name "Viewer" should be a localized string, not hardcoded -- the role names may differ in localized versions of the product.
@@ -514,10 +538,10 @@ For session expiry, the message behavior depends on whether data is at risk:
 
 ## Error Code Reference
 
-| Error Code | Scenario | Type | Severity | Display |
-|---|---|---|---|---|
-| `ERR_ATTACH_SIZE` | File exceeds 50 MB attachment limit | Validation | Low | Inline |
-| `ERR_ATTACH_FORMAT` | Unsupported file type attached | Validation | Low | Inline |
-| `ERR_ATTACH_NET` | Upload interrupted by network failure | Action Failure | Medium | Toast (persistent) |
-| `ERR_STORAGE_QUOTA` | Workspace storage quota at 100% | Action Failure | Medium | Modal |
-| `ERR_PERM_VIEWER` | Viewer role attempts to edit | Permission | Low | Toast (auto-dismiss) |
+| Error Code          | Scenario                              | Type           | Severity | Display              |
+| ------------------- | ------------------------------------- | -------------- | -------- | -------------------- |
+| `ERR_ATTACH_SIZE`   | File exceeds 50 MB attachment limit   | Validation     | Low      | Inline               |
+| `ERR_ATTACH_FORMAT` | Unsupported file type attached        | Validation     | Low      | Inline               |
+| `ERR_ATTACH_NET`    | Upload interrupted by network failure | Action Failure | Medium   | Toast (persistent)   |
+| `ERR_STORAGE_QUOTA` | Workspace storage quota at 100%       | Action Failure | Medium   | Modal                |
+| `ERR_PERM_VIEWER`   | Viewer role attempts to edit          | Permission     | Low      | Toast (auto-dismiss) |

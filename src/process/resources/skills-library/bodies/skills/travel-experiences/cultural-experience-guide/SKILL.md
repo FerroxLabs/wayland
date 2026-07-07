@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research guide step-by-step"
-  category: "travel-experiences"
-  subcategory: "experiences-activities"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel research guide step-by-step'
+  category: 'travel-experiences'
+  subcategory: 'experiences-activities'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Cultural Experience Guide
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user's request centers on evaluating, prioritizing, and planning visits to cultural sites -- museums, temples, mosques, churches, palaces, archaeological ruins, historic quarters, indigenous heritage sites, traditional craft workshops, performing arts venues, and ceremonial spaces.
 
 **Specific trigger scenarios:**
+
 - User asks which cultural sites in a destination are worth visiting and how to rank them against limited time
 - User wants to understand entry protocols, dress codes, or behavioral expectations at religious or heritage sites
 - User asks about the difference between guided and self-guided visits for major cultural landmarks
@@ -38,6 +40,7 @@ Use this skill when the user's request centers on evaluating, prioritizing, and 
 - User has mobility, budget, or time constraints and needs a curated short list rather than a complete site inventory
 
 **Do NOT use when:**
+
 - User needs a complete multi-day city itinerary with hotels, restaurants, and logistics woven together -- use `trip-itinerary-builder` instead
 - User's primary interest is food culture, night markets, or culinary traditions -- use `food-tourism-planner` instead
 - User wants a self-guided walking tour with turn-by-turn directions through neighborhoods -- use `city-walking-tour-builder` instead
@@ -83,6 +86,7 @@ Score every site in the inventory on three axes and calculate a composite priori
 
 **Axis 1 -- Uniqueness (weight: x2, max 5 per axis)**
 Ask: can this cultural experience be replicated elsewhere in the world, or at other points in this trip?
+
 - 5: Globally singular -- this experience exists nowhere else (the Acropolis, Petra, Angkor Wat, the Forbidden City)
 - 4: Nationally unique -- the best example of its type in this country but comparable examples exist internationally
 - 3: Regionally notable -- among the best in this region but not nationally definitive
@@ -91,6 +95,7 @@ Ask: can this cultural experience be replicated elsewhere in the world, or at ot
 
 **Axis 2 -- Personal Relevance (weight: x1, max 5)**
 Ask: how directly does this site address the user's top stated interests?
+
 - 5: Core interest match -- the user specifically named this type of site or this period/tradition
 - 4: Strong adjacency -- closely related to a stated interest
 - 3: Moderate relevance -- broadens the cultural picture but not central to stated interests
@@ -99,6 +104,7 @@ Ask: how directly does this site address the user's top stated interests?
 
 **Axis 3 -- Logistics Score (weight: x1, max 5)**
 Ask: how practical is this visit given the user's stated time, budget, accessibility, and booking situation?
+
 - 5: Easy and affordable -- walk-in, low cost, centrally located, no special preparation needed
 - 4: Minor friction -- affordable with some pre-planning (online ticket, one transit connection)
 - 3: Moderate complexity -- requires advance booking, half-day commitment, or above-budget cost
@@ -126,17 +132,20 @@ For every site in the recommended shortlist, provide:
 This section serves two functions: practical preparation (avoid being turned away at the entrance) and respectful engagement (avoid causing offense or disrupting living communities).
 
 **Site-specific requirements:**
+
 - Document dress code requirements in specific terms: which body parts must be covered, to what length, for which gender, and whether the requirement is enforced (guards at the gate) or advisory.
 - Photography rules should be noted at the zone level where possible. Many sites allow photography in courtyards but not in inner sanctuaries. Some allow photography of objects but not of worshippers. Specify.
 - Note behavioral expectations that may surprise Western visitors: removing shoes before entering even outdoor temple platforms (common in Southeast Asia), not turning your back to a sacred image when exiting (Buddhist and Hindu temples), not pointing the soles of feet toward sacred objects (Southeast and South Asian cultures), the specific gestures for greeting monks or clergy, restrictions on women touching or approaching certain sacred objects (some Shinto shrines, Orthodox Christian altars).
 - Note tipping conventions that apply specifically to cultural contexts: tipping guides in countries where this is expected vs. offensive, donations at religious sites (amount, placement, whether it is genuinely voluntary or socially pressured).
 
 **Language preparation:**
+
 - Provide 5-8 phrases specific to cultural site contexts in the local language: greeting, thank you, "may I take a photo?", "I'm sorry" (for accidental transgressions), "where is the entrance/exit?", "how much does this cost?", and any phrases specific to religious or ceremonial contexts (e.g., a respectful greeting for a monk or a prayer hall).
 - Include phonetic pronunciation -- not linguistic romanization notation but actual spoken approximations a native English speaker can produce adequately.
 - Note where English is reliably available (international destinations, UNESCO sites) vs. where it is uncommon and preparation matters more.
 
 **Common visitor mistakes:**
+
 - Identify the 3-5 most common mistakes tourists make at these specific sites and frame them preventively. These should be based on the actual destination -- not generic "be respectful" advice. At many popular temples in Thailand, the most common mistake is wearing shorts; at the Vatican, it is attempting to enter without confirmation tickets in hand; at Angkor Wat, it is visiting the main temple during the midday heat when every other tourist is also there and surfaces are at 45°C.
 
 ### Step 6: Address Guided vs. Self-Guided Decision
@@ -144,6 +153,7 @@ This section serves two functions: practical preparation (avoid being turned awa
 For each recommended site, make a specific recommendation about whether the user should hire a guide, use an audio guide, use a self-guided approach, or join a group tour. Use the following decision criteria:
 
 **Hire a licensed local guide when:**
+
 - The site's significance is not well-communicated through on-site signage (common at archaeological sites and indigenous cultural centers)
 - The site involves access to areas not open to self-guided visitors (inner sanctuaries, restricted floors, private collections)
 - The user has expressed strong interest depth that exceeds what a tour provides
@@ -151,17 +161,20 @@ For each recommended site, make a specific recommendation about whether the user
 - The group composition includes children who would benefit from a storyteller rather than a sign-reader
 
 **Use an audio guide when:**
+
 - The site has well-developed audio content (most major European and North American museums)
 - The user prefers to move at their own pace but wants expert interpretation
 - Budget does not support a private guide
 - Note: premium audio apps (Bloomberg Connects, official museum apps, Rick Steves Audio Europe for European sites) are often superior to rented on-site devices
 
 **Self-guided is sufficient when:**
+
 - The site's significance is visceral and visual -- extensive interpretation would detract rather than add (Fushimi Inari's torii path, a medieval old town, a viewing pavilion)
 - The user has prior knowledge and is visiting to deepen rather than build understanding
 - The site has excellent multilingual on-site signage
 
 **Avoid group tours when:**
+
 - Crowd separation is a priority (the tour arrives with 40 other tourists)
 - The user's pace and interests diverge significantly from the group format
 - The user is visiting early morning specifically for crowd avoidance -- a guided group tour often defeats this purpose
@@ -369,6 +382,7 @@ Handle this edge case by: documenting the restriction clearly and without euphem
 Sites in this category include Sagrada Família (Barcelona) during summer -- up to 3 months ahead for specific time slots; the Uffizi Gallery (Florence) during spring -- 2-4 weeks ahead minimum; the Sistine Chapel and Vatican Museums -- 3-6 weeks ahead during Easter season; Angkor Wat sunrise photography spots during December-February -- no formal booking but arrival by 4:30 AM required. The Palace of Versailles on summer weekends requires booking the morning before at minimum.
 
 When the user's departure is within the advance booking window and a priority site may be sold out:
+
 - Recommend checking the official site immediately for remaining availability
 - Note whether cancellation tickets are available and at what frequency (Uffizi cancellations appear regularly, often releasing 48-72 hours before the visit date)
 - Provide a specific alternative site rated closest to the sold-out site on the uniqueness axis -- if the Uffizi is sold out, the Accademia Gallery (David) is a strong alternative with less advance demand
@@ -395,6 +409,7 @@ For children aged 8-12, the full recommended approach works with minor modificat
 Local festivals and religious observances create two opposite effects: some sites become more extraordinary to visit (witnessing a live ceremony at a temple during a festival, seeing a city transformed by Diwali illuminations, attending a traditional performance in a historic venue during a cultural festival), while others become effectively inaccessible (sites closed for major holidays, mosques overwhelmed with worshippers during Eid, Buddhist temples packed to capacity during Vesak).
 
 When the user's travel dates overlap with a significant local observance:
+
 - Identify which of the recommended sites will be affected and in which direction (enhanced vs. impaired access)
 - Adjust the schedule to front-load sites that will be more crowded or closed, scheduling them for earlier in the trip before the observance begins
 - Add the festival or observance itself to the cultural inventory and score it -- a major religious festival or cultural event often rates 5 on uniqueness and is worth reshaping a day around
@@ -433,18 +448,18 @@ When recommending these sites: provide a clear advance emotional preparation not
 
 ### Full Site Inventory and Priority Scores
 
-| Rank | Site | Category | Uniqueness (x2) | Relevance | Logistics | Score /20 | Min | Rec | Cost (TRY ~) | Cost (USD ~) |
-|------|------|----------|-----------------|-----------|-----------|-----------|-----|-----|------------|------------|
-| 1 | Hagia Sophia | Living religious/Byzantine monument | 5 | 5 | 4 | 19 | 45 min | 2 hr | Free (mosque) | Free |
-| 2 | Topkapi Palace Complex | Ottoman palace/imperial museum | 5 | 4 | 4 | 18 | 1.5 hr | 3.5 hr | ~680 TRY | ~$21 |
-| 3 | Chora Church (Kariye Mosque) | Byzantine mosaic church | 5 | 5 | 3 | 18 | 1 hr | 2 hr | ~400 TRY | ~$12 |
-| 4 | Basilica Cistern | Late Roman/Byzantine underground cistern | 5 | 5 | 5 | 20 | 45 min | 1.5 hr | ~400 TRY | ~$12 |
-| 5 | Blue Mosque (Sultan Ahmed) | Ottoman mosque | 5 | 4 | 5 | 19 | 30 min | 1 hr | Free | Free |
-| 6 | Archaeological Museum Complex | Byzantine/classical archaeology | 4 | 5 | 4 | 17 | 1.5 hr | 3 hr | ~500 TRY | ~$15 |
-| 7 | Grand Bazaar | Ottoman commercial heritage | 3 | 2 | 5 | 13 | 45 min | 2 hr | Free entry | Free |
-| 8 | Süleymaniye Mosque | Ottoman mosque/Sinan masterwork | 4 | 4 | 5 | 17 | 30 min | 1 hr | Free | Free |
-| 9 | Istanbul Modern | Contemporary Turkish art | 2 | 2 | 4 | 10 | 1 hr | 2 hr | ~400 TRY | ~$12 |
-| 10 | Galata Tower | Genoese medieval tower | 3 | 3 | 3 | 12 | 30 min | 45 min | ~600 TRY | ~$18 |
+| Rank | Site                          | Category                                 | Uniqueness (x2) | Relevance | Logistics | Score /20 | Min    | Rec    | Cost (TRY ~)  | Cost (USD ~) |
+| ---- | ----------------------------- | ---------------------------------------- | --------------- | --------- | --------- | --------- | ------ | ------ | ------------- | ------------ |
+| 1    | Hagia Sophia                  | Living religious/Byzantine monument      | 5               | 5         | 4         | 19        | 45 min | 2 hr   | Free (mosque) | Free         |
+| 2    | Topkapi Palace Complex        | Ottoman palace/imperial museum           | 5               | 4         | 4         | 18        | 1.5 hr | 3.5 hr | ~680 TRY      | ~$21         |
+| 3    | Chora Church (Kariye Mosque)  | Byzantine mosaic church                  | 5               | 5         | 3         | 18        | 1 hr   | 2 hr   | ~400 TRY      | ~$12         |
+| 4    | Basilica Cistern              | Late Roman/Byzantine underground cistern | 5               | 5         | 5         | 20        | 45 min | 1.5 hr | ~400 TRY      | ~$12         |
+| 5    | Blue Mosque (Sultan Ahmed)    | Ottoman mosque                           | 5               | 4         | 5         | 19        | 30 min | 1 hr   | Free          | Free         |
+| 6    | Archaeological Museum Complex | Byzantine/classical archaeology          | 4               | 5         | 4         | 17        | 1.5 hr | 3 hr   | ~500 TRY      | ~$15         |
+| 7    | Grand Bazaar                  | Ottoman commercial heritage              | 3               | 2         | 5         | 13        | 45 min | 2 hr   | Free entry    | Free         |
+| 8    | Süleymaniye Mosque            | Ottoman mosque/Sinan masterwork          | 4               | 4         | 5         | 17        | 30 min | 1 hr   | Free          | Free         |
+| 9    | Istanbul Modern               | Contemporary Turkish art                 | 2               | 2         | 4         | 10        | 1 hr   | 2 hr   | ~400 TRY      | ~$12         |
+| 10   | Galata Tower                  | Genoese medieval tower                   | 3               | 3         | 3         | 12        | 30 min | 45 min | ~600 TRY      | ~$18         |
 
 **Tier 1 (16-20):** Basilica Cistern, Hagia Sophia, Blue Mosque, Topkapi Palace, Chora Church, Süleymaniye Mosque, Archaeological Museum
 **Tier 2 (11-15):** Grand Bazaar, Galata Tower
@@ -455,6 +470,7 @@ When recommending these sites: provide a clear advance emotional preparation not
 ### Recommended Site Profiles
 
 #### 1. Basilica Cistern -- Score 20/20
+
 **Category:** Late Roman/Byzantine underground cistern
 **Cultural Significance:** Built by Emperor Justinian I in 532 CE to supply water to the Great Palace of Constantinople, the Basilica Cistern is the largest surviving Byzantine subterranean structure in Istanbul. Its 336 marble columns -- many recycled from earlier Roman temples -- support a vaulted brick ceiling over a flooded chamber. Two Medusa heads used as column bases in the northwest corner are among the most discussed examples of Byzantine repurposing of classical material. It illustrates the engineering ambition of the Justinianic building program at the same moment Hagia Sophia was being constructed above ground.
 
@@ -480,6 +496,7 @@ When recommending these sites: provide a clear advance emotional preparation not
 ---
 
 #### 2. Hagia Sophia -- Score 19/20
+
 **Category:** Living religious site / Byzantine architectural monument
 **Cultural Significance:** Completed in 537 CE under Emperor Justinian I, Hagia Sophia was the largest enclosed space in the world for nearly 1,000 years and remained the defining architectural achievement of Byzantine Christianity. Its 31-meter-diameter dome appears to float on a ring of light created by 40 windows at its base -- an engineering solution that was not structurally replicated for 400 years. After the Ottoman conquest in 1453, Mehmed II immediately converted it to a mosque, plastering over the Christian mosaics and adding four minarets. Under Atatürk it became a secular museum in 1934. Since 2020 it has functioned as a working mosque again. The building is therefore simultaneously the greatest surviving Byzantine structure, the first great Ottoman mosque, and one of the most contested heritage sites in the world.
 
@@ -505,6 +522,7 @@ When recommending these sites: provide a clear advance emotional preparation not
 ---
 
 #### 3. Chora Church (Kariye Mosque) -- Score 18/20
+
 **Category:** Byzantine mosaic and fresco church
 **Cultural Significance:** The Church of the Holy Saviour in Chora contains what many Byzantine art historians consider the finest surviving collection of Byzantine mosaics and frescoes in the world -- surpassing even those remaining in Hagia Sophia. Created in the early 14th century under the patronage of Theodore Metochites, the mosaics in the narthex and parecclesion represent the full narrative of Byzantine theological iconography: the life of the Virgin, the life of Christ, and the Last Judgment. The Anastasis fresco (Christ's descent into Hades to raise Adam and Eve) in the parecclesion is a masterwork of Late Byzantine painting. The church was converted to a mosque in 1511 and most mosaics were plastered over; converted to a museum in 1948; and reverted to mosque status in 2020. Many mosaics are currently covered while restoration work continues.
 

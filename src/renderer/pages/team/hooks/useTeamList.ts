@@ -9,11 +9,9 @@ export function useTeamList() {
   const { user } = useAuth();
   const userId = user?.id ?? 'system_default_user';
 
-  const { data, mutate } = useSWR<TTeam[]>(
-    `teams/${userId}`,
-    () => ipcBridge.team.list.invoke({ userId }),
-    { revalidateOnFocus: false }
-  );
+  const { data, mutate } = useSWR<TTeam[]>(`teams/${userId}`, () => ipcBridge.team.list.invoke({ userId }), {
+    revalidateOnFocus: false,
+  });
   // ALWAYS an array. The `= []` default only covers `undefined`; if the backend
   // ever returns a malformed non-array (a broken/empty teams catalog has done
   // this), every array consumer (sidebar .reduce, .length, .map) would throw and

@@ -5,12 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-  allItemsOk,
-  firstLine,
-  isQueueFinished,
-  type TankQueueItem,
-} from '@process/services/autopilot/tankClient';
+import { allItemsOk, firstLine, isQueueFinished, type TankQueueItem } from '@process/services/autopilot/tankClient';
 
 const item = (status: TankQueueItem['status']): TankQueueItem => ({ id: '1', seq: 1, title: 't', status });
 

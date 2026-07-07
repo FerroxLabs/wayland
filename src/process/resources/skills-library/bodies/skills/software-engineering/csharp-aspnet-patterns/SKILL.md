@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "csharp backend frameworks"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'csharp backend frameworks'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # C# ASP.NET Core Patterns
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - Choosing between Minimal APIs and Controller-based APIs in ASP.NET Core (.NET 6, 7, or 8)
 - Designing or debugging the ASP.NET Core middleware pipeline (ordering, short-circuiting, branching)
 - Implementing action filters, result filters, resource filters, or exception filters
@@ -33,6 +35,7 @@ metadata:
 - Designing route groups, versioned APIs, or link generation with `IUrlHelper`
 
 **Do NOT use this skill when the user asks about:**
+
 - Initial project creation, SDK targeting, NuGet package management, or `.csproj` structure -- use `csharp-project-setup` instead
 - `async`/`await` internals, `ValueTask`, `IAsyncEnumerable`, or `System.Threading.Channels` -- use `csharp-async-patterns` instead
 - Unit testing, integration testing with `WebApplicationFactory`, or test doubles -- use `csharp-testing-patterns` instead
@@ -178,7 +181,7 @@ Before declaring any API production-ready, complete this checklist:
 
 When responding to a user request about ASP.NET Core patterns, structure your answer as follows:
 
-```
+````
 ## Decision Summary
 
 | Concern | Recommendation | Rationale |
@@ -230,27 +233,28 @@ app.MapHealthChecks("/healthz/live",  new() { Predicate = r => r.Tags.Contains("
 app.MapHealthChecks("/healthz/ready", new() { Predicate = r => r.Tags.Contains("ready") });
 
 app.Run();
-```
+````
 
 ## Middleware Order Verification
 
-| Position | Middleware | Why Here |
-|----------|------------|----------|
-| 1 | UseExceptionHandler | Catches all downstream exceptions |
-| 2 | UseHttpsRedirection | Redirects before any processing |
-| 3 | UseRouting | Enables endpoint-aware middleware |
-| 4 | UseCors | After routing, before auth |
-| 5 | UseAuthentication | Populates ClaimsPrincipal |
-| 6 | UseAuthorization | Evaluates policies after identity set |
-| 7 | UseOutputCaching | After auth, results are user-specific |
-| 8 | MapControllers/Endpoints | Terminal middleware |
+| Position | Middleware               | Why Here                              |
+| -------- | ------------------------ | ------------------------------------- |
+| 1        | UseExceptionHandler      | Catches all downstream exceptions     |
+| 2        | UseHttpsRedirection      | Redirects before any processing       |
+| 3        | UseRouting               | Enables endpoint-aware middleware     |
+| 4        | UseCors                  | After routing, before auth            |
+| 5        | UseAuthentication        | Populates ClaimsPrincipal             |
+| 6        | UseAuthorization         | Evaluates policies after identity set |
+| 7        | UseOutputCaching         | After auth, results are user-specific |
+| 8        | MapControllers/Endpoints | Terminal middleware                   |
 
 ## Key Implementation Notes
 
 - [Specific gotchas for this user's scenario]
 - [Trade-offs accepted]
 - [Configuration values requiring environment-specific tuning]
-```
+
+````
 
 ---
 
@@ -537,7 +541,7 @@ app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
 }).AllowAnonymous();
 
 app.Run();
-```
+````
 
 ---
 
@@ -681,17 +685,17 @@ public sealed class GlobalExceptionFilter : IExceptionFilter
 
 ## Middleware Pipeline Order Verification
 
-| Position | Middleware | Why Here |
-|----------|-----------|----------|
-| 1 | `UseExceptionHandler()` | Wraps entire pipeline; catches infrastructure exceptions as ProblemDetails 500 |
-| 2 | `UseHttpsRedirection()` | Redirect before any work is done |
-| 3 | `UseForwardedHeaders()` | Fixes `Request.Scheme`/`Host` behind reverse proxy before CORS evaluates origin |
-| 4 | `UseRouting()` | Endpoint metadata available for CORS policy selection |
-| 5 | `UseCors("spa-clients")` | OPTIONS preflight handled before auth rejects it |
-| 6 | `UseAuthentication()` | Populates `ClaimsPrincipal` from JWT |
-| 7 | `UseAuthorization()` | Evaluates policies after identity is populated |
-| 8 | `UseOutputCache()` | Caches authenticated responses per user where appropriate |
-| 9 | `MapControllers()` / `MapHealthChecks()` | Terminal middleware -- writes response |
+| Position | Middleware                               | Why Here                                                                        |
+| -------- | ---------------------------------------- | ------------------------------------------------------------------------------- |
+| 1        | `UseExceptionHandler()`                  | Wraps entire pipeline; catches infrastructure exceptions as ProblemDetails 500  |
+| 2        | `UseHttpsRedirection()`                  | Redirect before any work is done                                                |
+| 3        | `UseForwardedHeaders()`                  | Fixes `Request.Scheme`/`Host` behind reverse proxy before CORS evaluates origin |
+| 4        | `UseRouting()`                           | Endpoint metadata available for CORS policy selection                           |
+| 5        | `UseCors("spa-clients")`                 | OPTIONS preflight handled before auth rejects it                                |
+| 6        | `UseAuthentication()`                    | Populates `ClaimsPrincipal` from JWT                                            |
+| 7        | `UseAuthorization()`                     | Evaluates policies after identity is populated                                  |
+| 8        | `UseOutputCache()`                       | Caches authenticated responses per user where appropriate                       |
+| 9        | `MapControllers()` / `MapHealthChecks()` | Terminal middleware -- writes response                                          |
 
 ---
 

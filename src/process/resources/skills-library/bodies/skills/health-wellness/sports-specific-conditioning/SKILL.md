@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fitness workout-planning planning"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fitness workout-planning planning'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Sports-Specific Conditioning
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before starting a new fitness program, particularly if you have existing health conditions, previous injuries, or have been sedentary for an extended period. If you experience pain, dizziness, or shortness of breath during exercise, stop immediately and seek medical attention.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to improve sport-specific performance for a recreational sport they already play or are about to start -- e.g., "I want to get in better shape for my Thursday night basketball league" or "tennis season starts in 8 weeks and I'm not ready"
 - A user asks how to train the physical qualities that underpin a sport (lateral speed for tennis, aerobic engine for soccer, vertical leap for basketball, shoulder endurance for swimming) separate from practicing the sport itself
 - A user wants a structured off-court or off-field program to complement their existing sport practice -- they are already playing the sport but want to systematically build the conditioning that supports it
@@ -33,6 +35,7 @@ metadata:
 - A user asks about injury prevention specific to the stresses of their sport (rotator cuff work for swimmers, knee stability for basketball players, hip mobility for soccer players)
 
 **Do NOT use when:**
+
 - The user is a professional, semi-professional, or elite amateur athlete -- those populations require individualized testing, athlete monitoring software, and periodized macro-cycles beyond this skill's scope
 - The user is recovering from a sport-related injury and wants a return-to-play program -- direct them to a sports medicine physician or physical therapist; this skill does not provide rehabilitation protocols
 - The user wants general strength training without a sport as the organizing goal -- use the `beginner-strength-training` skill instead, which covers foundational movement patterns and progressive overload without sport context
@@ -68,6 +71,7 @@ If the user provides a rich initial request, you may be able to infer most of th
 Every sport makes specific physiological and biomechanical demands. Use the detailed reference profiles below to build the foundation of the conditioning plan. Apply the matching profile and note where the user's competitive context (recreational vs. competitive amateur) may shift priorities.
 
 **Tennis (recreational to competitive amateur)**
+
 - **Primary energy system:** Mixed -- individual points rely on the ATP-PC (phosphagen) system for explosive 4-10 second bursts; point frequency creates repeated anaerobic demand; match duration (1-3 hours) requires a strong aerobic base for recovery between points. Work-to-rest ratio during active play: approximately 1:3 to 1:5 (point: rest between points).
 - **Critical physical qualities:** Lateral agility and change of direction (COD), rotational power through the kinetic chain (hips through trunk to shoulder), repeated sprint ability, single-leg stability during loading and landing, shoulder girdle endurance.
 - **Key movement patterns:** Side-shuffle (split-step to ball), crossover run, rotational loading and unloading (forehand/backhand), overhead reach (serve), rapid deceleration and re-acceleration.
@@ -75,6 +79,7 @@ Every sport makes specific physiological and biomechanical demands. Use the deta
 - **Conditioning emphasis:** Lateral SAQ (speed, agility, quickness), aerobic base (sustains 3-set match), anaerobic intervals of 8-15 seconds with 25-45 seconds rest.
 
 **Basketball (recreational to competitive amateur)**
+
 - **Primary energy system:** Predominantly anaerobic-alactic and anaerobic-lactic, with aerobic system supporting recovery. Average sprint: 2-4 seconds; sprints occur every 30-60 seconds throughout a game. Game duration: 32-48 minutes of active clock time, total floor time 60-90 minutes.
 - **Critical physical qualities:** Vertical jump power (both countermovement and reactive), lateral defensive shuffle, acceleration over 5-15 meters, deceleration and change of direction, repeated sprint ability over 40-90 minutes, upper body strength for contact.
 - **Key movement patterns:** Vertical jump and land (rebound, contest shot), lateral defensive slide, V-cut and backdoor cut (direction reversal), sprint-decelerate-sprint sequences, overhead reach.
@@ -82,6 +87,7 @@ Every sport makes specific physiological and biomechanical demands. Use the deta
 - **Conditioning emphasis:** Jump training (plyometrics), lateral defensive speed, anaerobic conditioning intervals of 15-30 seconds with 60-90 seconds rest, aerobic base for game-length endurance.
 
 **Soccer (recreational to competitive amateur)**
+
 - **Primary energy system:** Predominantly aerobic -- a recreational player covers 6-9 km per 90-minute game; competitive amateur up to 10-12 km. However, within that volume, there are 40-60 sprint efforts of 10-40 meters, each lasting 2-4 seconds. Work rate: aerobic base for sustained running, anaerobic capacity for sprint bouts. Work-to-rest: highly variable, but sprint-to-jog ratio is approximately 1:7 during active play.
 - **Critical physical qualities:** Aerobic capacity (VO2max), lactate threshold (allows sustained high-intensity running), repeated sprint ability (RSA), linear acceleration and deceleration, lower body power for shooting and heading jumps, first-step quickness.
 - **Key movement patterns:** Linear acceleration (0-30m), backward running and defensive transitions, side-shuffle tracking, jump and head (vertical), kicking mechanics load (hip flexor, adductor, hamstring).
@@ -89,6 +95,7 @@ Every sport makes specific physiological and biomechanical demands. Use the deta
 - **Conditioning emphasis:** Aerobic base building (80% of conditioning), speed endurance intervals of 20-40 seconds at high intensity, hamstring and adductor injury prevention, linear and multidirectional speed.
 
 **Swimming (recreational to competitive amateur)**
+
 - **Primary energy system:** Primarily aerobic for distances over 200 meters; mixed aerobic-anaerobic for 100-200 meter events; alactic-anaerobic for 50-meter sprints. Most recreational swimmers train in the 200-1500 meter range, which is predominantly aerobic.
 - **Critical physical qualities:** Aerobic capacity, shoulder rotator cuff endurance, core anti-rotation stiffness (maintains body position in the water), hip flexor and ankle flexibility (kick mechanics), lat and posterior shoulder strength (pull phase), breathing rhythm management.
 - **Key movement patterns:** Overhead pulling (freestyle, butterfly), rotational breathing, flip turn explosive push-off, kick from the hip (not the knee).
@@ -96,12 +103,14 @@ Every sport makes specific physiological and biomechanical demands. Use the deta
 - **Conditioning emphasis:** Dry-land pulling and rotator cuff strength, core stability, aerobic base (complementary aerobic cross-training), shoulder mobility and scapular control, hip flexor flexibility.
 
 **Recreational Volleyball**
+
 - **Primary energy system:** Anaerobic-alactic dominant -- points last 3-12 seconds; rallies require explosive jumps, rapid lateral movements, and rotational striking. Aerobic recovery between rallies. Match duration: 45-90 minutes.
 - **Critical physical qualities:** Vertical jump (blocking, attacking), rotational arm power (spiking), lateral quickness (defensive shuffles), reactive agility (ball tracking), shoulder durability.
 - **High-risk injury areas:** Ankle (landing from jump, particularly block), rotator cuff (overhead striking and serving), finger and wrist (blocking), knee (patellar tendon from repeated jumping -- "jumper's knee").
 - **Conditioning emphasis:** Jump training and landing mechanics, rotational power, prehabilitation for patellar tendon and rotator cuff.
 
 **Recreational Cycling**
+
 - **Primary energy system:** Predominantly aerobic for rides over 20 minutes. Anaerobic capacity matters for surges, climbs, and sprint finishes. Ride duration: highly variable (30 min to 5+ hours).
 - **Critical physical qualities:** Aerobic capacity, lactate threshold power, sustained leg power output, core stability for power transfer, hip flexor and hamstring flexibility, saddle-time tolerance.
 - **High-risk injury areas:** Knee (patellofemoral syndrome from fit issues and overuse), lower back and neck (aggressive road position), hip flexor tightness, iliotibial band syndrome (lateral knee).
@@ -114,18 +123,21 @@ Every sport makes specific physiological and biomechanical demands. Use the deta
 Map the user into one of three conditioning tiers. This determines starting intensity, volume, and how quickly to introduce sport-specific intervals.
 
 **Tier 1 -- Foundation Builder (Deconditioned to Lightly Active)**
+
 - Can sustain 20-25 minutes of continuous low-intensity cardio (walking, light jog) but struggles with more
 - No structured strength training history or more than 12 months since last consistent training
 - Likely returning to a sport after a layoff, or picking up a sport for the first time
 - **Programming approach:** 4-6 weeks of general conditioning (aerobic base + foundational movement quality) before introducing sport-specific intervals and agility work. No high-intensity intervals in the first 3 weeks.
 
 **Tier 2 -- Active but Sport-Naive (Moderately Active)**
+
 - Consistent in some form of exercise (gym, running, cycling) but without sport-specific conditioning
 - Can complete 30+ minutes of Zone 2 cardio comfortably; may have some strength training background
 - Wants to channel existing fitness into sport-specific performance
 - **Programming approach:** Can begin sport-specific intervals and agility work in week 1-2. Primary adjustment is matching their existing fitness to sport demands rather than building from scratch.
 
 **Tier 3 -- Sport-Active but Seeking Structured Off-Field Training**
+
 - Already plays the sport regularly and has general fitness, but has never done structured conditioning separate from playing
 - Usually limited by a specific quality: aerobic capacity runs out late in the match, lateral speed, or first-step quickness
 - **Programming approach:** Identify the limiting physical quality first. Design a program that addresses the specific gap while maintaining overall sport fitness. Higher intensity from week 1 is appropriate.
@@ -137,6 +149,7 @@ Map the user into one of three conditioning tiers. This determines starting inte
 Determine which phase the user is in based on their timeline, then set volume and intensity accordingly.
 
 **Phase 1 -- General Physical Preparation (GPP) | Off-Season | 8-12+ Weeks Out**
+
 - Build the aerobic base using Zone 2 cardio (60-70% of maximum heart rate -- MHR; conversational pace; can speak 3-4 word sentences comfortably). Target: 120-150 bpm for most adults.
 - Develop general strength with compound movements (squat pattern, hinge pattern, push, pull, core stability). Rep ranges: 3x10-12, moderate loads.
 - Introduce movement quality work -- single-leg stability, mobility drills for sport-specific tight areas -- but keep sport-specific agility minimal.
@@ -144,6 +157,7 @@ Determine which phase the user is in based on their timeline, then set volume an
 - Intensity: 60-75% of maximum effort across all sessions; zero high-intensity work in weeks 1-3 for Tier 1 users.
 
 **Phase 2 -- Sport-Specific Preparation (SSP) | Pre-Season | 4-8 Weeks Out**
+
 - Transition from general aerobic base to sport-specific conditioning intervals. Match interval work:rest ratios to the actual game demands of the sport (see sport profiles above).
 - Shift strength emphasis from general hypertrophy/strength to power -- reduce reps to 4-6, increase speed of movement (medicine ball throws, jumps, explosive squats).
 - Introduce sport-specific agility drills: lateral shuffles, T-drills, L-drills, 5-10-5 pro agility -- calibrated to the sport.
@@ -151,6 +165,7 @@ Determine which phase the user is in based on their timeline, then set volume an
 - Intensity: 75-90% of maximum effort on interval and agility days. Maintain one moderate aerobic session per week.
 
 **Phase 3 -- In-Season Maintenance | Season Underway**
+
 - Reduce off-field conditioning volume to 1-2 sessions per week. The sport itself is the primary training stimulus.
 - Maintain strength with abbreviated 2x5 strength sessions -- enough to prevent detraining (2 sessions/week of 20-30 minutes is sufficient to maintain strength gains).
 - No new physical qualities introduced in-season. Only maintenance of what was built.
@@ -158,6 +173,7 @@ Determine which phase the user is in based on their timeline, then set volume an
 - Never schedule a hard conditioning session within 24 hours before a game.
 
 **If no clear season (general conditioning):**
+
 - Run 6-week blocks of GPP followed by 4-week blocks of SSP, then reassess.
 
 ---
@@ -183,18 +199,21 @@ Assign sessions to days using these principles:
 Design each session with the following architecture:
 
 **Warm-Up Protocol (all sessions, 8-12 minutes)**
+
 - 3-5 minutes: low-intensity general activity (light jog, row, cycle) to elevate core temperature
 - 3-5 minutes: dynamic mobility specific to the sport (hip circles, leg swings, thoracic rotations, shoulder circles -- sport dependent)
 - 2 minutes: movement activation (lateral shuffles, high knees, A-skips, hip hinges -- sport dependent)
 - Do NOT skip the warm-up. Skipping it is the single most common conditioning error and significantly raises injury risk in sport-specific work.
 
 **Aerobic Base Sessions:**
+
 - Modality: Running preferred for field/court sports (replicates muscular demand); cycling or elliptical acceptable for low-impact alternatives or swimming (pair with dry-land work).
 - Intensity prescription: Zone 2 = 60-70% MHR. Estimate MHR as 220 minus age. For a 35-year-old: MHR ≈ 185, Zone 2 target = 111-130 bpm. Alternatively, use the "talk test" -- able to hold a conversation comfortably.
 - Duration progression: Start at 20-25 minutes continuous in week 1 for Tier 1; 30-35 minutes for Tier 2-3. Add 5 minutes per week until reaching 40-50 minutes.
 - Do NOT use Zone 2 aerobic sessions for sport-specific intervals -- they serve different physiological purposes and mixing them into "moderate intensity" produces neither adaptation.
 
 **Anaerobic Interval Sessions:**
+
 - Prescribe work-to-rest ratios that match the sport's actual demand:
   - Tennis: 10-12 second work / 30-40 second rest, 12-20 rounds. Represents point duration and inter-point rest.
   - Basketball: 15-25 second work / 60-90 second rest, 10-15 rounds. Represents possession/defensive sequence.
@@ -204,6 +223,7 @@ Design each session with the following architecture:
 - Exercise choices: sport-matched. Shuttle runs and lateral movements for court sports; straight-line sprints and agility runs for soccer; bike sprints acceptable as a lower-impact substitute for all field sports.
 
 **Strength Training Sessions:**
+
 - Focus on the 3-4 movement patterns most relevant to the sport, not a full-body gym routine.
 - Rep ranges: GPP phase = 3x10-12; SSP phase = 3-4x5-6 (heavier) with 1-2 sets of explosive movements.
 - Key strength exercises by sport:
@@ -213,6 +233,7 @@ Design each session with the following architecture:
   - Swimming (dry-land): lat pulldown or pull-up, single-arm cable row, prone Y-T-W exercise (scapular control), external rotation with band, core plank series, hip flexor strengthening.
 
 **Agility and Movement Quality Sessions (integrated into strength days or standalone):**
+
 - Use these specific drills:
   - Lateral shuffle with stick (decelerate and hold): 4x10 meters
   - 5-10-5 pro agility drill (cone setup): 5 rounds with full recovery
@@ -226,13 +247,13 @@ Design each session with the following architecture:
 
 Every sport-specific conditioning plan must include prehabilitation (prehab) exercises -- low-load, high-specificity exercises targeting the tendons, small stabilizer muscles, and movement patterns that break down first under sport stress. These are not warm-up exercises and not main lifts -- they occupy 5-10 minutes of the session, typically at the beginning or end.
 
-| Sport | Primary Prehab Targets | Key Exercises |
-|--------------|------------------------|---------------|
-| Tennis | Rotator cuff, wrist extensors, medial knee stability | Band external rotation (ER) 3x15, wrist extensor eccentric loading, lateral band walk 3x12/side |
+| Sport      | Primary Prehab Targets                                                        | Key Exercises                                                                                                 |
+| ---------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Tennis     | Rotator cuff, wrist extensors, medial knee stability                          | Band external rotation (ER) 3x15, wrist extensor eccentric loading, lateral band walk 3x12/side               |
 | Basketball | Patellar tendon, ankle proprioception, ACL-risk reduction (landing mechanics) | Single-leg landing drill (stick the landing), terminal knee extension (TKE) with band, ankle alphabet balance |
-| Soccer | Hamstring (strain prevention), adductor (groin pull), hip flexor | Nordic hamstring curl 3x6 (eccentric), Copenhagen plank (adductor), hip flexor mobility + strengthening |
-| Swimming | Rotator cuff (impingement prevention), scapular stabilizers, cervical spine | Y-T-W prone on bench 3x10 each, serratus anterior push-up (wall), thoracic extension mobilization |
-| Volleyball | Patellar tendon (jumper's knee), rotator cuff, ankle | Eccentric single-leg decline squat (Spanish squat protocol) 3x8, band ER 3x15, ankle stability balance |
+| Soccer     | Hamstring (strain prevention), adductor (groin pull), hip flexor              | Nordic hamstring curl 3x6 (eccentric), Copenhagen plank (adductor), hip flexor mobility + strengthening       |
+| Swimming   | Rotator cuff (impingement prevention), scapular stabilizers, cervical spine   | Y-T-W prone on bench 3x10 each, serratus anterior push-up (wall), thoracic extension mobilization             |
+| Volleyball | Patellar tendon (jumper's knee), rotator cuff, ankle                          | Eccentric single-leg decline squat (Spanish squat protocol) 3x8, band ER 3x15, ankle stability balance        |
 
 The Nordic hamstring curl deserves special mention for soccer and any field sport: research consistently shows it reduces hamstring strain injury incidence by 50-65% in field sport athletes when performed 2x/week during the preparation phase. This exercise belongs in every soccer, basketball, and tennis conditioning program.
 
@@ -241,11 +262,13 @@ The Nordic hamstring curl deserves special mention for soccer and any field spor
 ### Step 8: Finalize Progression and Recovery Guidance
 
 **Progressive overload for conditioning:**
+
 - Aerobic sessions: increase duration by 5 minutes per week until target duration reached, then increase intensity to Zone 3 (70-80% MHR) for 10-minute tempo blocks 1x/week.
 - Interval sessions: first increase number of rounds (from 8 to 12 to 16), then decrease rest time (increase work-to-rest ratio), then increase speed or effort. Never increase volume and intensity simultaneously.
 - Strength sessions: add 2.5-5 kg when the user can complete all prescribed reps with good form for two consecutive sessions at the current load.
 
 **Recovery prescription:**
+
 - Active recovery day: 20-minute walk, easy cycling, or light swimming at conversational pace. Not rest -- movement promotes blood flow and reduces muscle stiffness without adding training stress.
 - Sleep: 7-9 hours is the single most powerful recovery intervention. Address this explicitly if the user mentions fatigue, soreness, or poor progress.
 - Deload week: every 4th week, reduce all conditioning volume by 40% while maintaining intensity. This is not optional -- accumulated fatigue from sport + conditioning will cause detraining-like symptoms if deloads are skipped.
@@ -470,6 +493,7 @@ Do NOT try to compress a full GPP + SSP block into 4 weeks -- this produces over
 ---
 
 **Athlete Profile:**
+
 - Sport: Recreational Soccer, Sunday League, games starting in 5 weeks
 - Fitness Baseline: Tier 1 / Tier 2 Transition -- previously ran casually, 6-month detraining period. Aerobic base present but deconditioned. Movement quality likely intact.
 - Timeline: Compressed pre-season (5 weeks to season start) -- modified SSP approach
@@ -483,17 +507,17 @@ Do NOT try to compress a full GPP + SSP block into 4 weeks -- this produces over
 
 ### Sport Demand Profile
 
-| Physical Quality         | Importance for Soccer | Priority in This Program |
-|--------------------------|----------------------|--------------------------|
-| Aerobic endurance        | High                 | Primary                  |
-| Anaerobic capacity       | High                 | Secondary                |
-| Lateral agility / COD   | Medium               | Secondary                |
-| Linear sprint speed      | High                 | Secondary                |
-| Vertical power           | Low                  | Maintenance              |
-| Rotational power         | Low                  | Maintenance              |
-| Upper body strength      | Low                  | Maintenance              |
-| Core stability           | Medium               | Secondary                |
-| Flexibility / Mobility   | High                 | Primary                  |
+| Physical Quality       | Importance for Soccer | Priority in This Program |
+| ---------------------- | --------------------- | ------------------------ |
+| Aerobic endurance      | High                  | Primary                  |
+| Anaerobic capacity     | High                  | Secondary                |
+| Lateral agility / COD  | Medium                | Secondary                |
+| Linear sprint speed    | High                  | Secondary                |
+| Vertical power         | Low                   | Maintenance              |
+| Rotational power       | Low                   | Maintenance              |
+| Upper body strength    | Low                   | Maintenance              |
+| Core stability         | Medium                | Secondary                |
+| Flexibility / Mobility | High                  | Primary                  |
 
 **Energy System Demand Summary:**
 Recreational soccer is primarily aerobic -- a typical Sunday league player covers 6-8 km over 90 minutes at varying intensities. Within that total distance, there are 30-50 sprint efforts of 10-30 meters, each lasting 2-4 seconds, with approximately 40-60 seconds of walking or jogging recovery between efforts. The aerobic system powers the 80-85% of play that is not sprinting; the anaerobic system powers the sprint bursts that create scoring chances and defensive recovery. At your current detraining level, the aerobic base is the limiting factor -- rebuilding it is the priority.
@@ -510,15 +534,15 @@ Recreational soccer is primarily aerobic -- a typical Sunday league player cover
 
 ### Weekly Schedule
 
-| Day        | Session Type                   | Duration   | Intensity      | Primary Focus                              |
-|------------|--------------------------------|------------|----------------|--------------------------------------------|
-| Monday     | Active recovery + mobility     | 20 min     | Very low       | Flush Sunday game fatigue; hip and hamstring mobility |
-| Tuesday    | Aerobic base run               | 35-40 min  | Zone 2         | Rebuild aerobic engine; conversational pace |
-| Wednesday  | Rest                           | --         | --             | Sleep priority                             |
-| Thursday   | Strength + prehab              | 50 min     | Moderate       | Posterior chain, adductors, core; injury prevention focus |
-| Friday     | Rest or light walk             | 20 min     | Low            | Prepare for interval day                   |
-| Saturday   | Sport-specific intervals       | 40 min     | High           | Repeated sprint capacity; soccer movement patterns |
-| Sunday     | Game                           | 90 min     | Sport          | Application -- no conditioning same day    |
+| Day       | Session Type               | Duration  | Intensity | Primary Focus                                             |
+| --------- | -------------------------- | --------- | --------- | --------------------------------------------------------- |
+| Monday    | Active recovery + mobility | 20 min    | Very low  | Flush Sunday game fatigue; hip and hamstring mobility     |
+| Tuesday   | Aerobic base run           | 35-40 min | Zone 2    | Rebuild aerobic engine; conversational pace               |
+| Wednesday | Rest                       | --        | --        | Sleep priority                                            |
+| Thursday  | Strength + prehab          | 50 min    | Moderate  | Posterior chain, adductors, core; injury prevention focus |
+| Friday    | Rest or light walk         | 20 min    | Low       | Prepare for interval day                                  |
+| Saturday  | Sport-specific intervals   | 40 min    | High      | Repeated sprint capacity; soccer movement patterns        |
+| Sunday    | Game                       | 90 min    | Sport     | Application -- no conditioning same day                   |
 
 **Deload schedule:** Week 3 is a deload -- reduce all conditioning sessions to 60% of planned volume and effort. This is not optional, especially given the 6-month detraining period. The deload in week 3 ensures you arrive at the season start recovered, not accumulated-fatigued.
 
@@ -528,20 +552,20 @@ Recreational soccer is primarily aerobic -- a typical Sunday league player cover
 
 **Session A: Aerobic Base Run (Tuesday) -- 35-40 minutes**
 
-*Purpose: Rebuild the aerobic engine that sustains 90 minutes of soccer. Running is the modality because it replicates the muscular demand of soccer locomotion.*
+_Purpose: Rebuild the aerobic engine that sustains 90 minutes of soccer. Running is the modality because it replicates the muscular demand of soccer locomotion._
 
 Warm-up (5 min): Walk 2 min → dynamic leg swings front-back (10/leg) → walking lunges (10/leg) → high knees 20 meters → heel flicks 20 meters.
 
-| Activity              | Duration     | Intensity Target        | Notes                                          |
-|-----------------------|--------------|-------------------------|------------------------------------------------|
-| Continuous easy run   | 30 min       | Zone 2: 130-145 bpm (for age 34, MHR ≈ 186; Zone 2 = 112-130 bpm -- adjust if running at outdoor field) | Should be able to speak 3-4 word sentences comfortably. If breathing becomes labored, slow to a walk/jog mix. |
+| Activity            | Duration | Intensity Target                                                                                        | Notes                                                                                                         |
+| ------------------- | -------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Continuous easy run | 30 min   | Zone 2: 130-145 bpm (for age 34, MHR ≈ 186; Zone 2 = 112-130 bpm -- adjust if running at outdoor field) | Should be able to speak 3-4 word sentences comfortably. If breathing becomes labored, slow to a walk/jog mix. |
 
 **Weeks 1-2:** 30 minutes continuous (walk-jog if needed)
 **Weeks 3-4:** 35 minutes continuous at true Zone 2
 **Week 5:** 35 minutes with final 10 minutes at a slightly faster "comfortably hard" pace (Zone 3 -- still conversational but not easy)
 
 Mobility cooldown (8 min):
-| Stretch                     | Sets x Duration | Sport Relevance                            |
+| Stretch | Sets x Duration | Sport Relevance |
 |-----------------------------|-----------------|---------------------------------------------|
-| Standing hip flexor stretch | 2 x 40s/side    | Counteract hip flexor shortening from running; improves stride length |
+| Standing hip flexor stretch | 2 x 40s/side | Counteract hip flexor shortening from running; improves stride length |
 | Lying ham

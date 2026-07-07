@@ -82,17 +82,12 @@ test.describe('Team activity tab - F1', () => {
     if (isBridgeError(sent)) {
       // sendMessage requires a live session + agent; if the env can't start
       // one, we mark fixme rather than skip silently.
-      test.fixme(
-        true,
-        `team.send-message failed (likely no live agent in this env): ${sent.message ?? 'unknown'}`
-      );
+      test.fixme(true, `team.send-message failed (likely no live agent in this env): ${sent.message ?? 'unknown'}`);
       return;
     }
 
     // Activity tab polls every 2s - mailbox row arrives within ~5s.
-    const mailboxRow = activity
-      .locator('[data-testid="team-activity-event"][data-event-type="mailbox"]')
-      .first();
+    const mailboxRow = activity.locator('[data-testid="team-activity-event"][data-event-type="mailbox"]').first();
     await expect(mailboxRow).toBeVisible({ timeout: 15_000 });
 
     // Row structure: icon container + summary div + relative timestamp.
@@ -115,9 +110,7 @@ test.describe('Team activity tab - F1', () => {
       throw new Error(`team.add-agent failed: ${addAgent.message ?? 'unknown'}`);
     }
 
-    const spawnRow = activity
-      .locator('[data-testid="team-activity-event"][data-event-type="spawn"]')
-      .first();
+    const spawnRow = activity.locator('[data-testid="team-activity-event"][data-event-type="spawn"]').first();
     await expect(spawnRow).toBeVisible({ timeout: 15_000 });
     await expect(spawnRow).toContainText(/\d+\s*(s|m|h|d)\s*ago|just now/);
 

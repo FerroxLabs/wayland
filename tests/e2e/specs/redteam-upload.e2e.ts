@@ -181,9 +181,7 @@ test.describe('Red-team: file-upload pathologies (commits fcbe340f5 + 8773099cb)
     expect(probe.status, 'null-byte filename MUST NOT succeed (200)').not.toBe(200);
     if (probe.status === 500) {
       // eslint-disable-next-line no-console
-      console.warn(
-        '[redteam-upload] /api/upload returned 500 on null-byte filename - P1 hygiene finding'
-      );
+      console.warn('[redteam-upload] /api/upload returned 500 on null-byte filename - P1 hygiene finding');
     }
     if (probe.status === 200) {
       const containsNull = (probe.body ?? '').includes('\x00');

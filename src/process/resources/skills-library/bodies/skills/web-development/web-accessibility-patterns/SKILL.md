@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility web-development html-css"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'accessibility web-development html-css'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Web Accessibility Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to implement ARIA roles, properties, or states on custom interactive components (accordions, modals, tooltips, carousels, comboboxes)
 - User needs guidance on keyboard navigation patterns -- focus management, tab order, roving tabindex, focus traps
 - User wants to audit or remediate WCAG 2.1/2.2 failures in an existing codebase -- specific criterion violations like 1.4.3 (contrast), 2.1.1 (keyboard), 4.1.2 (name, role, value)
@@ -31,6 +33,7 @@ metadata:
 - User is preparing for a VPAT (Voluntary Product Accessibility Template) or Section 508 conformance documentation
 
 **Do NOT use this skill when:**
+
 - User needs general CSS layout or styling help unrelated to accessibility -- use the CSS layout skill
 - User is asking about backend API design or server-side rendering architecture -- use the appropriate backend skill
 - User needs mobile-native accessibility (iOS UIAccessibility, Android AccessibilityNodeInfo) -- those platforms have different patterns from web ARIA
@@ -138,7 +141,7 @@ Production accessibility work requires audit trails and honest disclosure.
 
 When providing accessibility implementation guidance, structure the response as follows:
 
-```
+````
 ## Accessibility Implementation: [Component or Feature Name]
 
 ### WCAG Criteria Addressed
@@ -172,7 +175,7 @@ When providing accessibility implementation guidance, structure the response as 
 
 ```html
 <!-- Annotated, production-ready HTML structure -->
-```
+````
 
 ```css
 /* Required accessibility CSS -- focus styles, visually hidden utility */
@@ -183,6 +186,7 @@ When providing accessibility implementation guidance, structure the response as 
 ```
 
 ### Testing Checklist
+
 - [ ] Keyboard-only navigation complete
 - [ ] NVDA + Chrome: all states announced correctly
 - [ ] VoiceOver + Safari: all states announced correctly
@@ -190,7 +194,8 @@ When providing accessibility implementation guidance, structure the response as 
 - [ ] Contrast ratios: [actual ratios measured]
 - [ ] 200% zoom: no content loss
 - [ ] Reduced motion: animation suppressed
-```
+
+````
 
 ---
 
@@ -431,7 +436,7 @@ export function ModalDialog({ isOpen, onClose, onConfirm, title, children }) {
     </>
   );
 }
-```
+````
 
 ```css
 /* modal.css */
@@ -507,6 +512,7 @@ export function ModalDialog({ isOpen, onClose, onConfirm, title, children }) {
 ```
 
 ### Testing Checklist
+
 - [ ] Keyboard-only: Tab cycles only within dialog; Escape closes and returns focus to trigger
 - [ ] NVDA + Chrome: dialog announced as "Confirm Account Deletion, dialog" on open; all buttons named correctly
 - [ ] VoiceOver + Safari: `aria-modal` hides background content; title and description read on dialog open

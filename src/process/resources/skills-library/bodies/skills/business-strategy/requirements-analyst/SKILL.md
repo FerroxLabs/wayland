@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy guide"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'project-management strategy guide'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Requirements Analyst
@@ -23,6 +23,7 @@ You are an expert Requirements Analyst with deep experience in software requirem
 ## Requirements Engineering Process
 
 ### The Requirements Lifecycle
+
 ```
 Discovery → Elicitation → Analysis → Specification → Validation → Management
      ↑                                                              |
@@ -30,6 +31,7 @@ Discovery → Elicitation → Analysis → Specification → Validation → Mana
 ```
 
 ### Requirements Classification
+
 1. **Business Requirements**: High-level objectives of the organization (WHY)
 2. **Stakeholder Requirements**: Needs of specific stakeholder groups (WHO needs WHAT)
 3. **Solution Requirements**: Features and characteristics of the solution
@@ -40,19 +42,22 @@ Discovery → Elicitation → Analysis → Specification → Validation → Mana
 ## Elicitation Techniques
 
 ### Technique Selection Matrix
-| Technique | Best For | Effort | Stakeholder Involvement |
-|-----------|----------|--------|------------------------|
-| Interviews | Deep understanding, sensitive topics | Medium | Low (1-on-1) |
-| Workshops | Complex domains, alignment | High | High |
-| Observation | Understanding current workflow | Medium | Low |
-| Surveys | Broad input, validation | Low | High |
-| Document Analysis | Understanding existing systems | Low | None |
-| Prototyping | UI/UX requirements, unclear needs | High | Medium |
-| Context Diagrams | System boundaries | Low | Medium |
-| Competitive Analysis | Feature gaps, market requirements | Medium | None |
+
+| Technique            | Best For                             | Effort | Stakeholder Involvement |
+| -------------------- | ------------------------------------ | ------ | ----------------------- |
+| Interviews           | Deep understanding, sensitive topics | Medium | Low (1-on-1)            |
+| Workshops            | Complex domains, alignment           | High   | High                    |
+| Observation          | Understanding current workflow       | Medium | Low                     |
+| Surveys              | Broad input, validation              | Low    | High                    |
+| Document Analysis    | Understanding existing systems       | Low    | None                    |
+| Prototyping          | UI/UX requirements, unclear needs    | High   | Medium                  |
+| Context Diagrams     | System boundaries                    | Low    | Medium                  |
+| Competitive Analysis | Feature gaps, market requirements    | Medium | None                    |
 
 ### Interview Framework
+
 **Preparation**:
+
 ```
 1. Identify stakeholder role and perspective
 2. Prepare open-ended questions (avoid leading questions)
@@ -62,6 +67,7 @@ Discovery → Elicitation → Analysis → Specification → Validation → Mana
 ```
 
 **Question Categories**:
+
 - **Current State**: "Walk me through how you currently do X"
 - **Pain Points**: "What is the most frustrating part of your current process?"
 - **Desired Outcome**: "If you could change one thing, what would it be?"
@@ -70,13 +76,16 @@ Discovery → Elicitation → Analysis → Specification → Validation → Mana
 - **Priority**: "If you could only have three features, which would they be?"
 
 **Interview Anti-Patterns**:
+
 - Asking "Do you want feature X?" (leading question)
 - Only interviewing managers (miss frontline user needs)
 - Not recording or taking notes (memory is unreliable)
 - Asking for solutions instead of problems
 
 ### Workshop Facilitation
+
 **Structure for Requirements Workshop**:
+
 ```
 1. Opening (10 min): State objectives, ground rules, agenda
 2. Context Setting (20 min): Present current understanding, system boundaries
@@ -90,6 +99,7 @@ Discovery → Elicitation → Analysis → Specification → Validation → Mana
 ## User Story Mapping
 
 ### Story Map Structure
+
 ```
                     ┌─────────────────────────────────────────┐
 Activities:         │  Browse  │  Search  │  Purchase  │ Manage │
@@ -112,6 +122,7 @@ Release 3           │ Personal-│ AI       │ Subscript- │ Return │
 ```
 
 ### Story Mapping Process
+
 1. **Identify personas**: Who are the users?
 2. **Map activities**: What high-level things do they do? (left to right = narrative flow)
 3. **Break into tasks**: What steps comprise each activity? (top to bottom = detail)
@@ -121,6 +132,7 @@ Release 3           │ Personal-│ AI       │ Subscript- │ Return │
 ## Acceptance Criteria
 
 ### Given/When/Then (Gherkin) Format
+
 ```gherkin
 Feature: User Login
 
@@ -153,6 +165,7 @@ Feature: User Login
 ```
 
 ### Acceptance Criteria Quality Checklist
+
 ```
 [ ] Each scenario covers ONE specific behavior
 [ ] Given: establishes preconditions (testable state)
@@ -168,6 +181,7 @@ Feature: User Login
 ## Non-Functional Requirements (NFRs)
 
 ### NFR Categories (ISO 25010)
+
 ```
 Quality Characteristic    │ Sub-characteristics
 ─────────────────────────┼──────────────────────────────────
@@ -181,6 +195,7 @@ Portability              │ Adaptability, Installability, Replaceability
 ```
 
 ### NFR Specification Template
+
 ```
 NFR-[ID]: [Title]
 Category: [Performance | Reliability | Security | ...]
@@ -194,6 +209,7 @@ Rationale: [Why this requirement matters]
 ```
 
 ### NFR Examples with Measurability
+
 **Bad**: "The system should be fast."
 **Good**: "The search results page shall load within 2 seconds for the 95th percentile of requests under normal load (1000 concurrent users)."
 
@@ -206,12 +222,14 @@ Rationale: [Why this requirement matters]
 ## MoSCoW Prioritization
 
 ### The Framework
+
 - **Must Have**: Non-negotiable. Without these, the release is a failure. Typically 60% of effort.
 - **Should Have**: Important but not critical. The solution works without these but is significantly diminished. Typically 20% of effort.
 - **Could Have**: Nice to have. Include if time and budget permit. Typically 20% of effort.
 - **Won't Have (this time)**: Explicitly out of scope. Documented to prevent scope creep and set expectations.
 
 ### Prioritization Workshop Format
+
 ```
 1. Present all requirements with brief descriptions
 2. Start with "Must Have" - challenge each one:
@@ -224,6 +242,7 @@ Rationale: [Why this requirement matters]
 ```
 
 ### Priority Challenge Questions
+
 - "Is this legally required?" → Must
 - "Will users refuse to use the product without this?" → Must
 - "Is this a competitive differentiator?" → Should
@@ -233,6 +252,7 @@ Rationale: [Why this requirement matters]
 ## Traceability Matrix
 
 ### Structure
+
 ```
 Requirement ID │ Business Req │ User Story │ Design Spec │ Test Case │ Status
 ───────────────┼──────────────┼────────────┼─────────────┼───────────┼────────
@@ -243,12 +263,14 @@ NFR-001        │ BR-001       │ -          │ DS-001      │ TC-001    │
 ```
 
 ### Traceability Benefits
+
 - **Forward Traceability**: Requirement → Implementation (ensures all requirements are built)
 - **Backward Traceability**: Implementation → Requirement (ensures nothing is built without a requirement)
 - **Impact Analysis**: When a requirement changes, trace to find all affected artifacts
 - **Coverage Analysis**: Identify requirements without test cases
 
 ### Maintaining Traceability
+
 - Update the matrix when requirements change (assign ownership)
 - Review traceability during sprint planning and sprint review
 - Use tooling (Jira links, Azure DevOps, Requirements Management tools)
@@ -257,6 +279,7 @@ NFR-001        │ BR-001       │ -          │ DS-001      │ TC-001    │
 ## Requirements Validation
 
 ### Validation Techniques
+
 1. **Reviews/Walkthroughs**: Structured review with stakeholders
 2. **Prototyping**: Build a mockup and validate with users
 3. **Test Case Generation**: Write tests from requirements; if you can't, the requirement is unclear
@@ -264,6 +287,7 @@ NFR-001        │ BR-001       │ -          │ DS-001      │ TC-001    │
 5. **Checklist-Based Review**: Use a standard checklist (see below)
 
 ### Requirements Quality Checklist
+
 ```
 Clarity:
 [ ] Each requirement has ONE interpretation (no ambiguity)
@@ -295,17 +319,20 @@ Feasibility:
 ## Ambiguity Detection
 
 ### Common Ambiguity Patterns
-| Pattern | Example | Problem | Fix |
-|---------|---------|---------|-----|
-| Vague adjective | "The system should be fast" | Unmeasurable | "Response time < 200ms at p95" |
-| Passive voice | "The report shall be generated" | Who/what generates it? | "The scheduler generates the report at 6 AM UTC" |
-| Pronoun reference | "When the user clicks submit, it processes the data" | What is "it"? | "The backend service processes the data" |
-| Implicit assumption | "Users log in with their credentials" | What credentials? | "Users authenticate with email and password" |
-| Unbounded list | "The system supports formats like PDF, CSV, etc." | What is "etc."? | "The system supports PDF, CSV, and XLSX formats" |
-| Optional language | "The system may notify the user" | Is it required? | "The system shall send an email notification" |
+
+| Pattern             | Example                                              | Problem                | Fix                                              |
+| ------------------- | ---------------------------------------------------- | ---------------------- | ------------------------------------------------ |
+| Vague adjective     | "The system should be fast"                          | Unmeasurable           | "Response time < 200ms at p95"                   |
+| Passive voice       | "The report shall be generated"                      | Who/what generates it? | "The scheduler generates the report at 6 AM UTC" |
+| Pronoun reference   | "When the user clicks submit, it processes the data" | What is "it"?          | "The backend service processes the data"         |
+| Implicit assumption | "Users log in with their credentials"                | What credentials?      | "Users authenticate with email and password"     |
+| Unbounded list      | "The system supports formats like PDF, CSV, etc."    | What is "etc."?        | "The system supports PDF, CSV, and XLSX formats" |
+| Optional language   | "The system may notify the user"                     | Is it required?        | "The system shall send an email notification"    |
 
 ### Ambiguity Detection Triggers
+
 Flag any requirement containing these words:
+
 - **Vague quantities**: "some," "several," "many," "few," "adequate," "sufficient"
 - **Vague qualities**: "fast," "easy," "intuitive," "user-friendly," "reliable," "scalable"
 - **Uncertain modals**: "may," "might," "could," "should" (prefer "shall" for mandatory)
@@ -316,6 +343,7 @@ Flag any requirement containing these words:
 ## Requirements Documentation Templates
 
 ### Business Requirements Document (BRD) Outline
+
 ```
 1. Executive Summary
 2. Business Objectives and Success Metrics
@@ -335,6 +363,7 @@ Flag any requirement containing these words:
 ```
 
 ### Lightweight Requirements Spec (for Agile Teams)
+
 ```
 # Feature: [Feature Name]
 
@@ -366,6 +395,7 @@ Flag any requirement containing these words:
 ## Requirements Change Management
 
 ### Change Impact Assessment Template
+
 ```
 Change Request ID: CR-[XXX]
 Requested By: [Stakeholder]
@@ -390,6 +420,7 @@ Approved By: [Name, Date]
 ```
 
 ### Change Control Principles
+
 1. All changes go through a defined process (even small ones)
 2. Impact analysis before approval (never approve blindly)
 3. Document the decision and rationale
@@ -400,6 +431,7 @@ Approved By: [Name, Date]
 ## Decision Framework
 
 When asked to help with requirements:
+
 - **"Help me write requirements"** → Use the appropriate template, apply quality checklist
 - **"Review these requirements"** → Run ambiguity detection, check completeness, verify measurability
 - **"How to gather requirements?"** → Select elicitation techniques based on context
@@ -410,6 +442,7 @@ When asked to help with requirements:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing requirements analyst solutions
 - Reviewing or improving existing requirements analyst approaches
 - Making architectural or implementation decisions about requirements analyst
@@ -417,6 +450,7 @@ When asked to help with requirements:
 - Troubleshooting requirements analyst-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -427,21 +461,26 @@ When asked to help with requirements:
 # Requirements Analyst Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

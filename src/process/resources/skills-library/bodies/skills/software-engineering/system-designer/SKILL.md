@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns guide"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns guide'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # System Designer
@@ -23,6 +23,7 @@ You are an expert System Designer who approaches complex system design with a st
 ## System Design Methodology
 
 ### The 4-Step Framework
+
 ```
 Step 1: Requirements and Constraints (10-15 min)
 Step 2: High-Level Design (10-15 min)
@@ -33,7 +34,9 @@ Step 4: Bottlenecks and Trade-offs (5-10 min)
 ## Step 1: Requirements Analysis
 
 ### Functional Requirements
+
 Ask these questions to clarify scope:
+
 ```
 1. Who are the users? How many?
 2. What are the core features? (List only the essential 3-5)
@@ -45,6 +48,7 @@ Ask these questions to clarify scope:
 ```
 
 ### Non-Functional Requirements
+
 ```
 Performance:
 - Latency targets (p50, p95, p99)
@@ -68,6 +72,7 @@ Consistency:
 ### Capacity Estimation
 
 **Back-of-Envelope Calculations**:
+
 ```
 Users:
 - Total users: 100M
@@ -100,6 +105,7 @@ Useful Constants:
 ## Step 2: High-Level Design
 
 ### Core Components
+
 ```
 Typical web application components:
 
@@ -114,6 +120,7 @@ Client → Load Balancer → Web Servers → Application Servers
 ```
 
 ### Database Selection Decision Tree
+
 ```
 What type of data?
 ├── Structured with relationships → Relational DB (PostgreSQL, MySQL)
@@ -132,6 +139,7 @@ Can you use more than one? YES. Most real systems use 2-3 database types.
 ```
 
 ### Communication Patterns
+
 ```
 Synchronous:
 - REST API: Simple CRUD, public APIs, broad compatibility
@@ -147,6 +155,7 @@ Asynchronous:
 ## Step 3: Detailed Design
 
 ### Data Model Design
+
 ```
 1. Identify entities and relationships
 2. Define primary keys and access patterns
@@ -180,6 +189,7 @@ Example (Social Media Post):
 ```
 
 ### API Design
+
 ```
 Design APIs for the core operations:
 
@@ -203,6 +213,7 @@ API Design Principles:
 ```
 
 ### Caching Strategy
+
 ```
 Caching Decision Framework:
 1. What to cache?
@@ -231,6 +242,7 @@ Caching Decision Framework:
 ## Step 4: Bottleneck Identification
 
 ### Common Bottlenecks
+
 ```
 1. Database:
    - Single database handling all traffic
@@ -257,6 +269,7 @@ Caching Decision Framework:
 ```
 
 ### Trade-Off Analysis Framework
+
 ```
 For every design decision, explicitly state the trade-off:
 
@@ -278,12 +291,14 @@ Common Trade-offs:
 ### Case Study 1: URL Shortener (like bit.ly)
 
 **Requirements**:
+
 - Shorten long URLs to short codes
 - Redirect short URLs to original URLs
 - Analytics (click count, geographic data)
 - 100M URLs created per month, 10B redirects per month
 
 **Capacity**:
+
 ```
 Writes: 100M / (30 * 86400) ≈ 40 writes/sec
 Reads: 10B / (30 * 86400) ≈ 3,800 reads/sec
@@ -295,6 +310,7 @@ Storage per year: 100M * 12 * 500 bytes = 600 GB/year
 ```
 
 **Design**:
+
 ```
 ┌────────┐    ┌──────────────┐    ┌──────────────┐
 │ Client │───>│ Load Balancer│───>│ App Servers  │
@@ -317,6 +333,7 @@ Key Decisions:
 ### Case Study 2: Chat System (like Slack/WhatsApp)
 
 **Requirements**:
+
 - 1:1 and group messaging
 - Online/offline status
 - Message history and search
@@ -325,6 +342,7 @@ Key Decisions:
 - 50M DAU, average 40 messages/day
 
 **Capacity**:
+
 ```
 Messages: 50M * 40 / 86400 ≈ 23,000 messages/sec
 Connections: 5M concurrent WebSocket connections
@@ -332,6 +350,7 @@ Storage: 50M * 40 * 200 bytes = 400 GB/day
 ```
 
 **Design**:
+
 ```
 ┌────────┐     ┌──────────────┐     ┌──────────────────┐
 │ Client │────>│ API Gateway  │────>│ Chat Service     │
@@ -358,6 +377,7 @@ Key Decisions:
 ### Case Study 3: News Feed System (like Twitter/Facebook)
 
 **Requirements**:
+
 - Post content (text, images, video)
 - View personalized feed
 - Like, comment, share
@@ -365,6 +385,7 @@ Key Decisions:
 - 500M DAU, average user follows 200 accounts
 
 **Capacity**:
+
 ```
 Feed reads: 500M * 10 feed loads/day / 86400 ≈ 58,000 reads/sec
 Posts: 500M * 0.1 (10% post daily) * 2 posts = 100M posts/day
@@ -372,6 +393,7 @@ Storage: 100M * 2KB = 200 GB/day
 ```
 
 **Design**:
+
 ```
 Fan-out Strategies:
 1. Fan-out on Write (Push model):
@@ -409,6 +431,7 @@ Feed Service Architecture:
 ## Design Patterns Library
 
 ### Rate Limiting
+
 ```
 Algorithms:
 1. Token Bucket: Smooth rate, allows bursts up to bucket size
@@ -424,6 +447,7 @@ Implementation:
 ```
 
 ### Pagination
+
 ```
 Offset-based:
 GET /items?offset=20&limit=10
@@ -442,6 +466,7 @@ Con: Requires sortable unique key
 ```
 
 ### Idempotency
+
 ```
 Problem: Network failures cause retries, retries cause duplicate operations.
 
@@ -465,6 +490,7 @@ Server logic:
 ## System Design Checklist
 
 ### Before Finishing Any Design
+
 ```
 [ ] Requirements clearly stated (functional + non-functional)
 [ ] Capacity estimated (storage, bandwidth, QPS)
@@ -482,6 +508,7 @@ Server logic:
 ## Quick Decision Guide
 
 When asked about system design:
+
 - **"Design a system for X"** → Follow the 4-step framework systematically
 - **"How to scale X?"** → Identify bottleneck first, then apply targeted scaling pattern
 - **"SQL or NoSQL?"** → Use the database selection decision tree
@@ -492,6 +519,7 @@ When asked about system design:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing system designer solutions
 - Reviewing or improving existing system designer approaches
 - Making architectural or implementation decisions about system designer
@@ -499,6 +527,7 @@ When asked about system design:
 - Troubleshooting system designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -509,21 +538,26 @@ When asked about system design:
 # System Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

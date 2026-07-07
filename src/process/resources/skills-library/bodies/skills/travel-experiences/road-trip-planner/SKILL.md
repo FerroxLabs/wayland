@@ -12,13 +12,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary planning checklist"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel itinerary planning checklist'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Road Trip Planner
@@ -26,6 +26,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to plan a road trip or multi-day driving route
 - User wants to find stops, attractions, or overnight stays along a driving route
 - User needs a driving itinerary with mileage and time estimates per leg
@@ -33,6 +34,7 @@ metadata:
 - User wants to plan a scenic drive or highway route with points of interest
 
 **Do NOT use when:**
+
 - User wants a city-based sightseeing itinerary without driving (use `trip-itinerary-builder`)
 - User is planning air travel or train travel between cities
 - User wants a cycling or biking route (use hobbies-crafts cycling skills)
@@ -197,11 +199,11 @@ metadata:
 
 ### Day 1: Denver to Glenwood Springs -- 160 miles, 3 hours driving
 
-| Segment | Route                              | Distance | Drive time | Stop                               | Stop duration |
-|---------|------------------------------------|----------|------------|-------------------------------------|---------------|
-| 1       | Denver to Georgetown area          | 50 mi    | 1:00       | Rest stop -- mountain overlook      | 15 min        |
-| 2       | Georgetown to Vail area            | 55 mi    | 1:00       | Vail village walk and lunch         | 60 min        |
-| 3       | Vail to Glenwood Springs           | 55 mi    | 1:00       | Arrive at overnight                 | --            |
+| Segment | Route                     | Distance | Drive time | Stop                           | Stop duration |
+| ------- | ------------------------- | -------- | ---------- | ------------------------------ | ------------- |
+| 1       | Denver to Georgetown area | 50 mi    | 1:00       | Rest stop -- mountain overlook | 15 min        |
+| 2       | Georgetown to Vail area   | 55 mi    | 1:00       | Vail village walk and lunch    | 60 min        |
+| 3       | Vail to Glenwood Springs  | 55 mi    | 1:00       | Arrive at overnight            | --            |
 
 **Departure:** 08:00
 **Arrival:** 12:15
@@ -213,8 +215,8 @@ metadata:
 
 ### Day 2: Glenwood Springs to Moab -- 230 miles, 4.5 hours driving
 
-| Segment | Route                              | Distance | Drive time | Stop                               | Stop duration |
-|---------|------------------------------------|----------|------------|-------------------------------------|---------------|
+| Segment | Route                              | Distance | Drive time | Stop                                | Stop duration |
+| ------- | ---------------------------------- | -------- | ---------- | ----------------------------------- | ------------- |
 | 1       | Glenwood Springs to Grand Junction | 90 mi    | 1:30       | Colorado National Monument overlook | 30 min        |
 | 2       | Grand Junction to Cisco area       | 50 mi    | 0:45       | Rest stop and fuel                  | 15 min        |
 | 3       | Cisco to Moab                      | 90 mi    | 1:15       | Scenic drive along Colorado River   | 20 min photo  |
@@ -230,14 +232,14 @@ metadata:
 
 ### Day 3: Moab -- No Driving Day (Arches Area Exploration)
 
-| Time  | Activity                                        | Duration |
-|-------|-------------------------------------------------|----------|
-| 07:00 | Early start to Arches area scenic drive          | 3 hours  |
-| 10:00 | Short hikes: Delicate Arch viewpoint area        | 2 hours  |
-| 12:00 | Lunch back in Moab                               | 60 min   |
-| 13:30 | Dead Horse Point area overlook drive              | 2 hours  |
-| 15:30 | Return to Moab, rest                              | --       |
-| 18:00 | Sunset viewpoint drive                            | 60 min   |
+| Time  | Activity                                  | Duration |
+| ----- | ----------------------------------------- | -------- |
+| 07:00 | Early start to Arches area scenic drive   | 3 hours  |
+| 10:00 | Short hikes: Delicate Arch viewpoint area | 2 hours  |
+| 12:00 | Lunch back in Moab                        | 60 min   |
+| 13:30 | Dead Horse Point area overlook drive      | 2 hours  |
+| 15:30 | Return to Moab, rest                      | --       |
+| 18:00 | Sunset viewpoint drive                    | 60 min   |
 
 **Day total:** 0 road trip miles | Full activity day
 **Overnight:** Moab (same accommodation)
@@ -246,11 +248,11 @@ metadata:
 
 ### Day 4: Moab to Glenwood Springs -- 230 miles, 4.5 hours driving
 
-| Segment | Route                              | Distance | Drive time | Stop                               | Stop duration |
-|---------|------------------------------------|----------|------------|-------------------------------------|---------------|
-| 1       | Moab to Fruita area                | 110 mi   | 1:45       | Rest stop and fuel                  | 15 min        |
-| 2       | Fruita to Glenwood Canyon area     | 80 mi    | 1:15       | Glenwood Canyon rest area and lunch | 60 min        |
-| 3       | Glenwood Canyon to Glenwood Springs| 40 mi    | 0:30       | Arrive at overnight                 | --            |
+| Segment | Route                               | Distance | Drive time | Stop                                | Stop duration |
+| ------- | ----------------------------------- | -------- | ---------- | ----------------------------------- | ------------- |
+| 1       | Moab to Fruita area                 | 110 mi   | 1:45       | Rest stop and fuel                  | 15 min        |
+| 2       | Fruita to Glenwood Canyon area      | 80 mi    | 1:15       | Glenwood Canyon rest area and lunch | 60 min        |
+| 3       | Glenwood Canyon to Glenwood Springs | 40 mi    | 0:30       | Arrive at overnight                 | --            |
 
 **Departure:** 09:00
 **Arrival:** 15:30
@@ -262,11 +264,11 @@ metadata:
 
 ### Day 5: Glenwood Springs to Denver -- 160 miles, 3 hours driving
 
-| Segment | Route                              | Distance | Drive time | Stop                               | Stop duration |
-|---------|------------------------------------|----------|------------|-------------------------------------|---------------|
-| 1       | Glenwood Springs to Copper Mountain| 80 mi    | 1:15       | Rest and mountain views             | 15 min        |
-| 2       | Copper Mountain to Idaho Springs   | 45 mi    | 0:45       | Lunch at Idaho Springs mining town  | 45 min        |
-| 3       | Idaho Springs to Denver            | 35 mi    | 0:40       | Arrive home                         | --            |
+| Segment | Route                               | Distance | Drive time | Stop                               | Stop duration |
+| ------- | ----------------------------------- | -------- | ---------- | ---------------------------------- | ------------- |
+| 1       | Glenwood Springs to Copper Mountain | 80 mi    | 1:15       | Rest and mountain views            | 15 min        |
+| 2       | Copper Mountain to Idaho Springs    | 45 mi    | 0:45       | Lunch at Idaho Springs mining town | 45 min        |
+| 3       | Idaho Springs to Denver             | 35 mi    | 0:40       | Arrive home                        | --            |
 
 **Departure:** 09:00
 **Arrival:** 13:00
@@ -286,14 +288,14 @@ metadata:
 
 ### Trip Totals
 
-| Metric              | Value              |
-|---------------------|--------------------|
-| Total miles         | ~700               |
-| Total driving hours | ~12                |
-| Total stop hours    | ~5                 |
-| Fuel stops          | 3                  |
-| Estimated fuel cost | $85                |
-| Overnight stops     | 4 nights           |
+| Metric              | Value    |
+| ------------------- | -------- |
+| Total miles         | ~700     |
+| Total driving hours | ~12      |
+| Total stop hours    | ~5       |
+| Fuel stops          | 3        |
+| Estimated fuel cost | $85      |
+| Overnight stops     | 4 nights |
 
 ---
 
@@ -311,11 +313,13 @@ metadata:
 8. **Are you bringing pets?**
 9. **What are your must-stop interests?** (national parks, beaches, cities, quirky attractions, food spots)
 10. **Where do you want to sleep?** (hotels, camping, car, mix)
+
 ---
 
 ## Step 1: Route Optimization
 
 ### Route Planning Process
+
 ```
 ROUTE PLANNING WORKFLOW:
 
@@ -354,6 +358,7 @@ For each long stretch, identify:
 ```
 
 ### Route Planning Tools
+
 ```
 RECOMMENDED TOOLS:
 
@@ -381,11 +386,13 @@ OFFLINE MAPS:
 - Download navigation for areas with poor cell service
 - Paper atlas as absolute backup
 ```
+
 ---
 
 ## Step 2: Stop Planning
 
 ### The 2-Hour Rule
+
 ```
 STOP FREQUENCY GUIDELINES:
 
@@ -400,6 +407,7 @@ Once per day: Long stop (1-3 hours)
 ```
 
 ### Stop Types and Planning
+
 ```
 STOP CATEGORIES:
 
@@ -447,11 +455,13 @@ Total drive: {{HOURS}} hrs ({{MILES}} mi)
 
 Fuel stops needed: {{NUMBER}} (at {{LOCATIONS}})
 ```
+
 ---
 
 ## Step 3: Vehicle Preparation Checklist
 
 ### Pre-Trip Vehicle Check
+
 ```
 VEHICLE PREPARATION (1-2 weeks before):
 
@@ -491,11 +501,13 @@ RENTAL CAR CONSIDERATIONS:
 [ ] Check for toll transponder
 [ ] Understand fuel return policy
 ```
+
 ---
 
 ## Step 4: Emergency Kit
 
 ### Road Trip Emergency Essentials
+
 ```
 EMERGENCY KIT:
 
@@ -540,11 +552,13 @@ ROADSIDE ASSISTANCE:
 - Your insurance's roadside number: {{NUMBER}}
 - Know how to change a tire (practice before the trip)
 ```
+
 ---
 
 ## Step 5: Entertainment Planning
 
 ### Keeping Everyone Happy
+
 ```
 ENTERTAINMENT OPTIONS:
 
@@ -580,6 +594,7 @@ FOR KIDS:
 ```
 
 ### Road Trip Games
+
 ```
 CLASSIC ROAD TRIP GAMES:
 
@@ -613,11 +628,13 @@ CLASSIC ROAD TRIP GAMES:
 10. ROAD TRIP BINGO
     Create bingo cards with things you might see
 ```
+
 ---
 
 ## Step 6: Accommodation Along the Route
 
 ### Booking Strategy
+
 ```
 ACCOMMODATION PLANNING:
 
@@ -652,11 +669,13 @@ Day | End City     | Option 1        | Price | Option 2        | Price
 2   | {{CITY}}    | {{HOTEL}}       | ${{}} | {{CAMPGROUND}}  | ${{}}
 3   | {{CITY}}    | {{HOTEL}}       | ${{}} | {{MOTEL}}       | ${{}}
 ```
+
 ---
 
 ## Step 7: Budget Estimation
 
 ### Road Trip Budget Calculator
+
 ```
 ROAD TRIP BUDGET:
 
@@ -705,11 +724,13 @@ Car rental:      ${{}}
 Misc:            ${{}}
 TOTAL:           ${{}}
 ```
+
 ---
 
 ## Step 8: Pet Travel Considerations
 
 ### Traveling with Pets
+
 ```
 PET TRAVEL CHECKLIST:
 
@@ -766,9 +787,11 @@ PET CAR SAFETY:
 - Do not feed a large meal right before driving (motion sickness)
 - Motion sickness solutions: Dramamine for dogs (consult vet for dosage)
 ```
+
 ---
 
 ## Road Trip Day-of Checklist
+
 ```
 DEPARTURE DAY:
 
@@ -789,5 +812,7 @@ MORNING OF:
 [ ] Lock up the house, set lights on timers
 [ ] And you are off
 ```
+
 ---
-*This skill provides road trip planning guidance. Always check current road conditions, weather, and attraction hours before departing each day. The best road trips balance planning with spontaneity -- leave room for unexpected discoveries.*
+
+_This skill provides road trip planning guidance. Always check current road conditions, weather, and attraction hours before departing each day. The best road trips balance planning with spontaneity -- leave room for unexpected discoveries._

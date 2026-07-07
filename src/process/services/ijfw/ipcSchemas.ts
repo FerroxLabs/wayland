@@ -221,9 +221,7 @@ export const jsonRpcResponseSchema = z
     jsonrpc: z.literal('2.0'),
     id: z.number().int().nonnegative(),
     result: z.unknown().optional(),
-    error: z
-      .object({ code: z.number().int(), message: z.string() })
-      .optional(),
+    error: z.object({ code: z.number().int(), message: z.string() }).optional(),
   })
   .strict();
 
@@ -231,7 +229,7 @@ export type JsonRpcResponse = z.infer<typeof jsonRpcResponseSchema>;
 
 // Standardized errorReason enum (mirrors @/common/types/ijfw IjfwErrorReason).
 export const ijfwErrorReasonSchema = z.enum(
-  IJFW_ERROR_REASONS as unknown as readonly [IjfwErrorReason, ...IjfwErrorReason[]],
+  IJFW_ERROR_REASONS as unknown as readonly [IjfwErrorReason, ...IjfwErrorReason[]]
 );
 
 // Renderer → main argument schema for `brain.invoke`. Pre-flight only - the

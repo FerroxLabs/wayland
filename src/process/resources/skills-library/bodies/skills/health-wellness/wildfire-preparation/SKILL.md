@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness checklist guide beginner-friendly testing planning safety performing-arts"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness checklist guide beginner-friendly testing planning safety performing-arts'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Wildfire Preparation
@@ -22,15 +22,16 @@ You are a wildfire preparedness advisor who helps homeowners and communities in 
 
 > **DISCLAIMER**: This skill provides general wildfire preparedness guidance. It is not a substitute for official guidance from your local fire department, CAL FIRE, USDA Forest Service, or equivalent fire authority. Wildfire behavior is unpredictable and conditions can change rapidly. Always follow official evacuation orders immediately. Consult certified arborists, fire safety professionals, and your insurance company for property-specific recommendations.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wildfire preparation techniques or best practices
 - User needs guidance on wildfire preparation concepts
 - User wants to implement or improve their approach to wildfire preparation
 
 **Do NOT use when:**
+
 - The request falls outside the scope of wildfire preparation
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,6 +52,7 @@ You are a wildfire preparedness advisor who helps homeowners and communities in 
 ### How Wildfires Spread
 
 **Three heat transfer mechanisms:**
+
 - **Radiation**: Heat radiating from flames ignites nearby materials
 - **Convection**: Rising hot air and gases preheat materials above the fire
 - **Ember attack (spotting)**: Wind-blown embers land on and ignite materials far from the fire front
@@ -59,15 +61,15 @@ You are a wildfire preparedness advisor who helps homeowners and communities in 
 
 ### Fire Behavior Factors
 
-| Factor | Impact on Fire |
-|--------|---------------|
-| Fuel (vegetation and materials) | More fuel = more intense fire |
-| Slope | Fire moves faster uphill (up to 4x speed on steep slopes) |
-| Wind | Increases fire spread rate and ember transport |
-| Temperature | Higher temp = lower fuel moisture = easier ignition |
-| Humidity | Lower humidity = drier fuels = faster spread |
-| Drought | Reduces moisture in vegetation, increasing fire risk |
-| Time of day | Typically most active mid-afternoon (highest temp, lowest humidity) |
+| Factor                          | Impact on Fire                                                      |
+| ------------------------------- | ------------------------------------------------------------------- |
+| Fuel (vegetation and materials) | More fuel = more intense fire                                       |
+| Slope                           | Fire moves faster uphill (up to 4x speed on steep slopes)           |
+| Wind                            | Increases fire spread rate and ember transport                      |
+| Temperature                     | Higher temp = lower fuel moisture = easier ignition                 |
+| Humidity                        | Lower humidity = drier fuels = faster spread                        |
+| Drought                         | Reduces moisture in vegetation, increasing fire risk                |
+| Time of day                     | Typically most active mid-afternoon (highest temp, lowest humidity) |
 
 ### Assessing Your Risk
 
@@ -131,6 +133,7 @@ You are a wildfire preparedness advisor who helps homeowners and communities in 
 ### Slope Adjustments
 
 **If your home is on a slope, increase defensible space distances:**
+
 - 10-20% slope: Extend Zone 2 to 200 feet
 - 20-40% slope: Extend Zone 2 to 200+ feet
 - 40%+ slope: Maximum defensible space, consult fire professional
@@ -198,18 +201,19 @@ You are a wildfire preparedness advisor who helps homeowners and communities in 
 
 ### Air Quality Index (AQI) Guide
 
-| AQI Range | Level | Action |
-|-----------|-------|--------|
-| 0-50 | Good | Normal outdoor activities |
-| 51-100 | Moderate | Sensitive groups limit prolonged outdoor exertion |
-| 101-150 | Unhealthy for Sensitive Groups | Sensitive groups avoid prolonged outdoor exertion |
-| 151-200 | Unhealthy | Everyone reduce prolonged outdoor exertion |
-| 201-300 | Very Unhealthy | Everyone avoid all outdoor exertion |
-| 301-500 | Hazardous | Everyone stay indoors, avoid all outdoor activity |
+| AQI Range | Level                          | Action                                            |
+| --------- | ------------------------------ | ------------------------------------------------- |
+| 0-50      | Good                           | Normal outdoor activities                         |
+| 51-100    | Moderate                       | Sensitive groups limit prolonged outdoor exertion |
+| 101-150   | Unhealthy for Sensitive Groups | Sensitive groups avoid prolonged outdoor exertion |
+| 151-200   | Unhealthy                      | Everyone reduce prolonged outdoor exertion        |
+| 201-300   | Very Unhealthy                 | Everyone avoid all outdoor exertion               |
+| 301-500   | Hazardous                      | Everyone stay indoors, avoid all outdoor activity |
 
 ### Indoor Air Protection
 
 **Creating a clean air space:**
+
 - [ ] Close all windows and doors
 - [ ] Set HVAC to recirculate (close fresh air intake)
 - [ ] Run portable air purifiers with HEPA filters (size for the room)
@@ -219,6 +223,7 @@ You are a wildfire preparedness advisor who helps homeowners and communities in 
 - [ ] Create one "clean room" if you cannot filter the whole house
 
 **DIY air filter (when purifiers are unavailable):**
+
 - Attach a high-rated furnace filter (MERV 13+) to the back of a box fan
 - Seal edges with tape to prevent air bypassing the filter
 - Run on medium or high speed
@@ -248,11 +253,11 @@ You are a wildfire preparedness advisor who helps homeowners and communities in 
 
 **Most jurisdictions use a system similar to:**
 
-| Level | Meaning | Action |
-|-------|---------|--------|
-| Watch / Advisory | Fire in the area, potential threat | Prepare to evacuate, begin packing |
-| Warning / Set | Significant threat, prepare to leave immediately | Final preparations, load vehicle |
-| Order / Go | Immediate threat to life | Leave NOW, take your go-bag |
+| Level            | Meaning                                          | Action                             |
+| ---------------- | ------------------------------------------------ | ---------------------------------- |
+| Watch / Advisory | Fire in the area, potential threat               | Prepare to evacuate, begin packing |
+| Warning / Set    | Significant threat, prepare to leave immediately | Final preparations, load vehicle   |
+| Order / Go       | Immediate threat to life                         | Leave NOW, take your go-bag        |
 
 ### Evacuation Decision Timeline
 
@@ -317,6 +322,7 @@ ORDER/GO ISSUED:
 **This is a last resort. Always evacuate when ordered.**
 
 If caught in your home:
+
 - Call 911 and report your location
 - Close all windows, doors, and vents
 - Fill sinks and bathtubs with water
@@ -327,6 +333,7 @@ If caught in your home:
 - Signal for help if possible (light, cloth in window)
 
 If caught in your vehicle:
+
 - Stay in the vehicle (it provides significant protection)
 - Close all windows and vents
 - Set air conditioning to recirculate
@@ -422,7 +429,6 @@ PRIORITY ACTIONS:
 3. _______________________________________________
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -430,7 +436,6 @@ PRIORITY ACTIONS:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -451,14 +456,12 @@ PRIORITY ACTIONS:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

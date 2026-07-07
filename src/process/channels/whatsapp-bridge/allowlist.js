@@ -55,7 +55,7 @@ export function parseAllowedUsers(rawValue) {
     String(rawValue || '')
       .split(',')
       .map((value) => normalizeWhatsAppIdentifier(value))
-      .filter(Boolean),
+      .filter(Boolean)
   );
 }
 

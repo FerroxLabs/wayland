@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Zoom
     estSeconds: 30
-    primaryAction: { label: "Sign in with Zoom", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Zoom', action: 'oauth-flow' }
     body: |
       Zoom requires every integration to be a registered Zoom App, so the
       first time you click **Sign in with Zoom** Wayland opens a dialog for

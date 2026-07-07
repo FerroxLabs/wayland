@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing strategy analysis planning"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing strategy analysis planning'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Growth Experiment
 
 ## When to Use
@@ -35,6 +36,7 @@ Use this skill when the user needs to design a rigorous, lean growth experiment 
 - User wants to instrument a new channel, tactic, or message variation and needs a measurement structure before launching
 
 **Do NOT use when:**
+
 - User needs a full go-to-market or marketing strategy document -- use `marketing-strategy`
 - User is planning a multi-channel paid campaign with budget allocation and creative direction -- use `campaign-planning`
 - User is designing an in-product feature A/B test with engineering instrumentation and product metrics -- use `ab-test-design` in product management skills
@@ -381,80 +383,80 @@ If the experiment tests a referral mechanic, a social sharing feature, or any vi
 
 ### Experiment Design
 
-| Component | Detail |
-|-----------|--------|
-| Control | Current onboarding flow: "Create Your First Project" step shows an empty project name field and an empty task list with placeholder text "Add your first task..." |
-| Variant | Same step with an added tooltip that appears automatically on page load, displaying a pre-filled project template named "Website Relaunch" with 3 example tasks and a blue "Start with this template" button. Tooltip is dismissable with an "I'll start from scratch" link. |
-| Primary Metric | Week-1 activation rate: % of new signups who create at least one project containing at least one task within 7 days of signup (unique users who complete action / unique users who signed up in the experiment period) |
-| Guardrail Metrics | (1) Day-30 retention rate -- ensure activated users retain at the same or higher rate; (2) Time-to-first-project (median, in hours) -- variant should reduce this; (3) Support ticket volume tagged "onboarding" -- should not increase; (4) Project deletion rate within 48 hours -- ensure template projects are not immediately discarded |
-| Population | All new user signups (first-time accounts, not re-registrations). Exclude users invited to an existing workspace -- they have a different onboarding context. |
-| Randomization Unit | User ID (assigned at account creation, persists across sessions and devices) |
-| Traffic Split | 50/50 (400 users/month per group) |
-| Sample Size | 1,580 users per group (3,160 total). Calculation: two-proportion z-test, baseline p1 = 0.38, target p2 = 0.46, alpha = 0.05 (two-tailed), power = 80%. |
-| Duration | 35 days (~4.4 weeks at 720 qualified signups/month after exclusions, targeting 1,600+ per group at 50/50 split -- slightly over the minimum, which is intentional to ensure the full sample) |
-| Confidence Level | 95% (alpha = 0.05) |
-| Statistical Test | Two-proportion z-test (binary outcome: activated / not activated). Python: scipy.stats.proportions_ztest or Evan Miller's A/B testing calculator. |
+| Component          | Detail                                                                                                                                                                                                                                                                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Control            | Current onboarding flow: "Create Your First Project" step shows an empty project name field and an empty task list with placeholder text "Add your first task..."                                                                                                                                                                            |
+| Variant            | Same step with an added tooltip that appears automatically on page load, displaying a pre-filled project template named "Website Relaunch" with 3 example tasks and a blue "Start with this template" button. Tooltip is dismissable with an "I'll start from scratch" link.                                                                 |
+| Primary Metric     | Week-1 activation rate: % of new signups who create at least one project containing at least one task within 7 days of signup (unique users who complete action / unique users who signed up in the experiment period)                                                                                                                       |
+| Guardrail Metrics  | (1) Day-30 retention rate -- ensure activated users retain at the same or higher rate; (2) Time-to-first-project (median, in hours) -- variant should reduce this; (3) Support ticket volume tagged "onboarding" -- should not increase; (4) Project deletion rate within 48 hours -- ensure template projects are not immediately discarded |
+| Population         | All new user signups (first-time accounts, not re-registrations). Exclude users invited to an existing workspace -- they have a different onboarding context.                                                                                                                                                                                |
+| Randomization Unit | User ID (assigned at account creation, persists across sessions and devices)                                                                                                                                                                                                                                                                 |
+| Traffic Split      | 50/50 (400 users/month per group)                                                                                                                                                                                                                                                                                                            |
+| Sample Size        | 1,580 users per group (3,160 total). Calculation: two-proportion z-test, baseline p1 = 0.38, target p2 = 0.46, alpha = 0.05 (two-tailed), power = 80%.                                                                                                                                                                                       |
+| Duration           | 35 days (~4.4 weeks at 720 qualified signups/month after exclusions, targeting 1,600+ per group at 50/50 split -- slightly over the minimum, which is intentional to ensure the full sample)                                                                                                                                                 |
+| Confidence Level   | 95% (alpha = 0.05)                                                                                                                                                                                                                                                                                                                           |
+| Statistical Test   | Two-proportion z-test (binary outcome: activated / not activated). Python: scipy.stats.proportions_ztest or Evan Miller's A/B testing calculator.                                                                                                                                                                                            |
 
 ---
 
 ### Minimum Detectable Effect (MDE) Calculation
 
-| Parameter | Value |
-|-----------|-------|
-| Baseline Activation Rate | 38.0% |
-| Target Activation Rate | 46.0% |
-| Absolute Lift | +8.0 percentage points |
-| Relative Lift | +21.1% |
+| Parameter                      | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baseline Activation Rate       | 38.0%                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Target Activation Rate         | 46.0%                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Absolute Lift                  | +8.0 percentage points                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Relative Lift                  | +21.1%                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Business Justification for MDE | At 800 signups/month, each percentage point of activation lift = 8 additional activated users/month. An 8pp lift = 64 more activated users/month. At current trial-to-paid rates of 22%, this translates to ~14 additional paid conversions/month. At $149 MRR average, that is ~$2,100 MRR uplift per month. A 4pp lift (half the MDE) would add ~7 paid conversions/month = ~$1,050 MRR. The engineering cost to maintain the tooltip is minimal (no ongoing maintenance), so 4pp is likely the actual business minimum -- but we are targeting 8pp as a conservative MDE that is supported by the mechanism theory. |
 
 ---
 
 ### Success Criteria
 
-| Outcome | Statistical Condition | Business Condition | Action |
-|---------|----------------------|-------------------|--------|
-| Positive | p < 0.05 (two-tailed), variant rate >= 46% | Activation rate increases by >= 8pp | Roll out tooltip to 100% of new users. Add variant to onboarding as permanent default. Design follow-on experiment: test 3 different template types (by industry vertical). |
-| Marginal Positive | p < 0.05, variant rate between 42-45.9% | 4-8pp lift, statistically significant | Convene growth team decision meeting. Quantify incremental MRR impact. Consider rollout if implementation cost remains low. |
-| Inconclusive -- Underpowered | p >= 0.05, but fewer than 1,580 users reached per group | N/A | Extend experiment by 2 weeks. Do not analyze until full sample is collected. |
-| Inconclusive -- Null | p >= 0.05, full sample collected, < 2pp absolute difference | Effect < 2pp | File as null result. The template tooltip mechanic does not address the blank-canvas barrier at this step. Re-examine the mechanism assumption. Design a user interview study to identify the actual activation barrier. |
-| Negative | p < 0.05, variant rate < 38% | Activation rate decreases significantly | Revert immediately. Hypothesize: tooltip may be perceived as intrusive or the template (website project) may not be relevant to enough users. Investigate via session recordings in the variant group. |
+| Outcome                      | Statistical Condition                                       | Business Condition                      | Action                                                                                                                                                                                                                   |
+| ---------------------------- | ----------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Positive                     | p < 0.05 (two-tailed), variant rate >= 46%                  | Activation rate increases by >= 8pp     | Roll out tooltip to 100% of new users. Add variant to onboarding as permanent default. Design follow-on experiment: test 3 different template types (by industry vertical).                                              |
+| Marginal Positive            | p < 0.05, variant rate between 42-45.9%                     | 4-8pp lift, statistically significant   | Convene growth team decision meeting. Quantify incremental MRR impact. Consider rollout if implementation cost remains low.                                                                                              |
+| Inconclusive -- Underpowered | p >= 0.05, but fewer than 1,580 users reached per group     | N/A                                     | Extend experiment by 2 weeks. Do not analyze until full sample is collected.                                                                                                                                             |
+| Inconclusive -- Null         | p >= 0.05, full sample collected, < 2pp absolute difference | Effect < 2pp                            | File as null result. The template tooltip mechanic does not address the blank-canvas barrier at this step. Re-examine the mechanism assumption. Design a user interview study to identify the actual activation barrier. |
+| Negative                     | p < 0.05, variant rate < 38%                                | Activation rate decreases significantly | Revert immediately. Hypothesize: tooltip may be perceived as intrusive or the template (website project) may not be relevant to enough users. Investigate via session recordings in the variant group.                   |
 
 ---
 
 ### Stop-Loss Rules
 
-| Trigger | Threshold | Action |
-|---------|-----------|--------|
-| Primary Metric Drop | Variant activation rate falls below 30% (8pp below baseline) at any point after Day 7 | Pause experiment, revert variant, conduct post-mortem |
-| Support Ticket Spike | Onboarding-tagged tickets increase by more than 25% vs baseline in the variant group | Pause, investigate tooltip implementation, fix and restart |
-| Sample Ratio Mismatch | Actual split deviates from 50/50 by more than 5pp (e.g., 55/45 or worse) | Pause immediately, debug randomization logic, do not analyze results from the corrupted period |
-| Project Deletion Rate | More than 60% of template-started projects are deleted within 48 hours | Flag for review -- suggests template is creating low-quality activation that will not convert to retained users |
+| Trigger               | Threshold                                                                             | Action                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Primary Metric Drop   | Variant activation rate falls below 30% (8pp below baseline) at any point after Day 7 | Pause experiment, revert variant, conduct post-mortem                                                           |
+| Support Ticket Spike  | Onboarding-tagged tickets increase by more than 25% vs baseline in the variant group  | Pause, investigate tooltip implementation, fix and restart                                                      |
+| Sample Ratio Mismatch | Actual split deviates from 50/50 by more than 5pp (e.g., 55/45 or worse)              | Pause immediately, debug randomization logic, do not analyze results from the corrupted period                  |
+| Project Deletion Rate | More than 60% of template-started projects are deleted within 48 hours                | Flag for review -- suggests template is creating low-quality activation that will not convert to retained users |
 
 ---
 
 ### Implementation Plan
 
-| # | Step | Owner | Deadline | Deliverable | Done? |
-|---|------|-------|----------|-------------|-------|
-| 1 | Define tooltip content: finalize template name, 3 task descriptions, button copy | Product + Growth | Day 2 | Approved copy and design spec |
-| 2 | Instrument analytics events: "tooltip_displayed", "template_adopted", "project_created_from_template", "tooltip_dismissed" in Segment | Engineering | Day 4 | Event schema live in staging |
-| 3 | Build tooltip variant, implement user-level randomization via feature flag (LaunchDarkly or equivalent) | Engineering | Day 6 | Variant live in staging environment |
-| 4 | QA: test variant on Chrome, Safari, Firefox (desktop + mobile), verify event firing, verify 50/50 split ratio | QA + Growth | Day 7 | QA sign-off document |
-| 5 | Launch experiment, confirm baseline data flowing, check split ratio after 200 users | Growth | Day 8 | Experiment live; split ratio confirmed 50/50 |
-| 6 | Mid-point guardrail check (Day 25): review guardrail metrics only -- do not look at primary metric | Growth | Day 25 | Guardrail status report: green/amber/red |
-| 7 | Final analysis (Day 43 = end date + 2 days): run z-test, calculate confidence interval, document result | Growth | Day 43 | Results card completed and posted to experiment log |
-| 8 | Decision and rollout or revert (by Day 47) | Growth + Product | Day 47 | Implementation decision documented; next experiment designed |
+| #   | Step                                                                                                                                  | Owner            | Deadline | Deliverable                                                  | Done? |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | -------- | ------------------------------------------------------------ | ----- |
+| 1   | Define tooltip content: finalize template name, 3 task descriptions, button copy                                                      | Product + Growth | Day 2    | Approved copy and design spec                                |
+| 2   | Instrument analytics events: "tooltip_displayed", "template_adopted", "project_created_from_template", "tooltip_dismissed" in Segment | Engineering      | Day 4    | Event schema live in staging                                 |
+| 3   | Build tooltip variant, implement user-level randomization via feature flag (LaunchDarkly or equivalent)                               | Engineering      | Day 6    | Variant live in staging environment                          |
+| 4   | QA: test variant on Chrome, Safari, Firefox (desktop + mobile), verify event firing, verify 50/50 split ratio                         | QA + Growth      | Day 7    | QA sign-off document                                         |
+| 5   | Launch experiment, confirm baseline data flowing, check split ratio after 200 users                                                   | Growth           | Day 8    | Experiment live; split ratio confirmed 50/50                 |
+| 6   | Mid-point guardrail check (Day 25): review guardrail metrics only -- do not look at primary metric                                    | Growth           | Day 25   | Guardrail status report: green/amber/red                     |
+| 7   | Final analysis (Day 43 = end date + 2 days): run z-test, calculate confidence interval, document result                               | Growth           | Day 43   | Results card completed and posted to experiment log          |
+| 8   | Decision and rollout or revert (by Day 47)                                                                                            | Growth + Product | Day 47   | Implementation decision documented; next experiment designed |
 
 ---
 
 ### Risk Register
 
-| Risk | Probability | Impact | Prevention | Response |
-|------|-------------|--------|-----------|----------|
-| Tooltip template ("Website Relaunch") is irrelevant to majority of users (developers, finance teams, etc.) | Medium | Medium -- reduces signal strength, may suppress effect even if mechanic is sound | Consider a generic template name like "Q4 Planning" with neutral task types; or show the tooltip without a specific template name | If null result: segment by user job title or company size to check if effect exists for a subgroup |
-| Novelty effect inflates week-1 results | Low-Medium | Medium -- could produce false positive that fades post-rollout | Run experiment for minimum 5 full weeks to observe trend | Check week-over-week activation rates in the variant; flag if week 1 rate is >20% higher than weeks 2-5 |
-| Feature flag service outage causes uneven rollout | Low | High -- SRM and data corruption | Monitor split ratio daily for first week | Pause experiment, restore correct split, restart with clean user cohorts |
-| Activated users from template have lower Day-30 retention (low-quality activation) | Low | High -- a dangerous false positive at the activation stage | Monitor Day-30 retention as guardrail metric | If Day-30 retention in variant drops >5pp vs control: do not roll out despite activation lift; the mechanic creates hollow activations |
+| Risk                                                                                                       | Probability | Impact                                                                           | Prevention                                                                                                                        | Response                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Tooltip template ("Website Relaunch") is irrelevant to majority of users (developers, finance teams, etc.) | Medium      | Medium -- reduces signal strength, may suppress effect even if mechanic is sound | Consider a generic template name like "Q4 Planning" with neutral task types; or show the tooltip without a specific template name | If null result: segment by user job title or company size to check if effect exists for a subgroup                                     |
+| Novelty effect inflates week-1 results                                                                     | Low-Medium  | Medium -- could produce false positive that fades post-rollout                   | Run experiment for minimum 5 full weeks to observe trend                                                                          | Check week-over-week activation rates in the variant; flag if week 1 rate is >20% higher than weeks 2-5                                |
+| Feature flag service outage causes uneven rollout                                                          | Low         | High -- SRM and data corruption                                                  | Monitor split ratio daily for first week                                                                                          | Pause experiment, restore correct split, restart with clean user cohorts                                                               |
+| Activated users from template have lower Day-30 retention (low-quality activation)                         | Low         | High -- a dangerous false positive at the activation stage                       | Monitor Day-30 retention as guardrail metric                                                                                      | If Day-30 retention in variant drops >5pp vs control: do not roll out despite activation lift; the mechanic creates hollow activations |
 
 ---
 
@@ -469,11 +471,13 @@ If the experiment tests a referral mechanic, a social sharing feature, or any vi
 **Test Type:** Two-tailed. We do not have strong prior evidence that the effect cannot be negative -- a confusing or irrelevant tooltip could plausibly hurt activation.
 
 **Pre-registered Segments for Analysis:**
+
 1. Self-reported job function at signup (Product/PM vs Engineering vs Marketing vs Other) -- tooltip relevance likely varies by role
 2. Traffic source (organic search vs paid vs direct) -- user intent differs by channel and may moderate the tooltip effect
 3. Mobile vs desktop at time of onboarding step -- tooltip rendering and interaction differ significantly across devices
 
 **Guardrail Metric Thresholds:**
+
 - Day-30 retention: Alert if variant rate drops more than 5pp below control
 - Time-to-first-project: Alert if variant median does not decrease vs control (if the tooltip is not reducing friction at all, something is wrong)
 - Support tickets (onboarding tag): Alert if variant volume increases more than 25% vs control rate
@@ -488,16 +492,16 @@ If the experiment tests a referral mechanic, a social sharing feature, or any vi
 
 ### Results Card (to be completed post-experiment)
 
-| Field | Value |
-|-------|-------|
-| Final Control Rate | [TBD] |
-| Final Variant Rate | [TBD] |
-| Absolute Lift | [TBD] |
-| Relative Lift | [TBD] |
-| p-value | [TBD] |
-| Statistical Significance | [TBD] |
-| Sample Size Achieved | [TBD per group] |
-| Guardrail Metrics Status | [TBD] |
-| Decision | [TBD] |
-| Key Learning | If positive: template-based prompts lower the blank-canvas friction at the first-project step. If null: the barrier to first project creation is not effort-based; investigate whether it is motivational (user does not understand why to create a project) or navigational (user cannot find the step). |
-| Next Experiment | If positive: test 3 industry-specific templates (Software Development, Marketing Campaign, Event Planning) vs single generic template. If null: test a guided walkthrough video (30 seconds) vs tooltip at the same step. |
+| Field                    | Value                                                                                                                                                                                                                                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Final Control Rate       | [TBD]                                                                                                                                                                                                                                                                                                     |
+| Final Variant Rate       | [TBD]                                                                                                                                                                                                                                                                                                     |
+| Absolute Lift            | [TBD]                                                                                                                                                                                                                                                                                                     |
+| Relative Lift            | [TBD]                                                                                                                                                                                                                                                                                                     |
+| p-value                  | [TBD]                                                                                                                                                                                                                                                                                                     |
+| Statistical Significance | [TBD]                                                                                                                                                                                                                                                                                                     |
+| Sample Size Achieved     | [TBD per group]                                                                                                                                                                                                                                                                                           |
+| Guardrail Metrics Status | [TBD]                                                                                                                                                                                                                                                                                                     |
+| Decision                 | [TBD]                                                                                                                                                                                                                                                                                                     |
+| Key Learning             | If positive: template-based prompts lower the blank-canvas friction at the first-project step. If null: the barrier to first project creation is not effort-based; investigate whether it is motivational (user does not understand why to create a project) or navigational (user cannot find the step). |
+| Next Experiment          | If positive: test 3 industry-specific templates (Software Development, Marketing Campaign, Event Planning) vs single generic template. If null: test a guided walkthrough video (30 seconds) vs tooltip at the same step.                                                                                 |

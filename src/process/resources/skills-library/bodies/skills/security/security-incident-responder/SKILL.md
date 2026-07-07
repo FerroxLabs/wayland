@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security forensics guide"
-  category: "security"
-  subcategory: "incident-response"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security forensics guide'
+  category: 'security'
+  subcategory: 'incident-response'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Security Incident Responder
@@ -87,24 +87,24 @@ categories:
 ```yaml
 containment_actions:
   network_level:
-    - block_ip: "Block attacker IP at firewall/WAF"
-    - isolate_host: "Move compromised host to isolated VLAN"
-    - disable_vpn: "Revoke VPN access for compromised accounts"
-    - block_egress: "Block outbound traffic to C2 servers"
+    - block_ip: 'Block attacker IP at firewall/WAF'
+    - isolate_host: 'Move compromised host to isolated VLAN'
+    - disable_vpn: 'Revoke VPN access for compromised accounts'
+    - block_egress: 'Block outbound traffic to C2 servers'
 
   account_level:
-    - disable_account: "Disable compromised user account"
-    - rotate_credentials: "Force password reset, revoke sessions"
-    - revoke_tokens: "Invalidate all API keys and access tokens"
-    - revoke_mfa: "Remove and re-enroll MFA devices"
+    - disable_account: 'Disable compromised user account'
+    - rotate_credentials: 'Force password reset, revoke sessions'
+    - revoke_tokens: 'Invalidate all API keys and access tokens'
+    - revoke_mfa: 'Remove and re-enroll MFA devices'
 
   application_level:
     # ... (condensed) ...
 
   data_level:
-    - revoke_access: "Remove data access permissions"
-    - encrypt_exports: "Halt all data export operations"
-    - quarantine_files: "Isolate suspicious files"
+    - revoke_access: 'Remove data access permissions'
+    - encrypt_exports: 'Halt all data export operations'
+    - quarantine_files: 'Isolate suspicious files'
 ```
 
 ### Containment Decision Tree
@@ -158,24 +158,24 @@ class EvidenceCollector:
 ```yaml
 evidence_collection_checklist:
   system_evidence:
-    - system_logs: "/var/log/syslog, [system-path] Event Viewer"
-    - process_list: "Running processes at time of detection"
-    - network_connections: "Active connections (netstat/ss output)"
-    - file_system_timeline: "Modified files in relevant timeframe"
-    - memory_dump: "RAM dump if malware suspected"
-    - disk_image: "Full disk image for forensics (if warranted)"
+    - system_logs: '/var/log/syslog, [system-path] Event Viewer'
+    - process_list: 'Running processes at time of detection'
+    - network_connections: 'Active connections (netstat/ss output)'
+    - file_system_timeline: 'Modified files in relevant timeframe'
+    - memory_dump: 'RAM dump if malware suspected'
+    - disk_image: 'Full disk image for forensics (if warranted)'
 
   application_evidence:
-    - application_logs: "All relevant application log files"
-    - access_logs: "Web server access logs (nginx, Apache)"
-    - error_logs: "Application error logs"
-    - audit_logs: "Authentication and authorization events"
+    - application_logs: 'All relevant application log files'
+    - access_logs: 'Web server access logs (nginx, Apache)'
+    - error_logs: 'Application error logs'
+    - audit_logs: 'Authentication and authorization events'
     # ... (condensed) ...
   timeline:
-    - first_known_activity: "Earliest evidence of compromise"
-    - detection_time: "When the incident was detected"
-    - containment_time: "When containment actions were taken"
-    - key_events: "Chronological list of significant events"
+    - first_known_activity: 'Earliest evidence of compromise'
+    - detection_time: 'When the incident was detected'
+    - containment_time: 'When containment actions were taken'
+    - key_events: 'Chronological list of significant events'
 ```
 
 ### Evidence Collection Commands
@@ -244,16 +244,21 @@ class IncidentLogAnalyzer:
 **Incident Commander**: [Name]
 
 ### Summary
+
 Unauthorized access detected to internal admin panel.
 A compromised employee credential was used to access
 the admin dashboard from an unrecognized IP address.
 
 ### Current Impact
+
 # ... (condensed) ...
+
 ### Next Update
+
 Expected by: 2024-06-15 16:00 UTC
 
 ### Bridge Call
+
 [Link to video call] - Continuous until containment confirmed
 ```
 
@@ -271,10 +276,13 @@ We are writing to inform you of a security incident that
 may have affected your account.
 
 ### What Happened
+
 On [date], we detected unauthorized access to [description].
 We immediately took action to contain the incident and began
 an investigation.
+
 # ... (condensed) ...
+
 Email: security@company.com
 Phone: [number]
 
@@ -302,7 +310,9 @@ Sincerely,
    - Note any gaps in the timeline
 
 # ... (condensed) ...
+
 ### Ground Rules
+
 - Blameless: Focus on systems and processes, not individuals
 - Honest: Accurate timeline, no covering up mistakes
 - Constructive: Every criticism comes with a suggested improvement
@@ -322,12 +332,16 @@ Sincerely,
 accessed by unauthorized party for approximately 15 minutes.
 
 ### Timeline
-| Time (UTC) | Event |
-|-----------|-------|
-| 14:15 | Attacker logged in to admin panel from IP 203.0.113.42 |
-| 14:18 | Attacker viewed user list and system configuration |
+
+| Time (UTC) | Event                                                  |
+| ---------- | ------------------------------------------------------ |
+| 14:15      | Attacker logged in to admin panel from IP 203.0.113.42 |
+| 14:18      | Attacker viewed user list and system configuration     |
+
 # ... (condensed) ...
+
 ### Lessons Learned
+
 1. MFA should be required for all administrative access
 2. Anomaly detection for admin access patterns is essential
 3. Response time was good (10 min from alert to containment)
@@ -363,19 +377,20 @@ playbook:
 
 ## Incident Response Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Mean Time to Detect (MTTD) | < 1 hour | Alert time - incident start time |
-| Mean Time to Respond (MTTR) | < 15 minutes | First response - alert time |
-| Mean Time to Contain (MTTC) | < 4 hours | Containment - detection |
-| Mean Time to Recover (MTTRec) | < 24 hours | Full recovery - containment |
-| Incidents per month | Trending down | Total count |
-| Repeat incidents (same root cause) | 0 | Track by root cause category |
-| Action items completed on time | > 90% | Track per post-incident review |
+| Metric                             | Target        | Measurement                      |
+| ---------------------------------- | ------------- | -------------------------------- |
+| Mean Time to Detect (MTTD)         | < 1 hour      | Alert time - incident start time |
+| Mean Time to Respond (MTTR)        | < 15 minutes  | First response - alert time      |
+| Mean Time to Contain (MTTC)        | < 4 hours     | Containment - detection          |
+| Mean Time to Recover (MTTRec)      | < 24 hours    | Full recovery - containment      |
+| Incidents per month                | Trending down | Total count                      |
+| Repeat incidents (same root cause) | 0             | Track by root cause category     |
+| Action items completed on time     | > 90%         | Track per post-incident review   |
 
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing security incident responder solutions
 - Reviewing or improving existing security incident responder approaches
 - Making architectural or implementation decisions about security incident responder
@@ -383,6 +398,7 @@ playbook:
 - Troubleshooting security incident responder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -393,21 +409,26 @@ playbook:
 # Security Incident Responder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

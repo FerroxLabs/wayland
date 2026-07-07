@@ -11,13 +11,13 @@ description: >-
   wayland-full-sales-asset) or only a close (use wayland-close-rebuild).
 license: Apache-2.0
 type: workflow
-skills: "convert-temperature convert-three-locks convert-vsl convert-vsl-page convert-thank-you-page convert-bullshit-filter"
+skills: 'convert-temperature convert-three-locks convert-vsl convert-vsl-page convert-thank-you-page convert-bullshit-filter'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing conversion copywriting vsl video-sales-letter step-by-step
   category: marketing
-  depends: "convert-temperature convert-three-locks convert-vsl convert-vsl-page convert-thank-you-page convert-bullshit-filter"
+  depends: 'convert-temperature convert-three-locks convert-vsl convert-vsl-page convert-thank-you-page convert-bullshit-filter'
 ---
 
 Build a complete VSL package: an 18-minute video sales letter script, the hosting

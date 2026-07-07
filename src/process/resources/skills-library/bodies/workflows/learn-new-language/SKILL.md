@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "goal-setter study-planner language-partner flashcard-creator habit-tracker"
+skills: 'goal-setter study-planner language-partner flashcard-creator habit-tracker'
 trigger_phrases: >-
   I want to learn a new language help me learn Spanish how to become fluent in a
   language language learning plan I want to speak another language teach me a
@@ -22,10 +22,11 @@ metadata:
   version: 1.0.0
   tags: language-learning study-skills step-by-step planning
   category: life-event
-  depends: "goal-setter study-planner language-partner flashcard-creator habit-tracker"
+  depends: 'goal-setter study-planner language-partner flashcard-creator habit-tracker'
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Learn New Language
 
 **Estimated time:** 6-18 months
@@ -169,6 +170,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -179,7 +181,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Avoiding speaking:** Speaking is the hardest skill and the one people avoid most. Start speaking from week one, even if badly.
 - **Perfectionism:** Mistakes are not failures -- they are data. Every error corrected is a lesson learned.
 - **Inconsistency:** 30 minutes every day beats 3 hours on weekends. Language learning depends on frequency.
-
 
 ### Timeline Considerations
 

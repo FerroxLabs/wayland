@@ -83,9 +83,7 @@ describe('importEnvKeysOnBoot - Flux key remap', () => {
   it('removes a stale openai row (and its legacy mirror) when remapping to flux-router', async () => {
     setEnv({ OPENAI_API_KEY: 'sk-flux-abc', OPENAI_BASE_URL: 'https://api.fluxrouter.ai/v1' });
     // A pre-fix boot left an `openai` row; `flux-router` is not yet connected.
-    getRegistryProviderMock.mockImplementation((id: string) =>
-      id === 'openai' ? { state: 'connected' } : undefined
-    );
+    getRegistryProviderMock.mockImplementation((id: string) => (id === 'openai' ? { state: 'connected' } : undefined));
 
     await importEnvKeysOnBoot();
 

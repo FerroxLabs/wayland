@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # README Writer
@@ -64,6 +64,7 @@ alternatives.
 - **Feature one** - Brief description of what it does
 - **Feature two** - Brief description of what it does
 - **Feature three** - Brief description of what it does
+
 # ... (condensed) ...
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
@@ -78,21 +79,23 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) for deta
 
 ### Essential Badges
 
-| Badge | Purpose | Service |
-|-------|---------|---------|
-| Build status | Shows CI passes | GitHub Actions, CircleCI |
-| Version | Current release | npm, PyPI, crates.io |
-| License | Quick legal check | shields.io |
-| Coverage | Code quality signal | Codecov, Coveralls |
-| Downloads | Popularity signal | npm, PyPI |
+| Badge        | Purpose             | Service                  |
+| ------------ | ------------------- | ------------------------ |
+| Build status | Shows CI passes     | GitHub Actions, CircleCI |
+| Version      | Current release     | npm, PyPI, crates.io     |
+| License      | Quick legal check   | shields.io               |
+| Coverage     | Code quality signal | Codecov, Coveralls       |
+| Downloads    | Popularity signal   | npm, PyPI                |
 
 ### Badge Syntax
 
 ```markdown
 <!-- Static badge -->
+
 ![Badge]([reference URL])
 
 <!-- Dynamic badges from shields.io -->
+
 [![npm]([reference URL])]([reference URL])
 [![Build]([reference URL])]([reference URL])
 [![License]([reference URL])](LICENSE)
@@ -131,7 +134,7 @@ Installation Section Checklist:
 
 ### Multi-Platform Install Template
 
-```markdown
+````markdown
 ## Installation
 
 ### macOS
@@ -145,20 +148,26 @@ brew install project-name
 > **Security Note:** Piping scripts directly from the internet to a shell (`HTTP client request | shell-cmd`) executes unverified code. Download the script first, inspect it, then execute it.
 
 \```shell
+
 # Debian/Ubuntu
+
 HTTP client request -fsSL [reference URL] | shell-cmd
 
 # Or via apt repository (with proper GPG verification)
+
 HTTP client request -fsSL [reference URL] | sudo gpg --dearmor -o [system-path]
+
 # ... (condensed) ...
 
 ### Verify Installation
 
 \```shell
 project-name --version
+
 # Expected output: project-name v1.2.3
+
 \```
-```
+````
 
 ## Quick Start Guide
 
@@ -172,7 +181,7 @@ project-name --version
 
 ### Quick Start Template
 
-```markdown
+````markdown
 ## Quick Start
 
 ### 1. Install
@@ -199,13 +208,13 @@ Open [[reference URL]]([reference URL]) to see your app running.
 ### 4. Make a Change
 
 Edit `src/index.ts` and save. The browser refreshes automatically.
-```
+````
 
 ## Configuration Reference
 
 ### Configuration Documentation Format
 
-```markdown
+````markdown
 ## Configuration
 
 ### Configuration File
@@ -224,15 +233,16 @@ ProjectName looks for configuration in the following locations (in order):
 - **Type:** `string`
 - **CLI:** `--input <path>`
 - **Env:** `PROJECT_INPUT`
+
 # ... (condensed) ...
 
 export default {
-  plugins: [
-    pluginA({ option: true }),
-  ],
+plugins: [
+pluginA({ option: true }),
+],
 };
 \```
-```
+````
 
 ## Contributing Guide
 
@@ -257,7 +267,9 @@ get started.
 
 - Follow the existing code style (enforced by ESLint + Prettier)
 - Write tests for new functionality
+
 # ... (condensed) ...
+
 ## Requesting Features
 
 Open a feature request issue. Describe:
@@ -299,7 +311,7 @@ License Selection Decision Tree:
 
 ### Writing Architecture for Different Audiences
 
-```markdown
+````markdown
 ## Architecture
 
 ### High-Level Overview
@@ -308,17 +320,18 @@ ProjectName follows a layered architecture with clear separation of concerns:
 
 \```
 ┌─────────────────────────────────────┐
-│          CLI / HTTP API             │  ← Entry points
+│ CLI / HTTP API │ ← Entry points
 ├─────────────────────────────────────┤
-│          Application Layer          │  ← Use cases, orchestration
+│ Application Layer │ ← Use cases, orchestration
 ├─────────────────────────────────────┤
-│           Domain Layer              │  ← Business rules, entities
+│ Domain Layer │ ← Business rules, entities
 ├─────────────────────────────────────┤
-│        Infrastructure Layer         │  ← Database, external services
+│ Infrastructure Layer │ ← Database, external services
 └─────────────────────────────────────┘
 \```
 
 # ... (condensed) ...
+
 ### Data Flow
 
 1. Request enters via Router
@@ -326,7 +339,7 @@ ProjectName follows a layered architecture with clear separation of concerns:
 3. Service orchestrates business logic
 4. Repository reads/writes data
 5. Response formatted and returned
-```
+````
 
 ## FAQ Section
 
@@ -382,6 +395,7 @@ persists, delete `node_modules` and `package-lock.json`, then run
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing readme writer solutions
 - Reviewing or improving existing readme writer approaches
 - Making architectural or implementation decisions about readme writer
@@ -389,6 +403,7 @@ persists, delete `node_modules` and `package-lock.json`, then run
 - Troubleshooting readme writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -399,21 +414,26 @@ persists, delete `node_modules` and `package-lock.json`, then run
 # Readme Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

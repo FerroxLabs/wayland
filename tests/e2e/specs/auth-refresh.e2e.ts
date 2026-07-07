@@ -142,7 +142,13 @@ test.describe('Auth: POST /api/auth/refresh', () => {
     expect(tamperedJwt, 'tampered JWT differs from original').not.toBe(session.jwt);
 
     const ticket = await fetchCsrfTicket(electronApp, webui.localUrl);
-    const res = await postJsonWithCsrf(electronApp, webui.localUrl, '/api/auth/refresh', { token: tamperedJwt }, ticket);
+    const res = await postJsonWithCsrf(
+      electronApp,
+      webui.localUrl,
+      '/api/auth/refresh',
+      { token: tamperedJwt },
+      ticket
+    );
     expect(res.status, 'tampered token rejected with 401').toBe(401);
     const parsed = JSON.parse(res.body) as { success: boolean };
     expect(parsed.success).toBe(false);

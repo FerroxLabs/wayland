@@ -71,17 +71,11 @@ function clampNumber(value: unknown, fallback: number, min?: number, max?: numbe
 
 export function resolveRetryConfig(
   defaults: Required<RetryConfig> = DEFAULT_RETRY_CONFIG,
-  overrides?: RetryConfig,
+  overrides?: RetryConfig
 ): Required<RetryConfig> {
   const attempts = Math.max(1, Math.round(clampNumber(overrides?.attempts, defaults.attempts, 1)));
-  const minDelayMs = Math.max(
-    0,
-    Math.round(clampNumber(overrides?.minDelayMs, defaults.minDelayMs, 0)),
-  );
-  const maxDelayMs = Math.max(
-    minDelayMs,
-    Math.round(clampNumber(overrides?.maxDelayMs, defaults.maxDelayMs, 0)),
-  );
+  const minDelayMs = Math.max(0, Math.round(clampNumber(overrides?.minDelayMs, defaults.minDelayMs, 0)));
+  const maxDelayMs = Math.max(minDelayMs, Math.round(clampNumber(overrides?.maxDelayMs, defaults.maxDelayMs, 0)));
   const jitter = clampNumber(overrides?.jitter, defaults.jitter, 0, 1);
   return { attempts, minDelayMs, maxDelayMs, jitter };
 }
@@ -99,9 +93,7 @@ export async function retryAsync<T>(fn: () => Promise<T>, options: RetryOptions)
   const maxAttempts = resolved.attempts;
   const minDelayMs = resolved.minDelayMs;
   const maxDelayMs =
-    Number.isFinite(resolved.maxDelayMs) && resolved.maxDelayMs > 0
-      ? resolved.maxDelayMs
-      : Number.POSITIVE_INFINITY;
+    Number.isFinite(resolved.maxDelayMs) && resolved.maxDelayMs > 0 ? resolved.maxDelayMs : Number.POSITIVE_INFINITY;
   const jitter = resolved.jitter;
   const shouldRetry = options.shouldRetry ?? (() => true);
   let lastErr: unknown;
@@ -117,9 +109,7 @@ export async function retryAsync<T>(fn: () => Promise<T>, options: RetryOptions)
 
       const retryAfterMs = options.retryAfterMs?.(err);
       const hasRetryAfter = typeof retryAfterMs === 'number' && Number.isFinite(retryAfterMs);
-      const baseDelay = hasRetryAfter
-        ? Math.max(retryAfterMs, minDelayMs)
-        : minDelayMs * 2 ** (attempt - 1);
+      const baseDelay = hasRetryAfter ? Math.max(retryAfterMs, minDelayMs) : minDelayMs * 2 ** (attempt - 1);
       let computed = Math.min(baseDelay, maxDelayMs);
       computed = applyJitter(computed, jitter);
       computed = Math.min(Math.max(computed, minDelayMs), maxDelayMs);
@@ -164,9 +154,7 @@ function resolveChannelApiShouldRetry(params: {
   if (params.strictShouldRetry) {
     return params.shouldRetry;
   }
-  return (err: unknown) =>
-    params.shouldRetry?.(err) === true ||
-    CHANNEL_API_RETRY_RE.test(formatErrorMessage(err));
+  return (err: unknown) => params.shouldRetry?.(err) === true || CHANNEL_API_RETRY_RE.test(formatErrorMessage(err));
 }
 
 function getChannelApiRetryAfterMs(err: unknown): number | undefined {
@@ -176,10 +164,7 @@ function getChannelApiRetryAfterMs(err: unknown): number | undefined {
   const candidate =
     'parameters' in err && err.parameters && typeof err.parameters === 'object'
       ? (err.parameters as { retry_after?: unknown }).retry_after
-      : 'response' in err &&
-          err.response &&
-          typeof err.response === 'object' &&
-          'parameters' in err.response
+      : 'response' in err && err.response && typeof err.response === 'object' && 'parameters' in err.response
         ? (
             err.response as {
               parameters?: { retry_after?: unknown };
@@ -216,7 +201,7 @@ export function createRateLimitRetryRunner(params: {
             const maxRetries = Math.max(1, info.maxAttempts - 1);
             mainWarn(
               LOG_TAG,
-              `${params.logLabel} ${labelText} rate limited, retry ${info.attempt}/${maxRetries} in ${info.delayMs}ms`,
+              `${params.logLabel} ${labelText} rate limited, retry ${info.attempt}/${maxRetries} in ${info.delayMs}ms`
             );
           }
         : undefined,
@@ -253,7 +238,7 @@ export function createChannelApiRetryRunner(params: {
             const maxRetries = Math.max(1, info.maxAttempts - 1);
             mainWarn(
               LOG_TAG,
-              `channel send retry ${info.attempt}/${maxRetries} for ${info.label ?? label ?? 'request'} in ${info.delayMs}ms: ${formatErrorMessage(info.err)}`,
+              `channel send retry ${info.attempt}/${maxRetries} for ${info.label ?? label ?? 'request'} in ${info.delayMs}ms: ${formatErrorMessage(info.err)}`
             );
           }
         : undefined,

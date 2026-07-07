@@ -23,14 +23,8 @@ const ConnectionCard: React.FC<ConnectionCardProps> = ({
 }) => {
   return (
     <div className={classNames('flex flex-col gap-1px', className)}>
-      <Card
-        title={provider}
-        statusBadge={status}
-        actions={actions}
-      >
-        {lastSync && (
-          <div className='text-12px text-[var(--text-muted)] mb-8px'>{lastSync}</div>
-        )}
+      <Card title={provider} statusBadge={status} actions={actions}>
+        {lastSync && <div className='text-12px text-[var(--text-muted)] mb-8px'>{lastSync}</div>}
         {body}
       </Card>
       {dangerSlot && <div className='mt-8px'>{dangerSlot}</div>}

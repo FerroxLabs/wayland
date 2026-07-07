@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "language-learning study-skills step-by-step guide"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'language-learning study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Pronunciation Guide
 
 ## When to Use
@@ -407,9 +408,10 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 **IPA Symbol:** /ɾ/
 **Sound Type:** Consonant
 **Classification:**
-  - Place of articulation: Alveolar (tongue tip hits the alveolar ridge -- the bumpy area just behind the upper front teeth)
-  - Manner of articulation: Tap/flap (a single very brief contact, lasting about 20-30 milliseconds)
-  - Voicing: Voiced
+
+- Place of articulation: Alveolar (tongue tip hits the alveolar ridge -- the bumpy area just behind the upper front teeth)
+- Manner of articulation: Tap/flap (a single very brief contact, lasting about 20-30 milliseconds)
+- Voicing: Voiced
 
 **Nearest L1 Sound:** The American English "flap T" in "butter" [ˈbʌɾɚ] or "water" [ˈwɔɾɚ]. These are produced with the same gesture. The Spanish /ɾ/ and the American English flap T are essentially identical articulations.
 **Key Difference:** In English, the flap only occurs in unstressed intervocalic position. In Spanish, /ɾ/ is a full phoneme that can appear in any context.
@@ -421,9 +423,10 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 **IPA Symbol:** /r/
 **Sound Type:** Consonant
 **Classification:**
-  - Place of articulation: Alveolar
-  - Manner of articulation: Trill (the tongue tip vibrates against the alveolar ridge, typically 2-4 contacts at natural speech rate)
-  - Voicing: Voiced
+
+- Place of articulation: Alveolar
+- Manner of articulation: Trill (the tongue tip vibrates against the alveolar ridge, typically 2-4 contacts at natural speech rate)
+- Voicing: Voiced
 
 **Nearest L1 Sound:** None in English. Some speakers produce a very brief trill when saying "three" rapidly, but this is not systematic.
 **Key Difference:** Requires the tongue tip to be loose and flexible enough to vibrate passively in the airstream -- a different biomechanical action from any English consonant.
@@ -434,6 +437,7 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 ### 2. How to Produce the Sounds (Step-by-Step)
 
 **Producing the Tap /ɾ/:**
+
 1. Start with your tongue tip resting behind your lower front teeth (neutral English position)
 2. Bring the tongue tip up to touch the alveolar ridge -- the firm, bumpy area you can feel with the tongue tip about 5mm behind the upper front teeth
 3. In a single brief motion, let the tongue tip bounce off the ridge -- do not hold contact (that would make a /d/ or /t/)
@@ -442,6 +446,7 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 6. **Proprioceptive check:** The contact is so brief it should feel like the tongue "bounces." If you can feel sustained contact, you are producing a stop, not a tap.
 
 **Producing the Trill /r/:**
+
 1. Place your tongue tip lightly against the alveolar ridge -- lighter contact than for /d/. The key word is "light" -- the tongue must be able to move.
 2. Relax the tongue body completely. Tension in the tongue body prevents the tip from vibrating freely.
 3. Build up air pressure behind the tongue (as if you were about to say a /d/) and then release a steady stream of air
@@ -458,14 +463,14 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 
 **Contrast:** /ɾ/ (single tap) vs. /r/ (trill)
 
-| # | Word 1 | IPA | Word 2 | IPA | Meaning Difference | Position |
-|---|--------|-----|--------|-----|--------------------|----------|
-| 1 | pero | /ˈpe.ɾo/ | perro | /ˈpe.ro/ | but / dog | Medial |
-| 2 | caro | /ˈka.ɾo/ | carro | /ˈka.ro/ | expensive / car (Lat. Am.) | Medial |
-| 3 | cero | /ˈθe.ɾo/ | cerro | /ˈθe.ro/ | zero / hill | Medial |
-| 4 | para | /ˈpa.ɾa/ | parra | /ˈpa.ra/ | for (preposition) / grapevine | Medial |
-| 5 | moro | /ˈmo.ɾo/ | morro | /ˈmo.ro/ | Moor / headland/snout | Medial |
-| 6 | vara | /ˈba.ɾa/ | barra | /ˈba.ra/ | rod/stick / bar | Medial |
+| #   | Word 1 | IPA      | Word 2 | IPA      | Meaning Difference            | Position |
+| --- | ------ | -------- | ------ | -------- | ----------------------------- | -------- |
+| 1   | pero   | /ˈpe.ɾo/ | perro  | /ˈpe.ro/ | but / dog                     | Medial   |
+| 2   | caro   | /ˈka.ɾo/ | carro  | /ˈka.ro/ | expensive / car (Lat. Am.)    | Medial   |
+| 3   | cero   | /ˈθe.ɾo/ | cerro  | /ˈθe.ro/ | zero / hill                   | Medial   |
+| 4   | para   | /ˈpa.ɾa/ | parra  | /ˈpa.ra/ | for (preposition) / grapevine | Medial   |
+| 5   | moro   | /ˈmo.ɾo/ | morro  | /ˈmo.ro/ | Moor / headland/snout         | Medial   |
+| 6   | vara   | /ˈba.ɾa/ | barra  | /ˈba.ra/ | rod/stick / bar               | Medial   |
 
 **Note:** The tap vs. trill contrast only occurs intervocalically (between vowels). In word-initial position, all written "r" represents the trill /r/ (e.g., "rojo" /ˈro.xo/, not /ˈɾo.xo/). After the consonants /l/, /n/, and /s/, written single "r" is also pronounced as the trill /r/ (e.g., "alrededor" /al.re.ðe.ˈðoɾ/, "Enrique" /en.ˈri.ke/).
 
@@ -476,6 +481,7 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 ### 4. Practice Sequence
 
 **Stage 1 -- Perception (Days 1-2)**
+
 - [ ] Listen to "pero" / "perro" pairs (use a text-to-speech tool set to Spanish, or a recording of a native speaker) -- identify which word you heard
 - [ ] Work through all 6 pairs from the table above, same/different task
 - [ ] The tap is shorter; the trill has a "rolling" quality with multiple contacts
@@ -483,6 +489,7 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 - Estimated time: 5-10 minutes per session
 
 **Stage 2 -- Isolation and English Bridge (Days 2-3)**
+
 - [ ] Say "butter" rapidly 10 times in American English. Find the middle sound. That is the tap /ɾ/.
 - [ ] Now produce the tap sound in isolation: just the "bounce" without surrounding vowels, 10 times
 - [ ] For the trill: try the "ddddd" reduction technique described above, 5-minute session
@@ -490,12 +497,14 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 - Estimated time: 5 minutes per session for each sound
 
 **Stage 3 -- Syllable Production (Days 3-4)**
+
 - [ ] Tap syllables: /ɾa/ (ra-ra-ra), /ɾe/ (re-re-re), /ɾo/ (ro-ro-ro), 10x each
 - [ ] Trill syllables (once you have isolated the trill): /ra/, /re/, /ro/ with the full trill, 10x each
 - [ ] Practice the vowel-tap-vowel sequence: /a.ɾa/, /e.ɾe/, /o.ɾo/, 10x each -- this mirrors the intervocalic context where the tap appears in Spanish
 - Estimated time: 5 minutes per session
 
 **Stage 4 -- Word Production (Days 4-7)**
+
 - [ ] Produce each word from the minimal pairs table, 5x each
 - [ ] Alternate minimal pairs: "pero -- perro -- pero -- perro" at 1 word per 2 seconds
 - [ ] Speed up to natural rate once accuracy reaches 70%
@@ -504,6 +513,7 @@ IELTS, DELF/DALF, HSK Speaking, TOPIK Speaking, JLPT (which does not have a spea
 **Stage 5 -- Sentence Embedding (Days 7-10)**
 
 Carrier sentences:
+
 1. "Pero no quiero ir." (/ˈpe.ɾo no ˈkje.ɾo ˈiɾ/) -- But I don't want to go. [tap in initial position of word, which follows the rule that after a pause it is still a tap since "pero" begins with /p/, not /r/]
 2. "El perro corre por el parque." (/el ˈpe.ro ˈko.re poɾ el ˈpaɾ.ke/) -- The dog runs through the park. [trill in "perro", tap in "corre" medial /r/, tap in "por" and "parque"]
 3. "Quiero una cerveza fría, pero cara." -- I want a cold beer, but an expensive one. [taps throughout]
@@ -514,6 +524,7 @@ Carrier sentences:
 - Estimated time: 5 minutes per session
 
 **Stage 6 -- Spontaneous Production (Days 10-14)**
+
 - [ ] Describe your morning routine for 30 seconds in Spanish. Count how many tap and trill contexts occur and how many you produced correctly.
 - [ ] Target: 70% accuracy in spontaneous speech
 - Estimated time: 3-5 minutes per session
@@ -523,6 +534,7 @@ Carrier sentences:
 ### 5. Self-Assessment Protocol
 
 **Recording Test:**
+
 1. Record yourself saying all 6 minimal pair words in random order
 2. Wait 15 minutes, then listen back
 3. Write down which word you think you said each time
@@ -549,6 +561,7 @@ Open the recording in Praat and examine the waveform. The tap /ɾ/ will show a s
 ### 6. Connected Speech and Prosody Notes
 
 **Position Rules (Critical for Spanish R):**
+
 - Written single "r" at the START of a word = trill /r/ always: "rojo, río, ropa"
 - Written single "r" BETWEEN vowels = tap /ɾ/ always: "caro, pero, foro"
 - Written single "r" after /l/, /n/, /s/ = trill /r/: "alrededor, Enrique, Israel"
@@ -563,19 +576,19 @@ Open the recording in Praat and examine the waveform. The tap /ɾ/ will show a s
 
 ### 7. Common Errors and Corrections
 
-| Error | What It Sounds Like | Root Cause | Correction |
-|-------|---------------------|------------|------------|
-| Using English [ɹ] for both | Both "pero" and "perro" sound like English "pray-ro" | Retroflex approximant substitution -- L1 automatism | Active alveolar tap exercise using "butter" bridge. Never allow the tongue to curl back. |
-| Producing a uvular trill [ʀ] | Sounds French or German, throat-clearing quality | Transfer from other L2 study (French/German) | Redirect tongue placement -- tip must contact the FRONT of the palate (alveolar ridge), not the back (uvula). |
-| Producing a stop [d] or [t] instead of tap | "Pero" sounds like "pe-do" or "pe-to" | Too much tongue pressure on the ridge | Reduce contact pressure until the tongue "bounces" rather than stopping |
-| Producing the trill for ALL R sounds | Hyper-correction -- all R sounds become trilled | Overcorrection after learning the trill exists | Review the position rules: intervocalic single R = always tap. Use the minimal pairs to re-establish the contrast. |
-| Failing to trill in word-initial position | "Rojo" sounds like "pero" with the wrong R | Not applying the position rule | Memorize: "If the word starts with R, it is always the trill." Practice 10 word-initial R words daily. |
+| Error                                      | What It Sounds Like                                  | Root Cause                                          | Correction                                                                                                         |
+| ------------------------------------------ | ---------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Using English [ɹ] for both                 | Both "pero" and "perro" sound like English "pray-ro" | Retroflex approximant substitution -- L1 automatism | Active alveolar tap exercise using "butter" bridge. Never allow the tongue to curl back.                           |
+| Producing a uvular trill [ʀ]               | Sounds French or German, throat-clearing quality     | Transfer from other L2 study (French/German)        | Redirect tongue placement -- tip must contact the FRONT of the palate (alveolar ridge), not the back (uvula).      |
+| Producing a stop [d] or [t] instead of tap | "Pero" sounds like "pe-do" or "pe-to"                | Too much tongue pressure on the ridge               | Reduce contact pressure until the tongue "bounces" rather than stopping                                            |
+| Producing the trill for ALL R sounds       | Hyper-correction -- all R sounds become trilled      | Overcorrection after learning the trill exists      | Review the position rules: intervocalic single R = always tap. Use the minimal pairs to re-establish the contrast. |
+| Failing to trill in word-initial position  | "Rojo" sounds like "pero" with the wrong R           | Not applying the position rule                      | Memorize: "If the word starts with R, it is always the trill." Practice 10 word-initial R words daily.             |
 
 ---
 
 ### 8. Daily Practice Schedule (10 Minutes)
 
-| Minute | Activity | Target |
-|--------|----------|--------|
-| 0-1 | Warm-up: say "butter-butter-butter" 10x quickly to activate the alveolar tap, then do the "ddddd" reduction technique 10x to activate the trill potential | Articulatory readiness |
-| 1-4 | Current stage from Section 4 (whichever stage you are in) | Accuracy on /ɾ/ and /r/
+| Minute | Activity                                                                                                                                                  | Target                  |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 0-1    | Warm-up: say "butter-butter-butter" 10x quickly to activate the alveolar tap, then do the "ddddd" reduction technique 10x to activate the trill potential | Articulatory readiness  |
+| 1-4    | Current stage from Section 4 (whichever stage you are in)                                                                                                 | Accuracy on /ɾ/ and /r/ |

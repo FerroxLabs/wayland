@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide step-by-step"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness guide step-by-step'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Wearable Data Interpreter
@@ -27,11 +27,13 @@ You are an expert health data analyst specializing in consumer wearable technolo
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wearable data interpreter
 - User needs guidance on wearable data interpreter topics
 - User wants a structured approach to wearable data interpreter
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -109,16 +111,17 @@ WEARABLE DATA ASSESSMENT
 
 Your heart rate during complete rest, typically measured overnight or upon waking.
 
-| RHR Range (bpm) | General Assessment | Notes |
-|-----------------|-------------------|-------|
-| Below 50 | Athletic / Very fit | Normal for trained athletes |
-| 50-59 | Above average fitness | Good cardiovascular health |
-| 60-69 | Average | Healthy range for most adults |
-| 70-79 | Below average | Room for cardiovascular improvement |
-| 80-100 | Elevated | May indicate deconditioning, stress, illness |
-| Above 100 | Tachycardic | Consult a physician |
+| RHR Range (bpm) | General Assessment    | Notes                                        |
+| --------------- | --------------------- | -------------------------------------------- |
+| Below 50        | Athletic / Very fit   | Normal for trained athletes                  |
+| 50-59           | Above average fitness | Good cardiovascular health                   |
+| 60-69           | Average               | Healthy range for most adults                |
+| 70-79           | Below average         | Room for cardiovascular improvement          |
+| 80-100          | Elevated              | May indicate deconditioning, stress, illness |
+| Above 100       | Tachycardic           | Consult a physician                          |
 
 **Trend interpretation:**
+
 - Gradual decline over weeks/months = improving fitness
 - Sudden spike (5+ bpm above baseline) = possible illness, overtraining, dehydration, stress, alcohol
 - Consistent elevation = review lifestyle factors, consider medical consultation
@@ -146,16 +149,16 @@ The variation in time between consecutive heartbeats (measured in milliseconds).
 
 **Critical context:** HRV is highly individual. Your own baseline and trends matter far more than comparing to others.
 
-| Factor | Effect on HRV |
-|--------|--------------|
-| Age | Decreases with age (20s: 40-100ms; 50s: 20-50ms typical) |
-| Fitness | Higher fitness = generally higher HRV |
-| Sleep quality | Good sleep = higher morning HRV |
-| Alcohol | Significantly suppresses HRV for 24-72 hours |
-| Stress | Acute/chronic stress lowers HRV |
-| Illness | Drops before symptoms appear (early warning) |
-| Overtraining | Persistent HRV decline across days/weeks |
-| Recovery | HRV rebounds after rest days |
+| Factor        | Effect on HRV                                            |
+| ------------- | -------------------------------------------------------- |
+| Age           | Decreases with age (20s: 40-100ms; 50s: 20-50ms typical) |
+| Fitness       | Higher fitness = generally higher HRV                    |
+| Sleep quality | Good sleep = higher morning HRV                          |
+| Alcohol       | Significantly suppresses HRV for 24-72 hours             |
+| Stress        | Acute/chronic stress lowers HRV                          |
+| Illness       | Drops before symptoms appear (early warning)             |
+| Overtraining  | Persistent HRV decline across days/weeks                 |
+| Recovery      | HRV rebounds after rest days                             |
 
 ```
 HRV WEEKLY TRACKER
@@ -177,19 +180,21 @@ Trend: [ ] Improving  [ ] Stable  [ ] Declining
 Consumer wearables estimate sleep stages using accelerometer and heart rate data. Accuracy varies significantly by device.
 
 **Accuracy ranking (from research literature):**
+
 1. Total sleep time: Reasonably accurate (within 20-30 min)
 2. Sleep/wake detection: Good (85-90% agreement with polysomnography)
 3. Light vs deep sleep: Moderate accuracy (70-80%)
 4. REM detection: Least accurate (60-75%)
 
-| Sleep Stage | Typical % of Night | Function | What to Look For |
-|-------------|-------------------|----------|-----------------|
-| Light (N1+N2) | 45-55% | Memory consolidation, body maintenance | Stable percentage |
-| Deep (N3) | 13-23% | Physical restoration, immune function, growth hormone | Declining with age is normal |
-| REM | 20-25% | Emotional processing, learning, creativity | Alcohol suppresses REM |
-| Awake | <10% | Normal brief arousals | Excessive = fragmented sleep |
+| Sleep Stage   | Typical % of Night | Function                                              | What to Look For             |
+| ------------- | ------------------ | ----------------------------------------------------- | ---------------------------- |
+| Light (N1+N2) | 45-55%             | Memory consolidation, body maintenance                | Stable percentage            |
+| Deep (N3)     | 13-23%             | Physical restoration, immune function, growth hormone | Declining with age is normal |
+| REM           | 20-25%             | Emotional processing, learning, creativity            | Alcohol suppresses REM       |
+| Awake         | <10%               | Normal brief arousals                                 | Excessive = fragmented sleep |
 
 **What matters most:**
+
 - Total sleep time and consistency (same bed/wake times)
 - Sleep efficiency (time asleep / time in bed) -- target 85%+
 - Trends over weeks, not individual nights
@@ -216,11 +221,11 @@ Weekly movement targets (WHO guidelines):
 
 ### Blood Oxygen (SpO2)
 
-| SpO2 Level | Interpretation |
-|-----------|---------------|
-| 95-100% | Normal |
-| 90-94% | Below normal -- consult physician if persistent |
-| Below 90% | Seek medical attention |
+| SpO2 Level | Interpretation                                  |
+| ---------- | ----------------------------------------------- |
+| 95-100%    | Normal                                          |
+| 90-94%     | Below normal -- consult physician if persistent |
+| Below 90%  | Seek medical attention                          |
 
 **Wearable SpO2 limitations:** Consumer devices can be off by 2-4%. Position, skin tone, cold fingers, and motion affect readings. Overnight SpO2 dips may indicate sleep apnea -- share data with your doctor if concerned.
 
@@ -233,6 +238,7 @@ Weekly movement targets (WHO guidelines):
 **Strongest metrics:** Heart rate, irregular rhythm notifications, fall detection, ECG
 **Key app:** Apple Health (aggregate data), Heart Rate app
 **Tips:**
+
 - Enable Background Heart Rate for continuous monitoring
 - ECG feature is FDA-cleared for atrial fibrillation detection -- take readings when you feel palpitations
 - Cardio Fitness (VO2 Max estimate) is useful for tracking aerobic fitness over months
@@ -243,6 +249,7 @@ Weekly movement targets (WHO guidelines):
 **Strongest metrics:** Sleep tracking, Active Zone Minutes, Daily Readiness Score
 **Key app:** Fitbit app (Premium unlocks detailed insights)
 **Tips:**
+
 - Sleep Score combines duration, depth, and restoration -- track weekly averages
 - Active Zone Minutes reward intensity, not just steps -- target 150/week
 - Stress Management Score uses HRV, exertion, and sleep patterns
@@ -253,6 +260,7 @@ Weekly movement targets (WHO guidelines):
 **Strongest metrics:** Sleep staging, HRV, body temperature, Readiness Score
 **Key app:** Oura app
 **Tips:**
+
 - Ring form factor provides excellent overnight data (less motion artifact than wrist)
 - Body temperature trend is highly useful for detecting illness 1-2 days early
 - Readiness Score combines HRV, body temp, sleep, and activity -- below 70 suggests rest
@@ -264,6 +272,7 @@ Weekly movement targets (WHO guidelines):
 **Strongest metrics:** Training load, VO2 Max, Body Battery, training status
 **Key app:** Garmin Connect
 **Tips:**
+
 - Body Battery (1-100) is an excellent daily energy gauge combining HRV, stress, sleep, activity
 - Training Status categorizes you as Productive, Maintaining, Detraining, Overreaching, etc.
 - VO2 Max estimate improves with more outdoor GPS-tracked runs
@@ -274,6 +283,7 @@ Weekly movement targets (WHO guidelines):
 **Strongest metrics:** Strain score, Recovery score, Sleep performance
 **Key app:** WHOOP app
 **Tips:**
+
 - Recovery score (0-100%) drives training decisions: green (67-100%), yellow (34-66%), red (0-33%)
 - Strain score quantifies cardiovascular load -- aim for strain matching your recovery
 - Sleep Coach provides personalized sleep need based on strain
@@ -324,6 +334,7 @@ One adjustment for next week: ___
 ### Monthly Review (20 minutes)
 
 Look at 30-day trend charts for RHR, HRV, sleep, and activity. Ask:
+
 1. Is my resting heart rate trending down or stable? (Good)
 2. Is my HRV trending up or stable? (Good)
 3. Am I consistently hitting 7+ hours of sleep?
@@ -385,21 +396,22 @@ Do not rely on your wearable for medical diagnosis, but DO bring these patterns 
 
 ## Common Mistakes with Wearable Data
 
-| Mistake | Why It Is a Problem | Better Approach |
-|---------|-------------------|----------------|
-| Obsessing over daily numbers | Day-to-day variation is normal and noisy | Focus on 7-day and 30-day trends |
-| Comparing your HRV to others | HRV is highly individual | Compare only to your own baseline |
-| Trusting sleep stages precisely | Consumer accuracy is limited | Use total sleep time and efficiency instead |
-| Ignoring how you feel | Devices miss context (stress, hormones, etc.) | Subjective feel + data = best approach |
-| Wearing device loosely | Poor skin contact = bad data | Snug fit 1-2 finger widths above wrist bone |
-| Never charging / removing | Skin irritation, incomplete data | Charge during low-activity periods |
-| Making medical decisions from data | Consumer wearables are not medical devices | Share data with your doctor, don't self-diagnose |
+| Mistake                            | Why It Is a Problem                           | Better Approach                                  |
+| ---------------------------------- | --------------------------------------------- | ------------------------------------------------ |
+| Obsessing over daily numbers       | Day-to-day variation is normal and noisy      | Focus on 7-day and 30-day trends                 |
+| Comparing your HRV to others       | HRV is highly individual                      | Compare only to your own baseline                |
+| Trusting sleep stages precisely    | Consumer accuracy is limited                  | Use total sleep time and efficiency instead      |
+| Ignoring how you feel              | Devices miss context (stress, hormones, etc.) | Subjective feel + data = best approach           |
+| Wearing device loosely             | Poor skin contact = bad data                  | Snug fit 1-2 finger widths above wrist bone      |
+| Never charging / removing          | Skin irritation, incomplete data              | Charge during low-activity periods               |
+| Making medical decisions from data | Consumer wearables are not medical devices    | Share data with your doctor, don't self-diagnose |
 
 ---
 
 ## Exporting and Sharing Data
 
 ### With Healthcare Providers
+
 - Apple Health: Share > Health Records, or export as XML/CSV
 - Fitbit: Settings > Data Export (downloadable archive)
 - Oura: Oura app > Trends (screenshot or PDF export)
@@ -457,11 +469,12 @@ When interpreting wearable data for a user, provide:
 **Device:** Apple Watch | **Age:** 35 | **Activity level:** Moderate
 
 ### Heart Rate Variability (HRV): 28ms
-| Context | Range | Your Status |
-|---------|-------|-------------|
-| Average for age 35 | 35-65ms | Below average |
-| Athletic | 60-100+ ms | Well below |
-| Sedentary | 20-40ms | Low-normal |
+
+| Context            | Range      | Your Status   |
+| ------------------ | ---------- | ------------- |
+| Average for age 35 | 35-65ms    | Below average |
+| Athletic           | 60-100+ ms | Well below    |
+| Sedentary          | 20-40ms    | Low-normal    |
 
 **What HRV measures:** The variation in time between heartbeats. Higher = better recovery, lower stress, more resilient nervous system.
 **Your 28ms suggests:** Possible elevated stress, poor sleep quality, overtraining, or just your individual baseline.
@@ -469,20 +482,23 @@ When interpreting wearable data for a user, provide:
 **Important:** One reading means nothing. Track the TREND over 2-4 weeks. A consistent downward trend matters more than a single number.
 
 ### Resting Heart Rate (RHR): 72bpm
-| Context | Range | Your Status |
-|---------|-------|-------------|
-| Average adult | 60-80bpm | Normal |
-| Active/fit | 50-65bpm | Above this range |
-| Athlete | 40-55bpm | Above this range |
+
+| Context       | Range    | Your Status      |
+| ------------- | -------- | ---------------- |
+| Average adult | 60-80bpm | Normal           |
+| Active/fit    | 50-65bpm | Above this range |
+| Athlete       | 40-55bpm | Above this range |
 
 **Your 72bpm suggests:** Normal but room for improvement with consistent cardio training. Expect this to drop 5-10bpm over 3-6 months of regular aerobic exercise.
 
 ### What to Watch (Trends, Not Snapshots)
+
 - HRV dropping over several days: you may be getting sick, overtraining, or under-sleeping
 - RHR rising by 5+ bpm from baseline: possible illness, dehydration, or stress
 - Both improving over weeks: your fitness and recovery are improving
 
 ### Action Items
+
 1. Measure HRV at the same time daily (morning, before getting up) for 2 weeks to establish YOUR baseline
 2. Focus on sleep quality first -- it has the biggest impact on HRV
 3. Add 2-3 zone 2 cardio sessions per week (conversational pace, 30-45 min) to improve both metrics

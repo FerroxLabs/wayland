@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing technical-writing template"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing technical-writing template'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # SOP Writing
 
 ## When to Use
@@ -100,23 +101,27 @@ Every SOP must begin with control information that allows version tracking, owne
 These front-matter sections prevent the two most common SOP failures: starting when preconditions are not met, and misapplying the procedure to situations it was not designed for.
 
 **Purpose (2-4 sentences):**
+
 - State the business problem this procedure solves
 - State the measurable outcome of successful execution
 - Reference the policy or compliance requirement it supports, if applicable
 - Do not describe the steps -- that is the Procedure section's job
 
 **Scope (explicit inclusions AND exclusions):**
+
 - Name the roles this applies to
 - Name the systems, locations, or product lines covered
 - Explicitly exclude adjacent processes with a cross-reference document ID ("This SOP covers recurring monthly invoices. For one-time project invoices, see SOP-FIN-005.")
 - Specify any frequency, volume, or condition thresholds that determine applicability
 
 **Prerequisites (checkboxes, not bullets):**
+
 - Format as a checklist the performer completes before starting -- this is critical because it creates accountability
 - Include: system access with the specific permission level required, physical materials or equipment, data inputs that must be received from upstream processes, minimum knowledge or training completion, time requirements ("Allow 90 minutes of uninterrupted time")
 - If a prerequisite is conditional, document the condition
 
 **Definitions:**
+
 - Define every acronym, internal term, system name, or threshold value that appears in the procedure
 - Define quantity thresholds numerically ("High-value invoice: any single invoice exceeding $10,000")
 - Define status terms precisely ("Active contract: a contract with status 'Active' in Salesforce and no pending cancellation request on file")
@@ -139,15 +144,17 @@ After any step where the performer cannot visually or audibly confirm success, a
 
 **Warnings and cautions:**
 Place warnings BEFORE the step they relate to, never after. Use a consistent notation:
+
 - `> **WARNING:**` for steps that can cause harm, data loss, irreversible system changes, safety hazards, or compliance violations if performed incorrectly
 - `> **CAUTION:**` for steps that can cause errors or rework if not done carefully but are not dangerous
 - `> **NOTE:**` for contextual information that helps the performer but is not a safety concern
 
 **Decision points:**
 When the procedure branches based on a condition, state the condition explicitly using IF/THEN logic:
+
 - `**IF** [condition is true]: proceed to Step [X].`
 - `**IF** [condition is false]: proceed to Step [Y].`
-Never write "otherwise" without stating what otherwise means numerically. Cross-reference step numbers explicitly so the performer does not have to read ahead to figure out where to go.
+  Never write "otherwise" without stating what otherwise means numerically. Cross-reference step numbers explicitly so the performer does not have to read ahead to figure out where to go.
 
 **Phase grouping:**
 For procedures with more than 7 steps, group steps into phases with sub-headings (5.1, 5.2, 5.3). Phase names should describe what is being accomplished, not just number the sections. "5.1 Data Extraction," "5.2 Invoice Generation," "5.3 Approval and Delivery" -- each phase represents a distinct operational stage with a clear output that feeds the next phase.
@@ -172,6 +179,7 @@ Regulatory requirements transform a basic process document into a controlled doc
 **For HR/people processes:** Note required documentation retention periods. Reference applicable employment law or internal policy. Include privacy handling requirements for personal data.
 
 Add required sign-off lines after any step that needs witnessed verification. Format as:
+
 ```
 Performed by: _______________ Date: ___________
 Verified by:  _______________ Date: ___________
@@ -183,6 +191,7 @@ Verified by:  _______________ Date: ___________
 
 **Troubleshooting table:**
 Collect every known failure mode during the information-gathering phase. For each:
+
 - Describe the problem symptom as the performer would experience it (not the root cause -- they do not know the root cause yet)
 - Identify the most likely cause or causes
 - Provide a resolution the performer can attempt themselves
@@ -192,6 +201,7 @@ Aim for 4-8 entries covering the most common issues. A troubleshooting section w
 
 **Verification checklist:**
 The final section before the revision history. This is the completion criteria -- the performer confirms every outcome that must be true for the procedure to be considered successfully executed. Format as a checkbox list. Group into:
+
 - Operational checks (desired output exists and is correct)
 - Documentation checks (records are updated, files are saved, logs are written)
 - Notification checks (stakeholders are informed, tickets are updated, approvals are on file)
@@ -211,6 +221,7 @@ Before finalizing, apply these quality checks:
 - **Approval signature:** The designated approver signs off before the effective date. This signature is the difference between a draft and a controlled document.
 
 Set the review cadence based on process volatility:
+
 - High-change processes (technology or regulatory changes frequently): 90-day review cycle
 - Moderate-change processes: 6-month review cycle
 - Stable processes: Annual review cycle
@@ -258,18 +269,18 @@ Complete all items before beginning the procedure:
 
 ## 4. Definitions
 
-| Term | Definition |
-|------|------------|
-| [Term 1] | [Precise definition with any applicable thresholds or conditions] |
-| [Term 2] | [Precise definition] |
-| [Acronym] | [Expanded form and meaning in this context] |
+| Term      | Definition                                                        |
+| --------- | ----------------------------------------------------------------- |
+| [Term 1]  | [Precise definition with any applicable thresholds or conditions] |
+| [Term 2]  | [Precise definition]                                              |
+| [Acronym] | [Expanded form and meaning in this context]                       |
 
 ## 5. Roles and Responsibilities
 
-| Role | Responsibilities in This Procedure |
-|------|------------------------------------|
-| [Role 1] | [What they do in this procedure] |
-| [Role 2] | [What they do in this procedure] |
+| Role     | Responsibilities in This Procedure |
+| -------- | ---------------------------------- |
+| [Role 1] | [What they do in this procedure]   |
+| [Role 2] | [What they do in this procedure]   |
 
 ## 6. Procedure
 
@@ -285,7 +296,7 @@ Complete all items before beginning the procedure:
    - **IF** [condition B is true]: proceed to Step 5.
 
 > **WARNING:** [Danger, data loss risk, or compliance violation that will occur if the
-> next step is performed incorrectly. Place before the step, never after.]
+> > next step is performed incorrectly. Place before the step, never after.]
 
 3. [Critical action step]
    - **Expected result:** [Verification]
@@ -301,8 +312,10 @@ Complete all items before beginning the procedure:
 6. [Action step]
 
 ---
-Performed by: ___________________________ Date: ___________
-Title: ___________________________________
+
+Performed by: ************\_\_\_************ Date: ****\_\_\_****
+Title: ****************\_\_\_****************
+
 ---
 
 ### 6.3 [Phase Name]
@@ -313,8 +326,10 @@ Title: ___________________________________
    - **Expected result:** [Verification]
 
 ---
-Verified by: ____________________________ Date: ___________
-Title: ___________________________________
+
+Verified by: ************\_\_\_\_************ Date: ****\_\_\_****
+Title: ****************\_\_\_****************
+
 ---
 
 ## 7. Verification
@@ -322,42 +337,46 @@ Title: ___________________________________
 Confirm all items are true before closing this procedure:
 
 **Operational:**
+
 - [ ] [Desired output exists and meets quality criteria]
 - [ ] [System state reflects successful completion]
 
 **Documentation:**
+
 - [ ] [Records updated in system/location]
 - [ ] [Log or tracker entry completed]
 - [ ] [Files saved to correct location with correct naming convention]
 
 **Notifications:**
+
 - [ ] [Stakeholder notified via method]
 - [ ] [Ticket or workflow item updated to status]
 
 **Compliance:**
+
 - [ ] [Required approval on file]
 - [ ] [Audit trail entry exists]
 
 ## 8. Troubleshooting
 
-| Symptom | Most Likely Cause | Resolution | Escalate To |
-|---------|-------------------|------------|-------------|
-| [What the performer observes] | [Root cause] | [Steps to resolve] | [Role if self-resolution fails] |
-| [Symptom] | [Cause] | [Resolution] | [Role] |
-| [Symptom] | [Cause] | [Resolution] | [Role] |
+| Symptom                       | Most Likely Cause | Resolution         | Escalate To                     |
+| ----------------------------- | ----------------- | ------------------ | ------------------------------- |
+| [What the performer observes] | [Root cause]      | [Steps to resolve] | [Role if self-resolution fails] |
+| [Symptom]                     | [Cause]           | [Resolution]       | [Role]                          |
+| [Symptom]                     | [Cause]           | [Resolution]       | [Role]                          |
 
 ## 9. Related Documents
 
-| Document ID | Title | Relationship |
-|-------------|-------|--------------|
+| Document ID    | Title   | Relationship                             |
+| -------------- | ------- | ---------------------------------------- |
 | [SOP-DEPT-###] | [Title] | [Feeds into / Fed by / Sub-procedure of] |
-| [Policy-###] | [Title] | [Governing policy this SOP implements] |
+| [Policy-###]   | [Title] | [Governing policy this SOP implements]   |
 
 ## 10. Revision History
 
-| Version | Effective Date | Author | Changes Made | Approved By |
-|---------|----------------|--------|--------------|-------------|
-| 1.0 | [Date] | [Name, Role] | Initial release | [Name, Role] |
+| Version | Effective Date | Author       | Changes Made    | Approved By  |
+| ------- | -------------- | ------------ | --------------- | ------------ |
+| 1.0     | [Date]         | [Name, Role] | Initial release | [Name, Role] |
 ```
 
 ---
@@ -457,6 +476,7 @@ undocumented security group assignments.
 part-time employees hired through the standard HR onboarding process.
 
 **Excludes:**
+
 - Contractor and vendor account provisioning (see SOP-IT-011)
 - Access requests for existing employees changing roles (see SOP-IT-009)
 - Emergency temporary access grants (see SOP-IT-015)
@@ -482,23 +502,23 @@ Complete all items before beginning account creation:
 
 ## 4. Definitions
 
-| Term | Definition |
-|------|------------|
-| New Hire Access Request | The standardized form submitted by HR Operations via ServiceNow that triggers this procedure. Form template: HRFORM-009. |
-| Standard Security Group | A pre-defined Active Directory group mapped to a department and job function, listed in the Department Access Matrix. Grants access to file shares, applications, and system resources appropriate to that role. |
-| Elevated Access Group | Any Active Directory group that grants access beyond the standard role assignment -- for example, administrator rights, financial system write access, or access to personally identifiable information (PII). Requires manager approval AND IT Manager countersignature. |
-| Principle of Least Privilege | The security policy (Policy-SEC-002) requiring that users are granted only the access necessary to perform their defined job function -- no more. |
-| Over-provisioned | A state in which a user has access to systems, data, or resources beyond what their job function requires. This is the condition Audit Finding AF-2025-14 identified. |
-| Provisioning Complete | System state in which the user's Active Directory account is active, all required security groups are assigned, and manager approval is documented in ServiceNow. |
+| Term                         | Definition                                                                                                                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| New Hire Access Request      | The standardized form submitted by HR Operations via ServiceNow that triggers this procedure. Form template: HRFORM-009.                                                                                                                                                  |
+| Standard Security Group      | A pre-defined Active Directory group mapped to a department and job function, listed in the Department Access Matrix. Grants access to file shares, applications, and system resources appropriate to that role.                                                          |
+| Elevated Access Group        | Any Active Directory group that grants access beyond the standard role assignment -- for example, administrator rights, financial system write access, or access to personally identifiable information (PII). Requires manager approval AND IT Manager countersignature. |
+| Principle of Least Privilege | The security policy (Policy-SEC-002) requiring that users are granted only the access necessary to perform their defined job function -- no more.                                                                                                                         |
+| Over-provisioned             | A state in which a user has access to systems, data, or resources beyond what their job function requires. This is the condition Audit Finding AF-2025-14 identified.                                                                                                     |
+| Provisioning Complete        | System state in which the user's Active Directory account is active, all required security groups are assigned, and manager approval is documented in ServiceNow.                                                                                                         |
 
 ## 5. Roles and Responsibilities
 
-| Role | Responsibilities in This Procedure |
-|------|------------------------------------|
-| IT Helpdesk Technician | Executes all provisioning steps. Sole individual who creates accounts and assigns group memberships. |
-| Hiring Manager | Reviews and approves the assigned access groups within 24 hours of the approval request. Approves or denies access before the account is activated. |
-| IT Helpdesk Manager | Approves any Elevated Access Group assignments. Receives escalations for overdue manager approvals. |
-| HR Operations | Submits the New Hire Access Request form and is notified upon provisioning completion. |
+| Role                   | Responsibilities in This Procedure                                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IT Helpdesk Technician | Executes all provisioning steps. Sole individual who creates accounts and assigns group memberships.                                                |
+| Hiring Manager         | Reviews and approves the assigned access groups within 24 hours of the approval request. Approves or denies access before the account is activated. |
+| IT Helpdesk Manager    | Approves any Elevated Access Group assignments. Receives escalations for overdue manager approvals.                                                 |
+| HR Operations          | Submits the New Hire Access Request form and is notified upon provisioning completion.                                                              |
 
 ## 6. Procedure
 
@@ -624,9 +644,11 @@ Complete all items before beginning account creation:
       red X icon is removed from the account icon).
 
 ---
-Performed by: _____________________________ Date: ___________
-IT Helpdesk Technician (print name): _____________________________
-ServiceNow Ticket #: _____________________________
+
+Performed by: **************\_************** Date: ****\_\_\_****
+IT Helpdesk Technician (print name): **************\_**************
+ServiceNow Ticket #: **************\_**************
+
 ---
 
 ### 6.5 Notification and Closure
@@ -647,8 +669,10 @@ ServiceNow Ticket #: _____________________________
     active as of [date/time]. Manager approval on file: ServiceNow Approval #[X]."
 
 ---
-Verified by: _____________________________ Date: ___________
-IT Helpdesk Manager (print name): _____________________________
+
+Verified by: **************\_************** Date: ****\_\_\_****
+IT Helpdesk Manager (print name): **************\_**************
+
 ---
 
 ## 7. Verification
@@ -656,6 +680,7 @@ IT Helpdesk Manager (print name): _____________________________
 Confirm all items are true before the ServiceNow ticket is closed:
 
 **Operational:**
+
 - [ ] Active Directory account exists in the correct OU with correct attributes
 - [ ] Account status is "Enabled" and "User must change password at next login"
       is checked
@@ -665,6 +690,7 @@ Confirm all items are true before the ServiceNow ticket is closed:
 - [ ] Azure AD sync confirmed -- account visible in Azure AD
 
 **Documentation:**
+
 - [ ] Screenshot of AD "Member Of" tab attached to ServiceNow ticket
 - [ ] Manager approval record visible in ServiceNow Approval tab with approval
       timestamp
@@ -673,10 +699,12 @@ Confirm all items are true before the ServiceNow ticket is closed:
 - [ ] ServiceNow ticket status set to "Resolved" with completion summary note
 
 **Notifications:**
+
 - [ ] Hiring manager notified with credentials
 - [ ] HR Operations notified of completion via ServiceNow ticket update
 
 **Compliance:**
+
 - [ ] No Elevated Access groups assigned without IT Manager countersignature on file
 - [ ] Audit trail complete: every action in this procedure is traceable in
       ServiceNow ticket history and Active Directory audit logs
@@ -685,30 +713,30 @@ Confirm all items are true before the ServiceNow ticket is closed:
 
 ## 8. Troubleshooting
 
-| Symptom | Most Likely Cause | Resolution | Escalate To |
-|---------|-------------------|------------|-------------|
-| Job title not found in Department Access Matrix | New role not yet added to the matrix, or job title wording differs from the standardized role list | Search the matrix by department rather than job title. If no match exists, place ticket On Hold and contact IT Helpdesk Manager to obtain the correct group assignment before proceeding. | IT Helpdesk Manager |
-| Azure AD sync does not complete within 30 minutes | Azure AD Connect sync cycle delayed or stopped | Open the Azure AD Connect server, open the Synchronization Service Manager, and check for errors. If no active sync cycle is running, initiate a manual delta sync. If errors are present, do not attempt to resolve manually -- escalate immediately. | IT Infrastructure Lead |
-| Manager approval not received within 24 hours | Manager out of office, email not received, or approval email filtered to spam | IT Helpdesk Manager contacts the manager directly by phone. If the manager is unavailable, escalate to the manager's direct supervisor. Document all contact attempts in the ticket. Never enable an account without obtaining approval from an authorized approver. | IT Helpdesk Manager |
-| Account creation fails in Active Directory -- "The object already exists" error | Previous employee with same name or a duplicate provisioning attempt | Search Active Directory for existing accounts with the same name. If a terminated account exists, do not reactivate it -- create a new account. If a duplicate provisioning attempt occurred, use the existing account if it is correctly configured. Document the resolution in the ticket. | IT Helpdesk Manager |
-| Hiring manager requests security groups not in the Access Matrix | Manager attempting to grant additional access outside the standard provisioning process | Explain that non-standard access requires a separate access request (SOP-IT-009) submitted after the employee's first day. Complete the standard provisioning with the correct matrix groups. Do not add non-standard groups to the new hire provisioning. | N/A -- redirect to SOP-IT-009 |
-| Start date is same day and provisioning has not been completed | Late HR form submission or missed ticket | Requires IT Manager approval to proceed with expedited provisioning. IT Manager must acknowledge the risk of a compressed approval timeline in writing in the ServiceNow ticket. All other steps remain mandatory -- no steps may be skipped even under time pressure. | IT Helpdesk Manager |
+| Symptom                                                                         | Most Likely Cause                                                                                  | Resolution                                                                                                                                                                                                                                                                                   | Escalate To                   |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Job title not found in Department Access Matrix                                 | New role not yet added to the matrix, or job title wording differs from the standardized role list | Search the matrix by department rather than job title. If no match exists, place ticket On Hold and contact IT Helpdesk Manager to obtain the correct group assignment before proceeding.                                                                                                    | IT Helpdesk Manager           |
+| Azure AD sync does not complete within 30 minutes                               | Azure AD Connect sync cycle delayed or stopped                                                     | Open the Azure AD Connect server, open the Synchronization Service Manager, and check for errors. If no active sync cycle is running, initiate a manual delta sync. If errors are present, do not attempt to resolve manually -- escalate immediately.                                       | IT Infrastructure Lead        |
+| Manager approval not received within 24 hours                                   | Manager out of office, email not received, or approval email filtered to spam                      | IT Helpdesk Manager contacts the manager directly by phone. If the manager is unavailable, escalate to the manager's direct supervisor. Document all contact attempts in the ticket. Never enable an account without obtaining approval from an authorized approver.                         | IT Helpdesk Manager           |
+| Account creation fails in Active Directory -- "The object already exists" error | Previous employee with same name or a duplicate provisioning attempt                               | Search Active Directory for existing accounts with the same name. If a terminated account exists, do not reactivate it -- create a new account. If a duplicate provisioning attempt occurred, use the existing account if it is correctly configured. Document the resolution in the ticket. | IT Helpdesk Manager           |
+| Hiring manager requests security groups not in the Access Matrix                | Manager attempting to grant additional access outside the standard provisioning process            | Explain that non-standard access requires a separate access request (SOP-IT-009) submitted after the employee's first day. Complete the standard provisioning with the correct matrix groups. Do not add non-standard groups to the new hire provisioning.                                   | N/A -- redirect to SOP-IT-009 |
+| Start date is same day and provisioning has not been completed                  | Late HR form submission or missed ticket                                                           | Requires IT Manager approval to proceed with expedited provisioning. IT Manager must acknowledge the risk of a compressed approval timeline in writing in the ServiceNow ticket. All other steps remain mandatory -- no steps may be skipped even under time pressure.                       | IT Helpdesk Manager           |
 
 ## 9. Related Documents
 
-| Document ID | Title | Relationship |
-|-------------|-------|--------------|
-| Policy-SEC-002 | Principle of Least Privilege Access Control Policy | Governing policy this SOP implements |
-| SOP-IT-009 | Employee Access Change Request | Used when an existing employee's role changes and access must be modified |
-| SOP-IT-011 | Contractor and Vendor Account Provisioning | Parallel procedure for non-employee access -- different approval chain |
-| SOP-IT-012 | ERP System Access Provisioning | Sub-procedure for ERP-specific access requiring system owner approval |
-| SOP-IT-015 | Emergency Temporary Access Grant | Used when business-critical access is needed outside the standard timeline |
-| HRFORM-009 | New Hire Access Request Form | Input document that triggers this procedure |
-| IT-OPS: Access Matrix v4.2 | Department Access Matrix | Reference document listing standard security groups by role |
+| Document ID                | Title                                              | Relationship                                                               |
+| -------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------- |
+| Policy-SEC-002             | Principle of Least Privilege Access Control Policy | Governing policy this SOP implements                                       |
+| SOP-IT-009                 | Employee Access Change Request                     | Used when an existing employee's role changes and access must be modified  |
+| SOP-IT-011                 | Contractor and Vendor Account Provisioning         | Parallel procedure for non-employee access -- different approval chain     |
+| SOP-IT-012                 | ERP System Access Provisioning                     | Sub-procedure for ERP-specific access requiring system owner approval      |
+| SOP-IT-015                 | Emergency Temporary Access Grant                   | Used when business-critical access is needed outside the standard timeline |
+| HRFORM-009                 | New Hire Access Request Form                       | Input document that triggers this procedure                                |
+| IT-OPS: Access Matrix v4.2 | Department Access Matrix                           | Reference document listing standard security groups by role                |
 
 ## 10. Revision History
 
-| Version | Effective Date | Author | Changes Made | Approved By |
-|---------|----------------|--------|--------------|-------------|
-| 1.0 | January 15, 2026 | J. Patel, IT Helpdesk Manager | Initial release. Created in response to Audit Finding AF-2025-14 to formalize access provisioning controls and document manager approval requirements. | D. Reyes, Director of IT |
+| Version | Effective Date   | Author                        | Changes Made                                                                                                                                           | Approved By              |
+| ------- | ---------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
+| 1.0     | January 15, 2026 | J. Patel, IT Helpdesk Manager | Initial release. Created in response to Audit Finding AF-2025-14 to formalize access provisioning controls and document manager approval requirements. | D. Reyes, Director of IT |
 ```

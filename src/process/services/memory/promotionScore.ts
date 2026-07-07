@@ -12,7 +12,7 @@ import type { MemoryEntry } from '@/common/types/memory';
 const PROMOTED_TAGS = new Set(['decision', 'pattern', 'global', 'design', 'architecture']);
 
 const RECENCY_MAX_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
-const RECENCY_PEAK_MS = 24 * 60 * 60 * 1000;      // 24 hours
+const RECENCY_PEAK_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
  * Compute a promotion score (0–100) for a memory entry.
@@ -29,10 +29,7 @@ const RECENCY_PEAK_MS = 24 * 60 * 60 * 1000;      // 24 hours
  * @param refsByEntry  - Map<entryId, crossProjectRefCount>. Populated by
  *                       ijfwArchiveService's cross-project grep.
  */
-export function computePromotionScore(
-  entry: MemoryEntry,
-  refsByEntry: Map<string, number>,
-): number {
+export function computePromotionScore(entry: MemoryEntry, refsByEntry: Map<string, number>): number {
   let score = 0;
 
   // +30 for high-signal types.

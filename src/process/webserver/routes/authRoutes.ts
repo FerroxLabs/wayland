@@ -578,7 +578,8 @@ export function registerAuthRoutes(app: Express): void {
     // for every request; fall back to empty string if it's somehow absent so
     // we never silently emit an unauthenticated nonce.
     const nonce = typeof res.locals.cspNonce === 'string' ? res.locals.cspNonce : '';
-    const acceptLanguage = typeof req.headers['accept-language'] === 'string' ? req.headers['accept-language'] : undefined;
+    const acceptLanguage =
+      typeof req.headers['accept-language'] === 'string' ? req.headers['accept-language'] : undefined;
     const locale = pickLocale(acceptLanguage);
     const strings = QR_LOGIN_STRINGS[locale];
     res.send(buildQrLoginPageHtml(strings, nonce));

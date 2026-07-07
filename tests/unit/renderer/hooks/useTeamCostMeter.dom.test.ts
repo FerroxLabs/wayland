@@ -180,9 +180,12 @@ describe('useTeamCostMeter', () => {
       makeTokenEvent({ payload: { prompt_tokens: 1000, completion_tokens: 0, cost_estimate_usd: 0.5 } }),
     ]);
 
-    const { result, rerender } = renderHook(({ id }: { id: string }) => useTeamCostMeter(id, { pollIntervalMs: 10_000 }), {
-      initialProps: { id: 'team-A' },
-    });
+    const { result, rerender } = renderHook(
+      ({ id }: { id: string }) => useTeamCostMeter(id, { pollIntervalMs: 10_000 }),
+      {
+        initialProps: { id: 'team-A' },
+      }
+    );
 
     await waitFor(() => {
       expect(result.current.totalTokens).toBe(1000);

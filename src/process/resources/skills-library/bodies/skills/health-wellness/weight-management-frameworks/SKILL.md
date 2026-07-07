@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition guide strategy"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'nutrition guide strategy'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Weight Management Frameworks
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how weight loss or weight gain actually works at a physiological and mathematical level -- they want to understand the mechanisms, not just receive a plan
 - A user wants to understand what a caloric deficit or surplus is, how to estimate one, and how to interpret their results over time
 - A user asks what a realistic or healthy rate of weight change looks like and how to set timeline expectations
@@ -34,6 +36,7 @@ metadata:
 - A user asks about diet breaks, refeed days, or metabolic adaptation and wants to understand whether those concepts apply to their situation
 
 **Do NOT use when:**
+
 - The user describes symptoms consistent with an eating disorder -- restriction to dangerously low intake, binge-purge cycles, obsessive rituals around food, extreme fear of specific foods -- redirect to a healthcare professional or mental health specialist and do not provide weight management guidance
 - The user wants a specific diet plan with prescribed meals -- use the `meal-planning-framework` skill instead
 - The user wants their individual macros or caloric targets calculated -- use the `macro-calculation` skill, which handles TDEE estimation and macro breakdown
@@ -266,25 +269,33 @@ phase]
 ## Edge Cases
 
 ### User Wants to Lose Weight Very Rapidly (More Than 1.5% Body Weight Per Week)
+
 Acknowledge the goal directly -- do not dismiss it as unrealistic without explanation. Explain that rates beyond 1.0-1.5% per week consistently increase the proportion of weight lost from lean tissue rather than fat, and that metabolic adaptation accelerates. The end result is a lower body weight with a worse body composition ratio (higher fat percentage) than a slower approach would produce. Additionally, the hormonal response to severe restriction (elevated ghrelin, suppressed leptin, reduced thyroid output) makes weight regain almost biologically guaranteed once restriction ends. Present the 0.5-1.0% per week rate as the option most likely to result in net fat loss (not just weight loss) and to produce results that are permanent. If the user has a specific event deadline (wedding, reunion, athletic competition), acknowledge the constraint and help them understand what is realistically achievable within the timeline at a sustainable rate.
 
 ### User Has Been in a Continuous Caloric Deficit for More Than 12 Weeks
+
 This is a high-probability metabolic adaptation scenario. The user may present as frustrated that the diet has "stopped working." Validate that this is a physiological response, not a personal failure or a sign that their metabolism is uniquely broken. Recommend a 10-14 day structured diet break at estimated maintenance calories -- not above maintenance, not a free-for-all, but a deliberate reset period. During the break, the goal is weight stability (not gain). After the break, resume the deficit. If the user is resistant to pausing, explain that the break is an investment: research shows that resumed post-break weight loss often proceeds faster and with better body composition outcomes than continuous restriction without breaks. Counsel that the scale will likely rise 2-4 lbs during the break due to glycogen and water restoration -- this is not fat gain.
 
 ### User's Weight Is Fluctuating Wildly (3-6 lbs) Day to Day
+
 This is one of the most common sources of anxiety and misinterpretation in weight management. Explain the specific mechanisms: glycogen storage holds approximately 3-4 grams of water per gram of glycogen stored, so a high-carbohydrate day can add 1-3 lbs of water weight by the next morning; sodium causes water retention at roughly 1 liter of water per 5 grams of excess sodium; bowel contents vary by 0.5-2 lbs; hormonal cycles in individuals who menstruate add 1-5 lbs of water weight in the luteal phase (typically days 14-28 of the cycle) that resolves predictably after menstruation. Recommend: weigh under identical conditions every morning (after bathroom, before eating or drinking), record all readings in a spreadsheet or app, and evaluate only the 7-day rolling average. The trend line, not individual data points, is the signal. Recommend apps that calculate rolling averages automatically (a simple spreadsheet formula or any weight tracking app with trend smoothing features works).
 
 ### User Wants to Gain Muscle Without Gaining Any Fat
+
 Explain the biological reality clearly and without false hope: any caloric surplus sufficient to support muscle protein synthesis will result in some fat gain. The fat-to-muscle ratio of weight gained during a bulk depends on: the size of the surplus (smaller surplus = better ratio), training stimulus quality and volume, sleep quality, and protein intake adequacy. Under optimal conditions, a beginner might gain 2-3 lbs of muscle for every 1 lb of fat during a lean bulk. An intermediate lifter should expect roughly a 1:1 ratio or worse. Recommend the lean bulk approach: 200-350 calorie daily surplus, protein at 1.8-2.2 g/kg, structured progressive resistance training 3-4 days per week. Recomposition (gaining muscle without a caloric surplus) is possible but limited to: true beginners, individuals returning from a training hiatus, or those with high body fat levels (greater than 20% for males, greater than 30% for females) who can fund muscle synthesis from stored fat. Set accurate expectations: muscle gain is measured in ounces per week, not pounds, for most people beyond the first 3-6 months of training.
 
 ### User Describes a History of Yo-Yo Dieting (Multiple Cycles of Loss and Regain)
+
 This requires a different emphasis than a first-time dieter. Acknowledge the frustration and the physiological reality: repeated cycles of deficit and regain can progressively reduce lean mass (each regain cycle tends to restore more fat than muscle, shifting body composition unfavorably over time). Do not begin another deficit immediately. Instead, recommend a 6-12 week maintenance phase first: eating at estimated maintenance to stabilize weight, restore metabolic rate, normalize hunger hormones, and establish durable dietary habits before any further restriction. During this period, focus on building the behavioral infrastructure that the next deficit will require: consistent sleep, adequate protein, resistance training, and a sustainable relationship with food tracking. Only after this stabilization period is a new deficit appropriate. The goal of the next cycle is to be the last cycle -- emphasizing slow, sustainable loss followed by a permanent maintenance phase with active self-monitoring.
 
 ### User Is Menstruating and Reports Confusing Weight Patterns
+
 Weight patterns across the menstrual cycle follow predictable hormonal influences that can be mistaken for fat gain or lack of progress. In the follicular phase (days 1-14, starting with menstruation), estrogen is dominant and water retention is typically low -- weight readings tend to be at their lowest and most stable. Around ovulation, a small LH surge may cause a transient 1-2 lb increase. In the luteal phase (days 14-28), progesterone dominance causes increased water retention, bloating, increased hunger (by approximately 100-300 calories/day), and a weight increase of 1-5 lbs that resolves within 1-3 days of menstruation beginning. This means that a 7-day average taken entirely within the luteal phase will read higher than a 7-day average taken in the follicular phase, even if true fat loss is occurring. Recommend: track the same phase of each cycle for month-to-month comparisons (e.g., compare day 5 of each cycle), or use a 30-day rolling average rather than a 7-day average to smooth hormonal water fluctuations. Do not adjust the deficit in response to luteal phase weight increases.
 
 ### User Asks About Body Recomposition Directly
+
 Recomposition is real but context-specific -- it should not be presented as equally achievable for everyone. The conditions under which recomposition is most accessible:
+
 - **Beginner to resistance training** (first 6-12 months of consistent training): the "newbie gains" phenomenon allows simultaneous fat loss and muscle gain even in a modest deficit, because muscle protein synthesis response to training stimulus is disproportionately large relative to experienced trainees.
 - **Returning to training after a break of 2+ months:** muscle memory mechanisms (satellite cell recruitment, myonuclear retention) allow faster muscle re-acquisition than initial development, and this can occur in a slight deficit.
 - **Higher body fat individuals** (approximately greater than 20% for males, greater than 30% for females): sufficient stored energy is available to fuel muscle protein synthesis without requiring a dietary surplus.
@@ -297,6 +308,7 @@ Recomposition is real but context-specific -- it should not be presented as equa
 **User input:** "I'm 185 lbs, I've been trying to lose weight for about 4 months, and I feel like nothing is working anymore. The first 2 months I lost about 12 lbs but now the scale hasn't moved in 6 weeks. I'm eating what I think is around 1,800 calories a day. I'm pretty discouraged."
 
 **Context extracted:**
+
 - Starting point: approximately 197 lbs (185 + 12 lost = initial weight approximately 197 lbs)
 - Current weight: 185 lbs
 - Phase duration: 4 months continuous deficit
@@ -329,13 +341,13 @@ Before diagnosing the plateau, the 12 lbs lost in 8 weeks represents genuine, me
 
 ### 3. Sustainable Rate of Change (Current Context)
 
-| Metric                    | Value at 185 lbs               | Notes                                              |
-|---------------------------|--------------------------------|----------------------------------------------------|
-| Sustainable fat loss rate  | 0.9-1.85 lbs/week             | 0.5-1.0% of 185 lbs                               |
-| Required weekly deficit    | ~3,150-6,475 calories/week    | 450-925 cal/day deficit                            |
-| Realistic remaining timeline | 8-14 weeks to lose next 10-15 lbs | After plateau is resolved and phase reset       |
-| Diet phase duration so far | 16+ weeks continuous          | Significantly beyond the 8-12 week adaptation threshold |
-| First priority            | Phase reset before resuming deficit | Mandatory before further restriction          |
+| Metric                       | Value at 185 lbs                    | Notes                                                   |
+| ---------------------------- | ----------------------------------- | ------------------------------------------------------- |
+| Sustainable fat loss rate    | 0.9-1.85 lbs/week                   | 0.5-1.0% of 185 lbs                                     |
+| Required weekly deficit      | ~3,150-6,475 calories/week          | 450-925 cal/day deficit                                 |
+| Realistic remaining timeline | 8-14 weeks to lose next 10-15 lbs   | After plateau is resolved and phase reset               |
+| Diet phase duration so far   | 16+ weeks continuous                | Significantly beyond the 8-12 week adaptation threshold |
+| First priority               | Phase reset before resuming deficit | Mandatory before further restriction                    |
 
 ---
 
@@ -346,6 +358,7 @@ Work through these in order -- do not skip ahead:
 **Step 1 -- Adherence audit (highest probability cause):**
 
 Six weeks into a plateau after 4 months of dieting is a signal worth investigating carefully. Self-estimated calorie intake ("I think it's around 1,800") introduces significant measurement uncertainty. Common untracked sources:
+
 - Cooking oils: one tablespoon = 120 calories, easy to underestimate when cooking
 - Tasting while preparing meals: 50-150 calories/day unaccounted
 - Beverages: black coffee is calorie-free, but milk, creamers, flavored drinks add up
@@ -365,6 +378,7 @@ After 16 weeks of restriction, unconscious movement reduction is highly probable
 Four months of continuous deficit at any intake level is sufficient to produce meaningful metabolic adaptation. The 6-week plateau after initial progress is a textbook post-adaptation signal. The recommended intervention is a 10-14 day diet break -- not a free-for-all, but a deliberate maintenance period.
 
 During the break:
+
 - Eat at estimated maintenance calories (use `macro-calculation` for current weight -- approximately 2,100-2,400 for most moderately active individuals at 185 lbs, but this varies significantly by individual)
 - Maintain protein intake at current levels (1.6-2.2 g/kg -- approximately 135-175 g/day at 185 lbs)
 - Continue resistance training and normal activity
@@ -381,6 +395,7 @@ Given the 6-week plateau and self-estimated intake, this situation warrants esca
 **Level:** 3 -- Quantitative, with food scale
 
 **What to track:**
+
 - All food by weight (grams), not volume, for calorie-dense items
 - Protein intake: target 145-170 g/day (approximately 0.8-0.9 g per lb of body weight)
 - Total daily caloric intake vs. target
@@ -395,12 +410,12 @@ Given the 6-week plateau and self-estimated intake, this situation warrants esca
 
 ### 6. Phase Architecture Going Forward
 
-| Phase                    | Duration          | Goal                                           | Caloric State        |
-|--------------------------|-------------------|------------------------------------------------|----------------------|
-| **Diet break (now)**     | 10-14 days        | Metabolic reset, glycogen restoration          | Estimated maintenance |
-| **Resume deficit**       | 8-10 weeks        | Lose remaining 10-15 lbs at 0.75-1.25 lbs/wk  | 400-500 cal deficit  |
-| **Consolidation (mandatory)** | 6-8 weeks  | Stabilize new weight, normalize metabolism     | Maintenance          |
-| **Reassessment**         | After consolidation | Decide on next active phase or permanent maintenance | -- |
+| Phase                         | Duration            | Goal                                                 | Caloric State         |
+| ----------------------------- | ------------------- | ---------------------------------------------------- | --------------------- |
+| **Diet break (now)**          | 10-14 days          | Metabolic reset, glycogen restoration                | Estimated maintenance |
+| **Resume deficit**            | 8-10 weeks          | Lose remaining 10-15 lbs at 0.75-1.25 lbs/wk         | 400-500 cal deficit   |
+| **Consolidation (mandatory)** | 6-8 weeks           | Stabilize new weight, normalize metabolism           | Maintenance           |
+| **Reassessment**              | After consolidation | Decide on next active phase or permanent maintenance | --                    |
 
 **Critical note on the consolidation phase:** After reaching the target weight, a 6-8 week maintenance phase is not optional. It normalizes the hormonal environment, establishes new habitual intake patterns at the lower body weight, and dramatically improves long-term weight maintenance outcomes. Skipping this phase is the most common structural error in weight management.
 
@@ -408,15 +423,15 @@ Given the 6-week plateau and self-estimated intake, this situation warrants esca
 
 ### 7. Key Reference Numbers
 
-| Parameter                  | Value or Range               | Notes                                             |
-|----------------------------|------------------------------|---------------------------------------------------|
-| Current body weight        | 185 lbs (84 kg)              | Use for all percentage-based calculations         |
-| Protein target             | 145-170 g/day                | 1.7-2.0 g/kg -- muscle retention during deficit  |
-| Sustainable fat loss rate  | 0.9-1.85 lbs/week            | 0.5-1.0% of 185 lbs                              |
-| Deficit required           | 450-900 cal/day              | Below verified maintenance (use `macro-calculation`) |
-| Diet break duration        | 10-14 days                   | Not negotiable -- do not abbreviate               |
-| Expected scale increase during break | 2-4 lbs        | Glycogen + water -- not fat                       |
-| Plateau diagnostic threshold | 3 weeks, <0.2 lbs/week    | Using 7-day rolling average                       |
+| Parameter                            | Value or Range         | Notes                                                |
+| ------------------------------------ | ---------------------- | ---------------------------------------------------- |
+| Current body weight                  | 185 lbs (84 kg)        | Use for all percentage-based calculations            |
+| Protein target                       | 145-170 g/day          | 1.7-2.0 g/kg -- muscle retention during deficit      |
+| Sustainable fat loss rate            | 0.9-1.85 lbs/week      | 0.5-1.0% of 185 lbs                                  |
+| Deficit required                     | 450-900 cal/day        | Below verified maintenance (use `macro-calculation`) |
+| Diet break duration                  | 10-14 days             | Not negotiable -- do not abbreviate                  |
+| Expected scale increase during break | 2-4 lbs                | Glycogen + water -- not fat                          |
+| Plateau diagnostic threshold         | 3 weeks, <0.2 lbs/week | Using 7-day rolling average                          |
 
 ---
 

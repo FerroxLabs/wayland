@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis planning"
-  category: "data-analysis"
-  subcategory: "research-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis planning'
+  category: 'data-analysis'
+  subcategory: 'research-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Competitive Intelligence
@@ -21,6 +21,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to track competitors or build a competitive analysis
 - User wants to compare their product, pricing, or positioning against competitors
 - User needs a structured framework for ongoing competitive monitoring
@@ -28,6 +29,7 @@ metadata:
 - User wants to create a competitive battlecard or comparison matrix
 
 **Do NOT use when:**
+
 - User wants to analyze sentiment in brand mentions or reviews (use `sentiment-analysis-guide`)
 - User wants to define internal KPIs or metric frameworks (use `kpi-definition` or `metric-framework`)
 - User wants to synthesize findings from published research reports (use `research-synthesis`)
@@ -52,16 +54,16 @@ metadata:
 
 3. **Select the intelligence dimensions.** Choose which aspects of competitors to monitor:
 
-   | Dimension | What to Track | Signal Value |
-   |-----------|--------------|--------------|
-   | **Product** | Features, capabilities, integrations, platform changes, product launches, deprecations | What they are building reveals their strategy |
-   | **Pricing** | Price points, plan tiers, discounts, free tier limits, enterprise pricing signals | Pricing changes indicate market positioning shifts |
-   | **Positioning** | Tagline, homepage messaging, target persona language, case studies highlighted | How they describe themselves reveals who they are targeting |
-   | **Marketing** | Content themes, ad spend signals, event sponsorships, partnerships announced | Marketing activity indicates growth priorities |
-   | **Hiring** | Job postings by department, seniority, location, technology stack in listings | Hiring reveals investment areas 6-12 months before product changes |
-   | **Customer signals** | Review site ratings, customer complaints, churn indicators, case study wins | Customer experience reveals strengths and weaknesses |
-   | **Financial** | Revenue estimates, funding rounds, acquisitions, public filings | Financial health indicates sustainability and growth trajectory |
-   | **Technology** | Tech stack changes, API updates, performance benchmarks, security certifications | Technical direction signals platform evolution |
+   | Dimension            | What to Track                                                                          | Signal Value                                                       |
+   | -------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+   | **Product**          | Features, capabilities, integrations, platform changes, product launches, deprecations | What they are building reveals their strategy                      |
+   | **Pricing**          | Price points, plan tiers, discounts, free tier limits, enterprise pricing signals      | Pricing changes indicate market positioning shifts                 |
+   | **Positioning**      | Tagline, homepage messaging, target persona language, case studies highlighted         | How they describe themselves reveals who they are targeting        |
+   | **Marketing**        | Content themes, ad spend signals, event sponsorships, partnerships announced           | Marketing activity indicates growth priorities                     |
+   | **Hiring**           | Job postings by department, seniority, location, technology stack in listings          | Hiring reveals investment areas 6-12 months before product changes |
+   | **Customer signals** | Review site ratings, customer complaints, churn indicators, case study wins            | Customer experience reveals strengths and weaknesses               |
+   | **Financial**        | Revenue estimates, funding rounds, acquisitions, public filings                        | Financial health indicates sustainability and growth trajectory    |
+   | **Technology**       | Tech stack changes, API updates, performance benchmarks, security certifications       | Technical direction signals platform evolution                     |
 
    **Default recommendation:** For most competitive analyses, track Product, Pricing, Positioning, and Customer signals. Add Hiring and Financial for strategic planning. Add Technology for platform-level competition.
 
@@ -88,12 +90,12 @@ metadata:
 
 5. **Design the collection cadence.** Define how often each source is checked:
 
-   | Frequency | Sources | Purpose |
-   |-----------|---------|---------|
-   | **Weekly** | Competitor blog, changelog, pricing page, job postings | Catch product launches and pricing changes quickly |
-   | **Monthly** | Review platforms, social media presence, marketing themes | Track sentiment trends and positioning shifts |
-   | **Quarterly** | Full competitive matrix update, win/loss analysis, strategic review | Deep analysis for leadership and planning |
-   | **Event-driven** | Funding announcements, acquisitions, major launches, outages | React to significant competitive events immediately |
+   | Frequency        | Sources                                                             | Purpose                                             |
+   | ---------------- | ------------------------------------------------------------------- | --------------------------------------------------- |
+   | **Weekly**       | Competitor blog, changelog, pricing page, job postings              | Catch product launches and pricing changes quickly  |
+   | **Monthly**      | Review platforms, social media presence, marketing themes           | Track sentiment trends and positioning shifts       |
+   | **Quarterly**    | Full competitive matrix update, win/loss analysis, strategic review | Deep analysis for leadership and planning           |
+   | **Event-driven** | Funding announcements, acquisitions, major launches, outages        | React to significant competitive events immediately |
 
 6. **Build the comparison format.** Design the output that will be shared with stakeholders.
 
@@ -236,6 +238,7 @@ Status values: Full support, Partial, Planned, Not available, Unknown
 ## Competitive Intelligence Framework: TeamFlow (Project Management)
 
 ### Intelligence Scope
+
 - **Your product:** TeamFlow -- project management tool for teams of 10-50 people, focused on simplicity and speed
 - **Target market:** Small and mid-size businesses, non-technical teams
 - **Decision this informs:** Q2 product roadmap prioritization and pricing review
@@ -244,38 +247,38 @@ Status values: Full support, Partial, Planned, Not available, Unknown
 
 ### Competitor Map
 
-| Competitor | Type | Overlap | Threat Level | Priority |
-|-----------|------|---------|-------------- |----------|
-| Asana | Direct | Same target size; they have more enterprise features | High | Track weekly |
-| Monday.com | Direct | Same target size; stronger in non-PM use cases (CRM, HR) | High | Track weekly |
-| ClickUp | Direct | Aggressive feature parity strategy; competing on "all-in-one" | High | Track weekly |
-| Notion | Indirect | Docs-first, adding PM features; appeals to same audience | Medium | Track monthly |
-| Linear | Emerging | Engineering-focused but expanding to general PM | Medium | Track quarterly |
+| Competitor | Type     | Overlap                                                       | Threat Level | Priority        |
+| ---------- | -------- | ------------------------------------------------------------- | ------------ | --------------- |
+| Asana      | Direct   | Same target size; they have more enterprise features          | High         | Track weekly    |
+| Monday.com | Direct   | Same target size; stronger in non-PM use cases (CRM, HR)      | High         | Track weekly    |
+| ClickUp    | Direct   | Aggressive feature parity strategy; competing on "all-in-one" | High         | Track weekly    |
+| Notion     | Indirect | Docs-first, adding PM features; appeals to same audience      | Medium       | Track monthly   |
+| Linear     | Emerging | Engineering-focused but expanding to general PM               | Medium       | Track quarterly |
 
 ### Feature Comparison (Verified February 2026)
 
-| Feature | TeamFlow | Asana | Monday.com | ClickUp |
-|---------|----------|-------|-----------|---------|
-| Task management | Full | Full | Full | Full |
-| Timeline/Gantt | Full | Full | Full | Full |
-| Kanban boards | Full | Full | Full | Full |
-| Time tracking | Partial (basic) | Not available (integration only) | Full (built-in) | Full (built-in) |
-| Resource management | Not available | Full (Business tier) | Partial | Full |
-| Custom fields | Full | Full | Full | Full |
-| Automations | Partial (5 templates) | Full (50+ templates) | Full (100+ templates) | Full (50+ templates) |
-| Native docs | Not available | Planned Q2 | Full | Full |
-| API access | Full (all plans) | Full (paid plans) | Full (paid plans) | Full (paid plans) |
-| Guest access | Full (free) | Partial (limited) | Full (paid) | Full (paid) |
+| Feature             | TeamFlow              | Asana                            | Monday.com            | ClickUp              |
+| ------------------- | --------------------- | -------------------------------- | --------------------- | -------------------- |
+| Task management     | Full                  | Full                             | Full                  | Full                 |
+| Timeline/Gantt      | Full                  | Full                             | Full                  | Full                 |
+| Kanban boards       | Full                  | Full                             | Full                  | Full                 |
+| Time tracking       | Partial (basic)       | Not available (integration only) | Full (built-in)       | Full (built-in)      |
+| Resource management | Not available         | Full (Business tier)             | Partial               | Full                 |
+| Custom fields       | Full                  | Full                             | Full                  | Full                 |
+| Automations         | Partial (5 templates) | Full (50+ templates)             | Full (100+ templates) | Full (50+ templates) |
+| Native docs         | Not available         | Planned Q2                       | Full                  | Full                 |
+| API access          | Full (all plans)      | Full (paid plans)                | Full (paid plans)     | Full (paid plans)    |
+| Guest access        | Full (free)           | Partial (limited)                | Full (paid)           | Full (paid)          |
 
 ### Pricing Comparison (Verified February 2026)
 
-| Plan | TeamFlow | Asana | Monday.com | ClickUp |
-|------|----------|-------|-----------|---------|
-| Free tier | Up to 5 users, all features | Up to 10 users, limited features | Up to 2 seats, limited views | Free forever, 100MB storage |
-| Entry | $8/user/mo (Teams) | $11/user/mo (Starter) | $9/seat/mo (Basic) | $7/user/mo (Unlimited) |
-| Mid-tier | $15/user/mo (Business) | $25/user/mo (Advanced) | $12/seat/mo (Standard) | $12/user/mo (Business) |
-| Enterprise | Custom pricing | Custom pricing | Custom pricing | Custom pricing |
-| Annual discount | 20% | 25% | 18% | 30% |
+| Plan            | TeamFlow                    | Asana                            | Monday.com                   | ClickUp                     |
+| --------------- | --------------------------- | -------------------------------- | ---------------------------- | --------------------------- |
+| Free tier       | Up to 5 users, all features | Up to 10 users, limited features | Up to 2 seats, limited views | Free forever, 100MB storage |
+| Entry           | $8/user/mo (Teams)          | $11/user/mo (Starter)            | $9/seat/mo (Basic)           | $7/user/mo (Unlimited)      |
+| Mid-tier        | $15/user/mo (Business)      | $25/user/mo (Advanced)           | $12/seat/mo (Standard)       | $12/user/mo (Business)      |
+| Enterprise      | Custom pricing              | Custom pricing                   | Custom pricing               | Custom pricing              |
+| Annual discount | 20%                         | 25%                              | 18%                          | 30%                         |
 
 **Pricing insight:** TeamFlow's mid-tier ($15/user) is significantly below Asana's Advanced ($25/user) but above ClickUp's Business ($12/user). ClickUp competes aggressively on price. Monday.com is price-competitive at entry level but escalates quickly for advanced features.
 
@@ -284,37 +287,42 @@ Status values: Full support, Partial, Planned, Not available, Unknown
 **Overview:** ClickUp positions as the "everything app for work" -- combining project management, docs, whiteboards, and goals in one platform. They compete on feature breadth and aggressive pricing.
 
 **Their strengths:**
+
 - Broadest feature set among competitors (PM, docs, whiteboards, time tracking, goals all built-in)
 - Aggressive pricing: lowest entry price ($7/user/mo) with generous free tier
 - Rapid feature shipping cadence (weekly changelogs with new features)
 - 30% annual discount is the highest in the market
 
 **Their weaknesses:**
+
 - Feature breadth comes at the cost of UX complexity -- common complaint on G2: "too many features, hard to set up"
 - Performance issues reported in reviews: slow load times for large workspaces
 - Customer support rated below average on Capterra (3.8/5 vs industry average 4.1/5)
 - Frequent UI changes frustrate existing users (changelog velocity is a weakness as well as a strength)
 
 **When we win against them:**
+
 - Customer values simplicity and fast onboarding -- TeamFlow's setup time is under 30 minutes vs. ClickUp's 2-4 hours
 - Team is non-technical and finds ClickUp's interface overwhelming
 - Customer needs reliable performance over feature breadth
 
 **When we lose to them:**
+
 - Customer wants an all-in-one platform (PM + docs + time tracking) to reduce tool count
 - Price is the primary decision factor -- ClickUp undercuts us by $1/user/mo at entry tier
 - Customer needs advanced automation templates (we have 5, they have 50+)
 
 **Objection handling:**
+
 - "ClickUp has more features" -> "ClickUp has more features, and that is also their biggest complaint on G2. TeamFlow gives you the features your team will actually use, without the 2-hour setup and ongoing complexity tax."
 - "ClickUp is cheaper" -> "At $1/user/month difference on entry tier, the real cost difference is setup time and learning curve. Teams using TeamFlow report being productive on day one."
 
 ### Collection Schedule
 
-| Task | Frequency | Owner | Time Required | Output |
-|------|-----------|-------|---------------|--------|
-| Pricing page check (all 4) | Weekly | Product Analyst | 20 min | Price change log |
-| Changelog review (all 4) | Weekly | Product Manager | 45 min | Feature launch tracker |
-| G2/Capterra review scan | Monthly | Product Analyst | 1.5 hours | Review sentiment summary |
-| Win/loss interview analysis | Quarterly | Sales Lead | 3 hours | Win/loss competitive report |
-| Full matrix update | Quarterly | Product Manager | 6 hours | Updated framework document |
+| Task                        | Frequency | Owner           | Time Required | Output                      |
+| --------------------------- | --------- | --------------- | ------------- | --------------------------- |
+| Pricing page check (all 4)  | Weekly    | Product Analyst | 20 min        | Price change log            |
+| Changelog review (all 4)    | Weekly    | Product Manager | 45 min        | Feature launch tracker      |
+| G2/Capterra review scan     | Monthly   | Product Analyst | 1.5 hours     | Review sentiment summary    |
+| Win/loss interview analysis | Quarterly | Sales Lead      | 3 hours       | Win/loss competitive report |
+| Full matrix update          | Quarterly | Product Manager | 6 hours       | Updated framework document  |

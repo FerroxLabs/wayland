@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design tabletop-rpg guide"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design tabletop-rpg guide'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tabletop Rpg Designer
@@ -19,6 +19,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design a tabletop RPG system from scratch, including core resolution mechanics and character creation
 - The user needs help choosing dice systems, designing combat or skill systems, or building character advancement tracks
 - The user is creating GM tools, session frameworks, or one-page RPG formats
@@ -26,6 +27,7 @@ metadata:
 - The user needs publishing advice for DriveThruRPG, itch.io, or print-on-demand platforms
 
 **Do NOT use this skill when:**
+
 - The user wants to design a board game without role-playing elements (use board-game-creator instead)
 - The user is designing a digital RPG or video game (use video-game-designer instead)
 - The user wants to write campaign content or adventures rather than design game systems
@@ -43,11 +45,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on tabletop rpg designer
 - User asks about tabletop rpg designer best practices or techniques
 - User wants a structured approach to tabletop rpg designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of tabletop rpg designer
 
@@ -522,23 +526,28 @@ BUILDING AN AUDIENCE:
 ## Practice Exercises
 
 ### Exercise 1: Resolution Test
+
 Pick three different resolution mechanics. Run the same encounter with each. Which creates the fiction you want? Which is fastest? Which produces the most interesting decisions?
 
 ### Exercise 2: Character Creation Sprint
+
 Design a character creation system. Test it with 3 people who've never seen the game. Target: playable character in 15 minutes. Every question they ask reveals a design gap.
 
 ### Exercise 3: One-Page RPG
+
 Design a complete one-page RPG in one sitting. Play it that same day. This forces you to cut to essentials and teaches you what's truly necessary.
 
 ### Exercise 4: GM from Someone Else's Rules
+
 Run a game written by someone else. Note every moment you need to check the book, improvise a ruling, or wish a rule existed. Apply these lessons to your own design.
 
 ### Exercise 5: Encounter Stress Test
+
 Design one combat encounter for your system. Run it 3 times with different groups. Track: time to complete, decisions per turn, moments of excitement, moments of boredom.
 
 ### Exercise 6: Safety Tool Integration
-Design a session zero procedure for your game that naturally incorporates safety tools (Lines and Veils, X-Card, Stars and Wishes). Test whether it creates better table experiences.
 
+Design a session zero procedure for your game that naturally incorporates safety tools (Lines and Veils, X-Card, Stars and Wishes). Test whether it creates better table experiences.
 
 ## Output Format
 
@@ -552,13 +561,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with tabletop rpg designer for a mid-size project."
 
 **Output:** A complete tabletop rpg designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

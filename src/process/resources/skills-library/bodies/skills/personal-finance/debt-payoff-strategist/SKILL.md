@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance debt-management guide"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance debt-management guide'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Debt Payoff Strategist
@@ -25,11 +25,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about debt payoff strategist
 - User needs guidance on debt payoff strategist topics
 - User wants a structured approach to debt payoff strategist
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -74,6 +76,7 @@ Available for Extra Debt Payment:  $__________
 ### Step 3: Foundations First
 
 Before aggressively paying debt, ensure you have:
+
 - [ ] $1,000 minimum emergency fund (prevents new debt from surprises)
 - [ ] Current on all minimum payments (being current prevents penalties and collections)
 - [ ] Employer 401(k) match captured (free money outweighs most debt interest)
@@ -83,6 +86,7 @@ Before aggressively paying debt, ensure you have:
 ### Avalanche Method (Mathematically Optimal)
 
 **How It Works**
+
 1. List all debts from highest interest rate to lowest
 2. Pay minimums on all debts
 3. Put ALL extra payment toward the highest-rate debt
@@ -95,6 +99,7 @@ Before aggressively paying debt, ensure you have:
 ### Snowball Method (Psychologically Optimal)
 
 **How It Works**
+
 1. List all debts from smallest balance to largest
 2. Pay minimums on all debts
 3. Put ALL extra payment toward the smallest balance
@@ -106,14 +111,15 @@ Before aggressively paying debt, ensure you have:
 
 ### Which Method to Choose
 
-| Choose Avalanche If | Choose Snowball If |
-|--------------------|-------------------|
-| You are motivated by math/optimization | You need psychological wins |
-| Interest rate spread is large (e.g., 5% to 25%) | Interest rates are similar |
-| You have strong discipline and patience | You have struggled with debt motivation before |
-| Highest-rate debt is not the largest balance | You have several small debts to eliminate quickly |
+| Choose Avalanche If                             | Choose Snowball If                                |
+| ----------------------------------------------- | ------------------------------------------------- |
+| You are motivated by math/optimization          | You need psychological wins                       |
+| Interest rate spread is large (e.g., 5% to 25%) | Interest rates are similar                        |
+| You have strong discipline and patience         | You have struggled with debt motivation before    |
+| Highest-rate debt is not the largest balance    | You have several small debts to eliminate quickly |
 
 ### Hybrid Approach (Best of Both)
+
 1. Pay off any debt under $500 first (quick wins regardless of rate)
 2. Then switch to avalanche for remaining debts
 3. Captures psychological momentum while minimizing interest
@@ -121,24 +127,28 @@ Before aggressively paying debt, ensure you have:
 ## Consolidation Strategies
 
 ### Balance Transfer Credit Cards
+
 - Transfer high-rate balances to a 0% introductory APR card (typically 12-21 months)
 - Fees: Usually 3-5% balance transfer fee
 - **Critical**: Pay off the ENTIRE balance before the promotional period ends
 - **Risk**: If not paid off, remaining balance accrues interest at full rate
 
 ### Personal Consolidation Loan
+
 - Fixed-rate personal loan to pay off multiple high-rate debts
 - Rates: 6-36% depending on credit score
 - **Advantage**: Fixed payment, fixed payoff date, single payment
 - **Sources**: Credit unions (often best rates), online lenders, banks
 
 ### Home Equity Loan/HELOC
+
 - Borrow against home equity to consolidate debt
 - Rates: Typically much lower than credit cards
 - **Risk**: YOUR HOME IS COLLATERAL - if you default, you can lose your home
 - **Only consider if**: You will absolutely not accumulate new debt
 
 ### Debt Management Plan (DMP)
+
 - Work with a nonprofit credit counseling agency (NFCC member)
 - They negotiate lower interest rates (often 0-8%) with creditors
 - Single monthly payment to the agency, which distributes to creditors
@@ -157,6 +167,7 @@ Before aggressively paying debt, ensure you have:
 **When to Call**: When you have been a customer for 1+ years with on-time payments.
 
 **Script**:
+
 > "Hi, I have been a customer for [X years] and have maintained a good payment history. I am working on paying down my balance and would like to request a lower interest rate. I have received offers from other companies at [lower rate]. Is there anything you can do to reduce my current rate?"
 
 **Tips**: Be polite but firm, have a competing offer ready, ask for a supervisor if declined, call back and try a different representative if needed.
@@ -170,6 +181,7 @@ Before aggressively paying debt, ensure you have:
 **Settlement Range**: Creditors may accept 25-50% of the balance for lump-sum payment.
 
 **Process**:
+
 1. Save monthly payments to accumulate a lump sum
 2. Wait for creditor to offer settlement (or contact them after 3-6 months)
 3. Negotiate via letter, not just phone
@@ -178,6 +190,7 @@ Before aggressively paying debt, ensure you have:
 6. Keep documentation permanently
 
 ### Hardship Programs
+
 Most major creditors offer hardship programs including temporary rate reduction, payment deferral, modified payment plans, and fee waivers. Qualifications include job loss, medical emergency, divorce, natural disaster, and military deployment.
 
 ## Psychological Strategies
@@ -185,12 +198,14 @@ Most major creditors offer hardship programs including temporary rate reduction,
 ### The Motivation System
 
 **Visual Tracking**
+
 - Debt thermometer chart (coloring in as balance decreases)
 - Spreadsheet with projected payoff dates
 - Apps: Undebt.it, Debt Payoff Planner, Every Dollar
 
 **Milestone Rewards**
 Plan small, non-debt-funded rewards at milestones:
+
 - First debt eliminated: Nice home-cooked dinner
 - 25% of total debt paid: Affordable experience
 - 50% of total debt paid: Moderate treat (under $50)
@@ -201,6 +216,7 @@ Plan small, non-debt-funded rewards at milestones:
 **Identify Triggers**: Emotional spending, social pressure, lack of planning, convenience spending
 
 **Behavioral Interventions**:
+
 - Implement a 24-48 hour rule for non-essential purchases
 - Remove saved credit cards from online stores
 - Unsubscribe from marketing emails
@@ -208,6 +224,7 @@ Plan small, non-debt-funded rewards at milestones:
 - Replace spending habits with free alternatives
 
 ### Dealing with Debt Fatigue
+
 - Celebrate milestones along the way
 - Recalculate remaining timeline monthly (watching it shrink is motivating)
 - Take a "maintenance month" occasionally (pay minimums only, redirect to something enjoyable)
@@ -215,13 +232,13 @@ Plan small, non-debt-funded rewards at milestones:
 
 ## Payoff Acceleration Strategies
 
-| Strategy | Impact |
-|----------|--------|
-| Round up payments ($267 becomes $300) | Modest acceleration, painless |
-| Bi-weekly payments (26 half-payments = 13 full payments/year) | One extra payment per year |
-| Windfalls to debt (tax refund, bonus, side income) | Significant acceleration |
-| Reduce expenses by $200/month toward debt | Can cut years off payoff |
-| Side income dedicated to debt | Fastest acceleration |
+| Strategy                                                      | Impact                        |
+| ------------------------------------------------------------- | ----------------------------- |
+| Round up payments ($267 becomes $300)                         | Modest acceleration, painless |
+| Bi-weekly payments (26 half-payments = 13 full payments/year) | One extra payment per year    |
+| Windfalls to debt (tax refund, bonus, side income)            | Significant acceleration      |
+| Reduce expenses by $200/month toward debt                     | Can cut years off payoff      |
+| Side income dedicated to debt                                 | Fastest acceleration          |
 
 ### The Math That Matters
 
@@ -241,11 +258,13 @@ Savings: ~7 years and ~$4,890
 ## Special Situations
 
 ### Student Loan Strategy
+
 - **Federal loans**: Explore income-driven repayment plans, PSLF eligibility
 - **Refinancing**: Only refinance federal to private if you will NEVER need IDR or PSLF
 - **Priority**: Pay private student loans before federal (less flexible, often higher rates)
 
 ### Medical Debt
+
 - Always request an itemized bill and verify charges
 - Negotiate before paying (ask for cash-pay discount, typically 20-50% reduction)
 - Ask about charity care or financial assistance programs
@@ -253,6 +272,7 @@ Savings: ~7 years and ~$4,890
 - Payment plans from providers are often interest-free
 
 ### Collections
+
 - Validate the debt in writing within 30 days of first contact
 - Know your rights under FDCPA (Fair Debt Collection Practices Act)
 - "Pay for delete" letters: Offer to pay if they remove the collection from credit report
@@ -261,12 +281,12 @@ Savings: ~7 years and ~$4,890
 ## Debt-Free Maintenance Plan
 
 Once debt-free, prevent recurrence:
+
 1. Build emergency fund to 3-6 months of expenses
 2. Automate savings (redirect former debt payments to savings/investment)
 3. Use credit cards only for budgeted expenses, paid in full monthly
 4. Annual financial review to check for lifestyle creep
 5. Maintain the budgeting habits that got you out of debt
-
 
 ## Output Format
 

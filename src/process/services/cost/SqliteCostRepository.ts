@@ -5,14 +5,7 @@
  */
 
 import type { ISqliteDriver, IStatement } from '@process/services/database/drivers/ISqliteDriver';
-import type {
-  CostAggregate,
-  CostEventInput,
-  CostGroupBy,
-  CostSeriesPoint,
-  CostWindow,
-  ICostRepository,
-} from './types';
+import type { CostAggregate, CostEventInput, CostGroupBy, CostSeriesPoint, CostWindow, ICostRepository } from './types';
 
 const GROUP_COLUMNS: Record<CostGroupBy, string> = {
   model_id: 'model_id',

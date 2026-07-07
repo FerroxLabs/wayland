@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing optimization debugging"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing optimization debugging'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Performance Testing
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to design or implement a performance testing strategy for a web service, API, database layer, or distributed system
 - A user asks how to identify and diagnose performance bottlenecks -- latency spikes, throughput degradation, memory leaks, or connection pool exhaustion
 - A user needs to establish SLOs/SLAs and wants to verify their system can meet those targets under realistic load
@@ -29,6 +31,7 @@ metadata:
 - A user needs to capacity plan for an expected traffic event (product launch, seasonal spike, marketing campaign)
 
 **Do NOT use this skill when:**
+
 - The user needs help with unit testing, integration testing, or end-to-end functional testing -- check the testing-quality sibling skills for those
 - The user is asking about application performance monitoring (APM) or observability tooling in production without any load generation component -- that is an observability/monitoring skill
 - The user wants to optimize a specific algorithm or data structure in isolation without a broader load testing context -- that is a code optimization skill
@@ -137,54 +140,59 @@ Test results must drive action and prevent future regressions.
 ## Performance Test Report: [System Name]
 
 ### Test Configuration
-| Parameter          | Value                              |
-|--------------------|------------------------------------|
-| Test Type          | [Load / Stress / Soak / Spike]     |
-| Tool               | [k6 / JMeter / Gatling / Locust]   |
-| Virtual Users      | [N]                                |
-| Ramp-Up Duration   | [N minutes]                        |
-| Steady-State Duration | [N minutes]                     |
-| Target RPS         | [N]                                |
-| Test Date          | [YYYY-MM-DD]                       |
-| Environment        | [Staging / Production-like]        |
-| Key Differences from Prod | [list any infra differences] |
+
+| Parameter                 | Value                            |
+| ------------------------- | -------------------------------- |
+| Test Type                 | [Load / Stress / Soak / Spike]   |
+| Tool                      | [k6 / JMeter / Gatling / Locust] |
+| Virtual Users             | [N]                              |
+| Ramp-Up Duration          | [N minutes]                      |
+| Steady-State Duration     | [N minutes]                      |
+| Target RPS                | [N]                              |
+| Test Date                 | [YYYY-MM-DD]                     |
+| Environment               | [Staging / Production-like]      |
+| Key Differences from Prod | [list any infra differences]     |
 
 ---
 
 ### SLO Targets vs. Actuals
-| Metric              | SLO Target     | Actual (Peak Load) | Pass / Fail |
-|---------------------|----------------|--------------------|-------------|
-| P50 Response Time   | < [N]ms        | [N]ms              | [✓ / ✗]     |
-| P95 Response Time   | < [N]ms        | [N]ms              | [✓ / ✗]     |
-| P99 Response Time   | < [N]ms        | [N]ms              | [✓ / ✗]     |
-| Max Response Time   | < [N]ms        | [N]ms              | [✓ / ✗]     |
-| Error Rate          | < [N]%         | [N]%               | [✓ / ✗]     |
-| Throughput (RPS)    | > [N]          | [N]                | [✓ / ✗]     |
+
+| Metric            | SLO Target | Actual (Peak Load) | Pass / Fail |
+| ----------------- | ---------- | ------------------ | ----------- |
+| P50 Response Time | < [N]ms    | [N]ms              | [✓ / ✗]     |
+| P95 Response Time | < [N]ms    | [N]ms              | [✓ / ✗]     |
+| P99 Response Time | < [N]ms    | [N]ms              | [✓ / ✗]     |
+| Max Response Time | < [N]ms    | [N]ms              | [✓ / ✗]     |
+| Error Rate        | < [N]%     | [N]%               | [✓ / ✗]     |
+| Throughput (RPS)  | > [N]      | [N]                | [✓ / ✗]     |
 
 ---
 
 ### Bottleneck Summary
-| Resource              | Utilization at Peak | Saturation Point | Status     |
-|-----------------------|---------------------|------------------|------------|
-| Application CPU       | [N]%                | [N]% / [N] RPS   | [OK / HOT] |
-| Application Memory    | [N]GB / [N]GB       | N/A              | [OK / LEAK]|
-| DB Connection Pool    | [N] active / [N] max| [N] waiting       | [OK / EXHAUSTED] |
-| DB Query P99          | [N]ms               | --               | [OK / SLOW]|
-| Thread Pool Queue     | [N] avg depth       | --               | [OK / SATURATED] |
+
+| Resource           | Utilization at Peak  | Saturation Point | Status           |
+| ------------------ | -------------------- | ---------------- | ---------------- |
+| Application CPU    | [N]%                 | [N]% / [N] RPS   | [OK / HOT]       |
+| Application Memory | [N]GB / [N]GB        | N/A              | [OK / LEAK]      |
+| DB Connection Pool | [N] active / [N] max | [N] waiting      | [OK / EXHAUSTED] |
+| DB Query P99       | [N]ms                | --               | [OK / SLOW]      |
+| Thread Pool Queue  | [N] avg depth        | --               | [OK / SATURATED] |
 
 ---
 
 ### Load Generator Aggregate Statistics
 ```
+
 scenarios: (100.00%) 1 scenario, [N] max VUs
 default: [N] looping VUs for [N]m0s (gracefulStop: 30s)
 
-✓ http_req_duration.............: avg=[N]ms  min=[N]ms  med=[N]ms  max=[N]ms  p(90)=[N]ms  p(95)=[N]ms  p(99)=[N]ms
-✓ http_req_failed...............: [N]%  [N] out of [N]
-✓ http_reqs.....................: [N]    [N]/s
-  iterations...................: [N]    [N]/s
-  vus_max......................: [N]
-```
+✓ http_req_duration.............: avg=[N]ms min=[N]ms med=[N]ms max=[N]ms p(90)=[N]ms p(95)=[N]ms p(99)=[N]ms
+✓ http_req_failed...............: [N]% [N] out of [N]
+✓ http_reqs.....................: [N] [N]/s
+iterations...................: [N] [N]/s
+vus_max......................: [N]
+
+````
 
 ---
 
@@ -206,15 +214,17 @@ export const options = {
     http_reqs: ['rate>100'],
   },
 };
-```
+````
 
 ---
 
 ### Next Steps
+
 - [ ] [Specific remediation action] -- Owner: [team] -- ETA: [date]
 - [ ] Re-test after fix deployment -- Target: [date]
 - [ ] Schedule next routine performance test -- Target: [date]
-```
+
+````
 
 ---
 
@@ -409,19 +419,19 @@ export default function () {
 
   sleep(Math.random() * 2 + 0.5); // Think time: 0.5-2.5 seconds
 }
-```
+````
 
 ---
 
 #### SLO Targets vs. Actuals (Load Test Results at 2,000 RPS)
 
-| Metric            | SLO Target | Product Detail | Search   | Add to Cart | Pass / Fail |
-|-------------------|------------|----------------|----------|-------------|-------------|
-| P50 Response Time | < 100ms    | 78ms           | 142ms    | 61ms        | ✓           |
-| P95 Response Time | < 500ms    | 312ms          | 487ms    | 198ms       | ✓           |
-| P99 Response Time | < 1,000ms  | 721ms          | 1,247ms  | 389ms       | ✗ (Search)  |
-| Error Rate        | < 0.1%     | 0.02%          | 0.08%    | 0.01%       | ✓           |
-| Throughput (RPS)  | > 1,800    | 1,201          | 500      | 299         | ✓ (total)   |
+| Metric            | SLO Target | Product Detail | Search  | Add to Cart | Pass / Fail |
+| ----------------- | ---------- | -------------- | ------- | ----------- | ----------- |
+| P50 Response Time | < 100ms    | 78ms           | 142ms   | 61ms        | ✓           |
+| P95 Response Time | < 500ms    | 312ms          | 487ms   | 198ms       | ✓           |
+| P99 Response Time | < 1,000ms  | 721ms          | 1,247ms | 389ms       | ✗ (Search)  |
+| Error Rate        | < 0.1%     | 0.02%          | 0.08%   | 0.01%       | ✓           |
+| Throughput (RPS)  | > 1,800    | 1,201          | 500     | 299         | ✓ (total)   |
 
 **Primary finding:** Search endpoint P99 violates the 1,000ms SLO at 2,000 RPS total load.
 
@@ -429,15 +439,15 @@ export default function () {
 
 #### Bottleneck Summary
 
-| Resource                    | Utilization at Peak | Saturation Signal                 | Status     |
-|-----------------------------|---------------------|-----------------------------------|------------|
-| App Server CPU (avg 2 nodes)| 58%                 | No saturation observed            | OK         |
-| App Server Memory           | 4.1GB / 16GB        | Stable over 30 minutes            | OK         |
-| PostgreSQL CPU              | 74%                 | Approaching saturation            | HOT        |
-| PgBouncer cl_waiting        | 0-3 connections     | Occasional brief waits            | WATCH      |
-| Search Query P99 (DB)       | 1,180ms             | Full seq scan on products table   | CRITICAL   |
-| DB Connection Pool (app)    | 18 active / 25 max  | No exhaustion                     | OK         |
-| Network throughput          | 340 Mbps / 10 Gbps  | No saturation                     | OK         |
+| Resource                     | Utilization at Peak | Saturation Signal               | Status   |
+| ---------------------------- | ------------------- | ------------------------------- | -------- |
+| App Server CPU (avg 2 nodes) | 58%                 | No saturation observed          | OK       |
+| App Server Memory            | 4.1GB / 16GB        | Stable over 30 minutes          | OK       |
+| PostgreSQL CPU               | 74%                 | Approaching saturation          | HOT      |
+| PgBouncer cl_waiting         | 0-3 connections     | Occasional brief waits          | WATCH    |
+| Search Query P99 (DB)        | 1,180ms             | Full seq scan on products table | CRITICAL |
+| DB Connection Pool (app)     | 18 active / 25 max  | No exhaustion                   | OK       |
+| Network throughput           | 340 Mbps / 10 Gbps  | No saturation                   | OK       |
 
 ---
 
@@ -451,18 +461,19 @@ The query uses a GIN index for full-text search, but the planner abandons the in
 
 #### Findings and Recommendations
 
-| Severity | Finding                              | Root Cause                                   | Recommended Fix                                                                                                      | Est. Impact          |
-|----------|--------------------------------------|----------------------------------------------|----------------------------------------------------------------------------------------------------------------------|----------------------|
-| Critical | Search P99 = 1,247ms (SLO: 1,000ms) | Seq scan for search queries with offset > 10,000 | Replace offset pagination with keyset (cursor) pagination. Cache the first 3 pages of top-10 search terms in Redis (TTL 60s). | P99 → ~400ms         |
-| High     | PostgreSQL CPU at 74% at 2,000 RPS   | Full-text search queries are CPU-intensive    | Add a read replica and route all search traffic to it. Alternatively, move search to Elasticsearch.                  | DB CPU → ~40%        |
-| Medium   | PgBouncer cl_waiting spikes to 3     | Pool of 25 connections may exhaust at 3,000+ RPS | Increase PgBouncer pool_size to 40, set application `max_open_conns` to 35.                                          | Eliminates wait time |
-| Low      | No circuit breaker on DB calls       | Cascading failure risk if DB slows further   | Add `golang.org/x/time/rate` rate limiter + exponential backoff on DB error. Return 503 with Retry-After instead of queueing indefinitely. | Improves failure mode |
+| Severity | Finding                             | Root Cause                                       | Recommended Fix                                                                                                                            | Est. Impact           |
+| -------- | ----------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| Critical | Search P99 = 1,247ms (SLO: 1,000ms) | Seq scan for search queries with offset > 10,000 | Replace offset pagination with keyset (cursor) pagination. Cache the first 3 pages of top-10 search terms in Redis (TTL 60s).              | P99 → ~400ms          |
+| High     | PostgreSQL CPU at 74% at 2,000 RPS  | Full-text search queries are CPU-intensive       | Add a read replica and route all search traffic to it. Alternatively, move search to Elasticsearch.                                        | DB CPU → ~40%         |
+| Medium   | PgBouncer cl_waiting spikes to 3    | Pool of 25 connections may exhaust at 3,000+ RPS | Increase PgBouncer pool_size to 40, set application `max_open_conns` to 35.                                                                | Eliminates wait time  |
+| Low      | No circuit breaker on DB calls      | Cascading failure risk if DB slows further       | Add `golang.org/x/time/rate` rate limiter + exponential backoff on DB error. Return 503 with Retry-After instead of queueing indefinitely. | Improves failure mode |
 
 ---
 
 #### Stress Test Finding: Breaking Point
 
 The stress test (gradual ramp to 600 VUs) found the system saturation point at approximately 3,400 RPS:
+
 - At 3,400 RPS: PostgreSQL CPU hits 100%, query latency explodes, P99 exceeds 5,000ms
 - Error rate reaches 4.2% (all 503s from application-level timeouts)
 - Failure mode is graceful -- application returns 503, does not crash, recovers when load drops

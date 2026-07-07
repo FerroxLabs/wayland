@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching parenting guide"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'teaching parenting guide'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Youth Leadership
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on youth leadership
 - User asks about youth leadership best practices or techniques
 - User wants a structured approach to youth leadership
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of youth leadership
 
@@ -62,6 +63,7 @@ metadata:
 Common misconception: Leadership means being president of a club or captain of a team.
 
 **Reality:** Leadership is the ability to influence, inspire, and organize people toward a shared goal. It includes:
+
 - **Leading from the front:** Visibly guiding others (president, captain)
 - **Leading from within:** Contributing ideas and energy as a team member
 - **Leading from behind:** Empowering others, mentoring, supporting
@@ -69,14 +71,14 @@ Common misconception: Leadership means being president of a club or captain of a
 
 ### Leadership Styles for Teens
 
-| Style | Characteristics | Best For | Example |
-|-------|----------------|----------|---------|
-| Collaborative | Seeks input from everyone, builds consensus | Group projects, clubs | Facilitating a team brainstorm |
-| Servant | Puts others' needs first, empowers the team | Community service, mentoring | Tutoring younger students |
-| Visionary | Has big ideas and inspires others to join | Starting new initiatives | Launching a school campaign |
-| Organized | Plans, delegates, tracks progress | Events, fundraisers | Coordinating a school dance |
-| Creative | Innovates, thinks outside the box | Arts, entrepreneurship | Designing a new school program |
-| Quiet/Introverted | Leads through listening, thoughtfulness, written communication | Research, strategy, 1-on-1 mentoring | Writing a compelling proposal |
+| Style             | Characteristics                                                | Best For                             | Example                        |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------ | ------------------------------ |
+| Collaborative     | Seeks input from everyone, builds consensus                    | Group projects, clubs                | Facilitating a team brainstorm |
+| Servant           | Puts others' needs first, empowers the team                    | Community service, mentoring         | Tutoring younger students      |
+| Visionary         | Has big ideas and inspires others to join                      | Starting new initiatives             | Launching a school campaign    |
+| Organized         | Plans, delegates, tracks progress                              | Events, fundraisers                  | Coordinating a school dance    |
+| Creative          | Innovates, thinks outside the box                              | Arts, entrepreneurship               | Designing a new school program |
+| Quiet/Introverted | Leads through listening, thoughtfulness, written communication | Research, strategy, 1-on-1 mentoring | Writing a compelling proposal  |
 
 **All styles are valid.** Help the young person identify their natural style and develop it, rather than trying to fit a single leadership mold.
 
@@ -87,6 +89,7 @@ Common misconception: Leadership means being president of a club or captain of a
 ### Getting Involved
 
 **Positions Available (varies by school):**
+
 - Student body president/vice president
 - Class president/vice president/secretary/treasurer
 - Student senate or council representative
@@ -96,6 +99,7 @@ Common misconception: Leadership means being president of a club or captain of a
 ### Running for Office
 
 **Campaign Planning:**
+
 1. Understand the role (attend meetings, talk to current officers)
 2. Identify 2-3 specific goals or initiatives (be realistic and concrete)
 3. Create a campaign platform (what will you actually DO?)
@@ -105,6 +109,7 @@ Common misconception: Leadership means being president of a club or captain of a
 7. Be authentic (do not make promises you cannot keep)
 
 **Campaign Speech Framework:**
+
 ```
 Opening (15 seconds):
   Attention-grabbing start -- a question, a story, or a bold statement
@@ -124,6 +129,7 @@ Closing (15 seconds):
 ```
 
 ### Making an Impact in Student Government
+
 - Set specific, achievable goals for your term
 - Meet regularly with administration to build relationships
 - Create a communication system with the student body (surveys, social media updates)
@@ -139,12 +145,14 @@ Closing (15 seconds):
 ### Planning a Service Project
 
 **Step 1: Identify the Need**
+
 - Survey your community (what problems do people face?)
 - Talk to local nonprofits (what help do they need?)
 - Research community issues (food insecurity, homelessness, environment, education)
 - Look at what is already being done (fill gaps, do not duplicate)
 
 **Step 2: Define Your Project**
+
 ```
 SERVICE PROJECT PLAN
 =====================
@@ -166,12 +174,14 @@ Timeline:
 ```
 
 **Step 3: Build Your Team**
+
 - Recruit volunteers with specific roles
 - Assign responsibilities clearly
 - Set regular meeting schedule
 - Create a communication channel (group chat, email list)
 
 **Step 4: Execute and Document**
+
 - Track volunteer hours
 - Take photos and videos
 - Collect data on impact
@@ -181,30 +191,35 @@ Timeline:
 ### Service Project Ideas by Category
 
 **Education:**
+
 - Tutoring program for younger students
 - Book drive for underserved schools
 - Literacy mentorship program
 - STEM workshop series for elementary students
 
 **Environment:**
+
 - Park or trail cleanup and maintenance
 - Community garden creation
 - Recycling education campaign
 - Tree planting initiative
 
 **Social Services:**
+
 - Food drive or meal preparation
 - Clothing drive and distribution
 - Care packages for shelters
 - Companionship visits to senior centers
 
 **Health:**
+
 - Mental health awareness campaign
 - Blood drive organization
 - Fitness program for younger kids
 - Health education workshops
 
 **Animals:**
+
 - Shelter volunteering and fundraising
 - Pet supply drives
 - Educational presentations on responsible pet ownership
@@ -218,6 +233,7 @@ Timeline:
 **Normal anxiety symptoms:** Sweating, shaking, fast heartbeat, dry mouth, blank mind.
 
 **Coping strategies:**
+
 - Practice until you can give the talk without notes
 - Arrive early and get comfortable in the space
 - Focus on your message, not on yourself
@@ -248,15 +264,17 @@ TELL THEM WHAT YOU TOLD THEM (Conclusion)
 ```
 
 ### Types of Speeches Teens May Give
-| Type | Purpose | Tips |
-|------|---------|------|
-| Informative | Teach the audience something | Use examples, visuals, clear organization |
-| Persuasive | Convince the audience of something | Use evidence, emotional appeal, logical argument |
-| Motivational | Inspire the audience | Tell personal stories, show passion, end with a call to action |
-| Ceremonial | Mark an occasion | Be appropriate to the event, balance humor and sincerity |
-| Impromptu | Speak with little preparation | Use a simple structure (point, reason, example, point) |
+
+| Type         | Purpose                            | Tips                                                           |
+| ------------ | ---------------------------------- | -------------------------------------------------------------- |
+| Informative  | Teach the audience something       | Use examples, visuals, clear organization                      |
+| Persuasive   | Convince the audience of something | Use evidence, emotional appeal, logical argument               |
+| Motivational | Inspire the audience               | Tell personal stories, show passion, end with a call to action |
+| Ceremonial   | Mark an occasion                   | Be appropriate to the event, balance humor and sincerity       |
+| Impromptu    | Speak with little preparation      | Use a simple structure (point, reason, example, point)         |
 
 ### Practice Opportunities
+
 - School clubs and organizations
 - Debate team or forensics
 - Model United Nations
@@ -315,10 +333,13 @@ HONORS AND AWARDS
 ```
 
 ### Strong Action Verbs for Teen Resumes
+
 Organized, led, created, managed, coordinated, developed, designed, facilitated, mentored, tutored, raised (funds), recruited, implemented, launched, presented, trained, wrote, researched, planned, built.
 
 ### Building a Strong Activities List
+
 Colleges and employers value depth over breadth:
+
 - 2-3 deep commitments are more impressive than 10 superficial ones
 - Show growth within activities (member to officer to president)
 - Demonstrate impact (what changed because of your involvement)
@@ -341,15 +362,16 @@ Colleges and employers value depth over breadth:
 
 ### Maximizing Activities for College Applications
 
-| Level | Characteristics | Example |
-|-------|----------------|---------|
-| Participation | Attended meetings, was a member | Joined environmental club |
-| Active involvement | Contributed regularly, took on tasks | Led a club project, organized an event |
-| Leadership | Held elected or appointed position | Club president, team captain |
-| Impact | Created measurable change | Started a tutoring program that served 50 students |
-| Recognition | External acknowledgment | Won a state competition, published an article |
+| Level              | Characteristics                      | Example                                            |
+| ------------------ | ------------------------------------ | -------------------------------------------------- |
+| Participation      | Attended meetings, was a member      | Joined environmental club                          |
+| Active involvement | Contributed regularly, took on tasks | Led a club project, organized an event             |
+| Leadership         | Held elected or appointed position   | Club president, team captain                       |
+| Impact             | Created measurable change            | Started a tutoring program that served 50 students |
+| Recognition        | External acknowledgment              | Won a state competition, published an article      |
 
 ### Activities Section Strategy
+
 - The Common App allows 10 activities (you do not need to fill all 10)
 - List in order of importance to you (not alphabetical)
 - Each activity gets 150 characters for description -- make every word count
@@ -357,6 +379,7 @@ Colleges and employers value depth over breadth:
 - Show progression (freshman: member, sophomore: committee, junior: vice president, senior: president)
 
 ### Summer Program Opportunities
+
 - Governor's School programs (state-sponsored academic programs)
 - University summer programs (many offer financial aid)
 - Research opportunities (REU for high school students, lab internships)
@@ -371,6 +394,7 @@ Colleges and employers value depth over breadth:
 ### Essential Team Skills
 
 **Communication:**
+
 - Active listening (fully focusing, not just waiting to talk)
 - Expressing ideas clearly and concisely
 - Giving constructive feedback
@@ -378,6 +402,7 @@ Colleges and employers value depth over breadth:
 - Written communication (emails, messages, reports)
 
 **Collaboration:**
+
 - Sharing credit for successes
 - Taking responsibility for mistakes
 - Compromising when necessary
@@ -385,6 +410,7 @@ Colleges and employers value depth over breadth:
 - Doing your share of the work reliably
 
 **Conflict Resolution:**
+
 - Addressing issues directly but respectfully
 - Focusing on the problem, not the person
 - Seeking to understand before being understood
@@ -422,6 +448,7 @@ Communication Plan:
 ### Being a Mentor
 
 **Opportunities for teens to mentor:**
+
 - Peer tutoring programs
 - Big Brother/Big Sister type programs
 - Youth group leadership
@@ -430,6 +457,7 @@ Communication Plan:
 - New student buddy programs
 
 **Effective mentoring practices:**
+
 - Listen more than you advise
 - Share your own mistakes and learning
 - Be reliable (show up when you say you will)
@@ -440,6 +468,7 @@ Communication Plan:
 ### Finding a Mentor
 
 **Where to find mentors:**
+
 - Teachers and coaches who know you well
 - SCORE or local business mentors
 - Community leaders
@@ -449,6 +478,7 @@ Communication Plan:
 - Alumni networks
 
 **How to approach a potential mentor:**
+
 1. Be specific about what you are looking for ("I want to learn about...")
 2. Show you have already done some work on your own
 3. Ask for a specific, small commitment first ("Could I ask you a few questions?")
@@ -460,6 +490,7 @@ Communication Plan:
 ## Phase 9: Developing an Entrepreneurial Mindset
 
 ### Entrepreneurial Skills for Leaders
+
 - Identifying problems worth solving
 - Taking initiative without being asked
 - Learning from failure without being discouraged
@@ -472,6 +503,7 @@ Communication Plan:
 ### Leadership Portfolio Development
 
 **Track your leadership journey:**
+
 - Keep a journal of leadership experiences and reflections
 - Save photos, programs, and articles from events you organized
 - Collect feedback and recommendations
@@ -483,6 +515,7 @@ Communication Plan:
 ## Leadership Development Checklist by Grade
 
 ### Freshman Year (9th Grade)
+
 - [ ] Join 2-3 clubs or organizations aligned with interests
 - [ ] Attend meetings consistently and volunteer for tasks
 - [ ] Start a community service relationship
@@ -490,6 +523,7 @@ Communication Plan:
 - [ ] Begin keeping a leadership journal
 
 ### Sophomore Year (10th Grade)
+
 - [ ] Take on committee or coordinator roles in organizations
 - [ ] Lead a small project or event
 - [ ] Expand community service involvement
@@ -497,6 +531,7 @@ Communication Plan:
 - [ ] Explore summer leadership or service opportunities
 
 ### Junior Year (11th Grade)
+
 - [ ] Run for or hold a leadership position
 - [ ] Launch an independent initiative or project
 - [ ] Mentor younger students
@@ -505,6 +540,7 @@ Communication Plan:
 - [ ] Seek a mentor in an area of interest
 
 ### Senior Year (12th Grade)
+
 - [ ] Lead organizations with vision and impact
 - [ ] Document and reflect on your leadership journey
 - [ ] Create transition plans for successors
@@ -525,7 +561,6 @@ Communication Plan:
 
 True leadership is not about the title on your resume. It is about the difference you make, the people you help grow, and the ability to turn ideas into action. Start where you are, use what you have, and do what you can.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -538,13 +573,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with youth leadership for a mid-size project."
 
 **Output:** A complete youth leadership framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

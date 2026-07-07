@@ -25,9 +25,7 @@ import path from 'node:path';
 // ===== Arg schemas =====
 
 const listConceptsSchema = z.object({
-  topicTag: z
-    .enum(['Architecture', 'Design', 'Decisions', 'Process', 'Patterns', 'Brand'])
-    .optional(),
+  topicTag: z.enum(['Architecture', 'Design', 'Decisions', 'Process', 'Patterns', 'Brand']).optional(),
   search: z.string().optional(),
   freshness: z.enum(['fresh', 'stale', 'never_reviewed']).optional(),
   sort: z.enum(['recent', 'most-referenced', 'alphabetical']).optional(),
@@ -49,7 +47,7 @@ async function getCurrentProjectPath(): Promise<string> {
   const svc = getIjfwArchiveService();
   const projects = await svc.getProjects();
   if (projects.length > 0) {
-    const sorted = [...projects].sort((a, b) => b.lastActive - a.lastActive);
+    const sorted = [...projects].toSorted((a, b) => b.lastActive - a.lastActive);
     return sorted[0].path;
   }
   return process.cwd();
@@ -80,14 +78,9 @@ function writeConceptFile(projectPath: string, concept: WikiConcept): void {
   }
 
   const aliasesYaml =
-    concept.aliases.length > 0
-      ? `aliases: [${concept.aliases.map((a) => `"${a}"`).join(', ')}]`
-      : 'aliases: []';
+    concept.aliases.length > 0 ? `aliases: [${concept.aliases.map((a) => `"${a}"`).join(', ')}]` : 'aliases: []';
 
-  const tagsYaml =
-    concept.tags.length > 0
-      ? `tags: [${concept.tags.map((t) => `"${t}"`).join(', ')}]`
-      : 'tags: []';
+  const tagsYaml = concept.tags.length > 0 ? `tags: [${concept.tags.map((t) => `"${t}"`).join(', ')}]` : 'tags: []';
 
   const lines = [
     '---',
@@ -143,19 +136,17 @@ export function initWikiBridge(): void {
           (c) =>
             c.name.toLowerCase().includes(q) ||
             c.tldr.toLowerCase().includes(q) ||
-            c.tags.some((t) => t.toLowerCase().includes(q)),
+            c.tags.some((t) => t.toLowerCase().includes(q))
         );
       }
 
       if (filter.sort === 'alphabetical') {
-        concepts = [...concepts].sort((a, b) => a.name.localeCompare(b.name));
+        concepts = [...concepts].toSorted((a, b) => a.name.localeCompare(b.name));
       } else if (filter.sort === 'most-referenced') {
-        concepts = [...concepts].sort(
-          (a, b) => b.linkedFromConcepts.length - a.linkedFromConcepts.length,
-        );
+        concepts = [...concepts].toSorted((a, b) => b.linkedFromConcepts.length - a.linkedFromConcepts.length);
       } else {
         // Default: recent
-        concepts = [...concepts].sort((a, b) => b.lastSynthesizedAt - a.lastSynthesizedAt);
+        concepts = [...concepts].toSorted((a, b) => b.lastSynthesizedAt - a.lastSynthesizedAt);
       }
 
       return { concepts, total: concepts.length };

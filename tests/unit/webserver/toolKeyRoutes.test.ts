@@ -112,7 +112,13 @@ describe('tool key routes (W1.B write-only tool/service key)', () => {
 
     expect(mockAppendAudit).toHaveBeenCalledTimes(1);
     const entry = mockAppendAudit.mock.calls[0][0];
-    expect(entry).toMatchObject({ userId: 'u1', action: 'tool.key.set', target: 'tavily', ip: '100.64.0.9', reachedVia: 'tailscale' });
+    expect(entry).toMatchObject({
+      userId: 'u1',
+      action: 'tool.key.set',
+      target: 'tavily',
+      ip: '100.64.0.9',
+      reachedVia: 'tailscale',
+    });
     expect(JSON.stringify(entry)).not.toContain('SECRET123456');
   });
 
@@ -163,7 +169,10 @@ describe('tool key routes (W1.B write-only tool/service key)', () => {
   it('set redacts any secret in an unexpected thrown error (500)', async () => {
     mockSet.mockRejectedValueOnce(new Error('boom sk-live-SECRET123456 fail'));
     const res = makeRes();
-    await captureHandlers()['/api/tools/keys/set'](makeReq({ body: { id: 'tavily', key: 'sk-live-SECRET123456' } }), res);
+    await captureHandlers()['/api/tools/keys/set'](
+      makeReq({ body: { id: 'tavily', key: 'sk-live-SECRET123456' } }),
+      res
+    );
 
     expect(res._status).toBe(500);
     expect(JSON.stringify(res._json)).not.toContain('SECRET123456');

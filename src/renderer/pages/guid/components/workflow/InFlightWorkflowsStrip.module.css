@@ -35,7 +35,9 @@
   cursor: pointer;
   font: inherit;
   color: inherit;
-  transition: background-color 120ms ease, border-color 120ms ease;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
 }
 
 .card:hover {

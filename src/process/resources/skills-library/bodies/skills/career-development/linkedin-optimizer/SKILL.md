@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career linkedin guide"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career linkedin guide'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # LinkedIn Profile Optimizer
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about linkedin optimizer
 - User needs guidance on linkedin optimizer topics
 - User wants a structured approach to linkedin optimizer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **What are your top 3 professional strengths?**
 9. **Do you have a personal website or portfolio?**
 10. **What differentiates you from others in your field?**
+
 ---
+
 ## Step 1: Profile Photo and Banner
 
 ### Profile Photo Guidelines
+
 ```
 PROFILE PHOTO CHECKLIST:
 
@@ -69,6 +75,7 @@ IMPACT: Profiles with photos receive 21x more views and
 ```
 
 ### Banner Image
+
 ```
 BANNER IMAGE OPTIONS:
 
@@ -89,10 +96,13 @@ Option 3: Achievement showcase
 
 DIMENSIONS: 1584 x 396 pixels (LinkedIn recommended)
 ```
+
 ---
+
 ## Step 2: Headline Optimization
 
 ### Headline Formulas (220 characters max)
+
 ```
 HEADLINE FORMULA OPTIONS:
 
@@ -119,10 +129,13 @@ HEADLINE RULES:
 - Do NOT use buzzwords without substance ("guru," "ninja," "rockstar")
 - Use | or bullet points to separate elements
 ```
+
 ---
+
 ## Step 3: Summary / About Section (2,600 character limit)
 
 ### Summary Writing Framework
+
 ```
 SUMMARY STRUCTURE:
 
@@ -146,6 +159,7 @@ What do you want people to do? Connect? Email? Visit your website?
 ```
 
 ### Summary Templates
+
 ```
 TEMPLATE 1: NARRATIVE (Best for most professionals)
 I have spent the last {{X}} years helping {{WHO}} solve
@@ -189,10 +203,13 @@ Now, as a {{NEW_ROLE}}, I bring {{VALUE_YOU_BRING}}. In my first
 I am passionate about {{AREA_OF_NEW_FIELD}} and eager to connect
 with others in this space.
 ```
+
 ---
+
 ## Step 4: Experience Section Optimization
 
 ### Experience Entry Best Practices
+
 ```
 EXPERIENCE OPTIMIZATION:
 
@@ -227,10 +244,13 @@ TIPS:
 [ ] Keep descriptions concise but impactful
 [ ] Update regularly (do not wait for job changes)
 ```
+
 ---
+
 ## Step 5: Skills and Endorsements Strategy
 
 ### Skills Section Optimization
+
 ```
 SKILLS STRATEGY:
 
@@ -260,10 +280,13 @@ SKILL ASSESSMENTS:
 - Passing earns a badge visible on your profile
 - Profiles with badges are 30% more likely to get hired (per LinkedIn)
 ```
+
 ---
+
 ## Step 6: Recommendation Strategy
 
 ### Requesting Recommendations
+
 ```
 RECOMMENDATION REQUEST TEMPLATE:
 
@@ -298,10 +321,13 @@ Provide context so they write something useful:
 - My {{SKILL}} that you observed
 - The impact I had on {{TEAM/OUTCOME}}"
 ```
+
 ---
+
 ## Step 7: Content Posting Strategy
 
 ### Content Framework
+
 ```
 CONTENT POSTING STRATEGY:
 
@@ -338,6 +364,7 @@ TIMING:
 ```
 
 ### Post Templates
+
 ```
 TEMPLATE 1: LESSON LEARNED
 "{{CONTRARIAN_OR_SURPRISING_STATEMENT}}
@@ -370,10 +397,13 @@ The biggest thing that got me here: {{KEY_LESSON}}.
 
 What is a career decision you are glad you made?"
 ```
+
 ---
+
 ## Step 8: Networking Approach
 
 ### Connection Request Templates
+
 ```
 CONNECTION REQUEST TEMPLATES (300 character limit):
 
@@ -403,10 +433,13 @@ RULES:
 - Do NOT pitch in the connection request
 - Follow up with a message after they accept
 ```
+
 ---
+
 ## Step 9: Job Search Features
 
 ### Open to Work Settings
+
 ```
 OPEN TO WORK CONFIGURATION:
 
@@ -428,6 +461,7 @@ SETTINGS TO CONFIGURE:
 ```
 
 ### Job Search Optimization
+
 ```
 JOB SEARCH TIPS:
 
@@ -440,10 +474,13 @@ JOB SEARCH TIPS:
 [ ] Join industry groups where hiring discussions happen
 [ ] Update your profile before activating job search features
 ```
+
 ---
+
 ## Step 10: Profile SEO
 
 ### Keyword Strategy
+
 ```
 LINKEDIN SEO OPTIMIZATION:
 
@@ -481,8 +518,11 @@ PROFILE COMPLETENESS CHECKLIST (impacts search ranking):
 [ ] Industry set
 [ ] Contact info filled in
 ```
+
 ---
+
 ## LinkedIn Profile Audit Checklist
+
 ```
 COMPLETE PROFILE AUDIT:
 FIRST IMPRESSION:
@@ -516,9 +556,10 @@ ACTIVITY:
 [ ] Sharing valuable insights
 [ ] Growing connection count strategically
 ```
----
-*This skill provides LinkedIn optimization guidance. LinkedIn's algorithm and features change regularly. Stay current with LinkedIn's official blog and test what works for your specific audience.*
 
+---
+
+_This skill provides LinkedIn optimization guidance. LinkedIn's algorithm and features change regularly. Stay current with LinkedIn's official blog and test what works for your specific audience._
 
 ## Output Format
 

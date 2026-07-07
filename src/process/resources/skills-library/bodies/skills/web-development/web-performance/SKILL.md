@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend optimization"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend optimization'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Web Performance
@@ -215,9 +215,9 @@ function App() {
   return (
     <Suspense fallback={<PageSkeleton />}>
       <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/analytics" element={<Analytics />} />
+        <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/settings' element={<Settings />} />
+        <Route path='/analytics' element={<Analytics />} />
       </Routes>
     </Suspense>
   );
@@ -252,18 +252,18 @@ function CommentSection() {
 
 ```html
 <!-- Prefetch likely-next routes -->
-<link rel="prefetch" href="/dashboard/chunk.js">
+<link rel="prefetch" href="/dashboard/chunk.js" />
 
 <!-- Preload critical current-route resources -->
-<link rel="preload" href="/hero.webp" as="image" fetchpriority="high">
-<link rel="preload" href="/critical.css" as="style">
-<link rel="preload" href="/font.woff2" as="font" crossorigin>
+<link rel="preload" href="/hero.webp" as="image" fetchpriority="high" />
+<link rel="preload" href="/critical.css" as="style" />
+<link rel="preload" href="/font.woff2" as="font" crossorigin />
 
 <!-- DNS prefetch for external origins -->
-<link rel="dns-prefetch" href="[reference URL]">
+<link rel="dns-prefetch" href="[reference URL]" />
 
 <!-- Preconnect for critical external origins -->
-<link rel="preconnect" href="[reference URL]" crossorigin>
+<link rel="preconnect" href="[reference URL]" crossorigin />
 ```
 
 ## Image Optimization
@@ -297,28 +297,28 @@ Animated content:
     type="image/avif"
     srcset="hero-400.avif 400w, hero-800.avif 800w, hero-1200.avif 1200w"
     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-  >
+  />
   <!-- WebP fallback -->
   <source
     type="image/webp"
     srcset="hero-400.webp 400w, hero-800.webp 800w, hero-1200.webp 1200w"
     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-  >
+  />
   <!-- JPEG fallback -->
   <img
     src="hero-800.jpg"
     srcset="hero-400.jpg 400w, hero-800.jpg 800w, hero-1200.jpg 1200w"
     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
     alt="Hero image description"
-    width="1200" height="600"
+    width="1200"
+    height="600"
     loading="lazy"
     decoding="async"
-  >
+  />
 </picture>
 
 <!-- Above-the-fold LCP image: NO lazy loading, YES fetchpriority -->
-<img src="hero.webp" alt="..." width="1200" height="600"
-     fetchpriority="high" decoding="async">
+<img src="hero.webp" alt="..." width="1200" height="600" fetchpriority="high" decoding="async" />
 ```
 
 ## Font Loading Strategy
@@ -329,8 +329,8 @@ Animated content:
   font-family: 'Inter';
   src: url('/fonts/inter-var.woff2') format('woff2');
   font-weight: 100 900;
-  font-display: swap;  /* Show fallback immediately, swap when loaded */
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153;  /* Latin subset */
+  font-display: swap; /* Show fallback immediately, swap when loaded */
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153; /* Latin subset */
 }
 
 /* Fallback font metrics matching to reduce CLS */
@@ -384,16 +384,20 @@ Fonts:
 ```js
 // Cache-first for static assets
 self.addEventListener('get', (event) => {
-  if (event.request.destination === 'image' ||
-      event.request.destination === 'style' ||
-      event.request.destination === 'script') {
+  if (
+    event.request.destination === 'image' ||
+    event.request.destination === 'style' ||
+    event.request.destination === 'script'
+  ) {
     event.respondWith(
-      caches.match(event.request).then(cached =>
-        cached || get(event.request).then(response => {
-          const clone = response.clone();
-          caches.open('static-v1').then(cache => cache.put(event.request, clone));
-          return response;
-        })
+      caches.match(event.request).then(
+        (cached) =>
+          cached ||
+          get(event.request).then((response) => {
+            const clone = response.clone();
+            caches.open('static-v1').then((cache) => cache.put(event.request, clone));
+            return response;
+          })
       )
     );
   }
@@ -457,6 +461,7 @@ new PerformanceObserver((list) => {
 ## Performance Optimization Checklist
 
 ### Critical Rendering Path
+
 - [ ] Inline critical CSS (above-the-fold)
 - [ ] Defer non-critical CSS with media or rel="preload"
 - [ ] Defer JavaScript with `defer` attribute
@@ -465,6 +470,7 @@ new PerformanceObserver((list) => {
 - [ ] Use HTTP/2 or HTTP/3
 
 ### Assets
+
 - [ ] Images in modern formats (AVIF/WebP) with fallbacks
 - [ ] Responsive images with srcset and sizes
 - [ ] LCP image preloaded with fetchpriority="high"
@@ -473,6 +479,7 @@ new PerformanceObserver((list) => {
 - [ ] Videos used instead of GIFs
 
 ### JavaScript
+
 - [ ] Route-based code splitting implemented
 - [ ] Tree shaking confirmed working
 - [ ] Bundle budget enforced in CI
@@ -481,6 +488,7 @@ new PerformanceObserver((list) => {
 - [ ] Web Workers used for heavy computation
 
 ### Runtime
+
 - [ ] Virtualized long lists (react-window, @tanstack/virtual)
 - [ ] Debounced/throttled rapid event handlers
 - [ ] content-visibility: auto for offscreen sections
@@ -488,6 +496,7 @@ new PerformanceObserver((list) => {
 - [ ] requestAnimationFrame for visual updates
 
 ### Monitoring
+
 - [ ] Real User Monitoring (RUM) collecting Core Web Vitals
 - [ ] Performance budgets enforced in CI/CD
 - [ ] Lighthouse CI running on every PR
@@ -496,6 +505,7 @@ new PerformanceObserver((list) => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing web performance solutions
 - Reviewing or improving existing web performance approaches
 - Making architectural or implementation decisions about web performance
@@ -503,6 +513,7 @@ new PerformanceObserver((list) => {
 - Troubleshooting web performance-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -513,21 +524,26 @@ new PerformanceObserver((list) => {
 # Web Performance Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

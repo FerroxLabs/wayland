@@ -186,12 +186,16 @@ const Diff2Html = ({
 
               {/* Collapse button */}
               {collapse ? (
-                <ChevronDown size={14} color={iconColors.secondary}
+                <ChevronDown
+                  size={14}
+                  color={iconColors.secondary}
                   className='flex items-center'
                   onClick={() => setCollapse(false)}
                 />
               ) : (
-                <ChevronUp size={14} color={iconColors.secondary}
+                <ChevronUp
+                  size={14}
+                  color={iconColors.secondary}
                   className='flex items-center'
                   onClick={() => setCollapse(true)}
                 />

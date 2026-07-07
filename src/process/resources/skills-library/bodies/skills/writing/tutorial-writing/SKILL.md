@@ -10,13 +10,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation step-by-step"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation step-by-step'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tutorial Writing
@@ -76,7 +76,7 @@ metadata:
 
 ## Output Format
 
-```
+````
 # Tutorial: [What the Learner Will Build or Accomplish]
 
 ## Overview
@@ -102,7 +102,7 @@ metadata:
 
 ```[language]
 [code or commands for this step]
-```
+````
 
 [Explanation of what the code does and WHY this approach is used.]
 
@@ -177,13 +177,16 @@ metadata:
 ## Summary
 
 **What you learned:**
+
 - [Objective 1 restated as completed]
 - [Objective 2 restated as completed]
 
 **Next steps:**
+
 - [Related tutorial or documentation to continue learning]
 - [More advanced topic to explore]
-```
+
+````
 
 ## Rules
 
@@ -243,7 +246,7 @@ Every Express app starts with a Node.js project. This step sets up the project s
 mkdir todo-api && cd todo-api
 npm init -y
 [package-manager] add express
-```
+````
 
 The `npm init -y` command creates a `package.json` with default values. Express is the only dependency for this tutorial.
 
@@ -278,7 +281,7 @@ Add this above `app.listen()` in `server.js`:
 ```javascript
 let todos = [
   { id: 1, title: 'Learn Express', completed: false },
-  { id: 2, title: 'Build an API', completed: false }
+  { id: 2, title: 'Build an API', completed: false },
 ];
 
 app.get('/todos', (req, res) => {
@@ -315,7 +318,7 @@ app.post('/todos', (req, res) => {
   const newTodo = {
     id: todos.length + 1,
     title,
-    completed: false
+    completed: false,
   };
 
   todos.push(newTodo);
@@ -351,7 +354,7 @@ You should see: `{"id":3,"title":"Test item","completed":false}`
 ```javascript
 app.put('/todos/:id', (req, res) => {
   const id = parseInt(req.params.id);
-  const todo = todos.find(t => t.id === id);
+  const todo = todos.find((t) => t.id === id);
 
   if (!todo) {
     return res.status(404).json({ error: 'Todo not found' });
@@ -393,11 +396,13 @@ Express identifies error-handling middleware by its four-parameter signature. Th
 ## Summary
 
 **What you learned:**
+
 - Created an Express.js server listening on a configured port
 - Defined route handlers for GET and POST with JSON request/response handling
 - Validated input and returned descriptive error responses with correct status codes
 
 **Next steps:**
+
 - Add a database (SQLite or PostgreSQL) instead of the in-memory array
 - Add middleware for request logging and authentication
 - Deploy the API to a cloud platform

@@ -6,13 +6,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship planning strategy analysis decision-making"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'entrepreneurship planning strategy analysis decision-making'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Bootstrapping Strategy
@@ -20,6 +20,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to build a business without taking external investment
 - User asks about bootstrapping, self-funding, or revenue-first growth strategies
 - User needs a plan to reach profitability before or instead of fundraising
@@ -27,6 +28,7 @@ metadata:
 - User needs a resource-constrained growth plan with self-funding milestones
 
 **Do NOT use this skill when:**
+
 - User wants to raise venture capital or angel investment (use `fundraising-narrative`)
 - User needs a financial model for investor presentations (use `financial-model-structure`)
 - User is scaling a funded startup (use `scaling-checklist`)
@@ -286,16 +288,17 @@ metadata:
 ## Bootstrapping Strategy: PhotoFlow (Freelance Photographer Management SaaS)
 
 ### Business Context
-| Field | Value |
-|-------|-------|
-| **Business** | SaaS for freelance photographers: bookings, contracts, invoices |
-| **Target customer** | Freelance photographers ($50K-$200K annual revenue) |
-| **Revenue model** | Monthly subscription |
-| **Current stage** | Idea |
-| **Founder skills** | Full-stack development (can build the product solo) |
-| **Personal runway** | Indefinite (maintaining day job) |
-| **Capital available** | $5,000 |
-| **Time available** | 15 hours/week |
+
+| Field                 | Value                                                           |
+| --------------------- | --------------------------------------------------------------- |
+| **Business**          | SaaS for freelance photographers: bookings, contracts, invoices |
+| **Target customer**   | Freelance photographers ($50K-$200K annual revenue)             |
+| **Revenue model**     | Monthly subscription                                            |
+| **Current stage**     | Idea                                                            |
+| **Founder skills**    | Full-stack development (can build the product solo)             |
+| **Personal runway**   | Indefinite (maintaining day job)                                |
+| **Capital available** | $5,000                                                          |
+| **Time available**    | 15 hours/week                                                   |
 
 ### Bootstrapping Viability: Strong
 
@@ -304,30 +307,34 @@ The founder can build the product without hiring. Time to first revenue is short
 ### Phase Plan
 
 #### Phase 0: Validation (Weeks 1-4)
-| Field | Value |
-|-------|-------|
-| **Goal** | Confirm photographers need an all-in-one tool and will pay $29/month |
-| **Activities** | Interview 10 freelance photographers, launch landing page, collect waitlist signups |
-| **Exit criteria** | 50+ waitlist signups, 7/10 interviewees confirm the problem |
-| **Cost** | $200 (domain, hosting, landing page tools) |
+
+| Field             | Value                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| **Goal**          | Confirm photographers need an all-in-one tool and will pay $29/month                |
+| **Activities**    | Interview 10 freelance photographers, launch landing page, collect waitlist signups |
+| **Exit criteria** | 50+ waitlist signups, 7/10 interviewees confirm the problem                         |
+| **Cost**          | $200 (domain, hosting, landing page tools)                                          |
 
 #### Phase 1: First Revenue (Months 2-4)
-| Field | Value |
-|-------|-------|
-| **Target** | $500 MRR (17 customers at $29/month) |
+
+| Field          | Value                                                                    |
+| -------------- | ------------------------------------------------------------------------ |
+| **Target**     | $500 MRR (17 customers at $29/month)                                     |
 | **Activities** | Build MVP (booking + invoicing), launch to waitlist, charge from day one |
-| **Pricing** | $29/month or $249/year (29% discount for annual) |
-| **Growth** | Photography Facebook groups, Instagram outreach, waitlist conversion |
+| **Pricing**    | $29/month or $249/year (29% discount for annual)                         |
+| **Growth**     | Photography Facebook groups, Instagram outreach, waitlist conversion     |
 
 #### Phase 2: Ramen Profitable (Months 5-10)
-| Field | Value |
-|-------|-------|
-| **Target** | $3,000 MRR (103 customers) |
+
+| Field        | Value                                                                       |
+| ------------ | --------------------------------------------------------------------------- |
+| **Target**   | $3,000 MRR (103 customers)                                                  |
 | **Decision** | At $3K MRR for 3 consecutive months, consider reducing day job to part-time |
 
 #### Phase 3: Full-Time Transition (Months 11-18)
-| Field | Value |
-|-------|-------|
-| **Target** | $5,500 MRR (70% of current salary equivalent after taxes and expenses) |
-| **Decision** | Quit day job when $5.5K MRR sustained for 3 months |
-| **First hire** | Part-time customer support (contractor, $1K/month) |
+
+| Field          | Value                                                                  |
+| -------------- | ---------------------------------------------------------------------- |
+| **Target**     | $5,500 MRR (70% of current salary equivalent after taxes and expenses) |
+| **Decision**   | Quit day job when $5.5K MRR sustained for 3 months                     |
+| **First hire** | Part-time customer support (contractor, $1K/month)                     |

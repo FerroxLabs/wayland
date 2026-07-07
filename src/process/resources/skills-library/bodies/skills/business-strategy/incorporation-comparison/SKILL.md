@@ -6,14 +6,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship planning strategy decision-making analysis"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship planning strategy decision-making analysis'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Incorporation Comparison
 
 **Important:** This skill produces an informational comparison of business entity types for educational purposes only. It is NOT legal or tax advice. Business entity selection has significant legal, tax, and financial implications that vary by state, country, and individual circumstance. Always direct users to consult a qualified business attorney and CPA before forming any entity.
@@ -23,6 +24,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks which business structure to choose -- "should I be an LLC or S-corp?", "what is the difference between an LLC and a corporation?", or "how do I structure my new business?"
 - A user is a solo founder, freelancer, or consultant earning meaningful revenue and questioning whether their current structure is optimal
 - A user has a multi-founder situation and needs to understand entity options before engaging an attorney
@@ -32,6 +34,7 @@ metadata:
 - A user is switching business models (e.g., going from freelancer to product company) and needs to understand when their entity structure stops making sense
 
 **Do NOT use this skill when:**
+
 - The user needs a draft operating agreement or co-founder terms -- use `partnership-agreement-outline`
 - The user is raising a funding round and needs to structure the pitch, SAFE, or convertible note -- use `fundraising-narrative`
 - The user needs to model equity splits, option pools, or dilution -- use `cap-table-basics`
@@ -62,6 +65,7 @@ Do not produce a generic five-column table without first understanding the user'
 Present each entity with real mechanics, not summaries. Cover the following for each:
 
 **Sole Proprietorship:**
+
 - Not a separate legal entity. Legally indistinguishable from the owner.
 - Business income and expenses reported on Schedule C of Form 1040.
 - Net profit subject to self-employment tax at 15.3% on the first $168,600 (2024 wage base) and 2.9% above that. The employer half (7.65%) is deductible, reducing net SE tax impact by roughly half that amount, but the owner still bears the full economic cost.
@@ -71,6 +75,7 @@ Present each entity with real mechanics, not summaries. Cover the following for 
 - Best reserved for: solo consultants testing a business idea before committing to formation costs, or low-risk freelancers under $40,000 net income with minimal liability exposure.
 
 **General Partnership:**
+
 - Two or more persons carrying on a business together for profit. Can be formed inadvertently by conduct -- two people splitting business profits can legally constitute a partnership even without a written agreement.
 - Joint and several liability: every partner is personally liable for 100% of the partnership's debts, including debts created by the actions of any other partner. This is the most dangerous liability structure in common use.
 - Files Form 1065 (informational return only; the partnership itself pays no federal income tax). Each partner receives Schedule K-1 showing their allocable share of income, losses, deductions, and credits, reported on their personal Form 1040.
@@ -79,6 +84,7 @@ Present each entity with real mechanics, not summaries. Cover the following for 
 - Rarely the right choice for a new business when an LLC provides the same pass-through taxation with liability protection at modest additional cost.
 
 **Limited Liability Company (LLC):**
+
 - The dominant entity for new small businesses in the United States for the past 25 years. Combines partnership-style taxation flexibility with corporate-style liability protection.
 - Members' personal assets are shielded from business liabilities, provided they maintain proper separation of business and personal finances ("piercing the corporate veil" risk is real but uncommon when basic hygiene is maintained: separate bank account, no personal charges on business accounts, adequate capitalization).
 - Tax classification is chosen, not automatic. Single-member LLC: disregarded entity by default (taxed like sole proprietorship on Schedule C). Multi-member LLC: partnership by default (Form 1065 / K-1). Either can elect C-corp taxation (Form 8832) or S-corp taxation (Form 2553). This flexibility is the LLC's most powerful feature.
@@ -88,6 +94,7 @@ Present each entity with real mechanics, not summaries. Cover the following for 
 - Not preferred by venture capitalists due to K-1 complexity for their limited partners (many are tax-exempt entities like pension funds and endowments, for whom UBTI -- unrelated business taxable income -- from an LLC investment creates problems). LLCs can always convert to C-corps; the IRS has streamlined this conversion process, but it is a taxable event in some scenarios.
 
 **S Corporation:**
+
 - Not a separate entity type -- it is a tax election made by a corporation (or LLC) by filing IRS Form 2553 with the IRS. The underlying entity is either a state-chartered corporation or an LLC that has first elected to be taxed as a corporation (Form 8832) and then elected S-corp status.
 - The primary benefit is payroll tax savings. An S-corp owner who works in the business must receive "reasonable compensation" (salary) subject to payroll taxes (Social Security and Medicare). Net income distributed above that salary is not subject to the 15.3%/2.9% SE tax. At $120,000 net income with a $72,000 reasonable salary, the owner saves SE tax on approximately $48,000 -- roughly $6,900 in savings (at the 14.13% effective SE tax rate after the employer deduction). Against compliance costs of $2,000-$4,000/year, this is a meaningful but modest net benefit.
 - Strict eligibility requirements: maximum 100 shareholders; shareholders must be US citizens or permanent residents (no foreign shareholders), certain trusts, or estates -- no corporations or partnerships as shareholders; only one class of stock permitted (though differences in voting rights are allowed). These restrictions make S-corps incompatible with institutional investment.
@@ -97,6 +104,7 @@ Present each entity with real mechanics, not summaries. Cover the following for 
 - State conformity is not guaranteed. Some states -- notably New York City (General Corporation Tax), Tennessee, and New Hampshire -- do not recognize S-corp status and tax the entity at the state corporate level. This significantly reduces the benefit of an S-corp election in those jurisdictions.
 
 **C Corporation:**
+
 - The default corporation. A fully separate legal entity that can enter contracts, own property, sue, be sued, and exist indefinitely regardless of owner changes.
 - Double taxation is the frequently cited disadvantage: the corporation pays federal corporate income tax at 21% (flat rate since the Tax Cuts and Jobs Act of 2017, reduced from a top rate of 35%). When the corporation distributes profits to shareholders as dividends, shareholders pay qualified dividend rates (0%, 15%, or 20% depending on income). A profitable company earning $500,000 and distributing all profits pays $105,000 in corporate tax, then shareholders pay up to $79,000 in dividend tax on the remaining $395,000. However, for growth companies that reinvest profits rather than distributing them, double taxation is deferred or avoided -- retained earnings compound at the 21% corporate rate rather than the 37% individual rate.
 - Qualified Small Business Stock (QSBS) -- IRC Section 1202 -- is an extraordinary tax benefit available only to C-corp shareholders. Investors and founders who acquire QSBS in a C-corp with gross assets under $50M at time of issuance and hold the stock for more than 5 years can exclude up to 100% of federal capital gains on the sale (up to $10 million or 10x the adjusted basis, whichever is greater). This is a multi-million dollar benefit available exclusively to C-corps, and is a major reason why startup founders choose Delaware C-corps even before raising institutional capital.
@@ -110,28 +118,33 @@ Present each entity with real mechanics, not summaries. Cover the following for 
 Map the user's situation to the handful of factors that actually drive entity selection:
 
 **Decision Variable 1 -- Investment Path:**
+
 - Raising venture capital or issuing preferred stock → C-corp (Delaware preferred) is required
 - Raising angel investment via SAFE or convertible note → C-corp strongly preferred; LLC with conversion provision is acceptable
 - Revenue-based financing, SBA loans, bank loans → Any entity with liability protection (LLC or corp) qualifies
 - No outside capital, ever → LLC or S-corp; C-corp is unnecessary complexity
 
 **Decision Variable 2 -- Tax Efficiency at Current Income Level:**
+
 - Under $40,000 net income: Sole proprietorship or standard LLC -- the SE tax cost is low, and S-corp compliance costs ($2,000-$4,000/year) would eliminate any savings
 - $40,000-$80,000 net income: Model both LLC and LLC with S-corp election. The break-even point where S-corp savings exceed costs is typically around $50,000-$60,000 net income, depending on the state and the accountant's fees
 - $80,000-$500,000 net income: LLC with S-corp election is often the optimal structure for a single-owner service business. Savings scale with income.
 - $500,000+ net income: Reconsider C-corp for retained earnings accumulation at 21% vs. personal rates of 37%+ on pass-through income. This requires careful modeling by a CPA.
 
 **Decision Variable 3 -- Liability Risk Profile:**
+
 - Home-based service with no physical clients, no products, minimal contracts → Lower urgency for liability protection; sole prop or LLC acceptable
 - Any business with employees, physical premises, product liability, professional malpractice exposure, significant contracts, or substantial personal assets to protect → LLC or corporation required
 
 **Decision Variable 4 -- Owner Composition:**
+
 - Solo founder → Single-member LLC, S-corp election when profitable
 - Two or more founders → Multi-member LLC (partnership taxation by default) or C-corp (if investment-seeking)
 - Non-US citizen/resident involved → S-corp is disqualified; LLC with non-US members has complex FIRPTA/ECI withholding rules; C-corp is cleanest
 - Spouse co-owners → Qualified Joint Venture election on Schedule C (in community property states) or SMLLC-treated-as-disregarded in some states; varies significantly
 
 **Decision Variable 5 -- Administrative Capacity:**
+
 - Solo operator with no accounting staff → Simplest viable structure; S-corp payroll adds real burden
 - Business with a bookkeeper or fractional CFO → S-corp or C-corp compliance is manageable
 - Pre-revenue startup → LLC (low cost, easy to maintain while pre-revenue, converts cleanly when needed)
@@ -141,6 +154,7 @@ Map the user's situation to the handful of factors that actually drive entity se
 For any user with an LLC or sole proprietorship and net income above $50,000, calculate the approximate SE tax savings from an S-corp election. This is the most concrete financial number in the entire comparison, and users respond to it.
 
 **SE Tax Mechanics:**
+
 - SE tax rate: 15.3% on net self-employment income up to the Social Security wage base ($168,600 in 2024); 2.9% Medicare on income above that; additional 0.9% Additional Medicare Tax above $200,000 (single) / $250,000 (married)
 - The deductible portion of SE tax (50%) reduces effective SE tax rate to approximately 14.13% on the first $168,600 of net income
 - S-corp "reasonable salary" for a working owner reduces the SE-taxable base to the salary amount only
@@ -149,6 +163,7 @@ For any user with an LLC or sole proprietorship and net income above $50,000, ca
 **Illustrative Calculation Template:**
 
 For a user with $120,000 net income:
+
 - Standard LLC: SE tax on $120,000 × 92.35% = $110,820 at 15.3% = ~$16,955
 - S-corp: Set reasonable salary at $72,000 (60% -- a defensible benchmark in most knowledge-work fields). SE equivalent via FICA = $72,000 × 15.3% = $11,016 (employer + employee share). Distribution of $48,000 avoids SE tax.
 - Gross SE tax savings: ~$5,939/year
@@ -163,6 +178,7 @@ Caution: the "reasonable salary" is not a number the user should set arbitrarily
 This is the most commonly misunderstood situation. A user building a software product or tech startup often asks "should I form an LLC or a corporation?" without knowing that their real question is "am I on the venture-backed startup path or the bootstrapped/revenue-focused path?"
 
 **Delaware C-Corp Formation Checklist:**
+
 - File Certificate of Incorporation with Delaware Division of Corporations ($90 + expedite fee if needed)
 - Standard startup certificate: 10,000,000 authorized shares of common stock at $0.0001 par value (intentionally low par value minimizes Delaware franchise tax under the Assumed Par Value method)
 - Engage a registered agent in Delaware ($50-$300/year; required because most founders are not Delaware residents)
@@ -180,6 +196,7 @@ This is the most commonly misunderstood situation. A user building a software pr
 Do not present all five entities with equal weight when 2-3 of them are clearly irrelevant. For a solo freelancer with no investment plans, focus the table on Sole Prop, LLC, and S-corp. For a venture-backed startup, focus on LLC vs. Delaware C-corp. Filter the comparison to the relevant 3-4 entities and highlight the dimensions that actually matter for their situation.
 
 Always include in the table:
+
 - Liability protection (yes/no + conditions)
 - Federal tax treatment
 - Self-employment / payroll tax on owner's income (specific amounts if income is known)
@@ -192,6 +209,7 @@ Always include in the table:
 ### Step 7: Produce the Recommendation and Next Steps
 
 The recommendation must be specific and ranked:
+
 1. **Primary recommendation** with rationale tied directly to the user's situation (income level, investment plans, liability exposure, state)
 2. **Runner-up** with the specific condition under which the runner-up becomes the right answer
 3. **Do NOT choose** -- explicitly name any entity that is disqualified for their situation and why
@@ -386,64 +404,64 @@ Conversion is a taxable event in some scenarios. If the LLC has appreciated asse
 
 ### Business Context
 
-| Field | Detail |
-|-------|--------|
-| **Business description** | Digital marketing agency -- services to business clients |
-| **Owner(s)** | 2 co-founders, both US citizens, both working full time in the business |
-| **Net income (projected)** | $180,000/year combined ($90,000 per owner at 50/50 split) |
-| **Investment plans** | None -- self-funded, revenue-based growth |
-| **Employees** | 0 initially; contractors likely |
-| **State of operation** | Texas |
-| **Assets to protect** | Both owners have homes and personal savings |
-| **Long-term goal** | Cash flow business; possible acquisition in 5-10 years |
-| **Primary concern** | Liability protection + tax efficiency |
+| Field                      | Detail                                                                  |
+| -------------------------- | ----------------------------------------------------------------------- |
+| **Business description**   | Digital marketing agency -- services to business clients                |
+| **Owner(s)**               | 2 co-founders, both US citizens, both working full time in the business |
+| **Net income (projected)** | $180,000/year combined ($90,000 per owner at 50/50 split)               |
+| **Investment plans**       | None -- self-funded, revenue-based growth                               |
+| **Employees**              | 0 initially; contractors likely                                         |
+| **State of operation**     | Texas                                                                   |
+| **Assets to protect**      | Both owners have homes and personal savings                             |
+| **Long-term goal**         | Cash flow business; possible acquisition in 5-10 years                  |
+| **Primary concern**        | Liability protection + tax efficiency                                   |
 
 ---
 
 ### Entity Comparison Table
 
-| Dimension | General Partnership | Multi-Member LLC | Multi-Member LLC + S-Corp Election |
-|-----------|--------------------|-----------------|------------------------------------|
-| **Liability protection** | None -- each partner personally liable for the other's actions | Yes -- personal assets shielded from business liabilities | Yes -- same as standard LLC |
-| **Federal tax treatment** | Pass-through (Form 1065 + K-1s) | Pass-through (Form 1065 + K-1s) | Pass-through (Form 1120-S + K-1s) |
-| **SE/payroll tax on owner income** | 15.3% on full distributive share | 15.3% on full distributive share | FICA only on salary; distributions exempt |
-| **Estimated annual SE tax (per owner)** | ~$12,100 on $90K share | ~$12,100 on $90K share | ~$8,415 on $55K salary (see below) |
-| **Formation cost (Texas)** | $0 (no filing required) | $300 (Texas Certificate of Formation) | $300 + Form 2553 (free) |
-| **Annual compliance cost** | ~$400-$800 (Form 1065 + K-1 prep) | ~$600-$1,200 (Form 1065, Texas franchise tax filing) | ~$3,500-$6,000 (payroll, Form 1120-S, K-1s) |
-| **Texas franchise tax** | Subject to Texas franchise tax (0.375% of revenue for most service businesses above $1.18M threshold -- likely $0 in year one) | Subject to Texas franchise tax (same) | Subject to Texas franchise tax (same) |
-| **Investment compatibility** | Poor | Moderate (converts to C-corp if needed) | Poor (S-corp restrictions limit investors) |
-| **Owner restrictions** | No limit; any persons | No limit; any persons or entities | Max 100 US shareholders; one class |
-| **Employee equity (stock options)** | No | Profits interests only | Restricted stock; no ISOs |
-| **Administrative burden** | Low (dangerously low -- no liability protection) | Low-Medium | Medium-High (payroll required) |
+| Dimension                               | General Partnership                                                                                                            | Multi-Member LLC                                          | Multi-Member LLC + S-Corp Election          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ------------------------------------------- |
+| **Liability protection**                | None -- each partner personally liable for the other's actions                                                                 | Yes -- personal assets shielded from business liabilities | Yes -- same as standard LLC                 |
+| **Federal tax treatment**               | Pass-through (Form 1065 + K-1s)                                                                                                | Pass-through (Form 1065 + K-1s)                           | Pass-through (Form 1120-S + K-1s)           |
+| **SE/payroll tax on owner income**      | 15.3% on full distributive share                                                                                               | 15.3% on full distributive share                          | FICA only on salary; distributions exempt   |
+| **Estimated annual SE tax (per owner)** | ~$12,100 on $90K share                                                                                                         | ~$12,100 on $90K share                                    | ~$8,415 on $55K salary (see below)          |
+| **Formation cost (Texas)**              | $0 (no filing required)                                                                                                        | $300 (Texas Certificate of Formation)                     | $300 + Form 2553 (free)                     |
+| **Annual compliance cost**              | ~$400-$800 (Form 1065 + K-1 prep)                                                                                              | ~$600-$1,200 (Form 1065, Texas franchise tax filing)      | ~$3,500-$6,000 (payroll, Form 1120-S, K-1s) |
+| **Texas franchise tax**                 | Subject to Texas franchise tax (0.375% of revenue for most service businesses above $1.18M threshold -- likely $0 in year one) | Subject to Texas franchise tax (same)                     | Subject to Texas franchise tax (same)       |
+| **Investment compatibility**            | Poor                                                                                                                           | Moderate (converts to C-corp if needed)                   | Poor (S-corp restrictions limit investors)  |
+| **Owner restrictions**                  | No limit; any persons                                                                                                          | No limit; any persons or entities                         | Max 100 US shareholders; one class          |
+| **Employee equity (stock options)**     | No                                                                                                                             | Profits interests only                                    | Restricted stock; no ISOs                   |
+| **Administrative burden**               | Low (dangerously low -- no liability protection)                                                                               | Low-Medium                                                | Medium-High (payroll required)              |
 
 ---
 
 ### Self-Employment Tax Analysis
 
-| Metric | Multi-Member LLC (Default) | Multi-Member LLC + S-Corp Election |
-|--------|---------------------------|-------------------------------------|
-| **Net income per owner** | $90,000 | $90,000 |
-| **Salary per owner (reasonable comp)** | N/A | $55,000 |
-| **SE/FICA taxable income per owner** | $90,000 × 92.35% = $83,115 | $55,000 |
-| **SE/FICA tax per owner** | $83,115 × 15.3% = ~$12,715 | $55,000 × 15.3% = ~$8,415 |
-| **SE tax savings per owner** | -- | ~$4,300 |
-| **Combined SE tax savings (both owners)** | -- | ~$8,600 |
-| **Additional S-corp compliance cost** | -- | ~$2,500-$4,000 vs. standard LLC |
-| **Net annual benefit (combined)** | -- | ~$4,600-$6,100 |
+| Metric                                    | Multi-Member LLC (Default) | Multi-Member LLC + S-Corp Election |
+| ----------------------------------------- | -------------------------- | ---------------------------------- |
+| **Net income per owner**                  | $90,000                    | $90,000                            |
+| **Salary per owner (reasonable comp)**    | N/A                        | $55,000                            |
+| **SE/FICA taxable income per owner**      | $90,000 × 92.35% = $83,115 | $55,000                            |
+| **SE/FICA tax per owner**                 | $83,115 × 15.3% = ~$12,715 | $55,000 × 15.3% = ~$8,415          |
+| **SE tax savings per owner**              | --                         | ~$4,300                            |
+| **Combined SE tax savings (both owners)** | --                         | ~$8,600                            |
+| **Additional S-corp compliance cost**     | --                         | ~$2,500-$4,000 vs. standard LLC    |
+| **Net annual benefit (combined)**         | --                         | ~$4,600-$6,100                     |
 
-*Reasonable salary basis: A digital marketing agency founder/operator who would command $50,000-$65,000 in salary as an employee, based on Bureau of Labor Statistics Marketing Manager compensation data for Texas. $55,000 is a defensible midpoint. Confirm with a CPA before electing.*
+_Reasonable salary basis: A digital marketing agency founder/operator who would command $50,000-$65,000 in salary as an employee, based on Bureau of Labor Statistics Marketing Manager compensation data for Texas. $55,000 is a defensible midpoint. Confirm with a CPA before electing._
 
 ---
 
 ### Situation Analysis: Priority Matrix
 
-| Priority | Importance | Best-Fit Entity |
-|----------|------------|-----------------|
-| Liability protection (two owners with personal assets at risk) | **Critical** | LLC or Corp -- eliminates General Partnership |
-| Tax efficiency at $90K/owner | **High** | LLC with S-Corp election |
-| Simplicity (no payroll infrastructure currently) | **Medium** | Standard Multi-Member LLC |
-| Investment readiness | **Low** (no plans) | Any of the three above |
-| Acquisition readiness in 5-10 years | **Medium** | LLC (converts easily; acquirers often prefer asset purchases, which LLCs handle cleanly) |
+| Priority                                                       | Importance         | Best-Fit Entity                                                                          |
+| -------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------- |
+| Liability protection (two owners with personal assets at risk) | **Critical**       | LLC or Corp -- eliminates General Partnership                                            |
+| Tax efficiency at $90K/owner                                   | **High**           | LLC with S-Corp election                                                                 |
+| Simplicity (no payroll infrastructure currently)               | **Medium**         | Standard Multi-Member LLC                                                                |
+| Investment readiness                                           | **Low** (no plans) | Any of the three above                                                                   |
+| Acquisition readiness in 5-10 years                            | **Medium**         | LLC (converts easily; acquirers often prefer asset purchases, which LLCs handle cleanly) |
 
 ---
 
@@ -458,11 +476,13 @@ At $90,000 net income per owner, the combined annual SE tax savings of approxima
 Choose this if either partner is not comfortable managing payroll or if the business has slow months that produce variable income. S-corp payroll must be run regardless of whether the business has cash -- owners must receive regular W-2 wages even in loss months. If the agency's income is highly seasonal or unpredictable in year one, start as a standard LLC, monitor net income, and make the S-corp election for the following tax year once income stabilizes.
 
 **Eliminated options:**
+
 - **General Partnership:** Both founders own homes and personal savings. A general partnership exposes each partner to unlimited liability for the other's actions. This is untenable and should not be considered.
 - **Sole Proprietorship:** There are two owners; this entity is legally unavailable for a multi-owner business.
 - **C-Corporation:** No investment planned, no IPO path, and the double taxation at the current income level would result in higher total tax than a pass-through structure. Not appropriate for this situation.
 
 **When to revisit this decision:**
+
 - If either owner's net income share exceeds $168,600 (the Social Security wage base), the marginal SE tax rate drops to 2.9%, and the S-corp salary may need to be recalibrated
 - If the agency raises outside investment (angel, PE firm), the S-corp structure will need to be restructured -- S-corps cannot have corporate shareholders or more than 100 shareholders
 - If the business grows to a point where significant profits are being reinvested (not distributed), model whether a C-corp's 21% retained earnings rate becomes more favorable than the partners' personal rates

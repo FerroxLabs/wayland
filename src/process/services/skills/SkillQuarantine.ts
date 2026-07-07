@@ -45,7 +45,7 @@ export class SkillQuarantine {
   static async quarantine(
     skillName: string,
     fromPath: string,
-    io: SkillQuarantineIo = defaultSkillQuarantineIo,
+    io: SkillQuarantineIo = defaultSkillQuarantineIo
   ): Promise<string> {
     const dest = path.join(QUARANTINE_DIR, skillName);
     await io.mkdir(path.dirname(dest));
@@ -65,7 +65,7 @@ export class SkillQuarantine {
    */
   static async quarantineFromMemory(
     args: { name: string; body: string },
-    io: SkillQuarantineIo = defaultSkillQuarantineIo,
+    io: SkillQuarantineIo = defaultSkillQuarantineIo
   ): Promise<string> {
     const dest = path.join(QUARANTINE_DIR, args.name);
     await io.mkdir(dest);
@@ -73,10 +73,7 @@ export class SkillQuarantine {
     return dest;
   }
 
-  static async isQuarantined(
-    skillName: string,
-    io: SkillQuarantineIo = defaultSkillQuarantineIo,
-  ): Promise<boolean> {
+  static async isQuarantined(skillName: string, io: SkillQuarantineIo = defaultSkillQuarantineIo): Promise<boolean> {
     return io.exists(path.join(QUARANTINE_DIR, skillName));
   }
 }

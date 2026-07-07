@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events elder-care"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events elder-care'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Elder Care Coordinator
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about elder care coordinator
 - User needs guidance on elder care coordinator topics
 - User wants a structured approach to elder care coordinator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -157,16 +159,16 @@ Is the person safe living alone (or with current arrangement)?
 
 ### Care Options Detailed Comparison
 
-| Feature | In-Home Care | Assisted Living | Memory Care | Nursing Home |
-|---------|-------------|----------------|-------------|--------------|
-| Independence level | Highest | Moderate | Structured | Lowest |
-| Medical care | Limited-moderate | Moderate | Specialized | Highest |
-| Social interaction | Depends on effort | Built-in | Built-in | Built-in |
-| Cost range (monthly) | $2,000-$10,000+ | $3,000-$7,000+ | $5,000-$10,000+ | $7,000-$15,000+ |
-| Medicare covers | Skilled only, limited | No | No | Post-hospital, 100 days |
-| Medicaid covers | Some states, waiver | Some states | Some states | Yes, if eligible |
-| Best for | Those wanting to stay home | Those needing daily help + social | Dementia/Alzheimer's | Complex medical needs |
-| Family burden | Higher | Moderate | Lower | Lowest |
+| Feature              | In-Home Care               | Assisted Living                   | Memory Care          | Nursing Home            |
+| -------------------- | -------------------------- | --------------------------------- | -------------------- | ----------------------- |
+| Independence level   | Highest                    | Moderate                          | Structured           | Lowest                  |
+| Medical care         | Limited-moderate           | Moderate                          | Specialized          | Highest                 |
+| Social interaction   | Depends on effort          | Built-in                          | Built-in             | Built-in                |
+| Cost range (monthly) | $2,000-$10,000+            | $3,000-$7,000+                    | $5,000-$10,000+      | $7,000-$15,000+         |
+| Medicare covers      | Skilled only, limited      | No                                | No                   | Post-hospital, 100 days |
+| Medicaid covers      | Some states, waiver        | Some states                       | Some states          | Yes, if eligible        |
+| Best for             | Those wanting to stay home | Those needing daily help + social | Dementia/Alzheimer's | Complex medical needs   |
+| Family burden        | Higher                     | Moderate                          | Lower                | Lowest                  |
 
 ### Facility Evaluation Checklist
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml deep-learning guide"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml deep-learning guide'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Fine-Tuning Guide
@@ -51,16 +51,16 @@ Budget for training and hosting?
 
 ### Comparison Table
 
-| Factor | Prompt Engineering | Fine-Tuning |
-|--------|-------------------|-------------|
-| Setup time | Minutes | Hours to days |
-| Data needed | 0-20 examples | 100-100K examples |
-| Cost | Per-API-call | Training + hosting |
-| Iteration speed | Instant | Hours per experiment |
-| Task specificity | Moderate | High |
-| Output consistency | Moderate | High |
+| Factor              | Prompt Engineering | Fine-Tuning          |
+| ------------------- | ------------------ | -------------------- |
+| Setup time          | Minutes            | Hours to days        |
+| Data needed         | 0-20 examples      | 100-100K examples    |
+| Cost                | Per-API-call       | Training + hosting   |
+| Iteration speed     | Instant            | Hours per experiment |
+| Task specificity    | Moderate           | High                 |
+| Output consistency  | Moderate           | High                 |
 | Knowledge injection | Limited by context | Learned into weights |
-| Maintenance | Easy | Requires retraining |
+| Maintenance         | Easy               | Requires retraining  |
 
 ## Dataset Preparation
 
@@ -86,9 +86,15 @@ Budget for training and hosting?
 ```json
 {
   "messages": [
-    {"role": "system", "content": "You are a medical coding assistant."},
-    {"role": "user", "content": "Assign ICD-10 codes to: Patient presents with acute bronchitis and type 2 diabetes."},
-    {"role": "assistant", "content": "1. J20.9 - Acute bronchitis, unspecified\n2. E11.9 - Type 2 diabetes mellitus without complications"}
+    { "role": "system", "content": "You are a medical coding assistant." },
+    {
+      "role": "user",
+      "content": "Assign ICD-10 codes to: Patient presents with acute bronchitis and type 2 diabetes."
+    },
+    {
+      "role": "assistant",
+      "content": "1. J20.9 - Acute bronchitis, unspecified\n2. E11.9 - Type 2 diabetes mellitus without complications"
+    }
   ]
 }
 ```
@@ -184,14 +190,15 @@ def setup_lora_model(
 
 ### LoRA Hyperparameter Guide
 
-| Parameter | Range | Effect |
-|-----------|-------|--------|
-| r (rank) | 4-128 | Higher = more capacity, more parameters |
-| lora_alpha | r to 2*r | Scaling factor; alpha/r is the actual scale |
-| dropout | 0.0-0.1 | Regularization; 0.05 is typical |
-| target_modules | varies | Which layers to adapt (all linear layers recommended) |
+| Parameter      | Range     | Effect                                                |
+| -------------- | --------- | ----------------------------------------------------- |
+| r (rank)       | 4-128     | Higher = more capacity, more parameters               |
+| lora_alpha     | r to 2\*r | Scaling factor; alpha/r is the actual scale           |
+| dropout        | 0.0-0.1   | Regularization; 0.05 is typical                       |
+| target_modules | varies    | Which layers to adapt (all linear layers recommended) |
 
 **Rules of thumb**:
+
 - Start with r=16, alpha=32
 - For simple tasks (classification): r=8 may suffice
 - For complex tasks (code, creative): r=32-64
@@ -227,10 +234,10 @@ def setup_qlora_model(
 ### GPU Memory Requirements
 
 | Model Size | Full Fine-Tune | LoRA (fp16) | QLoRA (4-bit) |
-|-----------|---------------|-------------|---------------|
-| 7B | ~120 GB | ~20 GB | ~6 GB |
-| 13B | ~240 GB | ~40 GB | ~12 GB |
-| 70B | ~1.2 TB | ~160 GB | ~40 GB |
+| ---------- | -------------- | ----------- | ------------- |
+| 7B         | ~120 GB        | ~20 GB      | ~6 GB         |
+| 13B        | ~240 GB        | ~40 GB      | ~12 GB        |
+| 70B        | ~1.2 TB        | ~160 GB     | ~40 GB        |
 
 ## Training with Hugging Face
 
@@ -375,12 +382,12 @@ trainer = SFTTrainer(
 
 ### Signs of Overfitting
 
-| Signal | Indicator | Action |
-|--------|-----------|--------|
-| Train loss << val loss | Gap increasing | Reduce epochs, increase data |
-| Val loss increasing | After initial decrease | Early stopping |
-| Repetitive outputs | Model parrots training data | More diverse data |
-| Poor generalization | Works only on training-like inputs | Augment data distribution |
+| Signal                 | Indicator                          | Action                       |
+| ---------------------- | ---------------------------------- | ---------------------------- |
+| Train loss << val loss | Gap increasing                     | Reduce epochs, increase data |
+| Val loss increasing    | After initial decrease             | Early stopping               |
+| Repetitive outputs     | Model parrots training data        | More diverse data            |
+| Poor generalization    | Works only on training-like inputs | Augment data distribution    |
 
 ## Benchmarking Fine-Tuned Models
 
@@ -477,6 +484,7 @@ response = client.chat.completions.create(
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing fine tuning guide solutions
 - Reviewing or improving existing fine tuning guide approaches
 - Making architectural or implementation decisions about fine tuning guide
@@ -484,6 +492,7 @@ response = client.chat.completions.create(
 - Troubleshooting fine tuning guide-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -494,21 +503,26 @@ response = client.chat.completions.create(
 # Fine Tuning Guide Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing research"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'editing writing research'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Fact-Check Framework
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user submits a document, article, blog post, white paper, or script and explicitly asks for fact-checking, claim verification, or assertion review
 - A user wants to know which specific claims in their writing require citations or sourcing before publication
 - A user suspects specific statements in their writing may be inaccurate, outdated, or overstated and wants systematic identification
@@ -29,6 +31,7 @@ metadata:
 - A user has received a document from a third party and wants to evaluate its factual reliability before sharing or citing it
 
 **Do NOT use this skill when:**
+
 - The user wants citation formatting help -- e.g., converting bare URLs into APA or MLA format (use `citation-reference`)
 - The user wants academic peer review of methodology, argument structure, or scholarly contribution (use `academic-paper-review`)
 - The user wants general editing for clarity, style, or grammar (use `copy-editing`)
@@ -71,6 +74,7 @@ Read the entire document and extract every statement that is, at minimum, potent
 - **Existence claims** -- Assertions that something exists, is legal, is standard practice, or is universally true. Example: "Every U.S. state requires annual car inspections." These appear factual but are often overgeneralizations.
 
 **What NOT to extract:**
+
 - Pure opinions marked as such ("In my view," "I believe," "arguably")
 - Normative recommendations without factual premises ("Companies should prioritize mental health")
 - Rhetorical questions
@@ -86,15 +90,19 @@ Number each claim sequentially [C1], [C2], [C3] etc. for the entire document. Do
 Apply a four-category classification system to every extracted claim:
 
 **Category A -- Verifiable Fact:** The claim has a definite correct answer that can in principle be confirmed against a definitive primary source. This includes: official statistics published by named agencies, direct quotes with citations, legal facts, scientific measurements, documented historical events.
+
 - Example: "The U.S. federal minimum wage is $7.25 per hour." -- Category A.
 
 **Category B -- Interpretive Claim:** The claim is grounded in evidence but involves analytical judgment, and reasonable experts could reach different conclusions from the same evidence. Causation claims almost always fall here. Trend characterizations, significance assessments, and comparative quality judgments fall here.
+
 - Example: "The 2008 financial crisis was caused primarily by deregulation of the mortgage market." -- Category B.
 
 **Category C -- Opinion or Value Judgment:** The claim expresses a preference, recommendation, or evaluative stance that is not reducible to empirical verification. These should be labeled as opinions in the output, not flagged for fact-checking.
+
 - Example: "The government has a moral obligation to provide universal healthcare." -- Category C.
 
 **Category D -- Common Knowledge:** The claim is so broadly established that demanding a citation would be pedantic and counterproductive. Use conservatively -- when in doubt, treat a claim as Category A (verifiable) rather than D (common knowledge).
+
 - Example: "Smoking causes lung cancer." -- Category D in general writing; Category A if writing for a medical or scientific audience where precision is required.
 
 Only Category A and B claims proceed to flagging. Category C is labeled as opinion. Category D passes without concern.
@@ -114,11 +122,13 @@ For every Category A and B claim, apply the following four-status system:
 **Status 4 -- Unverifiable:** The claim is so vague, so dated, or so dependent on inaccessible private data that no public verification path exists. Example: "Internal company surveys showed 90% employee satisfaction." The correct action for unverifiable claims is to recommend removal, qualification, or replacement with a verifiable alternative.
 
 **Assign a Confidence Level alongside Status:**
+
 - **High** -- The claim is likely accurate based on its consistency with established knowledge, even without a source
 - **Medium** -- The claim is plausible but could be wrong; the figure or framing may be off
 - **Low** -- The claim contradicts known information, contains implausible specificity, or exhibits markers of common misinformation (round numbers for precision statistics, vague attributions, viral claim patterns)
 
 **Red-flag markers that automatically lower confidence to Low:**
+
 - Statistics with suspiciously round numbers (exactly 50%, exactly 100,000, exactly $1 billion) presented as research findings
 - Attributions to "a study" without year, journal, or author
 - Superlatives ("the highest," "the only," "the most") without a stated dataset and timeframe
@@ -132,6 +142,7 @@ For every Category A and B claim, apply the following four-status system:
 For every claim with Status 2, 3, or 4, provide a specific and actionable verification pathway. A verification pathway has three components:
 
 **Source type** -- What category of source would authoritatively resolve this claim?
+
 - Government databases (census, labor statistics, public health agencies, court records)
 - Peer-reviewed literature (PubMed, Cochrane, academic repositories, named journals)
 - Primary documents (legislation, treaties, legal filings, official transcripts)
@@ -140,6 +151,7 @@ For every claim with Status 2, 3, or 4, provide a specific and actionable verifi
 - Reputable reference databases (encyclopedias, professional standards bodies)
 
 **Verification method** -- What specific lookup procedure would a researcher follow?
+
 - Search by named study author + year + topic keyword
 - Check the named organization's official publications page
 - Retrieve the original dataset from the stated governmental source
@@ -147,6 +159,7 @@ For every claim with Status 2, 3, or 4, provide a specific and actionable verifi
 - Check the direct quote against the original transcript or document
 
 **Red flags to check** -- What specifically should the verifier look for that would indicate a problem?
+
 - Does the primary source actually state this number, or is the number from a secondary interpolation?
 - Is the statistic current, or does the primary source predate the document by more than 3-5 years?
 - Is the claim using the metric correctly -- percentage vs. percentage points, absolute vs. relative risk, mean vs. median?
@@ -183,6 +196,7 @@ Compile all outputs into a structured report following the Output Format below. 
 - Conclude with an overall assessment of evidential quality using a defined rating scale
 
 **Overall Evidential Quality Rating:**
+
 - **Strong** -- Fewer than 15% of verifiable claims are unsupported; no Questionable claims; sources are current
 - **Moderate** -- 15-40% of verifiable claims are unsupported; one or two Questionable claims; most sources are current
 - **Weak** -- More than 40% of verifiable claims are unsupported; multiple Questionable claims; or any Low-confidence claims remain unresolved
@@ -386,13 +400,13 @@ Satirical writing is not subject to standard fact-checking because its intent is
 
 ### Claim Inventory
 
-| ID | Claim (verbatim) | Type | Category | Status | Confidence | Priority |
-|----|------------------|------|----------|--------|------------|----------|
-| C1 | "Remote workers are 47% more productive than their office counterparts, according to a landmark Stanford study" | Statistical + Attributive | A | Questionable | Low | HIGH |
-| C2 | "over 60% of the American workforce going fully remote overnight" | Statistical + Historical | A | Questionable | Low | HIGH |
-| C3 | "Companies that adopted remote work saw a 25% average reduction in real estate costs -- savings that most firms passed directly to employees in the form of higher wages" | Statistical + Causal | A + B | Unsupported | Low | HIGH |
-| C4 | "78% of Fortune 500 CEOs have committed to making remote work permanent" | Statistical + Attributive | A | Unsupported | Medium | MEDIUM |
-| C5 | "Loneliness is now the number one mental health crisis facing remote workers, surpassing depression and anxiety combined" | Comparative + Existence | A | Questionable | Low | HIGH |
+| ID  | Claim (verbatim)                                                                                                                                                          | Type                      | Category | Status       | Confidence | Priority |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------- | ------------ | ---------- | -------- |
+| C1  | "Remote workers are 47% more productive than their office counterparts, according to a landmark Stanford study"                                                           | Statistical + Attributive | A        | Questionable | Low        | HIGH     |
+| C2  | "over 60% of the American workforce going fully remote overnight"                                                                                                         | Statistical + Historical  | A        | Questionable | Low        | HIGH     |
+| C3  | "Companies that adopted remote work saw a 25% average reduction in real estate costs -- savings that most firms passed directly to employees in the form of higher wages" | Statistical + Causal      | A + B    | Unsupported  | Low        | HIGH     |
+| C4  | "78% of Fortune 500 CEOs have committed to making remote work permanent"                                                                                                  | Statistical + Attributive | A        | Unsupported  | Medium     | MEDIUM   |
+| C5  | "Loneliness is now the number one mental health crisis facing remote workers, surpassing depression and anxiety combined"                                                 | Comparative + Existence   | A        | Questionable | Low        | HIGH     |
 
 ---
 

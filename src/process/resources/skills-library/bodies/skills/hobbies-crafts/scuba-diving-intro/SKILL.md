@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide hiking budgeting breathing beginner-friendly advanced testing automation"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'guide hiking budgeting breathing beginner-friendly advanced testing automation'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Scuba Diving Introduction
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about scuba diving intro techniques or best practices
 - User needs guidance on scuba diving intro concepts
 - User wants to implement or improve their approach to scuba diving intro
 
 **Do NOT use when:**
+
 - The request falls outside the scope of scuba diving intro
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,6 +52,7 @@ Before starting your dive journey:
 ### Open Water Diver (Entry Level)
 
 **PADI Open Water Diver** or **SSI Open Water Diver**
+
 - Minimum age: 10 (Junior Open Water), 15 (full Open Water)
 - Duration: 3-5 days (can be spread over weekends)
 - Cost: $300-600 depending on location and what is included
@@ -79,6 +81,7 @@ Before starting your dive journey:
 ### Advanced Certifications
 
 **Advanced Open Water Diver**
+
 - 5 adventure dives (required: deep dive and underwater navigation)
 - Elective dives: Night, wreck, drift, peak performance buoyancy, photography
 - Maximum depth: 100 feet (30m)
@@ -86,18 +89,21 @@ Before starting your dive journey:
 - Recommended after 10-20 logged dives
 
 **Rescue Diver**
+
 - Prerequisite: Advanced Open Water + First Aid/CPR certification
 - Learn to manage dive emergencies and assist distressed divers
 - Challenging but rewarding - builds confidence and competence
 - Most divers say this is the most valuable course they take
 
 **Divemaster**
+
 - First professional level
 - Lead certified divers, assist instructors
 - Extensive training: Stamina, knowledge, leadership skills
 - Bridge to becoming an instructor
 
 **Specialty Certifications**
+
 - Deep Diver (to 130 feet / 40m)
 - Nitrox (Enriched Air) - longer bottom times, reduced nitrogen loading
 - Wreck Diver
@@ -112,6 +118,7 @@ Before starting your dive journey:
 ### Essential Dive Equipment
 
 **Mask**
+
 - Must seal comfortably on your face (test: press to face without strap, inhale through nose - should stay)
 - Low volume masks are easier to clear
 - Tempered glass lenses only
@@ -120,18 +127,21 @@ Before starting your dive journey:
 - **Personal gear priority: BUY YOUR OWN MASK FIRST** (fit is critical and personal)
 
 **Snorkel**
+
 - Attached to mask strap
 - Used on surface to conserve air
 - Simple J-tube style is reliable (avoid complex purge valves for beginners)
 - Cost: $15-40
 
 **Fins**
+
 - Open heel (with booties): Most versatile, preferred for cold water and boat diving
 - Full foot: Lighter, good for warm water shore diving
 - Blade vs split fin: Blade (more power), split (less effort, less power)
 - Cost: $60-200
 
 **Wetsuit / Exposure Protection**
+
 - 3mm: Tropical water (80F+)
 - 5mm: Temperate water (65-80F)
 - 7mm: Cold water (50-65F)
@@ -140,6 +150,7 @@ Before starting your dive journey:
 - Cost: $100-400 (wetsuit), $800-2,000 (drysuit)
 
 **BCD (Buoyancy Control Device)**
+
 - Inflatable vest/jacket that controls your buoyancy underwater
 - Inflated: Float on surface. Deflated: Descend. Partially inflated: Neutral buoyancy
 - Integrated weight systems are convenient
@@ -147,6 +158,7 @@ Before starting your dive journey:
 - Rent until you know what you prefer
 
 **Regulator**
+
 - First stage: Connects to tank, reduces pressure
 - Second stage (primary): You breathe from this
 - Octopus (alternate air source): Backup for buddy emergencies
@@ -155,6 +167,7 @@ Before starting your dive journey:
 - Rent until committed, then invest in quality
 
 **Dive Computer**
+
 - Tracks depth, time, decompression limits in real time
 - Essential safety tool - replaces dive tables
 - Wrist-mounted or console-mounted
@@ -163,29 +176,34 @@ Before starting your dive journey:
 - **Strongly recommend buying your own** (tracks your personal nitrogen loading across dives)
 
 **Weight System**
+
 - Counteracts wetsuit buoyancy (you float in a wetsuit)
 - Integrated into BCD or weight belt
 - Amount varies: 4-16 lbs typically depending on exposure suit and body composition
 - Start with more weight, reduce as buoyancy control improves
 
 ### Gear Buying Priority
+
 1. Mask (fit is personal, buy first)
 2. Dive computer (safety, personal nitrogen tracking)
 3. Fins and booties
 4. Wetsuit/drysuit
 5. Regulator
 6. BCD
+
 - Rent items 4-6 until you have enough dives to know your preferences
 
 ## Dive Physics
 
 ### Pressure
+
 - At sea level: 1 atmosphere (atm) of pressure
 - Pressure increases by 1 atm for every 33 feet (10m) of seawater depth
 - At 33 feet: 2 atm. At 66 feet: 3 atm. At 99 feet: 4 atm.
 - This affects: Air volume, buoyancy, gas absorption, equalization needs
 
 ### Boyle's Law (Most Important for Divers)
+
 - As pressure increases, gas volume decreases (and vice versa)
 - Descending: Air spaces compress (ears, sinuses, mask) - must equalize
 - Ascending: Air spaces expand - NEVER hold your breath while ascending
@@ -193,6 +211,7 @@ Before starting your dive journey:
 - Lung over-expansion injury (pulmonary barotrauma) can occur from as shallow as 4 feet
 
 ### Henry's Law (Gas Absorption)
+
 - At higher pressure, more gas dissolves in your blood and tissues
 - This is why you absorb nitrogen at depth
 - Ascending too fast does not allow nitrogen to exit safely
@@ -200,6 +219,7 @@ Before starting your dive journey:
 - Prevention: Ascend slowly (30 feet per minute or slower), safety stops, follow computer
 
 ### Dalton's Law (Partial Pressures)
+
 - Each gas in a mixture exerts pressure proportional to its percentage
 - At depth, the partial pressure of each gas increases
 - Oxygen becomes toxic above certain partial pressures (deep diving concern)
@@ -209,6 +229,7 @@ Before starting your dive journey:
 ## Dive Planning
 
 ### Pre-Dive Planning
+
 1. **Check conditions**: Weather, water temperature, visibility, currents, tides
 2. **Plan the dive**: Maximum depth, maximum time, air consumption estimate
 3. **Buddy check** (BWRAF):
@@ -222,6 +243,7 @@ Before starting your dive journey:
 6. **Identify emergency contacts and nearest recompression chamber**
 
 ### During the Dive
+
 - Stay with your buddy (within arm's reach in low visibility)
 - Monitor air regularly (signal buddy at half tank, surface at 500 PSI reserve)
 - Monitor depth and time on computer
@@ -230,6 +252,7 @@ Before starting your dive journey:
 - Safety stop: 3 minutes at 15 feet (5m) on every dive
 
 ### Air Management
+
 - Full tank: 3,000 PSI (200 bar)
 - Turn dive at: 1,500-1,700 PSI (rule of thirds or half tank)
 - Begin ascent at: 1,000 PSI
@@ -239,6 +262,7 @@ Before starting your dive journey:
 ## Safety Procedures
 
 ### The Five Most Important Safety Rules
+
 1. **Never hold your breath** (continuous breathing, even during ascent)
 2. **Ascend slowly** (follow your computer's ascent rate)
 3. **Never dive alone** (buddy system is fundamental)
@@ -248,6 +272,7 @@ Before starting your dive journey:
 ### Emergency Procedures
 
 **Out of Air**
+
 1. Signal buddy (hand across throat = out of air)
 2. Buddy provides alternate air source (octopus)
 3. Both ascend together sharing air
@@ -255,17 +280,20 @@ Before starting your dive journey:
 5. If no buddy available: CESA (Controlled Emergency Swimming Ascent) from shallow depth
 
 **Decompression Sickness (DCS)**
+
 - Symptoms: Joint pain, tingling, numbness, confusion, rash, paralysis, difficulty breathing
 - First aid: Administer 100% oxygen, lay horizontal, hydrate, get to emergency medical care
 - Definitive treatment: Recompression chamber (hyperbaric chamber)
 - Prevention: Ascend slowly, make safety stops, stay within NDL, stay hydrated, avoid flying for 18-24 hours after diving
 
 **Runaway Ascent**
+
 - If ascending too fast: Flare out body (spread arms and legs to increase drag), exhale continuously
 - Dump air from BCD
 - After surfacing from rapid ascent: Monitor for DCS symptoms for 24 hours
 
 **Buddy Separation**
+
 - Search for one minute (look around, check above and below)
 - If not found: Ascend to surface, meet at pre-arranged location
 - Plan the reunification procedure before the dive
@@ -273,18 +301,21 @@ Before starting your dive journey:
 ## Underwater Navigation
 
 ### Natural Navigation
+
 - Sun position (creates shadow patterns that indicate direction)
 - Current direction (consistent within a dive, use as reference)
 - Bottom features: Sand ripples, reef structure, slope direction
 - Depth changes: Reef walls, channels, sand patches
 
 ### Compass Navigation
+
 - Set a heading at the start of the dive
 - Reciprocal heading = heading + 180 degrees (for return trip)
 - Square pattern navigation: Turn 90 degrees at each corner, count kick cycles for distance
 - Triangular pattern: 120-degree turns, useful for returning to starting point
 
 ### Tips for Not Getting Lost
+
 - Identify prominent landmarks at the start (rock formations, coral heads, anchors)
 - Check compass periodically throughout the dive
 - Turn around before using half your air (you need the same air to return)
@@ -293,12 +324,14 @@ Before starting your dive journey:
 ## Marine Life Identification
 
 ### Reef Identification (Tropical)
+
 - **Coral types**: Brain coral, staghorn, elkhorn, fan coral, mushroom coral
 - **Fish families**: Parrotfish, angelfish, butterflyfish, surgeonfish, grouper, wrasses, damselfish
 - **Invertebrates**: Sea stars, urchins, octopus, lobster, shrimp, nudibranchs
 - **Large marine life**: Sea turtles, rays, reef sharks, moray eels, dolphins
 
 ### Interaction Guidelines
+
 - Look but do not touch (coral is fragile and alive; touching kills it)
 - Maintain neutral buoyancy (avoid fin kicks that damage coral or stir sediment)
 - Do not chase or corner marine life
@@ -307,6 +340,7 @@ Before starting your dive journey:
 - Never collect shells, coral, or marine organisms
 
 ### Photography (Brief Intro)
+
 - Start with smartphone in underwater housing ($50-150) or GoPro ($200-400)
 - Get within 3 feet of subject (water reduces clarity with distance)
 - Shoot upward when possible (silhouettes against blue/green water)
@@ -316,6 +350,7 @@ Before starting your dive journey:
 ## Dive Log
 
 ### Why Keep a Log?
+
 - Tracks experience (many dive operations require logged dives for certain activities)
 - Helps monitor air consumption improvement
 - Records conditions and marine life observations
@@ -323,6 +358,7 @@ Before starting your dive journey:
 - Documents your diving journey
 
 ### What to Record
+
 - Date, location, dive site name
 - Dive number
 - Buddy name
@@ -334,6 +370,7 @@ Before starting your dive journey:
 - Notes: Personal impressions, skills practiced, conditions
 
 ### Digital vs Physical Logs
+
 - Most dive computers upload data automatically
 - **Apps**: SSI app, PADI app, Subsurface (free, open source), MacDive
 - Physical logbooks still valued by dive operations for verification
@@ -371,7 +408,6 @@ Before starting your dive journey:
 - **Reef Check** and **REEF**: Marine conservation citizen science programs
 - **Apps**: SSI app, PADI app, Subsurface dive log
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -379,7 +415,6 @@ Before starting your dive journey:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -400,14 +435,12 @@ Before starting your dive journey:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

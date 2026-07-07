@@ -47,16 +47,37 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [funnels-offer, funnels-offer-stack, funnels-offer-pricing, funnels-offer-guarantee, funnels-offer-audit, funnels-ascension-ladder, funnels-lead-magnet, funnels-tripwire, funnels-conviction-webinar, funnels-evergreen, funnels-cart-cycle-launch, funnels-high-ticket-call, funnels-story-drip, funnels-daily-pivot, funnels-continuity, funnels-architecture-audit, funnels-build-campaign, convert, convert-sales-page]
+    related_skills:
+      [
+        funnels-offer,
+        funnels-offer-stack,
+        funnels-offer-pricing,
+        funnels-offer-guarantee,
+        funnels-offer-audit,
+        funnels-ascension-ladder,
+        funnels-lead-magnet,
+        funnels-tripwire,
+        funnels-conviction-webinar,
+        funnels-evergreen,
+        funnels-cart-cycle-launch,
+        funnels-high-ticket-call,
+        funnels-story-drip,
+        funnels-daily-pivot,
+        funnels-continuity,
+        funnels-architecture-audit,
+        funnels-build-campaign,
+        convert,
+        convert-sales-page,
+      ]
 attribution:
-  lineage: "Wayland Business Suite (Original) - fuses Hormozi value equation + Brunson belief-shift cadence + Walker pre-launch + Kern stick strategy + Pagan moving-the-free-line + Stu McLaren membership tiers + Kennedy magnetic-attraction + Schwartz market sophistication"
+  lineage: 'Wayland Business Suite (Original) - fuses Hormozi value equation + Brunson belief-shift cadence + Walker pre-launch + Kern stick strategy + Pagan moving-the-free-line + Stu McLaren membership tiers + Kennedy magnetic-attraction + Schwartz market sophistication'
 ---
 
 # Funnels - Funnel & Offer Architecture Orchestrator
 
 Verb-style entry point for the Wayland funnels pack. The user types `/funnel <verb> <args>` and this skill dispatches to the corresponding sub-skill. Every sub-skill is auto-registered as its own flat slash command (`/funnel-offer`, `/funnel-conviction-webinar`, ...) so power users skip the verb.
 
-This pack is the **architecture layer** of the Wayland Business Suite. While conversion handles assets (pages, copy), funnels handles the *structure*: what's the offer, how does it stack, what's the price, what's the sequence the customer moves through, what's the ladder of products they ascend?
+This pack is the **architecture layer** of the Wayland Business Suite. While conversion handles assets (pages, copy), funnels handles the _structure_: what's the offer, how does it stack, what's the price, what's the sequence the customer moves through, what's the ladder of products they ascend?
 
 ## What this pack ships (18 skills)
 
@@ -94,31 +115,31 @@ Trigger this orchestrator when the user wants to **design the offer or the seque
 
 ## Verbs
 
-| Verb | Sub-skill | One-liner |
-|------|-----------|-----------|
-| `offer` | `funnels-offer` | The Irresistible Stack - master offer construction |
-| `offer-stack` | `funnels-offer-stack` | Bonus stack + value-stack composition |
-| `offer-pricing` | `funnels-offer-pricing` | Pricing levers (anchor/contrast/payments/splits) |
-| `offer-guarantee` | `funnels-offer-guarantee` | Guarantee design + risk-reversal |
-| `offer-audit` | `funnels-offer-audit` | Score offer on 8 dimensions |
-| `ascension-ladder` | `funnels-ascension-ladder` | Tiered product ladder (free → low → core → high → continuity) |
-| `lead-magnet` | `funnels-lead-magnet` | Lead-magnet design + selection (with conversion benchmarks per type) |
-| `tripwire` | `funnels-tripwire` | $1-$27 entry-product design + buyer-ID psychology |
-| `conviction-webinar` | `funnels-conviction-webinar` | 4-stage high-ticket webinar architecture (pre-frame → content → pitch → close) |
-| `evergreen` | `funnels-evergreen` | Auto-webinar + evergreen scarcity mechanics |
-| `cart-cycle-launch` | `funnels-cart-cycle-launch` | Pre-launch content + open-cart + close-cart sequence |
-| `high-ticket-call` | `funnels-high-ticket-call` | Lead-magnet → discovery-call → close + full sales-call script |
-| `story-drip` | `funnels-story-drip` | Multi-day narrative email arc |
-| `daily-pivot` | `funnels-daily-pivot` | Daily story-pivots-to-pitch email format |
-| `continuity` | `funnels-continuity` | Subscription/membership conversion ladder |
-| `architecture-audit` | `funnels-architecture-audit` | Funnel architecture audit (NOT URL crawl) |
-| `build-campaign` | `funnels-build-campaign` | Composite: full campaign - offer + ladder + lead magnet + tripwire + core page + OTO sequence |
+| Verb                 | Sub-skill                    | One-liner                                                                                     |
+| -------------------- | ---------------------------- | --------------------------------------------------------------------------------------------- |
+| `offer`              | `funnels-offer`              | The Irresistible Stack - master offer construction                                            |
+| `offer-stack`        | `funnels-offer-stack`        | Bonus stack + value-stack composition                                                         |
+| `offer-pricing`      | `funnels-offer-pricing`      | Pricing levers (anchor/contrast/payments/splits)                                              |
+| `offer-guarantee`    | `funnels-offer-guarantee`    | Guarantee design + risk-reversal                                                              |
+| `offer-audit`        | `funnels-offer-audit`        | Score offer on 8 dimensions                                                                   |
+| `ascension-ladder`   | `funnels-ascension-ladder`   | Tiered product ladder (free → low → core → high → continuity)                                 |
+| `lead-magnet`        | `funnels-lead-magnet`        | Lead-magnet design + selection (with conversion benchmarks per type)                          |
+| `tripwire`           | `funnels-tripwire`           | $1-$27 entry-product design + buyer-ID psychology                                             |
+| `conviction-webinar` | `funnels-conviction-webinar` | 4-stage high-ticket webinar architecture (pre-frame → content → pitch → close)                |
+| `evergreen`          | `funnels-evergreen`          | Auto-webinar + evergreen scarcity mechanics                                                   |
+| `cart-cycle-launch`  | `funnels-cart-cycle-launch`  | Pre-launch content + open-cart + close-cart sequence                                          |
+| `high-ticket-call`   | `funnels-high-ticket-call`   | Lead-magnet → discovery-call → close + full sales-call script                                 |
+| `story-drip`         | `funnels-story-drip`         | Multi-day narrative email arc                                                                 |
+| `daily-pivot`        | `funnels-daily-pivot`        | Daily story-pivots-to-pitch email format                                                      |
+| `continuity`         | `funnels-continuity`         | Subscription/membership conversion ladder                                                     |
+| `architecture-audit` | `funnels-architecture-audit` | Funnel architecture audit (NOT URL crawl)                                                     |
+| `build-campaign`     | `funnels-build-campaign`     | Composite: full campaign - offer + ladder + lead magnet + tripwire + core page + OTO sequence |
 
 ## Inputs
 
 - **First positional arg:** the verb
 - **Remaining args:** passed through as the sub-skill's input (product description, offer brief, target audience, etc.)
-- **`out_path`** *(optional):* explicit output file. Defaults via `build_report_path("business-funnels", instruction)`.
+- **`out_path`** _(optional):_ explicit output file. Defaults via `build_report_path("business-funnels", instruction)`.
 
 ## Routing logic
 
@@ -134,26 +155,18 @@ Trigger this orchestrator when the user wants to **design the offer or the seque
 Cross-pack full-campaign composite. Fans out:
 
 **Phase 1 - Architecture (funnels):**
+
 1. `funnels-offer <product>` - design The Irresistible Stack
 2. `funnels-ascension-ladder <product>` - map the tiered ladder
 3. `funnels-lead-magnet <product>` - pick + design the lead magnet
 4. `funnels-tripwire <product>` - design the $1-$27 entry product
 5. `funnels-conviction-webinar <product>` OR `funnels-cart-cycle-launch <product>` (depending on launch model) - design the conversion sequence
 
-**Phase 2 - Assets (delegates to convert pack):**
-6. `convert-lead-magnet-page` - opt-in page
-7. `convert-bridge-page` - advertorial pre-sell
-8. `convert-webinar-reg-page` OR `convert-sales-page` (depending on model) - main asset
-9. `convert-vsl` + `convert-vsl-page` - VSL script + page
-10. `convert-oto-page` + `convert-downsell-page` - post-purchase ladder
+**Phase 2 - Assets (delegates to convert pack):** 6. `convert-lead-magnet-page` - opt-in page 7. `convert-bridge-page` - advertorial pre-sell 8. `convert-webinar-reg-page` OR `convert-sales-page` (depending on model) - main asset 9. `convert-vsl` + `convert-vsl-page` - VSL script + page 10. `convert-oto-page` + `convert-downsell-page` - post-purchase ladder
 
-**Phase 3 - Sequence (back to funnels):**
-11. `funnels-story-drip` - narrative email arc
-12. `funnels-daily-pivot` - daily emails through cart-window
+**Phase 3 - Sequence (back to funnels):** 11. `funnels-story-drip` - narrative email arc 12. `funnels-daily-pivot` - daily emails through cart-window
 
-**Phase 4 - Audit:**
-13. `funnels-architecture-audit` - full architecture review
-14. `convert-audit` - Donahoe Method audit on every page
+**Phase 4 - Audit:** 13. `funnels-architecture-audit` - full architecture review 14. `convert-audit` - Donahoe Method audit on every page
 
 This is the "AI replaces the agency" composite. Expected runtime: 15-30 minutes wall-clock with parallel delegation; outputs ~80-120 pages of campaign artifacts.
 

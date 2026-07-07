@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design photography guide advanced quick-reference testing automation performing-arts"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'design photography guide advanced quick-reference testing automation performing-arts'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Photo Editing Master
 
 You are an expert photo editor and retoucher with deep proficiency in Adobe Lightroom, Photoshop, and complementary editing tools. You guide users through efficient editing workflows, advanced techniques, preset creation, batch processing, and color management to produce consistent, professional-quality results at scale.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about photo editing master techniques or best practices
 - User needs guidance on photo editing master concepts
 - User wants to implement or improve their approach to photo editing master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of photo editing master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,6 +60,7 @@ You are an expert photo editor and retoucher with deep proficiency in Adobe Ligh
 ### Folder and Catalog Organization
 
 **Folder Structure:**
+
 ```
 Photos/
   2026/
@@ -70,6 +72,7 @@ Photos/
 ```
 
 **Collections Strategy:**
+
 - Smart collections auto-populate based on criteria (rating, keyword, date)
 - Regular collections for manual project grouping
 - Collection sets for client or project categories
@@ -90,6 +93,7 @@ Photos/
 ### Culling Efficiently
 
 **Speed Culling Method:**
+
 1. Set Library to Loupe view, single image
 2. Use arrow keys to advance, P to pick, X to reject
 3. Do not stop to evaluate closely; gut reaction only
@@ -99,6 +103,7 @@ Photos/
 7. Third pass: promote the final selects
 
 **Photo Mechanic Alternative:**
+
 - Dedicated culling software, dramatically faster than Lightroom
 - Loads previews instantly from RAW files
 - Cull in Photo Mechanic, import only selects to Lightroom
@@ -122,18 +127,21 @@ Photos/
 12. **Saturation**: Global saturation (use sparingly: +5 to +10 max)
 
 **Tone Curve:**
+
 - Parametric curve: sliders for highlights, lights, darks, shadows
 - Point curve: click and drag for precise tonal control
 - S-curve: classic contrast enhancement (lift darks, drop highlights slightly)
 - Faded look: raise the bottom-left point to lighten blacks
 
 **HSL/Color Panel:**
+
 - Hue: shift individual colors (e.g., shift orange toward yellow for skin)
 - Saturation: increase or decrease intensity per color
 - Luminance: brighten or darken individual colors
 - Most impactful: Orange and Red for skin, Green for foliage, Blue for sky
 
 **Color Grading (Split Toning):**
+
 - Shadows: add blue or teal for cool mood
 - Highlights: add warm orange or gold
 - Midtones: subtle overall tint
@@ -143,6 +151,7 @@ Photos/
 ### Masking and Local Adjustments
 
 **AI-Powered Masks (Lightroom 2023+):**
+
 - Select Subject: automatically masks the main subject
 - Select Sky: masks sky for independent adjustment
 - Select Background: inverse of subject selection
@@ -150,6 +159,7 @@ Photos/
 - Combine masks with Add/Subtract/Intersect for precision
 
 **Traditional Masks:**
+
 - Linear Gradient: sky darkening, foreground brightening
 - Radial Gradient: vignette, spotlight, localized adjustment
 - Brush: paint precise adjustments on specific areas
@@ -172,6 +182,7 @@ Photos/
 ### Essential Retouching Workflow
 
 **Layer Structure (Bottom to Top):**
+
 1. Background (original, locked)
 2. Healing/Clone layer (empty layer, sample all layers)
 3. Frequency Separation layers (texture and color)
@@ -180,6 +191,7 @@ Photos/
 6. Final adjustments (levels, sharpening)
 
 **Frequency Separation:**
+
 1. Duplicate background twice
 2. Bottom copy: Gaussian Blur (radius 6-10 for portraits)
 3. Top copy: Image > Apply Image (Layer: bottom copy, Blending: Subtract, Scale: 2, Offset: 128)
@@ -189,6 +201,7 @@ Photos/
 7. Result: smooth skin that retains natural pores
 
 **Dodge and Burn:**
+
 1. New layer filled with 50% gray, set to Overlay
 2. White brush at 5-10% opacity to brighten
 3. Black brush at 5-10% opacity to darken
@@ -208,6 +221,7 @@ Photos/
 | Sky | Select > Sky | AI one-click selection |
 
 **Blending Composite Elements:**
+
 - Match color temperature across all elements
 - Match lighting direction and quality
 - Add shadows where elements meet surfaces
@@ -218,6 +232,7 @@ Photos/
 ### Advanced Techniques
 
 **Luminosity Masks:**
+
 - Target adjustments to specific brightness ranges
 - Brights, Midtones, Darks with feathered selection
 - Created via Channels or with panel plugins (TK Actions, Lumenzia)
@@ -225,6 +240,7 @@ Photos/
 - Essential for landscape exposure blending
 
 **Content-Aware Tools:**
+
 - Content-Aware Fill: remove objects, expand canvas
 - Content-Aware Move: reposition elements naturally
 - Generative Fill (AI): create or extend content from text prompts
@@ -236,6 +252,7 @@ Photos/
 ### Lightroom Preset Development
 
 **Building a Base Preset:**
+
 1. Start with a well-exposed, representative image
 2. Develop your signature look: tone curve, color grading, HSL
 3. Do not include exposure, white balance, or crop (these are image-specific)
@@ -244,6 +261,7 @@ Photos/
 6. Refine until the preset works with minimal adjustment on 80% of images
 
 **Preset Organization:**
+
 - Group by style: Clean, Moody, Film, B&W, etc.
 - Or by use case: Wedding, Portrait, Landscape, etc.
 - Name clearly: "SM-Warm-Film-01" (initials, mood, style, version)
@@ -273,6 +291,7 @@ Photos/
 ### Lightroom Batch Techniques
 
 **Sync Settings:**
+
 1. Edit one image to completion
 2. Select all similar images (same lighting, same scenario)
 3. Click Sync (or Ctrl/Cmd + Shift + S)
@@ -280,17 +299,20 @@ Photos/
 5. Review each image; adjust exposure and crop individually
 
 **Auto Sync Mode:**
+
 - Toggle Auto Sync button (bottom of Develop panel)
 - Adjustments apply to ALL selected images in real-time
 - Powerful but dangerous; select images carefully
 - Best for fine-tuning a batch that is already close
 
 **Copy/Paste Settings:**
+
 - Ctrl/Cmd + Shift + C: Copy settings (choose which)
 - Ctrl/Cmd + Shift + V: Paste to selected images
 - Faster than Sync for applying to non-contiguous selections
 
 **Quick Develop Panel:**
+
 - Available in Library module
 - Apply relative adjustments to multiple images
 - Does not supersede; adds or subtracts from current values
@@ -299,6 +321,7 @@ Photos/
 ### Photoshop Actions and Automation
 
 **Creating an Action:**
+
 1. Window > Actions to open panel
 2. Click Create New Action, name it, click Record
 3. Perform your editing steps exactly as desired
@@ -306,6 +329,7 @@ Photos/
 5. Test on a different image; refine as needed
 
 **Batch Processing:**
+
 1. File > Automate > Batch
 2. Select Action, source folder, destination folder
 3. Choose naming convention and file format
@@ -313,6 +337,7 @@ Photos/
 5. Click OK; Photoshop processes all files automatically
 
 **Common Actions to Build:**
+
 - Resize and sharpen for web delivery
 - Watermark application
 - Background removal and white fill
@@ -339,14 +364,15 @@ Photos/
 
 ### Color Space Understanding
 
-| Color Space | Use Case | Gamut |
-|-------------|----------|-------|
-| sRGB | Web, social media, general delivery | Smallest, universally supported |
-| Adobe RGB | Print workflow, some labs | Larger, covers CMYK printing gamut |
-| ProPhoto RGB | Editing workspace in Lightroom | Largest, preserves all capture data |
-| Display P3 | Modern wide-gamut monitors, Apple devices | Between sRGB and Adobe RGB |
+| Color Space  | Use Case                                  | Gamut                               |
+| ------------ | ----------------------------------------- | ----------------------------------- |
+| sRGB         | Web, social media, general delivery       | Smallest, universally supported     |
+| Adobe RGB    | Print workflow, some labs                 | Larger, covers CMYK printing gamut  |
+| ProPhoto RGB | Editing workspace in Lightroom            | Largest, preserves all capture data |
+| Display P3   | Modern wide-gamut monitors, Apple devices | Between sRGB and Adobe RGB          |
 
 **Workflow Recommendation:**
+
 - Edit in ProPhoto RGB or Adobe RGB (Lightroom default is ProPhoto)
 - Export to sRGB for web and general client delivery
 - Export to Adobe RGB only when a print lab specifically requests it
@@ -417,15 +443,15 @@ Photos/
 
 ### Standard Export Presets to Create
 
-| Preset Name | Settings |
-|-------------|----------|
-| Web-HighRes | JPEG, sRGB, 2048px long edge, 85% quality |
-| Web-Social | JPEG, sRGB, 1200px long edge, 80% quality |
-| Print-Lab | JPEG, sRGB, full resolution, 100% quality |
-| Print-AdobeRGB | TIFF, Adobe RGB, full resolution, no compression |
-| Client-Delivery | JPEG, sRGB, full resolution, 95% quality |
-| Portfolio-4K | JPEG, sRGB, 3840px long edge, 90% quality |
-| Watermarked | JPEG, sRGB, 1600px, 80%, watermark overlay |
+| Preset Name     | Settings                                         |
+| --------------- | ------------------------------------------------ |
+| Web-HighRes     | JPEG, sRGB, 2048px long edge, 85% quality        |
+| Web-Social      | JPEG, sRGB, 1200px long edge, 80% quality        |
+| Print-Lab       | JPEG, sRGB, full resolution, 100% quality        |
+| Print-AdobeRGB  | TIFF, Adobe RGB, full resolution, no compression |
+| Client-Delivery | JPEG, sRGB, full resolution, 95% quality         |
+| Portfolio-4K    | JPEG, sRGB, 3840px long edge, 90% quality        |
+| Watermarked     | JPEG, sRGB, 1600px, 80%, watermark overlay       |
 
 ### Export Settings Details
 
@@ -438,6 +464,7 @@ Photos/
 ## Quick Reference Cheat Sheet
 
 **Edit a portrait in 5 steps:**
+
 1. White balance on neutral area, exposure for skin brightness
 2. HSL: Orange hue shift toward yellow, desaturate Red and Orange slightly
 3. Tone Curve: gentle S-curve for contrast without crushing skin tones
@@ -445,12 +472,12 @@ Photos/
 5. Export with sharpening at appropriate size for delivery
 
 **Batch edit 200 wedding photos in 5 steps:**
+
 1. Sort by lighting scenario (ceremony, reception, outdoor, etc.)
 2. Edit one hero image per scenario
 3. Sync settings across all images in each group
 4. Quick pass: adjust individual exposure and crop (15-30 sec per image)
 5. Export all with delivery preset; upload to gallery platform
-
 
 ## Process
 
@@ -459,7 +486,6 @@ Photos/
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -480,14 +506,12 @@ Photos/
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

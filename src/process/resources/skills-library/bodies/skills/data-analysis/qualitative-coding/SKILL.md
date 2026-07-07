@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis data-science"
-  category: "data-analysis"
-  subcategory: "research-analysis"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis data-science'
+  category: 'data-analysis'
+  subcategory: 'research-analysis'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Qualitative Coding
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user presents interview transcripts, focus group recordings, or field notes and wants to make systematic sense of the material -- common in UX research, academic social science, clinical research, and organizational behavior studies
 - A user has open-ended survey responses (free-text fields) and wants to identify patterns across respondents rather than reading each response individually
 - A user is building a formal codebook for a research project that will involve multiple coders, peer review, or publication, and needs codes with definitions, inclusion/exclusion criteria, and example anchors
@@ -29,6 +31,7 @@ metadata:
 - A user is doing longitudinal or comparative qualitative work (e.g., coding the same interview guide administered at two time points, or coding interviews from two different populations) and needs a consistent coding framework that enables comparison
 
 **Do NOT use when:**
+
 - The user wants to design the survey or interview guide that will generate the data (use `survey-design`)
 - The user wants sentiment scoring, emotion classification, or tone detection at scale using NLP methods (use `sentiment-analysis-guide`)
 - The user wants to apply machine learning, topic modeling (LDA, BERTopic), or corpus-level text analysis to thousands of documents (use `text-mining-protocol`)
@@ -76,6 +79,7 @@ A codebook is a formal document, not a list. Each code entry must contain all of
 - **Flags:** Whether this code should trigger a memo (theoretical or analytical note), whether it is a "key" code for the main RQ, or whether it is a structural/navigation code.
 
 For the initial codebook size:
+
 - Inductive first-pass: 15-40 working codes are normal. These will collapse by 30-50% during refinement.
 - Deductive starting framework: 8-20 codes.
 - Final codebook for a typical 10-20 interview study: 15-35 codes across 3-7 themes.
@@ -302,27 +306,35 @@ Compile all elements into a formal report. The report must be self-contained -- 
 ## Edge Cases
 
 ### Single coder, no second coder available
+
 Conduct intra-rater reliability as a substitute. After completing first-pass coding of the full dataset, select a 10% stratified random sample. Set aside the original annotations for a minimum of 2 weeks -- do not review them during this interval. Recode the same sample from scratch using only the codebook document. Calculate Cohen's kappa between the two passes. A κ above 0.75 is acceptable evidence of consistent application. Below 0.75, identify the specific codes responsible and revise their definitions. Intra-rater reliability does not substitute for the external validity check that second-coder IRR provides -- acknowledge this limitation explicitly in the methodological transparency section.
 
 ### Very large open-ended dataset (300+ survey responses)
+
 Development phase: draw a stratified random sample of 60-80 responses (stratified by demographic variable or survey condition if applicable) for codebook development. Ensure the sample captures the full range of response length and content. Apply the full codebook development process (Steps 1-6) to this sample. Once the codebook is stable (no new codes emerging across the last 10 responses coded), apply it to the full dataset. For the full dataset application: use a structured coding matrix (rows = responses, columns = code IDs, cell = 1/0 or count) to enable quantitative summaries. Reserve deep interpretive coding -- selecting key quotes, writing thick descriptions -- for the 20-30 responses most relevant to the RQs. Report: (a) quantitative frequency table for all responses, (b) qualitative theme synthesis from the development sample plus selected full-dataset examples.
 
 ### Data collected in a language the analyst does not speak natively
+
 Never translate first and code the translation -- this introduces a second layer of interpretation that is uncontrolled and unacknowledged. Instead: (a) work with a bilingual coder who codes in the original language, (b) develop the codebook bilingually (definitions in both languages), (c) select key quotes for the report and translate them with back-translation verification (translate to English, have a second bilingual person translate back to original language, compare for fidelity). In the methodological notes, state clearly: coding was conducted in [language], quotes were translated by [method], and cultural context was [how it was or was not addressed]. Cultural-conceptual equivalence -- whether a code developed in one cultural context transfers meaningfully to another -- must be explicitly discussed.
 
 ### Longitudinal data (same participants coded at two or more time points)
+
 Use the same codebook at all time points to enable comparison. This means the codebook must be finalized before Time 2 coding begins, even if Time 2 data reveals new inductive codes. New codes at Time 2 should be applied retroactively to Time 1 data only if the concept was present but uncoded, not if it genuinely did not exist at Time 1. Report results as a comparison matrix: for each theme, show prevalence at Time 1 and Time 2 (N sources at T1 vs. T2), and characterize the direction of change. Look specifically for codes present at Time 1 but absent at Time 2 (concept disappearance) and codes absent at Time 1 but present at Time 2 (concept emergence) -- these temporal shifts are often the most important findings in longitudinal qualitative work.
 
 ### Contradictory or incoherent data sources
+
 Some interviews or responses are internally inconsistent -- a participant states they were satisfied with support and then describes a 2-week wait for a resolution. Do not average or ignore the contradiction. Apply both the positive code (SUPPORT.POSITIVE) and the negative code (SUPPORT.SLOW) to the relevant segments. Write a memo about the contradictory source. At the theme synthesis stage, use contradictory sources as primary evidence for complexity and nuance. Contradictions within a source often signal: (a) temporal change (satisfied at first, dissatisfied later), (b) social desirability bias (presenting favorably, then revealing negatives), or (c) genuinely mixed experience. The interpretation of why the contradiction exists is as valuable as the codes themselves.
 
 ### User wants to use the codebook as a training set for automated classification
+
 The codebook must meet a higher bar for formal rigor than a qualitative-only study. Specifically: (a) every code must have a minimum of 15-20 coded example segments before training -- codes with fewer examples will produce unreliable classifiers, (b) the coded examples must be balanced across sources and participant types to prevent domain-specific overfitting, (c) inter-rater reliability must be documented per code with κ > 0.75 for any code that will be automated, and (d) the codebook must be treated as frozen after the training set is finalized -- post-hoc changes require full retraining. Flag this use case to the user early, because the annotation requirements for an ML training dataset are significantly more demanding than for a qualitative report.
 
 ### Researcher positionality creates potential bias in code development
+
 In qualitative research -- particularly in critical, participatory, or clinical contexts -- the analyst's identity, professional role, or personal experience with the topic can shape which codes emerge and how they are defined. This is not automatically a problem, but it must be acknowledged and managed. Strategies: (a) write a reflexivity statement before coding begins, identifying your assumptions and how they might influence code development; (b) use member checking -- sharing themes with participants for feedback on whether they recognize their experiences in the themes; (c) conduct peer debriefing -- have someone unfamiliar with the data review the codebook and ask "What are you assuming here?" The reflexivity statement belongs in the final report's methodological transparency section, not as an afterthought.
 
 ### Thin data -- very short responses (fewer than 50 words per source)
+
 Short responses (e.g., single-question survey text fields, social media posts, app reviews) do not support complex multi-code segment analysis. Adapt the approach: (a) apply a maximum of 2 codes per response rather than 2-3 per segment, (b) use response-level rather than segment-level coding (the unit of analysis is the whole response), (c) supplement with quantitative analysis (frequency, cross-tabulation with demographic variables) because the thinness of the data limits interpretive claims, (d) be cautious about themes that appear in fewer than 30% of sources -- with very short responses, low prevalence may reflect question scope rather than genuine rarity of the experience.
 
 ---
@@ -337,16 +349,17 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 
 ### Research Context
 
-| Field | Detail |
-|-------|--------|
-| Data type | Semi-structured interview transcripts |
-| Data volume | 12 transcripts, approximately 65,000 words total (~5,400 words/interview) |
-| Methodology | Thematic analysis (Braun & Clarke, reflexive variant) with hybrid coding approach |
-| Coding approach | Hybrid -- deductive anchor codes from Technology Acceptance Model (TAM: Perceived Usefulness, Perceived Ease of Use) and Normalization Process Theory (NPT: coherence, cognitive participation, collective action, reflexive monitoring); inductive codes allowed for content outside these frameworks |
-| Epistemological stance | Constructivist -- treating participant accounts as meaningful interpretations of their experience, not objective reports of facts |
-| Codebook version | v2.1 (v1.0 at start; v2.0 after first-pass checkpoint at 30%; v2.1 after IRR review) |
+| Field                  | Detail                                                                                                                                                                                                                                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Data type              | Semi-structured interview transcripts                                                                                                                                                                                                                                                                  |
+| Data volume            | 12 transcripts, approximately 65,000 words total (~5,400 words/interview)                                                                                                                                                                                                                              |
+| Methodology            | Thematic analysis (Braun & Clarke, reflexive variant) with hybrid coding approach                                                                                                                                                                                                                      |
+| Coding approach        | Hybrid -- deductive anchor codes from Technology Acceptance Model (TAM: Perceived Usefulness, Perceived Ease of Use) and Normalization Process Theory (NPT: coherence, cognitive participation, collective action, reflexive monitoring); inductive codes allowed for content outside these frameworks |
+| Epistemological stance | Constructivist -- treating participant accounts as meaningful interpretations of their experience, not objective reports of facts                                                                                                                                                                      |
+| Codebook version       | v2.1 (v1.0 at start; v2.0 after first-pass checkpoint at 30%; v2.1 after IRR review)                                                                                                                                                                                                                   |
 
 **Research Questions:**
+
 1. What aspects of the new EHR system do frontline nurses perceive as improving or hindering their clinical workflow?
 2. What individual, team, and organizational factors influence EHR adoption at 6 months post-implementation?
 3. What specific changes to the system, training, or support would increase adoption and reduce burden?
@@ -358,6 +371,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 #### Level 1: Workflow Integration
 
 ##### Code: WFLOW.ENHANCE
+
 - **Code Name:** EHR Perceived Workflow Enhancement
 - **Definition:** Participant describes a specific way in which the EHR system has improved, accelerated, or simplified a clinical or administrative task compared to the prior system or paper-based process. The enhancement must be explicitly linked to the EHR functionality, not attributed to general workflow changes.
 - **Inclusion Criteria:**
@@ -374,6 +388,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 - **Triggers Memo:** No
 
 ##### Code: WFLOW.BURDEN
+
 - **Code Name:** EHR-Induced Documentation Burden
 - **Definition:** Participant describes the EHR system as adding time, cognitive effort, or procedural complexity to a task that was previously simpler or faster. This code specifically addresses workflow inefficiency caused by the EHR's design or data entry requirements, not technical failures.
 - **Inclusion Criteria:**
@@ -391,6 +406,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 - **Triggers Memo:** Yes -- note specific screens or tasks mentioned; these are potential targets for workflow redesign recommendations
 
 ##### Code: WFLOW.WORKAROUND
+
 - **Code Name:** Workaround Behavior
 - **Definition:** Participant describes an unofficial, unofficial, or improvised practice they use to accomplish a task in a way that bypasses or supplements the EHR's intended workflow. Workarounds are adaptive responses to perceived usability failures.
 - **Inclusion Criteria:**
@@ -409,6 +425,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 #### Level 1: Training and Support
 
 ##### Code: TRAIN.INITIAL
+
 - **Code Name:** Initial Training Adequacy
 - **Definition:** Participant evaluates the quality, duration, format, or relevance of the training received before or during the EHR go-live. This includes both positive and negative evaluations of initial training.
 - **Inclusion Criteria:**
@@ -425,6 +442,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 - **Triggers Memo:** No
 
 ##### Code: TRAIN.GAP
+
 - **Code Name:** Specific Training Knowledge Gap
 - **Definition:** Participant identifies a specific skill, workflow, or EHR function they do not know how to perform or perform confidently, attributed to training deficiency rather than system design. The gap must be specific and actionable.
 - **Inclusion Criteria:**
@@ -441,6 +459,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 - **Triggers Memo:** No
 
 ##### Code: TRAIN.PEER
+
 - **Code Name:** Peer-to-Peer Learning and Support
 - **Definition:** Participant describes learning EHR skills from a colleague rather than from formal training, or describes providing informal support to colleagues. Includes both positive and negative framings of peer learning.
 - **Inclusion Criteria:**
@@ -458,6 +477,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 #### Level 1: Organizational and Contextual Factors
 
 ##### Code: ORG.LEADERSHIP
+
 - **Code Name:** Leadership Stance on EHR Adoption
 - **Definition:** Participant describes or evaluates the visible attitude, messaging, or behavior of unit managers, charge nurses, or hospital leadership toward EHR adoption. Includes both supportive and unsupportive leadership stances.
 - **Inclusion Criteria:**
@@ -473,6 +493,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 - **Distinguish From:** SUPPORT.FORMAL -- leadership stance is about visible attitude and culture; SUPPORT.FORMAL is about whether help resources exist
 
 ##### Code: ORG.STAFFING
+
 - **Code Name:** Staffing Context Affecting EHR Use
 - **Definition:** Participant links EHR documentation burden directly to staffing levels, patient ratios, or workload intensity. This is an inductive code -- emerged from data, not from initial TAM/NPT framework.
 - **Inclusion Criteria:**
@@ -489,6 +510,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 #### Level 1: System Features and Technical Issues
 
 ##### Code: FEAT.MISSING
+
 - **Code Name:** Missing or Inadequate Feature
 - **Definition:** Participant identifies a specific system feature or capability that does not exist in the current EHR and that they need to perform their work effectively. The missing feature must be specific and operational, not a wish-list item.
 - **Inclusion Criteria:**
@@ -504,6 +526,7 @@ Short responses (e.g., single-question survey text fields, social media posts, a
 - **Distinguish From:** TRAIN.GAP -- if uncertain, ask: "Does the feature exist in the system at all?" If no, FEAT.MISSING. If yes but participant does not know how to use it, TRAIN.GAP.
 
 ##### Code: TECH.FAILURE
+
 - **Code Name:** Technical Failure or System Unreliability
 - **Definition:** Participant describes instances of the EHR system failing to function as expected -- errors, crashes, slowdowns, login failures, data loss, or downtime -- that disrupted their clinical work.
 - **Inclusion Criteria:**

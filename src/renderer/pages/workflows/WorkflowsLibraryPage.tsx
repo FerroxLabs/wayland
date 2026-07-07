@@ -28,11 +28,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { ipcBridge } from '@/common';
-import {
-  LibraryFilterRail,
-  LibraryFilterRow,
-  LibrarySectionHeader,
-} from '@/renderer/components/layout/library';
+import { LibraryFilterRail, LibraryFilterRow, LibrarySectionHeader } from '@/renderer/components/layout/library';
 import PageShell from '@/renderer/components/layout/PageShell';
 import ImportModal from '@/renderer/components/import/ImportModal';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
@@ -120,9 +116,7 @@ const WorkflowsLibraryPage: React.FC = () => {
   const searchFiltered = useMemo(() => {
     if (!searching) return workflows;
     const q = query.toLowerCase();
-    return workflows.filter(
-      (w) => w.name.toLowerCase().includes(q) || w.description.toLowerCase().includes(q),
-    );
+    return workflows.filter((w) => w.name.toLowerCase().includes(q) || w.description.toLowerCase().includes(q));
   }, [workflows, query, searching]);
 
   // Bucket workflows by category for the grouped layout. Featured is
@@ -142,9 +136,7 @@ const WorkflowsLibraryPage: React.FC = () => {
 
   const featured = useMemo(() => {
     const known = new Map(workflows.map((w) => [w.name, w]));
-    return FEATURED_SLUGS.map((slug) => known.get(slug)).filter(
-      (w): w is SkillIndexEntry => w != null,
-    );
+    return FEATURED_SLUGS.map((slug) => known.get(slug)).filter((w): w is SkillIndexEntry => w != null);
   }, [workflows]);
 
   const handleCardClick = useCallback((entry: SkillIndexEntry) => setSelected(entry), []);
@@ -182,18 +174,10 @@ const WorkflowsLibraryPage: React.FC = () => {
       width='full'
       actions={
         <>
-          <Button
-            type='secondary'
-            icon={<Download size={14} />}
-            onClick={() => setImportOpen(true)}
-          >
+          <Button type='secondary' icon={<Download size={14} />} onClick={() => setImportOpen(true)}>
             {t('actions.import', 'Import workflow')}
           </Button>
-          <Button
-            type='primary'
-            icon={<Sparkles size={14} />}
-            onClick={() => setBuildOpen(true)}
-          >
+          <Button type='primary' icon={<Sparkles size={14} />} onClick={() => setBuildOpen(true)}>
             {t('actions.build', 'Build a workflow')}
           </Button>
         </>
@@ -234,10 +218,7 @@ const WorkflowsLibraryPage: React.FC = () => {
       <div className='flex-1 min-w-0 flex flex-col gap-20px'>
         {searching ? (
           searchFiltered.length === 0 ? (
-            <div
-              className='text-center text-13px py-40px'
-              style={{ color: 'var(--color-text-2)' }}
-            >
+            <div className='text-center text-13px py-40px' style={{ color: 'var(--color-text-2)' }}>
               {t('search.empty', 'No workflows match your search')}
             </div>
           ) : (
@@ -297,11 +278,7 @@ const WorkflowsLibraryPage: React.FC = () => {
       </div>
 
       <WorkflowDetailModal entry={selected} onClose={() => setSelected(null)} />
-      <BuildWorkflowModal
-        visible={buildOpen}
-        onClose={() => setBuildOpen(false)}
-        onSaved={refreshWorkflows}
-      />
+      <BuildWorkflowModal visible={buildOpen} onClose={() => setBuildOpen(false)} onSaved={refreshWorkflows} />
       <ImportModal
         visible={importOpen}
         kind='workflow'

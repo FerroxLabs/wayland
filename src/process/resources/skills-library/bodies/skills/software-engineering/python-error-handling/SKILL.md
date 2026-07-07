@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python best-practices debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'python best-practices debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Python Error Handling
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to design a custom exception hierarchy for a Python library, package, or application layer
 - User wants to translate exceptions across architectural boundaries (repository → service → API handler)
 - User asks about exception chaining, `__cause__`, `__context__`, or `__suppress_context__` behavior
@@ -31,6 +33,7 @@ metadata:
 - User asks about `ExceptionGroup` and `except*` syntax introduced in Python 3.11
 
 **Do NOT use this skill when:**
+
 - User wants to scaffold a new Python project structure → use `python-project-setup`
 - User is asking specifically about `asyncio.TaskGroup`, `async with`, or `async for` error semantics → use `python-async-patterns`
 - User wants general Python idioms unrelated to error handling → use `python-idioms`
@@ -451,6 +454,7 @@ def with_retry(
 Some poorly designed libraries raise `Exception("something went wrong")` with no subclassing. This is unfortunately common in older HTTP clients, database drivers, and XML parsing libraries.
 
 **Handling strategy:**
+
 1. Wrap every call to the library in an adapter method -- never call library functions directly from service code.
 2. In the adapter, catch the broad `Exception`, inspect `str(exc)` or `exc.args[0]` to classify the error, and raise a specific domain exception.
 3. Document the library version and the behavior in a comment, because this adapter will need updating when the library improves its exceptions.
@@ -473,6 +477,7 @@ except Exception as exc:  # bad_library raises bare Exception -- see issue #1234
 `ExceptionGroup` is raised by `asyncio.TaskGroup` when multiple concurrent tasks fail simultaneously. It is also useful for validation that collects all errors before raising (rather than failing fast on the first).
 
 **Key behaviors:**
+
 - `except* ValidationError as eg:` catches all `ValidationError` instances from the group and binds them to `eg.exceptions` (a tuple).
 - You can have multiple `except*` clauses; each runs if any exception in the group matches its type.
 - If an `except*` clause re-raises, it re-raises only the matched subgroup.
@@ -485,6 +490,7 @@ except Exception as exc:  # bad_library raises bare Exception -- see issue #1234
 Python silently discards exceptions raised in `__del__` methods -- they are printed to `sys.stderr` but not propagated. Exceptions raised in `__exit__` when another exception is active are also silently suppressed unless `__exit__` re-raises them explicitly.
 
 **Rules:**
+
 - Never raise exceptions in `__del__`. Use `contextlib.contextmanager` or explicit `close()` methods instead.
 - In `__exit__(self, exc_type, exc_val, exc_tb)`: if `exc_type is not None`, you are handling an active exception. If your cleanup raises, Python discards both and raises only your new exception -- the original is lost. Log the cleanup failure at WARNING level; do not raise during cleanup.
 - Return `False` (or `None`) from `__exit__` to propagate the original exception. Return `True` only to suppress it -- this is almost never correct outside of `contextlib.suppress`.
@@ -513,6 +519,7 @@ Set a failure rate threshold (e.g., 20%). If `result.failure_rate > 0.20`, raise
 Changing exception hierarchies in a library is a breaking change. Adding a new subclass is non-breaking (existing `isinstance(e, BaseError)` checks still work). Removing an exception class, changing its `__init__` signature, or moving it in the hierarchy all break callers.
 
 **Rules for library maintainers:**
+
 - Treat exception classes as public API -- document them, version them, and deprecate before removing.
 - To deprecate: add a `DeprecationWarning` in `__init__`, keep the class for two major versions, then remove.
 - To add a new subclass under an existing class: safe at any time -- existing handlers that catch the parent class continue to work.
@@ -990,3 +997,4 @@ class PaymentService:
             raise PaymentValidationError(
                 "currency",
                 f"must be one of {sorted(_SUPPORTED_
+```

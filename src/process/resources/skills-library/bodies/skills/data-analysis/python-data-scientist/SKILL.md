@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science statistics guide python testing performing-arts"
-  category: "data-analysis"
-  subcategory: "statistics-modeling"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science statistics guide python testing performing-arts'
+  category: 'data-analysis'
+  subcategory: 'statistics-modeling'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Python Data Scientist
 
 You are an expert applied data scientist who builds robust machine learning pipelines with scikit-learn, engineering features methodically, selecting models systematically, and evaluating results rigorously.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about python data scientist techniques or best practices
 - User needs guidance on python data scientist concepts
 - User wants to implement or improve their approach to python data scientist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of python data scientist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -222,15 +223,15 @@ y_proba = pipeline.predict_proba(X_test)[:, 1]
 
 ### By Problem Type
 
-| Problem | Start With | Then Try | When to Use |
-|---------|-----------|----------|-------------|
-| **Binary classification** | Logistic Regression | GBM, Random Forest | Churn, fraud, click |
-| **Multi-class** | Random Forest | GBM, SVM | Category prediction |
-| **Regression** | Ridge/Lasso | GBM, Random Forest | Revenue, pricing |
-| **Ranking** | LambdaMART (LightGBM) | XGBoost ranker | Search, recommendations |
-| **Anomaly detection** | Isolation Forest | One-class SVM, LOF | Fraud, outliers |
-| **Clustering** | K-Means | DBSCAN, HDBSCAN | Segmentation |
-| **Time series** | ARIMA/Prophet | LSTM, LightGBM | Forecasting |
+| Problem                   | Start With            | Then Try           | When to Use             |
+| ------------------------- | --------------------- | ------------------ | ----------------------- |
+| **Binary classification** | Logistic Regression   | GBM, Random Forest | Churn, fraud, click     |
+| **Multi-class**           | Random Forest         | GBM, SVM           | Category prediction     |
+| **Regression**            | Ridge/Lasso           | GBM, Random Forest | Revenue, pricing        |
+| **Ranking**               | LambdaMART (LightGBM) | XGBoost ranker     | Search, recommendations |
+| **Anomaly detection**     | Isolation Forest      | One-class SVM, LOF | Fraud, outliers         |
+| **Clustering**            | K-Means               | DBSCAN, HDBSCAN    | Segmentation            |
+| **Time series**           | ARIMA/Prophet         | LSTM, LightGBM     | Forecasting             |
 
 ### Model Comparison
 
@@ -470,17 +471,16 @@ def save_model(pipeline, metrics, model_dir='models'):
 
 ## Common Pitfalls
 
-| Pitfall | Symptom | Fix |
-|---------|---------|-----|
-| Data leakage | Unrealistically high test performance | Fit preprocessing only on train data |
-| Target leakage | Feature contains future information | Audit feature timestamps |
-| Class imbalance | High accuracy, low recall | Use stratified CV, SMOTE, class weights |
-| Overfitting | Train >> test performance | Regularization, simpler model, more data |
-| Feature scale issues | Linear model ignores some features | Scale all numeric features |
-| Missing value patterns | Model fails on new data | Handle unknowns in encoders |
-| Train/serve skew | Good offline, bad online | Use same pipeline for train and predict |
-| Temporal leakage | Random CV on time series | Use TimeSeriesSplit |
-
+| Pitfall                | Symptom                               | Fix                                      |
+| ---------------------- | ------------------------------------- | ---------------------------------------- |
+| Data leakage           | Unrealistically high test performance | Fit preprocessing only on train data     |
+| Target leakage         | Feature contains future information   | Audit feature timestamps                 |
+| Class imbalance        | High accuracy, low recall             | Use stratified CV, SMOTE, class weights  |
+| Overfitting            | Train >> test performance             | Regularization, simpler model, more data |
+| Feature scale issues   | Linear model ignores some features    | Scale all numeric features               |
+| Missing value patterns | Model fails on new data               | Handle unknowns in encoders              |
+| Train/serve skew       | Good offline, bad online              | Use same pipeline for train and predict  |
+| Temporal leakage       | Random CV on time series              | Use TimeSeriesSplit                      |
 
 ## Process
 
@@ -489,7 +489,6 @@ def save_model(pipeline, metrics, model_dir='models'):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -510,14 +509,12 @@ def save_model(pipeline, metrics, model_dir='models'):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

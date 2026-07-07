@@ -13,14 +13,14 @@ The current project's team mode implements a basic multi-agent collaboration fra
 
 ### Key Findings
 
-| #   | Finding                                                                                          | Severity          | Type |
-| --- | ------------------------------------------------------------------------------------------------ | ----------------- | ---- |
-| 1   | acpAdapter's tool_use parsing path is **dead code** - tools definition is never injected to agent | Bug               | P0   |
-| 2   | Agent drive model difference: external wake() vs internal while-loop self-drive                  | Architecture gap  | P1   |
-| 3   | Permission system: fine-grained team-level control completely absent (sandbox exists at lower layer) | Missing feature | P1   |
-| 4   | workspaceMode=isolated is a fake feature - backend has no branch handling for it                 | Missing feature   | P2   |
-| 5   | Message protocol has only 3 types (Claude has 10+), no negotiated shutdown                       | Missing feature   | P2   |
-| 6   | Task system lacks hooks, TaskOutput, and automatic owner assignment                               | Missing feature   | P2   |
+| #   | Finding                                                                                              | Severity         | Type |
+| --- | ---------------------------------------------------------------------------------------------------- | ---------------- | ---- |
+| 1   | acpAdapter's tool_use parsing path is **dead code** - tools definition is never injected to agent    | Bug              | P0   |
+| 2   | Agent drive model difference: external wake() vs internal while-loop self-drive                      | Architecture gap | P1   |
+| 3   | Permission system: fine-grained team-level control completely absent (sandbox exists at lower layer) | Missing feature  | P1   |
+| 4   | workspaceMode=isolated is a fake feature - backend has no branch handling for it                     | Missing feature  | P2   |
+| 5   | Message protocol has only 3 types (Claude has 10+), no negotiated shutdown                           | Missing feature  | P2   |
+| 6   | Task system lacks hooks, TaskOutput, and automatic owner assignment                                  | Missing feature  | P2   |
 
 ---
 
@@ -28,13 +28,13 @@ The current project's team mode implements a basic multi-agent collaboration fra
 
 ### 2.1 Overall Architecture
 
-| Dimension     | Current Project                                    | Claude Code                              |
-| ------------- | -------------------------------------------------- | ---------------------------------------- |
-| Runtime       | Electron multi-process (main + renderer + worker)  | CLI single-process + tmux/iTerm2/in-process |
+| Dimension      | Current Project                                   | Claude Code                                    |
+| -------------- | ------------------------------------------------- | ---------------------------------------------- |
+| Runtime        | Electron multi-process (main + renderer + worker) | CLI single-process + tmux/iTerm2/in-process    |
 | Dispatch model | **Centralized** -- TeamSession unified dispatch   | **Decentralized** -- file protocol cooperation |
-| Communication | IPC Bridge bidirectional                           | Filesystem mailbox + AsyncLocalStorage   |
-| UI layer      | React renderer process, IPC-pushed updates         | React Ink terminal UI, AppState-driven   |
-| Persistence   | SQLite + Repository Pattern                        | Filesystem JSON                          |
+| Communication  | IPC Bridge bidirectional                          | Filesystem mailbox + AsyncLocalStorage         |
+| UI layer       | React renderer process, IPC-pushed updates        | React Ink terminal UI, AppState-driven         |
+| Persistence    | SQLite + Repository Pattern                       | Filesystem JSON                                |
 
 **Cross-adversarial conclusion**: Centralized vs decentralized is a reasonable architecture choice given Electron vs CLI context - not a defect. Each has tradeoffs:
 
@@ -80,12 +80,12 @@ acpAdapter was designed with full tool_use parsing capability, but due to a brea
 
 ### Files Affected
 
-| File                                      | Line     | Issue                                            |
-| ----------------------------------------- | -------- | ------------------------------------------------ |
-| `src/process/team/TeammateManager.ts`     | L97      | `sendMessage(payload.message)` discards tools    |
-| `src/process/team/TeammateManager.ts`     | L140-144 | Stream handler only accumulates text             |
-| `src/process/team/TeammateManager.ts`     | L156     | AgentResponse does not include toolCalls         |
-| `src/process/team/adapters/acpAdapter.ts` | L128     | toolCalls check is always falsy                  |
+| File                                      | Line     | Issue                                         |
+| ----------------------------------------- | -------- | --------------------------------------------- |
+| `src/process/team/TeammateManager.ts`     | L97      | `sendMessage(payload.message)` discards tools |
+| `src/process/team/TeammateManager.ts`     | L140-144 | Stream handler only accumulates text          |
+| `src/process/team/TeammateManager.ts`     | L156     | AgentResponse does not include toolCalls      |
+| `src/process/team/adapters/acpAdapter.ts` | L128     | toolCalls check is always falsy               |
 
 ---
 
@@ -114,13 +114,13 @@ Agent spawn → while(true) { poll mailbox → process messages → execute task
 
 ### Impact Analysis
 
-| Capability                        | Current Project                     | Claude                    |
-| --------------------------------- | ----------------------------------- | ------------------------- |
-| Agent independently discovers new messages | No - depends on wake        | Yes - self-polls          |
-| Agent proactively claims tasks    | No                                  | Yes                       |
-| Message priority                  | None (FIFO)                         | Yes (4 levels)            |
-| Idle notification                 | Depends on model issuing tool call  | Automatically sent by system |
-| Parallel work                     | Lead must assign one by one         | Self-driven parallel      |
+| Capability                                 | Current Project                    | Claude                       |
+| ------------------------------------------ | ---------------------------------- | ---------------------------- |
+| Agent independently discovers new messages | No - depends on wake               | Yes - self-polls             |
+| Agent proactively claims tasks             | No                                 | Yes                          |
+| Message priority                           | None (FIFO)                        | Yes (4 levels)               |
+| Idle notification                          | Depends on model issuing tool call | Automatically sent by system |
+| Parallel work                              | Lead must assign one by one        | Self-driven parallel         |
 
 ### Cross-Adversarial Conclusion
 
@@ -163,12 +163,12 @@ Initial assessment was P0 (0/10). After review, the lower layer has a sandbox me
 
 ### 6.1 Message Structure
 
-| Dimension      | Current Project MailboxMessage | Claude TeammateMessage           |
-| -------------- | ------------------------------ | -------------------------------- |
-| ID             | UUID                           | None (array index)               |
+| Dimension      | Current Project MailboxMessage | Claude TeammateMessage              |
+| -------------- | ------------------------------ | ----------------------------------- |
+| ID             | UUID                           | None (array index)                  |
 | Type indicator | `type` enum (3 kinds)          | Embedded JSON in `text` (10+ kinds) |
-| Persistence    | SQLite                         | JSON file                        |
-| Concurrency    | SQLite built-in write lock     | proper-lockfile file lock        |
+| Persistence    | SQLite                         | JSON file                           |
+| Concurrency    | SQLite built-in write lock     | proper-lockfile file lock           |
 
 ### 6.2 Message Type Comparison
 
@@ -198,12 +198,12 @@ Initially assessed as "high risk". After cross-adversarial verification: `active
 
 ### 6.5 Negotiated Shutdown
 
-| Step         | Current Project                        | Claude                              |
-| ------------ | -------------------------------------- | ----------------------------------- |
-| Request shutdown | Type defined, no handling logic    | Leader sends shutdown_request       |
-| Negotiation  | None                                   | Model decides to accept/reject      |
-| Confirmation | None                                   | shutdown_approved/rejected          |
-| Safe stop    | None                                   | AbortController.abort()             |
+| Step             | Current Project                 | Claude                         |
+| ---------------- | ------------------------------- | ------------------------------ |
+| Request shutdown | Type defined, no handling logic | Leader sends shutdown_request  |
+| Negotiation      | None                            | Model decides to accept/reject |
+| Confirmation     | None                            | shutdown_approved/rejected     |
+| Safe stop        | None                            | AbortController.abort()        |
 
 ---
 
@@ -211,17 +211,17 @@ Initially assessed as "high risk". After cross-adversarial verification: `active
 
 ### Feature Comparison
 
-| Feature                           | Current Project                             | Claude                                          | Gap          |
-| --------------------------------- | ------------------------------------------- | ----------------------------------------------- | ------------ |
-| CRUD                              | TaskManager 4 methods                       | 5 independent Tools                             | Roughly aligned |
-| Status transitions                | pending/in_progress/completed/deleted       | Same                                            | Aligned      |
-| Dependency graph blockedBy/blocks | Yes (checkUnblocks auto-unblocks)           | Yes (addBlocks/addBlockedBy)                    | **Aligned**  |
-| TaskOutput (result retrieval)     | None                                        | Yes (blocking/non-blocking, now deprecated)     | Missing      |
-| TaskCreated/Completed hooks       | None                                        | Yes (can block create/complete)                 | Missing      |
-| Automatic owner assignment        | None                                        | Automatically sets owner when in_progress       | Missing      |
-| Mailbox notification of ownership changes | None                               | Yes                                             | Missing      |
-| Verification nudge                | None                                        | Prompts when 3+ tasks complete with no verification | Missing  |
-| Tool exposure method              | ParsedAction text parsing                   | Native Tool protocol                            | Architecture difference |
+| Feature                                   | Current Project                       | Claude                                              | Gap                     |
+| ----------------------------------------- | ------------------------------------- | --------------------------------------------------- | ----------------------- |
+| CRUD                                      | TaskManager 4 methods                 | 5 independent Tools                                 | Roughly aligned         |
+| Status transitions                        | pending/in_progress/completed/deleted | Same                                                | Aligned                 |
+| Dependency graph blockedBy/blocks         | Yes (checkUnblocks auto-unblocks)     | Yes (addBlocks/addBlockedBy)                        | **Aligned**             |
+| TaskOutput (result retrieval)             | None                                  | Yes (blocking/non-blocking, now deprecated)         | Missing                 |
+| TaskCreated/Completed hooks               | None                                  | Yes (can block create/complete)                     | Missing                 |
+| Automatic owner assignment                | None                                  | Automatically sets owner when in_progress           | Missing                 |
+| Mailbox notification of ownership changes | None                                  | Yes                                                 | Missing                 |
+| Verification nudge                        | None                                  | Prompts when 3+ tasks complete with no verification | Missing                 |
+| Tool exposure method                      | ParsedAction text parsing             | Native Tool protocol                                | Architecture difference |
 
 ### Cross-Adversarial Correction
 
@@ -257,20 +257,20 @@ Full git worktree lifecycle management (`worktree.ts`, 1520 lines):
 
 ### TeamAgent vs Claude member
 
-| Field                 | Current Project | Claude                         | Notes                              |
-| --------------------- | --------------- | ------------------------------ | ---------------------------------- |
-| role (lead/teammate)  | Yes             | No (derived via leadAgentId)   | Current is more explicit           |
-| conversationId        | Yes             | No                             | Unique to current (Electron needs) |
-| conversationType      | Yes             | No                             | Unique to current (multi-LLM)      |
-| status (5 values)     | Yes             | isActive boolean               | Current is more granular           |
-| model                 | **Missing**     | Yes                            | Needs to be added                  |
-| prompt                | **Missing**     | Yes                            | Needs to be added                  |
-| color                 | **Missing**     | Yes                            | Needs to be added                  |
-| cwd                   | **Missing**     | Yes                            | Needs to be added                  |
-| worktreePath          | **Missing**     | Yes                            | Needs to be added                  |
-| mode (PermissionMode) | **Missing**     | Yes                            | Needs to be added                  |
-| subscriptions         | **Missing**     | Yes                            | Needs to be added                  |
-| backendType           | **Missing**     | Yes                            | Architecture difference            |
+| Field                 | Current Project | Claude                       | Notes                              |
+| --------------------- | --------------- | ---------------------------- | ---------------------------------- |
+| role (lead/teammate)  | Yes             | No (derived via leadAgentId) | Current is more explicit           |
+| conversationId        | Yes             | No                           | Unique to current (Electron needs) |
+| conversationType      | Yes             | No                           | Unique to current (multi-LLM)      |
+| status (5 values)     | Yes             | isActive boolean             | Current is more granular           |
+| model                 | **Missing**     | Yes                          | Needs to be added                  |
+| prompt                | **Missing**     | Yes                          | Needs to be added                  |
+| color                 | **Missing**     | Yes                          | Needs to be added                  |
+| cwd                   | **Missing**     | Yes                          | Needs to be added                  |
+| worktreePath          | **Missing**     | Yes                          | Needs to be added                  |
+| mode (PermissionMode) | **Missing**     | Yes                          | Needs to be added                  |
+| subscriptions         | **Missing**     | Yes                          | Needs to be added                  |
+| backendType           | **Missing**     | Yes                          | Architecture difference            |
 
 ---
 
@@ -278,13 +278,13 @@ Full git worktree lifecycle management (`worktree.ts`, 1520 lines):
 
 Advantages retained after cross-adversarial verification:
 
-| #   | Advantage                                     | Notes                                                                                          |
-| --- | --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 1   | **SQLite + Repository Pattern**               | More reliable, queryable, and testable than a filesystem approach                              |
+| #   | Advantage                                         | Notes                                                                                                                  |
+| --- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 1   | **SQLite + Repository Pattern**                   | More reliable, queryable, and testable than a filesystem approach                                                      |
 | 2   | **Multi-LLM adapter architecture** (design level) | Although the tool_use path has a bug, the architecture supports mixed Claude/Gemini/Codex teams - effective once fixed |
-| 3   | **IPC bidirectional real-time communication** | Renderer can receive agent state and message streams in real time                              |
-| 4   | **Granular 5-state lifecycle**                | pending/idle/active/completed/failed is richer than Claude's boolean                           |
-| 5   | **Electron native window management**         | No need for tmux/iTerm2 or other terminal solutions                                            |
+| 3   | **IPC bidirectional real-time communication**     | Renderer can receive agent state and message streams in real time                                                      |
+| 4   | **Granular 5-state lifecycle**                    | pending/idle/active/completed/failed is richer than Claude's boolean                                                   |
+| 5   | **Electron native window management**             | No need for tmux/iTerm2 or other terminal solutions                                                                    |
 
 ---
 
@@ -292,43 +292,43 @@ Advantages retained after cross-adversarial verification:
 
 ### P0 -- Fix immediately
 
-| Issue                      | Effort | Recommended approach                                                    |
-| -------------------------- | ------ | ----------------------------------------------------------------------- |
-| acpAdapter dead code bug   | Small  | Fix TeammateManager to forward tools and toolCalls to the adapter       |
+| Issue                    | Effort | Recommended approach                                              |
+| ------------------------ | ------ | ----------------------------------------------------------------- |
+| acpAdapter dead code bug | Small  | Fix TeammateManager to forward tools and toolCalls to the adapter |
 
 ### P1 -- Fix in the short term
 
-| Issue                          | Effort | Recommended approach                                                                       |
-| ------------------------------ | ------ | ------------------------------------------------------------------------------------------ |
-| Agent drive model              | Large  | Evaluate whether to introduce teammate self-polling, or strengthen scheduling strategy in lead prompt |
-| Team-level permission control  | Medium | Build on existing SQLite + Mailbox - no need to replicate Claude's file-based approach    |
-| TeamAgent data model fields    | Small  | Add missing fields: model/prompt/color/cwd, etc.                                           |
+| Issue                         | Effort | Recommended approach                                                                                  |
+| ----------------------------- | ------ | ----------------------------------------------------------------------------------------------------- |
+| Agent drive model             | Large  | Evaluate whether to introduce teammate self-polling, or strengthen scheduling strategy in lead prompt |
+| Team-level permission control | Medium | Build on existing SQLite + Mailbox - no need to replicate Claude's file-based approach                |
+| TeamAgent data model fields   | Small  | Add missing fields: model/prompt/color/cwd, etc.                                                      |
 
 ### P2 -- Address in the medium term
 
-| Issue                   | Effort | Recommended approach                                                     |
-| ----------------------- | ------ | ------------------------------------------------------------------------ |
-| workspaceMode implementation | Medium | Implement true isolated mode based on git worktree                  |
-| Negotiated shutdown     | Small  | Extend Mailbox message types, add shutdown_approved/rejected             |
-| Task system hooks       | Small  | Add create/complete hooks to TaskManager                                 |
-| Message priority        | Small  | readUnread supports sorting by type priority                             |
-| Automatic idle notification | Small | Send at system level after turn completes, not relying on model        |
+| Issue                        | Effort | Recommended approach                                            |
+| ---------------------------- | ------ | --------------------------------------------------------------- |
+| workspaceMode implementation | Medium | Implement true isolated mode based on git worktree              |
+| Negotiated shutdown          | Small  | Extend Mailbox message types, add shutdown_approved/rejected    |
+| Task system hooks            | Small  | Add create/complete hooks to TaskManager                        |
+| Message priority             | Small  | readUnread supports sorting by type priority                    |
+| Automatic idle notification  | Small  | Send at system level after turn completes, not relying on model |
 
 ---
 
 ## 12. Analysis Process Log
 
-| Phase              | Participating Agents                                             | Time    | Output                                              |
-| ------------------ | ---------------------------------------------------------------- | ------- | --------------------------------------------------- |
-| Exploration        | Explorer A (current project) + Explorer B (Claude source)        | ~2.5min | Full file listings and structure for both sides     |
-| Independent analysis | Developer A (architecture) + Developer B (messages) + Developer C (permissions) | ~3min | Three independent in-depth reports  |
-| Cross-adversarial  | Reviewer 1 (challenges A+B) + Reviewer 2 (challenges C+overall) | ~1min   | Corrected 4 erroneous conclusions                   |
+| Phase                | Participating Agents                                                            | Time    | Output                                          |
+| -------------------- | ------------------------------------------------------------------------------- | ------- | ----------------------------------------------- |
+| Exploration          | Explorer A (current project) + Explorer B (Claude source)                       | ~2.5min | Full file listings and structure for both sides |
+| Independent analysis | Developer A (architecture) + Developer B (messages) + Developer C (permissions) | ~3min   | Three independent in-depth reports              |
+| Cross-adversarial    | Reviewer 1 (challenges A+B) + Reviewer 2 (challenges C+overall)                 | ~1min   | Corrected 4 erroneous conclusions               |
 
 ### Cross-Adversarial Correction Log
 
-| Original conclusion                                     | Raised by   | Correction result                                                                      | Corrected by |
-| ------------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------- | ------------ |
-| Multi-LLM adapter is a "unique advantage"               | Developer A | **Incorrect** -- tool_use path is dead code; it is a design intention, not a realized advantage | Reviewer 1 |
-| readUnread duplicate-consumption risk is "high"         | Developer B | **Overstated** -- activeWakes + single-thread protection keep actual risk low          | Reviewer 1   |
-| Task dependency graph is the current project's "unique advantage" | Developer A | **Incorrect** -- Claude also has an equivalent blockedBy/blocks implementation | Reviewer 1 |
-| Permission system 0/10, P0                              | Developer C | **Too strict** -- lower layer has sandbox (CodexAgentManager); revised to 2/10, P1    | Reviewer 2   |
+| Original conclusion                                               | Raised by   | Correction result                                                                               | Corrected by |
+| ----------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- | ------------ |
+| Multi-LLM adapter is a "unique advantage"                         | Developer A | **Incorrect** -- tool_use path is dead code; it is a design intention, not a realized advantage | Reviewer 1   |
+| readUnread duplicate-consumption risk is "high"                   | Developer B | **Overstated** -- activeWakes + single-thread protection keep actual risk low                   | Reviewer 1   |
+| Task dependency graph is the current project's "unique advantage" | Developer A | **Incorrect** -- Claude also has an equivalent blockedBy/blocks implementation                  | Reviewer 1   |
+| Permission system 0/10, P0                                        | Developer C | **Too strict** -- lower layer has sandbox (CodexAgentManager); revised to 2/10, P1              | Reviewer 2   |

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching template guide step-by-step analysis planning presentation"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment teaching template guide step-by-step analysis planning presentation'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Communication Skills Audit
 
 You are an expert communication coach and organizational effectiveness consultant. You help professionals assess their communication capabilities across all major modalities - written, verbal, presentation, and listening - identifying specific strengths and weaknesses that impact their professional effectiveness. You provide actionable, practice-oriented recommendations rather than abstract advice.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about communication skills audit techniques or best practices
 - User needs guidance on communication skills audit concepts
 - User wants to implement or improve their approach to communication skills audit
 
 **Do NOT use when:**
+
 - The request falls outside the scope of communication skills audit
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -141,12 +142,12 @@ Collect before beginning:
 
 ### Section Scoring
 
-| Section | Questions | Max Score | Weight |
-|---------|-----------|-----------|--------|
-| Written Communication | 1-7 | 35 | 30% |
-| Verbal Communication | 8-13 | 30 | 25% |
-| Presentation Skills | 14-19 | 30 | 25% |
-| Listening and Reception | 20-24 | 25 | 20% |
+| Section                 | Questions | Max Score | Weight |
+| ----------------------- | --------- | --------- | ------ |
+| Written Communication   | 1-7       | 35        | 30%    |
+| Verbal Communication    | 8-13      | 30        | 25%    |
+| Presentation Skills     | 14-19     | 30        | 25%    |
+| Listening and Reception | 20-24     | 25        | 20%    |
 
 **Section Percentage** = (Sum of Ratings / Max Score) x 100
 
@@ -156,13 +157,13 @@ Weights can be adjusted based on role communication mix from context gathering.
 
 ### Proficiency Levels
 
-| Score Range | Level | Description |
-|-------------|-------|-------------|
-| 0-20% | Foundational | Core communication skills need significant development |
-| 21-40% | Developing | Functional but limiting professional growth |
-| 41-60% | Competent | Effective in routine situations, struggles in high-stakes moments |
-| 61-80% | Proficient | Strong communicator, refining nuance and range |
-| 81-100% | Expert | Communication is a professional differentiator |
+| Score Range | Level        | Description                                                       |
+| ----------- | ------------ | ----------------------------------------------------------------- |
+| 0-20%       | Foundational | Core communication skills need significant development            |
+| 21-40%      | Developing   | Functional but limiting professional growth                       |
+| 41-60%      | Competent    | Effective in routine situations, struggles in high-stakes moments |
+| 61-80%      | Proficient   | Strong communicator, refining nuance and range                    |
+| 81-100%     | Expert       | Communication is a professional differentiator                    |
 
 ## Results Interpretation
 
@@ -194,21 +195,21 @@ Cross-reference scores with the pre-assessment communication mix:
 
 ### Quick Wins (visible improvement in 2-4 weeks)
 
-| Area | Quick Win |
-|------|-----------|
-| Written | Use the "one email, one ask" rule. Review every email for the single action requested. |
-| Verbal | Practice the "headline first" technique. Lead with the conclusion, then support. |
+| Area         | Quick Win                                                                               |
+| ------------ | --------------------------------------------------------------------------------------- |
+| Written      | Use the "one email, one ask" rule. Review every email for the single action requested.  |
+| Verbal       | Practice the "headline first" technique. Lead with the conclusion, then support.        |
 | Presentation | Record yourself presenting for 5 minutes. Watch without sound. Fix body language first. |
-| Listening | In your next 5 conversations, ask one clarifying question before responding. |
+| Listening    | In your next 5 conversations, ask one clarifying question before responding.            |
 
 ### Deep Development (3-6 months)
 
-| Area | Investment |
-|------|-----------|
-| Written | Weekly writing practice with peer feedback. Rewrite one real document per week. |
-| Verbal | Join a structured practice group (e.g., Toastmasters). Practice impromptu speaking weekly. |
-| Presentation | Deliver one presentation monthly. Get video recorded. Review with a coach. |
-| Listening | Practice reflective listening exercises. Ask a trusted colleague to observe and rate your listening. |
+| Area         | Investment                                                                                           |
+| ------------ | ---------------------------------------------------------------------------------------------------- |
+| Written      | Weekly writing practice with peer feedback. Rewrite one real document per week.                      |
+| Verbal       | Join a structured practice group (e.g., Toastmasters). Practice impromptu speaking weekly.           |
+| Presentation | Deliver one presentation monthly. Get video recorded. Review with a coach.                           |
+| Listening    | Practice reflective listening exercises. Ask a trusted colleague to observe and rate your listening. |
 
 ## Report Template
 
@@ -280,7 +281,6 @@ NEXT AUDIT: [Date - recommend 6 months]
 - Cultural context matters significantly. Directness, formality, and communication norms vary across cultures. Adjust interpretation for the participant's working cultural context.
 - For team audits, aggregate results reveal communication culture gaps. A team of strong writers but weak verbal communicators will over-rely on async tools and struggle with real-time collaboration.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -288,7 +288,6 @@ NEXT AUDIT: [Date - recommend 6 months]
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -309,14 +308,12 @@ NEXT AUDIT: [Date - recommend 6 months]
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

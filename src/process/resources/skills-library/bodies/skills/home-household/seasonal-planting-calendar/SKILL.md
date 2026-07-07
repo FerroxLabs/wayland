@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "gardening planning checklist"
-  category: "home-household"
-  subcategory: "gardening"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'gardening planning checklist'
+  category: 'home-household'
+  subcategory: 'gardening'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Seasonal Planting Calendar
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks when to plant a specific vegetable, herb, or flower and mentions their location, ZIP code, or USDA zone
 - A user wants a complete planting schedule for an upcoming season and needs it anchored to their actual frost dates
 - A user asks when to start seeds indoors and wants specific dates relative to transplanting outdoors
@@ -30,6 +32,7 @@ metadata:
 - A user in a hot or tropical climate needs a planting framework not based on frost dates
 
 **Do NOT use when:**
+
 - The user needs spatial layout, bed organization, companion planting pairings, or spacing decisions -- use `vegetable-garden-planning`
 - The user has a plant that is yellowing, wilting, showing disease symptoms, or failing to thrive -- use `plant-care-troubleshooting`
 - The user is asking about watering schedules, potting mix, or repotting for indoor plants -- use `indoor-plant-care`
@@ -77,6 +80,7 @@ Accurate planting calendars require three anchoring data points: USDA hardiness 
 Every planting decision flows from how a crop responds to cold air, cold soil, and heat. Misclassifying a crop is the most common source of planting errors.
 
 **Category 1 -- Hardy cool-season crops (survive hard frost to 26 degrees F, germinate in 40-degree-F soil):**
+
 - Can be direct sown outdoors 4-6 weeks before LFD when soil is workable (not frozen or waterlogged)
 - Can be transplanted even earlier if using row covers
 - Examples: kale, spinach, turnips, kohlrabi, mache, claytonia, arugula, overwintered onions
@@ -84,17 +88,20 @@ Every planting decision flows from how a crop responds to cold air, cold soil, a
 - Soil temperature for germination: 40-85 degrees F (optimal 60-65)
 
 **Category 2 -- Semi-hardy cool-season crops (survive light frost to 28-30 degrees F, thrive 45-75 degrees F):**
+
 - Direct sow 2-4 weeks before LFD; transplant 3-5 weeks before LFD with some frost protection
 - Examples: lettuce, peas, Swiss chard, beets, carrots, parsnips, broccoli, cauliflower, cabbage, Brussels sprouts, cilantro, dill, parsley
 - Soil temperature for germination: 45-85 degrees F (optimal 65-70)
 
 **Category 3 -- Tender warm-season crops (killed by frost, need soil above 60 degrees F, prefer air temperatures 65-85 degrees F):**
+
 - Transplant outdoors at or 1-2 weeks after LFD when nighttime lows consistently exceed 50 degrees F
 - Direct sow 1-2 weeks after LFD when soil temperature at 2-inch depth exceeds 60 degrees F
 - Examples: tomatoes, cucumbers, summer squash, zucchini, beans (pole and bush), basil, corn, tomatillos
 - Soil temperature for germination: 60-95 degrees F (optimal 70-85)
 
 **Category 4 -- Heat-loving crops (stunted or fail below 65 degrees F soil, thrive in 80-95 degree F air temperatures):**
+
 - Plant 2-4 weeks after LFD, not before
 - Examples: peppers, eggplant, sweet potatoes, melons, watermelon, okra, lima beans, southern peas, lemongrass, ginger
 - Peppers and eggplant will sit dormant or develop chilling injury if transplanted into soil below 60 degrees F -- warmer is always better
@@ -132,12 +139,14 @@ Count backward from the outdoor transplant date, not from the last frost date di
 | Melons/Watermelons | 3-4 weeks | 2-3 weeks after LFD | Need warm soil; Zone 5 and colder benefit from transplants and black plastic mulch |
 
 **Germination conditions and equipment:**
+
 - Use a heat mat set to 75-80 degrees F for peppers, eggplant, tomatoes, and basil. Germination rate for peppers drops dramatically below 70 degrees F.
 - Use grow lights positioned 2-3 inches above seedlings for 14-16 hours per day. Insufficient light is the primary cause of leggy, weak transplants.
 - Thin to one seedling per cell once true leaves appear. Crowded cells produce weak root systems.
 - Begin fertilizing with half-strength balanced liquid fertilizer (5-5-5 or similar) once seedlings have their first set of true leaves. Seed-starting mix contains no nutrients.
 
 **Hardening off (mandatory for all transplants):**
+
 - Begin 7-10 days before planned transplant date
 - Day 1-2: 1-2 hours outdoors in shade, no wind exposure
 - Day 3-4: 2-3 hours with indirect sun
@@ -153,6 +162,7 @@ Count backward from the outdoor transplant date, not from the last frost date di
 Calculate every date relative to the user's confirmed LFD and FFD. Never use absolute calendar months without anchoring them to the user's specific frost dates.
 
 **Calendar construction method:**
+
 - Start with LFD as the reference zero point (call it Week 0)
 - Count backward in weeks for cool-season crops and seed starting
 - Count forward in weeks for warm-season and heat-loving crops
@@ -185,6 +195,7 @@ Calculate every date relative to the user's confirmed LFD and FFD. Never use abs
 Succession planting is the practice of making multiple small plantings of a single crop at staggered intervals to extend harvest over weeks or months rather than getting a single large glut. It is most valuable for crops that mature quickly, bolt in heat, or degrade rapidly after harvest.
 
 **How to calculate succession intervals:**
+
 - Divide the total planting window by the days-to-maturity
 - For leaf crops: replant when the previous sowing reaches 4-6 inches tall (about 2-3 weeks after germination in spring)
 - For root crops and beans: replant when the previous sowing is clearly established (2-3 weeks after germination)
@@ -211,23 +222,27 @@ Succession planting is the practice of making multiple small plantings of a sing
 Season extension tools are often the difference between a 140-day growing season and an effective 180-day season. Include recommendations calibrated to the user's zone and stated goals.
 
 **Row covers (Reemay or spunbond fabric):**
+
 - Lightweight (0.5 oz/sq yard): provides 2-4 degrees F of frost protection; allows 85-90% light transmission; extends season by 2-3 weeks
 - Medium weight (1.5 oz/sq yard): provides 4-6 degrees F of frost protection; 70% light transmission; extends season by 3-5 weeks
 - Heavy weight (2.0+ oz/sq yard): provides 6-10 degrees F of frost protection; reduces light significantly; primarily used for hard freeze protection, not active growing
 - Lay directly on crops or use wire hoops to keep fabric off foliage; anchor edges with soil, sandbags, or landscape staples
 
 **Cold frames:**
+
 - Typically a bottomless box with a transparent lid (old storm windows, corrugated polycarbonate, or twin-wall polycarbonate)
 - Adds 4-8 weeks to both ends of the season depending on construction and location
 - Vent on warm days (above 40 degrees F outside) to prevent overheating; unvented cold frames can exceed 90 degrees F on sunny winter days
 - Orient south-facing for maximum solar gain
 
 **Black plastic mulch:**
+
 - Raises soil temperature by 5-10 degrees F; critical for warm-season crops in Zone 5 and colder
 - Particularly useful for peppers, melons, eggplant, and sweet potatoes where soil temperature is the limiting factor
 - Lay 1-2 weeks before transplanting to pre-warm the soil
 
 **Wall-O-Waters and season starters:**
+
 - Allow tomato transplants 3-4 weeks earlier than normal -- up to 6 weeks before LFD in Zone 5-6
 - Fill outer cells with water; thermal mass absorbs daytime heat and releases it overnight
 - Plants inside can withstand nights down to 16-20 degrees F when properly filled
@@ -237,6 +252,7 @@ Season extension tools are often the difference between a 140-day growing season
 ### Step 7: Format and Deliver the Calendar
 
 Assemble all data into the output format below. Include:
+
 - A header with confirmed zone, LFD, and FFD
 - An indoor seed-starting table sorted chronologically
 - Spring planting table with direct sow vs. transplant column
@@ -352,7 +368,9 @@ Assemble all data into the output format below. Include:
 ## Edge Cases
 
 ### Zone 3-4 (Under 120-Day Growing Season): The Short-Season Override
+
 The standard timing tables do not work without modification for Zone 3b and colder. Apply these adjustments:
+
 - Nearly everything except radishes, peas, and direct-sown spinach should be started indoors
 - Choose varieties specifically labeled for short seasons: "Stupice" tomato (60 days), "Bush Pickle" cucumber (45 days), "Astro" arugula, "Earlirouge" sweet corn (65 days)
 - Wall-O-Waters allow tomato transplants in Zone 4 as early as late April -- 5-6 weeks before the LFD
@@ -361,7 +379,9 @@ The standard timing tables do not work without modification for Zone 3b and cold
 - Fall planting window is very narrow (FFD minus 6 weeks maximum); prioritize kale, spinach, and radishes, which are the most frost-tolerant
 
 ### Zone 9-10 (Frost-Rare or Frost-Free): Inverse Season Planning
+
 The frost-date framework must be entirely replaced with a cool season/warm season framework:
+
 - **Cool season (October-March):** This is peak growing season. Plant all brassicas, lettuces, root vegetables, peas, cilantro, and parsley during this window. These crops fail in summer heat regardless of zone.
 - **Warm season (March-October):** Tomatoes, peppers, cucumbers, squash, and beans are planted in late winter (February-March) and harvested by June-July before the most intense heat arrives. A second planting in August-September for fall harvest is common.
 - Summer temperatures in Zone 9-10 are the primary limiting factor, not frost. Many crops go dormant, bolt, or develop fungal disease under prolonged summer heat and humidity.
@@ -369,7 +389,9 @@ The frost-date framework must be entirely replaced with a cool season/warm seaso
 - Garlic should be planted in November-December; pre-chill garlic cloves in the refrigerator for 4-6 weeks before planting in very warm zones (9b, 10) to simulate the cold stratification they require.
 
 ### Mid-Season Start (User Missed the Spring Window): Rapid Reassessment
+
 If a user contacts you in June, July, or August having missed the spring planting window, reframe the conversation around what is still achievable:
+
 - Calculate remaining growing days to FFD
 - If 90+ days remain: direct sow beans, cucumbers, summer squash, and fast-maturing tomato varieties (but transplants only if available; starting tomatoes from seed in June will not produce before frost in Zone 5 or colder)
 - If 70-90 days remain: focus on fall crops -- plant lettuce, kale, arugula, broccoli transplants, and radishes for fall harvests
@@ -378,13 +400,17 @@ If a user contacts you in June, July, or August having missed the spring plantin
 - Provide the succession planting table starting from the current date, truncated to what fits the remaining season
 
 ### Raised Beds vs. In-Ground Gardens: Soil Temperature Difference
+
 Raised beds warm 2-4 weeks faster than in-ground soil in spring and cool 2-4 weeks faster in fall. This shifts the planting calendar meaningfully:
+
 - In Zones 5-6, raised bed gardeners can often transplant tomatoes and peppers 1-2 weeks earlier than in-ground gardeners in the same location
 - Raised beds are more vulnerable to early fall frost because the soil has less thermal mass
 - Recommend black plastic mulch for in-ground warm-season crops in Zones 4-5; it is less necessary in raised beds where the soil warms faster
 
 ### Container and Balcony Gardens: Modified Timing
+
 Container gardeners face unique constraints that alter the standard timing:
+
 - Containers dry out rapidly and can freeze solid in winter, killing roots -- this matters for container-grown perennial herbs (thyme, sage, rosemary)
 - Small containers (under 5 gallons) have very little thermal mass and experience more extreme temperature swings than in-ground soil
 - Tomatoes need a minimum 5-gallon container (10-15 gallon preferred for full-size varieties); underpotted tomatoes stall in growth regardless of planting timing
@@ -392,13 +418,17 @@ Container gardeners face unique constraints that alter the standard timing:
 - Lightweight row cover draped over container plants on frost nights provides adequate protection without permanent infrastructure
 
 ### Regional Anomalies: Fog, Coastal, and High Altitude Zones
+
 USDA zones are based solely on minimum winter temperature. They do not account for:
+
 - **Pacific Coast marine climates (Zone 9-10 coastal California):** Summer temperatures are cool (55-65 degrees F highs), which is too cold for tomatoes and peppers to set fruit well despite the frost-free classification. Warm-season crops must be timed to the inland heat, or cold-tolerant varieties ("Stupice," "Legend") must be used.
 - **High elevation Zone 5 (Colorado Front Range, Intermountain West):** Strong UV radiation accelerates plant growth but afternoon thunderstorms can cause hail damage. Short-season varieties are mandatory. Plant in sheltered locations and be prepared for late spring snowstorms even after LFD.
 - **Gulf Coast Zone 8-9:** High summer humidity drives fungal disease pressure. Timing tomatoes to finish production before June heat and humidity is critical. Consider planting tomatoes in February-March (as transplants from fall-started seeds) for a spring-only harvest cycle.
 
 ### User Has No Zone Information: Estimation from City or Region
+
 If the user cannot identify their USDA zone or does not know their frost dates:
+
 - Ask for their nearest large city or general region (e.g., "suburban Chicago" or "central Virginia")
 - Provide an estimated zone with the caveat that this is approximate
 - Recommend they confirm with their state's cooperative extension service
@@ -432,35 +462,36 @@ If the user cannot identify their USDA zone or does not know their frost dates:
 
 ### Indoor Seed Starting
 
-| Start Date | Crop | Variety Notes | Weeks Indoors | Transplant Date | Germination Temp |
-|------------|------|---------------|---------------|-----------------|-----------------|
-| Jan 13 | Peppers | Choose 1 sweet bell and 1 frying/snack type (faster maturing than bells) | 10-12 weeks | April 20-28 | 78-85 degrees F; use heat mat |
-| Feb 3 | Tomatoes | Choose 1 indeterminate slicer (75-80 days) and 1 determinate paste or cherry (65-70 days) for extended harvest | 8-10 weeks | April 18-25 | 70-75 degrees F |
-| Feb 10 | Eggplant (optional add-on) | If desired -- same timeline as pepper | 8-10 weeks | April 20-28 | 78-85 degrees F; heat mat |
-| March 10 | Basil | Genovese or Italian Large Leaf; very frost sensitive | 4-6 weeks | April 22-30 | 70-75 degrees F |
-| March 15 | Lettuce transplants | Oakleaf, Buttercrunch, or Jericho (heat-tolerant for extended spring window) | 4 weeks | April 1-8 | 60-65 degrees F; cool germination |
+| Start Date | Crop                       | Variety Notes                                                                                                  | Weeks Indoors | Transplant Date | Germination Temp                  |
+| ---------- | -------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------- | --------------- | --------------------------------- |
+| Jan 13     | Peppers                    | Choose 1 sweet bell and 1 frying/snack type (faster maturing than bells)                                       | 10-12 weeks   | April 20-28     | 78-85 degrees F; use heat mat     |
+| Feb 3      | Tomatoes                   | Choose 1 indeterminate slicer (75-80 days) and 1 determinate paste or cherry (65-70 days) for extended harvest | 8-10 weeks    | April 18-25     | 70-75 degrees F                   |
+| Feb 10     | Eggplant (optional add-on) | If desired -- same timeline as pepper                                                                          | 8-10 weeks    | April 20-28     | 78-85 degrees F; heat mat         |
+| March 10   | Basil                      | Genovese or Italian Large Leaf; very frost sensitive                                                           | 4-6 weeks     | April 22-30     | 70-75 degrees F                   |
+| March 15   | Lettuce transplants        | Oakleaf, Buttercrunch, or Jericho (heat-tolerant for extended spring window)                                   | 4 weeks       | April 1-8       | 60-65 degrees F; cool germination |
 
 ---
 
 ### Spring Outdoor Planting
 
-| Date Range | Crop | Method | Soil Temp Required | Notes |
-|------------|------|--------|--------------------|-------|
-| March 1-10 | Lettuce (seed) | Direct sow 1/8 inch deep | 45 degrees F (germinates down to 40) | Sow thinly; thin to 6 inches for leaf types; raised bed soil may be workable early March |
-| March 1-10 | Cilantro (first succession) | Direct sow 1/4 inch deep, 3 inches apart | 50 degrees F | Bolt-resistant varieties: Leisure, Santo; this planting will bolt by late May |
-| March 10-20 | Spinach | Direct sow 1/2 inch deep, 3 inches apart | 40 degrees F | Spring spinach is short-lived; expect 4-6 harvests before bolting in late May |
-| March 20-April 1 | Arugula | Direct sow thinly | 40 degrees F | Cut-and-come-again; bolts when temps exceed 75 degrees F consistently |
-| April 1-10 | Lettuce transplants (from indoor starts) | Transplant to 8-inch spacing | 45 degrees F | From March 15 starts; plant out 1 week before LFD; cover with lightweight row cover if frost threatens |
-| April 1-10 | Peas (snap or shell) | Direct sow 1 inch deep, 2 inches apart | 45 degrees F | This is late for Zone 6a spring peas; plant as soon as possible for harvest before summer heat arrives |
-| April 10 | Begin monitoring overnight temperatures for transplant window | -- | -- | Wait until 3+ consecutive nights above 50 degrees F before transplanting tomatoes; peppers prefer 55 degrees F nights |
-| April 18-25 | Tomatoes | Transplant (from Feb 3 starts) | 60 degrees F at 2-inch depth | Raised bed soil should reach 60 degrees F by mid-April; confirm with soil thermometer before planting |
-| April 20-28 | Peppers | Transplant (from Jan 13 starts) | 65 degrees F at 2-inch depth | Peppers suffer chilling injury below 55 degrees F; raised beds warm faster than in-ground, but verify soil temp |
-| April 22-30 | Basil | Transplant (from March 10 starts) | 60 degrees F | Basil dies at 32 degrees F and is damaged at prolonged temps below 50 degrees F; harden thoroughly |
-| April 25 - May 1 | Zucchini | Direct sow OR transplant from 3-week-old starts | 65 degrees F | Sow 2 seeds per hill, 1 inch deep; thin to 1 plant when 4 inches tall; raised beds will have adequate soil temp by late April |
-| May 1-10 | Cilantro (second succession) | Direct sow | 55 degrees F | Partial shade will extend this planting's life into June; expect bolting by mid-June |
+| Date Range       | Crop                                                          | Method                                          | Soil Temp Required                   | Notes                                                                                                                         |
+| ---------------- | ------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| March 1-10       | Lettuce (seed)                                                | Direct sow 1/8 inch deep                        | 45 degrees F (germinates down to 40) | Sow thinly; thin to 6 inches for leaf types; raised bed soil may be workable early March                                      |
+| March 1-10       | Cilantro (first succession)                                   | Direct sow 1/4 inch deep, 3 inches apart        | 50 degrees F                         | Bolt-resistant varieties: Leisure, Santo; this planting will bolt by late May                                                 |
+| March 10-20      | Spinach                                                       | Direct sow 1/2 inch deep, 3 inches apart        | 40 degrees F                         | Spring spinach is short-lived; expect 4-6 harvests before bolting in late May                                                 |
+| March 20-April 1 | Arugula                                                       | Direct sow thinly                               | 40 degrees F                         | Cut-and-come-again; bolts when temps exceed 75 degrees F consistently                                                         |
+| April 1-10       | Lettuce transplants (from indoor starts)                      | Transplant to 8-inch spacing                    | 45 degrees F                         | From March 15 starts; plant out 1 week before LFD; cover with lightweight row cover if frost threatens                        |
+| April 1-10       | Peas (snap or shell)                                          | Direct sow 1 inch deep, 2 inches apart          | 45 degrees F                         | This is late for Zone 6a spring peas; plant as soon as possible for harvest before summer heat arrives                        |
+| April 10         | Begin monitoring overnight temperatures for transplant window | --                                              | --                                   | Wait until 3+ consecutive nights above 50 degrees F before transplanting tomatoes; peppers prefer 55 degrees F nights         |
+| April 18-25      | Tomatoes                                                      | Transplant (from Feb 3 starts)                  | 60 degrees F at 2-inch depth         | Raised bed soil should reach 60 degrees F by mid-April; confirm with soil thermometer before planting                         |
+| April 20-28      | Peppers                                                       | Transplant (from Jan 13 starts)                 | 65 degrees F at 2-inch depth         | Peppers suffer chilling injury below 55 degrees F; raised beds warm faster than in-ground, but verify soil temp               |
+| April 22-30      | Basil                                                         | Transplant (from March 10 starts)               | 60 degrees F                         | Basil dies at 32 degrees F and is damaged at prolonged temps below 50 degrees F; harden thoroughly                            |
+| April 25 - May 1 | Zucchini                                                      | Direct sow OR transplant from 3-week-old starts | 65 degrees F                         | Sow 2 seeds per hill, 1 inch deep; thin to 1 plant when 4 inches tall; raised beds will have adequate soil temp by late April |
+| May 1-10         | Cilantro (second succession)                                  | Direct sow                                      | 55 degrees F                         | Partial shade will extend this planting's life into June; expect bolting by mid-June                                          |
 
 **Hardening off schedule:**
 Begin hardening off tomatoes, peppers, and basil starting April 8-10.
+
 - April 8-10: 1-2 hours outdoor shade only
 - April 11-14: 3-4 hours indirect/morning sun
 - April 15-18: Full day outdoors, bring in if frost forecast
@@ -471,13 +502,13 @@ Begin hardening off tomatoes, peppers, and basil starting April 8-10.
 
 ### Succession Planting Schedule
 
-| Crop | First Planting | Replant Every | Last Planting Date | # of Plantings | Bolting / Stop Trigger |
-|------|---------------|---------------|--------------------|---------------|----------------------|
-| Lettuce (leaf) | March 1 | 2-3 weeks | Aug 15 | 7-8 total | Spring bolt when temps exceed 80 degrees F; use Jericho or Nevada varieties for summer plantings; direct sow summer in light shade |
-| Arugula | March 1 | 2 weeks | Sept 1 | 8-9 total | Bolts when temps consistently exceed 75 degrees F; summer succession in shade only |
-| Cilantro | March 1 | 2-3 weeks | Sept 15 | 7-8 total | Spring successions bolt by mid-May; resumeplanting in mid-August for productive fall window |
-| Zucchini | April 25 | Not needed (plant only 1-2 plants) | -- | 1-2 plants total | 1 zucchini plant is usually sufficient; succession not needed; plants become powdery mildew-prone by August in Zone 6 -- second succession planting in late June extends fresh production |
-| Basil | April 22 | Can start second round indoors June 1 for fresh late-summer plant | July 1 transplant | 2 generations | Basil peaks and then declines after first flowering; pinch flowers constantly; replace plant in July for vigorous late-summer harvest |
+| Crop           | First Planting | Replant Every                                                     | Last Planting Date | # of Plantings   | Bolting / Stop Trigger                                                                                                                                                                    |
+| -------------- | -------------- | ----------------------------------------------------------------- | ------------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lettuce (leaf) | March 1        | 2-3 weeks                                                         | Aug 15             | 7-8 total        | Spring bolt when temps exceed 80 degrees F; use Jericho or Nevada varieties for summer plantings; direct sow summer in light shade                                                        |
+| Arugula        | March 1        | 2 weeks                                                           | Sept 1             | 8-9 total        | Bolts when temps consistently exceed 75 degrees F; summer succession in shade only                                                                                                        |
+| Cilantro       | March 1        | 2-3 weeks                                                         | Sept 15            | 7-8 total        | Spring successions bolt by mid-May; resumeplanting in mid-August for productive fall window                                                                                               |
+| Zucchini       | April 25       | Not needed (plant only 1-2 plants)                                | --                 | 1-2 plants total | 1 zucchini plant is usually sufficient; succession not needed; plants become powdery mildew-prone by August in Zone 6 -- second succession planting in late June extends fresh production |
+| Basil          | April 22       | Can start second round indoors June 1 for fresh late-summer plant | July 1 transplant  | 2 generations    | Basil peaks and then declines after first flowering; pinch flowers constantly; replace plant in July for vigorous late-summer harvest                                                     |
 
 **Cilantro summer gap strategy:** Cilantro bolts too quickly for productive summer harvests in Zone 6 heat. Skip succession plantings from approximately June 15 to August 1. Resume planting in mid-August for a productive fall window (August-October). The fall cilantro crop in Zone 6 is often the best of the year.
 
@@ -485,45 +516,45 @@ Begin hardening off tomatoes, peppers, and basil starting April 8-10.
 
 ### Summer Maintenance Calendar
 
-| Date Range | Action | Purpose |
-|------------|--------|---------|
-| Late May - June | Mulch tomatoes and peppers with 3-inch layer of straw or wood chips after soil reaches 70 degrees F | Retain moisture, suppress weeds, prevent soil splash on lower leaves (reduces early blight) |
-| June | Pinch basil flower buds as soon as they appear weekly | Delays bolting by 4-6 weeks and maintains leaf production |
-| June 15 - July 1 | Stop cool-season succession plantings (arugula, spring cilantro window closes) | Prevent wasted effort on crops that will bolt immediately |
-| June 15 | Begin supporting tomatoes: cage, stake, or trellis all plants; remove any suckers from indeterminate varieties if using single-stake method | Unsupported indeterminate tomatoes become unmanageable by July |
-| July 1-10 | Start second-generation basil indoors or purchase transplant for mid-July installation | Replaces the spring basil plant which begins declining after repeated flowering |
-| July 10-20 | Start fall broccoli and cauliflower seeds indoors for August transplant (if adding to plan) | Requires 6-7 weeks indoors; transplants go out FFD minus 10 weeks = ~Aug 20 |
-| July 15 - Aug 1 | Begin succession-planting lettuce again after summer peak heat | Direct sow in partial shade (east-facing bed side, under taller crops) for fall harvest |
-| July 20 | Evaluate zucchini for powdery mildew; consider replacing with second planting if first plant is declining | Zone 6 late July heat and humidity creates prime conditions for powdery mildew |
-| Aug 1-15 | Restart cilantro successions in earnest for fall harvest | Prime fall cilantro window begins; weather cools and bolting slows dramatically |
-| Aug 1-15 | Direct sow spinach, arugula, lettuce for fall harvest | Count back 50 days from FFD (Nov 1) plus 14-day buffer for slowed autumn growth = plant by Aug 10-20 |
+| Date Range       | Action                                                                                                                                      | Purpose                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Late May - June  | Mulch tomatoes and peppers with 3-inch layer of straw or wood chips after soil reaches 70 degrees F                                         | Retain moisture, suppress weeds, prevent soil splash on lower leaves (reduces early blight)          |
+| June             | Pinch basil flower buds as soon as they appear weekly                                                                                       | Delays bolting by 4-6 weeks and maintains leaf production                                            |
+| June 15 - July 1 | Stop cool-season succession plantings (arugula, spring cilantro window closes)                                                              | Prevent wasted effort on crops that will bolt immediately                                            |
+| June 15          | Begin supporting tomatoes: cage, stake, or trellis all plants; remove any suckers from indeterminate varieties if using single-stake method | Unsupported indeterminate tomatoes become unmanageable by July                                       |
+| July 1-10        | Start second-generation basil indoors or purchase transplant for mid-July installation                                                      | Replaces the spring basil plant which begins declining after repeated flowering                      |
+| July 10-20       | Start fall broccoli and cauliflower seeds indoors for August transplant (if adding to plan)                                                 | Requires 6-7 weeks indoors; transplants go out FFD minus 10 weeks = ~Aug 20                          |
+| July 15 - Aug 1  | Begin succession-planting lettuce again after summer peak heat                                                                              | Direct sow in partial shade (east-facing bed side, under taller crops) for fall harvest              |
+| July 20          | Evaluate zucchini for powdery mildew; consider replacing with second planting if first plant is declining                                   | Zone 6 late July heat and humidity creates prime conditions for powdery mildew                       |
+| Aug 1-15         | Restart cilantro successions in earnest for fall harvest                                                                                    | Prime fall cilantro window begins; weather cools and bolting slows dramatically                      |
+| Aug 1-15         | Direct sow spinach, arugula, lettuce for fall harvest                                                                                       | Count back 50 days from FFD (Nov 1) plus 14-day buffer for slowed autumn growth = plant by Aug 10-20 |
 
 ---
 
 ### Fall Planting Calendar (Counting Backward from FFD: November 1)
 
-| Plant By Date | Crop | Days to Maturity | Method | Notes |
-|--------------|------|-----------------|--------|-------|
-| Aug 10 | Spinach | 35-45 days | Direct sow 1/2 inch deep | Fall spinach is excellent in Zone 6; frost improves sweetness; overwintered spinach may survive under row cover |
-| Aug 10-20 | Lettuce (leaf) | 30-45 days | Direct sow or transplant | Plant heat-tolerant varieties in August heat (Jericho, Nevada); switch to Buttercrunch and Oakleaf in September |
-| Aug 15-20 | Arugula | 30-40 days | Direct sow thinly | Fall arugula is ideal -- no bolting risk in cooling temps; peppery flavor intensifies with cool nights |
-| Aug 20-30 | Kale (fall planting) | 50-60 days | Transplant from late-July indoor starts OR direct sow | Kale is at its best in fall; light frost (28-30 degrees F) converts starches to sugars; flavor peaks in October-November |
-| Aug 20 - Sept 1 | Radishes | 25-28 days | Direct sow 1/2 inch deep, 2 inches apart | 3-4 succession plantings possible in fall window; radishes are one of the easiest crops for September production |
-| Sept 1-10 | Cilantro (final fall successions) | 45-70 days to leaf harvest | Direct sow thickly | This window produces the best cilantro of the year in Zone 6; harvest leaves until hard freeze |
-| Sept 15 - Oct 1 | Garlic (hardneck) | Overwinter (harvest July next year) | Plant cloves 2-3 inches deep, 6 inches apart | Choose Rocambole or Porcelain types for Zone 6; mulch with 6 inches of straw after planting; remove scapes in June |
-| Oct 1-10 | Cover fall crops with row cover (medium weight) | -- | Drape over wire hoops | Extends harvest 3-4 weeks past first frost; lettuce, spinach, and kale survive to late November in Zone 6 with protection |
+| Plant By Date   | Crop                                            | Days to Maturity                    | Method                                                | Notes                                                                                                                     |
+| --------------- | ----------------------------------------------- | ----------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Aug 10          | Spinach                                         | 35-45 days                          | Direct sow 1/2 inch deep                              | Fall spinach is excellent in Zone 6; frost improves sweetness; overwintered spinach may survive under row cover           |
+| Aug 10-20       | Lettuce (leaf)                                  | 30-45 days                          | Direct sow or transplant                              | Plant heat-tolerant varieties in August heat (Jericho, Nevada); switch to Buttercrunch and Oakleaf in September           |
+| Aug 15-20       | Arugula                                         | 30-40 days                          | Direct sow thinly                                     | Fall arugula is ideal -- no bolting risk in cooling temps; peppery flavor intensifies with cool nights                    |
+| Aug 20-30       | Kale (fall planting)                            | 50-60 days                          | Transplant from late-July indoor starts OR direct sow | Kale is at its best in fall; light frost (28-30 degrees F) converts starches to sugars; flavor peaks in October-November  |
+| Aug 20 - Sept 1 | Radishes                                        | 25-28 days                          | Direct sow 1/2 inch deep, 2 inches apart              | 3-4 succession plantings possible in fall window; radishes are one of the easiest crops for September production          |
+| Sept 1-10       | Cilantro (final fall successions)               | 45-70 days to leaf harvest          | Direct sow thickly                                    | This window produces the best cilantro of the year in Zone 6; harvest leaves until hard freeze                            |
+| Sept 15 - Oct 1 | Garlic (hardneck)                               | Overwinter (harvest July next year) | Plant cloves 2-3 inches deep, 6 inches apart          | Choose Rocambole or Porcelain types for Zone 6; mulch with 6 inches of straw after planting; remove scapes in June        |
+| Oct 1-10        | Cover fall crops with row cover (medium weight) | --                                  | Drape over wire hoops                                 | Extends harvest 3-4 weeks past first frost; lettuce, spinach, and kale survive to late November in Zone 6 with protection |
 
 ---
 
 ### Season Extension Options
 
-| Tool | Protection Level | Effective Date Shift | Best Used For |
-|------|-----------------|---------------------|---------------|
-| Lightweight row cover (0.5 oz) | +2-4 degrees F | +2-3 weeks | Early spring lettuce, fall harvest extension for cool-season crops |
-| Medium row cover (1.5 oz) | +4-6 degrees F | +3-4 weeks | Fall kale/spinach/arugula through November |
-| Wall-O-Waters | Down to 18 degrees F overnight | +3-5 weeks for tomatoes | Spring tomato transplants; remove when temps stabilize above 60 degrees F nights |
-| Black plastic mulch | Soil +8-10 degrees F | Enables 1-2 weeks earlier transplant | Tomatoes, peppers in Zone 6 raised beds -- less critical but useful for peppers |
-| Cold frame | +4-8 degrees F | +5-7 weeks total | Overwinter spinach and mache; start spring lettuce in January-February |
+| Tool                           | Protection Level               | Effective Date Shift                 | Best Used For                                                                    |
+| ------------------------------ | ------------------------------ | ------------------------------------ | -------------------------------------------------------------------------------- |
+| Lightweight row cover (0.5 oz) | +2-4 degrees F                 | +2-3 weeks                           | Early spring lettuce, fall harvest extension for cool-season crops               |
+| Medium row cover (1.5 oz)      | +4-6 degrees F                 | +3-4 weeks                           | Fall kale/spinach/arugula through November                                       |
+| Wall-O-Waters                  | Down to 18 degrees F overnight | +3-5 weeks for tomatoes              | Spring tomato transplants; remove when temps stabilize above 60 degrees F nights |
+| Black plastic mulch            | Soil +8-10 degrees F           | Enables 1-2 weeks earlier transplant | Tomatoes, peppers in Zone 6 raised beds -- less critical but useful for peppers  |
+| Cold frame                     | +4-8 degrees F                 | +5-7 weeks total                     | Overwinter spinach and mache; start spring lettuce in January-February           |
 
 **Raised bed specific note:** Your raised beds should reach 60 degrees F soil temperature approximately April 12-15, roughly 5-7 days earlier than in-ground soil in the same location. You can likely transplant tomatoes a week earlier than Zone 6a in-ground averages suggest. Use a soil thermometer to confirm before planting.
 
@@ -531,8 +562,8 @@ Begin hardening off tomatoes, peppers, and basil starting April 8-10.
 
 ### Monthly At-a-Glance
 
-| Month | Priority Actions | What to Watch For |
-|-------|-----------------|------------------|
-| January | Start pepper seeds indoors under grow lights (Jan 13); set up heat mat at 80 degrees F | Leggy seedlings indicate insufficient light; raise lights or add more hours |
-| February | Start tomato seeds Feb 3 (8-9 weeks before LFD) | Check for damping off (stem rot at soil line); ensure good airflow around seedlings |
-| Early March | Direct sow lettuce, spinach, arugula
+| Month       | Priority Actions                                                                       | What to Watch For                                                                   |
+| ----------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| January     | Start pepper seeds indoors under grow lights (Jan 13); set up heat mat at 80 degrees F | Leggy seedlings indicate insufficient light; raise lights or add more hours         |
+| February    | Start tomato seeds Feb 3 (8-9 weeks before LFD)                                        | Check for damping off (stem rot at soil line); ensure good airflow around seedlings |
+| Early March | Direct sow lettuce, spinach, arugula                                                   |

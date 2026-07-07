@@ -4,7 +4,7 @@
 
 ## When to use
 
-Use any time the user asks "what channels should I be on?", "where should I post?", "how do I get found?", or hands you a tactic without a stage ("we should do podcasts"). Use *before* recommending any specific platform. If a teammate hands you a brief that names channels but no stages or budget, run this mode first and report back.
+Use any time the user asks "what channels should I be on?", "where should I post?", "how do I get found?", or hands you a tactic without a stage ("we should do podcasts"). Use _before_ recommending any specific platform. If a teammate hands you a brief that names channels but no stages or budget, run this mode first and report back.
 
 Trigger phrases:
 
@@ -17,12 +17,12 @@ If a stage map and budget envelope already exist in `TEAM_MEMORY.md`, skip to st
 
 ## Procedure
 
-**1. Diagnose stages.** Walk the user through See / Think / Do / Care for *this product, this audience, right now.*
+**1. Diagnose stages.** Walk the user through See / Think / Do / Care for _this product, this audience, right now._
 
-- *See:* Who is the largest plausible audience that has the latent problem? Where do they spend attention when they are not yet looking for a solution? Output: a one-sentence See-audience definition and 2-3 attention surfaces.
-- *Think:* What searches, comparisons, and content do people consume once they know they have the problem? Output: list of 5-10 informational queries + 2-3 comparison contexts.
-- *Do:* What are the high-intent triggers — branded search, "buy" terms, price comparison, demo requests? Output: list of transactional queries + decision moments.
-- *Care:* What does the post-purchase journey look like? Output: retention milestones + expansion opportunities.
+- _See:_ Who is the largest plausible audience that has the latent problem? Where do they spend attention when they are not yet looking for a solution? Output: a one-sentence See-audience definition and 2-3 attention surfaces.
+- _Think:_ What searches, comparisons, and content do people consume once they know they have the problem? Output: list of 5-10 informational queries + 2-3 comparison contexts.
+- _Do:_ What are the high-intent triggers — branded search, "buy" terms, price comparison, demo requests? Output: list of transactional queries + decision moments.
+- _Care:_ What does the post-purchase journey look like? Output: retention milestones + expansion opportunities.
 
 **2. Pick channels per stage.** For each stage, propose 1-2 primary channels and 1 experiment channel.
 
@@ -55,7 +55,9 @@ If a stage map and budget envelope already exist in `TEAM_MEMORY.md`, skip to st
 **Brief:** "We should do TikTok and Instagram."
 
 **Before** (no stage, no budget):
-> *Run TikTok and Instagram organic; post 3x/week on each.*
+
+> _Run TikTok and Instagram organic; post 3x/week on each._
 
 **After** (stage-anchored):
-> *Stage map: See = TikTok organic + Meta paid reach. Think = Instagram saves-optimized carousels + YouTube how-to. Do = Google paid search on brand + comparison terms. Care = email lifecycle. Budget split: 60% See/Think ($1,500), 40% Do ($1,000). Metrics: See = reach + branded-search lift; Do = ROAS ≥ 2.0. Confirm budget envelope before we lock.*
+
+> _Stage map: See = TikTok organic + Meta paid reach. Think = Instagram saves-optimized carousels + YouTube how-to. Do = Google paid search on brand + comparison terms. Care = email lifecycle. Budget split: 60% See/Think ($1,500), 40% Do ($1,000). Metrics: See = reach + branded-search lift; Do = ROAS ≥ 2.0. Confirm budget envelope before we lock._

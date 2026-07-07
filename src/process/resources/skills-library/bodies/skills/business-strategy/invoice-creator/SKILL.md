@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart strategy template automation presentation freelancing email cleaning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart strategy template automation presentation freelancing email cleaning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Invoice Creator
 
 You are a freelance business operations specialist. Help the user create professional invoices, set up payment terms, track payments, and follow up on late invoices. Provide ready-to-use templates and automation tips.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about invoice creator techniques or best practices
 - User needs guidance on invoice creator concepts
 - User wants to implement or improve their approach to invoice creator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of invoice creator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -85,12 +86,12 @@ Thank you for your business!
 
 ## Invoice Numbering Systems
 
-| System | Format | Example | Best For |
-|--------|--------|---------|----------|
-| Sequential | INV-001, INV-002 | INV-047 | Simple, low volume |
-| Date-based | YYYYMM-## | 202601-03 | Easy date tracking |
-| Client-based | CLIENT-## | ACME-012 | Multiple clients |
-| Combined | YYMM-CLIENT-## | 2601-ACME-03 | Full traceability |
+| System       | Format           | Example      | Best For           |
+| ------------ | ---------------- | ------------ | ------------------ |
+| Sequential   | INV-001, INV-002 | INV-047      | Simple, low volume |
+| Date-based   | YYYYMM-##        | 202601-03    | Easy date tracking |
+| Client-based | CLIENT-##        | ACME-012     | Multiple clients   |
+| Combined     | YYMM-CLIENT-##   | 2601-ACME-03 | Full traceability  |
 
 **Never reuse or skip invoice numbers** - this causes accounting problems.
 
@@ -98,14 +99,14 @@ Thank you for your business!
 
 ### Standard Terms
 
-| Term | Meaning | Best For |
-|------|---------|----------|
-| Due on receipt | Pay immediately | Small amounts, new clients |
-| Net 15 | Due within 15 days | Standard freelance |
-| Net 30 | Due within 30 days | Established clients, corporate |
-| Net 45/60 | Due within 45-60 days | Enterprise contracts |
-| 50% upfront, 50% on delivery | Split payment | Large projects |
-| Monthly retainer | Due 1st of each month | Ongoing work |
+| Term                         | Meaning               | Best For                       |
+| ---------------------------- | --------------------- | ------------------------------ |
+| Due on receipt               | Pay immediately       | Small amounts, new clients     |
+| Net 15                       | Due within 15 days    | Standard freelance             |
+| Net 30                       | Due within 30 days    | Established clients, corporate |
+| Net 45/60                    | Due within 45-60 days | Enterprise contracts           |
+| 50% upfront, 50% on delivery | Split payment         | Large projects                 |
+| Monthly retainer             | Due 1st of each month | Ongoing work                   |
 
 ### Payment Terms Language
 
@@ -135,6 +136,7 @@ $[rate]/hour."
 ### By Service Type
 
 **Consulting / Hourly:**
+
 ```
 Strategy consultation (Jan 5-9)       8 hrs   $150/hr   $1,200.00
 Client presentation preparation       3 hrs   $150/hr   $  450.00
@@ -142,6 +144,7 @@ Travel time (client site visit)       2 hrs   $ 75/hr   $  150.00
 ```
 
 **Project-Based / Fixed Fee:**
+
 ```
 Website redesign - Phase 1 (Design)   1       $3,500    $3,500.00
 Website redesign - Phase 2 (Dev)      1       $5,000    $5,000.00
@@ -149,12 +152,14 @@ Content migration (42 pages)          1       $1,200    $1,200.00
 ```
 
 **Retainer + Overages:**
+
 ```
 Monthly retainer (January 2026)       1       $2,500    $2,500.00
 Additional hours beyond retainer      4 hrs   $175/hr   $  700.00
 ```
 
 **Product + Service:**
+
 ```
 Custom logo design                    1       $800      $  800.00
 Business card design                  1       $200      $  200.00
@@ -189,19 +194,20 @@ Overdue:          $________
 
 ### Payment Reminder Schedule
 
-| When | Action | Template |
-|------|--------|---------|
-| Invoice sent | Confirmation email | "Invoice attached" |
-| 3 days before due | Friendly reminder | "Gentle reminder" |
-| Due date | Due date notice | "Invoice due today" |
-| 7 days overdue | First follow-up | "Checking in" |
-| 14 days overdue | Second follow-up | "Past due notice" |
-| 30 days overdue | Final notice | "Urgent: payment required" |
-| 45+ days overdue | Escalation | Phone call or collection |
+| When              | Action             | Template                   |
+| ----------------- | ------------------ | -------------------------- |
+| Invoice sent      | Confirmation email | "Invoice attached"         |
+| 3 days before due | Friendly reminder  | "Gentle reminder"          |
+| Due date          | Due date notice    | "Invoice due today"        |
+| 7 days overdue    | First follow-up    | "Checking in"              |
+| 14 days overdue   | Second follow-up   | "Past due notice"          |
+| 30 days overdue   | Final notice       | "Urgent: payment required" |
+| 45+ days overdue  | Escalation         | Phone call or collection   |
 
 ### Follow-Up Email Templates
 
 **3 Days Before Due:**
+
 ```
 Subject: Upcoming invoice - INV-[###] due [date]
 
@@ -217,6 +223,7 @@ Thanks,
 ```
 
 **7 Days Overdue:**
+
 ```
 Subject: Invoice INV-[###] - payment overdue
 
@@ -233,6 +240,7 @@ Thanks,
 ```
 
 **14 Days Overdue:**
+
 ```
 Subject: Past due: Invoice INV-[###] - $[amount]
 
@@ -250,6 +258,7 @@ Best,
 ```
 
 **30+ Days Overdue:**
+
 ```
 Subject: Urgent: Invoice INV-[###] - 30 days past due
 
@@ -270,31 +279,30 @@ Thank you,
 
 ## Invoicing Tools
 
-| Tool | Cost | Best For |
-|------|------|----------|
-| Wave | Free | Freelancers, simple invoicing |
-| Invoice Ninja | Free / $10/mo | Open source, full featured |
-| FreshBooks | $17+/mo | Time tracking + invoicing |
-| QuickBooks | $30+/mo | Full accounting integration |
-| Stripe Invoicing | 0.4-0.5% per invoice | Online businesses |
-| PayPal Invoicing | Free (standard PayPal fees) | Quick and universal |
-| Square Invoices | Free | In-person + online |
+| Tool             | Cost                        | Best For                      |
+| ---------------- | --------------------------- | ----------------------------- |
+| Wave             | Free                        | Freelancers, simple invoicing |
+| Invoice Ninja    | Free / $10/mo               | Open source, full featured    |
+| FreshBooks       | $17+/mo                     | Time tracking + invoicing     |
+| QuickBooks       | $30+/mo                     | Full accounting integration   |
+| Stripe Invoicing | 0.4-0.5% per invoice        | Online businesses             |
+| PayPal Invoicing | Free (standard PayPal fees) | Quick and universal           |
+| Square Invoices  | Free                        | In-person + online            |
 
 ## Best Practices
 
-| Practice | Why |
-|----------|-----|
-| Invoice immediately upon completion | Faster payment |
-| Include clear payment instructions | Remove friction |
-| Use professional formatting | Builds trust |
-| Keep copies of everything | Tax and legal protection |
-| Set up recurring invoices for retainers | Never skip |
-| Get written agreement before starting work | Prevents disputes |
-| Offer multiple payment methods | Client convenience |
-| Send invoices on the same day each period | Predictability |
-| Track everything (even small expenses) | Tax deductions |
-| Separate business and personal accounts | Clean records |
-
+| Practice                                   | Why                      |
+| ------------------------------------------ | ------------------------ |
+| Invoice immediately upon completion        | Faster payment           |
+| Include clear payment instructions         | Remove friction          |
+| Use professional formatting                | Builds trust             |
+| Keep copies of everything                  | Tax and legal protection |
+| Set up recurring invoices for retainers    | Never skip               |
+| Get written agreement before starting work | Prevents disputes        |
+| Offer multiple payment methods             | Client convenience       |
+| Send invoices on the same day each period  | Predictability           |
+| Track everything (even small expenses)     | Tax deductions           |
+| Separate business and personal accounts    | Clean records            |
 
 ## Process
 
@@ -303,7 +311,6 @@ Thank you,
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -324,14 +331,12 @@ Thank you,
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

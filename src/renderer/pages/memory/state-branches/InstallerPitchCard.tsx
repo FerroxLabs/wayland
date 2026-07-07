@@ -59,12 +59,8 @@ const InstallerPitchCard: React.FC = () => {
   return (
     <div className={styles.center} data-testid='memory-installer-pitch'>
       <div className={styles.card}>
-        <h2 className='text-24px font-semibold text-t-primary leading-32px m-0'>
-          {t('memory.pitch.headline')}
-        </h2>
-        <p className='text-14px text-t-secondary leading-22px m-0'>
-          {t('memory.pitch.lede')}
-        </p>
+        <h2 className='text-24px font-semibold text-t-primary leading-32px m-0'>{t('memory.pitch.headline')}</h2>
+        <p className='text-14px text-t-secondary leading-22px m-0'>{t('memory.pitch.lede')}</p>
         <ul className={styles.bullets}>
           <li className={styles.bullet}>
             <Check size={18} className={styles.checkIcon} aria-hidden />
@@ -96,12 +92,7 @@ const InstallerPitchCard: React.FC = () => {
               t('memory.pitch.enable_cta')
             )}
           </Button>
-          <Button
-            type='text'
-            size='small'
-            onClick={handleSettings}
-            data-testid='memory-installer-pitch-settings-link'
-          >
+          <Button type='text' size='small' onClick={handleSettings} data-testid='memory-installer-pitch-settings-link'>
             {t('memory.pitch.settings_link')}
           </Button>
         </div>

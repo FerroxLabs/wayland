@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships mental-wellness planning"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships mental-wellness planning'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Empty Nest Transition Guide
@@ -28,6 +28,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about coping with children leaving home for college or independent living
 - User wants help adjusting daily routines after children move out
 - User asks about "empty nest syndrome" or feelings of loss when kids leave
@@ -35,6 +36,7 @@ metadata:
 - User asks about rebuilding their relationship with a partner after children leave
 
 **Do NOT use this skill when:**
+
 - User asks about college financial planning or paying for education (use personal-finance skills)
 - User is experiencing clinical depression that needs treatment (therapist needed)
 - User asks about helping their child prepare for college (education skills)
@@ -45,12 +47,12 @@ metadata:
 
 1. **Assess where the parent is in the transition.** The empty nest has distinct phases:
 
-   | Phase | Timing | Typical Experience | Primary Need |
-   |-------|--------|-------------------|--------------|
-   | Anticipation | 3-12 months before departure | Anxiety about the change, pre-grieving, over-involved in preparations | Logistics planning and emotional preparation |
-   | Departure | Move-in day to first 2 weeks | Acute loss, disorientation, crying spells, quiet house shock | Permission to grieve and immediate routine adjustments |
-   | Adjustment | 2 weeks to 6 months | Gradual adaptation, identity questions, relationship renegotiation | Routine redesign and personal rediscovery |
-   | Recalibration | 6-18 months | New normal established, new interests, redefined relationship with child | Long-term identity and purpose frameworks |
+   | Phase         | Timing                       | Typical Experience                                                       | Primary Need                                           |
+   | ------------- | ---------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------ |
+   | Anticipation  | 3-12 months before departure | Anxiety about the change, pre-grieving, over-involved in preparations    | Logistics planning and emotional preparation           |
+   | Departure     | Move-in day to first 2 weeks | Acute loss, disorientation, crying spells, quiet house shock             | Permission to grieve and immediate routine adjustments |
+   | Adjustment    | 2 weeks to 6 months          | Gradual adaptation, identity questions, relationship renegotiation       | Routine redesign and personal rediscovery              |
+   | Recalibration | 6-18 months                  | New normal established, new interests, redefined relationship with child | Long-term identity and purpose frameworks              |
 
 2. **Complete the logistics checklist.** Practical transitions that need attention:
 
@@ -122,14 +124,14 @@ metadata:
 
    **The Identity Inventory:**
 
-   | Question | Reflection |
-   |----------|-----------|
-   | What activities defined my daily life before children? | [Reflect] |
-   | What interests did I set aside during active parenting? | [Reflect] |
-   | What am I curious about now that I have more time? | [Reflect] |
-   | What does my professional or volunteer life look like without parenting constraints? | [Reflect] |
-   | What relationships do I want to invest in more? | [Reflect] |
-   | What does a fulfilling week look like for me personally (not as a parent)? | [Reflect] |
+   | Question                                                                             | Reflection |
+   | ------------------------------------------------------------------------------------ | ---------- |
+   | What activities defined my daily life before children?                               | [Reflect]  |
+   | What interests did I set aside during active parenting?                              | [Reflect]  |
+   | What am I curious about now that I have more time?                                   | [Reflect]  |
+   | What does my professional or volunteer life look like without parenting constraints? | [Reflect]  |
+   | What relationships do I want to invest in more?                                      | [Reflect]  |
+   | What does a fulfilling week look like for me personally (not as a parent)?           | [Reflect]  |
 
    **Rebuilding Personal Identity:**
    - [ ] Revisit one hobby or interest abandoned during parenting years
@@ -254,12 +256,14 @@ This feeling does shift. Most parents move through the acute disorientation with
 ### Immediate Actions (This Week and Next)
 
 **For Both of You:**
+
 - [ ] Acknowledge together that this is a significant transition and it is okay to feel off-balance
 - [ ] Do not make any major decisions this week (do not repurpose the room, do not start a renovation, do not commit to anything drastic)
 - [ ] Maintain basic daily structure: regular mealtimes, regular bedtime, get out of the house each day
 - [ ] Reach out to one friend each and schedule something this week (dinner, walk, phone call)
 
 **Communication with Your Child:**
+
 - [ ] Agree between yourselves on a check-in approach: one parent texts or calls at an agreed frequency (not both texting multiple times a day)
 - [ ] Give your child space to settle in -- avoid calling daily in the first week
 - [ ] When you do connect, ask open questions: "What has been the best part of your first week?"
@@ -267,23 +271,25 @@ This feeling does shift. Most parents move through the acute disorientation with
 
 ### Routine Redesign (Start Week 2)
 
-| Time | What You Were Doing | What to Try Now |
-|------|-------------------|-----------------|
-| Morning (6-8 AM) | Getting kid up, making breakfast, driving to school | Exercise together or individually, breakfast without rushing, morning walk |
-| After work (5-7 PM) | Homework help, activity shuttling, dinner rush | Go for a walk together, cook a meal you both enjoy at a relaxed pace, start a show together |
-| Evening (7-9 PM) | Overseeing homework, bedtime routine | Read, pursue a hobby, have a real conversation with each other, take a class |
-| Weekend | Sports games, sleepovers, kid activities | Date morning (coffee, farmers market), each pursue one personal interest, make social plans with friends |
+| Time                | What You Were Doing                                 | What to Try Now                                                                                          |
+| ------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Morning (6-8 AM)    | Getting kid up, making breakfast, driving to school | Exercise together or individually, breakfast without rushing, morning walk                               |
+| After work (5-7 PM) | Homework help, activity shuttling, dinner rush      | Go for a walk together, cook a meal you both enjoy at a relaxed pace, start a show together              |
+| Evening (7-9 PM)    | Overseeing homework, bedtime routine                | Read, pursue a hobby, have a real conversation with each other, take a class                             |
+| Weekend             | Sports games, sleepovers, kid activities            | Date morning (coffee, farmers market), each pursue one personal interest, make social plans with friends |
 
 ### Relationship Rediscovery (Weeks 2-8)
 
 This is the biggest opportunity in the empty nest transition. You now have time and space that has not existed in your relationship for 18+ years.
 
 **This Month:**
+
 - [ ] Schedule one weekly date that is not sitting in front of the TV (walk, dinner out, cooking together, visiting somewhere new)
 - [ ] Have the conversation: "What did we used to enjoy before we had kids? What have we always wanted to try?"
 - [ ] Identify one activity to try together that is new for both of you
 
 **Conversation Prompts for the Evenings:**
+
 - "What is something you have wanted to do that we never had time for?"
 - "How do you want our weekends to look now?"
 - "Is there anything about our daily life you want to change?"
@@ -293,12 +299,14 @@ This is the biggest opportunity in the empty nest transition. You now have time 
 ### Personal Identity (Each of You)
 
 **Questions to sit with individually:**
+
 - What activities did I give up or reduce when we had kids?
 - What am I curious about learning or doing now?
 - What does a fulfilling week look like for me as a person (not as a parent)?
 - Is there a professional or volunteer goal I have been deferring?
 
 **Action items:**
+
 - [ ] Each of you: identify one personal interest to pursue (sign up for a class, join a group, restart a hobby)
 - [ ] Each of you: schedule one social plan per week with a friend (not just as a couple)
 - [ ] Set one personal goal for the next 3 months that has nothing to do with parenting

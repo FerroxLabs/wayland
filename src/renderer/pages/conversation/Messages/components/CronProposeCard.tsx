@@ -164,12 +164,7 @@ const CronProposeCard: React.FC<CronProposeCardProps> = ({ message }) => {
         <dd className={styles.prompt}>{prompt}</dd>
       </dl>
       <div className={styles.actions}>
-        <Button
-          type='primary'
-          size='mini'
-          disabled={parseError || resolving}
-          onClick={() => void sendAction('accept')}
-        >
+        <Button type='primary' size='mini' disabled={parseError || resolving} onClick={() => void sendAction('accept')}>
           <Check size={14} /> {t('cron.propose.yes')}
         </Button>
         <Button size='mini' disabled={resolving} onClick={() => void sendAction('edit')}>

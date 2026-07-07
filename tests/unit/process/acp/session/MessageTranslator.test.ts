@@ -99,7 +99,11 @@ describe('MessageTranslator', () => {
     for (const c of chunks) {
       const msgs = translator.translate({
         sessionId: 's1',
-        update: { sessionUpdate: 'agent_message_chunk', messageId: c.messageId, content: { type: 'text', text: c.text } },
+        update: {
+          sessionUpdate: 'agent_message_chunk',
+          messageId: c.messageId,
+          content: { type: 'text', text: c.text },
+        },
       } as unknown as SessionNotification);
       for (const m of msgs) {
         if (m.type === 'text') {

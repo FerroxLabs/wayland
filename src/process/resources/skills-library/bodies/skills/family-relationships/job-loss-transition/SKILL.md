@@ -15,13 +15,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships personal-finance career"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships personal-finance career'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Job Loss Transition Plan
@@ -31,6 +31,7 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 ## When to Use
 
 **Use this skill when:**
+
 - User just lost their job and needs to know what to do first
 - User asks about managing finances after a layoff
 - User needs a checklist for benefits continuation after job loss
@@ -38,6 +39,7 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 - User asks about unemployment benefits, COBRA, or severance
 
 **Do NOT use this skill when:**
+
 - User wants detailed job search strategy (use career-development job search skills)
 - User wants resume or interview preparation help (use career-development skills)
 - User asks about long-term career planning or career changes (use career-development skills)
@@ -70,29 +72,29 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 
    **Assess Current Financial Position:**
 
-   | Category | Amount |
-   |----------|--------|
-   | Emergency fund balance | $_______ |
-   | Checking account balance | $_______ |
-   | Savings accounts | $_______ |
-   | Last paycheck (including PTO payout) | $_______ |
-   | Severance (if offered) | $_______ total, paid over _______ weeks |
-   | **Total available runway** | $_______ |
-   | Monthly essential expenses (see below) | $_______ |
-   | **Months of runway** | _______ months |
+   | Category                               | Amount                                        |
+   | -------------------------------------- | --------------------------------------------- |
+   | Emergency fund balance                 | $**\_\_\_**                                   |
+   | Checking account balance               | $**\_\_\_**                                   |
+   | Savings accounts                       | $**\_\_\_**                                   |
+   | Last paycheck (including PTO payout)   | $**\_\_\_**                                   |
+   | Severance (if offered)                 | $**\_\_\_** total, paid over **\_\_\_** weeks |
+   | **Total available runway**             | $**\_\_\_**                                   |
+   | Monthly essential expenses (see below) | $**\_\_\_**                                   |
+   | **Months of runway**                   | **\_\_\_** months                             |
 
    **Calculate Essential Monthly Expenses:**
 
-   | Expense | Current | Can Reduce To |
-   |---------|---------|--------------|
-   | Housing (rent/mortgage) | $_______ | $_______ |
-   | Utilities (electric, gas, water, phone, internet) | $_______ | $_______ |
-   | Groceries | $_______ | $_______ |
-   | Health insurance (COBRA or marketplace) | $_______ | $_______ |
-   | Transportation (car payment, insurance, fuel) | $_______ | $_______ |
-   | Minimum debt payments | $_______ | $_______ |
-   | Childcare (if applicable) | $_______ | $_______ |
-   | **Total essential expenses** | $_______ | $_______ |
+   | Expense                                           | Current     | Can Reduce To |
+   | ------------------------------------------------- | ----------- | ------------- |
+   | Housing (rent/mortgage)                           | $**\_\_\_** | $**\_\_\_**   |
+   | Utilities (electric, gas, water, phone, internet) | $**\_\_\_** | $**\_\_\_**   |
+   | Groceries                                         | $**\_\_\_** | $**\_\_\_**   |
+   | Health insurance (COBRA or marketplace)           | $**\_\_\_** | $**\_\_\_**   |
+   | Transportation (car payment, insurance, fuel)     | $**\_\_\_** | $**\_\_\_**   |
+   | Minimum debt payments                             | $**\_\_\_** | $**\_\_\_**   |
+   | Childcare (if applicable)                         | $**\_\_\_** | $**\_\_\_**   |
+   | **Total essential expenses**                      | $**\_\_\_** | $**\_\_\_**   |
 
    **Immediate Expense Reductions:**
    - [ ] Cancel or pause non-essential subscriptions (streaming, gym, meal kits, apps)
@@ -125,12 +127,12 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 
    **Decision Framework:**
 
-   | Option | Monthly Cost | Coverage Quality | Duration |
-   |--------|-------------|-----------------|----------|
-   | COBRA | $_______ (usually high) | Same as employer plan | 18 months |
-   | Marketplace with subsidy | $_______ (income-dependent) | Varies by plan | Ongoing |
-   | Spouse's plan | $_______ | Varies | Ongoing |
-   | Medicaid | $0 or minimal | Varies by state | While eligible |
+   | Option                   | Monthly Cost                   | Coverage Quality      | Duration       |
+   | ------------------------ | ------------------------------ | --------------------- | -------------- |
+   | COBRA                    | $**\_\_\_** (usually high)     | Same as employer plan | 18 months      |
+   | Marketplace with subsidy | $**\_\_\_** (income-dependent) | Varies by plan        | Ongoing        |
+   | Spouse's plan            | $**\_\_\_**                    | Varies                | Ongoing        |
+   | Medicaid                 | $0 or minimal                  | Varies by state       | While eligible |
 
 4. **File for unemployment benefits (Days 1-7).** File as soon as possible:
 
@@ -290,15 +292,15 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 
 ### Financial Snapshot
 
-| Item | Amount | Notes |
-|------|--------|-------|
-| Savings | $8,000 | Current emergency fund |
-| Last paycheck + PTO payout | $_______ | Confirm with HR: amount and date |
-| Severance | $_______ | Did they offer? Do NOT sign yet |
-| Wife's part-time income | $_______ /month | Current take-home |
-| **Total available** | $8,000 + pending amounts | |
-| Essential monthly expenses (estimate below) | ~$_______ | Calculate today |
-| **Estimated runway** | _______ months | Savings + income / reduced expenses |
+| Item                                        | Amount                   | Notes                               |
+| ------------------------------------------- | ------------------------ | ----------------------------------- |
+| Savings                                     | $8,000                   | Current emergency fund              |
+| Last paycheck + PTO payout                  | $**\_\_\_**              | Confirm with HR: amount and date    |
+| Severance                                   | $**\_\_\_**              | Did they offer? Do NOT sign yet     |
+| Wife's part-time income                     | $**\_\_\_** /month       | Current take-home                   |
+| **Total available**                         | $8,000 + pending amounts |                                     |
+| Essential monthly expenses (estimate below) | ~$**\_\_\_**             | Calculate today                     |
+| **Estimated runway**                        | **\_\_\_** months        | Savings + income / reduced expenses |
 
 ### Immediate Priority Actions (Today and Tomorrow)
 
@@ -324,17 +326,18 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 
 ### Health Insurance (Decide Within 14 Days)
 
-| Option | Estimated Monthly Cost | Coverage | Action |
-|--------|----------------------|----------|--------|
-| COBRA | $_______ (get exact number from COBRA notice) | Same as employer plan | Elect within 60 days |
-| Marketplace plan | $_______ (check with projected reduced income -- subsidies may apply) | Varies | Apply within 60 days of losing coverage |
-| Wife's employer plan | $_______ (check if her employer offers family coverage) | Varies | Job loss is a qualifying event for special enrollment |
+| Option               | Estimated Monthly Cost                                                   | Coverage              | Action                                                |
+| -------------------- | ------------------------------------------------------------------------ | --------------------- | ----------------------------------------------------- |
+| COBRA                | $**\_\_\_** (get exact number from COBRA notice)                         | Same as employer plan | Elect within 60 days                                  |
+| Marketplace plan     | $**\_\_\_** (check with projected reduced income -- subsidies may apply) | Varies                | Apply within 60 days of losing coverage               |
+| Wife's employer plan | $**\_\_\_** (check if her employer offers family coverage)               | Varies                | Job loss is a qualifying event for special enrollment |
 
 **Recommended:** Compare all three options before deciding. With your reduced income, marketplace subsidies may make a marketplace plan significantly cheaper than COBRA. Your wife's employer plan may be the most cost-effective if family coverage is available.
 
 ### 30-Day Stabilization Plan
 
 **Week 1: Financial Triage**
+
 - [ ] File for unemployment (today)
 - [ ] Calculate exact monthly essential expenses (use the table below)
 - [ ] Cancel non-essential subscriptions (streaming, gym, apps): estimated savings $50-150/month
@@ -343,26 +346,29 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 - [ ] Review and compare health insurance options
 
 **Week 2: Secure Benefits**
+
 - [ ] Enroll in health insurance (COBRA, marketplace, or wife's plan)
 - [ ] Do NOT cash out your 401k -- roll it to an IRA or leave it in the plan
 - [ ] Check if your EAP provides free therapy sessions (use them)
 - [ ] Set up a strict monthly budget for unemployment period:
 
-| Expense | Current | Reduced To | Monthly Savings |
-|---------|---------|-----------|----------------|
-| Dining out | $_______ | $0-50 | $_______ |
-| Subscriptions | $_______ | $0-20 | $_______ |
-| Groceries | $_______ | $_______ | $_______ |
-| Entertainment | $_______ | $0-25 | $_______ |
-| **Total monthly savings** | | | $_______ |
+| Expense                   | Current     | Reduced To  | Monthly Savings |
+| ------------------------- | ----------- | ----------- | --------------- |
+| Dining out                | $**\_\_\_** | $0-50       | $**\_\_\_**     |
+| Subscriptions             | $**\_\_\_** | $0-20       | $**\_\_\_**     |
+| Groceries                 | $**\_\_\_** | $**\_\_\_** | $**\_\_\_**     |
+| Entertainment             | $**\_\_\_** | $0-25       | $**\_\_\_**     |
+| **Total monthly savings** |             |             | $**\_\_\_**     |
 
 **Week 3: Stabilize**
+
 - [ ] Unemployment benefit confirmed and first payment scheduled
 - [ ] Budget operating at reduced level
 - [ ] All essential bills current or on hardship arrangements
 - [ ] Severance agreement reviewed (with attorney if valuable)
 
 **Week 4: Shift to Job Search**
+
 - [ ] Financial stabilization complete -- you know your monthly runway
 - [ ] Update your resume
 - [ ] Activate your network: send messages to contacts letting them know you are looking
@@ -371,14 +377,15 @@ Losing a job -- whether through layoff, termination, or company closure -- creat
 
 ### Daily Structure (Start Week 2)
 
-| Time | Activity |
-|------|----------|
-| 7:00 AM | Wake up, get dressed, breakfast with family |
-| 8:00-8:30 AM | Exercise or walk (free -- park, neighborhood, bodyweight workout) |
-| 9:00 AM-12:00 PM | Job search: applications, networking, skill development |
-| 12:00-1:00 PM | Lunch, family time |
-| 1:00-3:00 PM | Job search: follow-ups, phone calls, research |
-| 3:00 PM+ | Family time, household tasks, personal projects |
+| Time             | Activity                                                          |
+| ---------------- | ----------------------------------------------------------------- |
+| 7:00 AM          | Wake up, get dressed, breakfast with family                       |
+| 8:00-8:30 AM     | Exercise or walk (free -- park, neighborhood, bodyweight workout) |
+| 9:00 AM-12:00 PM | Job search: applications, networking, skill development           |
+| 12:00-1:00 PM    | Lunch, family time                                                |
+| 1:00-3:00 PM     | Job search: follow-ups, phone calls, research                     |
+| 3:00 PM+         | Family time, household tasks, personal projects                   |
 
 ### What to Tell the Kids
+
 If your children notice you are home: "I am looking for a new job. This is something that happens to lots of people and our family is going to be okay. I am spending my days working on finding the right next job." Keep it calm, brief, and reassuring. Do not share financial anxiety with the children.

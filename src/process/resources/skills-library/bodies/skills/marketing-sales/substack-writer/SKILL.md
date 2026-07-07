@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "newsletter writing content-marketing"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'newsletter writing content-marketing'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Substack Writer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on substack writer
 - User asks about substack writer best practices or techniques
 - User wants a structured approach to substack writer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of substack writer
 
@@ -86,6 +87,7 @@ who want to [desired outcome]. Unlike [competitor/category], we focus on
 ```
 
 **Examples:**
+
 - "The Data Stack is a weekly newsletter for data engineers who want to stay current on tooling without reading 50 blogs. Unlike aggregator newsletters, every issue includes original analysis of one tool with hands-on benchmarks."
 - "Kitchen Margins is a biweekly newsletter for restaurant owners who want to improve profitability. We focus exclusively on the numbers behind menu engineering with real P&L breakdowns."
 
@@ -105,12 +107,14 @@ who want to [desired outcome]. Unlike [competitor/category], we focus on
 The free tier is your growth engine. It must be genuinely valuable.
 
 **What to include in free:**
+
 - Your flagship content (the thing that makes people subscribe)
 - At least 1 post per week
 - Enough value that readers feel slightly guilty getting it for free
 - Occasional "preview" of paid content (first section free, rest paywalled)
 
 **What NOT to do with free:**
+
 - Make it a teaser with no substance
 - Publish inconsistently
 - Treat free subscribers as second-class
@@ -119,15 +123,15 @@ The free tier is your growth engine. It must be genuinely valuable.
 
 Paid content must deliver differentiated value. Options:
 
-| Paid Content Type | Works For | Example |
-|------------------|-----------|---------|
-| Deep-dive analysis | Expert niches | Weekly 3,000-word breakdown |
-| Data/research | Industry newsletters | Original survey results, data sets |
-| Community access | Niche professionals | Discussion threads, AMAs |
-| Templates/tools | Practitioners | Spreadsheets, frameworks, checklists |
-| Podcast/audio | Commuter audience | Weekly subscriber-only interview |
-| Early access | News/trends | Get insights before free subscribers |
-| Archive access | Evergreen content | Full back catalog for paid only |
+| Paid Content Type  | Works For            | Example                              |
+| ------------------ | -------------------- | ------------------------------------ |
+| Deep-dive analysis | Expert niches        | Weekly 3,000-word breakdown          |
+| Data/research      | Industry newsletters | Original survey results, data sets   |
+| Community access   | Niche professionals  | Discussion threads, AMAs             |
+| Templates/tools    | Practitioners        | Spreadsheets, frameworks, checklists |
+| Podcast/audio      | Commuter audience    | Weekly subscriber-only interview     |
+| Early access       | News/trends          | Get insights before free subscribers |
+| Archive access     | Evergreen content    | Full back catalog for paid only      |
 
 ### The Free-to-Paid Funnel
 
@@ -147,12 +151,14 @@ Discover newsletter (social, search, referral)
 ### The Subscriber Acquisition Playbook
 
 **Phase 1: First 100 subscribers (Personal network)**
+
 - Email everyone you know with a personal note (not blast)
 - Post on every social platform you're active on
 - Ask friends to forward to 1 person who'd find it valuable
 - Cross-post your first essay on LinkedIn/Medium/Twitter threads
 
 **Phase 2: 100-1,000 subscribers (Content-driven growth)**
+
 - Publish consistently (train the algorithm and reader habits)
 - Write 2-3 "banger" posts designed for shareability
 - Engage in communities where your audience hangs out (not spamming -- adding value)
@@ -160,6 +166,7 @@ Discover newsletter (social, search, referral)
 - Start Substack recommendations (mutual referrals)
 
 **Phase 3: 1,000-10,000 subscribers (Compounding growth)**
+
 - Substack recommendation network (the single most powerful growth tool)
 - Cross-promotion swaps with similarly-sized newsletters
 - Twitter/X threads that link to your newsletter
@@ -168,6 +175,7 @@ Discover newsletter (social, search, referral)
 - Referral program: Substack lets you reward subscribers for sharing
 
 **Phase 4: 10,000+ subscribers (Scale and diversify)**
+
 - Paid growth experiments (Twitter ads, sponsoring other newsletters)
 - Media mentions and PR
 - Speaking engagements
@@ -186,14 +194,14 @@ Discover newsletter (social, search, referral)
 
 ### Sustainable Publishing Schedules
 
-| Frequency | Best For | Subscriber Expectation |
-|-----------|----------|----------------------|
-| Daily | News, curation, short-form | High commitment from you and reader |
-| 3x/week | Prolific writers, current events | Strong growth, high burnout risk |
-| 2x/week | Most growth-focused newsletters | Good balance of growth and quality |
-| Weekly | Deep-dive, analysis, long-form | Gold standard for most writers |
-| Biweekly | Research-heavy, side project | Acceptable if content is exceptional |
-| Monthly | Premium research reports | Too slow for growth, only works if established |
+| Frequency | Best For                         | Subscriber Expectation                         |
+| --------- | -------------------------------- | ---------------------------------------------- |
+| Daily     | News, curation, short-form       | High commitment from you and reader            |
+| 3x/week   | Prolific writers, current events | Strong growth, high burnout risk               |
+| 2x/week   | Most growth-focused newsletters  | Good balance of growth and quality             |
+| Weekly    | Deep-dive, analysis, long-form   | Gold standard for most writers                 |
+| Biweekly  | Research-heavy, side project     | Acceptable if content is exceptional           |
+| Monthly   | Premium research reports         | Too slow for growth, only works if established |
 
 ### The Weekly Newsletter Production Schedule
 
@@ -209,6 +217,7 @@ Weekend:   Social promotion of this week's post + idea capture for next
 ### Writing Formulas That Work for Newsletters
 
 **The Insight Sandwich:**
+
 ```
 Open with a story or observation
   --> Introduce the insight/framework
@@ -218,6 +227,7 @@ Open with a story or observation
 ```
 
 **The Listicle Deep-Dive:**
+
 ```
 Brief intro establishing why this list matters
   --> Item 1 with 2-3 paragraphs of analysis
@@ -227,6 +237,7 @@ Brief intro establishing why this list matters
 ```
 
 **The Contrarian Take:**
+
 ```
 State the conventional wisdom
   --> Present the evidence against it
@@ -258,15 +269,15 @@ Month 24: ~42,000 (if growth rate sustains, which it rarely does fully)
 
 ### Cost of Subscriber Acquisition
 
-| Channel | Cost Per Subscriber | Notes |
-|---------|-------------------|-------|
-| Organic (social, SEO) | $0 | Your time is the cost |
-| Substack recommendations | $0 | Mutual referral, no cost |
-| Cross-promotion swaps | $0 | Time + relationship cost |
-| Newsletter sponsorships | $2-8 | Sponsor another newsletter |
-| Twitter/X ads | $1-5 | Variable, requires good creative |
-| Facebook/Instagram ads | $2-10 | Better for broad consumer topics |
-| SparkLoop referrals | $1-3 | Pay-per-subscriber referral network |
+| Channel                  | Cost Per Subscriber | Notes                               |
+| ------------------------ | ------------------- | ----------------------------------- |
+| Organic (social, SEO)    | $0                  | Your time is the cost               |
+| Substack recommendations | $0                  | Mutual referral, no cost            |
+| Cross-promotion swaps    | $0                  | Time + relationship cost            |
+| Newsletter sponsorships  | $2-8                | Sponsor another newsletter          |
+| Twitter/X ads            | $1-5                | Variable, requires good creative    |
+| Facebook/Instagram ads   | $2-10               | Better for broad consumer topics    |
+| SparkLoop referrals      | $1-3                | Pay-per-subscriber referral network |
 
 ## Community Features
 
@@ -293,13 +304,13 @@ Month 24: ~42,000 (if growth rate sustains, which it rarely does fully)
 Assuming $7/month or $70/year pricing:
 
 | Free Subscribers | Paid Conversion Rate | Paid Subscribers | Monthly Revenue | Annual Revenue |
-|-----------------|---------------------|-----------------|----------------|---------------|
-| 1,000 | 5% | 50 | $350 | $4,200 |
-| 5,000 | 5% | 250 | $1,750 | $21,000 |
-| 10,000 | 5% | 500 | $3,500 | $42,000 |
-| 25,000 | 5% | 1,250 | $8,750 | $105,000 |
-| 50,000 | 5% | 2,500 | $17,500 | $210,000 |
-| 100,000 | 5% | 5,000 | $35,000 | $420,000 |
+| ---------------- | -------------------- | ---------------- | --------------- | -------------- |
+| 1,000            | 5%                   | 50               | $350            | $4,200         |
+| 5,000            | 5%                   | 250              | $1,750          | $21,000        |
+| 10,000           | 5%                   | 500              | $3,500          | $42,000        |
+| 25,000           | 5%                   | 1,250            | $8,750          | $105,000       |
+| 50,000           | 5%                   | 2,500            | $17,500         | $210,000       |
+| 100,000          | 5%                   | 5,000            | $35,000         | $420,000       |
 
 **Substack takes 10%** of paid subscription revenue. Stripe takes ~2.9% + 30 cents per transaction.
 
@@ -326,6 +337,7 @@ Assuming $7/month or $70/year pricing:
 ### Finding Cross-Promotion Partners
 
 **Ideal partners have:**
+
 - Similar audience size (0.5x to 2x yours)
 - Adjacent but non-competing topic
 - Similar quality standards
@@ -405,7 +417,6 @@ Happy to share more details about my audience demographics if helpful.
 9. **Perfectionism**: Ship consistently, iterate based on feedback
 10. **Neglecting the archive**: New subscribers judge your newsletter by your past posts -- make your archive browsable and compelling
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -418,13 +429,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with substack writer for a mid-size project."
 
 **Output:** A complete substack writer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

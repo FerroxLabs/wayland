@@ -42,10 +42,7 @@ vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: vi.fn(async () => null) },
 }));
 
-import {
-  CronRitualScheduler,
-  makeExtensionRegistryRitualsResolver,
-} from '@process/team/ritualScheduler';
+import { CronRitualScheduler, makeExtensionRegistryRitualsResolver } from '@process/team/ritualScheduler';
 import type { CronService } from '@process/services/cron/CronService';
 import type { CronJob } from '@process/services/cron/CronStore';
 import type { TTeam } from '@process/team/types';

@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning report template"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis planning report template'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Ops Metrics Dashboard
 
 ## When to Use
@@ -90,6 +91,7 @@ Vague metric definitions are the single most common cause of dashboard failure. 
 Every operations function has published benchmarks. Using them -- or explicitly arguing against them -- produces far more credible targets than internal guessing.
 
 **Customer Support benchmarks (industry medians, adjust for tier and channel):**
+
 - Email first response time: 12 hours median across industries; high-performing: under 2 hours; SaaS B2B standard: under 4 hours
 - Chat first response time: Under 1 minute high-performing; under 2 minutes acceptable
 - First contact resolution (FCR): 70-75% industry median; 85%+ high-performing
@@ -98,6 +100,7 @@ Every operations function has published benchmarks. Using them -- or explicitly 
 - Ticket deflection via self-service: 20-40% for mature knowledge bases
 
 **Fulfillment / Warehouse benchmarks:**
+
 - Order fulfillment cycle time (order placed to ship): Same-day to 2 days for e-commerce; 1-3 days for B2B distribution
 - Pick accuracy: 99.5%+ high-performing WMS operations; 98-99% acceptable; under 97% is systemic problem
 - On-time-in-full (OTIF): Retail/CPG: 95%+ required (Walmart mandates 98.5% or financial penalties apply); B2B distribution: 92-95% acceptable
@@ -105,6 +108,7 @@ Every operations function has published benchmarks. Using them -- or explicitly 
 - Receiving cycle time: Same day put-away for fast-moving SKUs; 24-48 hours acceptable for large volumes
 
 **IT Operations / SRE benchmarks:**
+
 - System availability/uptime: 99.9% (three nines) = 8.7 hours downtime/year; 99.95% = 4.4 hours; 99.99% (four nines) = 52 minutes -- choose based on business criticality
 - Mean time to acknowledge (MTTA): Under 5 minutes for P1 incidents; under 15 minutes for P2
 - Mean time to restore (MTTR): Under 1 hour for P1; under 4 hours for P2
@@ -112,6 +116,7 @@ Every operations function has published benchmarks. Using them -- or explicitly 
 - Deployment frequency: Context-dependent (weekly releases to multiple per day depending on maturity)
 
 **Field Service benchmarks:**
+
 - First-time fix rate: 75% industry median; 85%+ high-performing; under 70% indicates parts availability or technician training problem
 - SLA compliance: 90%+ for standard SLAs; 95%+ for premium contracts
 - Technician utilization: 65-75% (lower than support because travel time is non-productive but unavoidable)
@@ -122,6 +127,7 @@ Every operations function has published benchmarks. Using them -- or explicitly 
 A single dashboard that serves everyone serves no one. Design three named views with specific content and layout for each.
 
 **Executive View (North Star + Primary KPIs):**
+
 - Maximum 6 data points visible without scrolling
 - Each KPI shown as: current value, target, variance (absolute and %), trend direction (arrow), and RAG status (red/amber/green)
 - Rolling trend chart for north star metric (trailing 13 weeks or 12 months to show seasonality)
@@ -129,6 +135,7 @@ A single dashboard that serves everyone serves no one. Design three named views 
 - Single sentence annotation for any red KPI explaining the current situation and next action
 
 **Operations Team View (Primary KPIs + Supporting Metrics):**
+
 - Full metric table grouped by process area
 - Current value vs. target vs. prior period (week-over-week and month-over-month)
 - Owner column visible -- team members see their own metrics highlighted
@@ -136,12 +143,14 @@ A single dashboard that serves everyone serves no one. Design three named views 
 - Updated at the cadence matching the team review rhythm (daily refresh for daily standup metrics)
 
 **Diagnostic View (Supporting + Diagnostic Metrics):**
+
 - Accessed only when a KPI turns yellow or red
 - Shows the drill-down metrics associated with the failing KPI
 - Includes time-series breakdown (when did the metric start moving?), segmentation (which channel, location, team, or product category is driving it?), and correlation view (what else moved at the same time?)
 - Not a standard report -- a structured investigation template the team pulls up during triage
 
 **BI Tool Layout Guidance:**
+
 - In Tableau, use a parameter-based audience selector to show/hide view layers from a single workbook
 - In Power BI, use bookmarks to switch between executive, team, and diagnostic views
 - In Looker, create separate Looks for each view, grouped into a Dashboard
@@ -480,32 +489,33 @@ When a primary KPI has been red for 8+ consecutive weeks, a documented root caus
 
 **On-Time-In-Full (OTIF) Rate**
 
-| Attribute | Value |
-|-----------|-------|
-| **Definition** | Percentage of customer orders shipped on time (by the daily same-day cutoff for same-day-ship orders, or by the promised ship date for standard orders) AND shipped complete (all ordered SKUs included, no substitutions). An order that ships on time but is missing one item is NOT counted as OTIF. An order that is complete but misses the cutoff is NOT counted as OTIF. |
-| **Formula** | `COUNT(orders WHERE shipped_at <= promised_ship_cutoff AND all_line_items_fulfilled = TRUE) / COUNT(total_orders_with_promised_ship_date) x 100` |
-| **Data Source** | ShipStation (shipped_at timestamp) + SkuVault (line item fulfillment status) joined on order_id; Shopify (promised_ship_date, same_day_ship flag) |
-| **Calculation Frequency** | Daily batch at 11:59 PM -- reflects full day's performance. Rolling 7-day average displayed for trend. |
-| **Current Value** | 91.4% (estimated based on reported 2.5% error rate + known cutoff misses) |
-| **Target** | 97.0% (industry standard for mid-market direct-to-consumer e-commerce; Walmart supplier mandate is 98.5% -- our B2C target of 97% reflects current team size and infrastructure) |
-| **Trend** | Declining -- estimated 94% three months ago based on team's reported increase in errors and cutoff misses |
-| **Green** | 97.0% and above |
-| **Yellow** | 93.0% -- 96.9% |
-| **Red** | Below 93.0% |
-| **Owner** | Director of Fulfillment Operations |
+| Attribute                 | Value                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Definition**            | Percentage of customer orders shipped on time (by the daily same-day cutoff for same-day-ship orders, or by the promised ship date for standard orders) AND shipped complete (all ordered SKUs included, no substitutions). An order that ships on time but is missing one item is NOT counted as OTIF. An order that is complete but misses the cutoff is NOT counted as OTIF. |
+| **Formula**               | `COUNT(orders WHERE shipped_at <= promised_ship_cutoff AND all_line_items_fulfilled = TRUE) / COUNT(total_orders_with_promised_ship_date) x 100`                                                                                                                                                                                                                                |
+| **Data Source**           | ShipStation (shipped_at timestamp) + SkuVault (line item fulfillment status) joined on order_id; Shopify (promised_ship_date, same_day_ship flag)                                                                                                                                                                                                                               |
+| **Calculation Frequency** | Daily batch at 11:59 PM -- reflects full day's performance. Rolling 7-day average displayed for trend.                                                                                                                                                                                                                                                                          |
+| **Current Value**         | 91.4% (estimated based on reported 2.5% error rate + known cutoff misses)                                                                                                                                                                                                                                                                                                       |
+| **Target**                | 97.0% (industry standard for mid-market direct-to-consumer e-commerce; Walmart supplier mandate is 98.5% -- our B2C target of 97% reflects current team size and infrastructure)                                                                                                                                                                                                |
+| **Trend**                 | Declining -- estimated 94% three months ago based on team's reported increase in errors and cutoff misses                                                                                                                                                                                                                                                                       |
+| **Green**                 | 97.0% and above                                                                                                                                                                                                                                                                                                                                                                 |
+| **Yellow**                | 93.0% -- 96.9%                                                                                                                                                                                                                                                                                                                                                                  |
+| **Red**                   | Below 93.0%                                                                                                                                                                                                                                                                                                                                                                     |
+| **Owner**                 | Director of Fulfillment Operations                                                                                                                                                                                                                                                                                                                                              |
 
 ---
 
 ### Primary KPIs -- Leadership View
 
-| KPI | Definition (short) | Formula | Target | Current | vs. Target | WoW Trend | MoM Trend | Status |
-|-----|--------------------|---------|--------|---------|-----------|-----------|-----------|--------|
-| Order Error Rate | % of shipped orders with a fulfillment error (wrong item, missing item, wrong quantity, wrong address) | (Orders with confirmed error / Total orders shipped) x 100 | Under 0.5% | 2.5% | -2.0 pts | ↓ Worsening | ↓ Worsening | 🔴 |
-| Same-Day Ship Cutoff Compliance | % of same-day-ship orders actually shipped by the daily carrier pickup cutoff | (Same-day-ship orders shipped by cutoff / Total same-day-ship orders) x 100 | 98%+ | ~93% | -5 pts | ↓ Worsening | ↓ Worsening | 🔴 |
-| Pick Accuracy Rate | % of order lines picked correctly on first attempt (no QA correction needed) | (Lines picked correctly / Total lines picked) x 100 | 99.5%+ | ~97.5% | -2 pts | → Stable | ↓ Declining | 🔴 |
-| Receiving Cycle Time | Median time from carrier delivery to put-away completion for inbound shipments | MEDIAN(put_away_completed_at -- carrier_delivered_at) in hours | Under 24 hours | Baseline TBD | TBD | Establishing baseline | Establishing baseline | ⚪ Baseline |
-| Labor Productivity -- Pick/Pack | Orders processed per labor hour (pickers + packers combined) | Total orders shipped / Total pick-pack labor hours worked | 18 orders/labor hour (baseline target -- refine after 4 weeks) | Baseline TBD | TBD | Establishing baseline | Establishing baseline | ⚪ Baseline |
+| KPI                             | Definition (short)                                                                                     | Formula                                                                     | Target                                                         | Current      | vs. Target | WoW Trend             | MoM Trend             | Status      |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------ | ---------- | --------------------- | --------------------- | ----------- |
+| Order Error Rate                | % of shipped orders with a fulfillment error (wrong item, missing item, wrong quantity, wrong address) | (Orders with confirmed error / Total orders shipped) x 100                  | Under 0.5%                                                     | 2.5%         | -2.0 pts   | ↓ Worsening           | ↓ Worsening           | 🔴          |
+| Same-Day Ship Cutoff Compliance | % of same-day-ship orders actually shipped by the daily carrier pickup cutoff                          | (Same-day-ship orders shipped by cutoff / Total same-day-ship orders) x 100 | 98%+                                                           | ~93%         | -5 pts     | ↓ Worsening           | ↓ Worsening           | 🔴          |
+| Pick Accuracy Rate              | % of order lines picked correctly on first attempt (no QA correction needed)                           | (Lines picked correctly / Total lines picked) x 100                         | 99.5%+                                                         | ~97.5%       | -2 pts     | → Stable              | ↓ Declining           | 🔴          |
+| Receiving Cycle Time            | Median time from carrier delivery to put-away completion for inbound shipments                         | MEDIAN(put_away_completed_at -- carrier_delivered_at) in hours              | Under 24 hours                                                 | Baseline TBD | TBD        | Establishing baseline | Establishing baseline | ⚪ Baseline |
+| Labor Productivity -- Pick/Pack | Orders processed per labor hour (pickers + packers combined)                                           | Total orders shipped / Total pick-pack labor hours worked                   | 18 orders/labor hour (baseline target -- refine after 4 weeks) | Baseline TBD | TBD        | Establishing baseline | Establishing baseline | ⚪ Baseline |
 
 **KPI Annotations:**
+
 - Order Error Rate 🔴 -- Rate has risen to approximately 2.5% vs. 0.5% target; investigation required immediately using diagnostic drill-down; team lead to pull error type breakdown from QA log within 24 hours.
 - Same-Day Ship Cutoff Compliance 🔴 --

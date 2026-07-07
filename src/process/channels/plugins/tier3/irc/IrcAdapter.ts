@@ -140,10 +140,7 @@ export type IrcPrivmsgEvent = {
  * The chatId is the channel name for channel messages, or the sender nick for
  * direct/private messages (target === our own nick).
  */
-export function toUnifiedIncomingFromIrc(
-  event: IrcPrivmsgEvent,
-  selfNick: string,
-): IUnifiedIncomingMessage | null {
+export function toUnifiedIncomingFromIrc(event: IrcPrivmsgEvent, selfNick: string): IUnifiedIncomingMessage | null {
   // Echo filter - skip our own outbound messages.
   if (event.nick.toLowerCase() === selfNick.toLowerCase()) return null;
 
@@ -168,11 +165,7 @@ export function toUnifiedIncomingFromIrc(
   return buildMessage(event, selfNick, text);
 }
 
-function buildMessage(
-  event: IrcPrivmsgEvent,
-  selfNick: string,
-  text: string,
-): IUnifiedIncomingMessage {
+function buildMessage(event: IrcPrivmsgEvent, selfNick: string, text: string): IUnifiedIncomingMessage {
   // For channel messages the chatId is the channel; for PMs it is the sender nick.
   const isChannel = event.target.startsWith('#') || event.target.startsWith('&');
   const chatId = isChannel ? event.target : event.nick;

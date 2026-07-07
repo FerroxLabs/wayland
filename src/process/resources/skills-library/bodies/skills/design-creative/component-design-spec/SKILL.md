@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design accessibility template"
-  category: "design-creative"
-  subcategory: "ui-ux-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design accessibility template'
+  category: 'design-creative'
+  subcategory: 'ui-ux-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Component Design Spec
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to spec out a discrete, reusable UI component -- a Button, Combobox, Data Table, Toast, Modal, Tooltip, Chip, Toggle, Pagination control, File Upload, or similar atomic or molecular unit
 - The user wants to document all interactive states of a component as a design artifact that can be handed off to engineers, reviewed in design critique, or published in a design system
 - The user needs to define component variants and their precise visual and behavioral differences so that contributors create consistent implementations
@@ -29,6 +31,7 @@ metadata:
 - The user wants to align a design team and an engineering team on a shared component definition before design or development begins
 
 **Do NOT use when:**
+
 - The user wants to compose a full page layout from multiple components (use `wireframe-specification` -- the correct level of abstraction is a layout, not a single component)
 - The user needs to define the primitive design tokens -- color scales, type ramp, spacing scale, elevation, radius -- that feed INTO component specs (use `design-system-foundations`)
 - The user wants the actual code implementation of a component in React, Vue, or any framework (use a software-development skill -- this artifact is language-agnostic)
@@ -334,27 +337,35 @@ Before delivering the spec, run through this quality checklist:
 ## Edge Cases
 
 ### Compound Components (Tabs, Accordion, Combobox, Menu, RadioGroup)
+
 Spec each sub-component in its own anatomy and states section. Then add a "Composition Structure" section documenting the required nesting order, owner-owned ARIA relationships, and data flow. For Tabs: `tablist` owns `tab` elements; each `tab` controls a `tabpanel` via `aria-controls`; each `tabpanel` is labelled by its `tab` via `aria-labelledby`. Arrow key navigation moves between tabs (not Tab key) -- this is a roving tabindex pattern, where only the active tab is in the tab sequence. Document this explicitly because engineers frequently implement it incorrectly.
 
 ### Overlay Components (Modal, Drawer, Tooltip, Popover, Dropdown Menu)
+
 These require three additional sections beyond standard state tables: (1) **Positioning rules** -- how the overlay positions relative to its trigger (above, below, start, end), collision detection behavior when near viewport edges (flip vs. shift vs. clip), and offset distance from the trigger (typically 4--8px). (2) **Focus trap rules** -- Modals and Dialogs require focus to be trapped inside using a focus trap pattern (Tab cycles through all focusable elements inside; Shift+Tab cycles in reverse; focus does not leave the dialog). Popovers and Tooltips do NOT trap focus. (3) **Dismiss rules** -- clicking the backdrop closes modals; Escape closes all overlays; clicking outside a popover closes it; Tooltips close on `mouseleave` and `blur`. Z-index layering must be documented to prevent stacking conflicts (typical values: Tooltip at 1100, Modal at 1300, Toast at 1400).
 
 ### Components With Async States (Form Submit Button, Data Table, Search Input)
+
 Define the complete state lifecycle as a directed graph: `idle → loading → success | error → idle`. Each transition must have a defined trigger (user action or system event), a defined duration rule (minimum 300ms display time for loading state to prevent flash-of-loading; this threshold prevents the spinner from flashing for fast network responses), and a defined UI change. Error states must be specific -- a generic "something went wrong" error fails WCAG SC 3.3.1 (Error Identification), which requires that errors be described in text. Specify the error message format and where it appears relative to the component.
 
 ### Components That Must Support Right-to-Left (RTL) Layout
+
 Mirror the horizontal anatomy: leading icon becomes trailing icon, leading padding becomes trailing padding. Use logical CSS properties (`padding-inline-start`, `margin-inline-end`, `text-align: start`) instead of physical properties (`padding-left`, `margin-right`, `text-align: left`) in all dimensional specs. For directional icons (chevrons, arrows, play buttons), specify whether they flip in RTL or remain unchanged. Progress bars always fill left-to-right in LTR and right-to-left in RTL. Document the mirroring rule for each part individually rather than assuming a global flip applies correctly.
 
 ### Components With Dynamic Content (Data Table, List, Virtualized Scroll)
+
 When a component renders variable amounts of data, specify: (1) the empty state (what renders when there is no data -- never a blank space; always a defined empty state with a message and optional action), (2) the loading state (skeleton rows vs. spinner overlay vs. progressive loading), (3) the error state (inline error with retry action), and (4) the maximum density threshold (e.g., a Data Table row height should not go below 40px in compact mode to maintain legibility and touch targets). For virtualized lists, document which ARIA attributes are required (`aria-setsize`, `aria-posinset` on each item) to communicate the total list size to screen readers even when items are not rendered in the DOM.
 
 ### Icon-Only Components (Icon Button, FAB, Close Button)
+
 When a component has no visible text label, `aria-label` is mandatory -- not optional. The spec must specify the exact label string format for every variant. "Close" for a close button, "Open navigation menu" for a hamburger button, "Add new item" for an add FAB. The visual icon alone does not satisfy WCAG SC 1.1.1 (Non-text Content). Additionally, the minimum touch target must be explicitly enforced at 44x44px even if the visible icon is 24x24px -- specify the padding or pseudo-element technique used to extend the tap target without expanding the visual size.
 
 ### Components With Many States That Interact (Form Input with Validation)
+
 A text Input can simultaneously be focused AND in error state, or focused AND read-only, or disabled AND prefilled. Document state combinations as a priority order: disabled > read-only > error > loading > focused > hover > default. When two states apply simultaneously, the higher-priority state's visual properties win for conflicting attributes, but both states' ARIA attributes must be present (e.g., a focused error input shows both the focus ring AND the error border, with `aria-invalid="true"` AND `:focus-visible` styling both active).
 
 ### Dark Mode and High-Contrast Mode
+
 Do not create a separate spec for dark mode -- add a token delta table showing which tokens change between modes. The component structure is identical; only the token assignments change. For Windows High Contrast / `forced-colors` media query, CSS custom properties are overridden by the system. Specify which parts need `forced-colors: active` overrides to preserve meaningful visual differentiation (focus rings, disabled states, interactive boundaries). A border that is defined only by color (e.g., a ghost button with no background but a transparent border) becomes invisible in forced-colors mode and must have a `ButtonBorder` or `Highlight` system color fallback specified.
 
 ---
@@ -374,26 +385,28 @@ Do not create a separate spec for dark mode -- add a token delta table showing w
 ---
 
 ### Purpose
+
 The Combobox allows a user to select a single value from a predefined list by typing to filter visible options, so that users can efficiently find and select from large option sets without scrolling through every item.
 
 ---
 
 ### Anatomy
 
-| Part               | CSS / Slot Name       | Description                                                               | Required | Overflow Behavior                       |
-|--------------------|-----------------------|---------------------------------------------------------------------------|----------|-----------------------------------------|
-| Wrapper            | `.combobox`           | Outer container scoping layout and positioning context for the listbox     | Yes      | Fixed width (consumer sets width)       |
-| Input              | `.combobox__input`    | Text input where user types to filter; displays selected value at rest     | Yes      | Truncate selected value with ellipsis   |
-| Chevron button     | `.combobox__toggle`   | Icon button (chevron-down) that opens/closes the listbox                  | Yes      | Fixed 40px wide; icon rotates on open  |
-| Clear button       | `.combobox__clear`    | Icon button (x) to clear the selected value; visible only when value set  | No       | Fixed 32px wide                         |
-| Listbox            | `.combobox__listbox`  | Dropdown panel containing filtered options                                | Yes      | Max-height 280px; overflow-y: scroll    |
-| Option             | `.combobox__option`   | Selectable row in the listbox                                             | Yes      | Truncate at container width with ellipsis|
-| Option group label | `.combobox__group`    | Non-interactive section label for grouped options                         | No       | Truncate at container width             |
-| No-results message | `.combobox__empty`    | Shown when filter input matches no options                                | Yes      | Single line, 14px, color-text-subtle    |
-| Helper text        | `.combobox__helper`   | Descriptive text below the wrapper                                        | No       | Wrap, max 2 lines                       |
-| Validation message | `.combobox__error`    | Error message below the wrapper, replaces helper text                     | No       | Wrap, max 2 lines                       |
+| Part               | CSS / Slot Name      | Description                                                              | Required | Overflow Behavior                         |
+| ------------------ | -------------------- | ------------------------------------------------------------------------ | -------- | ----------------------------------------- |
+| Wrapper            | `.combobox`          | Outer container scoping layout and positioning context for the listbox   | Yes      | Fixed width (consumer sets width)         |
+| Input              | `.combobox__input`   | Text input where user types to filter; displays selected value at rest   | Yes      | Truncate selected value with ellipsis     |
+| Chevron button     | `.combobox__toggle`  | Icon button (chevron-down) that opens/closes the listbox                 | Yes      | Fixed 40px wide; icon rotates on open     |
+| Clear button       | `.combobox__clear`   | Icon button (x) to clear the selected value; visible only when value set | No       | Fixed 32px wide                           |
+| Listbox            | `.combobox__listbox` | Dropdown panel containing filtered options                               | Yes      | Max-height 280px; overflow-y: scroll      |
+| Option             | `.combobox__option`  | Selectable row in the listbox                                            | Yes      | Truncate at container width with ellipsis |
+| Option group label | `.combobox__group`   | Non-interactive section label for grouped options                        | No       | Truncate at container width               |
+| No-results message | `.combobox__empty`   | Shown when filter input matches no options                               | Yes      | Single line, 14px, color-text-subtle      |
+| Helper text        | `.combobox__helper`  | Descriptive text below the wrapper                                       | No       | Wrap, max 2 lines                         |
+| Validation message | `.combobox__error`   | Error message below the wrapper, replaces helper text                    | No       | Wrap, max 2 lines                         |
 
 **Spatial relationship:**
+
 ```
 ┌─────────────────────────────────────────┐
 │ [Input field..................] [x] [▾] │  ← Wrapper (flex row)
@@ -419,30 +432,34 @@ When open:
 ### Variants
 
 #### Visual Variants
-| Variant  | Background           | Border                    | Text Color             | Use Case                                                            |
-|----------|----------------------|---------------------------|------------------------|---------------------------------------------------------------------|
-| Default  | color-surface        | 1px solid color-border    | color-text-primary     | Standard form fields in all contexts                                |
-| Filled   | color-surface-raised | none                      | color-text-primary     | Fields embedded in surfaces with their own border (sidebars, cards)|
+
+| Variant | Background           | Border                 | Text Color         | Use Case                                                            |
+| ------- | -------------------- | ---------------------- | ------------------ | ------------------------------------------------------------------- |
+| Default | color-surface        | 1px solid color-border | color-text-primary | Standard form fields in all contexts                                |
+| Filled  | color-surface-raised | none                   | color-text-primary | Fields embedded in surfaces with their own border (sidebars, cards) |
 
 #### Functional / Intent Variants
-| Intent   | Icon                | Color Override              | ARIA                    | Use Case                                           |
-|----------|---------------------|-----------------------------|-------------------------|----------------------------------------------------|
-| Error    | icon-alert-circle   | color-border-error          | aria-invalid="true"     | Validation failure after submit or on-blur         |
-| Success  | icon-check-circle   | color-border-success        | aria-invalid="false"    | Confirmed valid selection (used sparingly)         |
-| Disabled | --                  | color-surface-disabled      | aria-disabled="true"    | Field is not interactive in current context        |
+
+| Intent   | Icon              | Color Override         | ARIA                 | Use Case                                    |
+| -------- | ----------------- | ---------------------- | -------------------- | ------------------------------------------- |
+| Error    | icon-alert-circle | color-border-error     | aria-invalid="true"  | Validation failure after submit or on-blur  |
+| Success  | icon-check-circle | color-border-success   | aria-invalid="false" | Confirmed valid selection (used sparingly)  |
+| Disabled | --                | color-surface-disabled | aria-disabled="true" | Field is not interactive in current context |
 
 #### Size Variants
-| Size | Height | Horizontal Padding | Vertical Padding | Font Size | Icon Size | Min Width | Use Context                              |
-|------|--------|--------------------|------------------|-----------|-----------|-----------|------------------------------------------|
+
+| Size | Height | Horizontal Padding | Vertical Padding | Font Size | Icon Size | Min Width | Use Context                                             |
+| ---- | ------ | ------------------ | ---------------- | --------- | --------- | --------- | ------------------------------------------------------- |
 | sm   | 32px   | 10px               | 5px              | 13px      | 16px      | 120px     | Dense forms, filter toolbars, data table inline editors |
-| md   | 40px   | 12px               | 9px              | 14px      | 20px      | 160px     | Default form context (standard page forms) |
+| md   | 40px   | 12px               | 9px              | 14px      | 20px      | 160px     | Default form context (standard page forms)              |
 | lg   | 48px   | 14px               | 12px             | 16px      | 24px      | 200px     | High-prominence forms, onboarding, mobile-first layouts |
 
 #### Valid Variant Combinations Matrix
-| Visual Variant | sm | md | lg | Error | Success | Disabled |
-|----------------|----|----|----|-------|---------|----------|
-| Default        | ✓  | ✓  | ✓  | ✓     | ✓       | ✓        |
-| Filled         | ✓  | ✓  | ✓  | ✓     | ✗ (note)| ✓        |
+
+| Visual Variant | sm  | md  | lg  | Error | Success  | Disabled |
+| -------------- | --- | --- | --- | ----- | -------- | -------- |
+| Default        | ✓   | ✓   | ✓   | ✓     | ✓        | ✓        |
+| Filled         | ✓   | ✓   | ✓   | ✓     | ✗ (note) | ✓        |
 
 Note: Filled + Success is invalid because the filled variant is used in surfaces where success states add visual noise. Use the default variant if validation feedback is required.
 
@@ -451,60 +468,63 @@ Note: Filled + Success is invalid because the filled variant is used in surfaces
 ### States
 
 #### Input Wrapper States (Default Variant, md Size)
-| State     | Background       | Border                          | Text Color          | Opacity | Cursor       | Additional Visual                        |
-|-----------|------------------|---------------------------------|---------------------|---------|--------------|------------------------------------------|
-| default   | color-surface    | 1px solid color-border          | color-text-primary  | 1       | text         | Chevron: color-icon-subtle               |
-| hover     | color-surface    | 1px solid color-border-hover    | color-text-primary  | 1       | text         | Chevron: color-icon-default              |
-| focus     | color-surface    | 1px solid color-border-focus    | color-text-primary  | 1       | text         | 2px solid color-focus-ring, 2px offset   |
-| open      | color-surface    | 1px solid color-border-focus    | color-text-primary  | 1       | text         | Chevron rotates 180deg, listbox appears  |
-| disabled  | color-surface-disabled | 1px solid color-border-disabled | color-text-disabled | 0.5 | not-allowed  | Clear and chevron buttons also disabled  |
-| error     | color-surface    | 1px solid color-border-error    | color-text-primary  | 1       | text         | Error icon at trailing position of input |
-| read-only | color-surface-subtle | 1px dashed color-border      | color-text-primary  | 1       | default      | No hover/focus border change             |
+
+| State     | Background             | Border                          | Text Color          | Opacity | Cursor      | Additional Visual                        |
+| --------- | ---------------------- | ------------------------------- | ------------------- | ------- | ----------- | ---------------------------------------- |
+| default   | color-surface          | 1px solid color-border          | color-text-primary  | 1       | text        | Chevron: color-icon-subtle               |
+| hover     | color-surface          | 1px solid color-border-hover    | color-text-primary  | 1       | text        | Chevron: color-icon-default              |
+| focus     | color-surface          | 1px solid color-border-focus    | color-text-primary  | 1       | text        | 2px solid color-focus-ring, 2px offset   |
+| open      | color-surface          | 1px solid color-border-focus    | color-text-primary  | 1       | text        | Chevron rotates 180deg, listbox appears  |
+| disabled  | color-surface-disabled | 1px solid color-border-disabled | color-text-disabled | 0.5     | not-allowed | Clear and chevron buttons also disabled  |
+| error     | color-surface          | 1px solid color-border-error    | color-text-primary  | 1       | text        | Error icon at trailing position of input |
+| read-only | color-surface-subtle   | 1px dashed color-border         | color-text-primary  | 1       | default     | No hover/focus border change             |
 
 #### Option States (within Listbox)
-| State         | Background              | Text Color             | Cursor  | Additional Visual                            |
-|---------------|-------------------------|------------------------|---------|----------------------------------------------|
-| default       | transparent             | color-text-primary     | pointer | --                                           |
-| hover         | color-surface-hover     | color-text-primary     | pointer | --                                           |
-| keyboard focus| color-surface-hover     | color-text-primary     | pointer | 2px inset focus ring color-focus-ring        |
-| selected      | color-surface-selected  | color-action-primary   | pointer | Checkmark icon (16px) at leading position    |
-| selected+focus| color-surface-selected  | color-action-primary   | pointer | Both checkmark and focus ring visible        |
-| disabled      | transparent             | color-text-disabled    | not-allowed | No hover state; skip in keyboard navigation |
+
+| State          | Background             | Text Color           | Cursor      | Additional Visual                           |
+| -------------- | ---------------------- | -------------------- | ----------- | ------------------------------------------- |
+| default        | transparent            | color-text-primary   | pointer     | --                                          |
+| hover          | color-surface-hover    | color-text-primary   | pointer     | --                                          |
+| keyboard focus | color-surface-hover    | color-text-primary   | pointer     | 2px inset focus ring color-focus-ring       |
+| selected       | color-surface-selected | color-action-primary | pointer     | Checkmark icon (16px) at leading position   |
+| selected+focus | color-surface-selected | color-action-primary | pointer     | Both checkmark and focus ring visible       |
+| disabled       | transparent            | color-text-disabled  | not-allowed | No hover state; skip in keyboard navigation |
 
 **State Transitions:**
-| From State | To State    | Trigger                              | Transition                                    |
+| From State | To State | Trigger | Transition |
 |------------|-------------|--------------------------------------|-----------------------------------------------|
-| default    | open        | click input, click chevron, Alt+Down | listbox: opacity 0→1 over 150ms ease-out      |
-| open       | default     | Escape, click outside, select option | listbox: opacity 1→0 over 100ms ease-in       |
-| default    | error       | form submit with no value, blur      | border: color transition 150ms ease           |
-| loading    | open        | options fetch resolve (min 300ms)    | skeleton rows replaced by real options        |
+| default | open | click input, click chevron, Alt+Down | listbox: opacity 0→1 over 150ms ease-out |
+| open | default | Escape, click outside, select option | listbox: opacity 1→0 over 100ms ease-in |
+| default | error | form submit with no value, blur | border: color transition 150ms ease |
+| loading | open | options fetch resolve (min 300ms) | skeleton rows replaced by real options |
 
 ---
 
 ### Props
 
-| Prop             | Type              | Default        | Valid Options / Range                      | Mutually Exclusive With | Description                                                              |
-|------------------|-------------------|----------------|--------------------------------------------|-------------------------|--------------------------------------------------------------------------|
-| value            | string            | undefined      | Any string matching an option value        | none                    | Controlled selected value                                                |
-| defaultValue     | string            | undefined      | Any string matching an option value        | value                   | Uncontrolled initial value                                               |
-| options          | Option[]          | []             | { value: string, label: string, disabled?: boolean, group?: string }[] | none | List of selectable options |
-| placeholder      | string            | "Select..."    | Any string, max 40 characters              | none                    | Displayed in input when no value selected                                |
-| isDisabled       | boolean           | false          | --                                         | isReadOnly              | Removes all interactivity                                                |
-| isReadOnly       | boolean           | false          | --                                         | isDisabled              | Keeps value visible but prevents changes; stays in tab order             |
-| isLoading        | boolean           | false          | --                                         | isDisabled              | Shows skeleton rows in listbox instead of options                        |
-| isInvalid        | boolean           | false          | --                                         | none                    | Applies error visual state                                               |
-| errorMessage     | string            | undefined      | Any string                                 | none                    | Error text below field; only renders when isInvalid=true                 |
-| helperText       | string            | undefined      | Any string                                 | errorMessage            | Descriptive text below field; hidden when errorMessage present           |
-| label            | string            | undefined      | Any string (required if no aria-label)     | none                    | Visible label above field                                                |
-| size             | enum              | "md"           | "sm", "md", "lg"                           | none                    | Controls component density                                               |
-| variant          | enum              | "default"      | "default", "filled"                        | none                    | Visual style                                                             |
-| isClearable      | boolean           | false          | --                                         | isDisabled              | Shows the clear button when a value is selected                          |
-| filterFunction   | function          | built-in       | (option: Option, inputValue: string) => boolean | none            | Custom filter logic; defaults to case-insensitive substring match        |
-| onValueChange    | function          | undefined      | (value: string) => void                    | none                    | Called when selection changes                                            |
-| onInputChange    | function          | undefined      | (inputValue: string) => void               | none                    | Called on every keystroke in the input                                   |
-| onOpenChange     | function          | undefined      | (isOpen: boolean) => void                  | none                    | Called when listbox opens or closes                                      |
+| Prop           | Type     | Default     | Valid Options / Range                                                  | Mutually Exclusive With | Description                                                       |
+| -------------- | -------- | ----------- | ---------------------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| value          | string   | undefined   | Any string matching an option value                                    | none                    | Controlled selected value                                         |
+| defaultValue   | string   | undefined   | Any string matching an option value                                    | value                   | Uncontrolled initial value                                        |
+| options        | Option[] | []          | { value: string, label: string, disabled?: boolean, group?: string }[] | none                    | List of selectable options                                        |
+| placeholder    | string   | "Select..." | Any string, max 40 characters                                          | none                    | Displayed in input when no value selected                         |
+| isDisabled     | boolean  | false       | --                                                                     | isReadOnly              | Removes all interactivity                                         |
+| isReadOnly     | boolean  | false       | --                                                                     | isDisabled              | Keeps value visible but prevents changes; stays in tab order      |
+| isLoading      | boolean  | false       | --                                                                     | isDisabled              | Shows skeleton rows in listbox instead of options                 |
+| isInvalid      | boolean  | false       | --                                                                     | none                    | Applies error visual state                                        |
+| errorMessage   | string   | undefined   | Any string                                                             | none                    | Error text below field; only renders when isInvalid=true          |
+| helperText     | string   | undefined   | Any string                                                             | errorMessage            | Descriptive text below field; hidden when errorMessage present    |
+| label          | string   | undefined   | Any string (required if no aria-label)                                 | none                    | Visible label above field                                         |
+| size           | enum     | "md"        | "sm", "md", "lg"                                                       | none                    | Controls component density                                        |
+| variant        | enum     | "default"   | "default", "filled"                                                    | none                    | Visual style                                                      |
+| isClearable    | boolean  | false       | --                                                                     | isDisabled              | Shows the clear button when a value is selected                   |
+| filterFunction | function | built-in    | (option: Option, inputValue: string) => boolean                        | none                    | Custom filter logic; defaults to case-insensitive substring match |
+| onValueChange  | function | undefined   | (value: string) => void                                                | none                    | Called when selection changes                                     |
+| onInputChange  | function | undefined   | (inputValue: string) => void                                           | none                    | Called on every keystroke in the input                            |
+| onOpenChange   | function | undefined   | (isOpen: boolean) => void                                              | none                    | Called when listbox opens or closes                               |
 
 **Priority rules for conflicting props:**
+
 - When both `isDisabled` and `isLoading` are true, `isDisabled` takes precedence. Loading presumes the component is interactive (user triggered it). If the component should be non-interactive while loading (e.g., a page-level data fetch), use `isDisabled` instead.
 - When both `errorMessage` and `helperText` are provided, `errorMessage` renders and `helperText` is hidden (not removed from DOM -- use `aria-hidden` on helper text when error is active).
 - When both `value` and `defaultValue` are provided, `value` wins and the component behaves as controlled.
@@ -530,5 +550,3 @@ Note: Filled + Success is invalid because the filled variant is used in surfaces
   - `aria-activedescendant`: Set on the input. Value is the `id` of the currently keyboard-focused option in the listbox. This communicates the active option to screen readers without moving DOM focus out of the input.
 
 - **Keyboard Interaction:**
-
-  

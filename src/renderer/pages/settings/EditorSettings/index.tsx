@@ -37,10 +37,7 @@ const EditorSettings: React.FC = () => {
           </Radio.Group>
         </PreferenceRow>
 
-        <PreferenceRow
-          label={t('settings.editorPage.autoSaveDelay')}
-          help={t('settings.editorPage.autoSaveDelayHelp')}
-        >
+        <PreferenceRow label={t('settings.editorPage.autoSaveDelay')} help={t('settings.editorPage.autoSaveDelayHelp')}>
           <Select
             value={settings.autoSaveDelay}
             onChange={(v) => update('autoSaveDelay', v as AutoSaveDelay)}
@@ -50,10 +47,7 @@ const EditorSettings: React.FC = () => {
           />
         </PreferenceRow>
 
-        <PreferenceRow
-          label={t('settings.editorPage.frontmatter')}
-          help={t('settings.editorPage.frontmatterHelp')}
-        >
+        <PreferenceRow label={t('settings.editorPage.frontmatter')} help={t('settings.editorPage.frontmatterHelp')}>
           <Switch checked={settings.preserveFrontmatter} onChange={(v) => update('preserveFrontmatter', v)} />
         </PreferenceRow>
 

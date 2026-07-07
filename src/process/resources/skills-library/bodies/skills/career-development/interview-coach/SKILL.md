@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career interview-prep guide"
-  category: "career-development"
-  subcategory: "job-search"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career interview-prep guide'
+  category: 'career-development'
+  subcategory: 'job-search'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Interview Coach
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about interview coach
 - User needs guidance on interview coach topics
 - User wants a structured approach to interview coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **Have you interviewed for this type of role before?**
 9. **Are there specific questions or topics you want to prepare for?**
 10. **Have you researched the company yet?**
+
 ---
+
 ## Step 1: Company Research Checklist
 
 ### Before Every Interview
+
 ```
 COMPANY RESEARCH CHECKLIST:
 
@@ -87,10 +93,13 @@ YOUR INTERVIEWERS:
 [ ] Understand what THEY care about (engineering cares about different
     things than marketing or finance)
 ```
+
 ---
+
 ## Step 2: The STAR Method for Behavioral Questions
 
 ### Framework
+
 ```
 STAR METHOD:
 
@@ -112,6 +121,7 @@ TOTAL TIME: 1.5-2.5 minutes per answer
 ```
 
 ### STAR Answer Template
+
 ```
 STAR PREPARATION WORKSHEET:
 
@@ -142,6 +152,7 @@ REFLECTION (optional but impressive):
 ### Prepare 8-10 STAR Stories
 
 Map your stories to common competencies:
+
 ```
 STORY BANK:
 
@@ -181,12 +192,15 @@ TIP: Most stories can be adapted to answer multiple questions.
 A leadership story can also demonstrate conflict resolution,
 pressure, or initiative.
 ```
+
 ---
+
 ## Step 3: Common Question Bank with Example Approaches
 
 ### Opening Questions
 
 **"Tell me about yourself."** (Not a STAR question -- use a present-past-future framework)
+
 ```
 TEMPLATE:
 "Currently, I am {{PRESENT_ROLE_AND_KEY_RESPONSIBILITY}}.
@@ -201,6 +215,7 @@ RULES:
 ```
 
 **"Why do you want to work here?"**
+
 ```
 TEMPLATE:
 "Three things stood out to me. First, {{SPECIFIC_COMPANY_ATTRIBUTE}},
@@ -210,6 +225,7 @@ to me because {{CONNECTION_TO_YOUR_SKILLS_AND_CAREER_GOALS}}."
 ```
 
 **"Why are you leaving your current role?"**
+
 ```
 RULES:
 - Never badmouth your current employer
@@ -225,20 +241,21 @@ SAFE ANSWERS:
 
 ### Behavioral Questions
 
-| Question | What They Are Assessing |
-|---|---|
-| "Tell me about a time you failed" | Self-awareness, learning from mistakes, resilience |
-| "Describe a conflict with a coworker" | Conflict resolution, emotional intelligence, communication |
-| "Tell me about your greatest achievement" | What you value, your impact, your motivation |
-| "How do you handle multiple priorities?" | Organization, prioritization, time management |
-| "Tell me about a time you disagreed with your manager" | Judgment, communication, professionalism |
-| "Describe a time you had to learn something quickly" | Adaptability, learning agility, self-motivation |
-| "When have you gone above and beyond?" | Initiative, work ethic, commitment |
-| "Tell me about leading a difficult project" | Leadership, problem-solving, resilience |
+| Question                                               | What They Are Assessing                                    |
+| ------------------------------------------------------ | ---------------------------------------------------------- |
+| "Tell me about a time you failed"                      | Self-awareness, learning from mistakes, resilience         |
+| "Describe a conflict with a coworker"                  | Conflict resolution, emotional intelligence, communication |
+| "Tell me about your greatest achievement"              | What you value, your impact, your motivation               |
+| "How do you handle multiple priorities?"               | Organization, prioritization, time management              |
+| "Tell me about a time you disagreed with your manager" | Judgment, communication, professionalism                   |
+| "Describe a time you had to learn something quickly"   | Adaptability, learning agility, self-motivation            |
+| "When have you gone above and beyond?"                 | Initiative, work ethic, commitment                         |
+| "Tell me about leading a difficult project"            | Leadership, problem-solving, resilience                    |
 
 ### Weakness Question
 
 **"What is your greatest weakness?"**
+
 ```
 THE GOOD ANSWER FORMULA:
 1. Name a REAL weakness (not a fake one)
@@ -252,10 +269,13 @@ DO NOT SAY:
 - Anything that is a core requirement of the role
 - Anything without a clear improvement plan
 ```
+
 ---
+
 ## Step 4: Questions to Ask the Interviewer
 
 ### High-Impact Questions
+
 ```
 QUESTIONS BY INTERVIEW STAGE:
 
@@ -291,8 +311,11 @@ QUESTIONS TO AVOID:
 - How quickly you can get promoted
 - "How soon can I take vacation?"
 ```
+
 ---
+
 ## Step 5: Salary Discussion Timing
+
 ```
 SALARY CONVERSATION GUIDE:
 
@@ -321,8 +344,11 @@ TIMING RULES:
 - Detailed negotiation happens after the offer, not during interviews
 - See the Salary Negotiator skill for detailed negotiation strategies
 ```
+
 ---
+
 ## Step 6: Virtual Interview Setup
+
 ```
 VIRTUAL INTERVIEW CHECKLIST:
 
@@ -365,8 +391,11 @@ BACKUP PLAN:
 [ ] Your phone ready to call in if video fails
 [ ] Prepared message: "I am having technical difficulties. May I call in?"
 ```
+
 ---
+
 ## Step 7: Panel Interview Strategies
+
 ```
 PANEL INTERVIEW PREPARATION:
 
@@ -401,10 +430,13 @@ COMMON PANEL FORMAT:
 4. Your questions for them
 5. Closing and next steps
 ```
+
 ---
+
 ## Step 8: Thank-You Follow-Up Templates
 
 ### Within 24 Hours of the Interview
+
 ```
 THANK-YOU EMAIL TEMPLATE (INDIVIDUAL):
 
@@ -432,6 +464,7 @@ Best regards,
 ```
 
 ### Panel Interview (Send Unique Emails to Each)
+
 ```
 PANEL THANK-YOU STRATEGY:
 
@@ -443,6 +476,7 @@ PANEL THANK-YOU STRATEGY:
 ```
 
 ### Follow-Up After No Response
+
 ```
 FOLLOW-UP TEMPLATE (1 week after expected timeline):
 
@@ -463,8 +497,11 @@ Best regards,
 {{YOUR_NAME}}
 {{YOUR_PHONE}}
 ```
+
 ---
+
 ## Interview Day Checklist
+
 ```
 INTERVIEW DAY REMINDERS:
 
@@ -499,9 +536,10 @@ AFTER:
 [ ] Note any areas where you felt weak (practice those)
 [ ] Follow up with recruiter if no response within stated timeline
 ```
----
-*This skill provides interview preparation guidance. Practice your answers out loud, ideally with another person. Preparation and confidence are the biggest predictors of interview success.*
 
+---
+
+_This skill provides interview preparation guidance. Practice your answers out loud, ideally with another person. Preparation and confidence are the biggest predictors of interview success._
 
 ## Output Format
 

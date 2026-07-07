@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-image-generation design template"
-  category: "design-creative"
-  subcategory: "ai-image-generation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-image-generation design template'
+  category: 'design-creative'
+  subcategory: 'ai-image-generation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # DALL-E Prompting
 
 ## When to Use
 
 **Use this skill when:**
+
 - User explicitly asks to generate, create, or design an image using DALL-E 3, GPT-image-1, ChatGPT image generation, or any OpenAI image generation model
 - User wants help writing, improving, or debugging a DALL-E prompt that is not producing the desired output
 - User needs to iterate on an existing DALL-E result through revision dialogue -- they have a first image and want to refine it
@@ -29,6 +31,7 @@ metadata:
 - User is building an application that calls the OpenAI Images API and needs prompt engineering guidance for programmatic generation
 
 **Do NOT use when:**
+
 - User wants Midjourney prompts with `--ar`, `--v`, `--cref`, `--sref`, or `--style` parameter syntax (use `midjourney-prompting`)
 - User wants Stable Diffusion prompts with CFG scale, sampler selection, negative prompt weight syntax, or LoRA triggers (use `stable-diffusion-prompting`)
 - User wants to convert or adapt an existing prompt from Midjourney or Stable Diffusion syntax to DALL-E natural language (use `prompt-translation`)
@@ -219,21 +222,27 @@ Assemble everything into the structured output format defined below. Always incl
 ## Edge Cases
 
 ### 1. The User Receives a "Content Policy" Refusal
+
 DALL-E and GPT-image-1 will refuse prompts involving violence, sexual content, depictions of real people in compromising situations, or certain sensitive themes. The refusal may happen silently (API returns an error) or with an explanation.
+
 - First, identify the likely trigger: named individuals, violent imagery, nudity, hate symbols, or medical/legal content.
 - Rephrase to remove the trigger without changing the creative intent. A "battle scene with injured soldiers" becomes "a dramatic wartime composition showing soldiers in a moment of tense action, cinematic, no graphic violence."
 - For historical or journalistic contexts, describe the scene abstractly with emphasis on the emotional and compositional elements rather than explicit content.
 - If the refusal persists, inform the user that certain content categories are outside the model's policy envelope and cannot be worked around through rephrasing.
 
 ### 2. Generating Consistent Characters Across a Series (Children's Book, Brand Character, etc.)
+
 As noted in Step 7, DALL-E has no native reference system. The practical consistency ceiling with prompt engineering alone is about 70-80% visual similarity.
+
 - Build a "character card" -- a detailed fixed-text description of the character that gets pasted verbatim into every prompt. This card should be 30-50 words and cover hair color/length/style, facial feature descriptors (without being too specific, which paradoxically causes more variation), clothing, and any signature accessories.
 - Use style anchors that constrain variation: "flat vector illustration with a limited 5-color palette" constrains the output space more than "digital illustration."
 - Accept that GPT-image-1 produces more consistent characters than DALL-E 3 due to better instruction following. For any serious character consistency project, recommend GPT-image-1 with the `high` quality setting.
 - For professional publishing requirements, be direct: prompt-only consistency is insufficient. The illustrator workflow -- generating a strong reference image, then using outpainting/inpainting to create scenes -- produces better results.
 
 ### 3. Product Photography for E-Commerce
+
 Product images have highly specific requirements: clean background, precise lighting that shows material and texture, correct perspective, no distortion of product shape.
+
 - Use GPT-image-1 for all product photography prompts. Its literal instruction-following prevents unwanted compositional additions.
 - Always describe the background explicitly: "on a seamless pure white studio background (#FFFFFF), no shadows or gradients." "Against a matte white sweep, with only a soft contact shadow directly beneath."
 - Specify the lighting rig: "lit with a softbox from camera left, a fill reflector from camera right, and a hair light from above -- product photography studio lighting." This prevents the model from defaulting to dramatic cinematic lighting.
@@ -242,7 +251,9 @@ Product images have highly specific requirements: clean background, precise ligh
 - Prompt pattern: `[Exact product name and description, including color and material]. Professional product photography on a seamless white background. Soft studio lighting with a large softbox from camera left, fill light from camera right. [Specific viewing angle]. Shot on a Canon EOS R5, 100mm macro lens, f/8, ISO 100, no depth of field blur. No shadows, no reflections, no background elements. Clean, sharp, professional catalog photography quality.`
 
 ### 4. Images That Need to Work as Editable Layers (Design Workflow)
+
 Users sometimes need images where subject and background are separable -- for use in Figma, Illustrator, or Photoshop.
+
 - AI-generated images are always rasterized flat composites. There is no layer separation at generation time.
 - Prompt for clean edge separation: "the subject against a solid flat background color" makes background removal significantly easier in Photoshop's Remove Background or Adobe Firefly.
 - For full transparency-friendly output, recommend generating on a white or solid-color background and using Photoshop's Select Subject + Remove Background workflow post-generation.
@@ -250,7 +261,9 @@ Users sometimes need images where subject and background are separable -- for us
 - GPT-image-1's `transparent` background option (where available in the API) can produce PNG with alpha channel output -- recommend this when the API access allows it.
 
 ### 5. Abstract, Conceptual, or Emotion-First Images
+
 Some requests have no literal visual referent: "an image representing imposter syndrome" or "the feeling of a Sunday morning."
+
 - DALL-E handles abstraction well when guided by visual metaphors rather than psychological labels. Never use the abstract concept name as the sole descriptor.
 - Translation framework: What colors embody this concept? What textures or materials? What lighting quality? What shapes -- sharp and angular, or soft and rounded? What scale -- intimate or vast?
 - "Imposter syndrome" might become: "a figure in formal business attire standing in a vast, too-large empty boardroom, their reflection in the polished table shows them in casual, worn clothing. Dramatic directional lighting, cold blue-gray tones, high-ceiling architecture creating an overwhelming sense of scale, cinematic composition."
@@ -258,13 +271,16 @@ Some requests have no literal visual referent: "an image representing imposter s
 - Build the abstraction out of five specific, concrete visual details. Then add the style and mood layer.
 
 ### 6. Multi-Panel or Collage Layouts
+
 Users sometimes want a single image that contains multiple panels, a before/after split, or a grid of variations.
+
 - GPT-image-1 handles layout instructions better than DALL-E 3. Use GPT-image-1 for any multi-panel request.
 - Be explicit about the grid structure: "a 2x2 grid of four individual portrait photographs, each in its own panel separated by thin white borders, each showing the same woman in a different seasonal outfit."
 - GPT-image-1 will attempt to render this but the internal panel boundaries and sizing will vary. This is an inherent limitation -- the model is generating a flat image, not compositing panels.
 - For precise grid layouts, recommend that the user generate individual images and composite them in Figma, Canva, or Photoshop rather than attempting to generate the collage in a single prompt.
 
 ### 7. Photorealistic Human Portraits Without a Named Subject
+
 - Never describe a named individual. Always describe physical attributes: "a woman in her mid-40s with natural silver hair worn in a loose updo, sharp cheekbones, dark brown eyes, warm medium-brown complexion, dressed in a tailored charcoal blazer."
 - Hands and fingers are a persistent weakness in AI image generation. If hands are important, specify them explicitly: "hands not visible" or "hands in lap, partially obscured" reduces the likelihood of anatomical errors. If hands must be shown, specify: "one hand visible, resting on a table, relaxed position."
 - For facial closeups, specify expression with muscular precision: "a genuine Duchenne smile -- eyes crinkled at the corners, cheeks raised" rather than just "smiling," which often produces an uncanny or forced result.
@@ -272,6 +288,7 @@ Users sometimes want a single image that contains multiple panels, a before/afte
 - Specify eye contact: "looking directly into the camera" vs. "gaze directed off-frame to the left at roughly 30 degrees." DALL-E defaults to direct eye contact, which can feel confrontational in some contexts.
 
 ### 8. Infographics and Data Visualization Within Images
+
 - Do not attempt to generate actual accurate data charts or infographics with real numbers via DALL-E. The model will render visually convincing charts that contain incorrect or fabricated numbers.
 - Use AI-generated images only for the stylistic shell or decorative elements of an infographic -- then populate with actual data in design software.
 - However, for illustrative "mockup" purposes (e.g., to show a client what a dashboard could look like), GPT-image-1 can generate plausible-looking chart aesthetics: "a mobile analytics dashboard interface mockup showing bar charts and a line graph in a clean white card UI, modern SaaS design, blue and gray color scheme, no specific numbers need to be accurate."
@@ -288,12 +305,13 @@ Users sometimes want a single image that contains multiple panels, a before/afte
 ## DALL-E Image Generation Prompt
 
 ### Generation Setup
-| Parameter | Value | Rationale |
-|-----------|-------|-----------|
-| Model | GPT-image-1 | No text needs to be rendered (shop name will be added in the website CMS), and the compositional layout requirements -- specific furniture placement, lighting quality, plant positioning -- benefit from GPT-image-1's literal instruction-following over DALL-E 3's interpretive tendencies |
-| Size | 1536x1024 | GPT-image-1's landscape format for website hero banners; 3:2 ratio leaves room for headline text overlay in the upper third |
-| Quality | high | Hero images appear large on screen; standard quality artifacts will be visible at full-width rendering |
-| API style | N/A (GPT-image-1) | Style parameter is DALL-E 3-specific |
+
+| Parameter | Value             | Rationale                                                                                                                                                                                                                                                                                     |
+| --------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Model     | GPT-image-1       | No text needs to be rendered (shop name will be added in the website CMS), and the compositional layout requirements -- specific furniture placement, lighting quality, plant positioning -- benefit from GPT-image-1's literal instruction-following over DALL-E 3's interpretive tendencies |
+| Size      | 1536x1024         | GPT-image-1's landscape format for website hero banners; 3:2 ratio leaves room for headline text overlay in the upper third                                                                                                                                                                   |
+| Quality   | high              | Hero images appear large on screen; standard quality artifacts will be visible at full-width rendering                                                                                                                                                                                        |
+| API style | N/A (GPT-image-1) | Style parameter is DALL-E 3-specific                                                                                                                                                                                                                                                          |
 
 ---
 
@@ -305,32 +323,37 @@ Users sometimes want a single image that contains multiple panels, a before/afte
 
 ### Prompt Architecture Breakdown
 
-| Component | Content |
-|-----------|---------|
-| Subject anchor | Walnut bar counter with espresso machine, pour-over, and ceramic cup -- establishes the coffee craft identity immediately |
-| Action/state | No people; static scene in active preparation state -- equipment present, atmosphere warm |
-| Setting | Interior, Pacific Northwest mid-century modern, Edison bulbs + overcast window daylight, oak herringbone floor, exposed fir beams |
-| Style declaration | Professional interior photography on Sony A7R V, 24mm, f/8, mixed lighting, architectural quality |
-| Quality cues | Tack sharp throughout, architectural photography quality, balanced mixed lighting |
-| Exclusions | "No text, signage, logos, or watermarks visible" -- phrased as a single natural language sentence at the end |
+| Component         | Content                                                                                                                           |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Subject anchor    | Walnut bar counter with espresso machine, pour-over, and ceramic cup -- establishes the coffee craft identity immediately         |
+| Action/state      | No people; static scene in active preparation state -- equipment present, atmosphere warm                                         |
+| Setting           | Interior, Pacific Northwest mid-century modern, Edison bulbs + overcast window daylight, oak herringbone floor, exposed fir beams |
+| Style declaration | Professional interior photography on Sony A7R V, 24mm, f/8, mixed lighting, architectural quality                                 |
+| Quality cues      | Tack sharp throughout, architectural photography quality, balanced mixed lighting                                                 |
+| Exclusions        | "No text, signage, logos, or watermarks visible" -- phrased as a single natural language sentence at the end                      |
 
 ---
 
 ### Revision Strategy
 
 **If the image feels too dark or the amber light is too orange/sepia:**
+
 - Revision prompt: "Same coffee shop interior, same composition and furniture, but brighten the scene by increasing the natural daylight from the window -- cooler, balanced light that feels like a well-lit independent café at 10am on an overcast morning. Reduce the Edison bulb warmth, keep the herringbone floor and plants, no people."
 
 **If the composition feels too symmetrical or magazine-generic rather than authentic and lived-in:**
+
 - Revision prompt: "Same coffee shop interior and style, but add small details that suggest daily use: a folded newspaper on the bar corner, a few espresso grounds visible on the portafilter, a chalk-written menu board in the background that is soft and out of focus. Keep the same camera settings and no people."
 
 **If the espresso machine overwhelms the frame and the space doesn't read as a full interior:**
+
 - Revision prompt: "Reframe to a slightly wider view -- pull the camera back to show more of the café interior beyond the bar. Show two low mid-century modern armchairs in the background near the window, the hanging plants still visible, the bar counter now in the left third of the frame rather than dominating. Same photography style, warm and cool mixed lighting, no people."
 
 **If plants are absent or minimal when they should be a key design element:**
+
 - Revision prompt: "Same composition, but significantly increase the lush greenery -- multiple hanging pothos, a large monstera in a ceramic pot near the window, trailing vines along the window frame. The Pacific Northwest plant density should feel abundant and intentional, not decorative."
 
 **Nuclear option (full rewrite trigger):**
+
 - If the generated image contains people, heavy corporate franchise signage aesthetics, generic Starbucks-like décor, or if the mid-century modern design reads as generic modern rather than intentionally retro -- abandon revisions. The model has diverged too far from the core aesthetic brief. Rewrite starting from a stronger style anchor: "inspired by the interior design of a 1958 Eames-era California coffee house, reimagined in Portland, Oregon -- teak furniture, ceramic vessels, Knoll-era typography sensibility."
 
 ---
@@ -338,14 +361,17 @@ Users sometimes want a single image that contains multiple panels, a before/afte
 ### Variation Suggestions
 
 **Variation 1 -- Detail-forward flat lay:**
+
 > The top-down flat lay of a specialty coffee bar setup on a dark walnut surface: a freshly pulled espresso shot in a small white ceramic cup, a latte art tulip in a wider ceramic vessel beside it, a small glass of still water, scattered whole roasted coffee beans, and a sprig of rosemary as garnish. Soft diffused natural light from a window to the upper left, gentle shadows. Shot on a Hasselblad X2D 100C, 50mm lens, f/5.6, natural daylight only, product photography quality. Warm tones, artisan and unhurried, Pacific Northwest coffee culture. No text or branding.
 
 **Variation 2 -- Exterior atmosphere shot:**
+
 > The exterior of a small independent coffee shop storefront at golden hour, Pacific Northwest street. Large plate glass windows glow warm amber from inside, revealing glimpsed shelves of coffee equipment and trailing plants. The exterior is clean painted brick in a muted sage green, a simple hanging wooden sign above the door (text unreadable -- too small and out of focus), two small outdoor bistro chairs and a table on the sidewalk, fallen maple leaves around the chairs. Photographed with a 50mm lens on a Leica M11, f/4, golden hour natural light, slight lens flare from the low sun, documentary street photography quality. Cozy, artisan, local. No visible readable text.
 
 ---
 
 ### Consistency Notes (for series use)
+
 If generating multiple hero images for different sections of the website (interior, exterior, product flat lay), use this fixed anchor block in every prompt:
 
 **Meridian Coffee visual identity anchor block:**

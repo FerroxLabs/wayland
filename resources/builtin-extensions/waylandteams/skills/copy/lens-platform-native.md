@@ -4,19 +4,20 @@
 
 ## When to use
 
-Use when the deliverable is *the same idea ported across surfaces.* Cross-posting a long-form essay to LinkedIn, Twitter/X, Instagram caption, TikTok script, email, Substack note, YouTube community post. Trigger this lens when the brief is "we wrote one post, now adapt it for three platforms" or "the post did well on X but flopped on Y."
+Use when the deliverable is _the same idea ported across surfaces._ Cross-posting a long-form essay to LinkedIn, Twitter/X, Instagram caption, TikTok script, email, Substack note, YouTube community post. Trigger this lens when the brief is "we wrote one post, now adapt it for three platforms" or "the post did well on X but flopped on Y."
 
 ## Procedure
 
 1. **Read the platform intelligence.** Each platform has a current native shape — feed dynamics, length tolerance, reward signal, audience posture. LinkedIn rewards earned-authority and operator narratives; Twitter/X rewards compressed insight and reply-loops; Instagram rewards image-first emotional triggers; TikTok rewards first-second pattern interrupt; email rewards personal-feeling subject lines; Substack rewards thinking-out-loud cadence. Name the platform-specific reality the asset will live inside.
-2. **Pick the emotional trigger.** Which one feeling does the platform reward right now for this audience? *Recognition, vindication, curiosity, indignation, surprise, calm, FOMO, belonging.* The trigger is what the algorithm and the human both respond to. Pick one. Stack-of-triggers reads as inauthentic.
-3. **Decide the native format.** Not the topic — the *shape.* LinkedIn: short-paragraph narrative ending in a one-line takeaway. Twitter/X: a 7-tweet thread, or a single sharpened take. Instagram caption: image-anchored hook + one paragraph + CTA. TikTok script: 1-second visual + 3-second promise + 30-second payoff. Email: subject + preview + first-paragraph hook + body. The format follows the platform, not the writer's preference.
+2. **Pick the emotional trigger.** Which one feeling does the platform reward right now for this audience? _Recognition, vindication, curiosity, indignation, surprise, calm, FOMO, belonging._ The trigger is what the algorithm and the human both respond to. Pick one. Stack-of-triggers reads as inauthentic.
+3. **Decide the native format.** Not the topic — the _shape._ LinkedIn: short-paragraph narrative ending in a one-line takeaway. Twitter/X: a 7-tweet thread, or a single sharpened take. Instagram caption: image-anchored hook + one paragraph + CTA. TikTok script: 1-second visual + 3-second promise + 30-second payoff. Email: subject + preview + first-paragraph hook + body. The format follows the platform, not the writer's preference.
 4. **State why this reader cares — on this surface.** Why is the reader on this specific platform right now? Are they unwinding (Instagram), networking (LinkedIn), arguing (Twitter/X), being entertained (TikTok), or reading inbox-curated content (email)? The "why care" line must match the posture, or the asset reads as off-key.
 5. **Write the opening line for this platform.** One opening line — not five, not a list. The opening line that wins on LinkedIn loses on TikTok and vice versa. Match the native shape from step 3.
 
 End every output with this exact contract:
 
 **NATIVE-FRAME:**
+
 - Platform intelligence: ...
 - Emotional trigger: ...
 - Native format: ...
@@ -37,18 +38,20 @@ End every output with this exact contract:
 - **Same asset, five platforms, no edit.** The "post once, syndicate everywhere" approach. Reader on each surface feels the mismatch and scrolls past.
 - **Algorithm-chasing.** Building the asset to game a current trick (hook-line spacing, emoji bullets, fake hashtag stacks) at the cost of saying anything. Tricks decay; substance compounds.
 - **Posture-blind copy.** Writing operator-numbers content into a posture-driven feed, or emotional-narrative content into a transactional inbox. The reader is not in the wrong mood; the asset is in the wrong place.
-- **Confusing platform-native with platform-pandering.** Native means *fits the surface*; pandering means *flatters the algorithm*. Different jobs.
+- **Confusing platform-native with platform-pandering.** Native means _fits the surface_; pandering means _flatters the algorithm_. Different jobs.
 
 ## Before / after
 
 **Brief:** A long-form essay on burnout, ported to a LinkedIn post.
 
 **Before** (essay opening, dropped verbatim):
-> *Burnout is one of the most misunderstood phenomena of modern work, and in this piece I want to explore its roots, its varied expressions, and what we as leaders can do about it.*
+
+> _Burnout is one of the most misunderstood phenomena of modern work, and in this piece I want to explore its roots, its varied expressions, and what we as leaders can do about it._
 
 Reads as a school assignment in a LinkedIn feed.
 
 **After** (LinkedIn-native):
-> *Last Thursday I told a team lead to take a week off. He did not. I want to talk about why "take a break" stopped working as advice three years ago, and what I am saying instead now.*
+
+> _Last Thursday I told a team lead to take a week off. He did not. I want to talk about why "take a break" stopped working as advice three years ago, and what I am saying instead now._
 
 Platform intelligence (LinkedIn rewards operator narrative). Trigger: recognition. Format: short narrative paragraph + one-line takeaway promise. Why care: leaders facing the same un-takable PTO. Opening line earns the second line.

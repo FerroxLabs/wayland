@@ -77,9 +77,7 @@ describe('isCapGranted', () => {
       importCapabilityGrants: {},
     };
     expect(isCapGranted(team, 'canWriteFiles')).toBe(false);
-    expect(isCapGranted({ ...team, importCapabilityGrants: undefined }, 'canSpawnAgents')).toBe(
-      false
-    );
+    expect(isCapGranted({ ...team, importCapabilityGrants: undefined }, 'canSpawnAgents')).toBe(false);
   });
 
   // W4 audit CRIT-2 - the load-bearing regression: granting ONE cap must

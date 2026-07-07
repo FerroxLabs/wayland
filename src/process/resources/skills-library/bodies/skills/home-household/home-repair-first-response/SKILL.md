@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance troubleshooting guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance troubleshooting guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Home Repair First Response
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user has an active, time-sensitive home emergency where the first 15--30 minutes of response directly determine the scale of physical damage, safety risk, or repair cost.
 
 **Use this skill when:**
+
 - Water is actively spraying, flowing, or pooling in the home from a burst pipe, failed fitting, overflowing fixture, or appliance supply line
 - The user smells natural gas or propane anywhere inside the home or immediately adjacent to the exterior
 - The user has no heat during freezing temperatures (below 32°F outdoor ambient) and cannot restore it within the next hour
@@ -38,6 +40,7 @@ Use this skill when the user has an active, time-sensitive home emergency where 
 - The user asks "what do I do right now" about a sudden system or appliance failure
 
 **Do NOT use this skill when:**
+
 - The user has a routine maintenance question (use the `annual-home-maintenance` skill instead)
 - The user wants to plan or schedule a repair that is not urgent (use system-specific maintenance skills)
 - The user smells gas AND reports dizziness, headache, nausea, or confusion -- this is a life-threatening emergency requiring immediate 911 contact and evacuation, not a troubleshooting conversation
@@ -371,11 +374,11 @@ Not an evacuate-immediately situation, BUT: if water is near the electrical pane
 
 ### WHO TO CALL -- RIGHT NOW
 
-| Service | What to Say | Expected Response Time | Typical Cost |
-|---|---|---|---|
-| Emergency plumber | "My water heater failed and caused flooding in my basement. I've shut off the supply valve and the gas/power to the unit. I need someone to assess the tank and cap the lines today." | 1--4 hours for emergency call | $150--350 service call; $900--1,800 for water heater replacement (tank) |
-| Water damage restoration | "I have approximately [X] square feet of standing water in my basement from a water heater failure. I need extraction and drying services." | 2--4 hours for emergency dispatch | $1,500--4,500 for extraction, drying, and monitoring depending on area |
-| Homeowner's insurance | "I need to report a sudden water heater failure that caused flooding in my basement. The date and time is [date/time]." | Claim opened same day; adjuster in 24--72 hours | Covered under most standard HO-3 policies as sudden and accidental; gradual deterioration may be excluded |
+| Service                  | What to Say                                                                                                                                                                           | Expected Response Time                          | Typical Cost                                                                                              |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Emergency plumber        | "My water heater failed and caused flooding in my basement. I've shut off the supply valve and the gas/power to the unit. I need someone to assess the tank and cap the lines today." | 1--4 hours for emergency call                   | $150--350 service call; $900--1,800 for water heater replacement (tank)                                   |
+| Water damage restoration | "I have approximately [X] square feet of standing water in my basement from a water heater failure. I need extraction and drying services."                                           | 2--4 hours for emergency dispatch               | $1,500--4,500 for extraction, drying, and monitoring depending on area                                    |
+| Homeowner's insurance    | "I need to report a sudden water heater failure that caused flooding in my basement. The date and time is [date/time]."                                                               | Claim opened same day; adjuster in 24--72 hours | Covered under most standard HO-3 policies as sudden and accidental; gradual deterioration may be excluded |
 
 ---
 
@@ -402,17 +405,20 @@ Not an evacuate-immediately situation, BUT: if water is near the electrical pane
 ### AFTER THE EMERGENCY -- FOLLOW-UP CHECKLIST
 
 **Within 24 hours:**
+
 - [ ] Plumber has installed replacement water heater or confirmed pipe/fitting repair (if the failure was a supply line fitting rather than the tank itself)
 - [ ] Water restoration company has placed commercial air movers and dehumidifiers in the affected area
 - [ ] Insurance claim opened and claim number recorded
 - [ ] All receipts saved (plumber, restoration company, any equipment rental)
 
 **Within 72 hours:**
+
 - [ ] Moisture readings taken by restoration company or with your own pin-type moisture meter on all affected walls and flooring. Target: below 16% for wood subfloor, below 1% for drywall (by mass)
 - [ ] Drywall assessed -- if the lower 12 inches of drywall tested wet at 24 hours, it very likely needs a flood cut (removal of the lowest 12--16 inches) to dry the wall cavity and prevent mold in the insulation and studs behind it
 - [ ] Confirm new water heater is properly installed and inspected if required by local code (permit required in many jurisdictions for water heater replacement -- failure to permit can affect insurance coverage and future home sale)
 
 **Within 2 weeks:**
+
 - [ ] Inspect previously wet areas for musty odor, discoloration, or visible mold growth. Check under baseboards, behind storage shelving, and in corners where air circulation is lowest
 - [ ] Confirm moisture readings are at dry standard throughout (restoration company should provide a final moisture log)
 - [ ] Schedule insurance adjuster walk-through if repair costs exceed your deductible

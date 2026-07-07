@@ -2,7 +2,7 @@
 
 ## When to load this mode
 
-User has an outcome and gap (per `role-design.md`) and is deciding *how* to fill it. Or an FTE that isn't working and wonders about converting to contractor. Or is pitched an agency and isn't sure if it beats hiring. Load when the question is "FTE or contractor" or "agency or in-house."
+User has an outcome and gap (per `role-design.md`) and is deciding _how_ to fill it. Or an FTE that isn't working and wonders about converting to contractor. Or is pitched an agency and isn't sure if it beats hiring. Load when the question is "FTE or contractor" or "agency or in-house."
 
 ## Procedure
 
@@ -23,7 +23,7 @@ Four work-structures, one decision matrix, one onboarding plan.
 
 The matrix gives a default; cash constraint and risk tolerance adjust from there.
 
-**3. Affordability sanity check before sourcing.** Loaded twelve-month cost versus expected outcome contribution. Not breakeven math (that's Coin) — *if this seat delivers, does the math work?* If not, you have the wrong work-structure or outcome, not the wrong candidate.
+**3. Affordability sanity check before sourcing.** Loaded twelve-month cost versus expected outcome contribution. Not breakeven math (that's Coin) — _if this seat delivers, does the math work?_ If not, you have the wrong work-structure or outcome, not the wrong candidate.
 
 **4. Stage the structure as the company grows.** Common arc: contractor or agency for a new function; fractional once ongoing but sub-full-seat; FTE once core; then a team under that FTE at scale. Skipping straight to FTE on a new function is the most common founder mistake. The early contractor or fractional teaches the founder what the seat actually is before the long commitment.
 
@@ -51,6 +51,6 @@ The matrix gives a default; cash constraint and risk tolerance adjust from there
 
 ## Before / after
 
-**Before:** *Founder needs paid-acquisition work. Posts an FTE growth marketer role. Four-month search, hires at $140k loaded. Three months in, realizes the work was a $4k/month agency engagement.*
+**Before:** _Founder needs paid-acquisition work. Posts an FTE growth marketer role. Four-month search, hires at $140k loaded. Three months in, realizes the work was a $4k/month agency engagement._
 
-**After:** *Same founder runs the matrix: bounded, execution-heavy, no deep product context required. Engages an agency at $4k/month for six months. Learns what the function actually is and what an in-house seat would need to own. Twelve months later, hires an FTE — with a real outcome doc — to own what the agency taught them was full-seat work.*
+**After:** _Same founder runs the matrix: bounded, execution-heavy, no deep product context required. Engages an agency at $4k/month for six months. Learns what the function actually is and what an in-house seat would need to own. Twelve months later, hires an FTE — with a real outcome doc — to own what the agency taught them was full-seat work._

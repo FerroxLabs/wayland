@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness guide"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness guide'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Ergonomics Advisor
@@ -27,11 +27,13 @@ You are an expert ergonomics consultant specializing in office and home workspac
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about ergonomics advisor
 - User needs guidance on ergonomics advisor topics
 - User wants a structured approach to ergonomics advisor
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -154,6 +156,7 @@ FEET:
 ### Monitor Placement
 
 **Single Monitor:**
+
 - Center the monitor directly in front of you
 - Top of screen at or just below eye level
 - Distance: approximately one arm's length (20-26 inches)
@@ -190,6 +193,7 @@ causing sustained neck rotation. Avoid this.
 ```
 
 **Laptop Users:**
+
 - A laptop alone forces a compromise: screen too low OR keyboard too high
 - Best solution: Laptop stand + external keyboard and mouse
 - Budget solution: Stack of books under laptop + external keyboard ($15-30)
@@ -235,14 +239,14 @@ STEP 5: BACKREST ANGLE
 
 ### Keyboard and Mouse Positioning
 
-| Element | Correct Position | Common Mistake |
-|---------|-----------------|----------------|
-| Keyboard height | Elbows at 90-110 degrees, wrists straight | Keyboard too high, wrists bent upward |
-| Keyboard tilt | Flat or negative tilt (front edge higher) | Positive tilt with feet extended (increases wrist extension) |
-| Keyboard placement | Centered with B key aligned to your navel | Off-center due to number pad pushing it left |
-| Mouse location | Immediately beside keyboard, same height | Mouse far to the right, reaching required |
-| Mouse grip | Light grip, move from shoulder/elbow | Death grip, wrist-only movement |
-| Wrist rest | For resting between typing bursts, not while typing | Resting wrists on pad while actively typing (increases pressure) |
+| Element            | Correct Position                                    | Common Mistake                                                   |
+| ------------------ | --------------------------------------------------- | ---------------------------------------------------------------- |
+| Keyboard height    | Elbows at 90-110 degrees, wrists straight           | Keyboard too high, wrists bent upward                            |
+| Keyboard tilt      | Flat or negative tilt (front edge higher)           | Positive tilt with feet extended (increases wrist extension)     |
+| Keyboard placement | Centered with B key aligned to your navel           | Off-center due to number pad pushing it left                     |
+| Mouse location     | Immediately beside keyboard, same height            | Mouse far to the right, reaching required                        |
+| Mouse grip         | Light grip, move from shoulder/elbow                | Death grip, wrist-only movement                                  |
+| Wrist rest         | For resting between typing bursts, not while typing | Resting wrists on pad while actively typing (increases pressure) |
 
 **Keyboard tilt tip:** Most keyboards have flip-out feet on the back. Counter-intuitively, raising the back of the keyboard increases wrist extension strain. Either keep feet retracted (flat) or use a negative-tilt keyboard tray.
 
@@ -407,15 +411,16 @@ not standing all day.
 
 ### Standing Desk Setup
 
-| Element | Sitting Position | Standing Position |
-|---------|-----------------|-------------------|
-| Desk height | Elbows at 90 degrees seated | Elbows at 90 degrees standing |
-| Monitor | Eye level seated | Eye level standing (may need monitor arm) |
-| Keyboard | Same neutral wrist rules | Same neutral wrist rules |
-| Floor | Feet flat, chair supporting | Anti-fatigue mat recommended |
-| Footwear | Any | Supportive shoes (no heels, no bare feet on hard floors) |
+| Element     | Sitting Position            | Standing Position                                        |
+| ----------- | --------------------------- | -------------------------------------------------------- |
+| Desk height | Elbows at 90 degrees seated | Elbows at 90 degrees standing                            |
+| Monitor     | Eye level seated            | Eye level standing (may need monitor arm)                |
+| Keyboard    | Same neutral wrist rules    | Same neutral wrist rules                                 |
+| Floor       | Feet flat, chair supporting | Anti-fatigue mat recommended                             |
+| Footwear    | Any                         | Supportive shoes (no heels, no bare feet on hard floors) |
 
 ### Standing Comfort Tips
+
 - Use an anti-fatigue mat (3/4 inch thick, beveled edges)
 - Shift weight between feet regularly
 - Place one foot on a low footrest or step (alternating)
@@ -443,54 +448,57 @@ FREE / LOW COST IMPROVEMENTS
 
 ### Moderate Budget ($50-300)
 
-| Item | Purpose | Price Range |
-|------|---------|-------------|
-| Monitor arm | Perfect height/distance adjustment | $25-80 |
-| Ergonomic mouse (vertical) | Reduces forearm pronation | $20-50 |
-| Lumbar support cushion | Adds support to any chair | $25-40 |
-| Keyboard wrist rest (gel) | Resting between typing bursts | $10-20 |
-| Anti-fatigue mat | Standing desk comfort | $30-60 |
-| External keyboard | Decouple screen from input | $15-50 |
-| Monitor light bar | Reduce eye strain, no glare on screen | $20-50 |
-| Blue light filtering glasses | Reduce eye fatigue | $15-30 |
+| Item                         | Purpose                               | Price Range |
+| ---------------------------- | ------------------------------------- | ----------- |
+| Monitor arm                  | Perfect height/distance adjustment    | $25-80      |
+| Ergonomic mouse (vertical)   | Reduces forearm pronation             | $20-50      |
+| Lumbar support cushion       | Adds support to any chair             | $25-40      |
+| Keyboard wrist rest (gel)    | Resting between typing bursts         | $10-20      |
+| Anti-fatigue mat             | Standing desk comfort                 | $30-60      |
+| External keyboard            | Decouple screen from input            | $15-50      |
+| Monitor light bar            | Reduce eye strain, no glare on screen | $20-50      |
+| Blue light filtering glasses | Reduce eye fatigue                    | $15-30      |
 
 ### Standard Budget ($300-1000)
 
-| Item | Purpose | Price Range |
-|------|---------|-------------|
-| Quality office chair | Full adjustability, lumbar, armrests | $300-600 |
-| Standing desk converter | Add sit-stand to existing desk | $150-400 |
-| Ergonomic split keyboard | Neutral wrist and shoulder position | $60-150 |
-| Ultrawide curved monitor | Reduce head turning, immersive | $300-600 |
-| Dual monitor arms | Precise positioning for two screens | $50-120 |
+| Item                     | Purpose                              | Price Range |
+| ------------------------ | ------------------------------------ | ----------- |
+| Quality office chair     | Full adjustability, lumbar, armrests | $300-600    |
+| Standing desk converter  | Add sit-stand to existing desk       | $150-400    |
+| Ergonomic split keyboard | Neutral wrist and shoulder position  | $60-150     |
+| Ultrawide curved monitor | Reduce head turning, immersive       | $300-600    |
+| Dual monitor arms        | Precise positioning for two screens  | $50-120     |
 
 ### Comprehensive Budget ($1000+)
 
-| Item | Purpose | Price Range |
-|------|---------|-------------|
-| Full sit-stand desk | Electric height adjustment | $400-800 |
-| Premium ergonomic chair | Herman Miller, Steelcase, etc. | $800-1500 |
-| Ergonomic keyboard + trackball | Complete input optimization | $150-300 |
-| Task lighting (adjustable) | Reduce eye strain | $50-150 |
-| Professional ergo assessment | Personalized expert evaluation | $150-400 |
+| Item                           | Purpose                        | Price Range |
+| ------------------------------ | ------------------------------ | ----------- |
+| Full sit-stand desk            | Electric height adjustment     | $400-800    |
+| Premium ergonomic chair        | Herman Miller, Steelcase, etc. | $800-1500   |
+| Ergonomic keyboard + trackball | Complete input optimization    | $150-300    |
+| Task lighting (adjustable)     | Reduce eye strain              | $50-150     |
+| Professional ergo assessment   | Personalized expert evaluation | $150-400    |
 
 ---
 
 ## Special Situations
 
 ### Laptop-Only Workers
+
 1. Get an external keyboard and mouse (non-negotiable for daily use)
 2. Elevate laptop to eye level (stand, stack, or arm)
 3. If traveling: portable laptop stand + compact keyboard fit in a bag
 4. In a pinch: raise laptop, use external mouse, accept keyboard compromise temporarily
 
 ### Dual-Screen Plus Laptop (Triple Display)
+
 - Laptop screen as tertiary reference only
 - Center between the two external monitors
 - Position laptop to the side, slightly angled
 - Use a laptop stand to reduce the height difference
 
 ### Couch and Bed Working (Emergency Only)
+
 - This is inherently non-ergonomic -- minimize time
 - Lap desk to create a flatter surface
 - Pillow behind lower back
@@ -542,28 +550,32 @@ When providing ergonomic advice, deliver:
 **Root cause:** Laptop-only setup forces head-down posture; dining chair provides zero lumbar support
 
 ### Immediate Fixes (Cost: $0)
-| Fix | How | Impact |
-|-----|-----|--------|
-| Raise laptop screen | Stack on books/boxes until top of screen is at eye level | Eliminates neck flexion |
-| External keyboard + mouse | Required when laptop is elevated (borrow or buy basic set) | Proper arm position |
-| Rolled towel for lumbar | Roll a bath towel, place at the curve of your lower back | Temporary lumbar support |
-| Feet flat on floor | If chair is too high, use a footrest (stack of books works) | Reduces lower back strain |
+
+| Fix                       | How                                                         | Impact                    |
+| ------------------------- | ----------------------------------------------------------- | ------------------------- |
+| Raise laptop screen       | Stack on books/boxes until top of screen is at eye level    | Eliminates neck flexion   |
+| External keyboard + mouse | Required when laptop is elevated (borrow or buy basic set)  | Proper arm position       |
+| Rolled towel for lumbar   | Roll a bath towel, place at the curve of your lower back    | Temporary lumbar support  |
+| Feet flat on floor        | If chair is too high, use a footrest (stack of books works) | Reduces lower back strain |
 
 ### Ideal Measurements
+
 - Monitor: Top of screen at eye level, 20-26 inches from eyes (arm's length)
 - Chair seat height: Thighs parallel to floor, feet flat
 - Desk height: Elbows at 90 degrees when typing, forearms parallel to floor
 - Keyboard: Shoulders relaxed (not shrugged), wrists neutral (not bent up or down)
 
 ### Equipment Priority (If Buying)
-| Priority | Item | Budget Option | Impact |
-|----------|------|---------------|--------|
-| 1 | External keyboard + mouse | $25-40 | Essential with raised laptop |
-| 2 | Laptop stand | $20-30 | Better than book stack |
-| 3 | Office chair with lumbar | $150-300 | Biggest comfort improvement |
-| 4 | External monitor | $150-250 | Larger screen reduces eye strain |
+
+| Priority | Item                      | Budget Option | Impact                           |
+| -------- | ------------------------- | ------------- | -------------------------------- |
+| 1        | External keyboard + mouse | $25-40        | Essential with raised laptop     |
+| 2        | Laptop stand              | $20-30        | Better than book stack           |
+| 3        | Office chair with lumbar  | $150-300      | Biggest comfort improvement      |
+| 4        | External monitor          | $150-250      | Larger screen reduces eye strain |
 
 ### Break Schedule (Non-Negotiable)
+
 - Every 30 minutes: Look away from screen for 20 seconds (20-20-20 rule)
 - Every 60 minutes: Stand and stretch for 2 minutes (neck rolls, shoulder shrugs, hip flexor stretch)
 - Every 2 hours: Walk for 5 minutes (refill water, bathroom, quick lap)

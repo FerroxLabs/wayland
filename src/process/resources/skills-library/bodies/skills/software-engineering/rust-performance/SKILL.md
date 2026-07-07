@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "rust optimization debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'rust optimization debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Rust Performance
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to profile a Rust program to find hotspots (flamegraphs, `perf`, `cargo-flamegraph`, `samply`)
 - The user wants to set up or interpret `criterion` benchmarks, understand statistical output, or compare benchmark runs
 - The user is debugging unexpectedly high heap allocation rates (using `dhat`, `heaptrack`, `cargo-instruments`, or `jemalloc` profiling)
@@ -32,6 +34,7 @@ metadata:
 - The user asks about `#[inline]`, `#[cold]`, `#[likely]`/`#[unlikely]` branch hints, or intrinsic usage
 
 **Do NOT use this skill when:**
+
 - The user asks about ownership, borrowing, or lifetime errors -- use `rust-ownership-patterns`
 - The user asks about `async`/`await`, `tokio` runtime tuning, or async executor performance -- use `rust-async-patterns`
 - The user wants a general performance testing strategy (load testing, SLA definition, percentile goals) -- use `performance-testing`
@@ -70,6 +73,7 @@ Never guess. The bottleneck is almost never where you think it is.
 Set up statistical benchmarks around the confirmed bottleneck before changing anything.
 
 - Add to `Cargo.toml`:
+
   ```toml
   [dev-dependencies]
   criterion = { version = "0.5", features = ["html_reports"] }
@@ -78,7 +82,9 @@ Set up statistical benchmarks around the confirmed bottleneck before changing an
   name = "hot_path"
   harness = false
   ```
+
 - In `benches/hot_path.rs`, use `black_box` religiously to prevent the compiler from optimizing away benchmark work:
+
   ```rust
   use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
 
@@ -92,6 +98,7 @@ Set up statistical benchmarks around the confirmed bottleneck before changing an
   criterion_group!(benches, bench_parse);
   criterion_main!(benches);
   ```
+
 - Use `--bench` flag with `-- --save-baseline before` to snapshot before changes, and `-- --baseline before` to compare after. Criterion reports mean, standard deviation, and a confidence interval -- changes below the noise threshold (typically ±2%) are not statistically significant.
 - Keep input sizes realistic: if production input is typically 10-100 KB, benchmark at 10 KB, 64 KB, and 512 KB. Microbenchmarks on 16-byte inputs will give misleading results due to branch prediction warming.
 - Use `BenchmarkGroup::throughput(Throughput::Bytes(n))` to get MB/s output, which is more meaningful than raw nanoseconds for data-processing code.
@@ -240,32 +247,42 @@ When responding to a Rust performance question, structure the response as follow
 ## Edge Cases
 
 ### 1. Benchmark Results Are Noisy and Irreproducible
+
 This happens when CPU frequency scaling is active, other processes are competing, or the benchmark input is too small. Fix: (1) set CPU governor to `performance` mode, (2) run benchmarks with `--bench -- --sample-size 200` to increase statistical power, (3) use `hyperfine --warmup 10` for wall-clock measurements to allow CPU caches and branch predictors to warm up. If criterion reports `> 10%` noise on a tight loop benchmark, the system environment is the problem, not the code.
 
 ### 2. Flamegraph Shows Time in `memcpy` or `malloc`
+
 When a significant fraction of the flamegraph (more than 10%) is in allocator or memcpy functions, the bottleneck is allocation throughput, not compute. Switching to a faster allocator is a quick win: add `tikv-jemallocator = "0.5"` and set it as the global allocator. jemalloc has lower contention under multi-threaded allocation and better cache locality for size classes between 32 and 4096 bytes. If `memcpy` dominates, find the `clone()` and `to_vec()` call sites in the flamegraph and replace them with borrowed references or `bytes::Bytes`.
 
 ### 3. Auto-Vectorization Is Not Happening
+
 Check the assembly (`cargo rustc --release -- --emit=asm -C llvm-args=-x86-asm-syntax=intel`) for the hot function. If you see scalar `movss`/`addss` instead of `vmovups`/`vaddps`, the compiler is not vectorizing. Common blockers: (1) loop bounds are not statically known -- add a `let len = slice.len();` variable before the loop so LLVM can prove bounds, (2) the loop has a conditional break -- split into two loops (one for the main body, one for the tail), (3) aliasing -- if the function takes raw pointers, add `noalias` via unsafe contract or switch to slice references.
 
 ### 4. Optimization Causes Correctness Regression Under Miri or in Tests
+
 When an optimization introduces unsafe code (e.g., `unsafe { slice.get_unchecked(i) }` to remove bounds checks), always: (1) run `cargo +nightly miri test` to catch undefined behavior, (2) document the precondition as a `// SAFETY:` comment, (3) add a debug-mode assertion that verifies the precondition:
+
 ```rust
 debug_assert!(i < slice.len(), "index {} out of bounds for len {}", i, slice.len());
 unsafe { *slice.get_unchecked(i) }
 ```
+
 The `debug_assert!` is compiled out in release mode but catches violations during testing.
 
 ### 5. Performance Regression After Enabling LTO
+
 LTO occasionally causes performance regressions when it inlines a function that was previously not inlined, causing instruction cache pressure. Diagnose by comparing perf stat `instructions` and `L1-icache-load-misses` with and without LTO. If LTO causes a regression, use `#[inline(never)]` on the specific function that is being inlined by LTO to restore the previous behavior while keeping LTO for the rest of the codebase.
 
 ### 6. Multi-Threaded Code Has Lower Throughput Than Single-Threaded
+
 This is almost always false sharing or lock contention. Detect false sharing: add `perf stat -e LLC-load-misses,LLC-store-misses` and compare single-threaded vs. multi-threaded runs. If LLC misses scale linearly with thread count, suspect false sharing. Fix: pad shared structs with `#[repr(align(64))]`. Detect lock contention: use `perf lock record` / `perf lock report` or add `std::sync::Mutex::try_lock` monitoring. If contention is high, switch from `Mutex<Vec<T>>` to `crossbeam_queue::SegQueue` or shard the data structure.
 
 ### 7. WASM or Embedded Target with No `perf` or Flamegraph
+
 For WebAssembly, use `wasm-pack build --release` and measure with the browser's built-in profiler (Chrome DevTools Performance tab or Firefox Profiler). `std::simd` is supported in WASM via `wasm32-simd128` but requires `RUSTFLAGS="-C target-feature=+simd128"`. Allocation profiling in WASM is done with custom allocator wrappers that count bytes since DHAT and heaptrack are Linux-specific. For embedded targets (no-std), use hardware cycle counters via the `cortex-m` or `riscv` crates' DWT/MCYCLE registers to measure cycle counts for specific functions.
 
 ### 8. Optimization Removes a Useful Abstraction
+
 Sometimes the right optimization (e.g., inlining a small function, switching from `HashMap` to a sorted `Vec` with binary search for small N) makes the code harder to maintain. In these cases: (1) keep the clean abstraction in a non-hot-path fallback, (2) write the optimized version as a separate private function called only from the hot path, (3) add a benchmark that would catch if future refactoring accidentally reverts to the slow path. Do not delete the abstraction -- link to it in a comment as the reference implementation.
 
 ---
@@ -303,18 +320,19 @@ perf stat -e cache-misses,cache-references,instructions,cycles,branch-misses \
 ```
 
 Based on the 200 MB in 8 seconds = 25 MB/s throughput, this is almost certainly either:
+
 - Allocation-bound (a fresh `String` allocated per field per row), or
 - Branch-misprediction-bound (per-character dispatch loop), or
 - Both.
 
 A well-optimized CSV parser should reach 500--2000 MB/s on modern hardware. 25 MB/s is a 20--80x gap, which means algorithmic and allocation problems, not SIMD tuning.
 
-| Dimension         | Most Likely Evidence              | Severity |
-|-------------------|-----------------------------------|----------|
-| CPU utilization   | Hot loop in field parser           | Medium   |
-| Allocation rate   | `String` per field -- DHAT will show millions of allocs | High |
-| Cache pressure    | Secondary effect of allocations    | Medium   |
-| Branch mispredict | Per-byte dispatch in inner loop    | Medium   |
+| Dimension         | Most Likely Evidence                                    | Severity |
+| ----------------- | ------------------------------------------------------- | -------- |
+| CPU utilization   | Hot loop in field parser                                | Medium   |
+| Allocation rate   | `String` per field -- DHAT will show millions of allocs | High     |
+| Cache pressure    | Secondary effect of allocations                         | Medium   |
+| Branch mispredict | Per-byte dispatch in inner loop                         | Medium   |
 
 ---
 
@@ -511,6 +529,7 @@ cargo bench -- --baseline before
 ```
 
 Expected output:
+
 ```
 csv_parse/parse_rows/1000000
                         time:   [387.4 ms 391.2 ms 395.8 ms]
@@ -528,6 +547,7 @@ csv_parse/parse_rows/1000000
 If the parser is still too slow after the zero-copy change (e.g., for 10+ GB files), consider:
 
 1. **Memory-mapped input:** Use `memmap2::Mmap` to avoid the `read()` syscall overhead entirely. The OS will page in only the pages that are touched, which is ideal for files accessed linearly.
+
    ```rust
    let file = std::fs::File::open(path)?;
    let mmap = unsafe { memmap2::Mmap::map(&file)? };
@@ -535,6 +555,7 @@ If the parser is still too slow after the zero-copy change (e.g., for 10+ GB fil
    ```
 
 2. **Parallel chunk processing with Rayon:** Split the file into N chunks at newline boundaries and process each chunk on a separate Rayon thread. Joining at `\n` boundaries requires scanning at most 256 bytes per chunk boundary.
+
    ```rust
    use rayon::prelude::*;
    let chunks = split_at_newlines(&mmap, rayon::current_num_threads());

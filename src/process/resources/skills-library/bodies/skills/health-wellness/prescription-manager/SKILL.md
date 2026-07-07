@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness habits checklist guide beginner-friendly testing automation research"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness habits checklist guide beginner-friendly testing automation research'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Prescription Manager
@@ -22,15 +22,16 @@ You are a medication management guide who helps individuals organize their presc
 
 > **DISCLAIMER:** This skill provides general educational information about prescription medication management. It is not medical advice and does not replace guidance from your doctor, pharmacist, or other qualified healthcare providers. Never start, stop, or change medications without consulting your prescribing provider. Always verify drug interactions and alternatives with a licensed pharmacist or physician.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about prescription manager techniques or best practices
 - User needs guidance on prescription manager concepts
 - User wants to implement or improve their approach to prescription manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of prescription manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -56,29 +57,29 @@ Before organizing your medication management, clarify:
 
 Complete this for every medication, supplement, and OTC product you take:
 
-| Field | Medication 1 | Medication 2 | Medication 3 |
-|-------|-------------|-------------|-------------|
-| Name (brand) | | | |
-| Name (generic) | | | |
-| Dose | | | |
-| Frequency | | | |
-| Time of day | | | |
-| Take with food? | | | |
-| What it treats | | | |
-| Prescribing doctor | | | |
-| Pharmacy | | | |
-| Refill date | | | |
-| Monthly cost | | | |
-| Side effects noticed | | | |
-| Start date | | | |
+| Field                | Medication 1 | Medication 2 | Medication 3 |
+| -------------------- | ------------ | ------------ | ------------ |
+| Name (brand)         |              |              |              |
+| Name (generic)       |              |              |              |
+| Dose                 |              |              |              |
+| Frequency            |              |              |              |
+| Time of day          |              |              |              |
+| Take with food?      |              |              |              |
+| What it treats       |              |              |              |
+| Prescribing doctor   |              |              |              |
+| Pharmacy             |              |              |              |
+| Refill date          |              |              |              |
+| Monthly cost         |              |              |              |
+| Side effects noticed |              |              |              |
+| Start date           |              |              |              |
 
 ### Supplement and OTC Tracker
 
 | Product | Dose | Frequency | Purpose | Doctor Aware? |
-|---------|------|-----------|---------|---------------|
-| | | | | [ ] |
-| | | | | [ ] |
-| | | | | [ ] |
+| ------- | ---- | --------- | ------- | ------------- |
+|         |      |           |         | [ ]           |
+|         |      |           |         | [ ]           |
+|         |      |           |         | [ ]           |
 
 **Important:** Always inform your doctor and pharmacist about ALL supplements, vitamins, and OTC medications you take. These can interact with prescription drugs in significant ways.
 
@@ -86,28 +87,29 @@ Complete this for every medication, supplement, and OTC product you take:
 
 ### Types of Interactions
 
-| Interaction Type | What It Means | Risk Level |
-|-----------------|---------------|-----------|
-| Drug-drug | Two medications affect each other | Varies |
-| Drug-food | A food changes how the medication works | Moderate |
-| Drug-supplement | A supplement affects the medication | Moderate-High |
-| Drug-alcohol | Alcohol alters medication effects | Often High |
-| Drug-condition | A health condition changes medication safety | Varies |
+| Interaction Type | What It Means                                | Risk Level    |
+| ---------------- | -------------------------------------------- | ------------- |
+| Drug-drug        | Two medications affect each other            | Varies        |
+| Drug-food        | A food changes how the medication works      | Moderate      |
+| Drug-supplement  | A supplement affects the medication          | Moderate-High |
+| Drug-alcohol     | Alcohol alters medication effects            | Often High    |
+| Drug-condition   | A health condition changes medication safety | Varies        |
 
 ### Common Food-Drug Interactions to Be Aware Of
 
-| Food/Beverage | Medications Affected | Effect |
-|--------------|---------------------|--------|
-| Grapefruit/grapefruit juice | Many statins, some blood pressure meds, some immunosuppressants | Can increase drug levels dangerously |
-| Dairy products | Some antibiotics, thyroid medications | Can reduce absorption |
-| Leafy green vegetables (vitamin K) | Blood thinners (warfarin) | Can reduce effectiveness |
-| Alcohol | Pain relievers, sedatives, antidepressants, many others | Can increase side effects, liver risk |
-| Caffeine | Some asthma medications, stimulants | Can amplify effects |
-| High-fiber foods | Some medications taken at same time | Can reduce absorption |
+| Food/Beverage                      | Medications Affected                                            | Effect                                |
+| ---------------------------------- | --------------------------------------------------------------- | ------------------------------------- |
+| Grapefruit/grapefruit juice        | Many statins, some blood pressure meds, some immunosuppressants | Can increase drug levels dangerously  |
+| Dairy products                     | Some antibiotics, thyroid medications                           | Can reduce absorption                 |
+| Leafy green vegetables (vitamin K) | Blood thinners (warfarin)                                       | Can reduce effectiveness              |
+| Alcohol                            | Pain relievers, sedatives, antidepressants, many others         | Can increase side effects, liver risk |
+| Caffeine                           | Some asthma medications, stimulants                             | Can amplify effects                   |
+| High-fiber foods                   | Some medications taken at same time                             | Can reduce absorption                 |
 
 ### When to Ask About Interactions
 
 Contact your pharmacist or doctor when:
+
 - You start any new medication (including OTC)
 - You begin any new supplement or herbal product
 - You change the dose of any medication
@@ -116,6 +118,7 @@ Contact your pharmacist or doctor when:
 - Another provider prescribes something new
 
 ### Interaction Safety Checklist
+
 - [ ] All medications are filled at the same pharmacy (enables automatic interaction screening)
 - [ ] Your pharmacist has a complete list of everything you take
 - [ ] Your doctor knows about all providers who prescribe for you
@@ -127,17 +130,18 @@ Contact your pharmacist or doctor when:
 
 ### Understanding Generic Medications
 
-| Question | Answer |
-|----------|--------|
-| Are generics as effective as brand-name? | Yes - FDA requires same active ingredient, strength, and dosing |
-| Why are generics cheaper? | No research and development costs to recoup |
-| Are there quality differences? | Inactive ingredients may differ; rarely causes issues |
-| Can I always switch to generic? | Usually yes, but ask your doctor about narrow therapeutic index drugs |
+| Question                                   | Answer                                                                         |
+| ------------------------------------------ | ------------------------------------------------------------------------------ |
+| Are generics as effective as brand-name?   | Yes - FDA requires same active ingredient, strength, and dosing                |
+| Why are generics cheaper?                  | No research and development costs to recoup                                    |
+| Are there quality differences?             | Inactive ingredients may differ; rarely causes issues                          |
+| Can I always switch to generic?            | Usually yes, but ask your doctor about narrow therapeutic index drugs          |
 | What if the generic does not work as well? | Report to your doctor; some people respond differently to inactive ingredients |
 
 ### Cost Reduction Strategies
 
 **At the Pharmacy**
+
 - Always ask: "Is there a generic available for this?"
 - Compare prices between pharmacies (costs can vary by hundreds of dollars)
 - Ask about the pharmacy's cash price vs. insurance price (sometimes cash is cheaper)
@@ -146,6 +150,7 @@ Contact your pharmacist or doctor when:
 - Ask if the pharmacy has a generic savings program or discount card
 
 **With Your Doctor**
+
 - Ask: "Is there a less expensive medication that would work for my condition?"
 - Discuss therapeutic alternatives (different drug in the same class at lower cost)
 - Ask about step therapy options your insurance may require
@@ -154,6 +159,7 @@ Contact your pharmacist or doctor when:
 - Discuss whether any medications could be discontinued
 
 **Through Programs and Discounts**
+
 - Manufacturer patient assistance programs (for those meeting income criteria)
 - Manufacturer copay cards and savings programs
 - State pharmaceutical assistance programs
@@ -164,16 +170,17 @@ Contact your pharmacist or doctor when:
 ### Prescription Cost Comparison Worksheet
 
 | Medication | Your Pharmacy | Pharmacy 2 | Mail Order | Discount Card | Manufacturer Program |
-|-----------|-------------|-----------|-----------|--------------|---------------------|
-| | $_____ | $_____ | $_____ | $_____ | $_____ |
-| | $_____ | $_____ | $_____ | $_____ | $_____ |
-| | $_____ | $_____ | $_____ | $_____ | $_____ |
+| ---------- | ------------- | ---------- | ---------- | ------------- | -------------------- |
+|            | $**\_**       | $**\_**    | $**\_**    | $**\_**       | $**\_**              |
+|            | $**\_**       | $**\_**    | $**\_**    | $**\_**       | $**\_**              |
+|            | $**\_**       | $**\_**    | $**\_**    | $**\_**       | $**\_**              |
 
 ## Medication Adherence Systems
 
 ### Why Adherence Matters
 
 Studies consistently show that roughly 50% of people do not take medications as prescribed. Non-adherence can lead to:
+
 - Worsening of the condition being treated
 - Unnecessary additional medications prescribed for uncontrolled symptoms
 - Preventable hospitalizations and emergency visits
@@ -182,53 +189,54 @@ Studies consistently show that roughly 50% of people do not take medications as 
 
 ### Adherence Barriers and Solutions
 
-| Barrier | Solutions |
-|---------|----------|
-| skipping | Pill organizers, phone alarms, habit stacking, adherence apps |
-| Cost | Generic alternatives, patient assistance, discount programs |
-| Side effects | Talk to your doctor about alternatives or dose adjustments |
-| Complex regimen | Ask pharmacist to simplify timing; use a medication schedule |
-| Feeling better | Understand that many conditions require ongoing treatment |
-| Not understanding purpose | Ask your doctor to explain why each medication matters |
-| Difficulty swallowing | Ask about liquid, chewable, or crushable alternatives |
-| Lifestyle conflicts | Work with doctor to find timing that fits your routine |
+| Barrier                   | Solutions                                                     |
+| ------------------------- | ------------------------------------------------------------- |
+| skipping                  | Pill organizers, phone alarms, habit stacking, adherence apps |
+| Cost                      | Generic alternatives, patient assistance, discount programs   |
+| Side effects              | Talk to your doctor about alternatives or dose adjustments    |
+| Complex regimen           | Ask pharmacist to simplify timing; use a medication schedule  |
+| Feeling better            | Understand that many conditions require ongoing treatment     |
+| Not understanding purpose | Ask your doctor to explain why each medication matters        |
+| Difficulty swallowing     | Ask about liquid, chewable, or crushable alternatives         |
+| Lifestyle conflicts       | Work with doctor to find timing that fits your routine        |
 
 ### Building a Medication Schedule
 
-| Time | Medication | Dose | With Food? | Special Instructions |
-|------|-----------|------|-----------|---------------------|
-| Morning | | | | |
-| Midday | | | | |
-| Evening | | | | |
-| Bedtime | | | | |
+| Time    | Medication | Dose | With Food? | Special Instructions |
+| ------- | ---------- | ---- | ---------- | -------------------- |
+| Morning |            |      |            |                      |
+| Midday  |            |      |            |                      |
+| Evening |            |      |            |                      |
+| Bedtime |            |      |            |                      |
 
 ### Pill Organizer Systems
 
-| System | Best For | Pros | Cons |
-|--------|---------|------|------|
-| Weekly pill box | Simple regimens | Cheap, visual | Manual filling weekly |
-| AM/PM pill box | Twice daily meds | Clear separation | Still manual |
-| Monthly organizer | Complex regimens | Fill once monthly | Bulky |
-| Automatic dispenser | Forgetful patients, complex | Alerts, locks, tracking | Expensive |
-| Blister packs (pharmacy) | Complex regimens | Pre-filled by pharmacist | May have a fee |
-| Phone app + pill box | Tech-comfortable users | Reminders + tracking | Requires phone nearby |
+| System                   | Best For                    | Pros                     | Cons                  |
+| ------------------------ | --------------------------- | ------------------------ | --------------------- |
+| Weekly pill box          | Simple regimens             | Cheap, visual            | Manual filling weekly |
+| AM/PM pill box           | Twice daily meds            | Clear separation         | Still manual          |
+| Monthly organizer        | Complex regimens            | Fill once monthly        | Bulky                 |
+| Automatic dispenser      | Forgetful patients, complex | Alerts, locks, tracking  | Expensive             |
+| Blister packs (pharmacy) | Complex regimens            | Pre-filled by pharmacist | May have a fee        |
+| Phone app + pill box     | Tech-comfortable users      | Reminders + tracking     | Requires phone nearby |
 
 ### Habit Stacking for Medication Adherence
 
 Attach your medication to an existing daily habit:
 
-| Existing Habit | + Medication | Reminder Cue |
-|---------------|-------------|-------------|
-| Morning coffee | Morning medications | Pill box next to coffee maker |
-| Brushing teeth at night | Evening medications | Pill box next to toothbrush |
-| Eating lunch | Midday medication | Pill box in lunch bag |
-| Feeding the pet | Time-sensitive medication | Pill box near pet food |
+| Existing Habit          | + Medication              | Reminder Cue                  |
+| ----------------------- | ------------------------- | ----------------------------- |
+| Morning coffee          | Morning medications       | Pill box next to coffee maker |
+| Brushing teeth at night | Evening medications       | Pill box next to toothbrush   |
+| Eating lunch            | Midday medication         | Pill box in lunch bag         |
+| Feeding the pet         | Time-sensitive medication | Pill box near pet food        |
 
 ## Pharmacy Communication Guide
 
 ### Questions to Ask Your Pharmacist
 
 When picking up a new prescription:
+
 - What is this medication for, and how does it work?
 - How and when should I take it?
 - Are there foods, drinks, or activities I should avoid?
@@ -240,6 +248,7 @@ When picking up a new prescription:
 - How much does this cost, and are there ways to reduce the price?
 
 When experiencing problems:
+
 - I am having [specific side effect] - is this expected?
 - Can I take [OTC product] along with this prescription?
 - I have been taking this for [duration] and it does not seem to be helping
@@ -261,6 +270,7 @@ When experiencing problems:
 ## Refill Management
 
 ### Never-Run-Out System
+
 1. Set a reminder 7-10 days before each medication runs out
 2. Note which medications require a new prescription vs. automatic refills
 3. Use your pharmacy's auto-refill program when available
@@ -271,14 +281,15 @@ When experiencing problems:
 ### Refill Tracking Sheet
 
 | Medication | Quantity | Days Supply | Refills Left | Next Refill Date | Auto-Refill? |
-|-----------|----------|------------|-------------|-----------------|-------------|
-| | | | | | [ ] |
-| | | | | | [ ] |
-| | | | | | [ ] |
+| ---------- | -------- | ----------- | ------------ | ---------------- | ------------ |
+|            |          |             |              |                  | [ ]          |
+|            |          |             |              |                  | [ ]          |
+|            |          |             |              |                  | [ ]          |
 
 ## Travel with Medications
 
 ### Travel Preparation Checklist
+
 - [ ] Pack more medication than you think you need (delays happen)
 - [ ] Keep medications in carry-on luggage (never checked bags)
 - [ ] Bring medications in original labeled containers
@@ -290,7 +301,6 @@ When experiencing problems:
 - [ ] Know the location of pharmacies at your destination
 - [ ] Carry your insurance card and pharmacy contact information
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -298,7 +308,6 @@ When experiencing problems:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -319,14 +328,12 @@ When experiencing problems:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -52,13 +52,7 @@
         },
         "category": {
           "type": "string",
-          "enum": [
-            "engineering",
-            "business",
-            "operations",
-            "creative",
-            "orchestration"
-          ],
+          "enum": ["engineering", "business", "operations", "creative", "orchestration"],
           "description": "Primary category from the 5-category agent taxonomy defined in agents/_categories.json. Determines the directory where the agent profile lives.",
           "examples": ["engineering", "business", "orchestration"]
         },

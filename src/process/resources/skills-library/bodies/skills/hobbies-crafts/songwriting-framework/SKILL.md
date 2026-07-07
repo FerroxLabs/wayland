@@ -13,19 +13,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing guide step-by-step template"
-  category: "hobbies-crafts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing guide step-by-step template'
+  category: 'hobbies-crafts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Songwriting Framework
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to write a new song from scratch and needs a structural framework, lyric development process, or both
 - The user has existing lyric fragments, a title idea, or a journal entry they want to shape into a complete song
 - The user has a chord progression and wants to add melody, lyrics, and structure to turn it into a finished piece
@@ -36,6 +38,7 @@ metadata:
 - The user wants to write a song in a focused session (30-90 minutes) and needs a speed-oriented process
 
 **Do NOT use this skill when:**
+
 - The user needs music theory fundamentals such as scales, intervals, modes, or chord construction -- use `music-theory-fundamentals` instead
 - The user is a beginner learning their first guitar chords or hand positions -- use `guitar-beginner-foundations` instead
 - The user wants to record, mix, or produce a song they have written -- use `home-recording-starter` instead
@@ -73,7 +76,7 @@ Generic themes produce generic songs. The most memorable songs in any genre are 
   - Anger -- acceptance (bridge provides the turning point)
   - Nostalgia -- release (the final chorus transforms the feeling)
   - Numbness -- grief (the song cracks open what was being suppressed)
-  The bridge is the mechanism that moves the listener from one emotional state to the other, so knowing the arc determines bridge placement and content.
+    The bridge is the mechanism that moves the listener from one emotional state to the other, so knowing the arc determines bridge placement and content.
 - **The "what is the song NOT saying" test:** Ask the user what the song is avoiding saying. Often the most powerful line is the thing the writer instinctively buries. The bridge is typically where this suppressed truth surfaces.
 
 ---
@@ -84,6 +87,7 @@ Structure is not a cage -- it is a contract with the listener. Present options b
 
 **Verse-Chorus (Standard Pop/Rock/Country):**
 Intro -- Verse 1 -- Chorus -- Verse 2 -- Chorus -- Bridge -- Chorus (x2 or tag) -- Outro
+
 - The default structure for 90% of commercial songs. Provides maximum repetition of the hook.
 - Verse carries the story, chorus carries the thesis. The listener knows every time the chorus comes that they are getting the emotional core.
 - Total sections: 10-12. Running time target: 3:00-3:45.
@@ -91,6 +95,7 @@ Intro -- Verse 1 -- Chorus -- Verse 2 -- Chorus -- Bridge -- Chorus (x2 or tag) 
 
 **Verse-Pre-Chorus-Chorus:**
 Intro -- Verse 1 -- Pre-Chorus -- Chorus -- Verse 2 -- Pre-Chorus -- Chorus -- Bridge -- Chorus -- Outro
+
 - Pre-chorus is the engine of modern pop production. It functions as a pressure valve that builds tension before the chorus detonates.
 - Pre-chorus typically uses a rising melodic sequence, a stripped-back arrangement, or increasing harmonic tension (often landing on V7 or a borrowed chord before the chorus tonic).
 - Length: 2-4 lines, never more than 8 bars. It should feel like the song is straining to get to the chorus.
@@ -98,6 +103,7 @@ Intro -- Verse 1 -- Pre-Chorus -- Chorus -- Verse 2 -- Pre-Chorus -- Chorus -- B
 
 **AABA (Tin Pan Alley / Jazz Standard Form):**
 A section (8 bars) -- A section (8 bars, same melody, new words) -- B section (8 bars, contrasting bridge) -- A section (8 bars, resolution)
+
 - No traditional chorus. The hook is the last line of each A section (this is called the "payoff line" or "punchline").
 - The B section ("the release" or "middle eight") is the emotional counterpoint -- a different key area, different rhyme, different emotional register.
 - Running time is compact: often 2:00-2:30 for a single pass, extended with repetition in jazz performance.
@@ -105,6 +111,7 @@ A section (8 bars) -- A section (8 bars, same melody, new words) -- B section (8
 
 **Verse-Refrain (Folk / Singer-Songwriter):**
 Verse 1 (ending with refrain line) -- Verse 2 (ending with refrain line) -- Verse 3 (ending with refrain line) -- [Optional] Verse 4 or instrumental -- Refrain
+
 - The refrain is a single repeated line or couplet at the end of each verse, not a separate chorus section. The story is entirely in the verses.
 - The refrain line changes meaning as the verses accumulate context around it. This is one of the most powerful structural techniques in folk and country storytelling.
 - Works because folk audiences lean in for narrative; the repeating line is a reward that deepens with each verse.
@@ -112,6 +119,7 @@ Verse 1 (ending with refrain line) -- Verse 2 (ending with refrain line) -- Vers
 
 **Through-Composed (Narrative / Art Song / Progressive):**
 No repeating sections. Each section is unique, progressing the narrative linearly like chapters.
+
 - Extremely difficult to execute well because there is no built-in hook repetition. The listener has to trust the story.
 - Use only when the song is explicitly narrative-driven (a complete story with beginning, middle, and climax) and the writer is experienced.
 - Best for: folk ballads with cinematic scope, progressive rock, musical theater, singer-songwriter concept albums.
@@ -126,6 +134,7 @@ No repeating sections. Each section is unique, progressing the narrative linearl
 Each section of a song has a distinct job. Violating these functional roles is the most common cause of songs that "feel like something is off."
 
 **Verse:**
+
 - The verse's job is to earn the chorus. It sets the specific scene, character, or situation. It uses concrete, sensory language. It creates an emotional state in the listener that the chorus then names or transforms.
 - Each subsequent verse must advance -- not repeat -- the story or perspective. Verse 1 sets the situation. Verse 2 deepens it, complicates it, or shifts the time or point of view. A song where Verse 2 repeats what Verse 1 already said is a song that loses listeners at the 1:30 mark.
 - Lyric density in verses is typically higher than in choruses -- more syllables per bar, more information per line.
@@ -133,6 +142,7 @@ Each section of a song has a distinct job. Violating these functional roles is t
 - Rhyme schemes for verses: ABCB and ABAB are the most common. ABCB (only lines 2 and 4 rhyme) feels most natural and conversational, matching speech patterns.
 
 **Chorus:**
+
 - The chorus must answer the question the verse poses, or name the feeling the verse has been circling.
 - The hook -- the single most memorable melodic and lyrical moment -- must appear in the chorus, ideally in the first or last line. If the user's strongest line is in a verse, it belongs in the chorus.
 - Chorus lyrics use more abstract, emotional, universal language than verses. Where the verse says "I drove past your mother's house on Tuesday," the chorus says "I don't know how to stop coming back." The verse is the specific; the chorus is the meaning.
@@ -141,6 +151,7 @@ Each section of a song has a distinct job. Violating these functional roles is t
 - The chorus must use the same words every time it repeats. Changing even one word in a subsequent chorus disrupts the listener's ability to sing along and feel the repetition as intensification.
 
 **Pre-Chorus:**
+
 - The pre-chorus exists to make the chorus feel earned and inevitable. Without a pre-chorus, the verse and chorus can feel like two separate songs pasted together.
 - Structurally, the pre-chorus should increase one of three things: harmonic tension (moving toward V or a borrowed chord), melodic register (rising pitch), or rhythmic density (more syllables, more urgency).
 - The pre-chorus often works by stating the emotional question that the chorus answers. If the chorus says "I was always going to leave," the pre-chorus might say "So why does it feel like this."
@@ -148,6 +159,7 @@ Each section of a song has a distinct job. Violating these functional roles is t
 - Pre-choruses do not always need their own distinct rhyme scheme -- many are open (no rhyme) to create instability that resolves into the chorus's tighter rhyme scheme.
 
 **Bridge:**
+
 - The bridge must introduce something the song has not yet said. This is non-negotiable. A bridge that summarizes the verses is not a bridge -- it is a third verse placed in the wrong position.
 - The bridge most commonly appears once, after the second chorus, at approximately the 2:00-2:30 mark in a 3:30 song.
 - The bridge should change at least two of these four parameters: chord progression, melodic contour, lyric perspective, rhythmic feel. Changing only one produces a bridge that does not feel like enough of a departure.
@@ -158,6 +170,7 @@ Each section of a song has a distinct job. Violating these functional roles is t
 - Bridge length: 4-8 bars lyrically, sometimes extended instrumentally after the vocal. The arrangement should strip back before the final chorus to create maximum contrast.
 
 **Intro and Outro:**
+
 - The intro's job is to set the sonic and emotional world of the song before the first word. It should immediately communicate genre, tempo, and emotional register. 4-8 bars is standard. An intro longer than 16 bars (unless intentionally atmospheric) is too long for most contexts.
 - The outro provides resolution or open-ended ambiguity depending on the song's emotional arc. Fade-outs on repeated choruses signal the listener that the emotional state is ongoing. A clean ending (the song stops) suggests resolution and finality. Choose deliberately.
 
@@ -169,18 +182,21 @@ Rhyme scheme is not decoration -- it is a structural scaffold that the listener'
 
 **AABB (Paired couplets):**
 Lines 1 and 2 rhyme; lines 3 and 4 rhyme.
+
 - Feels resolved, organized, and singable. Natural for choruses.
 - Risk: can feel forced or "nursery rhyme" if the rhymes are too perfect (moon/June, heart/apart).
 - Mitigation: use slant rhymes for at least one pair in every stanza.
 
 **ABAB (Alternating):**
 Lines 1 and 3 rhyme; lines 2 and 4 rhyme.
+
 - Feels more conversational because the rhyme is delayed. The listener holds the sound in memory.
 - Works well for verses with narrative content because the delayed resolution mirrors conversational storytelling.
 - Slightly harder to write than AABB because the rhyming words must be set up further apart.
 
 **ABCB (Ballad meter / common meter):**
 Only lines 2 and 4 rhyme. Lines 1 and 3 are free.
+
 - Feels the most natural and speech-like of all standard schemes.
 - Allows Verse lines 1 and 3 to carry heavy narrative content without being constrained by rhyme requirements.
 - The most common scheme in folk, country, and narrative songwriting.
@@ -188,21 +204,25 @@ Only lines 2 and 4 rhyme. Lines 1 and 3 are free.
 
 **XAXA (Free/Rhymed alternating):**
 Lines 1 and 3 do not rhyme; lines 2 and 4 rhyme.
+
 - Functionally similar to ABCB but the labeling clarifies that lines 1 and 3 are genuinely independent.
 - Used in more literary, art-song, or indie-folk contexts.
 
 **Slant rhyme (near rhyme / half rhyme):**
 Words that share a vowel sound or ending consonant but are not perfect rhymes: "time/mine," "home/alone," "water/daughter," "love/move," "gone/on."
+
 - Slant rhyme is a mark of craft, not a compromise. It is used intentionally by experienced songwriters to avoid the "sing-song" quality of relentless perfect rhymes.
 - Rule for using slant rhyme: the semantic connection between the two words must be strong enough that the listener feels the rhyme as satisfying. If the two words are completely unrelated in meaning, the slant rhyme feels like a miss rather than a choice.
 - Never force an exact rhyme by inverting word order ("The stars above me, I cannot see them now" instead of "I cannot see the stars above me now"). Natural word order always wins over perfect rhyme.
 
 **Multi-syllable and internal rhyme:**
+
 - Multi-syllable rhymes ("hiding/deciding," "remember/December") create forward momentum and feel virtuosic without feeling strained.
 - Internal rhyme (rhyming within a line, not just at line ends) adds musicality: "I'll drive the whole long night while the highway lights blur white."
 - Do not use internal rhyme in every line -- it becomes exhausting. Use it as emphasis in the hook or the most emotionally charged line.
 
 **Rhyme scheme discipline:**
+
 - Once a rhyme scheme is established in a section, hold to it across all repetitions of that section. If Verse 1 is ABCB, Verse 2 must also be ABCB.
 - Chorus and verse do NOT need to share the same scheme -- in fact, they should differ to give each section a distinct feel.
 
@@ -213,26 +233,31 @@ Words that share a vowel sound or ending consonant but are not perfect rhymes: "
 This step applies when the user has a chord progression and needs to find a melody, or has a melody and needs to understand why it does or does not work over the chords.
 
 **Chord tones and non-chord tones:**
+
 - The notes in any given chord (root, third, fifth, and in seventh chords, the seventh) are "safe" landing notes for the melody. If the chord is G major (G-B-D), landing on any of those three notes on a strong beat feels resolved.
 - Non-chord tones -- notes not in the chord -- create tension. They work on weak beats or as passing tones between chord tones. A melody that lands on a non-chord tone on a strong beat and holds it feels dissonant. This can be intentional (tension before a resolution) or an error (unintended jarring note).
 - Practical test: play a chord and sing the melody line over it. If a note sounds "wrong," it is likely a non-chord tone on a strong beat. Move the note or change which beat it falls on.
 
 **The hook melody must be singable from memory:**
+
 - "Singable in the shower" is not a metaphor -- it is a technical criterion. If a melody cannot be recalled and reproduced without the recording, it is not a hook melody. It is a melody.
 - Hook melodies have three characteristics: (1) they repeat at least twice in the section, (2) they have a distinctive rhythmic shape (not just a stepwise ascending scale), and (3) they stay within a one-octave range or a range that a non-singer can approximate.
 - The hook melody's highest note should align with the hook's most emotionally loaded word. This is the "peak" of the melodic arc.
 
 **Rising and falling melodic shapes:**
+
 - A rising melodic line over the same chord creates energy and expectation. Use it approaching a chorus, in the pre-chorus, or on lines that build emotional intensity.
 - A falling melodic line creates resolution, release, or sadness. Verses that end on a falling line set up the chorus as a lift.
 - The final line of a chorus often falls or resolves, providing completion. The final line of a verse often rises or ends on an unresolved note (V of the next chord), pulling the listener into the next section.
 
 **Chord change alignment:**
+
 - In most songs, chord changes align with the start of a new lyric phrase or the barline. Placing a chord change in the middle of a sung word (between syllables) is almost always jarring unless done as a specific rhythmic effect.
 - The number of chord changes per bar affects lyric density. One chord per two bars allows long, sustained melody notes. Two chords per bar requires shorter, more syllable-dense lines (the melody must move faster to fit the harmonic rhythm).
 - For folk and singer-songwriter styles: one chord change per measure or two measures. For pop and R&B: one chord change per two measures in verses, one per measure in choruses. For jazz-influenced writing: chord changes can occur every two beats.
 
 **Key selection based on vocal range:**
+
 - If the user sings, the key should be chosen so the chorus peak note lands comfortably in the upper part of their chest voice range, not at their absolute ceiling. Pushing to the exact ceiling creates tension that sounds strained rather than powerful.
 - A chorus peak note 2-3 semitones below the singer's maximum comfortable note is the target. This allows room for a final belted chorus key change (up a half step or whole step) if the arrangement calls for it.
 
@@ -243,12 +268,14 @@ This step applies when the user has a chord progression and needs to find a melo
 The first draft of any song is raw material, not a finished song. Revision is where craft happens. Guide the user through three distinct passes, each addressing a different layer of the song.
 
 **Pass 1 -- Lyric Truth Check:**
+
 - Read every line and ask: "Does this line move the story or deepen the emotional state?" If the answer is no, cut it. Padding lines (lines that exist to complete a rhyme or fill out a bar) are always better replaced.
 - Hunt for cliches: "broken heart," "tears in my eyes," "light at the end of the tunnel," "stronger than I knew," "never let you go." Every cliche was once a fresh image. The songwriter's job is to find the fresh version. Challenge every cliche with: "What do I actually mean here? What is the specific version of this?"
 - Check every abstract noun: love, pain, hope, fear, freedom. These words can appear in a chorus where universality is the goal, but in verses, every abstract noun should be replaced with the specific image that represents it to the songwriter.
 - Verify the emotional arc is delivered. If the arc was defined as anger -- acceptance, does the song actually move from one to the other? If the bridge is where acceptance arrives, the bridge lyrics must contain the pivot moment.
 
 **Pass 2 -- Singability Check:**
+
 - Sing every line at tempo, with the actual melody and chords. Do not just read the lyrics.
 - Identify any line where you have to rush syllables to fit the bar, or where you run out of breath before the line ends, or where a word's natural stress accent falls on a weak beat (singing "reMEMber" as "REMember" because the bar forces it).
 - Fix stress conflicts by reordering words, replacing words with synonyms that have a different stress pattern, or slightly adjusting the melody to accommodate the natural speech rhythm of the line.
@@ -256,6 +283,7 @@ The first draft of any song is raw material, not a finished song. Revision is wh
 - Check the breath plan: a singer needs a breath approximately every 8-12 syllables in most tempos. Lines longer than 12 syllables without a natural pause or break require a breath technique that most singers should not have to think about.
 
 **Pass 3 -- Structure Check:**
+
 - Does the chorus hit harder than the verse? If the verse's melody or lyric is more interesting than the chorus, reverse-engineer: move the verse's best line into the chorus, or simplify the verse to give the chorus more contrast.
 - Does the bridge provide genuine departure? Play the verse, chorus, and bridge back-to-back. If the bridge does not feel noticeably different in two or more of: chord progression, melody, lyric perspective, rhythmic feel -- rewrite the bridge.
 - Check section lengths against genre expectations:
@@ -397,6 +425,7 @@ Line 4: [Set up the final chorus; optional -- can end after Line 3 for dramatic 
 ### User Has a Melody Fragment but No Lyrics or Chords
 
 Work backward from the melodic rhythm, not from a blank page.
+
 - Ask the user to describe or hum the melody, or to indicate the syllable count per line. If they say "the verse line goes DUM da da DUM da da DUM," the melody is already giving you a syllable pattern and stress map.
 - Map the melody's rhythmic pattern to a syllable template. A line like DUM-da-da-DUM-da-DUM suggests a 6-syllable line with strong syllables on positions 1, 4, and 6. Every lyric written for this line must match that stress pattern.
 - Identify the melodic peak -- the highest or most sustained note in the melody. That position is where the hook word lands. Work backward: what is the single most important word or idea in this song? It belongs at the melodic peak.
@@ -406,6 +435,7 @@ Work backward from the melodic rhythm, not from a blank page.
 ### User Has Lyrics but No Melody, Chords, or Musical Experience
 
 The melody is already hiding in the speech rhythm of the lyrics. The task is to excavate it.
+
 - Ask the user to speak their lyrics aloud, rhythmically -- not sing, just speak with natural emphasis and pacing.
 - Listen for: which syllables get natural stress, how long natural pauses are, where the voice rises and falls in pitch.
 - The natural pitch contour of spoken language is the blueprint for the melody. A sentence that rises at the end (a question) naturally invites an unresolved melodic contour. A sentence that falls at the end invites a descending resolution.
@@ -415,6 +445,7 @@ The melody is already hiding in the speech rhythm of the lyrics. The task is to 
 ### User Writing in a Language Other Than English
 
 Rhyme and stress principles apply universally, but the specific patterns differ significantly by language.
+
 - **French:** stress is almost always on the final syllable of a word or phrase. French rhyme schemes often rely on the final vowel sound, not the final consonant. The nasal vowels (an, en, in, on, un) each form their own rhyme family. French verse traditionally alternates between masculine endings (final syllable is stressed) and feminine endings (unstressed syllable follows the stressed final).
 - **Spanish:** stress is penultimate (second-to-last syllable) by default, with accent marks indicating exceptions. Spanish lyrics feel rhythmically natural when the melodic stress aligns with these penultimate accents. Rhyme schemes in Spanish typically use assonant rhyme (matching vowel sounds) rather than full rhyme.
 - **Portuguese (Brazilian):** similar to Spanish but with a broader vowel inventory and more nasal vowels. Brazilian popular music traditions (samba, bossa nova, MPB) use conversational, flowing lyric structures that prioritize syllabic rhythm over strong end-rhyme.
@@ -423,6 +454,7 @@ Rhyme and stress principles apply universally, but the specific patterns differ 
 ### User Is Co-Writing with a Partner
 
 Co-writing requires structural negotiation that solo writing does not.
+
 - Recommend role division as the first step: one writer focuses primarily on lyrics and theme, the other on melody and chord structure. This does not mean exclusive ownership -- both contribute to both -- but it means each person has a primary responsibility and a tiebreaker role in their domain.
 - Use the "trading fours" technique for melody development: each writer proposes 4-bar phrases, the other builds on or responds to them. This prevents the melody from reflecting only one person's instincts.
 - Use the lyric worksheet as a shared document. Label each line with the contributing writer's initials and the draft version. This prevents the "I thought we agreed" conflicts that derail co-writing sessions.
@@ -432,6 +464,7 @@ Co-writing requires structural negotiation that solo writing does not.
 ### User Wants to Write a Song in Under 30 Minutes (Speed Songwriting)
 
 Speed writing is a legitimate creative technique, not a shortcut that produces inferior work. The constraint forces instinctive choices that often land closer to emotional truth than over-considered revisions.
+
 - Establish the non-negotiables before the timer starts: theme snapshot (2 minutes), structure choice (1 minute), key and chord progression (2 minutes). Do not start writing lyrics until these three are locked.
 - Use the streamlined structure: Verse-Chorus-Verse-Chorus only. No bridge, no pre-chorus. 4+4 bar sections. This reduces the total writing task to approximately 20-24 lines.
 - Set a section timer: 5 minutes per section (Verse 1, Chorus, Verse 2). Write every line that comes -- do not edit within the timer. Editing during writing is the primary cause of speed sessions stalling.
@@ -441,6 +474,7 @@ Speed writing is a legitimate creative technique, not a shortcut that produces i
 ### User's Draft Has a Good Verse but a Weak Chorus
 
 This is one of the most common structural problems in songwriting drafts and requires specific diagnosis before prescription.
+
 - Identify which of these four chorus failures is occurring:
   1. **The chorus is too specific** -- it uses scene details that belong in a verse, trapping the emotional content in a particular moment rather than universalizing it.
   2. **The chorus has no hook** -- every line is of equal melodic and lyric weight, with no single line that rises above the others as the memorable moment.
@@ -454,6 +488,7 @@ This is one of the most common structural problems in songwriting drafts and req
 ### User Is Writing a Song for Someone Else (Wedding Song, Tribute, Commission)
 
 Songs written for specific real people or occasions have different constraints than personal expression songs.
+
 - Gather detailed, specific information about the subject: shared memories, inside references, places with emotional significance, specific qualities the writer admires. These details will power the verses.
 - The chorus must be specific enough to feel personal but universal enough that anyone at the wedding or tribute could feel included. "You are the kind of person who..." structures work well.
 - Avoid generic compliments in verses: "you are beautiful," "you are kind," "you make me smile." These are choruses at best. Verses need scenes: "the time you drove three hours in a storm because I called at midnight" -- that is a verse.
@@ -472,31 +507,31 @@ Songs written for specific real people or occasions have different constraints t
 
 ### Songwriting Brief
 
-| Field            | Content                                                                                      |
-|------------------|----------------------------------------------------------------------------------------------|
+| Field            | Content                                                                                                                                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Core theme       | The uncanny experience of functioning perfectly while feeling completely absent from your own life after a long relationship ends -- going through the motions while your inner self has vacated the premises |
-| Genre / style    | Indie-folk / piano-forward singer-songwriter (reference neighborhood: Adrianne Lenker, Sufjan Stevens, Julien Baker) |
-| Mood             | Dissociated numbness with undercurrents of grief -- not dramatic crying, but a quiet, unsettling hollowness |
-| Emotional arc    | Numbness and denial (I am fine) --> recognition of the absence --> the grief surfaces (I am not fine) |
-| Structure        | Verse-Pre-Chorus-Chorus, with a revelation bridge |
-| Key / Instrument | Am / C major (relative major/minor share the same key signature) -- piano, with suggested voicings |
+| Genre / style    | Indie-folk / piano-forward singer-songwriter (reference neighborhood: Adrianne Lenker, Sufjan Stevens, Julien Baker)                                                                                          |
+| Mood             | Dissociated numbness with undercurrents of grief -- not dramatic crying, but a quiet, unsettling hollowness                                                                                                   |
+| Emotional arc    | Numbness and denial (I am fine) --> recognition of the absence --> the grief surfaces (I am not fine)                                                                                                         |
+| Structure        | Verse-Pre-Chorus-Chorus, with a revelation bridge                                                                                                                                                             |
+| Key / Instrument | Am / C major (relative major/minor share the same key signature) -- piano, with suggested voicings                                                                                                            |
 
 ---
 
 ### Song Structure Map
 
-| Section       | Length   | Function                                          | Chord Progression                    | Rhyme Scheme |
-|---------------|----------|---------------------------------------------------|--------------------------------------|--------------|
-| Intro         | 8 bars   | Sparse piano -- establish the dissociated mood    | Am -- F -- C -- G                    | N/A          |
-| Verse 1       | 8 bars   | The surface picture -- the functioning ghost      | Am -- F -- C -- G                    | ABCB         |
-| Pre-Chorus    | 4 bars   | The first crack -- something is not right         | Dm -- Am -- F -- E (or E7)           | Open/AA      |
-| Chorus        | 8 bars   | The thesis: I am still here but I am not here     | F -- C -- G -- Am                    | AABB         |
-| Verse 2       | 8 bars   | Specific memory surfaces into the present         | Am -- F -- C -- G                    | ABCB         |
-| Pre-Chorus    | 4 bars   | The crack widens -- same chords, same words       | Dm -- Am -- F -- E7                  | Open/AA      |
-| Chorus        | 8 bars   | Same words -- now they hit harder                 | F -- C -- G -- Am                    | AABB         |
-| Bridge        | 8 bars   | The grief surfaces -- the first honest moment     | Dm -- Dm7 -- Bm7b5 -- E7 -- Am       | Free/ABAB    |
-| Final Chorus  | 8 bars   | Transformed repeat -- numbness becoming grief     | F -- C -- G -- Am                    | AABB         |
-| Outro         | 8 bars   | Return to intro material -- resolve on Am or C    | Am -- F -- C -- Am                   | N/A          |
+| Section      | Length | Function                                       | Chord Progression              | Rhyme Scheme |
+| ------------ | ------ | ---------------------------------------------- | ------------------------------ | ------------ |
+| Intro        | 8 bars | Sparse piano -- establish the dissociated mood | Am -- F -- C -- G              | N/A          |
+| Verse 1      | 8 bars | The surface picture -- the functioning ghost   | Am -- F -- C -- G              | ABCB         |
+| Pre-Chorus   | 4 bars | The first crack -- something is not right      | Dm -- Am -- F -- E (or E7)     | Open/AA      |
+| Chorus       | 8 bars | The thesis: I am still here but I am not here  | F -- C -- G -- Am              | AABB         |
+| Verse 2      | 8 bars | Specific memory surfaces into the present      | Am -- F -- C -- G              | ABCB         |
+| Pre-Chorus   | 4 bars | The crack widens -- same chords, same words    | Dm -- Am -- F -- E7            | Open/AA      |
+| Chorus       | 8 bars | Same words -- now they hit harder              | F -- C -- G -- Am              | AABB         |
+| Bridge       | 8 bars | The grief surfaces -- the first honest moment  | Dm -- Dm7 -- Bm7b5 -- E7 -- Am | Free/ABAB    |
+| Final Chorus | 8 bars | Transformed repeat -- numbness becoming grief  | F -- C -- G -- Am              | AABB         |
+| Outro        | 8 bars | Return to intro material -- resolve on Am or C | Am -- F -- C -- Am             | N/A          |
 
 **Structural note:** The pre-chorus uses the same words both times it appears. This is deliberate -- it mirrors the song's theme of repetitive, automated behavior. By the second appearance, the repeated pre-chorus should feel eerie rather than familiar.
 
@@ -506,23 +541,23 @@ Songs written for specific real people or occasions have different constraints t
 
 **Verse 1** | Rhyme scheme: ABCB | Function: The surface picture -- the ghost who is technically fine
 
-*Writing prompt: Show the listener a mundane, ordinary scene from your daily life post-breakup. The point is how completely normal everything looks from the outside -- and how hollow it feels from the inside. Avoid stating the emotion directly; show it through the gap between the ordinary action and the flat inner register.*
+_Writing prompt: Show the listener a mundane, ordinary scene from your daily life post-breakup. The point is how completely normal everything looks from the outside -- and how hollow it feels from the inside. Avoid stating the emotion directly; show it through the gap between the ordinary action and the flat inner register._
 
 Line 1 (A -- free): [A morning routine detail: making coffee, getting dressed, looking in the mirror. What do you see and do? Be specific.]
 Line 2 (B -- rhyming): [A sensory detail that is slightly off -- something you notice but cannot explain: the apartment sounds different, the light is the same but feels wrong. This line's final word will rhyme with Line 4.]
 Line 3 (C -- free): [An action that demonstrates functioning: going to work, answering an email, making a grocery list. The ordinary world continues.]
 Line 4 (B -- rhymes with Line 2): [An emotional undercurrent that does not break the surface -- the ghost feeling named obliquely, not directly. Rhymes with Line 2.]
 
-*Example direction (to show the technique, not to replace the user's writing):*
-*Line 1: "I made the coffee at seven fifteen" -- specific time, specific action.*
-*Line 2: "The mug was still warm in my hands" -- tactile, present, but note the word "still" carries double weight here.*
-*Line 3: "I drove the same road to the same building" -- deliberately repetitive ("same...same") to signal automated behavior.*
-*Line 4: "The way that I somehow still can" -- "still" echoes Line 2; the mystery is: how? This is the ghost question.*
+_Example direction (to show the technique, not to replace the user's writing):_
+_Line 1: "I made the coffee at seven fifteen" -- specific time, specific action._
+_Line 2: "The mug was still warm in my hands" -- tactile, present, but note the word "still" carries double weight here._
+_Line 3: "I drove the same road to the same building" -- deliberately repetitive ("same...same") to signal automated behavior._
+_Line 4: "The way that I somehow still can" -- "still" echoes Line 2; the mystery is: how? This is the ghost question._
 
 ---
 
 **Pre-Chorus** | Rhyme scheme: Lines 1-2 open; Line 3 optional rhyme | Function: The first crack in the "I am fine" performance
 
-*Writing prompt: Something small surfaces -- a crack in the automation. Not a dramatic emotional break, but a moment of recognition. The pre-chorus is asking the question that the chorus answers. Use the piano's E7 chord (which wants desperately to resolve to Am) as the harmonic support for this instability.*
+_Writing prompt: Something small surfaces -- a crack in the automation. Not a dramatic emotional break, but a moment of recognition. The pre-chorus is asking the question that the chorus answers. Use the piano's E7 chord (which wants desperately to resolve to Am) as the harmonic support for this instability._
 
 Line 1: [A small disruption -- a moment of unawareness: you called a number before remembering you can't, you reached for a person who isn't there, you laughed at something and then felt the

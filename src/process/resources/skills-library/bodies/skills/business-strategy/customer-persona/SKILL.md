@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy marketing planning research"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy marketing planning research'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Customer Persona
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user needs a structured, research-grounded portrait of a specific type of buyer or user that will drive real decisions about messaging, product features, sales scripts, or content strategy.
 
 **Use when:**
+
 - The user asks to create, build, or document a buyer persona, user persona, or ideal customer profile (ICP) for B2B or B2C contexts
 - The user wants to understand why a specific customer type buys, what language they use, and what barriers prevent them from converting
 - The user needs to align a cross-functional team (marketing, product, sales, CS) around a shared understanding of who they are building for
@@ -36,6 +38,7 @@ Use this skill when the user needs a structured, research-grounded portrait of a
 - The user is designing onboarding flows, email nurture sequences, or product tours and needs to anchor those experiences in a specific persona's mental model
 
 **Do NOT use when:**
+
 - The user wants to map the full purchase and post-purchase journey across touchpoints -- use `customer-journey-map` instead, which addresses awareness through advocacy stages
 - The user needs to segment a total addressable market into prioritized tiers for go-to-market sequencing -- use `go-to-market-strategy` instead
 - The user wants to conduct original customer research (design a survey, write interview questions, recruit participants) -- use `market-research-brief` instead
@@ -353,42 +356,45 @@ Personas built at product launch often drift from reality as the product evolves
 ---
 
 ### Demographics and Context
-| Attribute | Detail |
-|-----------|--------|
-| Age Range | 26-38 -- old enough to have established a client base, young enough to be comfortable with SaaS tools |
-| Title / Role | Freelance Graphic Designer / Brand Designer / Visual Designer |
-| Seniority Level | Solo operator -- no direct reports, occasional subcontractors for overflow |
-| Company Size | Solo business; annual revenue $60K-$120K; 8-20 active clients at any point |
-| Industry / Vertical | Agency overflow, small business branding, startup brand identity, content marketing design |
-| Department | N/A -- sole operator who handles all client-facing and back-office functions |
-| Reports To | N/A -- self-directed; accountable only to clients |
-| Team Size Managed | 0 direct; occasionally contracts out photography or copywriting |
+
+| Attribute                 | Detail                                                                                                                                                                                                   |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Age Range                 | 26-38 -- old enough to have established a client base, young enough to be comfortable with SaaS tools                                                                                                    |
+| Title / Role              | Freelance Graphic Designer / Brand Designer / Visual Designer                                                                                                                                            |
+| Seniority Level           | Solo operator -- no direct reports, occasional subcontractors for overflow                                                                                                                               |
+| Company Size              | Solo business; annual revenue $60K-$120K; 8-20 active clients at any point                                                                                                                               |
+| Industry / Vertical       | Agency overflow, small business branding, startup brand identity, content marketing design                                                                                                               |
+| Department                | N/A -- sole operator who handles all client-facing and back-office functions                                                                                                                             |
+| Reports To                | N/A -- self-directed; accountable only to clients                                                                                                                                                        |
+| Team Size Managed         | 0 direct; occasionally contracts out photography or copywriting                                                                                                                                          |
 | Income / Budget Authority | Net personal income $45K-$90K after business expenses; willingness to pay $20-$60/month for tools that visibly save time or increase revenue; reluctant to pay for tools that feel like "admin overhead" |
-| Location | Urban or suburban US, UK, Canada, Australia; works from home studio or coworking space; client meetings via video call |
-| Technology Comfort | Medium-high -- uses Adobe Creative Cloud daily, comfortable with Notion or Airtable for project tracking, but does not want to build complex systems; chooses tools that work out of the box |
+| Location                  | Urban or suburban US, UK, Canada, Australia; works from home studio or coworking space; client meetings via video call                                                                                   |
+| Technology Comfort        | Medium-high -- uses Adobe Creative Cloud daily, comfortable with Notion or Airtable for project tracking, but does not want to build complex systems; chooses tools that work out of the box             |
 
 ---
 
 ### Jobs to Be Done
-| Priority | Job Type | Job Statement | Current Solution | Shortcoming | Progress Metric |
-|----------|----------|--------------|-----------------|-------------|-----------------|
-| 1 | Functional | Send polished, professional project proposals to prospective clients within 24 hours of a discovery call | Google Docs or Canva templates emailed as PDFs | No tracking of whether client opened it; no e-signature; requires reformatting for every project | Proposal sent within 24 hours; client responds within 72 hours; close rate above 40% |
-| 2 | Functional | Track which revision round each active client project is currently on and enforce revision limits specified in the contract | Mental tracking or a sticky-note system on the desktop | Routinely does extra revisions for free because she cannot easily cite "revision 3 of 2 allowed"; clients claim revisions were not counted accurately | Zero unpaid revisions per quarter; every revision documented with a timestamp |
-| 3 | Functional | Collect payment from clients on the agreed schedule without awkward follow-up conversations | Emailing a PayPal.me link or a manually created invoice via Wave | 35% of invoices are paid late; chasing payment feels unprofessional and anxiety-inducing; does not have automated reminders | 90%+ of invoices paid within 7 days of due date without manual follow-up |
-| 4 | Functional | Deliver final brand or design files to clients in an organized, professional package that the client can actually find months later | Google Drive folder shared with a link; sometimes Dropbox | Links expire or get lost; clients email weeks later asking for the original files; re-sending files takes 20-30 minutes per request | Zero "I can't find the files" requests from past clients in the 6 months after project close |
-| 5 | Emotional | Feel in control of her business and confident she is not letting anything fall through the cracks | Daily mental inventory of active projects | Wakes up at 2 AM worried about a missed deadline or an uncollected invoice; persistent background anxiety about the business side of the work | Can close the laptop at 6 PM knowing every open item is tracked and nothing requires attention until morning |
-| 6 | Social | Be perceived by clients as a highly professional, organized creative partner -- not just a talented freelancer | Inconsistent proposal and invoice templates across clients; different processes for every project | Clients sometimes treat her as a vendor rather than a strategic partner; she feels the inconsistency undermines her premium positioning | Clients proactively refer her to peers; at least one unsolicited "wow this is impressive" per quarter about her process |
+
+| Priority | Job Type   | Job Statement                                                                                                                       | Current Solution                                                                                  | Shortcoming                                                                                                                                           | Progress Metric                                                                                                         |
+| -------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| 1        | Functional | Send polished, professional project proposals to prospective clients within 24 hours of a discovery call                            | Google Docs or Canva templates emailed as PDFs                                                    | No tracking of whether client opened it; no e-signature; requires reformatting for every project                                                      | Proposal sent within 24 hours; client responds within 72 hours; close rate above 40%                                    |
+| 2        | Functional | Track which revision round each active client project is currently on and enforce revision limits specified in the contract         | Mental tracking or a sticky-note system on the desktop                                            | Routinely does extra revisions for free because she cannot easily cite "revision 3 of 2 allowed"; clients claim revisions were not counted accurately | Zero unpaid revisions per quarter; every revision documented with a timestamp                                           |
+| 3        | Functional | Collect payment from clients on the agreed schedule without awkward follow-up conversations                                         | Emailing a PayPal.me link or a manually created invoice via Wave                                  | 35% of invoices are paid late; chasing payment feels unprofessional and anxiety-inducing; does not have automated reminders                           | 90%+ of invoices paid within 7 days of due date without manual follow-up                                                |
+| 4        | Functional | Deliver final brand or design files to clients in an organized, professional package that the client can actually find months later | Google Drive folder shared with a link; sometimes Dropbox                                         | Links expire or get lost; clients email weeks later asking for the original files; re-sending files takes 20-30 minutes per request                   | Zero "I can't find the files" requests from past clients in the 6 months after project close                            |
+| 5        | Emotional  | Feel in control of her business and confident she is not letting anything fall through the cracks                                   | Daily mental inventory of active projects                                                         | Wakes up at 2 AM worried about a missed deadline or an uncollected invoice; persistent background anxiety about the business side of the work         | Can close the laptop at 6 PM knowing every open item is tracked and nothing requires attention until morning            |
+| 6        | Social     | Be perceived by clients as a highly professional, organized creative partner -- not just a talented freelancer                      | Inconsistent proposal and invoice templates across clients; different processes for every project | Clients sometimes treat her as a vendor rather than a strategic partner; she feels the inconsistency undermines her premium positioning               | Clients proactively refer her to peers; at least one unsolicited "wow this is impressive" per quarter about her process |
 
 ---
 
 ### Pain Points
-| # | Pain Point | Type | Severity | Quantified Impact |
-|---|-----------|------|----------|-------------------|
-| 1 | Spends 6-10 hours per week on non-billable administrative tasks: creating proposals, tracking projects, chasing payments, resending files | Chronic | High | At a $75/hour effective rate, this represents $450-$750/week in lost billable capacity -- up to $35,000/year |
-| 2 | Routinely performs unpaid revision work because revision rounds are tracked inconsistently | Chronic | High | Estimated 2-4 unpaid revision hours per month per active project; with 6 active projects, this is 12-24 hours/month of uncompensated work |
-| 3 | 30-40% of invoices are paid late, requiring manual follow-up emails that are emotionally taxing and time-consuming | Chronic | High | Average 45 minutes per late invoice resolution; 2-3 late invoices/month = 90-135 minutes/month on payment chasing; cash flow unpredictability makes personal financial planning difficult |
-| 4 | Every new project requires rebuilding a proposal and project setup from scratch because there is no reusable template system that is also flexible enough to customize | Chronic | Medium | 2-3 hours per new project on setup that should take 30 minutes |
-| 5 | Cannot easily show clients a professional deliverables portal -- final files are scattered across Google Drive folders with inconsistent naming | Chronic | Medium | 20-30 minutes per re-delivery request; 2-3 requests per month from past clients; damages professional brand perception |
+
+| #   | Pain Point                                                                                                                                                             | Type    | Severity | Quantified Impact                                                                                                                                                                         |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Spends 6-10 hours per week on non-billable administrative tasks: creating proposals, tracking projects, chasing payments, resending files                              | Chronic | High     | At a $75/hour effective rate, this represents $450-$750/week in lost billable capacity -- up to $35,000/year                                                                              |
+| 2   | Routinely performs unpaid revision work because revision rounds are tracked inconsistently                                                                             | Chronic | High     | Estimated 2-4 unpaid revision hours per month per active project; with 6 active projects, this is 12-24 hours/month of uncompensated work                                                 |
+| 3   | 30-40% of invoices are paid late, requiring manual follow-up emails that are emotionally taxing and time-consuming                                                     | Chronic | High     | Average 45 minutes per late invoice resolution; 2-3 late invoices/month = 90-135 minutes/month on payment chasing; cash flow unpredictability makes personal financial planning difficult |
+| 4   | Every new project requires rebuilding a proposal and project setup from scratch because there is no reusable template system that is also flexible enough to customize | Chronic | Medium   | 2-3 hours per new project on setup that should take 30 minutes                                                                                                                            |
+| 5   | Cannot easily show clients a professional deliverables portal -- final files are scattered across Google Drive folders with inconsistent naming                        | Chronic | Medium   | 20-30 minutes per re-delivery request; 2-3 requests per month from past clients; damages professional brand perception                                                                    |
 
 **The Switching Moment:**
 Isabel loses a project to another freelancer who sent a proposal link (not a PDF) that the client could sign and pay the deposit on in the same step. The client tells her, "The other designer just made it so easy." She realizes her process -- Google Docs proposal, email the PayPal link, track revisions in a sticky note -- is actively costing her business. She Googles "proposal and invoicing software for freelance designers" within 48 hours.
@@ -399,30 +405,32 @@ Isabel does not realize how much time she loses re-explaining her process to new
 ---
 
 ### Desired Gains
-| Gain Type | Gain Statement | Priority |
-|-----------|---------------|----------|
-| Minimum Required | Must be able to send a professional-looking proposal and receive an e-signature without requiring the client to create an account | Non-negotiable |
-| Minimum Required | Must integrate with Stripe or PayPal so payment can be collected in the same workflow as proposal acceptance | Non-negotiable |
-| Expected | Saves her time on administrative tasks compared to her current cobbled-together system | High |
-| Desired | Makes her look more professional than other freelancers the client is comparing her to -- elevates her perceived expertise and justifies her premium pricing | High |
-| Desired | Automatically tracks revision rounds and flags when a client requests a revision beyond the contracted limit, so she never has to be the one to raise it awkwardly | High |
-| Unexpected | Provides a branded client portal the client can bookmark, log into, and reference for project status and past files -- so Isabel becomes the most organized creative partner the client has ever worked with |Medium |
+
+| Gain Type        | Gain Statement                                                                                                                                                                                               | Priority       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| Minimum Required | Must be able to send a professional-looking proposal and receive an e-signature without requiring the client to create an account                                                                            | Non-negotiable |
+| Minimum Required | Must integrate with Stripe or PayPal so payment can be collected in the same workflow as proposal acceptance                                                                                                 | Non-negotiable |
+| Expected         | Saves her time on administrative tasks compared to her current cobbled-together system                                                                                                                       | High           |
+| Desired          | Makes her look more professional than other freelancers the client is comparing her to -- elevates her perceived expertise and justifies her premium pricing                                                 | High           |
+| Desired          | Automatically tracks revision rounds and flags when a client requests a revision beyond the contracted limit, so she never has to be the one to raise it awkwardly                                           | High           |
+| Unexpected       | Provides a branded client portal the client can bookmark, log into, and reference for project status and past files -- so Isabel becomes the most organized creative partner the client has ever worked with | Medium         |
 
 ---
 
 ### Buying Behavior
-| Attribute | Detail |
-|-----------|--------|
-| Research Channels | YouTube tutorials for creative freelancers, Reddit communities (r/freelance, r/graphic_design), Twitter/X designer community, designer-focused newsletters, peer recommendations in designer Slack groups (Brand Design Masters, ADPList community), Google search for "best proposal software for designers" |
-| Peer Influences | Other freelance designers who are 2-3 years ahead of her in business sophistication; designers who post about their business systems on social media; podcast hosts in the creative freelance space |
-| Evaluation Stages | Problem recognition (losing a deal or having a bad revision situation) > Google and community search > watches 2-3 YouTube review videos > signs up for free trials of 2-3 tools > tests by creating one real proposal > checks if payment collection works > evaluates pricing vs. current spend > converts or churns within 14 days of trial start |
+
+| Attribute                  | Detail                                                                                                                                                                                                                                                                                                                                                                   |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Research Channels          | YouTube tutorials for creative freelancers, Reddit communities (r/freelance, r/graphic_design), Twitter/X designer community, designer-focused newsletters, peer recommendations in designer Slack groups (Brand Design Masters, ADPList community), Google search for "best proposal software for designers"                                                            |
+| Peer Influences            | Other freelance designers who are 2-3 years ahead of her in business sophistication; designers who post about their business systems on social media; podcast hosts in the creative freelance space                                                                                                                                                                      |
+| Evaluation Stages          | Problem recognition (losing a deal or having a bad revision situation) > Google and community search > watches 2-3 YouTube review videos > signs up for free trials of 2-3 tools > tests by creating one real proposal > checks if payment collection works > evaluates pricing vs. current spend > converts or churns within 14 days of trial start                     |
 | Decision Criteria (Ranked) | 1. Quality and customizability of proposal templates (must look better than her current Google Docs), 2. Integrated payment collection (must not require a separate tool), 3. Ease of use -- must require zero training to send first proposal, 4. Pricing under $40/month (strong resistance above this threshold for a solo operator), 5. Revision tracking capability |
-| Budget Range | $15-$40/month for a comprehensive tool; will pay up to $60/month if the time savings are immediately visible in trial |
-| Budget Cycle | No formal budget cycle -- purchases are event-triggered, approved instantly by Isabel alone, paid on personal credit card, deducted as a business expense |
-| Buying Committee Roles | Isabel is the sole decision-maker, economic buyer, technical evaluator, and end user -- this is a single-person buying decision with no committee |
-| Approval Process | No approval required; Isabel decides within her trial period (typically 7-14 days); cancels if she has not sent a real proposal to a real client within the first week |
-| Average Sales Cycle | 5-14 days from first visit to paid conversion; driven by urgency of the switching moment |
-| Disqualification Signals | Requires more than 30 minutes to set up first proposal; client must create an account to sign or pay; templates look generic or corporate; pricing page is unclear about what is included; no free trial |
+| Budget Range               | $15-$40/month for a comprehensive tool; will pay up to $60/month if the time savings are immediately visible in trial                                                                                                                                                                                                                                                    |
+| Budget Cycle               | No formal budget cycle -- purchases are event-triggered, approved instantly by Isabel alone, paid on personal credit card, deducted as a business expense                                                                                                                                                                                                                |
+| Buying Committee Roles     | Isabel is the sole decision-maker, economic buyer, technical evaluator, and end user -- this is a single-person buying decision with no committee                                                                                                                                                                                                                        |
+| Approval Process           | No approval required; Isabel decides within her trial period (typically 7-14 days); cancels if she has not sent a real proposal to a real client within the first week                                                                                                                                                                                                   |
+| Average Sales Cycle        | 5-14 days from first visit to paid conversion; driven by urgency of the switching moment                                                                                                                                                                                                                                                                                 |
+| Disqualification Signals   | Requires more than 30 minutes to set up first proposal; client must create an account to sign or pay; templates look generic or corporate; pricing page is unclear about what is included; no free trial                                                                                                                                                                 |
 
 **Common Objections and Underlying Concerns:**
 | Objection | Underlying Concern | Counter-Strategy |
@@ -434,7 +442,9 @@ Isabel does not realize how much time she loses re-explaining her process to new
 ---
 
 ### Vocabulary Map
+
 **Their language for the problem:**
+
 - "I'm drowning in admin"
 - "I just want to focus on the actual design work"
 - "Chasing invoices makes me feel like a collections agency"
@@ -442,22 +452,26 @@ Isabel does not realize how much time she loses re-explaining her process to new
 - "My client said they couldn't find the files I sent 3 months ago and I had to resend everything"
 
 **Their language for the desired outcome:**
+
 - "I want my business to look as polished as my design work"
 - "I just want to send a link and have everything taken care of"
 - "I want to get paid on time without having to be weird about it"
 
 **Industry jargon they use (and expect vendors to use correctly):**
+
 - "Deliverables": The final design files handed off to the client -- NOT the project itself
 - "Revisions": Specific rounds of changes; "revision 1 of 3 included" is standard contract language
 - "Brand kit": The full package of logo files, color palettes, and typography guidelines delivered at project end
 - "Discovery call": The initial consultation before a proposal is sent
 
 **Language that resonates:**
+
 - "Built for freelance designers": Signals the tool understands her specific workflow, not a generic small business tool
 - "Send your first proposal in 10 minutes": Specific, concrete, respects her time constraint, creates a testable promise
 - "Get paid faster": Addresses the #3 pain directly without making her feel like a bad businessperson
 
 **Language that creates resistance:**
+
 - "All-in-one business platform": Sounds like enterprise software with a learning curve and a price to match
 - "Automate your business": Slightly threatening -- she is a creative; "automation" feels like it could make her work feel mechanical or remove the personal touch she values
 - "CRM": She does not identify as someone who needs a CRM; this word signals the tool is for salespeople, not designers
@@ -465,31 +479,35 @@ Isabel does not realize how much time she loses re-explaining her process to new
 ---
 
 ### Day in the Life
+
 Isabel starts work at 9 AM and immediately opens three browser tabs: her Gmail (where she tracks which client is waiting for what), a Google Drive folder (where she manages project files), and a Wave invoice she was supposed to send yesterday. She spends 40 minutes writing a proposal in Google Docs for a new branding project, formatting it carefully, exporting it as a PDF, and emailing it -- knowing that she has no idea if or when the client will open it. Around 11 AM she gets a Slack message from a client asking to see "version 2 of the logo" -- but she is not sure if that counts as a revision under the contract because they already asked for small changes twice last week that she did not formally document. She does the work, does not charge for it, and adds a mental note to fix her revision tracking system "sometime." By 3 PM, she is doing her best creative work but cannot fully concentrate because she is aware that two invoices from last month are still unpaid and she needs to send a follow-up email that she keeps delaying because it feels awkward.
 
 ---
 
 ### How to Reach and Engage This Persona
-| Priority | Channel | Tactic | Content Type | Timing |
-|----------|---------|--------|-------------|--------|
-| 1 | YouTube | Pre-roll and mid-roll on channels covering freelance design business (Creative Pep Talk, The Futur) | 60-second video showing a real proposal being sent in under 5 minutes -- no voiceover, just screen recording with simple captions | Always on; spike budget when seasonal freelance ramp-up occurs (January, September) |
-| 2 | Reddit (r/freelance, r/graphic_design) | Organic presence in threads where designers complain about proposal/invoice/revision problems; sponsored posts with specific problem-first framing | Text posts with a direct "I built something for this" narrative; no hard sell | Trigger-based: monitor keywords like "revision nightmare," "chasing invoices," "proposal software" |
-| 3 | Designer community newsletters | Sponsor placements in Sidebar, Dense Discovery, and similar designer-focused newsletters with a before/after time-savings story | Short-form case study: one designer, one metric, one outcome | Consistent monthly presence -- this persona reads newsletters but ignores display ads |
-| 4 | Google Search | Paid search on high-intent keywords: "proposal software for freelancers," "best invoicing app for designers," "freelance project management tool" | Landing page anchored to the switching moment ("Just lost a deal because your proposal process looked outdated?") | Always on with bid adjustments for mobile (Isabel researches on her phone between client calls) |
+
+| Priority | Channel                                | Tactic                                                                                                                                             | Content Type                                                                                                                      | Timing                                                                                             |
+| -------- | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 1        | YouTube                                | Pre-roll and mid-roll on channels covering freelance design business (Creative Pep Talk, The Futur)                                                | 60-second video showing a real proposal being sent in under 5 minutes -- no voiceover, just screen recording with simple captions | Always on; spike budget when seasonal freelance ramp-up occurs (January, September)                |
+| 2        | Reddit (r/freelance, r/graphic_design) | Organic presence in threads where designers complain about proposal/invoice/revision problems; sponsored posts with specific problem-first framing | Text posts with a direct "I built something for this" narrative; no hard sell                                                     | Trigger-based: monitor keywords like "revision nightmare," "chasing invoices," "proposal software" |
+| 3        | Designer community newsletters         | Sponsor placements in Sidebar, Dense Discovery, and similar designer-focused newsletters with a before/after time-savings story                    | Short-form case study: one designer, one metric, one outcome                                                                      | Consistent monthly presence -- this persona reads newsletters but ignores display ads              |
+| 4        | Google Search                          | Paid search on high-intent keywords: "proposal software for freelancers," "best invoicing app for designers," "freelance project management tool"  | Landing page anchored to the switching moment ("Just lost a deal because your proposal process looked outdated?")                 | Always on with bid adjustments for mobile (Isabel researches on her phone between client calls)    |
 
 ---
 
 ### Assumptions to Validate
-| # | Assumption | Validation Method | Priority |
-|---|-----------|------------------|----------|
-| 1 | The switching moment is specifically about losing a deal to a more process-polished competitor -- rather than a bad revision dispute or a cash flow crisis from late payments | 8 customer discovery interviews with the opening question: "Tell me about the moment you decided you needed a better system" | High |
-| 2 | The $40/month price ceiling is real and not merely a negotiating position -- i.e., a designer who saves 6 hours/week will still resist paying $60/month | A/B test pricing page at $29/month vs. $49/month with identical feature sets; measure trial-to-paid conversion rate difference | High |
-| 3 | Proposal quality and e-signature are the primary evaluation criteria -- not payment collection or file delivery | Track feature engagement during free trials: which feature is used first and which is used most in the first 7 days | High |
-| 4 | Isabel does her research primarily on YouTube and community forums, not via SEO-driven blog content | UTM analysis on first-touch attribution after first 500 sign-ups; survey new users: "How did you find us?" | Medium |
-| 5 | The emotional job (feeling in control, not waking up anxious) is a strong enough motivator to drive paid conversion -- i.e., emotional messaging outperforms functional messaging | A/B test email subject lines: "Save 6 hours a week on admin" (functional) vs. "Close the laptop at 5 PM knowing nothing fell through the cracks" (emotional); measure open rate and click-to-trial rate | Medium |
+
+| #   | Assumption                                                                                                                                                                        | Validation Method                                                                                                                                                                                       | Priority |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| 1   | The switching moment is specifically about losing a deal to a more process-polished competitor -- rather than a bad revision dispute or a cash flow crisis from late payments     | 8 customer discovery interviews with the opening question: "Tell me about the moment you decided you needed a better system"                                                                            | High     |
+| 2   | The $40/month price ceiling is real and not merely a negotiating position -- i.e., a designer who saves 6 hours/week will still resist paying $60/month                           | A/B test pricing page at $29/month vs. $49/month with identical feature sets; measure trial-to-paid conversion rate difference                                                                          | High     |
+| 3   | Proposal quality and e-signature are the primary evaluation criteria -- not payment collection or file delivery                                                                   | Track feature engagement during free trials: which feature is used first and which is used most in the first 7 days                                                                                     | High     |
+| 4   | Isabel does her research primarily on YouTube and community forums, not via SEO-driven blog content                                                                               | UTM analysis on first-touch attribution after first 500 sign-ups; survey new users: "How did you find us?"                                                                                              | Medium   |
+| 5   | The emotional job (feeling in control, not waking up anxious) is a strong enough motivator to drive paid conversion -- i.e., emotional messaging outperforms functional messaging | A/B test email subject lines: "Save 6 hours a week on admin" (functional) vs. "Close the laptop at 5 PM knowing nothing fell through the cracks" (emotional); measure open rate and click-to-trial rate | Medium   |
 
 ---
 
 ### Usage Guidance for This Persona
+
 **Use this persona for:** Product onboarding flow design, top-of-funnel content strategy and channel investment decisions, pricing page copywriting, free trial activation email sequences, and feature prioritization for the core proposal-to-payment workflow.
 **Do NOT use this persona for:** Enterprise or agency sales strategy (that requires a separate Agency Creative Director persona with buying committee dynamics); product decisions about team collaboration features (Isabel works solo -- team features are irrelevant to her and will create UI clutter she resents); customer success playbooks for accounts above $200/month (those are larger studios with different operational needs).

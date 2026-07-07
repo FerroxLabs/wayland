@@ -2,13 +2,7 @@
 import { useMemo } from 'react';
 import yaml from 'js-yaml';
 import { z } from 'zod';
-import type {
-  CatalogIndex,
-  CatalogIndexEntry,
-  CatalogEntry,
-  SetupGuide,
-  Tier,
-} from '../types';
+import type { CatalogIndex, CatalogIndexEntry, CatalogEntry, SetupGuide, Tier } from '../types';
 
 // Vite-bundled catalog - ships with the app.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,20 +13,22 @@ import catalog from '@renderer/mcp-catalog/catalog.json';
 // 4 levels up at src/renderer/mcp-catalog/.
 const entryModules = import.meta.glob<{ default: CatalogEntry } | CatalogEntry>(
   '@renderer/mcp-catalog/entries/*.json',
-  { eager: true },
+  { eager: true }
 );
-const guideModules = import.meta.glob<string>(
-  '@renderer/mcp-catalog/guides/*.md',
-  { eager: true, query: '?raw', import: 'default' },
-);
+const guideModules = import.meta.glob<string>('@renderer/mcp-catalog/guides/*.md', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+});
 
 // Vite resolves SVG asset URLs at build time. Catalog stores `iconUrl` as a
 // literal string like "icons/google.svg" (the path inside the catalog dir),
 // so we map filename → Vite-bundled URL once and resolve at hook construction.
-const iconModules = import.meta.glob<string>(
-  '@renderer/mcp-catalog/icons/*.svg',
-  { eager: true, query: '?url', import: 'default' },
-);
+const iconModules = import.meta.glob<string>('@renderer/mcp-catalog/icons/*.svg', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
 
 const iconUrlByFilename: Record<string, string> = (() => {
   const map: Record<string, string> = {};
@@ -69,7 +65,7 @@ const SetupStepSchema = z.object({
         label: z.string(),
         placeholder: z.string().optional(),
         secret: z.coerce.boolean().optional(),
-      }),
+      })
     )
     .optional(),
   warning: z.string().optional(),
@@ -175,7 +171,7 @@ export function useMcpLibrary(): UseMcpLibrary {
     // rank order for any id that isn't found so the row is always full.
     const byId = new Map(entries.map((e) => [e.id, e]));
     const recommended = RECOMMENDED_IDS.map((id) => byId.get(id)).filter(
-      (e): e is CatalogIndexEntry => e !== undefined,
+      (e): e is CatalogIndexEntry => e !== undefined
     );
     for (const e of entries) {
       if (recommended.length >= RECOMMENDED_COUNT) break;

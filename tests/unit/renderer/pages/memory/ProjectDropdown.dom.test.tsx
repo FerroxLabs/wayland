@@ -35,7 +35,11 @@ vi.mock('@arco-design/web-react', async () => {
     'data-testid'?: string;
     disabled?: boolean;
   }) =>
-    React2.createElement('div', { 'data-testid': testId, onClick: disabled ? undefined : onClick, role: 'menuitem' }, children);
+    React2.createElement(
+      'div',
+      { 'data-testid': testId, onClick: disabled ? undefined : onClick, role: 'menuitem' },
+      children
+    );
 
   const Menu = ({
     children,
@@ -57,20 +61,19 @@ vi.mock('@arco-design/web-react', async () => {
           });
         }
         return child;
-      }),
+      })
     );
   (Menu as { Item: typeof MenuItem }).Item = MenuItem;
 
   return {
-    Dropdown: ({
-      children,
-      droplist,
-    }: {
-      children: React.ReactNode;
-      droplist: React.ReactNode;
-    }) => React2.createElement(React2.Fragment, null, children, droplist),
+    Dropdown: ({ children, droplist }: { children: React.ReactNode; droplist: React.ReactNode }) =>
+      React2.createElement(React2.Fragment, null, children, droplist),
     Menu,
-    Input: ({ placeholder, onChange, 'data-testid': testId }: {
+    Input: ({
+      placeholder,
+      onChange,
+      'data-testid': testId,
+    }: {
       placeholder?: string;
       size?: string;
       onChange?: (val: string) => void;
@@ -99,71 +102,35 @@ afterEach(() => {
 
 describe('ProjectDropdown', () => {
   it('renders the trigger button', () => {
-    render(
-      <ProjectDropdown
-        projects={MOCK_PROJECTS}
-        selected={null}
-        onSelect={vi.fn()}
-      />,
-    );
+    render(<ProjectDropdown projects={MOCK_PROJECTS} selected={null} onSelect={vi.fn()} />);
     expect(screen.getByTestId('project-dropdown-btn')).toBeTruthy();
   });
 
   it('shows "All projects" when nothing selected', () => {
-    render(
-      <ProjectDropdown
-        projects={MOCK_PROJECTS}
-        selected={null}
-        onSelect={vi.fn()}
-      />,
-    );
+    render(<ProjectDropdown projects={MOCK_PROJECTS} selected={null} onSelect={vi.fn()} />);
     expect(screen.getByTestId('project-dropdown-btn').textContent).toContain('All projects');
   });
 
   it('renders a search input in the panel', () => {
-    render(
-      <ProjectDropdown
-        projects={MOCK_PROJECTS}
-        selected={null}
-        onSelect={vi.fn()}
-      />,
-    );
+    render(<ProjectDropdown projects={MOCK_PROJECTS} selected={null} onSelect={vi.fn()} />);
     // Panel is always rendered in DOM via our mock
     expect(screen.getByTestId('project-dropdown-panel')).toBeTruthy();
   });
 
   it('renders project options', () => {
-    render(
-      <ProjectDropdown
-        projects={MOCK_PROJECTS}
-        selected={null}
-        onSelect={vi.fn()}
-      />,
-    );
+    render(<ProjectDropdown projects={MOCK_PROJECTS} selected={null} onSelect={vi.fn()} />);
     expect(screen.getByTestId('project-option-wayland-app')).toBeTruthy();
     expect(screen.getByTestId('project-option-wayland-engine')).toBeTruthy();
   });
 
   it('shows project count in row', () => {
-    render(
-      <ProjectDropdown
-        projects={MOCK_PROJECTS}
-        selected={null}
-        onSelect={vi.fn()}
-      />,
-    );
+    render(<ProjectDropdown projects={MOCK_PROJECTS} selected={null} onSelect={vi.fn()} />);
     const appOption = screen.getByTestId('project-option-wayland-app');
     expect(appOption.textContent).toContain('42');
   });
 
   it('shows selected project label in trigger', () => {
-    render(
-      <ProjectDropdown
-        projects={MOCK_PROJECTS}
-        selected='/dev/wayland/app'
-        onSelect={vi.fn()}
-      />,
-    );
+    render(<ProjectDropdown projects={MOCK_PROJECTS} selected='/dev/wayland/app' onSelect={vi.fn()} />);
     expect(screen.getByTestId('project-dropdown-btn').textContent).toContain('wayland-app');
   });
 });

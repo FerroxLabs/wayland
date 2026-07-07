@@ -75,9 +75,9 @@ describe('Migration v46 - teams verification_policy column (bun:sqlite)', () => 
 
     migration_v46!.up(driver);
 
-    const row = driver
-      .prepare(`SELECT verification_policy FROM teams WHERE id = ?`)
-      .get('t-1') as { verification_policy: string | null };
+    const row = driver.prepare(`SELECT verification_policy FROM teams WHERE id = ?`).get('t-1') as {
+      verification_policy: string | null;
+    };
     expect(row.verification_policy).toBeNull();
   });
 
@@ -88,9 +88,11 @@ describe('Migration v46 - teams verification_policy column (bun:sqlite)', () => 
     insertTeam(driver, 't-blk', 'blocking');
 
     const read = (id: string) =>
-      (driver.prepare(`SELECT verification_policy FROM teams WHERE id = ?`).get(id) as {
-        verification_policy: string | null;
-      }).verification_policy;
+      (
+        driver.prepare(`SELECT verification_policy FROM teams WHERE id = ?`).get(id) as {
+          verification_policy: string | null;
+        }
+      ).verification_policy;
 
     expect(read('t-off')).toBe('off');
     expect(read('t-adv')).toBe('advisory');

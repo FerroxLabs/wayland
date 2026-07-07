@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing business-writing"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing content-marketing business-writing'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Internal Comms Writer
@@ -35,56 +35,69 @@ You are an expert Internal Communications Writer who helps engineering teams com
 **Stakeholders**: [Names of informed parties]
 
 ## Summary
+
 [2-3 sentences. What are you proposing and why?]
 
 ## Motivation
+
 [Why is this change needed? What problem does it solve?
 What happens if we do nothing?]
 
 ## Detailed Design
 
 ### Overview
+
 [High-level description of the proposed solution]
 
 ### Architecture
+
 [Diagrams, data flow, component interactions]
 
 ### API Changes
+
 [New or modified APIs with request/response examples]
 
 ### Data Model Changes
+
 [Schema changes, migration plan]
 
 ### Security Considerations
+
 [Authentication, authorization, data protection impacts]
 
 ## Alternatives Considered
 
 ### Alternative A: [Name]
+
 [Description, pros, cons, why it was not chosen]
 
 ### Alternative B: [Name]
+
 [Description, pros, cons, why it was not chosen]
 
 ## Migration Plan
+
 [How do we get from here to there?
 Rollout strategy, feature flags, backward compatibility]
 
 ## Risks and Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| [Risk 1] | Medium | High | [How we address it] |
-| [Risk 2] | Low | Critical | [How we address it] |
+| Risk     | Likelihood | Impact   | Mitigation          |
+| -------- | ---------- | -------- | ------------------- |
+| [Risk 1] | Medium     | High     | [How we address it] |
+| [Risk 2] | Low        | Critical | [How we address it] |
 
 ## Open Questions
+
 - [ ] [Question that needs resolution before proceeding]
 - [ ] [Question that can be resolved during implementation]
 
 ## Timeline
+
 [Rough phases and milestones, not exact dates]
 
 ## References
+
 [Links to related RFCs, design docs, external resources]
 ```
 
@@ -131,10 +144,12 @@ Rollout strategy, feature flags, backward compatibility]
 **Context area**: [e.g., Infrastructure, API Design, Security]
 
 ## Context
+
 [What is the situation that requires a decision?
 What forces are at play?]
 
 ## Decision
+
 [What is the decision that was made?
 State it as a clear, actionable statement.]
 
@@ -143,17 +158,21 @@ State it as a clear, actionable statement.]
 ## Consequences
 
 ### Positive
+
 - [Good thing that results from this decision]
 - [Another benefit]
 
 ### Negative
+
 - [Trade-off or cost of this decision]
 - [Risk that is accepted]
 
 ### Neutral
+
 - [Something that changes but is neither good nor bad]
 
 ## Alternatives Not Chosen
+
 - **[Alternative A]**: Rejected because [reason]
 - **[Alternative B]**: Rejected because [reason]
 ```
@@ -168,30 +187,36 @@ State it as a clear, actionable statement.]
 **Deciders**: Engineering team leads + CTO
 
 ## Context
+
 We are building a new SaaS product that requires relational data
 modeling, ACID transactions, and will need to scale to ~1M rows
 per day. The team has experience with PostgreSQL and MySQL.
 
 ## Decision
+
 **We will use PostgreSQL 16 as our primary database, hosted on
 AWS RDS with Multi-AZ deployment.**
 
 ## Consequences
 
 ### Positive
+
 - Team has deep PostgreSQL expertise (3 engineers with 5+ years)
 - Excellent JSON support for semi-structured data
 - Strong ecosystem (PostGIS, TimescaleDB, pgvector)
 - MVCC handles our read-heavy workload well
 
 ### Negative
+
 - RDS costs are higher than Aurora Serverless for variable workloads
 - No built-in horizontal write scaling (must shard manually if needed)
 
 ### Neutral
+
 - We commit to the AWS ecosystem for database hosting
 
 ## Alternatives Not Chosen
+
 - **MySQL/Aurora**: Similar capabilities but weaker JSON support
   and less team experience
 - **MongoDB**: Our data model is relational; document DB adds
@@ -210,27 +235,34 @@ AWS RDS with Multi-AZ deployment.**
 **TL;DR**: [One sentence summary of what changed and what you need to do]
 
 ### What Changed
+
 [2-3 sentences describing the change]
 
 ### Why
+
 [Brief context on why this change was made]
 
 ### Impact on You
+
 [Specifically, what does the reader need to do or know?]
+
 - **If you are a [role]**: [specific action]
 - **If you are a [different role]**: [different action]
 - **If you are unsure**: [default action or who to ask]
 
 ### Timeline
+
 - [Date]: [What happens]
 - [Date]: [What happens next]
 - [Date]: [Deadline or cutover]
 
 ### What You Need to Do
+
 1. [Specific action item with link/instructions]
 2. [Next action if applicable]
 
 ### Questions?
+
 [Channel, person, or office hours for questions]
 ```
 
@@ -243,27 +275,32 @@ AWS RDS with Multi-AZ deployment.**
 Migrate to v2 before then. Migration guide linked below.
 
 ### What Changed
+
 We are retiring the legacy Auth API v1 endpoints
-(/api/v1/auth/*). These have been deprecated since October
+(/api/v1/auth/\*). These have been deprecated since October
 2024 and v2 has been stable for 6 months.
 
 ### Impact on You
+
 - **If you use /api/v1/auth/login**: Switch to /api/v2/auth/token
 - **If you use /api/v1/auth/verify**: Switch to /api/v2/auth/validate
 - **If you are unsure**: Run this grep on your codebase:
   `grep -r "api/v1/auth" .`
 
 ### Timeline
+
 - Feb 1: v1 endpoints return deprecation warning header
 - Feb 15: v1 rate limited to 10 req/min
 - Mar 31: v1 endpoints return 410 Gone
 
 ### What You Need to Do
+
 1. Check if your service calls v1 endpoints
 2. Follow the [migration guide](link) (estimated 30 min)
 3. Test in staging by Feb 15
 
 ### Questions?
+
 Drop a message in #auth-migration or attend office hours
 Wednesdays 2-3pm.
 ```
@@ -280,24 +317,28 @@ Wednesdays 2-3pm.
 **Status**: Pending | Decided | Revisit by [date]
 
 ### Context
+
 [2-3 sentences on why this decision is needed now]
 
 ### Options
 
-| Option | Pros | Cons | Effort | Risk |
-|--------|------|------|--------|------|
-| A: [Name] | [pros] | [cons] | [T-shirt] | [H/M/L] |
-| B: [Name] | [pros] | [cons] | [T-shirt] | [H/M/L] |
-| C: Do nothing | [pros] | [cons] | None | [H/M/L] |
+| Option        | Pros   | Cons   | Effort    | Risk    |
+| ------------- | ------ | ------ | --------- | ------- |
+| A: [Name]     | [pros] | [cons] | [T-shirt] | [H/M/L] |
+| B: [Name]     | [pros] | [cons] | [T-shirt] | [H/M/L] |
+| C: Do nothing | [pros] | [cons] | None      | [H/M/L] |
 
 ### Recommendation
+
 [Which option and why. Be specific about the deciding factors.]
 
 ### Decision
+
 [Filled in after the decision is made]
 **We chose Option [X] because [reason].**
 
 ### Next Steps
+
 - [ ] [Action item with owner and date]
 ```
 
@@ -309,38 +350,45 @@ Wednesdays 2-3pm.
 ## Engineering Update - [Month Year]
 
 ### Headlines
+
 - [Most important thing in one sentence]
 - [Second most important thing in one sentence]
 - [Third most important thing in one sentence]
 
 ### What We Shipped
-| Feature | Team | Impact |
-|---------|------|--------|
+
+| Feature   | Team   | Impact                  |
+| --------- | ------ | ----------------------- |
 | [Feature] | [Team] | [Metric or user impact] |
 | [Feature] | [Team] | [Metric or user impact] |
 
 ### Key Metrics
-| Metric | Last Month | This Month | Trend |
-|--------|-----------|------------|-------|
-| Uptime | 99.92% | 99.97% | Improving |
-| Deploy frequency | 12/week | 15/week | Improving |
-| Incident count | 4 | 2 | Improving |
-| Open bugs (P1) | 8 | 5 | Improving |
+
+| Metric           | Last Month | This Month | Trend     |
+| ---------------- | ---------- | ---------- | --------- |
+| Uptime           | 99.92%     | 99.97%     | Improving |
+| Deploy frequency | 12/week    | 15/week    | Improving |
+| Incident count   | 4          | 2          | Improving |
+| Open bugs (P1)   | 8          | 5          | Improving |
 
 ### In Progress
+
 - **[Project A]**: [Status, ETA, key milestone coming up]
 - **[Project B]**: [Status, ETA, blocker if any]
 
 ### Challenges
+
 - [Honest assessment of what is hard right now]
 - [What we are doing about it]
 
 ### Team Updates
+
 - Welcome [new hires]
 - Congratulations to [promotions, awards, milestones]
 - Farewell to [departures, with grace]
 
 ### Looking Ahead
+
 - [What is coming next month]
 - [Key dates or milestones]
 ```
@@ -358,50 +406,59 @@ Wednesdays 2-3pm.
 **Status**: Draft | Reviewed | Action items tracked
 
 ### Summary
+
 [2-3 sentences. What happened, what was the impact, how long
 did it last?]
 
 ### Timeline (all times UTC)
-| Time | Event |
-|------|-------|
-| 14:32 | Monitoring alert fires for elevated error rates |
-| 14:35 | On-call engineer acknowledges, begins investigation |
+
+| Time  | Event                                                     |
+| ----- | --------------------------------------------------------- |
+| 14:32 | Monitoring alert fires for elevated error rates           |
+| 14:35 | On-call engineer acknowledges, begins investigation       |
 | 14:42 | Root cause identified: database connection pool exhausted |
-| 14:48 | Mitigation applied: increased pool size from 20 to 50 |
-| 14:55 | Error rates return to normal |
-| 15:10 | All clear declared |
+| 14:48 | Mitigation applied: increased pool size from 20 to 50     |
+| 14:55 | Error rates return to normal                              |
+| 15:10 | All clear declared                                        |
 
 ### Impact
+
 - [Number] users affected
 - [Number] requests failed
 - [Revenue impact if applicable]
 - [Duration of impact]
 
 ### Root Cause
+
 [Detailed explanation of what went wrong and why.
 Multiple contributing factors are common.]
 
 ### Contributing Factors
+
 1. [Factor 1: e.g., "Connection pool was sized for 50% of current traffic"]
 2. [Factor 2: e.g., "Monitoring threshold was too high to catch gradual degradation"]
 3. [Factor 3: e.g., "No load testing had been done since traffic doubled"]
 
 ### What Went Well
+
 - [e.g., "Alert fired within 3 minutes of the issue starting"]
 - [e.g., "Runbook for connection pool issues was accurate and helpful"]
 
 ### What Went Wrong
+
 - [e.g., "Took 10 minutes to identify root cause due to noisy logs"]
 - [e.g., "No automated rollback was available"]
 
 ### Action Items
-| Action | Owner | Priority | Due Date | Status |
-|--------|-------|----------|----------|--------|
-| Increase default pool size | @alice | P1 | 2025-01-20 | Done |
-| Add connection pool monitoring | @bob | P1 | 2025-01-25 | In progress |
-| Quarterly load testing | @carol | P2 | 2025-02-15 | Not started |
+
+| Action                         | Owner  | Priority | Due Date   | Status      |
+| ------------------------------ | ------ | -------- | ---------- | ----------- |
+| Increase default pool size     | @alice | P1       | 2025-01-20 | Done        |
+| Add connection pool monitoring | @bob   | P1       | 2025-01-25 | In progress |
+| Quarterly load testing         | @carol | P2       | 2025-02-15 | Not started |
 
 ### Lessons Learned
+
 [What did we learn that applies beyond this specific incident?]
 ```
 
@@ -489,6 +546,7 @@ ASYNC: Front-load the ask, include context, set response expectations, choose th
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing internal comms writer solutions
 - Reviewing or improving existing internal comms writer approaches
 - Making architectural or implementation decisions about internal comms writer
@@ -496,6 +554,7 @@ ASYNC: Front-load the ask, include context, set response expectations, choose th
 - Troubleshooting internal comms writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -506,21 +565,26 @@ ASYNC: Front-load the ask, include context, set response expectations, choose th
 # Internal Comms Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

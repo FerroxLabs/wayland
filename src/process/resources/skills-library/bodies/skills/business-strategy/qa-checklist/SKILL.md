@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "checklist template planning analysis"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'checklist template planning analysis'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # QA Checklist
 
 ## When to Use
@@ -332,27 +333,35 @@ the output reaches the customer, downstream team, or next stage.*
 ## Edge Cases
 
 ### Subjective or Creative Output (Design Work, Writing, Video, Brand Content)
+
 When quality characteristics cannot be expressed as binary observable facts, use a defined rubric rather than pass/fail. Rubric levels should be: Exceeds Standard (4), Meets Standard (3), Marginally Below Standard (2 -- conditional pass with noted improvements), Does Not Meet Standard (1 -- fail, rework required). Document what distinguishes each level with examples. Require that the rubric is created and approved before the first inspection -- never let the rubric evolve mid-inspection. For brand consistency checks, anchor criteria to a specific brand guide document and version. Example: "Tone matches brand voice guidelines v3.2, Section 2.4" evaluated against printed examples, not inspectors' personal interpretation.
 
 ### High-Volume Process With Batch Sampling
+
 When 100% inspection is not feasible due to volume or throughput requirements, use AQL (Acceptance Quality Limit) sampling per ISO 2859-1. Common AQL levels: 0.65% for critical characteristics, 2.5% for major characteristics, 4.0% for minor characteristics. General Inspection Level II is the default. The checklist must specify sample size using ISO 2859-1 tables based on lot size and inspection level. Include a dynamic response rule: if a sample fails, escalate to tightened inspection (double the sample size from the same lot and re-inspect). If two consecutive lots under tightened inspection pass, return to normal sampling. If five consecutive lots under tightened inspection fail, switch to 100% inspection and initiate a process review. Never return to statistical sampling without a formal corrective action closure.
 
 ### New Process With No Historical Defect Data
+
 Start with a comprehensive checklist covering all conceptually possible failure modes at each stage. Run it for 30-60 days, recording every failure. At the 30-day review, calculate the defect rate for each check item. Remove or reduce to quarterly spot-check any item with zero failures over 30 days -- with the explicit caveat that if a removed item's defect reappears, it is immediately reinstated. After 60 days, the checklist should have been trimmed to the items that actually fail in this specific environment. Never run a comprehensive first-draft checklist indefinitely -- it will be abandoned.
 
 ### Regulated Industry (FDA, ISO 13485, ISO 9001, GMP)
+
 In regulated environments, the QA checklist is a controlled document with specific requirements beyond normal QA practice. Requirements that must be added: Document control number (not just a version number -- a formal document ID), approval signatures with dates from defined roles (typically QA Manager, Process Owner, and in some cases a regulatory affairs representative), change control log showing every revision with justification, and a traceability matrix mapping each check item to the applicable regulatory clause or specification section. The checklist must be retained for the duration defined by the regulation (FDA: 21 CFR 820.180 requires 2 years minimum; GMP: varies by country; ISO 9001: organization-defined but typically 3-5 years). Paper checklists in regulated environments require ink signatures -- never pencil. Electronic checklists require 21 CFR Part 11-compliant e-signatures if FDA-regulated.
 
 ### Distributed Teams in Multiple Locations Performing the Same QA Check
+
 Inspector calibration becomes critical. Two inspectors in different locations evaluating the same items against the same criteria will diverge over time without active calibration. Create a calibration kit: 5-10 representative samples covering the full range from clear pass to clear fail and several borderline cases. Run quarterly calibration sessions where all inspectors independently evaluate the same calibration kit and compare results. If agreement on borderline cases drops below 80%, rewrite the acceptance criteria for those items. Include calibration session results in the defect log. Name the calibration exercise moderator in the review schedule.
 
 ### Process With Multiple Handoffs Between Teams or Departments
+
 When a process crosses organizational boundaries (e.g., Sales hands off to Operations, Operations hands off to Finance), each handoff point is a mandatory inspection point regardless of what happens between handoffs. Each handoff inspection must have: a defined sender role (who is releasing), a defined receiver role (who is accepting), a binary acceptance decision (accept or reject with documented reason), and a time limit for the receiver to accept or reject (e.g., "Receiver has 4 business hours to accept or reject the handoff -- silence does not constitute acceptance"). Handoff rejections must be escalated immediately rather than cycling back informally, because informal returns through handoffs create accountability gaps and audit trails disappear.
 
 ### Process Under Active Improvement (Checklist Used During a Kaizen or Lean Project)
+
 When the process being checked is actively changing, the checklist has a shorter shelf life and must be treated as a draft document with weekly review cycles rather than quarterly. Version the checklist before and after each process change, and keep all previous versions. The comparison between pre-change and post-change defect rates is the primary measure of whether the improvement worked. Do not update the acceptance criteria mid-project to reflect where the process currently performs -- criteria represent the target, not the current state. If the current process consistently fails a criteria that is correct, that failure rate is the data, not a reason to lower the standard.
 
 ### Post-Delivery or Field Verification
+
 Some quality characteristics can only be assessed after the output has been in use for a period of time -- training effectiveness, implementation quality, software performance in production, customer satisfaction. For these, the QA checklist must include a post-delivery section with an explicit time window (e.g., "Complete 30-day post-delivery check on [specific date]") and a defined data source (e.g., "Customer satisfaction survey response, support ticket volume for this process area, error rate in downstream system"). Post-delivery checks need the same pass/fail criteria structure as pre-delivery checks. If a post-delivery check fails, the corrective action protocol must address both the immediate customer impact and the upstream process that produced the deficiency.
 
 ---
@@ -377,40 +386,44 @@ Some quality characteristics can only be assessed after the output has been in u
 ---
 
 ### Section 1: Input Inspection
-*Performed before payroll processing begins. Verify all data inputs are complete
-and correct before any calculations are run.*
 
-| # | Check Item | Acceptance Criteria | Verification Method | Severity | Pass | Fail | Notes |
-|---|-----------|---------------------|---------------------|----------|------|------|-------|
-| 1.1 | All active employees present in payroll run | Headcount in payroll system matches HR headcount report for the period. Zero variance. | Compare payroll system employee count to HR system active employee export. Document counts. | Critical | [ ] | [ ] | |
-| 1.2 | New hires have complete tax setup | Every employee with a start date within the last 60 days has federal W-4, state tax withholding form, and local tax (if applicable) on file and entered in system | Export new hire list from HRIS. For each new hire, verify tax fields in payroll system are populated (not default zero or blank). | Critical | [ ] | [ ] | |
-| 1.3 | Recent promotion pay rate changes entered | Every employee with a promotion or pay change effective in this pay period has the new rate in the payroll system matching the approved change form | Pull compensation change log from HR for the current period. For each change, verify payroll system rate matches approved change form to the cent. | Critical | [ ] | [ ] | |
-| 1.4 | Time and attendance data imported | Time records are present for all hourly employees. Import timestamp is within this pay period. Zero employees with missing time records. | Verify import log in payroll system shows successful import. Run missing-time report -- result must be zero records. | Major | [ ] | [ ] | |
-| 1.5 | Approved exceptions and manual adjustments documented | Every manual pay adjustment (bonus, correction, garnishment change) has a signed approval form with approver name and date | Review adjustment queue in payroll system. Match each adjustment to a physical or electronic approval form. Any adjustment without approval = fail. | Critical | [ ] | [ ] | |
+_Performed before payroll processing begins. Verify all data inputs are complete
+and correct before any calculations are run._
+
+| #   | Check Item                                            | Acceptance Criteria                                                                                                                                               | Verification Method                                                                                                                                 | Severity | Pass | Fail | Notes |
+| --- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---- | ---- | ----- |
+| 1.1 | All active employees present in payroll run           | Headcount in payroll system matches HR headcount report for the period. Zero variance.                                                                            | Compare payroll system employee count to HR system active employee export. Document counts.                                                         | Critical | [ ]  | [ ]  |       |
+| 1.2 | New hires have complete tax setup                     | Every employee with a start date within the last 60 days has federal W-4, state tax withholding form, and local tax (if applicable) on file and entered in system | Export new hire list from HRIS. For each new hire, verify tax fields in payroll system are populated (not default zero or blank).                   | Critical | [ ]  | [ ]  |       |
+| 1.3 | Recent promotion pay rate changes entered             | Every employee with a promotion or pay change effective in this pay period has the new rate in the payroll system matching the approved change form               | Pull compensation change log from HR for the current period. For each change, verify payroll system rate matches approved change form to the cent.  | Critical | [ ]  | [ ]  |       |
+| 1.4 | Time and attendance data imported                     | Time records are present for all hourly employees. Import timestamp is within this pay period. Zero employees with missing time records.                          | Verify import log in payroll system shows successful import. Run missing-time report -- result must be zero records.                                | Major    | [ ]  | [ ]  |       |
+| 1.5 | Approved exceptions and manual adjustments documented | Every manual pay adjustment (bonus, correction, garnishment change) has a signed approval form with approver name and date                                        | Review adjustment queue in payroll system. Match each adjustment to a physical or electronic approval form. Any adjustment without approval = fail. | Critical | [ ]  | [ ]  |       |
 
 **Input Inspection Failure Protocol:**
+
 - **Critical failure (1.1, 1.2, 1.3, 1.5):** ⛔ STOP -- Do not proceed with payroll processing. Notify Payroll Specialist of specific gap. Payroll processing is blocked until all Critical input failures are resolved. Re-inspect affected items only after resolution. Document resolution in Notes column with resolution date and initials.
 - **Major failure (1.4):** Contact HR and Payroll Specialist for missing time records. If missing records cannot be resolved within 4 business hours, escalate to Director of Finance for disposition decision (hold payroll or process with documented exclusions). Do not process with missing time records without Director authorization.
 
 **Input Section Result:** [ ] PASS [ ] CONDITIONAL [ ] FAIL
-**Failures found:** ___ Critical ___ Major ___ Minor
+**Failures found:** **_ Critical _** Major \_\_\_ Minor
 
 ---
 
 ### Section 2: In-Process Inspection
 
 #### Checkpoint A: After Hours Calculation, Before Gross Pay Calculation
-*Performed after all hours have been entered and validated, before the system
-calculates gross pay. Stop here and verify hours before the system multiplies
-by pay rates.*
 
-| # | Check Item | Acceptance Criteria | Verification Method | Severity | Pass | Fail | Notes |
-|---|-----------|---------------------|---------------------|----------|------|------|-------|
-| 2.1 | Total hours are within plausible range | Total hours for all hourly employees do not exceed (employees × hours in pay period × 1.3). Any employee showing more than 1.3× standard hours (e.g., more than 104 hours in a 2-week period) has a documented explanation. | Run hours summary report. Any outlier greater than 1.3× expected maximum hours -- verify against timecard and manager approval. | Major | [ ] | [ ] | |
-| 2.2 | Overtime hours flagged and approved | All hours over 40 per week (or applicable state threshold) are classified as overtime in the system and have documented supervisor approval | Export overtime report. For each employee with overtime hours, confirm supervisor approval is on file in the time and attendance system. | Critical | [ ] | [ ] | |
-| 2.3 | PTO and leave hours match approved requests | Sick, vacation, and leave hours in payroll match approved leave requests in HRIS. Variance of zero for any leave category. | Compare leave hours in payroll to approved leave in HRIS system for the period. Variance greater than 0 = fail. | Major | [ ] | [ ] | |
+_Performed after all hours have been entered and validated, before the system
+calculates gross pay. Stop here and verify hours before the system multiplies
+by pay rates._
+
+| #   | Check Item                                  | Acceptance Criteria                                                                                                                                                                                                         | Verification Method                                                                                                                      | Severity | Pass | Fail | Notes |
+| --- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---- | ---- | ----- |
+| 2.1 | Total hours are within plausible range      | Total hours for all hourly employees do not exceed (employees × hours in pay period × 1.3). Any employee showing more than 1.3× standard hours (e.g., more than 104 hours in a 2-week period) has a documented explanation. | Run hours summary report. Any outlier greater than 1.3× expected maximum hours -- verify against timecard and manager approval.          | Major    | [ ]  | [ ]  |       |
+| 2.2 | Overtime hours flagged and approved         | All hours over 40 per week (or applicable state threshold) are classified as overtime in the system and have documented supervisor approval                                                                                 | Export overtime report. For each employee with overtime hours, confirm supervisor approval is on file in the time and attendance system. | Critical | [ ]  | [ ]  |       |
+| 2.3 | PTO and leave hours match approved requests | Sick, vacation, and leave hours in payroll match approved leave requests in HRIS. Variance of zero for any leave category.                                                                                                  | Compare leave hours in payroll to approved leave in HRIS system for the period. Variance greater than 0 = fail.                          | Major    | [ ]  | [ ]  |       |
 
 **Checkpoint A Failure Protocol:**
+
 - **Critical failure (2.2):** ⛔ STOP -- Unapproved overtime must be resolved before gross pay calculation. Return to Payroll Specialist to obtain retroactive supervisor approval or remove hours. Do not proceed.
 - **Major failure (2.1, 2.3):** Payroll Specialist must investigate and document explanation for each flagged item before Finance Manager proceeds to output inspection. Resolution documented in Notes column.
 
@@ -419,17 +432,19 @@ by pay rates.*
 ---
 
 #### Checkpoint B: After Gross Pay Calculation, Before Deductions and Net Pay
-*Verify gross pay calculations are correct before deductions are applied.
-Errors found here are significantly cheaper to fix than errors found in the
-final net pay figures.*
 
-| # | Check Item | Acceptance Criteria | Verification Method | Severity | Pass | Fail | Notes |
-|---|-----------|---------------------|---------------------|----------|------|------|-------|
-| 2.4 | Gross pay matches manual spot-check calculation | For a random sample of 10% of employees (minimum 5 employees), calculated gross pay matches independent manual calculation (hours × rate, plus any applicable overtime multiplier) within $0.01 | Select sample using every Nth employee from alphabetical roster. Manually calculate expected gross pay. Compare to payroll system gross pay figure. | Critical | [ ] | [ ] | |
-| 2.5 | Salaried employees' gross pay matches approved annual salary ÷ pay periods | Every salaried employee gross pay = (annual salary / number of pay periods per year) ± $0.02 for rounding. Any deviation requires a documented explanation. | Export salaried employee gross pay report. For each employee, verify calculation matches HR salary record. | Critical | [ ] | [ ] | |
-| 2.6 | Total gross payroll is within 5% of prior period | Total gross payroll for this period is within 5% of the prior period's total gross payroll. Variance greater than 5% has a documented explanation (new hires, terminations, bonuses, seasonality). | Compare total gross payroll to prior period. Calculate percentage variance. If variance exceeds 5%, Payroll Specialist must provide written explanation before Finance Manager proceeds. | Major | [ ] | [ ] | |
+_Verify gross pay calculations are correct before deductions are applied.
+Errors found here are significantly cheaper to fix than errors found in the
+final net pay figures._
+
+| #   | Check Item                                                                 | Acceptance Criteria                                                                                                                                                                                | Verification Method                                                                                                                                                                      | Severity | Pass | Fail | Notes |
+| --- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ---- | ---- | ----- |
+| 2.4 | Gross pay matches manual spot-check calculation                            | For a random sample of 10% of employees (minimum 5 employees), calculated gross pay matches independent manual calculation (hours × rate, plus any applicable overtime multiplier) within $0.01    | Select sample using every Nth employee from alphabetical roster. Manually calculate expected gross pay. Compare to payroll system gross pay figure.                                      | Critical | [ ]  | [ ]  |       |
+| 2.5 | Salaried employees' gross pay matches approved annual salary ÷ pay periods | Every salaried employee gross pay = (annual salary / number of pay periods per year) ± $0.02 for rounding. Any deviation requires a documented explanation.                                        | Export salaried employee gross pay report. For each employee, verify calculation matches HR salary record.                                                                               | Critical | [ ]  | [ ]  |       |
+| 2.6 | Total gross payroll is within 5% of prior period                           | Total gross payroll for this period is within 5% of the prior period's total gross payroll. Variance greater than 5% has a documented explanation (new hires, terminations, bonuses, seasonality). | Compare total gross payroll to prior period. Calculate percentage variance. If variance exceeds 5%, Payroll Specialist must provide written explanation before Finance Manager proceeds. | Major    | [ ]  | [ ]  |       |
 
 **Checkpoint B Failure Protocol:**
+
 - **Critical failure (2.4, 2.5):** ⛔ STOP -- Gross pay errors must be corrected before deductions are applied. Errors compound through deduction calculations. Return to Payroll Specialist with specific employee records that failed. Re-inspect after correction.
 - **Major failure (2.6):** Document explanation. Finance Manager judgment call on whether explanation is sufficient to proceed. Escalate to Director of Finance if explanation is not satisfactory or Finance Manager is uncertain.
 
@@ -438,65 +453,67 @@ final net pay figures.*
 ---
 
 ### Section 3: Output Inspection
-*Performed after net pay calculation is complete and payroll file is generated,
-before the file is transmitted to the bank. This is the final gate.*
 
-| # | Check Item | Acceptance Criteria | Verification Method | Severity | Pass | Fail | Notes |
-|---|-----------|---------------------|---------------------|----------|------|------|-------|
-| 3.1 | Net pay register total matches bank file control total | Total net pay in the payroll register exactly matches the total dollar amount in the bank ACH file. Zero variance. | Compare payroll register total to bank file total. Must match to the cent. | Critical | [ ] | [ ] | |
-| 3.2 | Bank file format is correct | Bank file is in NACHA ACH format (version as specified in bank agreement). File header contains correct Company ID, Company Name, and effective entry date. | Open bank file in text editor. Verify record type codes (1=File Header, 5=Batch Header, 6=Entry Detail, 8=Batch Control, 9=File Control). Confirm Company ID matches bank agreement. Confirm effective date is the correct pay date. | Critical | [ ] | [ ] | |
-| 3.3 | No terminated employees in payment file | Zero employees with termination dates prior to the pay period start date appear in the payment file | Export payment file employee list. Cross-reference against HR termination list for the period. Zero matches required. | Critical | [ ] | [ ] | |
-| 3.4 | All employee bank account numbers are masked in exported reports | Any payroll report exported for distribution (e.g., Finance summary, department reports) shows masked account numbers (e.g., xxxxxx1234). Full account numbers appear only in the bank transmission file. | Review each exported report file. Confirm no report intended for distribution contains full routing or account numbers. | Major | [ ] | [ ] | |
-| 3.5 | Payroll register has been reviewed and signed by Finance Manager | Finance Manager signature and date on physical or electronic payroll register prior to bank file transmission | Confirm Finance Manager signature is present and dated on the current period payroll register. | Critical | [ ] | [ ] | |
-| 3.6 | Submission deadline can be met | Bank file transmission timestamp will occur at least 24 hours before the bank's ACH processing cutoff for the pay date | Confirm bank's ACH cutoff time. Confirm current time allows 24-hour lead. If within 24 hours of cutoff, escalate immediately to Director of Finance -- same-day ACH may have additional fees. | Major | [ ] | [ ] | |
+_Performed after net pay calculation is complete and payroll file is generated,
+before the file is transmitted to the bank. This is the final gate._
+
+| #   | Check Item                                                       | Acceptance Criteria                                                                                                                                                                                       | Verification Method                                                                                                                                                                                                                  | Severity | Pass | Fail | Notes |
+| --- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ---- | ---- | ----- |
+| 3.1 | Net pay register total matches bank file control total           | Total net pay in the payroll register exactly matches the total dollar amount in the bank ACH file. Zero variance.                                                                                        | Compare payroll register total to bank file total. Must match to the cent.                                                                                                                                                           | Critical | [ ]  | [ ]  |       |
+| 3.2 | Bank file format is correct                                      | Bank file is in NACHA ACH format (version as specified in bank agreement). File header contains correct Company ID, Company Name, and effective entry date.                                               | Open bank file in text editor. Verify record type codes (1=File Header, 5=Batch Header, 6=Entry Detail, 8=Batch Control, 9=File Control). Confirm Company ID matches bank agreement. Confirm effective date is the correct pay date. | Critical | [ ]  | [ ]  |       |
+| 3.3 | No terminated employees in payment file                          | Zero employees with termination dates prior to the pay period start date appear in the payment file                                                                                                       | Export payment file employee list. Cross-reference against HR termination list for the period. Zero matches required.                                                                                                                | Critical | [ ]  | [ ]  |       |
+| 3.4 | All employee bank account numbers are masked in exported reports | Any payroll report exported for distribution (e.g., Finance summary, department reports) shows masked account numbers (e.g., xxxxxx1234). Full account numbers appear only in the bank transmission file. | Review each exported report file. Confirm no report intended for distribution contains full routing or account numbers.                                                                                                              | Major    | [ ]  | [ ]  |       |
+| 3.5 | Payroll register has been reviewed and signed by Finance Manager | Finance Manager signature and date on physical or electronic payroll register prior to bank file transmission                                                                                             | Confirm Finance Manager signature is present and dated on the current period payroll register.                                                                                                                                       | Critical | [ ]  | [ ]  |       |
+| 3.6 | Submission deadline can be met                                   | Bank file transmission timestamp will occur at least 24 hours before the bank's ACH processing cutoff for the pay date                                                                                    | Confirm bank's ACH cutoff time. Confirm current time allows 24-hour lead. If within 24 hours of cutoff, escalate immediately to Director of Finance -- same-day ACH may have additional fees.                                        | Major    | [ ]  | [ ]  |       |
 
 **Output Inspection Failure Protocol:**
+
 - **Any Critical failure (3.1, 3.2, 3.3, 3.5):** ⛔ DO NOT SUBMIT. Correct issue and re-inspect the failed item(s) plus any dependent checks. Do not re-inspect the entire output section unless the failure suggests systemic problems.
 - **Major failures (3.4, 3.6):** Finance Manager documented waiver required. For 3.6, Director of Finance must authorize same-day ACH submission if that option is used.
 
 **Output Section Result:** [ ] PASS [ ] CONDITIONAL [ ] FAIL
-**Failures found:** ___ Critical ___ Major ___ Minor
+**Failures found:** **_ Critical _** Major \_\_\_ Minor
 
 ---
 
 ### Inspection Summary
 
-| Section | # Checks | Passed | Failed Crit | Failed Major | Failed Minor |
-|---------|----------|--------|-------------|--------------|--------------|
-| 1. Input Inspection | 5 | | | | |
-| 2. In-Process (Checkpoints A + B) | 6 | | | | |
-| 3. Output Inspection | 6 | | | | |
-| **TOTAL** | **17** | | | | |
+| Section                           | # Checks | Passed | Failed Crit | Failed Major | Failed Minor |
+| --------------------------------- | -------- | ------ | ----------- | ------------ | ------------ |
+| 1. Input Inspection               | 5        |        |             |              |              |
+| 2. In-Process (Checkpoints A + B) | 6        |        |             |              |              |
+| 3. Output Inspection              | 6        |        |             |              |              |
+| **TOTAL**                         | **17**   |        |             |              |              |
 
 **Overall Disposition:**
 [ ] **PASS** -- All checks passed. Bank file transmission authorized.
 [ ] **CONDITIONAL PASS** -- Major failures only, within acceptable limits.
-    Waiver granted by Finance Manager: _________________ Date: _________
-    Waiver details: ________________________________________________
+Waiver granted by Finance Manager: ********\_******** Date: ****\_****
+Waiver details: **********************\_\_\_\_**********************
 [ ] **FAIL** -- Critical failure(s) present. Bank file transmission BLOCKED.
 
-**Inspector (Finance Manager):** _________________________ Date: _________ Time: _________
-**Payroll Specialist (Preparer):** _________________________ Date: _________
+**Inspector (Finance Manager):** ************\_************ Date: ****\_**** Time: ****\_****
+**Payroll Specialist (Preparer):** ************\_************ Date: ****\_****
 
 ---
 
 ### Corrective Action Procedures
 
-| Failure Type | Immediate Containment | RCA Trigger | RCA Method | Owner | Effectiveness Verification |
-|-------------|----------------------|-------------|------------|-------|---------------------------|
-| Tax setup missing for new hire | Block payroll for affected employee. Process separately after correction. | Any occurrence | 5-Why: trace from new hire onboarding checklist to payroll tax setup step | Payroll Specialist + HR Manager | Verify next 3 new hires have tax setup complete at Input Inspection with zero failures |
-| Wrong pay rate (promotion not entered) | Correct rate in system. Calculate underpayment. Issue off-cycle correction within 3 business days. | Any occurrence | 5-Why: trace from compensation approval to payroll update workflow | HR Manager + Payroll Specialist | Verify next 3 promotion pay changes pass check 1.3 with zero failures |
-| Wrong bank file format | ⛔ Do not submit. Regenerate file. | Any occurrence | 5-Why: trace from file generation settings to bank format specification document | Payroll Specialist | Confirm bank file format specification is documented in Payroll Procedures v[X]. Verify next submission passes check 3.2. |
-| Hours entry error | Correct hours. Recalculate gross and net pay. | Two or more occurrences in a 90-day window | Fishbone: evaluate data entry process, training adequacy, system UI factors | Payroll Specialist | Track hours error rate for 3 consecutive payroll cycles after correction. Target: zero recurrence. |
-| Total variance greater than 5% unexplained | Hold payroll. Investigate before Finance Manager sign-off. | Any unexplained variance | Finance Manager and Payroll Specialist joint review of payroll change log | Finance Manager | Document explanation. Close after Finance Manager sign-off on explanation. |
+| Failure Type                               | Immediate Containment                                                                              | RCA Trigger                                | RCA Method                                                                       | Owner                           | Effectiveness Verification                                                                                                |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Tax setup missing for new hire             | Block payroll for affected employee. Process separately after correction.                          | Any occurrence                             | 5-Why: trace from new hire onboarding checklist to payroll tax setup step        | Payroll Specialist + HR Manager | Verify next 3 new hires have tax setup complete at Input Inspection with zero failures                                    |
+| Wrong pay rate (promotion not entered)     | Correct rate in system. Calculate underpayment. Issue off-cycle correction within 3 business days. | Any occurrence                             | 5-Why: trace from compensation approval to payroll update workflow               | HR Manager + Payroll Specialist | Verify next 3 promotion pay changes pass check 1.3 with zero failures                                                     |
+| Wrong bank file format                     | ⛔ Do not submit. Regenerate file.                                                                 | Any occurrence                             | 5-Why: trace from file generation settings to bank format specification document | Payroll Specialist              | Confirm bank file format specification is documented in Payroll Procedures v[X]. Verify next submission passes check 3.2. |
+| Hours entry error                          | Correct hours. Recalculate gross and net pay.                                                      | Two or more occurrences in a 90-day window | Fishbone: evaluate data entry process, training adequacy, system UI factors      | Payroll Specialist              | Track hours error rate for 3 consecutive payroll cycles after correction. Target: zero recurrence.                        |
+| Total variance greater than 5% unexplained | Hold payroll. Investigate before Finance Manager sign-off.                                         | Any unexplained variance                   | Finance Manager and Payroll Specialist joint review of payroll change log        | Finance Manager                 | Document explanation. Close after Finance Manager sign-off on explanation.                                                |
 
 ---
 
 ### Defect Log
 
 | Date | Pay Period | Check # | Description | Severity | Immediate Action Taken | RCA Required? | Corrective Action | Closed Date |
-|------|-----------|---------|-------------|----------|----------------------|---------------|-------------------|-------------|
-| | | | | | | Y / N | | |
+| ---- | ---------- | ------- | ----------- | -------- | ---------------------- | ------------- | ----------------- | ----------- |
+|      |            |         |             |          |                        | Y / N         |                   |             |
 
 **Defect rate monitoring:** If any single check item fails in 2 out of 3 consecutive payroll cycles, initiate formal RCA regardless of severity level. Payroll errors at any frequency represent systemic risk.
 
@@ -504,12 +521,12 @@ before the file is transmitted to the bank. This is the final gate.*
 
 ### Review and Calibration Schedule
 
-| Activity | Frequency | Owner | Last Completed | Next Due |
-|----------|-----------|-------|----------------|----------|
-| Checklist periodic review | Quarterly (after Month 1, 2, 3 -- then quarterly) | Finance Manager | [Date] | [Date + 3 months] |
-| Inspector calibration (Finance Manager and backup reviewer) | Semi-annually | Director of Finance | [Date] | [Date + 6 months] |
-| Defect trend review | Monthly (coincides with payroll close) | Finance Manager | [Date] | End of next payroll cycle |
-| Post-process-change review | After any payroll system upgrade or process change | Finance Manager + Payroll Specialist | [Date] | Upon next change |
+| Activity                                                    | Frequency                                          | Owner                                | Last Completed | Next Due                  |
+| ----------------------------------------------------------- | -------------------------------------------------- | ------------------------------------ | -------------- | ------------------------- |
+| Checklist periodic review                                   | Quarterly (after Month 1, 2, 3 -- then quarterly)  | Finance Manager                      | [Date]         | [Date + 3 months]         |
+| Inspector calibration (Finance Manager and backup reviewer) | Semi-annually                                      | Director of Finance                  | [Date]         | [Date + 6 months]         |
+| Defect trend review                                         | Monthly (coincides with payroll close)             | Finance Manager                      | [Date]         | End of next payroll cycle |
+| Post-process-change review                                  | After any payroll system upgrade or process change | Finance Manager + Payroll Specialist | [Date]         | Upon next change          |
 
 **Change Log:**
 | Version | Date | Changed By | Change Description |

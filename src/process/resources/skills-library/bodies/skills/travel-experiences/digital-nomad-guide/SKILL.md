@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel itinerary guide"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel itinerary guide'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Digital Nomad Guide
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about digital nomad guide
 - User needs guidance on digital nomad guide topics
 - User wants a structured approach to digital nomad guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **What is your experience level with remote work while traveling?** (first time, experienced)
 9. **Do you have dependents or a partner traveling with you?**
 10. **What is your top priority?** (cost savings, quality of life, adventure, community)
+
 ---
+
 ## Step 1: Destination Selection Criteria
 
 ### Destination Scoring Framework
+
 ```
 DESTINATION EVALUATION MATRIX:
 Score each factor 1-5 (1=poor, 5=excellent):
@@ -84,6 +90,7 @@ Destination C: {{CITY}} -- Score: {{}} /100 -- Monthly cost: ${{}}
 ```
 
 ### Top Digital Nomad Destinations (By Region)
+
 ```
 POPULAR DIGITAL NOMAD DESTINATIONS:
 SOUTHEAST ASIA (Budget-Friendly):
@@ -129,10 +136,13 @@ OTHER:
   Pros: Excellent infrastructure, digital nomad visa, safe
   Cons: Expensive, very hot summers, strict laws
 ```
+
 ---
+
 ## Step 2: Visa Options for Digital Nomads
 
 ### Digital Nomad Visa Guide
+
 ```
 VISA OPTIONS:
 
@@ -172,10 +182,13 @@ TIPS:
 [ ] Consider applying for a digital nomad visa if staying 3+ months
 [ ] Track your days carefully in Schengen and similar zones
 ```
+
 ---
+
 ## Step 3: Internet and Workspace
 
 ### Reliable Internet Strategies
+
 ```
 INTERNET STRATEGY:
 
@@ -216,6 +229,7 @@ WIFI OPTIMIZATION TIPS:
 ```
 
 ### Finding Coworking Spaces
+
 ```
 COWORKING SPACE GUIDE:
 
@@ -252,10 +266,13 @@ ALTERNATIVES TO COWORKING:
 - University campus cafeterias
 - Airport lounges (if you have a membership)
 ```
+
 ---
+
 ## Step 4: Tax Implications
 
 ### Tax Considerations for Digital Nomads
+
 ```
 TAX AWARENESS (Consult a tax professional for your specific situation):
 KEY PRINCIPLE:
@@ -296,10 +313,13 @@ Country         | Entry Date  | Exit Date   | Days  | Cumulative
 {{COUNTRY_1}}   | {{DATE}}    | {{DATE}}    | {{#}} | {{#}}
 {{COUNTRY_2}}   | {{DATE}}    | {{DATE}}    | {{#}} | {{#}}
 ```
+
 ---
+
 ## Step 5: Health Insurance Options
 
 ### Insurance Comparison
+
 ```
 HEALTH INSURANCE OPTIONS FOR NOMADS:
 OPTION 1: INTERNATIONAL HEALTH INSURANCE
@@ -345,10 +365,13 @@ Adventure sports     | Basic       | Extensive   | Add-on
 Prescription drugs   | Limited     | Limited     | Yes
 Long-term travel     | Yes         | Per-trip    | Yes
 ```
+
 ---
+
 ## Step 6: Community Building
 
 ### Finding Your Tribe
+
 ```
 COMMUNITY BUILDING STRATEGIES:
 
@@ -383,10 +406,13 @@ NETWORKING TIPS:
 - Be open to connecting with locals, not just other nomads
 - Quality over quantity -- 3-4 good friends > 30 acquaintances
 ```
+
 ---
+
 ## Step 7: Gear Recommendations
 
 ### Digital Nomad Packing List
+
 ```
 ESSENTIAL GEAR:
 COMPUTING:
@@ -427,10 +453,13 @@ OPTIONAL:
 [ ] Noise machine app (for noisy environments)
 [ ] Portable projector (for presentations or movie nights)
 ```
+
 ---
+
 ## Step 8: Time Zone Management
 
 ### Working Across Time Zones
+
 ```
 TIME ZONE MANAGEMENT:
 OVERLAP STRATEGY:
@@ -473,8 +502,11 @@ PRODUCTIVITY TIPS:
 - Be disciplined about work/life boundaries (it is easy to work
   24/7 when your team is in a different timezone)
 ```
+
 ---
+
 ## Monthly Nomad Checklist
+
 ```
 MONTHLY DIGITAL NOMAD REVIEW:
 
@@ -516,9 +548,10 @@ PERSONAL:
 [ ] Next destination wish list updated
 [ ] Long-term goals still aligned with this lifestyle
 ```
----
-*This skill provides digital nomad lifestyle guidance. Tax and immigration laws are complex and change frequently. Consult qualified professionals for tax advice and always verify visa requirements through official sources before traveling.*
 
+---
+
+_This skill provides digital nomad lifestyle guidance. Tax and immigration laws are complex and change frequently. Consult qualified professionals for tax advice and always verify visa requirements through official sources before traveling._
 
 ## Output Format
 

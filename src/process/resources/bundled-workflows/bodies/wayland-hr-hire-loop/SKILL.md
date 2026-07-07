@@ -12,14 +12,15 @@ description: >-
   atomic skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "hr-comp-band hr-job-description hr-interview-questions hr-offer-letter"
+skills: 'hr-comp-band hr-job-description hr-interview-questions hr-offer-letter'
 metadata:
   author: wayland
   version: 1.0.0
   tags: hr hiring recruiting interview job-description step-by-step planning
   category: hr
-  depends: "hr-comp-band hr-job-description hr-interview-questions hr-offer-letter"
+  depends: 'hr-comp-band hr-job-description hr-interview-questions hr-offer-letter'
 ---
+
 # Build a Hiring Loop
 
 **Estimated time:** 45-60 minutes

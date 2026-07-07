@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "go best-practices debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'go best-practices debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go Error Handling
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - How to wrap errors with `fmt.Errorf` and the `%w` verb, or when to use `errors.New` vs `fmt.Errorf`
 - How to implement sentinel errors (package-level `var Err... = errors.New(...)`) and when they are appropriate
 - How to define custom error types (structs implementing the `error` interface) and when they outperform sentinels
@@ -29,6 +31,7 @@ metadata:
 - How to handle multiple concurrent errors using `errgroup` or manual aggregation
 
 **Do NOT use this skill when:**
+
 - The user asks about general Go idioms like named return values, blank identifiers, or defer patterns -- use `go-idioms`
 - The user asks about error handling in goroutines, channel-based error signaling, or `context.Context` cancellation -- use `go-concurrency-patterns`
 - The user asks about reducing allocations in the error path or benchmarking error construction overhead -- use `go-performance`
@@ -246,7 +249,7 @@ func TestFindByID_ValidationError(t *testing.T) {
 
 When responding to a user question about Go error handling, structure the answer as follows:
 
-```
+````
 ## Error Handling Analysis: [Specific Scenario]
 
 ### Layer and Context
@@ -260,32 +263,38 @@ When responding to a user question about Go error handling, structure the answer
 ### Error Type Definitions
 ```go
 // All sentinel vars and custom types for this scenario
-```
+````
 
 ### Propagation Pattern
+
 ```go
 // Annotated function showing the wrapping pattern at each boundary
 ```
 
 ### Caller Handling Pattern
+
 ```go
 // How callers use errors.Is / errors.As to branch on this error
 ```
 
 ### Service Boundary Mapping (if applicable)
+
 ```go
 // Error-to-status-code mapper or gRPC status mapping
 ```
 
 ### Testing Pattern
+
 ```go
 // Test cases verifying errors.Is / errors.As behavior through the chain
 ```
 
 ### Key Decisions
+
 - [Decision 1 and rationale]
 - [Decision 2 and rationale]
-```
+
+````
 
 ---
 
@@ -323,7 +332,7 @@ When a dependency uses its own sentinel errors (e.g., `pgx.ErrNoRows`, `redis.Ni
 if errors.Is(err, pgx.ErrNoRows) {
     return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
 }
-```
+````
 
 This decouples your domain from the persistence library. If you later swap `pgx` for the standard `database/sql`, callers do not change. The tradeoff is that the original pgx error information is lost below the sentinel -- log it before wrapping if the original error carries useful diagnostic data (e.g., a pgx `PgError` with a `Code` field).
 
@@ -443,10 +452,10 @@ Use sentinels for binary conditions (found/not found, authorized/not authorized)
 
 ### Error Type Decision
 
-| Situation | Representation | Rationale |
-|-----------|---------------|-----------|
-| User not found | `var ErrUserNotFound = errors.New(...)` | Binary condition; callers branch on presence/absence, need no data |
-| Duplicate email | `var ErrEmailConflict = errors.New(...)` | Binary condition; the conflicting email is already known to the caller |
+| Situation          | Representation                                | Rationale                                                                    |
+| ------------------ | --------------------------------------------- | ---------------------------------------------------------------------------- |
+| User not found     | `var ErrUserNotFound = errors.New(...)`       | Binary condition; callers branch on presence/absence, need no data           |
+| Duplicate email    | `var ErrEmailConflict = errors.New(...)`      | Binary condition; the conflicting email is already known to the caller       |
 | Validation failure | `*ValidationError` with `Field` and `Message` | Callers need to know which field failed and why to produce a useful response |
 
 ### Error Type Definitions

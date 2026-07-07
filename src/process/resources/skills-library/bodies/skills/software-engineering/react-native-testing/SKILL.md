@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile javascript testing"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile javascript testing'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React Native Testing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to set up a testing suite for a React Native project from scratch, including choosing between Jest, React Native Testing Library, Detox, and Maestro
 - The user wants to write component tests for React Native screens or UI components and needs guidance on `render`, `fireEvent`, `waitFor`, and async patterns
 - The user is debugging flaky tests in a React Native CI pipeline and needs strategies for stabilizing timers, animations, and native module mocks
@@ -30,6 +32,7 @@ metadata:
 - The user needs to integrate React Native testing into a CI/CD pipeline (GitHub Actions, Bitrise, CircleCI) with appropriate caching and parallelization strategies
 
 **Do NOT use this skill when:**
+
 - The user needs guidance on React (web) testing -- that involves different tooling, no native module mocking, and browser-specific concerns; use the React web testing skill instead
 - The user is asking about native iOS testing with XCTest or Swift -- this is outside the React Native layer
 - The user is asking about native Android testing with Espresso or JUnit -- use the Android testing skill
@@ -142,7 +145,7 @@ Tests that are not maintained become liabilities:
 
 When responding to a React Native testing request, structure the output as follows:
 
-```
+````
 ## React Native Testing Assessment
 
 ### Project Profile
@@ -192,19 +195,19 @@ module.exports = {
   testTimeout: 10000,
   maxWorkers: '50%',
 };
-```
+````
 
 ---
 
 ### Native Module Mocks Required
 
-| Module                              | Mock Strategy                                | File Location                              |
-|-------------------------------------|----------------------------------------------|--------------------------------------------|
-| @react-native-async-storage         | Community jest mock                          | jest-setup.js                              |
-| react-native-reanimated             | react-native-reanimated/mock                 | jest-setup.js                              |
-| react-native-permissions            | Manual mock with RESULTS enum                | __mocks__/react-native-permissions.js      |
-| @react-native-firebase/messaging    | Manual mock with onMessage callback store    | __mocks__/@react-native-firebase/messaging |
-| react-native-maps                   | View-wrapper manual mock                     | __mocks__/react-native-maps.js             |
+| Module                           | Mock Strategy                             | File Location                              |
+| -------------------------------- | ----------------------------------------- | ------------------------------------------ |
+| @react-native-async-storage      | Community jest mock                       | jest-setup.js                              |
+| react-native-reanimated          | react-native-reanimated/mock              | jest-setup.js                              |
+| react-native-permissions         | Manual mock with RESULTS enum             | **mocks**/react-native-permissions.js      |
+| @react-native-firebase/messaging | Manual mock with onMessage callback store | **mocks**/@react-native-firebase/messaging |
+| react-native-maps                | View-wrapper manual mock                  | **mocks**/react-native-maps.js             |
 
 ---
 
@@ -222,8 +225,7 @@ import { rest } from 'msw';
 describe('LoginScreen', () => {
   it('navigates to Home on successful login', async () => {
     const mockNavigate = jest.fn();
-    jest.spyOn(require('@react-navigation/native'), 'useNavigation')
-      .mockReturnValue({ navigate: mockNavigate });
+    jest.spyOn(require('@react-navigation/native'), 'useNavigation').mockReturnValue({ navigate: mockNavigate });
 
     const { getByPlaceholderText, getByRole } = renderWithProviders(<LoginScreen />);
 
@@ -288,7 +290,8 @@ module.exports = {
   },
 };
 ```
-```
+
+````
 
 ---
 
@@ -394,7 +397,7 @@ npm install --save-dev msw@1
 
 # E2E
 npm install --save-dev detox@20 detox-cli
-```
+````
 
 ---
 
@@ -404,10 +407,7 @@ npm install --save-dev detox@20 detox-cli
 // jest.config.js
 module.exports = {
   preset: 'react-native',
-  setupFilesAfterFramework: [
-    '@testing-library/jest-native/extend-expect',
-    './jest-setup.js',
-  ],
+  setupFilesAfterFramework: ['@testing-library/jest-native/extend-expect', './jest-setup.js'],
   transformIgnorePatterns: [
     'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-screens|react-native-safe-area-context|react-native-gesture-handler|react-native-reanimated|react-native-permissions|@testing-library)/)',
   ],
@@ -442,8 +442,8 @@ jest.spyOn(console, 'warn').mockImplementation((msg) => {
 });
 
 // AsyncStorage auto-mock provided by the community package
-jest.mock('@react-native-async-storage/async-storage',
-  () => require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 
 // MSW server lifecycle
@@ -525,9 +525,7 @@ export function renderWithProviders(
     return (
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-          <NavigationContainer>
-            {children}
-          </NavigationContainer>
+          <NavigationContainer>{children}</NavigationContainer>
         </QueryClientProvider>
       </Provider>
     );
@@ -590,7 +588,7 @@ describe('LocationPermissionScreen', () => {
     const { getByText, getByRole } = renderWithProviders(<LocationPermissionScreen />);
 
     await waitFor(() => {
-      expect(getByText("Location access is blocked. Please enable it in your device settings.")).toBeVisible();
+      expect(getByText('Location access is blocked. Please enable it in your device settings.')).toBeVisible();
     });
 
     expect(getByRole('button', { name: 'Open Settings' })).toBeVisible();

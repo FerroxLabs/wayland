@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cleaning Business
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start or grow a residential or commercial cleaning business
 - The user needs help with service pricing, supplies selection, scheduling systems, or quality control
 - The user wants guidance on hiring, training cleaning staff, or scaling from solo operator to team
 - The user needs client acquisition strategies, insurance requirements, or operational workflows for cleaning services
 
 **Do NOT use this skill when:**
+
 - The user wants general small business advice not specific to cleaning (use solopreneur-toolkit or business-planner instead)
 - The user is looking for household cleaning tips for personal use (use relevant home-household skill)
 - The user needs help with a different service business type (use the relevant business-type skill)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on cleaning business
 - User asks about cleaning business best practices or techniques
 - User wants a structured approach to cleaning business
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of cleaning business
+
 ## Questions to Ask First
 
 Before providing guidance, establish the operator's situation:
@@ -67,6 +72,7 @@ Before providing guidance, establish the operator's situation:
 ## Service Pricing
 
 ### Pricing Models
+
 ```
 MODEL 1: FLAT RATE (Recommended for Residential)
   Price based on home size, condition, and service level
@@ -107,6 +113,7 @@ MODEL 4: PER ROOM
 ```
 
 ### Pricing Calculation Worksheet
+
 ```
 JOB PRICING FORMULA:
   Estimated time:          ___ hours
@@ -127,6 +134,7 @@ Always quote the recurring rate and show savings vs. one-time
 ```
 
 ### Commercial Cleaning Pricing
+
 ```
 COMMERCIAL FACTORS:
   Square footage:           ___
@@ -146,6 +154,7 @@ COMMERCIAL PRICING RANGES:
 ## Supplies and Equipment
 
 ### Starter Supply Kit
+
 ```
 CLEANING SOLUTIONS:
 [ ] All-purpose cleaner (concentrate to save money)
@@ -185,6 +194,7 @@ EQUIPMENT (As You Grow):
 ```
 
 ### Supply Cost Management
+
 ```
 SUPPLY COST TARGET: 5-10% of revenue
 
@@ -204,6 +214,7 @@ MONTHLY SUPPLY BUDGET:
 ## Scheduling and Route Planning
 
 ### Scheduling System
+
 ```
 BOOKING SOFTWARE OPTIONS:
   Jobber:        $49-$149/month (best for field service businesses)
@@ -222,6 +233,7 @@ SCHEDULE STRUCTURE:
 ```
 
 ### Route Optimization
+
 ```
 ROUTE PLANNING RULES:
   1. Group clients by geographic area by day of week
@@ -244,6 +256,7 @@ TOOLS:
 ## Hiring and Training
 
 ### When to Hire
+
 ```
 HIRING TRIGGERS:
   - You're turning down work regularly
@@ -261,6 +274,7 @@ FIRST HIRE OPTIONS:
 ```
 
 ### Training Protocol
+
 ```
 NEW HIRE TRAINING (40 hours minimum):
 
@@ -306,6 +320,7 @@ TRAINING DOCUMENTATION:
 ```
 
 ### Compensation for Cleaning Staff
+
 ```
 PAY STRUCTURES:
   Hourly: $15-$22/hour (starting), $18-$28 (experienced)
@@ -329,6 +344,7 @@ BENEFITS TO CONSIDER (for retention):
 ## Quality Control
 
 ### Inspection System
+
 ```
 INSPECTION FREQUENCY:
   New cleaner: Every job for first 2 weeks
@@ -361,6 +377,7 @@ CALLBACK POLICY:
 ```
 
 ## Insurance Requirements
+
 ```
 REQUIRED INSURANCE:
   General Liability: $1M per occurrence / $2M aggregate
@@ -392,6 +409,7 @@ MARKETING VALUE:
 ## Client Acquisition
 
 ### Marketing Channels (Ranked by ROI)
+
 ```
 1. REFERRALS (Lowest cost, highest conversion)
    - Ask every happy client for referrals
@@ -432,6 +450,7 @@ MARKETING VALUE:
 ```
 
 ### Client Onboarding Process
+
 ```
 STEP 1: INQUIRY (Respond within 1 hour)
   - Phone, text, email, or online form
@@ -461,6 +480,7 @@ STEP 5: FOLLOW-UP (24 hours later)
 ## Scaling From Solo to Team
 
 ### Growth Stages
+
 ```
 STAGE 1: SOLO OPERATOR ($0-$5K/month)
   Focus: Build client base, perfect your process
@@ -505,6 +525,7 @@ STAGE 4: OPERATIONS MANAGER ($25K+/month)
 ```
 
 ### Financial Benchmarks
+
 ```
 MONTHLY P&L:
   Revenue:                       $________
@@ -544,7 +565,6 @@ KEY METRICS:
 9. Trying to clean everything yourself past $5K/month
 10. Not tracking time per job (you can't improve what you don't measure)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -557,13 +577,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with cleaning business for a mid-size project."
 
 **Output:** A complete cleaning business framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

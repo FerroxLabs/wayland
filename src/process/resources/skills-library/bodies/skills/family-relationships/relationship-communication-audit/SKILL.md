@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships strategy guide"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships strategy guide'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Relationship Communication Audit
 
 This is a structured self-reflection framework for examining your own communication patterns in close relationships. It draws on established communication research -- including Gottman Institute findings, Nonviolent Communication (NVC) methodology, and dialectical behavior therapy (DBT) interpersonal effectiveness skills -- to help users identify what they do well, where they struggle, and what specific actions will produce real change. This is not a diagnostic instrument, a relationship health score, or a substitute for couples therapy. It examines the user's own behavior, not their partner's.
@@ -24,6 +25,7 @@ This is a structured self-reflection framework for examining your own communicat
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to examine their own communication habits in a specific relationship (romantic partner, parent, adult sibling, close friend, or co-parent)
 - The user describes a recurring friction pattern ("We always end up fighting about the same things") and wants to understand their own role in it
 - The user is preparing for couples therapy and wants to arrive with self-awareness about their own patterns before the first session
@@ -33,6 +35,7 @@ This is a structured self-reflection framework for examining your own communicat
 - The user wants to track communication growth over time and is looking for a baseline self-assessment they can revisit
 
 **Do NOT use when:**
+
 - The user wants to assess or diagnose their partner's communication -- redirect to `difficult-conversation-prep` for helping them address partner behavior directly
 - The user is asking whether their relationship is healthy, abusive, or should continue -- this is outside scope; for safety concerns, direct them to relationship safety resources
 - The user is describing symptoms of a communication or language disorder (word-finding difficulty, processing delays, stuttering under emotional stress) -- recommend a speech-language pathologist
@@ -70,6 +73,7 @@ Research from the Gottman Institute found that stable relationships maintain a r
 ### Step 3: Guide Through Each Dimension with Targeted Reflection Questions
 
 For each dimension, provide 3 reflection questions that are:
+
 - Open-ended and non-leading (behavioral, not evaluative)
 - Anchored to specific situations rather than general self-description
 - Designed to surface patterns, not assign blame
@@ -125,6 +129,7 @@ Limit the action plan to 3 items maximum. Research on behavior change consistent
 Produce the summary table consolidating all five dimensions into a single view. Strengths and growth areas at a glance.
 
 For the check-in, calibrate to the user's stated engagement level:
+
 - Casual self-improvement: revisit in 4--6 weeks
 - Preparing for therapy: revisit before the second or third session
 - Working through a recent rupture: revisit in 2--3 weeks
@@ -300,6 +305,7 @@ Handle by naming it directly but warmly: "Everything you are sharing about your 
 ### The User Is Doing This as a Joint Exercise with Their Partner
 
 Adapt the delivery but maintain the principle: each person completes their own audit independently before sharing. Provide explicit ground rules for the sharing conversation:
+
 - Each person reads their own audit. The other person listens without interrupting.
 - No commentary on the other person's self-assessment ("you left something out," "that's not accurate").
 - No "I told you so" responses to growth areas.
@@ -345,14 +351,17 @@ Occasionally a user wants a condensed version -- "just tell me what I should wor
 ---
 
 ## Communication Self-Audit: Adult Child -- Parent Relationship (with Mother)
-*Anchoring situation: Recent conversations that escalate into conflict*
+
+_Anchoring situation: Recent conversations that escalate into conflict_
 
 ---
 
 ### Dimension 1: Expressing
-*How you communicate your thoughts, needs, feelings, and boundaries*
+
+_How you communicate your thoughts, needs, feelings, and boundaries_
 
 **Reflection Questions:**
+
 1. When your mother says something that bothers you, what do you do in the first 30 seconds? Do you address it, deflect, go quiet, or respond immediately?
 2. Do you tell your mother directly when you need the conversation to stop or shift -- or do you stay in it past the point where you can engage productively?
 3. When you want something to be different in how she communicates with you, do you name it in the moment, bring it up later, or absorb it without saying anything?
@@ -361,6 +370,7 @@ Occasionally a user wants a condensed version -- "just tell me what I should wor
 You described getting defensive -- which means something is being communicated before you have consciously decided what to say. Defensiveness is a response that goes up before you have stated what is actually true for you: "I feel criticized" or "I need her to hear my perspective before she responds." The defensive response is expressing something (self-protection) but not what would actually help.
 
 **Your Patterns:**
+
 - **Strength:** You are aware that escalation is happening and that your behavior contributes to it. That awareness is the prerequisite for every change.
 - **Growth area:** You respond to perceived criticism with defensive counter-communication before naming what you actually feel or need. The defense goes up before the need gets expressed.
 - **Trigger situation:** When your mother makes a comment you interpret as critical or unsolicited advice -- particularly about choices you feel you have already settled internally.
@@ -368,9 +378,11 @@ You described getting defensive -- which means something is being communicated b
 ---
 
 ### Dimension 2: Listening
-*How you receive and process what your mother communicates*
+
+_How you receive and process what your mother communicates_
 
 **Reflection Questions:**
+
 1. When your mother starts a sentence that you have a feeling you know where it is going, do you keep listening or does your mental response start composing?
 2. What is your body doing when she says something that stings -- do you lean in, pull back, feel tension in your chest?
 3. After a difficult conversation with her, if you had to summarize what she was trying to say (not what she said, but what she was trying to communicate), could you?
@@ -379,6 +391,7 @@ You described getting defensive -- which means something is being communicated b
 In a long-standing close relationship with recurring friction, listening often collapses into pattern recognition: "Here comes the comment about X again." Pattern recognition causes you to stop listening to what is actually being said and start responding to what you expect to be said. This is sometimes called "listening to the last conversation" rather than the current one.
 
 **Your Patterns:**
+
 - **Strength:** You have enough relationship history with your mother to understand what matters to her, which is the foundation of empathic listening when the defensiveness is not engaged.
 - **Growth area:** Anticipatory listening -- you begin composing your defensive response before she has finished speaking. This means you are frequently responding to what you expected rather than what she said.
 - **Trigger situation:** When she opens a topic that has caused conflict before -- the pattern recognition kicks in and listening effectively ends.
@@ -386,9 +399,11 @@ In a long-standing close relationship with recurring friction, listening often c
 ---
 
 ### Dimension 3: Conflict Navigation
-*How you handle disagreement, tension, and hurt*
+
+_How you handle disagreement, tension, and hurt_
 
 **Reflection Questions:**
+
 1. When the conversation shifts from ordinary to tense, what is the first thing you do? Do you get louder, go quiet, deflect with a joke, or address it directly?
 2. Does conflict with your mother tend to stay about the immediate issue, or does it pull in older material ("you always do this," "this is just like when...")?
 3. When you recognize that you have become defensive, can you pause and re-engage -- or does the defensive momentum carry the conversation forward?
@@ -397,6 +412,7 @@ In a long-standing close relationship with recurring friction, listening often c
 You named defensiveness specifically. Defensiveness in Gottman's framework is one of the four behaviors most corrosive to communication: it communicates "the problem you are raising is not legitimate" even when you do not intend that. Defensiveness in a parent-adult child relationship often carries an additional layer -- the implicit argument about whether you are still being treated as a child versus an adult. That fight can be happening under the surface of almost any conflict with a parent.
 
 **Your Patterns:**
+
 - **Strength:** You recognize the escalation as it is happening -- you have self-awareness in the moment, not just in retrospect. That is harder than it sounds.
 - **Growth area:** Once defensiveness activates, you remain in it through the rest of the conversation rather than pausing, naming it, and re-engaging from a different footing. The escalation carries forward because neither person exits the defensive loop.
 - **Trigger situation:** When a comment touches the implicit argument about autonomy -- whether you are being seen and respected as an adult making your own decisions.
@@ -404,9 +420,11 @@ You named defensiveness specifically. Defensiveness in Gottman's framework is on
 ---
 
 ### Dimension 4: Repair
-*How you reconnect after a rupture, misunderstanding, or fight*
+
+_How you reconnect after a rupture, misunderstanding, or fight_
 
 **Reflection Questions:**
+
 1. After a fight with your mother, how long until things feel normal again? Hours, days, a week?
 2. Who typically initiates repair in your relationship with her -- you, her, or does it happen implicitly by just moving on without addressing it?
 3. After repair, do you feel genuinely resolved -- or does the incident stay in the background of the next conversation?
@@ -415,6 +433,7 @@ You named defensiveness specifically. Defensiveness in Gottman's framework is on
 In parent-adult child relationships, repair is often implicit rather than explicit. Both people move on, act as if the fight did not happen, and the underlying pattern remains intact for the next iteration. This is not repair -- it is pause. True repair involves some acknowledgment of what happened and what each person wants to do differently, even a brief one.
 
 **Your Patterns:**
+
 - **Strength:** You do return to closeness with your mother -- the relationship remains important to both of you, which is itself a repair resource.
 - **Growth area:** Repair is likely happening implicitly (resuming normal conversation, warmth returning by default) rather than explicitly. This means the specific pattern that caused the conflict does not get addressed and shows up again.
 - **Trigger situation:** After escalated conflicts where both parties said things with more heat than intended -- the implicit repair avoids addressing those directly.
@@ -422,9 +441,11 @@ In parent-adult child relationships, repair is often implicit rather than explic
 ---
 
 ### Dimension 5: Daily Maintenance
-*How you sustain connection during ordinary, non-conflict time*
+
+_How you sustain connection during ordinary, non-conflict time_
 
 **Reflection Questions:**
+
 1. When you talk to your mother during non-conflict conversations, what does that look like? Who initiates, what do you share, does it feel connecting?
 2. When she reaches toward you in a small way -- a check-in call, asking about something in your life -- what is your typical response?
 3. Do you express appreciation or affection toward her directly in ordinary moments, or is that implied rather than said?
@@ -433,6 +454,7 @@ In parent-adult child relationships, repair is often implicit rather than explic
 When a relationship has a recurring conflict pattern, the conflict can start to define the relationship even when most interactions are not conflictual. Maintenance conversations may become tentative -- both people aware that the wrong topic could tip into conflict again. This vigilance reduces the quality of ordinary connection and makes the relationship feel more fragile than it needs to be.
 
 **Your Patterns:**
+
 - **Strength:** You described the relationship as one in which you have historically been close -- that foundation of warmth and history is maintenance capital.
 - **Growth area:** The recurring conflict pattern may have made ordinary conversations more guarded than they need to be. Maintenance requires bringing warmth and openness even when recent history has been difficult.
 - **Trigger situation:** When a recent fight is unrepaired -- the unresolved tension makes the next ordinary conversation feel loaded even when neither person is trying to re-engage the conflict.
@@ -441,13 +463,13 @@ When a relationship has a recurring conflict pattern, the conflict can start to 
 
 ### Summary
 
-| Dimension | Strength | Growth Area |
-|-----------|----------|-------------|
-| Expressing | Aware that behavior is contributing to the pattern | Defensiveness replaces direct expression of the actual feeling or need |
-| Listening | Deep relationship knowledge enables empathy when not defensive | Anticipatory listening -- responding to expected comment rather than actual words |
-| Conflict Navigation | Can recognize escalation in real time | Cannot exit the defensive loop once engaged; escalation carries forward |
-| Repair | Relationship remains close and valued by both | Repair is implicit (moving on) rather than explicit; pattern repeats |
-| Daily Maintenance | Strong historical foundation of warmth | Recent conflict pattern may be making ordinary conversations guarded |
+| Dimension           | Strength                                                       | Growth Area                                                                       |
+| ------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Expressing          | Aware that behavior is contributing to the pattern             | Defensiveness replaces direct expression of the actual feeling or need            |
+| Listening           | Deep relationship knowledge enables empathy when not defensive | Anticipatory listening -- responding to expected comment rather than actual words |
+| Conflict Navigation | Can recognize escalation in real time                          | Cannot exit the defensive loop once engaged; escalation carries forward           |
+| Repair              | Relationship remains close and valued by both                  | Repair is implicit (moving on) rather than explicit; pattern repeats              |
+| Daily Maintenance   | Strong historical foundation of warmth                         | Recent conflict pattern may be making ordinary conversations guarded              |
 
 **Highest-leverage dimension:** Conflict Navigation -- specifically, learning to pause and name what is happening when defensiveness activates. If you can interrupt the defensive loop in the moment by 10 seconds ("I notice I'm getting defensive -- let me start over"), the escalation pattern breaks before it builds. That one shift will change expressing, repair, and maintenance downstream.
 
@@ -455,16 +477,18 @@ When a relationship has a recurring conflict pattern, the conflict can start to 
 
 ### Action Plan
 
-| Growth Area | Implementation Intention | Frequency / Duration |
-|-------------|--------------------------|----------------------|
+| Growth Area                | Implementation Intention                                                                                                                                                                                                                                                                         | Frequency / Duration                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------ |
 | Exiting the defensive loop | When I notice defensiveness activating during a conversation with my mother -- physical tension, urge to counter-argue -- I will pause for 5 seconds and say "Let me think about that" before responding. This buys the 10 seconds needed to choose a response instead of defaulting to defense. | Each occurrence for the next 4 weeks |
-| Explicit repair | When a conversation with my mother has ended badly, I will send a brief message within 24 hours that names what I want: "I don't want to leave that conversation where it was. Can we talk again?" I don't need to resolve everything -- I just need to name that I want to. | After each escalated conversation |
-| Expressing the actual need | When my mother says something I experience as critical, before responding defensively I will identify one sentence that says what is actually true: "I feel like I'm being second-guessed and I need you to trust my decision on this." I can say it or not -- but I will identify it. | Each occurrence |
+| Explicit repair            | When a conversation with my mother has ended badly, I will send a brief message within 24 hours that names what I want: "I don't want to leave that conversation where it was. Can we talk again?" I don't need to resolve everything -- I just need to name that I want to.                     | After each escalated conversation    |
+| Expressing the actual need | When my mother says something I experience as critical, before responding defensively I will identify one sentence that says what is actually true: "I feel like I'm being second-guessed and I need you to trust my decision on this." I can say it or not -- but I will identify it.           | Each occurrence                      |
 
 ---
 
 ### Check-In
+
 Revisit this audit in 4 weeks -- specifically after 3--4 conversations with your mother where the patterns above had a chance to show up. Ask yourself:
+
 - Did you catch the defensive activation before it carried the conversation? Even once?
 - Did you initiate explicit repair after a difficult conversation?
 - Has the dynamic in ordinary conversations shifted at all?

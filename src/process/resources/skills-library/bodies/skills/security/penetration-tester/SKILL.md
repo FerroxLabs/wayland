@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security penetration-testing guide"
-  category: "security"
-  subcategory: "offensive-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security penetration-testing guide'
+  category: 'security'
+  subcategory: 'offensive-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Penetration Tester
@@ -25,6 +25,7 @@ Penetration testing is the practice of testing a computer system, network, or we
 ## IMPORTANT: Authorization and Scope
 
 Before any testing begins:
+
 1. Obtain written authorization (scope document / rules of engagement)
 2. Define in-scope and out-of-scope targets
 3. Define testing windows and communication channels
@@ -413,6 +414,7 @@ This penetration test was conducted against [Target Application]
 from [Date] to [Date] under authorization from [Authorizer].
 
 ### Risk Distribution
+
 - Critical: 2 findings
 - High: 4 findings
 - Medium: 6 findings
@@ -420,11 +422,13 @@ from [Date] to [Date] under authorization from [Authorizer].
 - Informational: 5 findings
 
 ### Key Findings
+
 1. SQL injection allowing full database access (Critical)
 2. Broken access control enabling cross-tenant data access (Critical)
 3. Missing rate limiting enabling brute-force attacks (High)
 
 ### Overall Assessment
+
 The application has significant security weaknesses that require
 immediate attention. The critical findings allow an unauthenticated
 attacker to access and modify all data in the system.
@@ -442,35 +446,39 @@ attacker to access and modify all data in the system.
 **OWASP**: A03:2021 - Injection
 
 #### Description
+
 The search parameter at /api/v2/search is vulnerable to SQL injection.
 User input is directly concatenated into a SQL query without
 sanitization or parameterization.
 
 #### Steps to Reproduce
+
 1. Navigate to the search functionality
 2. Enter the injection payload in the search field
 3. Submit the search request
 4. Observe database information in the response
 
 # ... (condensed) ...
+
 2. Implement input validation (allowlist approach)
 3. Apply principle of least privilege to database accounts
 4. Enable WAF rules for SQL injection detection
 
 #### References
+
 - [reference URL]
 - OWASP SQL Injection Prevention Cheat Sheet
 ```
 
 ## Testing Tools Reference
 
-| Tool | Purpose | Type |
-|------|---------|------|
-| Burp Suite | Web proxy, scanner, manual testing | DAST |
-| OWASP ZAP | Free web proxy and scanner | DAST |
-| Nmap | Port scanning, service detection | Network |
-| Nuclei | Template-based vulnerability scanning | DAST |
-| sqlmap | SQL injection detection and exploitation | Injection |
+| Tool       | Purpose                                  | Type      |
+| ---------- | ---------------------------------------- | --------- |
+| Burp Suite | Web proxy, scanner, manual testing       | DAST      |
+| OWASP ZAP  | Free web proxy and scanner               | DAST      |
+| Nmap       | Port scanning, service detection         | Network   |
+| Nuclei     | Template-based vulnerability scanning    | DAST      |
+| sqlmap     | SQL injection detection and exploitation | Injection |
 
 ## Ethical Considerations
 
@@ -485,6 +493,7 @@ sanitization or parameterization.
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing penetration tester solutions
 - Reviewing or improving existing penetration tester approaches
 - Making architectural or implementation decisions about penetration tester
@@ -492,6 +501,7 @@ sanitization or parameterization.
 - Troubleshooting penetration tester-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -502,21 +512,26 @@ sanitization or parameterization.
 # Penetration Tester Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart best-practices testing analysis cleaning"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart best-practices testing analysis cleaning'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # NPM Dependency Doctor
 
 You are an npm dependency specialist. When the user has package conflicts, security warnings, or dependency issues, diagnose and fix them quickly. Provide exact commands and explain tradeoffs.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about npm dependency doctor techniques or best practices
 - User needs guidance on npm dependency doctor concepts
 - User wants to implement or improve their approach to npm dependency doctor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of npm dependency doctor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -193,14 +194,15 @@ add the package dependency lodash@latest
 
 ### Upgrade Strategy by Risk
 
-| Update Type | Risk | Command |
-|-------------|------|---------|
-| Patch (1.0.x) | Low | `npm update` |
-| Minor (1.x.0) | Medium | `npm update` |
-| Major (x.0.0) | High | `add the package dependency pkg@latest` + test |
-| All at once | Very High | `npx npm-check-updates -u` |
+| Update Type   | Risk      | Command                                        |
+| ------------- | --------- | ---------------------------------------------- |
+| Patch (1.0.x) | Low       | `npm update`                                   |
+| Minor (1.x.0) | Medium    | `npm update`                                   |
+| Major (x.0.0) | High      | `add the package dependency pkg@latest` + test |
+| All at once   | Very High | `npx npm-check-updates -u`                     |
 
 **Recommended approach:**
+
 1. Update patch/minor: `npm update`
 2. Run tests
 3. Update majors one at a time: `add the package dependency <pkg>@latest`
@@ -249,14 +251,14 @@ npx bundlephobia <package>
 
 ### Version Range Cheatsheet
 
-| Range | Meaning |
-|-------|---------|
-| `^1.2.3` | `>=1.2.3 <2.0.0` (minor + patch) |
-| `~1.2.3` | `>=1.2.3 <1.3.0` (patch only) |
-| `1.2.3` | Exactly `1.2.3` |
-| `*` | Any version |
-| `>=1.0.0` | 1.0.0 or higher |
-| `1.x` | Any 1.x.x version |
+| Range     | Meaning                          |
+| --------- | -------------------------------- |
+| `^1.2.3`  | `>=1.2.3 <2.0.0` (minor + patch) |
+| `~1.2.3`  | `>=1.2.3 <1.3.0` (patch only)    |
+| `1.2.3`   | Exactly `1.2.3`                  |
+| `*`       | Any version                      |
+| `>=1.0.0` | 1.0.0 or higher                  |
+| `1.x`     | Any 1.x.x version                |
 
 ## CI/CD Commands
 
@@ -293,15 +295,14 @@ add the package dependency --registry [external resource]
 
 ## pnpm / yarn Equivalents
 
-| npm | pnpm | yarn |
-|-----|------|------|
-| `add the package dependency` | `pnpm install` | `yarn` |
-| `npm ci` | `pnpm install --frozen-lockfile` | `yarn --frozen-lockfile` |
-| `npm audit` | `pnpm audit` | `yarn audit` |
-| `npm outdated` | `pnpm outdated` | `yarn outdated` |
-| `npm ls` | `pnpm ls` | `yarn list` |
-| `npm update` | `pnpm update` | `yarn upgrade` |
-
+| npm                          | pnpm                             | yarn                     |
+| ---------------------------- | -------------------------------- | ------------------------ |
+| `add the package dependency` | `pnpm install`                   | `yarn`                   |
+| `npm ci`                     | `pnpm install --frozen-lockfile` | `yarn --frozen-lockfile` |
+| `npm audit`                  | `pnpm audit`                     | `yarn audit`             |
+| `npm outdated`               | `pnpm outdated`                  | `yarn outdated`          |
+| `npm ls`                     | `pnpm ls`                        | `yarn list`              |
+| `npm update`                 | `pnpm update`                    | `yarn upgrade`           |
 
 ## Process
 
@@ -310,7 +311,6 @@ add the package dependency --registry [external resource]
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -331,14 +331,12 @@ add the package dependency --registry [external resource]
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -2,9 +2,9 @@
 name: hr-termination-letter
 description: Draft an involuntary termination letter (performance / RIF / policy / at-will) with state-specific final-pay timing, COBRA / mini-COBRA notice, and OWBPA/ADEA-compliant separation agreement variant for age 40+. Templates only - not employment-law advice.
 slash_command: false
-argument-hint: "<employee name, reason category, state, severance terms>"
+argument-hint: '<employee name, reason category, state, severance terms>'
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [termination, separation, hr, people-ops, smb]
@@ -31,18 +31,18 @@ Draft an involuntary-termination letter with the correct state-specific final-pa
 
 ## State-by-state final-pay timing (US - abbreviated; see `_jurisdiction.md` for full)
 
-| State | Involuntary final pay due |
-|-------|---------------------------|
-| CA | Same day, all wages + accrued vacation; 30-day waiting-time penalty if late (Lab. Code §§201-203) |
-| MA | Same day |
-| CO | Immediately if practical, else within 6 hrs of next business day, 24 hrs if offsite |
-| HI | Immediately or by next business day |
-| CT | Next business day |
-| MT | Immediately if for cause; 4 hrs / end of business day otherwise; **no at-will after probation** |
-| NV | Immediately |
-| IL, NY | Next regular payday |
-| TX | Within 6 days |
-| All others | Next regular payday safest default - verify state DOL |
+| State      | Involuntary final pay due                                                                         |
+| ---------- | ------------------------------------------------------------------------------------------------- |
+| CA         | Same day, all wages + accrued vacation; 30-day waiting-time penalty if late (Lab. Code §§201-203) |
+| MA         | Same day                                                                                          |
+| CO         | Immediately if practical, else within 6 hrs of next business day, 24 hrs if offsite               |
+| HI         | Immediately or by next business day                                                               |
+| CT         | Next business day                                                                                 |
+| MT         | Immediately if for cause; 4 hrs / end of business day otherwise; **no at-will after probation**   |
+| NV         | Immediately                                                                                       |
+| IL, NY     | Next regular payday                                                                               |
+| TX         | Within 6 days                                                                                     |
+| All others | Next regular payday safest default - verify state DOL                                             |
 
 ## COBRA / mini-COBRA route
 
@@ -64,6 +64,7 @@ This letter confirms that your employment with [Company Name] is terminated effe
 **Reason for termination:** [Brief - performance / position eliminated as part of restructuring / policy violation / at-will (no reason stated, where state law permits)]
 
 **Final pay.** You will receive your final paycheck on [Date - meeting state-specific timing requirement]. This includes:
+
 - Earned wages through [Last Day]: $[X]
 - Accrued, unused [PTO / vacation per state law and policy]: $[X]
 - [Reimbursable expenses]: $[X]
@@ -73,6 +74,7 @@ This letter confirms that your employment with [Company Name] is terminated effe
 [Wages already earned, accrued PTO where state requires, and unreimbursed expenses are paid regardless of whether you sign any agreement.]
 
 **Benefits.**
+
 - Health insurance continues through [last day of month / last day of coverage].
 - COBRA Election Notice [if 20+ EE] / Cal-COBRA / state mini-COBRA Election Notice [if <20 EE] will be mailed to you within [44 days federal / state-specific timeline].
 - [HSA: portable. FSA: use by [date].]
@@ -103,6 +105,7 @@ Sincerely,
 ---
 
 **Required attachments**
+
 - [ ] Final paycheck or pay-stub (per state timing)
 - [ ] State separation pamphlet (CA EDD "For Your Benefit"; NY DOL "Record of Employment"; etc.)
 - [ ] COBRA / Cal-COBRA / state mini-COBRA Election Notice

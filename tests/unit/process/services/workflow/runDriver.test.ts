@@ -12,12 +12,7 @@ import {
   runModeOnResume,
   shouldAutoAdvance,
 } from '@process/services/workflow/runDriver';
-import type {
-  StepState,
-  StepStatus,
-  WorkflowRunMode,
-  WorkflowSession,
-} from '@/common/types/workflowTypes';
+import type { StepState, StepStatus, WorkflowRunMode, WorkflowSession } from '@/common/types/workflowTypes';
 
 // Build a single step with sensible defaults; only n and status matter here.
 function makeStep(n: number, status: StepStatus): StepState {

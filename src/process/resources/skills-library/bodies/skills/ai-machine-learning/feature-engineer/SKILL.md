@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml data-science guide"
-  category: "ai-machine-learning"
-  subcategory: "ml-fundamentals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml data-science guide'
+  category: 'ai-machine-learning'
+  subcategory: 'ml-fundamentals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Feature Engineer
@@ -130,14 +130,14 @@ df["debt_to_income"] = df["total_debt"] / df["annual_income"].clip(lower=1)
 
 ### Encoding Methods Comparison
 
-| Method | Cardinality | Preserves Order | Handles Unknown | Linear Models | Tree Models |
-|--------|------------|----------------|-----------------|---------------|-------------|
-| One-Hot | Low (<20) | No | handle_unknown | Good | Wasteful |
-| Ordinal | Any (ordered) | Yes | N/A | Good | Good |
-| Target | High | No | Smoothing | Good | Good |
-| Frequency | High | No | Default value | Good | Good |
-| Binary | Medium | No | Fallback | Good | Good |
-| Embedding | Very High | No | OOV token | Neural only | N/A |
+| Method    | Cardinality   | Preserves Order | Handles Unknown | Linear Models | Tree Models |
+| --------- | ------------- | --------------- | --------------- | ------------- | ----------- |
+| One-Hot   | Low (<20)     | No              | handle_unknown  | Good          | Wasteful    |
+| Ordinal   | Any (ordered) | Yes             | N/A             | Good          | Good        |
+| Target    | High          | No              | Smoothing       | Good          | Good        |
+| Frequency | High          | No              | Default value   | Good          | Good        |
+| Binary    | Medium        | No              | Fallback        | Good          | Good        |
+| Embedding | Very High     | No              | OOV token       | Neural only   | N/A         |
 
 ### One-Hot Encoding
 
@@ -494,6 +494,7 @@ def build_feature_pipeline(config: dict) -> Pipeline:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing feature engineer solutions
 - Reviewing or improving existing feature engineer approaches
 - Making architectural or implementation decisions about feature engineer
@@ -501,6 +502,7 @@ def build_feature_pipeline(config: dict) -> Pipeline:
 - Troubleshooting feature engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -511,21 +513,26 @@ def build_feature_pipeline(config: dict) -> Pipeline:
 # Feature Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

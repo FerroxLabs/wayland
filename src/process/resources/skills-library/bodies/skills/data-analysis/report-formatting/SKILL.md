@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization report template"
-  category: "data-analysis"
-  subcategory: "data-visualization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'data-visualization report template'
+  category: 'data-analysis'
+  subcategory: 'data-visualization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Report Formatting
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has completed a data analysis and needs to structure the results into a professional document for stakeholders, management, a client, or an internal review board
 - A user asks "what sections should my report include?", "how do I organize my findings?", or "can you help me build a report template?"
 - A user needs to create a recurring report (weekly operational, monthly business review, quarterly board report, annual performance summary) with a repeatable, consistent structure
@@ -29,6 +31,7 @@ metadata:
 - A user has mixed audiences (executives wanting conclusions, analysts wanting methodology) and needs a layered architecture that serves both without forcing either to read what they don't need
 
 **Do NOT use when:**
+
 - The user needs to format a single chart or choose the right chart type for a single metric (use `chart-formatting`)
 - The user wants a one-page visual summary or infographic for quick consumption (use `infographic-planning`)
 - The user wants to write a narrative data story with prose-forward structure, character arcs, or dramatic tension (use `data-storytelling`)
@@ -58,17 +61,20 @@ Clarify these five parameters before proposing any structure. A report built on 
 Three architectures cover 95% of business report needs. Select one and explain the choice to the user.
 
 **Architecture A -- Executive Brief (2-5 pages)**
+
 - Use when: Primary audience is C-suite or senior management, decision timeline is short, recommendations are the main deliverable
 - Structure: Cover page → Executive summary (1 page) → 3-5 findings with one chart each (1-3 pages) → Recommendations table (0.5 page) → Appendix reference note
 - Key constraint: Every finding must link directly to a decision or action. Findings that are merely "interesting" do not belong in this format.
 - Total chart count: 3-5 charts maximum. Charts must be interpretable without seeing the data table.
 
 **Architecture B -- Operational Report (5-15 pages)**
+
 - Use when: Audience includes both managers and practitioners, the report will be referenced throughout a work period, and methodology transparency is important
 - Structure: Cover page → Table of contents → Executive summary (1 page) → Background and methodology (1-2 pages) → Findings sections with charts, interpretation, and supporting tables (5-10 pages) → Recommendations with owners and timelines (1 page) → Appendices
 - Key constraint: The main body must be self-contained -- an analyst reading only the main body should not need the appendix to understand the findings.
 
 **Architecture C -- Technical or Research Report (15+ pages)**
+
 - Use when: Findings will be scrutinized for methodological validity, the report establishes a new baseline or changes a policy, or the audience includes domain experts who will challenge the methodology
 - Structure: Cover page → Abstract (200-300 words) → Table of contents → Introduction and research questions → Literature context or prior baselines → Methodology (detailed enough to reproduce the analysis) → Findings organized by research question → Discussion of implications and limitations → Conclusions → Recommendations → References → Appendices (data tables, code, instruments)
 - Key constraint: Every claim in the findings section must be traceable to a specific data source cited in the methodology section.
@@ -777,3 +783,4 @@ SUPPORTING DATA TABLE (Full table: Appendix A-3, p. 11)
 | Channel        | Q3 CPL  | Q2 CPL  | Change | Session Share |
 |----------------|---------|---------|--------|---------------|
 | Organic Search | $22
+```

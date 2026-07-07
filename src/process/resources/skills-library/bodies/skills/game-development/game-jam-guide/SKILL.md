@@ -5,19 +5,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "game-design guide step-by-step"
-  category: "game-development"
-  subcategory: "game-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'game-design guide step-by-step'
+  category: 'game-development'
+  subcategory: 'game-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Game Jam Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is actively preparing for or participating in a timed game jam (Ludum Dare, Global Game Jam, itch.io jams, JS13K, GMTK Jam, Brackeys Jam) and needs a structured execution plan
 - A user asks how to scope a game idea for a 24-, 48-, or 72-hour competition and wants concrete time-boxing guidance
 - A user needs help selecting tools or an engine for a jam based on their existing skill set and the jam's constraints
@@ -27,6 +29,7 @@ metadata:
 - A user is participating in their first jam and wants to avoid the most destructive beginner mistakes before they happen
 
 **Do NOT use this skill when:**
+
 - The user is designing a commercial game on a months-long or years-long timeline -- use the video-game-designer skill instead
 - The user wants deep game design theory (lenses, player psychology, formal systems design) rather than rapid prototyping tactics -- use the video-game-designer skill instead
 - The user wants to design a tabletop, card, or board game for a physical jam -- use the board-game-creator skill instead
@@ -74,16 +77,16 @@ Run through this decision tree with the user based on their actual knowledge:
 
 **Engine Selection:**
 
-| Engine | Language | Best Fit | Realistic Jam Output |
-|--------|----------|----------|----------------------|
-| Godot 4 | GDScript / C# | 2D games, solo or small team | Polished 2D game in 48h |
-| Unity | C# | 2D or 3D, larger teams | Functional prototype in 48h |
-| GameMaker | GML | Arcade/action 2D | Fast and well-tested for jams |
-| Pico-8 | Lua | Tiny retro games, solo | Highly constrained, focused output |
-| Love2D | Lua | Programmer-only, lightweight 2D | Fast if user knows Lua well |
-| Twine / Ink | None / Ink | Interactive fiction, narrative | Complete narrative game in 24h |
-| Construct 3 | Event-based | Non-programmer, 2D only | Rapid 2D prototype with no code |
-| Phaser | JavaScript | Web-only, programmer | Good for HTML5-first jams like JS13K |
+| Engine      | Language      | Best Fit                        | Realistic Jam Output                 |
+| ----------- | ------------- | ------------------------------- | ------------------------------------ |
+| Godot 4     | GDScript / C# | 2D games, solo or small team    | Polished 2D game in 48h              |
+| Unity       | C#            | 2D or 3D, larger teams          | Functional prototype in 48h          |
+| GameMaker   | GML           | Arcade/action 2D                | Fast and well-tested for jams        |
+| Pico-8      | Lua           | Tiny retro games, solo          | Highly constrained, focused output   |
+| Love2D      | Lua           | Programmer-only, lightweight 2D | Fast if user knows Lua well          |
+| Twine / Ink | None / Ink    | Interactive fiction, narrative  | Complete narrative game in 24h       |
+| Construct 3 | Event-based   | Non-programmer, 2D only         | Rapid 2D prototype with no code      |
+| Phaser      | JavaScript    | Web-only, programmer            | Good for HTML5-first jams like JS13K |
 
 - **The Jam Engine Rule:** Use the engine you know best, not the one you most want to learn. A jam is a sprint, not a tutorial.
 - **If the user insists on a new engine:** Warn them they will spend 6--10 of their first 12 hours on setup, documentation, and debugging unfamiliar behavior. This almost always results in a dropped entry.
@@ -182,18 +185,18 @@ Team size and role clarity determine whether collaboration accelerates or kills 
 
 Polish has wildly asymmetric returns on time investment. Apply in this order to maximize perceived quality per minute spent:
 
-| Priority | Feature | Time Cost | Perceived Impact |
-|----------|---------|-----------|-----------------|
-| 1 | Sound effects (3--5 key sounds) | 20--40 min | Highest -- transforms game feel instantly |
-| 2 | Screen shake on impact events | 10--20 min | Very High -- makes game feel physical |
-| 3 | Title screen with name and controls | 20--30 min | High -- sets professionalism expectations |
-| 4 | Win/lose screen with restart | 15--20 min | High -- game feels complete, not abandoned |
-| 5 | Particle effects on key events | 20--40 min | High -- visual richness and feedback |
-| 6 | One looping background track | 20--40 min | Medium-High -- sets tone and atmosphere |
-| 7 | Smooth camera follow / easing | 15--20 min | Medium -- removes jank from movement |
-| 8 | UI (score, health, timer visible) | 20--30 min | Medium -- players understand state |
-| 9 | Animation easing (squash/stretch) | 20--30 min | Medium -- professional feel |
-| 10 | Settings screen or volume slider | 30--45 min | Low -- skip in a jam context |
+| Priority | Feature                             | Time Cost  | Perceived Impact                           |
+| -------- | ----------------------------------- | ---------- | ------------------------------------------ |
+| 1        | Sound effects (3--5 key sounds)     | 20--40 min | Highest -- transforms game feel instantly  |
+| 2        | Screen shake on impact events       | 10--20 min | Very High -- makes game feel physical      |
+| 3        | Title screen with name and controls | 20--30 min | High -- sets professionalism expectations  |
+| 4        | Win/lose screen with restart        | 15--20 min | High -- game feels complete, not abandoned |
+| 5        | Particle effects on key events      | 20--40 min | High -- visual richness and feedback       |
+| 6        | One looping background track        | 20--40 min | Medium-High -- sets tone and atmosphere    |
+| 7        | Smooth camera follow / easing       | 15--20 min | Medium -- removes jank from movement       |
+| 8        | UI (score, health, timer visible)   | 20--30 min | Medium -- players understand state         |
+| 9        | Animation easing (squash/stretch)   | 20--30 min | Medium -- professional feel                |
+| 10       | Settings screen or volume slider    | 30--45 min | Low -- skip in a jam context               |
 
 - **Do not attempt all 10.** Items 1--5 in 90 minutes transform a prototype into a polished-feeling entry. Items 6--8 are additive if time allows.
 - **Screen shake parameters:** 3--5px maximum offset, 0.1--0.15 second duration, exponential decay. More than this causes nausea. Less than this is invisible.
@@ -204,6 +207,7 @@ Polish has wildly asymmetric returns on time investment. Apply in this order to 
 ### Step 8: Handle Submission and Post-Jam Decision
 
 **Pre-submission checklist (execute in order):**
+
 - Game runs from start to a defined end state without crashing
 - All intended controls are functional
 - Volume is reasonable (not ear-piercing, not silent)
@@ -215,18 +219,21 @@ Polish has wildly asymmetric returns on time investment. Apply in this order to 
 **Post-jam decision framework:**
 
 Continue developing the game if ALL of the following are true:
+
 - The core mechanic is genuinely fun and has depth that is not yet expressed
 - Players who tried it asked for more content unprompted
 - You, the developer, are personally excited to play the next version
 - The game has a clear audience identity (who plays this and why)
 
 Archive or move on if ANY of the following are true:
+
 - The mechanic is a one-time gimmick that works exactly once
 - The theme was the only interesting part and cannot survive a post-jam version
 - You feel obligation rather than excitement toward it
 - The jam code is held together by global variables and 2am patch logic (it is -- rebuild from scratch if continuing)
 
 **If continuing post-jam:**
+
 - Write a post-mortem first: 3 things that worked, 3 that failed, 3 changes for the next project
 - Treat the jam version as a proof of concept, not a foundation
 - Rebuild the project from scratch with proper architecture
@@ -244,6 +251,7 @@ When delivering a game jam plan to a user, structure the response as follows. Po
 ### [USER'S JAM NAME] -- Execution Plan
 
 **Jam Parameters**
+
 - Jam: [name, URL]
 - Duration: [hours]
 - Solo / Team: [composition and skills]
@@ -254,6 +262,7 @@ When delivering a game jam plan to a user, structure the response as follows. Po
 ---
 
 **The Game Concept**
+
 - Core mechanic (one verb): [verb]
 - Elevator pitch (one sentence): [subject + verb + goal + obstacle]
 - Theme integration: [how the mechanic embodies or reflects the theme]
@@ -262,16 +271,16 @@ When delivering a game jam plan to a user, structure the response as follows. Po
 
 **Scope Definition**
 
-| Tier | Feature | Estimated Hours |
-|------|---------|----------------|
-| MUST HAVE | [mechanic name] functional | [X hours] |
-| MUST HAVE | [level count] playable levels | [X hours] |
-| MUST HAVE | Win/lose state | [X hours] |
-| NICE TO HAVE | Sound effects (3--5) | [X hours] |
-| NICE TO HAVE | Title screen | [X hours] |
-| NICE TO HAVE | Screen shake / particles | [X hours] |
-| DREAM | [feature name] | -- (cut) |
-| DREAM | [feature name] | -- (cut) |
+| Tier         | Feature                       | Estimated Hours |
+| ------------ | ----------------------------- | --------------- |
+| MUST HAVE    | [mechanic name] functional    | [X hours]       |
+| MUST HAVE    | [level count] playable levels | [X hours]       |
+| MUST HAVE    | Win/lose state                | [X hours]       |
+| NICE TO HAVE | Sound effects (3--5)          | [X hours]       |
+| NICE TO HAVE | Title screen                  | [X hours]       |
+| NICE TO HAVE | Screen shake / particles      | [X hours]       |
+| DREAM        | [feature name]                | -- (cut)        |
+| DREAM        | [feature name]                | -- (cut)        |
 
 **Total Must-Have Hours:** [X] -- this must be under 60% of available time.
 
@@ -279,17 +288,18 @@ When delivering a game jam plan to a user, structure the response as follows. Po
 
 **Phase Schedule**
 
-| Phase | Hours | Deliverable | Checkpoint Condition |
-|-------|-------|-------------|---------------------|
-| Ideation | 0--[N] | Committed concept | One-sentence pitch exists |
-| Prototype | [N]--[N] | Core mechanic playable | Fun check passes at 60 seconds |
-| Content | [N]--[N] | Game completable end-to-end | Player can start and finish |
-| Polish | [N]--[N] | Juice applied in priority order | Top 5 polish items complete |
-| Submission | [N]--[N] | Build live on platform | Submitted at least 2h early |
+| Phase      | Hours    | Deliverable                     | Checkpoint Condition           |
+| ---------- | -------- | ------------------------------- | ------------------------------ |
+| Ideation   | 0--[N]   | Committed concept               | One-sentence pitch exists      |
+| Prototype  | [N]--[N] | Core mechanic playable          | Fun check passes at 60 seconds |
+| Content    | [N]--[N] | Game completable end-to-end     | Player can start and finish    |
+| Polish     | [N]--[N] | Juice applied in priority order | Top 5 polish items complete    |
+| Submission | [N]--[N] | Build live on platform          | Submitted at least 2h early    |
 
 ---
 
 **Tool Confirmation**
+
 - Engine: [name, why it fits]
 - Art: [tool or asset source]
 - Audio: [SFX tool, music tool, or source]
@@ -298,12 +308,14 @@ When delivering a game jam plan to a user, structure the response as follows. Po
 ---
 
 **Team Roles** (if applicable)
+
 - [Name]: [specific responsibilities]
 - Sync schedule: Every [X] hours, 5 minutes, covering: done / doing / blocked
 
 ---
 
 **Top 3 Risks for This Specific Plan**
+
 1. [Risk] -- Mitigation: [specific action]
 2. [Risk] -- Mitigation: [specific action]
 3. [Risk] -- Mitigation: [specific action]
@@ -341,24 +353,31 @@ When delivering a game jam plan to a user, structure the response as follows. Po
 ## Edge Cases
 
 ### User reveals the theme mid-conversation and wants idea generation right now
+
 The theme is announced and the user is generating ideas in real time. Do not evaluate or kill ideas during the initial brainstorm phase -- all output is valid for 10 minutes. Then apply the elevator pitch test and scope test to the top 3 candidates. If the user is stuck, offer 3 unexpected thematic associations yourself and pair them with simple mechanic verbs to demonstrate the combination technique. Prioritize ideas where the theme is mechanically integrated (the theme affects how the player interacts with the game) rather than narratively wrapped (the theme only appears in the story framing).
 
 ### User is a solo non-programmer
+
 Twine (text/narrative games), Construct 3 (visual event-based 2D), and GB Studio (Game Boy-style games with no programming knowledge) are legitimate options. Set expectations honestly: the mechanical depth achievable without programming is lower, but narrative games, puzzle games built from pre-built building blocks, and top-down RPG Maker games are all viable jam entries. Kenney.nl asset packs plus Construct 3 is a realistic path to a completable 2D arcade game in 48 hours for a non-programmer.
 
 ### User is mid-jam and is 30 hours in with an unplayable game
+
 This is a rescue scenario. Do not address root causes -- address only what is actionable in the remaining time. Ask: What is the minimum change that makes the game completable end-to-end? Often this means cutting 70% of the planned content, wiring up a hard-coded end screen, disabling broken features, and replacing them with placeholder text. A submitted game that is half-broken is always better than an unsubmitted game. Help the user identify the smallest path to a submittable state, not the best possible game.
 
 ### User's jam has engine or tool restrictions
+
 Some jams (JS13K, Pico-8 jams, Game Boy jams) restrict the engine, file size, or rendering target. These constraints are features, not obstacles -- they force focus. For JS13K specifically: the 13KB limit (zipped JavaScript) rules out most engines, but Phaser with tree-shaking or a custom lightweight framework is viable. For Pico-8 jams: the 128x128 screen, 16-color palette, and token limit (8192 tokens) are the design space. Advise the user to embrace the constraint as a creative tool rather than fighting it.
 
 ### Team has a conflict or misalignment mid-jam
+
 Disagreements most commonly arise over: the core concept, art style, which features to cut, or whether to sleep. The conflict resolution rule is non-negotiable: the person who implements the feature decides its implementation. For concept or scope conflicts after hour 4, the scope owner (or in a duo, whoever is the designated decision-maker agreed upon at the start) has final say. A jam is too short for design-by-committee. If the conflict cannot be resolved in 10 minutes, split the disputed feature onto the DREAM tier (cut it) and move forward.
 
 ### User wants to enter a jam for the first time and has never shipped a game
+
 Adjust expectations and goals explicitly. The primary goal for a first jam is to submit something -- anything. A two-level platformer with rectangle art and three sound effects that reaches a game over screen is a complete success. Recommend a well-documented engine (Godot 4 for 2D with GDScript, or GameMaker if they know it), direct them to Kenney.nl for art assets, and have them build the core mechanic first with no art. First-timer failure modes are almost exclusively: trying to learn a new engine AND make a game simultaneously, or scoping a game far beyond what is feasible. Both of these are scope/tool problems, not skill problems.
 
 ### User wants to continue their jam game into a commercial release
+
 Validate the decision against the three-part test (mechanic depth, player demand, personal excitement). If continuation is confirmed, give these specific directives: (1) Rest for one week before touching the project -- post-jam burnout is real and destroys commercial development momentum. (2) The jam codebase is a prototype -- rebuild it from scratch with clean architecture before adding new features. (3) Write a proper game design document for the expanded scope before writing a line of new code. (4) Playtest with at least 5 people who did not play the jam version -- their feedback is uncontaminated by nostalgia for the original. Reference examples: Celeste was a Pico-8 prototype rebuilt in Unity; Superhot was a 7DFPS jam entry rebuilt over 2 years; both teams cite the rebuild as essential to the commercial product's quality.
 
 ---
@@ -375,6 +394,7 @@ Validate the decision against the three-part test (mechanic depth, player demand
 ### Ludum Dare 56 -- Execution Plan: "Tiny Creatures"
 
 **Jam Parameters**
+
 - Jam: Ludum Dare 56 (Compo -- solo, 72-hour window)
 - Duration: 72-hour window, 36 hours realistically available
 - Solo: Programmer + basic pixel artist (you)
@@ -396,6 +416,7 @@ Free association from "Tiny Creatures" (sample output):
 ants, microbes, insects, fairies, bacteria, gnomes, pixels, atoms, seeds, spores, cells, dust mites, sprites, bonsai, miniaturized humans, scale illusion
 
 Promising mechanic combinations:
+
 - Ants + platformer = Character is an ant navigating a giant human kitchen (scale illusion -- small creature, huge world)
 - Bacteria + growth = You are a bacterium that must grow a colony by consuming cells (real-time strategy without the complexity)
 - Miniaturized human + puzzle = You are shrunk and must navigate objects as if they were landscapes
@@ -411,19 +432,19 @@ Promising mechanic combinations:
 
 **Scope Definition**
 
-| Tier | Feature | Estimated Hours |
-|------|---------|----------------|
-| MUST HAVE | Ant character with left/right/jump | 2 hours |
-| MUST HAVE | 3 levels (kitchen counter, floor, table) | 6 hours |
-| MUST HAVE | One hazard type (water drop, human foot) | 2 hours |
-| MUST HAVE | Crumb collectible and win state | 1 hour |
-| MUST HAVE | Game over on hazard contact | 1 hour |
-| NICE TO HAVE | 3--5 sound effects (step, collect, die, win) | 1 hour |
-| NICE TO HAVE | Title screen with name and WASD/arrow controls listed | 1 hour |
-| NICE TO HAVE | Screen shake on death | 0.5 hours |
-| NICE TO HAVE | Particle dust on landing | 0.5 hours |
-| DREAM | 4th level, boss object, multiple ant types | -- (cut) |
-| DREAM | Procedurally generated kitchen | -- (cut) |
+| Tier         | Feature                                               | Estimated Hours |
+| ------------ | ----------------------------------------------------- | --------------- |
+| MUST HAVE    | Ant character with left/right/jump                    | 2 hours         |
+| MUST HAVE    | 3 levels (kitchen counter, floor, table)              | 6 hours         |
+| MUST HAVE    | One hazard type (water drop, human foot)              | 2 hours         |
+| MUST HAVE    | Crumb collectible and win state                       | 1 hour          |
+| MUST HAVE    | Game over on hazard contact                           | 1 hour          |
+| NICE TO HAVE | 3--5 sound effects (step, collect, die, win)          | 1 hour          |
+| NICE TO HAVE | Title screen with name and WASD/arrow controls listed | 1 hour          |
+| NICE TO HAVE | Screen shake on death                                 | 0.5 hours       |
+| NICE TO HAVE | Particle dust on landing                              | 0.5 hours       |
+| DREAM        | 4th level, boss object, multiple ant types            | -- (cut)        |
+| DREAM        | Procedurally generated kitchen                        | -- (cut)        |
 
 **Total Must-Have Hours: 12** -- leaves 24 hours of buffer for art, polish, and submission. This is intentionally easy because finishing is the goal.
 
@@ -431,19 +452,20 @@ Promising mechanic combinations:
 
 **Phase Schedule (36 usable hours)**
 
-| Phase | Usable Hours | Deliverable | Checkpoint Condition |
-|-------|-------------|-------------|---------------------|
-| Ideation | 0--2 | Committed concept, one-sentence pitch | Pitch stated above -- already done |
-| Prototype | 2--8 | Ant moves, jumps, collects crumb, dies to hazard | Playable loop exists -- is it fun for 60 seconds? |
-| Content | 8--22 | 3 complete levels, pixel art replacing rects, 3 SFX | Player can start and complete level 3 |
-| Polish | 22--32 | Title screen, screen shake, particles, music | Top 5 polish items complete |
-| Submission | 32--36 | HTML5 build live on itch.io | Submitted by hour 34 at latest |
+| Phase      | Usable Hours | Deliverable                                         | Checkpoint Condition                              |
+| ---------- | ------------ | --------------------------------------------------- | ------------------------------------------------- |
+| Ideation   | 0--2         | Committed concept, one-sentence pitch               | Pitch stated above -- already done                |
+| Prototype  | 2--8         | Ant moves, jumps, collects crumb, dies to hazard    | Playable loop exists -- is it fun for 60 seconds? |
+| Content    | 8--22        | 3 complete levels, pixel art replacing rects, 3 SFX | Player can start and complete level 3             |
+| Polish     | 22--32       | Title screen, screen shake, particles, music        | Top 5 polish items complete                       |
+| Submission | 32--36       | HTML5 build live on itch.io                         | Submitted by hour 34 at latest                    |
 
 **Sleep:** With a 72-hour window and 36 hours of work, sleep is not a constraint. Work in comfortable 4--6 hour blocks with real breaks.
 
 ---
 
 **Tool Confirmation**
+
 - Engine: Godot 4 with GDScript -- correct choice, you know it, web export is well-supported
 - Art: Aseprite for pixel art. Style decision: 16x16 ant sprite, limited 8-color palette (black, brown, cream, red, grey, white, soft yellow, dark green). This is achievable in 3 hours total across all art assets.
 - Audio: BFXR for all sound effects (footstep, collect crumb, death, level complete). Bosca Ceoil for one looping 30-second track. Total audio time budget: 90 minutes.
@@ -454,13 +476,13 @@ Promising mechanic combinations:
 **Top 3 Risks for This Specific Plan**
 
 1. **Risk: You spend 8+ hours on pixel art and fall behind on content.**
-Mitigation: Set a hard cap of 45 minutes per level's art assets. Use colored rectangles as placeholder until all 3 levels are complete and playable, then replace art. Art never before code completion.
+   Mitigation: Set a hard cap of 45 minutes per level's art assets. Use colored rectangles as placeholder until all 3 levels are complete and playable, then replace art. Art never before code completion.
 
 2. **Risk: The jump feel is bad and you spend hours tuning physics.**
-Mitigation: Use these starting values in Godot 4 for a responsive platformer feel: gravity 1500, jump velocity -400, max fall speed 800, horizontal speed 200, floor snap 4px. Tune for 30 minutes maximum, then lock and move on.
+   Mitigation: Use these starting values in Godot 4 for a responsive platformer feel: gravity 1500, jump velocity -400, max fall speed 800, horizontal speed 200, floor snap 4px. Tune for 30 minutes maximum, then lock and move on.
 
 3. **Risk: Godot HTML5 export fails at submission time.**
-Mitigation: Export to HTML5 and test in a browser at the end of the Prototype phase (hour 8). Fix any web export issues early. Common fix: enable "Thread Support" off in export settings if the game freezes on web.
+   Mitigation: Export to HTML5 and test in a browser at the end of the Prototype phase (hour 8). Fix any web export issues early. Common fix: enable "Thread Support" off in export settings if the game freezes on web.
 
 ---
 

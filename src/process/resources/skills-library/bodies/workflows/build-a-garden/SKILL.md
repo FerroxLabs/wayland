@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "garden-advisor diy-planner habit-tracker"
+skills: 'garden-advisor diy-planner habit-tracker'
 trigger_phrases: >-
   I want to start a garden help me build a garden home vegetable garden how to
   start gardening backyard garden plan container gardening guide
@@ -21,10 +21,11 @@ metadata:
   version: 1.0.0
   tags: gardening hiking home-maintenance step-by-step planning
   category: life-event
-  depends: "garden-advisor diy-planner habit-tracker"
+  depends: 'garden-advisor diy-planner habit-tracker'
   disclaimer: none
   difficulty: beginner
 ---
+
 # Build A Garden
 
 **Estimated time:** 4-8 weeks setup, ongoing seasonal
@@ -165,6 +166,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -175,7 +177,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Ignoring soil:** Most garden problems are actually soil problems. Test the soil. Amend the soil. Feed the soil, not just the plants.
 - **Wrong plants for the space:** A plant that needs 8 hours of sun will fail in 4 hours of shade. Match plants to actual conditions.
 - **Overwatering:** More plants die from overwatering than underwatering. Check soil moisture before watering.
-
 
 ### Timeline Considerations
 

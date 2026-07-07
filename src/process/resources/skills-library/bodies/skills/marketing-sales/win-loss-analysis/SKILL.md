@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales analysis strategy planning"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales analysis strategy planning'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Win Loss Analysis
 
 ## When to Use
@@ -66,12 +67,14 @@ If the user provides deal data inline (e.g., a list of companies, outcomes, and 
 Before scoring individual factors, categorize each lost deal into one of four archetypes. This prevents the analysis from becoming an undifferentiated list of scores and forces the analyst to identify root causes:
 
 **For losses:**
+
 - **Qualification failure:** The deal should never have been in the pipeline. The prospect lacked budget, authority, genuine need, or a realistic timeline. These losses waste sales capacity and inflate the denominator of the win rate calculation
 - **Execution failure:** The prospect had real need and budget, but the sales process was poorly executed -- weak discovery, no champion built, proposal delivered without understanding the decision criteria, pricing introduced too early or too late
 - **Competitive loss:** Execution was adequate, but a competitor won on a dimension the sales team could not overcome -- feature gap, pricing structure, brand preference, reference customers, or incumbent advantage
 - **No-decision loss:** The prospect chose to do nothing -- maintain the status quo, delay the project, redirect budget, or lose their champion internally. These are the hardest losses to prevent and require different fixes than competitive losses
 
 **For wins:**
+
 - **Qualification win:** The team correctly identified and pursued a high-fit opportunity
 - **Execution win:** The sales process was exemplary -- champion was built early, discovery uncovered quantified pain, proposal was tailored to decision criteria
 - **Competitive win:** The team displaced an incumbent or defeated a competitor through superior positioning, reference selling, or a specific competitive play
@@ -113,6 +116,7 @@ After all deals are scored, calculate per-factor statistics:
 Sort factors by gap size descending. The top 2-3 factors with the largest gaps are where improvement actions should concentrate. Avoid the mistake of trying to improve everything simultaneously -- the factor with the largest gap represents the highest-leverage improvement opportunity.
 
 Additionally, calculate:
+
 - **Win rate by deal size segment** (e.g., under $25K, $25K-$100K, over $100K) -- teams often have dramatically different win rates by segment that get hidden in aggregate numbers
 - **Win rate by competitor** -- not just which competitor appeared most, but what the win rate was against each competitor specifically
 - **Win rate by rep or territory** (if the dataset covers multiple reps) -- outlier performers in either direction reveal coaching opportunities or process insights
@@ -137,6 +141,7 @@ State every pattern with a specific data citation: "X out of Y deals with this c
 ### Step 6: Generate Specific Improvement Actions Tied to Patterns
 
 Each improvement action must meet four criteria to be included:
+
 - **Specific:** The action describes exactly what changes, who changes it, and what the new behavior or artifact looks like
 - **Evidenced:** The action cites the specific data pattern that supports it
 - **Measurable:** The action defines a metric that will indicate whether it is working, and a timeframe for measurement
@@ -144,18 +149,19 @@ Each improvement action must meet four criteria to be included:
 
 Common action categories and what they look like when done well vs. poorly:
 
-| Action Category | Poor (Too Generic) | Specific and Actionable |
-|---|---|---|
-| Discovery improvement | "Improve discovery quality" | "Add 3 SPIN implication questions about the cost of a phishing breach to the discovery call script; Sales Manager reviews recordings for compliance in first 30 days" |
-| Champion building | "Build better champions" | "Add a champion validation checkpoint at Stage 3 (Technical Evaluation): rep must document champion's title, influence level, and whether they have presented the business case internally before deal advances" |
-| Competitive positioning | "Create better competitive materials" | "Build a battle card for [Competitor] specifically addressing their pricing advantage in deals under 50 users; include a TCO model showing our 3-year cost is lower due to incident reduction" |
-| Qualification | "Qualify deals better" | "Add a disqualification criterion: any deal without economic buyer access within 30 days of discovery call moves to nurture, not active pipeline" |
+| Action Category         | Poor (Too Generic)                    | Specific and Actionable                                                                                                                                                                                          |
+| ----------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discovery improvement   | "Improve discovery quality"           | "Add 3 SPIN implication questions about the cost of a phishing breach to the discovery call script; Sales Manager reviews recordings for compliance in first 30 days"                                            |
+| Champion building       | "Build better champions"              | "Add a champion validation checkpoint at Stage 3 (Technical Evaluation): rep must document champion's title, influence level, and whether they have presented the business case internally before deal advances" |
+| Competitive positioning | "Create better competitive materials" | "Build a battle card for [Competitor] specifically addressing their pricing advantage in deals under 50 users; include a TCO model showing our 3-year cost is lower due to incident reduction"                   |
+| Qualification           | "Qualify deals better"                | "Add a disqualification criterion: any deal without economic buyer access within 30 days of discovery call moves to nurture, not active pipeline"                                                                |
 
 Rank actions by expected impact, not by ease of implementation. The hardest changes are often the highest leverage. Recommend no more than 3-4 actions per analysis cycle -- more than that exceeds organizational change capacity and dilutes focus.
 
 ### Step 7: Produce the Win/Loss Analysis Document
 
 Structure the output using the Output Format below. Calibrate the depth to the dataset:
+
 - 5-9 deals: Include every individual deal review; aggregate statistics are directional only -- note this explicitly
 - 10-24 deals: Include a representative sample of 4-6 individual deal reviews (2-3 wins, 2-3 losses), plus full aggregate analysis
 - 25+ deals: Aggregate analysis is primary; individual deal reviews are optional appendix; statistical significance becomes meaningful
@@ -195,12 +201,14 @@ a documented champion -- fixing this alone is projected to prevent 2-3 losses pe
 
 **What Is Working:**
 [2-3 bullets on factors where won deals score consistently well -- preserve these behaviors]
+
 - [Pattern with data citation]
 - [Pattern with data citation]
 - [Pattern with data citation]
 
 **What Needs to Change:**
 [2-3 bullets on the largest gaps between won and lost deal scores]
+
 - [Pattern with data citation]
 - [Pattern with data citation]
 - [Pattern with data citation]
@@ -209,28 +217,28 @@ a documented champion -- fixing this alone is projected to prevent 2-3 losses pe
 
 ### Deal Outcome Summary
 
-| Outcome | Count | % of Total | Avg ACV | Avg Cycle (Days) |
-|---------|-------|-----------|---------|-----------------|
-| Won | [X] | [X%] | [$X] | [X days] |
-| Lost -- Competitive | [X] | [X%] | [$X] | [X days] |
-| Lost -- No Decision | [X] | [X%] | [$X] | [X days] |
-| Lost -- Qualification | [X] | [X%] | [$X] | [X days] |
-| **Total** | **[N]** | **100%** | **[$X]** | **[X days]** |
+| Outcome               | Count   | % of Total | Avg ACV  | Avg Cycle (Days) |
+| --------------------- | ------- | ---------- | -------- | ---------------- |
+| Won                   | [X]     | [X%]       | [$X]     | [X days]         |
+| Lost -- Competitive   | [X]     | [X%]       | [$X]     | [X days]         |
+| Lost -- No Decision   | [X]     | [X%]       | [$X]     | [X days]         |
+| Lost -- Qualification | [X]     | [X%]       | [$X]     | [X days]         |
+| **Total**             | **[N]** | **100%**   | **[$X]** | **[X days]**     |
 
 ---
 
 ### Deal Factor Scorecard
 
-| Factor | Avg Score (Wins) | Avg Score (Losses) | Gap | Impact Rating |
-|--------|-----------------|-------------------|-----|--------------|
-| Discovery quality | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
-| Champion strength | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
-| Economic buyer access | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
-| Competitive positioning | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
-| Proposal and business case quality | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
-| Buyer urgency and compelling event | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
-| Buying committee alignment | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
-| Pricing fit and commercial structure | [X.X / 5] | [X.X / 5] | [X.X] | [High / Med / Low] |
+| Factor                               | Avg Score (Wins) | Avg Score (Losses) | Gap   | Impact Rating      |
+| ------------------------------------ | ---------------- | ------------------ | ----- | ------------------ |
+| Discovery quality                    | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
+| Champion strength                    | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
+| Economic buyer access                | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
+| Competitive positioning              | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
+| Proposal and business case quality   | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
+| Buyer urgency and compelling event   | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
+| Buying committee alignment           | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
+| Pricing fit and commercial structure | [X.X / 5]        | [X.X / 5]          | [X.X] | [High / Med / Low] |
 
 **Impact Rating Key:** Gap ≥ 1.5 = High | Gap 0.8-1.4 = Medium | Gap < 0.8 = Low
 
@@ -238,15 +246,15 @@ a documented champion -- fixing this alone is projected to prevent 2-3 losses pe
 
 ### Factor Scoring Rubric (for consistent scoring across reviewers)
 
-| Factor | 1 -- Poor | 2 -- Below Avg | 3 -- Average | 4 -- Good | 5 -- Excellent |
-|--------|-----------|----------------|--------------|-----------|----------------|
-| **Discovery quality** | No structured discovery; rep pitched features immediately | Surface questions only; pain not quantified | Covered BANT basics; some needs identified | Uncovered core pain with business impact; tailored demo followed | Full SPIN/MEDDIC; pain quantified in $ or business KPI; discovery drove proposal content entirely |
-| **Champion strength** | No champion identified at any stage | Prospect contact is friendly but has no internal influence or authority | Contact supports the purchase but has not advocated internally | Documented champion with title/influence; has shared the business case with peers | Champion has presented to economic buyer unprompted; is actively managing internal objections |
-| **Economic buyer access** | Economic buyer never identified or contacted | EB identified but declined to meet | EB met once in a group call; no direct relationship | EB met directly; pain and ROI discussed | EB is engaged partner in the deal; called the rep directly with questions or updates |
-| **Competitive positioning** | Did not know competitors were in the deal | Named competitors but used only generic positioning | Standard differentiation delivered; not tailored to this prospect | Prospect-specific positioning addressing their stated evaluation criteria | Built a side-by-side POC or TCO model; neutralized specific competitor objections by name |
-| **Proposal and business case quality** | No formal proposal; verbal pricing only | Feature list with pricing; no business case | Standard proposal template with minimal customization | Customized proposal referencing discovery findings; includes ROI model | Champion can present the business case to EB without rep present; includes risk quantification and implementation plan |
-| **Buyer urgency / compelling event** | No urgency identified; "we'll look at this sometime" | Vague urgency; no external event creating deadline | Soft deadline tied to budget cycle | Real compelling event identified (audit, renewal, breach, mandate) | Urgency is externally imposed and time-bound; delay has a documented cost the prospect acknowledged |
-| **Buying committee alignment** | Rep spoke only to one contact; other stakeholders unknown | Stakeholders identified but not engaged | Key stakeholders met; objections partially addressed | All committee members met; success criteria documented per person | Documented buying process; all known objections addressed; no surprises at close |
+| Factor                                 | 1 -- Poor                                                            | 2 -- Below Avg                                                               | 3 -- Average                                                           | 4 -- Good                                                                                 | 5 -- Excellent                                                                                                             |
+| -------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Discovery quality**                  | No structured discovery; rep pitched features immediately            | Surface questions only; pain not quantified                                  | Covered BANT basics; some needs identified                             | Uncovered core pain with business impact; tailored demo followed                          | Full SPIN/MEDDIC; pain quantified in $ or business KPI; discovery drove proposal content entirely                          |
+| **Champion strength**                  | No champion identified at any stage                                  | Prospect contact is friendly but has no internal influence or authority      | Contact supports the purchase but has not advocated internally         | Documented champion with title/influence; has shared the business case with peers         | Champion has presented to economic buyer unprompted; is actively managing internal objections                              |
+| **Economic buyer access**              | Economic buyer never identified or contacted                         | EB identified but declined to meet                                           | EB met once in a group call; no direct relationship                    | EB met directly; pain and ROI discussed                                                   | EB is engaged partner in the deal; called the rep directly with questions or updates                                       |
+| **Competitive positioning**            | Did not know competitors were in the deal                            | Named competitors but used only generic positioning                          | Standard differentiation delivered; not tailored to this prospect      | Prospect-specific positioning addressing their stated evaluation criteria                 | Built a side-by-side POC or TCO model; neutralized specific competitor objections by name                                  |
+| **Proposal and business case quality** | No formal proposal; verbal pricing only                              | Feature list with pricing; no business case                                  | Standard proposal template with minimal customization                  | Customized proposal referencing discovery findings; includes ROI model                    | Champion can present the business case to EB without rep present; includes risk quantification and implementation plan     |
+| **Buyer urgency / compelling event**   | No urgency identified; "we'll look at this sometime"                 | Vague urgency; no external event creating deadline                           | Soft deadline tied to budget cycle                                     | Real compelling event identified (audit, renewal, breach, mandate)                        | Urgency is externally imposed and time-bound; delay has a documented cost the prospect acknowledged                        |
+| **Buying committee alignment**         | Rep spoke only to one contact; other stakeholders unknown            | Stakeholders identified but not engaged                                      | Key stakeholders met; objections partially addressed                   | All committee members met; success criteria documented per person                         | Documented buying process; all known objections addressed; no surprises at close                                           |
 | **Pricing fit / commercial structure** | Price introduced before value established; significant sticker shock | Price discussed early; value not yet anchored; prospect focused only on cost | Standard pricing delivered; some negotiation but no creative structure | Pricing model matched how prospect thinks about value; terms aligned to their fiscal year | Commercial structure differentiated the offer (payment terms, phased rollout, success-based terms); made price a non-issue |
 
 ---
@@ -257,39 +265,41 @@ a documented champion -- fixing this alone is projected to prevent 2-3 losses pe
 
 [State structural patterns with data]
 
-| Segment | Deals | Win Rate | Vs. Overall | Insight |
-|---------|-------|---------|------------|---------|
-| [Industry A] | [X] | [X%] | [+/-X pp] | [One sentence insight] |
-| [Industry B] | [X] | [X%] | [+/-X pp] | [One sentence insight] |
-| [Company size: under 200 employees] | [X] | [X%] | [+/-X pp] | [Insight] |
-| [Company size: 200-1000 employees] | [X] | [X%] | [+/-X pp] | [Insight] |
+| Segment                             | Deals | Win Rate | Vs. Overall | Insight                |
+| ----------------------------------- | ----- | -------- | ----------- | ---------------------- |
+| [Industry A]                        | [X]   | [X%]     | [+/-X pp]   | [One sentence insight] |
+| [Industry B]                        | [X]   | [X%]     | [+/-X pp]   | [One sentence insight] |
+| [Company size: under 200 employees] | [X]   | [X%]     | [+/-X pp]   | [Insight]              |
+| [Company size: 200-1000 employees]  | [X]   | [X%]     | [+/-X pp]   | [Insight]              |
 
 #### Pattern Category: Competitive
 
-| Competitor | Deals | Won | Lost | Win Rate | Primary Loss Reason | Battle Card Exists? |
-|-----------|-------|-----|------|----------|-------------------|-------------------|
-| [Competitor 1] | [X] | [X] | [X] | [X%] | [Specific reason with data] | [Yes / No] |
-| [Competitor 2] | [X] | [X] | [X] | [X%] | [Specific reason with data] | [Yes / No] |
-| No named competitor (only vs. status quo) | [X] | [X] | [X] | [X%] | [Reason] | N/A |
+| Competitor                                | Deals | Won | Lost | Win Rate | Primary Loss Reason         | Battle Card Exists? |
+| ----------------------------------------- | ----- | --- | ---- | -------- | --------------------------- | ------------------- |
+| [Competitor 1]                            | [X]   | [X] | [X]  | [X%]     | [Specific reason with data] | [Yes / No]          |
+| [Competitor 2]                            | [X]   | [X] | [X]  | [X%]     | [Specific reason with data] | [Yes / No]          |
+| No named competitor (only vs. status quo) | [X]   | [X] | [X]  | [X%]     | [Reason]                    | N/A                 |
 
 #### Pattern Category: Process
 
 [List 3-5 process patterns with data citations]
+
 1. [Pattern]: "[X of Y deals with this process characteristic had this outcome]"
 2. [Pattern]: "[X of Y deals...]"
 3. [Pattern]: "[X of Y deals...]"
 
 #### Pattern Category: Timing
 
-| Deal Timing | Deals | Won | Win Rate | Note |
-|------------|-------|-----|---------|------|
-| Closed in month 1 of quarter | [X] | [X] | [X%] | [Insight] |
-| Closed in month 2 of quarter | [X] | [X] | [X%] | [Insight] |
-| Closed in month 3 (quarter-end) | [X] | [X] | [X%] | [Insight] |
+| Deal Timing                     | Deals | Won | Win Rate | Note      |
+| ------------------------------- | ----- | --- | -------- | --------- |
+| Closed in month 1 of quarter    | [X]   | [X] | [X%]     | [Insight] |
+| Closed in month 2 of quarter    | [X]   | [X] | [X%]     | [Insight] |
+| Closed in month 3 (quarter-end) | [X]   | [X] | [X%]     | [Insight] |
 
 #### Pattern Category: Messaging
 
 [List 1-3 messaging patterns with supporting evidence from deal notes or buyer quotes]
+
 1. [Pattern with evidence]
 2. [Pattern with evidence]
 
@@ -297,23 +307,23 @@ a documented champion -- fixing this alone is projected to prevent 2-3 losses pe
 
 ### Individual Deal Reviews
 
-*(Include all deals for datasets under 10; representative sample of 4-6 for larger datasets)*
+_(Include all deals for datasets under 10; representative sample of 4-6 for larger datasets)_
 
 ---
 
 **Deal: [Company Name] | [Won / Lost -- Competitive / Lost -- No Decision / Lost -- Qualification]**
 
-| Factor | Score | Evidence |
-|--------|-------|----------|
-| Discovery quality | [X/5] | [Specific, one-sentence evidence] |
-| Champion strength | [X/5] | [Evidence] |
-| Economic buyer access | [X/5] | [Evidence] |
-| Competitive positioning | [X/5] | [Evidence] |
-| Proposal and business case quality | [X/5] | [Evidence] |
-| Buyer urgency / compelling event | [X/5] | [Evidence] |
-| Buying committee alignment | [X/5] | [Evidence] |
-| Pricing fit / commercial structure | [X/5] | [Evidence] |
-| **Total** | **[X/40]** | |
+| Factor                             | Score      | Evidence                          |
+| ---------------------------------- | ---------- | --------------------------------- |
+| Discovery quality                  | [X/5]      | [Specific, one-sentence evidence] |
+| Champion strength                  | [X/5]      | [Evidence]                        |
+| Economic buyer access              | [X/5]      | [Evidence]                        |
+| Competitive positioning            | [X/5]      | [Evidence]                        |
+| Proposal and business case quality | [X/5]      | [Evidence]                        |
+| Buyer urgency / compelling event   | [X/5]      | [Evidence]                        |
+| Buying committee alignment         | [X/5]      | [Evidence]                        |
+| Pricing fit / commercial structure | [X/5]      | [Evidence]                        |
+| **Total**                          | **[X/40]** |                                   |
 
 **Deal Archetype:** [Qualification win / Execution win / Competitive win / Momentum win / Qualification loss / Execution loss / Competitive loss / No-decision loss]
 
@@ -323,18 +333,18 @@ a documented champion -- fixing this alone is projected to prevent 2-3 losses pe
 
 ---
 
-*(Repeat block for each deal)*
+_(Repeat block for each deal)_
 
 ---
 
 ### Improvement Action Plan
 
-| Priority | Action | Pattern Evidence | Expected Impact | Success Metric | Owner | Timeline |
-|----------|--------|----------------|-----------------|----------------|-------|----------|
-| 1 | [Specific, named action] | [Data pattern that supports it] | [Projected win rate improvement or loss prevention] | [How you'll know it's working, measured at what interval] | [Specific role] | [Month / Quarter] |
-| 2 | [Action] | [Evidence] | [Impact] | [Metric] | [Role] | [Timeline] |
-| 3 | [Action] | [Evidence] | [Impact] | [Metric] | [Role] | [Timeline] |
-| 4 (if applicable) | [Action] | [Evidence] | [Impact] | [Metric] | [Role] | [Timeline] |
+| Priority          | Action                   | Pattern Evidence                | Expected Impact                                     | Success Metric                                            | Owner           | Timeline          |
+| ----------------- | ------------------------ | ------------------------------- | --------------------------------------------------- | --------------------------------------------------------- | --------------- | ----------------- |
+| 1                 | [Specific, named action] | [Data pattern that supports it] | [Projected win rate improvement or loss prevention] | [How you'll know it's working, measured at what interval] | [Specific role] | [Month / Quarter] |
+| 2                 | [Action]                 | [Evidence]                      | [Impact]                                            | [Metric]                                                  | [Role]          | [Timeline]        |
+| 3                 | [Action]                 | [Evidence]                      | [Impact]                                            | [Metric]                                                  | [Role]          | [Timeline]        |
+| 4 (if applicable) | [Action]                 | [Evidence]                      | [Impact]                                            | [Metric]                                                  | [Role]          | [Timeline]        |
 
 **Implementation Note:** [Any dependency between actions, sequencing recommendation, or resource requirement]
 
@@ -474,11 +484,13 @@ Lost deals averaged 27 days longer in cycle than won deals (94 vs. 67 days), and
 Implement a deal review checkpoint at Day 60 for any deal without a documented economic buyer meeting -- if no EB meeting has occurred and cannot be scheduled within 10 days, move the deal to a nurture track and free the rep's capacity for higher-probability opportunities. Target implementation by October 15 with Sales Manager owning the enforcement.
 
 **What Is Working:**
+
 - Discovery quality is consistently strong in won deals (avg 4.1/5 vs. 2.4/5 in losses) -- the team is effectively quantifying compliance risk in dollar terms during discovery calls, which is driving urgency and anchoring value before pricing is introduced
 - Won deals show strong champion identification: 6 of 7 won deals had a documented champion (typically VP of Engineering or Head of Security) by end of Stage 2; only 1 of 5 lost deals had a champion at any stage
 - Messaging around SOC 2 audit readiness resonates strongly -- 5 of 7 won deals cited an upcoming audit or investor due diligence as the compelling event, and the team is correctly surfacing and amplifying this urgency
 
 **What Needs to Change:**
+
 - Economic buyer access is the largest factor gap (won: 4.0/5, lost: 1.6/5, gap: 2.4) -- in 4 of 5 losses, the economic buyer was identified but never directly engaged; reps relied on the champion to carry the message upward, and the champion was either too junior or lost the internal deal
 - Against VendorPrime, the team is losing 2 of 3 deals on brand and reference customer concerns -- prospects cite VendorPrime's established presence in Series B-C SaaS as a lower-risk choice; the team has no structured reference customer program for this segment
 - ComplianceFlow losses (2 of 2) share a consistent pattern: both prospects had under 50 employees and described ComplianceFlow's self-serve, lower-cost option as "right-sized for where we are" -- indicating an ICP boundary the team is not respecting at qualification
@@ -487,30 +499,30 @@ Implement a deal review checkpoint at Day 60 for any deal without a documented e
 
 ### Deal Outcome Summary
 
-| Outcome | Count | % of Total | Avg ACV | Avg Cycle (Days) |
-|---------|-------|-----------|---------|-----------------|
-| Won | 7 | 58.3% | $42,000 | 67 days |
-| Lost -- Competitive (VendorPrime) | 3 | 25.0% | $38,000 | 89 days |
-| Lost -- Competitive (ComplianceFlow) | 2 | 16.7% | $19,500 | 72 days |
-| Lost -- No Decision | 1 | 8.3% | $45,000 | 101 days |
-| **Total** | **12** | **100%** | **$37,250** | **77 days** |
+| Outcome                              | Count  | % of Total | Avg ACV     | Avg Cycle (Days) |
+| ------------------------------------ | ------ | ---------- | ----------- | ---------------- |
+| Won                                  | 7      | 58.3%      | $42,000     | 67 days          |
+| Lost -- Competitive (VendorPrime)    | 3      | 25.0%      | $38,000     | 89 days          |
+| Lost -- Competitive (ComplianceFlow) | 2      | 16.7%      | $19,500     | 72 days          |
+| Lost -- No Decision                  | 1      | 8.3%       | $45,000     | 101 days         |
+| **Total**                            | **12** | **100%**   | **$37,250** | **77 days**      |
 
-*Note: The 2 ComplianceFlow losses average $19,500 ACV -- significantly below the team's average deal size of $42K for won deals. This is an ICP signal, not a competitive execution problem.*
+_Note: The 2 ComplianceFlow losses average $19,500 ACV -- significantly below the team's average deal size of $42K for won deals. This is an ICP signal, not a competitive execution problem._
 
 ---
 
 ### Deal Factor Scorecard
 
-| Factor | Avg Score (Wins) | Avg Score (Losses) | Gap | Impact Rating |
-|--------|-----------------|-------------------|-----|--------------|
-| Economic buyer access | 4.0 / 5 | 1.6 / 5 | **2.4** | **High** |
-| Champion strength | 4.1 / 5 | 1.8 / 5 | **2.3** | **High** |
-| Buyer urgency / compelling event | 4.3 / 5 | 2.2 / 5 | **2.1** | **High** |
-| Discovery quality | 4.1 / 5 | 2.4 / 5 | **1.7** | **High** |
-| Competitive positioning | 3.4 / 5 | 2.0 / 5 | **1.4** | **Medium** |
-| Buying committee alignment | 3.6 / 5 | 2.4 / 5 | **1.2** | **Medium** |
-| Proposal and business case quality | 3.9 / 5 | 3.1 / 5 | **0.8** | **Medium** |
-| Pricing fit / commercial structure | 3.7 / 5 | 3.2 / 5 | **0.5** | **Low** |
+| Factor                             | Avg Score (Wins) | Avg Score (Losses) | Gap     | Impact Rating |
+| ---------------------------------- | ---------------- | ------------------ | ------- | ------------- |
+| Economic buyer access              | 4.0 / 5          | 1.6 / 5            | **2.4** | **High**      |
+| Champion strength                  | 4.1 / 5          | 1.8 / 5            | **2.3** | **High**      |
+| Buyer urgency / compelling event   | 4.3 / 5          | 2.2 / 5            | **2.1** | **High**      |
+| Discovery quality                  | 4.1 / 5          | 2.4 / 5            | **1.7** | **High**      |
+| Competitive positioning            | 3.4 / 5          | 2.0 / 5            | **1.4** | **Medium**    |
+| Buying committee alignment         | 3.6 / 5          | 2.4 / 5            | **1.2** | **Medium**    |
+| Proposal and business case quality | 3.9 / 5          | 3.1 / 5            | **0.8** | **Medium**    |
+| Pricing fit / commercial structure | 3.7 / 5          | 3.2 / 5            | **0.5** | **Low**       |
 
 **Key Insight:** Pricing fit has the smallest gap (0.5) between won and lost deals, confirming that price is not the primary loss driver despite two losses to a lower-priced competitor. Those losses are ICP and urgency failures (ComplianceFlow prospects were too small and too early-stage to need the platform), not pricing failures.
 
@@ -520,21 +532,21 @@ Implement a deal review checkpoint at Day 60 for any deal without a documented e
 
 #### Pattern Category: Structural (ICP Fit)
 
-| Segment | Deals | Win Rate | Vs. Overall (58%) | Insight |
-|---------|-------|---------|-------------------|---------|
-| SaaS companies, 50-500 employees | 7 | 86% | +28 pp | Core ICP -- strong win rate, right-sized deals |
-| SaaS companies, under 50 employees | 2 | 0% | -58 pp | Both lost to ComplianceFlow; these deals should be disqualified at prospecting |
-| SaaS companies, 500+ employees | 3 | 33% | -25 pp | Losses driven by VendorPrime's enterprise reference base; longer cycle, higher risk |
+| Segment                            | Deals | Win Rate | Vs. Overall (58%) | Insight                                                                             |
+| ---------------------------------- | ----- | -------- | ----------------- | ----------------------------------------------------------------------------------- |
+| SaaS companies, 50-500 employees   | 7     | 86%      | +28 pp            | Core ICP -- strong win rate, right-sized deals                                      |
+| SaaS companies, under 50 employees | 2     | 0%       | -58 pp            | Both lost to ComplianceFlow; these deals should be disqualified at prospecting      |
+| SaaS companies, 500+ employees     | 3     | 33%      | -25 pp            | Losses driven by VendorPrime's enterprise reference base; longer cycle, higher risk |
 
 **Structural Conclusion:** The 50-500 employee SaaS segment is the clear ICP sweet spot for this quarter. Deals outside that range are consuming disproportionate sales capacity with much lower win rates. Adding company size as a hard disqualification criterion below 50 employees would have eliminated 2 losses this quarter without losing any wins.
 
 #### Pattern Category: Competitive
 
-| Competitor | Deals | Won | Lost | Win Rate | Primary Loss Reason | Battle Card Exists? |
-|-----------|-------|-----|------|----------|-------------------|-------------------|
-| VendorPrime | 3 | 1 | 2 | 33% | Brand trust / reference customers in prospect's stage (Series B-C SaaS) | No -- generic only |
-| ComplianceFlow | 2 | 0 | 2 | 0% | Prospect was below ICP size threshold; ComplianceFlow's self-serve model was right-sized | No |
-| No named competitor (status quo) | 7 | 6 | 1 | 86% | 1 no-decision loss: urgency was artificial, no compelling event ever confirmed | N/A |
+| Competitor                       | Deals | Won | Lost | Win Rate | Primary Loss Reason                                                                      | Battle Card Exists? |
+| -------------------------------- | ----- | --- | ---- | -------- | ---------------------------------------------------------------------------------------- | ------------------- |
+| VendorPrime                      | 3     | 1   | 2    | 33%      | Brand trust / reference customers in prospect's stage (Series B-C SaaS)                  | No -- generic only  |
+| ComplianceFlow                   | 2     | 0   | 2    | 0%       | Prospect was below ICP size threshold; ComplianceFlow's self-serve model was right-sized | No                  |
+| No named competitor (status quo) | 7     | 6   | 1    | 86%      | 1 no-decision loss: urgency was artificial, no compelling event ever confirmed           | N/A                 |
 
 **VendorPrime Note:** The 1 win against VendorPrime came from a prospect who had a prior negative experience with VendorPrime's implementation timeline and was actively seeking an alternative. The rep surfaced this during discovery and ran a "speed to compliance" play, emphasizing the platform's guided implementation path and 60-day SOC 2 readiness guarantee. This play should be codified as a VendorPrime displacement motion.
 
@@ -549,11 +561,11 @@ Implement a deal review checkpoint at Day 60 for any deal without a documented e
 
 #### Pattern Category: Timing
 
-| Deal Timing | Deals | Won | Win Rate | Note |
-|------------|-------|-----|---------|------|
-| Closed in July (month 1) | 3 | 3 | 100% | All 3 were strong-ICP, well-qualified deals from Q2 pipeline |
-| Closed in August (month 2) | 4 | 3 | 75% | Normal performance; 1 loss to VendorPrime |
-| Closed in September (month 3, quarter-end) | 5 | 1 | 20% | 4 losses in final month; 3 were deals that should have been disqualified earlier; 1 was the no-decision |
+| Deal Timing                                | Deals | Won | Win Rate | Note                                                                                                    |
+| ------------------------------------------ | ----- | --- | -------- | ------------------------------------------------------------------------------------------------------- |
+| Closed in July (month 1)                   | 3     | 3   | 100%     | All 3 were strong-ICP, well-qualified deals from Q2 pipeline                                            |
+| Closed in August (month 2)                 | 4     | 3   | 75%      | Normal performance; 1 loss to VendorPrime                                                               |
+| Closed in September (month 3, quarter-end) | 5     | 1   | 20%      | 4 losses in final month; 3 were deals that should have been disqualified earlier; 1 was the no-decision |
 
 **Timing Insight:** The September cluster of losses is consistent with pipeline padding -- deals that were unlikely to close were kept active through Q3 to show activity, then collapsed at quarter-end. This inflates the denominator and distorts win rate. Recommend reviewing pipeline exit criteria to remove deals that have missed 2+ milestone checkpoints without exception approval.
 
@@ -570,9 +582,10 @@ Implement a deal review checkpoint at Day 60 for any deal without a documented e
 
 **Deal: Meridian Data (Series B SaaS, 180 employees) | Won**
 
-| Factor | Score | Evidence |
-|--------|-------|----------|
-| Discovery quality | 5/5 | Rep ran 3 discovery sessions; quantified cost of a failed SOC 2 audit at $380K in deferred enterprise revenue from 2 prospects requiring compliance certification |
-| Champion strength | 5/5 | VP of Engineering (Maya Torres) presented the platform's ROI model to the CFO and CEO without rep involvement; secured budget reallocation from a deferred DevOps hire |
-| Economic buyer access | 4/5 | CFO joined final business case presentation; reviewed and approved commercial terms directly |
+| Factor                | Score | Evidence                                                                                                                                                               |
+| --------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Discovery quality     | 5/5   | Rep ran 3 discovery sessions; quantified cost of a failed SOC 2 audit at $380K in deferred enterprise revenue from 2 prospects requiring compliance certification      |
+| Champion strength     | 5/5   | VP of Engineering (Maya Torres) presented the platform's ROI model to the CFO and CEO without rep involvement; secured budget reallocation from a deferred DevOps hire |
+| Economic buyer access | 4/5   | CFO joined final business case presentation; reviewed and approved commercial terms directly                                                                           |
+
 | Competitive positioning

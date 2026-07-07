@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance tax-planning guide"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance tax-planning guide'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Property Tax Appeals
@@ -19,7 +19,6 @@ metadata:
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
 
 ## When to Use
-
 
 ## Process
 
@@ -34,14 +33,15 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on property tax appeals
 - User asks about property tax appeals best practices or techniques
 - User wants a structured approach to property tax appeals
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of property tax appeals
-
 
 ## Questions to Ask First
 
@@ -74,7 +74,9 @@ Example:
 ```
 
 ### Assessment Ratio by Approach
+
 Different states use different assessment ratios:
+
 - **100% of market value:** Most common (TX, CA, many others)
 - **Partial value:** Some states assess at 80%, 50%, 33%, or other fractions
 - **Classified assessment:** Different rates for residential, commercial, agricultural
@@ -82,6 +84,7 @@ Different states use different assessment ratios:
 **Always compare assessed values to actual market values using your state's assessment ratio.**
 
 ### Key Assessment Terms
+
 - **Market Value:** What a property would sell for in an arm's-length transaction
 - **Assessed Value:** Value assigned by the assessor for tax purposes
 - **Assessment Ratio:** Percentage of market value used for taxation
@@ -99,18 +102,18 @@ Your property record card (also called property data card) contains the assessor
 
 **Review for factual errors:**
 
-| Data Point | Verify Against | Common Errors |
-|-----------|---------------|---------------|
-| Square footage | Your own measurement or survey | Overstated living area, including unfinished space |
-| Lot size | Survey or deed | Incorrect acreage or lot dimensions |
-| Bedroom count | Physical count | Counting offices or bonus rooms as bedrooms |
-| Bathroom count | Physical count | Incorrect half/full bath count |
-| Year built | Actual records | Wrong year affecting depreciation calculations |
-| Construction quality | Visual assessment | Rated as higher grade than actual |
-| Condition | Visual assessment | Not reflecting deferred maintenance or issues |
-| Basement | Physical assessment | Counting unfinished as finished space |
-| Garage | Physical assessment | Wrong size or type |
-| Amenities | Physical assessment | Listing amenities that do not exist (pool, fireplace) |
+| Data Point           | Verify Against                 | Common Errors                                         |
+| -------------------- | ------------------------------ | ----------------------------------------------------- |
+| Square footage       | Your own measurement or survey | Overstated living area, including unfinished space    |
+| Lot size             | Survey or deed                 | Incorrect acreage or lot dimensions                   |
+| Bedroom count        | Physical count                 | Counting offices or bonus rooms as bedrooms           |
+| Bathroom count       | Physical count                 | Incorrect half/full bath count                        |
+| Year built           | Actual records                 | Wrong year affecting depreciation calculations        |
+| Construction quality | Visual assessment              | Rated as higher grade than actual                     |
+| Condition            | Visual assessment              | Not reflecting deferred maintenance or issues         |
+| Basement             | Physical assessment            | Counting unfinished as finished space                 |
+| Garage               | Physical assessment            | Wrong size or type                                    |
+| Amenities            | Physical assessment            | Listing amenities that do not exist (pool, fireplace) |
 
 **Factual errors are the easiest appeals to win.** If your property card has incorrect data, the assessor often corrects without a formal hearing.
 
@@ -133,6 +136,7 @@ Your property is assessed at a higher percentage of market value than comparable
 You purchased the property for less than the assessed value in an arm's-length transaction (strongest evidence of market value).
 
 **5. Physical Condition Issues**
+
 - Structural deficiencies
 - Environmental contamination
 - Flooding or drainage problems
@@ -141,6 +145,7 @@ You purchased the property for less than the assessed value in an arm's-length t
 
 **6. External Obsolescence**
 Value-reducing factors outside your property:
+
 - Proximity to commercial or industrial use
 - Traffic noise, highway proximity
 - Power lines or cell towers nearby
@@ -150,6 +155,7 @@ Value-reducing factors outside your property:
 
 **7. Functional Obsolescence**
 Layout or design features that reduce value:
+
 - Outdated floor plan
 - Bedroom accessible only through another bedroom
 - No first-floor bathroom
@@ -163,6 +169,7 @@ Layout or design features that reduce value:
 ### Finding Comparable Properties
 
 **Sources for comparable data:**
+
 - County assessor's website (assessed values of all properties are public record)
 - MLS data (ask a real estate agent or use public records)
 - Zillow, Redfin, Realtor.com (recent sales)
@@ -171,6 +178,7 @@ Layout or design features that reduce value:
 ### Comparable Selection Criteria
 
 Select 3-6 comparable properties that:
+
 - Are in the same neighborhood or assessment district
 - Sold within the last 6-12 months (recent sales carry more weight)
 - Are similar in size, age, style, and condition
@@ -245,6 +253,7 @@ You can use one or both approaches in your appeal.
 ### Organizing Your Evidence
 
 **Create a clear, professional presentation:**
+
 1. Cover page with property address, current assessment, and your proposed value
 2. Summary of your argument (one page)
 3. Property record card with corrections noted
@@ -259,19 +268,20 @@ You can use one or both approaches in your appeal.
 
 ### Typical Appeal Timeline
 
-| Step | Timing | Action |
-|------|--------|--------|
-| Assessment notices mailed | Varies by jurisdiction | Review your notice immediately |
-| Informal review period | 2-6 weeks after notice | Contact assessor's office to discuss |
-| Formal appeal deadline | 30-90 days after notice (strict) | File written appeal |
-| Hearing scheduled | 2-8 weeks after filing | Prepare presentation |
-| Hearing held | Scheduled date | Present your case |
-| Decision issued | 2-8 weeks after hearing | Review result |
-| Further appeal (if needed) | 30-60 days after decision | File with next level (state board or court) |
+| Step                       | Timing                           | Action                                      |
+| -------------------------- | -------------------------------- | ------------------------------------------- |
+| Assessment notices mailed  | Varies by jurisdiction           | Review your notice immediately              |
+| Informal review period     | 2-6 weeks after notice           | Contact assessor's office to discuss        |
+| Formal appeal deadline     | 30-90 days after notice (strict) | File written appeal                         |
+| Hearing scheduled          | 2-8 weeks after filing           | Prepare presentation                        |
+| Hearing held               | Scheduled date                   | Present your case                           |
+| Decision issued            | 2-8 weeks after hearing          | Review result                               |
+| Further appeal (if needed) | 30-60 days after decision        | File with next level (state board or court) |
 
 ### Appeal Levels (Typical Hierarchy)
 
 **Level 1: Informal Review**
+
 - Contact the assessor's office directly
 - Discuss your concerns and present evidence
 - Many errors and minor overassessments are resolved here
@@ -279,6 +289,7 @@ You can use one or both approaches in your appeal.
 - Always try this first
 
 **Level 2: Local Board of Review / Board of Equalization**
+
 - Formal hearing before a local review board
 - Present your evidence and argument
 - Board members may ask questions
@@ -286,12 +297,14 @@ You can use one or both approaches in your appeal.
 - Most common formal appeal level
 
 **Level 3: State Tax Tribunal / Board of Tax Appeals**
+
 - More formal proceeding
 - May involve legal representation
 - Longer timeline
 - For significant disputes or when local board decision seems wrong
 
 **Level 4: Court (Tax Court or Circuit Court)**
+
 - Last resort
 - Requires legal representation
 - Expensive and time-consuming
@@ -304,6 +317,7 @@ You can use one or both approaches in your appeal.
 ### Presentation Tips
 
 **Do:**
+
 - Be organized, professional, and respectful
 - Present facts and data, not emotions
 - Focus on comparable properties and documented evidence
@@ -314,6 +328,7 @@ You can use one or both approaches in your appeal.
 - Thank the board for their time
 
 **Do Not:**
+
 - Complain about the tax rate or how taxes are spent
 - Compare your property to non-comparable properties
 - Make emotional arguments ("I can't afford my taxes")
@@ -384,6 +399,7 @@ Break-Even Analysis:
 ```
 
 ### When Appealing Makes the Most Sense
+
 - Factual errors exist on your property record card
 - Assessment is 10%+ above likely market value
 - You purchased recently for less than assessed value
@@ -392,6 +408,7 @@ Break-Even Analysis:
 - Your property has documented condition issues
 
 ### When It May Not Be Worth Appealing
+
 - Assessment is within 5% of market value
 - Potential savings are under $200/year
 - You have no comparable evidence
@@ -401,6 +418,7 @@ Break-Even Analysis:
 ### Professional Help: When to Hire
 
 **Property tax attorney or consultant:**
+
 - For assessed values over $500,000
 - Complex commercial properties
 - When potential savings exceed $2,000/year
@@ -433,6 +451,7 @@ Before or in addition to appealing your assessed value, verify you are receiving
 ## Annual Assessment Monitoring
 
 After your appeal (whether successful or not), continue monitoring:
+
 - Review your assessment notice every year when it arrives
 - Track comparable sales in your neighborhood
 - Note any changes that might affect value (positive or negative)
@@ -440,7 +459,6 @@ After your appeal (whether successful or not), continue monitoring:
 - Mark appeal deadlines on your calendar each year
 
 Property tax assessment is not a one-time event. Market conditions change, assessment methods evolve, and errors can occur at any reassessment. Stay informed and proactive.
-
 
 ## Output Format
 
@@ -454,13 +472,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with property tax appeals for a mid-size project."
 
 **Output:** A complete property tax appeals framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

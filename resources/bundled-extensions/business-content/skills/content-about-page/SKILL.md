@@ -37,11 +37,11 @@ attribution:
 
 # Content About Page - The DR About-Page Arc
 
-> *"The About page is the second-most-visited page on most business websites. It is also the page most people write about themselves. That is the mistake. The reader came to find out if you can help them - not to read your career summary."* - Sean Donahoe, 28 years direct response
+> _"The About page is the second-most-visited page on most business websites. It is also the page most people write about themselves. That is the mistake. The reader came to find out if you can help them - not to read your career summary."_ - Sean Donahoe, 28 years direct response
 
 The standard About page fails because the writer centers themselves. It opens with their name, walks through their history, lists their credentials, and closes with a photo caption. The reader - who arrived because they have a problem and are deciding whether to trust you with it - is nowhere in the document.
 
-Direct response inverts this. The About page opens with the reader's problem, tells a story in which the writer experienced the same problem and found a path, proves the path with results, and closes with an explicit next step. The writer is still the subject - but they are in the role of the guide who has already walked the road the reader is about to travel. Every section serves the reader's decision: *"Is this person going to be able to help me?"*
+Direct response inverts this. The About page opens with the reader's problem, tells a story in which the writer experienced the same problem and found a path, proves the path with results, and closes with an explicit next step. The writer is still the subject - but they are in the role of the guide who has already walked the road the reader is about to travel. Every section serves the reader's decision: _"Is this person going to be able to help me?"_
 
 This skill builds that page.
 
@@ -50,12 +50,14 @@ This skill builds that page.
 Trigger phrases: "write my about page", "rewrite my about page", "about page copy", "my story page", "website about section", "personal brand about", `/content about-page <seller>`.
 
 Use when:
+
 - A website About page exists but every paragraph begins with "I" and ends with a credential
 - Someone is building a personal brand site from scratch and needs the trust-anchor page before launch
 - A consultant, coach, or founder's About page has good story material but no structural DR scaffolding - it reads like memoir, not conversion
 - The page generates traffic but no subscriber/inquiry conversions despite being well-written prose
 
 Do NOT use for:
+
 - A bio (50-400 words) - use `content-bio`; the About page pulls from the Tier 3 bio as a seed, not a replacement
 - A homepage hero - that's a different conversion problem; use `convert-above-fold`
 - A full long-form sales page - use `convert-sales-page`; the About page is the trust layer, the sales page is the close layer
@@ -74,6 +76,7 @@ The page opens not with "Hi, I'm [Name]" but with a description of the problem t
 The hook is 2-3 short paragraphs max. Its only job is to make the reader say "yes, that's me" before they've read a single credential. This is the Nerve Strike from the Donahoe Method: name the pain with enough specificity that the reader feels understood before they feel sold.
 
 Specifications:
+
 - Opens in second person ("You") or present-tense scene-setting
 - Names the specific problem (not "you're struggling with marketing"; "you have a Facebook ad with 140,000 impressions and 11 sales")
 - No writer credentials in Section 1 - the reader hasn't earned the right to hear them yet
@@ -90,6 +93,7 @@ This section makes an implicit promise: I found the path. I can show you the pat
 The StoryBrand frame (Donald Miller, 2017) positions the writer as "the guide" and the reader as "the hero." The DR inversion: the guide's discovery story is itself a mini-sales letter. It must hook (the moment of failure), show the path (the discovery), and hint at the outcome (the transformation) before the proof section confirms it.
 
 Specifications:
+
 - Specific time and situation: month, year, what was happening
 - Named failure or confusion (not just "I struggled")
 - Named discovery or mechanism (the specific thing learned, the specific turn)
@@ -108,6 +112,7 @@ Proof in the About page is not a wall of logos or a list of company names. It's 
 Order: result first, story second, authority third. The reader trusts results more than credentials. Credentials without results read as defensive.
 
 Specifications:
+
 - At least one number, one story fragment, one authority reference
 - 300-400 words total for the section
 - No "leading expert," "thought leader," "passionate about," "world-class"
@@ -116,11 +121,12 @@ Specifications:
 
 **Job:** Articulate the writer's distinct point of view on how the problem is solved - the Fingerprint that makes this guide different from every other guide.
 
-Most About pages skip this section entirely. They go from proof to "here's how to work with me." The skip is a mistake. The reader needs to understand not just that the writer has results, but *why* the writer's approach works differently from everything the reader has already tried. This is where the contrarian take, the reframe, the "most people do X but I do Y" moment lives.
+Most About pages skip this section entirely. They go from proof to "here's how to work with me." The skip is a mistake. The reader needs to understand not just that the writer has results, but _why_ the writer's approach works differently from everything the reader has already tried. This is where the contrarian take, the reframe, the "most people do X but I do Y" moment lives.
 
 This section is the Fingerprint from the Donahoe Method embedded into the trust asset. It is brief - 100-150 words - but it is the moment the reader decides the writer is worth their time specifically, not just generically credible.
 
 Examples of what lives here:
+
 - "Most financial consultants optimize for compliance. I optimize for story - because the story is what investors fund."
 - "Most marketers build campaigns. I build conversion architecture. Campaigns run out of money; architecture compounds."
 
@@ -133,6 +139,7 @@ An About page that tries to serve everyone closes no one. Explicitly naming the 
 This section names the right reader and, briefly, the wrong reader. The wrong reader is named with respect - not rejection, just redirection. "If you're looking for someone to run your ads for you, I'm not that. If you're looking for someone to build the conversion system your ads run into, we should talk."
 
 Specifications:
+
 - Named situation, not named demographic ("a 7-figure founder 6 months from a raise" not "entrepreneurs")
 - Right reader: 2-3 sentences
 - Wrong reader: 1-2 sentences (redirect, not rejection)
@@ -147,6 +154,7 @@ The close is a single, specific action. Not "feel free to reach out." Not "explo
 The close follows the same pattern as every DR close: state the action, name the outcome of the action, defuse the friction. "Book a 30-minute intro call → you'll leave knowing whether we're a fit and what the first 90 days would look like. No pitch. No homework. Just a conversation." Three sentences. One action. One outcome. One defused objection.
 
 Specifications:
+
 - Single action only - one CTA
 - Outcome stated ("you'll leave knowing...")
 - Friction defused ("no card required", "no pitch", "it takes 90 seconds")
@@ -155,6 +163,7 @@ Specifications:
 ## Inputs
 
 Required:
+
 1. **The seller** - name, what they do, who they serve
 2. **The reader's problem** - the specific pain or situation the page visitor is in
 3. **The discovery story material** - the specific moment/year/situation when the seller found the path (not a career summary; a scene)
@@ -163,6 +172,7 @@ Required:
 6. **The close action** - what should the reader do next, and what do they get?
 
 Optional:
+
 - **Existing About page** - paste for structural diagnosis before rewriting
 - **Tone guidance** - conversational / formal / irreverent (defaults to conversational DR voice)
 - **Target reader description** - the right person + the wrong person
@@ -186,6 +196,7 @@ The skill produces:
 ---
 
 **Section 1 (Hook - Reader's Problem):**
+
 > You have a pipeline problem. Not a traffic problem.
 >
 > Your ads are running. The demos are booking. Your SDR team is hitting their call targets. And yet the conversion from demo to paid has been 8% - or 7%, or 9% - for the last six months, and you're not sure if the next dollar of ad spend is the answer or just a louder version of the same question.
@@ -197,6 +208,7 @@ The skill produces:
 ---
 
 **Section 6 (Close):**
+
 > If any of that sounds familiar, the next step is a 30-minute architecture call.
 >
 > You'll walk in with your current demo-to-paid conversion rate and the three things you've already tried to fix it. You'll walk out knowing exactly where the hole is and what closing it is worth in annual revenue. No pitch. No proposal. No homework. Just the diagnosis.
@@ -217,14 +229,14 @@ The skill produces:
 
 ## DR Fundamentals Mapped
 
-| DR Element | Section | Mechanism |
-|------------|---------|-----------|
-| Hook | Section 1 - Reader's Problem | Nerve Strike: names the pain with specificity before any credential |
-| Promise | Section 2 - Discovery Story | Guide-as-path: implicit promise that the seller has already found what the reader is looking for |
-| Proof | Section 3 - Results and Authority | Cialdini social proof + authority: result first, story second, credential third |
-| Fingerprint | Section 4 - The Inversion | Donahoe Method Layer 4: the only-this-guide POV that differentiates |
-| Qualification | Section 5 - Who This Is For | Direct-response list hygiene: qualified reader converts; unqualified reader self-exits |
-| Close | Section 6 - Next Step | Single action + outcome + defused objection; no ambiguity |
+| DR Element    | Section                           | Mechanism                                                                                        |
+| ------------- | --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Hook          | Section 1 - Reader's Problem      | Nerve Strike: names the pain with specificity before any credential                              |
+| Promise       | Section 2 - Discovery Story       | Guide-as-path: implicit promise that the seller has already found what the reader is looking for |
+| Proof         | Section 3 - Results and Authority | Cialdini social proof + authority: result first, story second, credential third                  |
+| Fingerprint   | Section 4 - The Inversion         | Donahoe Method Layer 4: the only-this-guide POV that differentiates                              |
+| Qualification | Section 5 - Who This Is For       | Direct-response list hygiene: qualified reader converts; unqualified reader self-exits           |
+| Close         | Section 6 - Next Step             | Single action + outcome + defused objection; no ambiguity                                        |
 
 ## The About Page Rewrite Workflow
 
@@ -234,14 +246,14 @@ When an existing About page is provided, run this diagnostic before rewriting:
 
 Identify which of the six sections exists in the current draft and which is missing:
 
-| Section | Present? | Quality | Primary failure mode |
-|---------|----------|---------|----------------------|
-| Reader's Problem (Hook) | Yes / No | - | Page opens with "Hi, I'm [Name]" |
-| Discovery Story (Promise) | Yes / No | - | Career summary instead of scene |
-| Proof | Yes / No | - | Vague credentials, no numbers |
-| The Inversion (Fingerprint) | Yes / No | - | Missing entirely |
-| Who This Is For | Yes / No | - | Missing or too broad |
-| Next Step (Close) | Yes / No | - | Soft close or no close |
+| Section                     | Present? | Quality | Primary failure mode             |
+| --------------------------- | -------- | ------- | -------------------------------- |
+| Reader's Problem (Hook)     | Yes / No | -       | Page opens with "Hi, I'm [Name]" |
+| Discovery Story (Promise)   | Yes / No | -       | Career summary instead of scene  |
+| Proof                       | Yes / No | -       | Vague credentials, no numbers    |
+| The Inversion (Fingerprint) | Yes / No | -       | Missing entirely                 |
+| Who This Is For             | Yes / No | -       | Missing or too broad             |
+| Next Step (Close)           | Yes / No | -       | Soft close or no close           |
 
 Most existing About pages have a partial Section 2 (career history mislabeled as a story) and a partial Section 3 (credential list without result proof). Sections 1, 4, 5, and 6 are usually entirely absent.
 
@@ -252,6 +264,7 @@ Read the first three paragraphs. Count how many times the word "I" appears vs. t
 ### Step 3 - Specificity pass
 
 Every vague claim in the existing draft gets flagged for replacement:
+
 - "Years of experience" → specific years + specific situation
 - "Hundreds of clients" → specific number + specific context
 - "Helped businesses grow" → specific result + specific type of business
@@ -322,12 +335,12 @@ Does the existing page end with a specific action? If it ends with "Feel free to
 ## Lineage
 
 - **The Donahoe Method** (Wayland-owned operating system) - hook/promise/proof/close as the structural spine; Fingerprint as Section 4
-- *Donald Miller, StoryBrand (2017)* - "you are the guide, not the hero" frame, inverted here into DR sales narrative: the guide's own discovery story is the proof of path
-- *Eugene Schwartz, Breakthrough Advertising (1966)* - market sophistication: the reader has already heard the generic claims; the About page must show something they haven't seen
-- *Gary Halbert, The Boron Letters (1984)* - the reader is always asking "what's in it for me?"; even an About page must answer that question on every page
-- *Michael Hyatt, Platform (2012)* - the About page as the trust anchor of the personal brand platform
-- *Joseph Sugarman, AdWeek Copywriting Handbook (1998)* - every sentence's purpose is to get the next one read; applied to section-to-section momentum
-- *Marie Forleo* - personal brand authenticity and story-as-trust: the discovery story must be true to earn the trust it's designed to generate
+- _Donald Miller, StoryBrand (2017)_ - "you are the guide, not the hero" frame, inverted here into DR sales narrative: the guide's own discovery story is the proof of path
+- _Eugene Schwartz, Breakthrough Advertising (1966)_ - market sophistication: the reader has already heard the generic claims; the About page must show something they haven't seen
+- _Gary Halbert, The Boron Letters (1984)_ - the reader is always asking "what's in it for me?"; even an About page must answer that question on every page
+- _Michael Hyatt, Platform (2012)_ - the About page as the trust anchor of the personal brand platform
+- _Joseph Sugarman, AdWeek Copywriting Handbook (1998)_ - every sentence's purpose is to get the next one read; applied to section-to-section momentum
+- _Marie Forleo_ - personal brand authenticity and story-as-trust: the discovery story must be true to earn the trust it's designed to generate
 
 ## Notes
 

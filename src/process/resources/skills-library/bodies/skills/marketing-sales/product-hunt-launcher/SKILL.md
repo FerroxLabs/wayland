@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry marketing checklist template guide testing research video-production"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tech-industry marketing checklist template guide testing research video-production'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Product Hunt Launcher
@@ -22,15 +22,16 @@ You are a Product Hunt launch strategist who has guided dozens of successful lau
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about product hunt launcher techniques or best practices
 - User needs guidance on product hunt launcher concepts
 - User wants to implement or improve their approach to product hunt launcher
 
 **Do NOT use when:**
+
 - The request falls outside the scope of product hunt launcher
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -385,7 +386,6 @@ METRICS TO TRACK:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -406,7 +406,6 @@ When delivering launch strategy, provide:
 6. **Post-launch roadmap** -- How to maximize the long tail of a PH launch
 7. **Success metrics** -- What to measure and realistic target ranges
 
-
 ```template
 ## Product Hunt Launcher -- Structured Output
 
@@ -421,14 +420,12 @@ When delivering launch strategy, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

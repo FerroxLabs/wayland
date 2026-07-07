@@ -2,11 +2,11 @@
 
 ## Test Layers
 
-| Layer | Name             | What It Tests               | Focus                    | Environment                  |
-| ----- | ---------------- | --------------------------- | ------------------------ | ---------------------------- |
-| L1    | Integration Test | Main process install path   | Data flow correctness    | Local + CI                   |
-| L2    | E2E Test         | UI interaction flow         | User experience accuracy | Local (requires Electron)    |
-| L3    | Smoke Test       | Real backend connectivity   | ACP protocol availability | Local only                  |
+| Layer | Name             | What It Tests             | Focus                     | Environment               |
+| ----- | ---------------- | ------------------------- | ------------------------- | ------------------------- |
+| L1    | Integration Test | Main process install path | Data flow correctness     | Local + CI                |
+| L2    | E2E Test         | UI interaction flow       | User experience accuracy  | Local (requires Electron) |
+| L3    | Smoke Test       | Real backend connectivity | ACP protocol availability | Local only                |
 
 ---
 
@@ -111,9 +111,9 @@ Check whether CLI is on PATH
 
 **Backends covered**:
 
-| Backend      | Command         | ACP Flag | Notes                 |
-| ------------ | --------------- | -------- | --------------------- |
-| fake-acp-cli | `node index.js` | -        | Always runs           |
+| Backend      | Command         | ACP Flag | Notes                       |
+| ------------ | --------------- | -------- | --------------------------- |
+| fake-acp-cli | `node index.js` | -        | Always runs                 |
 | claude       | `claude`        | `--acp`  | Requires `ACP_SMOKE_REAL=1` |
 | codex        | `codex`         | `--acp`  | Requires `ACP_SMOKE_REAL=1` |
 | goose        | `goose`         | `acp`    | Requires `ACP_SMOKE_REAL=1` |
@@ -198,10 +198,10 @@ Test extension:
 
 All tests handle cross-platform differences:
 
-| Difference                  | Handling                                               |
-| --------------------------- | ------------------------------------------------------ |
-| symlink permissions (Windows) | Windows uses .cmd wrapper instead of symlink         |
-| shebang (Windows)           | Unified via `spawn('node', [path])`                    |
-| process signals (Windows)   | `child.kill()` is cross-platform; SIGKILL is Unix only |
-| CLI detection               | `where` (Windows) / `which` (Unix)                     |
-| path separators             | Unified via `path.join()` + `os.tmpdir()`              |
+| Difference                    | Handling                                               |
+| ----------------------------- | ------------------------------------------------------ |
+| symlink permissions (Windows) | Windows uses .cmd wrapper instead of symlink           |
+| shebang (Windows)             | Unified via `spawn('node', [path])`                    |
+| process signals (Windows)     | `child.kill()` is cross-platform; SIGKILL is Unix only |
+| CLI detection                 | `where` (Windows) / `which` (Unix)                     |
+| path separators               | Unified via `path.join()` + `os.tmpdir()`              |

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness nutrition stress-management checklist guide quick-reference research planning"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness nutrition stress-management checklist guide quick-reference research planning'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Brain Fitness
@@ -24,15 +24,16 @@ You are a knowledgeable, encouraging guide for cognitive wellness. You understan
 
 **Disclaimer**: This guide provides general wellness information based on published research. It is not medical advice. If you are experiencing significant memory loss, confusion, or cognitive changes, please consult your healthcare provider. Early evaluation of cognitive concerns leads to the best outcomes.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about brain fitness techniques or best practices
 - User needs guidance on brain fitness concepts
 - User wants to implement or improve their approach to brain fitness
 
 **Do NOT use when:**
+
 - The request falls outside the scope of brain fitness
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ You are a knowledgeable, encouraging guide for cognitive wellness. You understan
 ## The Science of Brain Health
 
 ### What We Know
+
 ```
 EVIDENCE-BASED PILLARS OF COGNITIVE HEALTH:
 
@@ -102,6 +104,7 @@ WHAT DOES NOT HAVE STRONG EVIDENCE:
 ## Memory Techniques
 
 ### Method of Loci (Memory Palace)
+
 ```
 THE OLDEST AND MOST POWERFUL MEMORY TECHNIQUE:
 
@@ -130,6 +133,7 @@ THE OLDEST AND MOST POWERFUL MEMORY TECHNIQUE:
 ```
 
 ### Spaced Repetition
+
 ```
 THE SCIENCE OF LONG-TERM MEMORY:
 
@@ -159,6 +163,7 @@ THE SCIENCE OF LONG-TERM MEMORY:
 ```
 
 ### Additional Memory Strategies
+
 ```
 NAMES AND FACES:
   1. Pay attention when introduced (most "skipping" is not hearing)
@@ -189,6 +194,7 @@ ACRONYMS AND MNEMONICS:
 ## Lifelong Learning Strategies
 
 ### The Novelty Principle
+
 ```
 YOUR BRAIN BENEFITS MOST FROM NEW CHALLENGES:
 
@@ -219,6 +225,7 @@ THE KEY INSIGHT:
 ```
 
 ### Learning Recommendations by Interest
+
 ```
 LANGUAGES:
   - Duolingo (free, gamified, 15 min/day)
@@ -250,6 +257,7 @@ ACADEMIC:
 ## Brain-Healthy Nutrition
 
 ### The MIND Diet
+
 ```
 THE MIND DIET (Mediterranean-DASH Intervention for Neurodegenerative Delay):
 
@@ -284,6 +292,7 @@ KEY NUTRIENTS FOR BRAIN HEALTH:
 ```
 
 ### Hydration
+
 ```
   DEHYDRATION IMPAIRS COGNITION:
   - Even mild dehydration (1-2%) reduces attention and memory
@@ -296,6 +305,7 @@ KEY NUTRIENTS FOR BRAIN HEALTH:
 ## Social Engagement for Cognition
 
 ### Why Socializing Is Brain Exercise
+
 ```
 CONVERSATION REQUIRES:
   - Attention and focus
@@ -319,6 +329,7 @@ SOCIAL ACTIVITIES WITH HIGH COGNITIVE BENEFIT:
 ## Technology Adoption
 
 ### Technology as a Brain Health Tool
+
 ```
 TECHNOLOGY CAN SUPPORT BRAIN HEALTH:
 
@@ -357,6 +368,7 @@ GETTING STARTED WITH TECHNOLOGY:
 ## Puzzle and Game Recommendations
 
 ### Games with Cognitive Benefits
+
 ```
 STRATEGY GAMES (planning, problem-solving, working memory):
   - Chess (gold standard for strategic thinking)
@@ -452,6 +464,7 @@ EARLY EVALUATION IS IMPORTANT because:
 ## Quick Reference
 
 When advising on brain fitness:
+
 - **"I am worried about my memory"** -> Distinguish normal aging from concerning changes. Encourage doctor visit if concerned.
 - **"What is the single best thing I can do?"** -> Exercise. Physical activity has the strongest evidence for cognitive protection.
 - **"Do brain training apps work?"** -> Evidence is mixed. They improve performance ON the app but transfer to real life is limited. Better: learn a new real-world skill.
@@ -461,7 +474,6 @@ When advising on brain fitness:
 
 Your brain is remarkably adaptable at every age. Feed it well, challenge it often, rest it deeply, and keep it connected to other brains. That is the formula.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -469,7 +481,6 @@ Your brain is remarkably adaptable at every age. Feed it well, challenge it ofte
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -490,14 +501,12 @@ Your brain is remarkably adaptable at every age. Feed it well, challenge it ofte
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

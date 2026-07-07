@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production design"
-  category: "design-creative"
-  subcategory: "video-animation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production design'
+  category: 'design-creative'
+  subcategory: 'video-animation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Animation Creator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on animation creator
 - User asks about animation creator best practices or techniques
 - User wants a structured approach to animation creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of animation creator
 
@@ -62,52 +63,68 @@ Before providing animation guidance:
 These principles, codified by Disney animators Frank Thomas and Ollie Johnston, are the foundation of all animation regardless of medium.
 
 ### 1. Squash and Stretch
+
 The most important principle. Objects deform when they move -- they squash on impact and stretch during fast movement. This gives weight, flexibility, and life to animated objects.
+
 - A bouncing ball squashes flat on the ground and stretches tall in the air
 - A character's face stretches when surprised, squashes when impacted
 - Maintain consistent volume: as an object stretches taller, it gets narrower
 
 ### 2. Anticipation
+
 Before a major action, there is a preparatory movement in the opposite direction. A character crouches before jumping, pulls back before throwing, inhales before speaking. Anticipation tells the audience something is about to happen and makes the action readable.
 
 ### 3. Staging
+
 Present an idea so it is unmistakably clear. Use composition, timing, and camera angle to direct the audience's attention to the most important action. One action at a time. Do not let secondary actions compete with the primary one.
 
 ### 4. Straight Ahead vs Pose to Pose
+
 Two approaches to creating animation:
+
 - **Straight ahead**: Draw frame by frame in sequence. Produces fluid, spontaneous movement. Harder to control timing and proportions. Good for effects animation (fire, water, smoke).
 - **Pose to pose**: Plan key poses first, then fill in the in-between frames. Better control of timing and structure. Standard for character animation. Most professional animation uses this approach.
 
 ### 5. Follow Through and Overlapping Action
+
 Not everything on a character stops at the same time.
+
 - **Follow through**: When a character stops, loose elements continue moving (hair, clothing, tail, ears).
 - **Overlapping action**: Different parts of the body move at different rates. Arms arrive after the torso. Hair follows the head with a delay.
 - This creates organic, believable movement.
 
 ### 6. Slow In and Slow Out
+
 Movement rarely starts or stops abruptly. Objects ease into motion (slow out from a pose) and ease to a stop (slow in to a pose). More in-between frames near the key poses, fewer in the middle of the movement. This follows real physics and feels natural.
 
 ### 7. Arcs
+
 Natural movement follows curved paths, not straight lines. A hand waving follows an arc. A head turning follows an arc. A ball thrown follows a parabolic arc. Track the path of action for every moving element and ensure it curves naturally.
 
 ### 8. Secondary Action
+
 Supporting actions that reinforce the main action without distracting from it. A character walks (primary) while whistling and swinging their arms (secondary). Secondary actions add richness and personality.
 
 ### 9. Timing
+
 The speed of an action communicates its nature. Fewer frames between poses = faster movement (snappy, energetic). More frames = slower movement (heavy, gentle, deliberate). Timing is what separates amateur from professional animation. Study timing charts and experiment constantly.
 
 ### 10. Exaggeration
+
 Push poses, expressions, and timing beyond realistic proportions to make them clearer and more entertaining. A surprised character's eyes do not just widen -- they bulge. A heavy object does not just fall -- it craters. The degree of exaggeration sets the style (subtle for realistic, extreme for cartoony).
 
 ### 11. Solid Drawing / Solid Posing
+
 Characters should feel three-dimensional with weight, depth, and balance even in 2D animation. Avoid "twins" -- symmetrical poses where both arms and both legs do the same thing. Understand form, perspective, and anatomy. In 3D, this translates to strong pose design and silhouette readability.
 
 ### 12. Appeal
+
 Characters should be interesting to watch. This does not mean attractive -- a villain can have appeal. Appeal comes from clear design, readable silhouettes, personality in movement, and intentional style. The audience should want to keep watching.
 
 ## Frame Rates and Timing
 
 ### Standard Frame Rates
+
 - **24 fps**: Film standard. Most animation is produced at this rate.
 - **25 fps**: PAL standard (Europe, Australia).
 - **30 fps**: NTSC standard (North America, Japan). Common for web and broadcast.
@@ -115,6 +132,7 @@ Characters should be interesting to watch. This does not mean attractive -- a vi
 - **60 fps**: Smooth motion for games and some web content.
 
 ### Ones, Twos, and Threes
+
 - **On ones**: A unique drawing for every frame (24 drawings per second at 24fps). Extremely smooth. Used for fast action, subtle movement, and high-budget production.
 - **On twos**: A unique drawing every other frame (12 drawings per second at 24fps). Standard for most 2D animation. Slightly snappier feel.
 - **On threes**: A unique drawing every third frame (8 drawings per second at 24fps). Limited, stylized. Used in anime and budget-conscious production.
@@ -124,6 +142,7 @@ Mix these within a single shot: slow, subtle movements on twos or threes, fast a
 ## 2D Animation Pipeline
 
 ### Pre-Production
+
 1. **Concept and script**: Define the story, gag, or message
 2. **Character design**: Model sheets with front, side, three-quarter views, expressions, and key poses
 3. **Storyboard**: Rough panel-by-panel representation of the story with camera directions
@@ -132,6 +151,7 @@ Mix these within a single shot: slow, subtle movements on twos or threes, fast a
 6. **Audio recording**: Record dialogue and scratch music before animating. Animation is timed to audio, not the reverse.
 
 ### Production
+
 1. **Key animation (key poses)**: Block in the most important poses that define the movement
 2. **Breakdowns**: The transition poses between keys that define the path of motion
 3. **In-betweens**: Fill in remaining frames for smooth motion
@@ -141,6 +161,7 @@ Mix these within a single shot: slow, subtle movements on twos or threes, fast a
 7. **Compositing**: Layer characters over backgrounds, add lighting and atmosphere
 
 ### 2D Software Options
+
 - **Toon Boom Harmony**: Industry standard for professional 2D. Powerful rigging, effects, and compositing. Expensive.
 - **TVPaint**: Traditional frame-by-frame focused. Loved by hand-drawn animators.
 - **Clip Studio Paint**: Affordable, excellent for frame-by-frame with a drawing focus.
@@ -152,11 +173,14 @@ Mix these within a single shot: slow, subtle movements on twos or threes, fast a
 ## 3D Animation Pipeline
 
 ### Pre-Production
+
 Same as 2D through the animatic stage. Additionally:
+
 - **Concept art**: Visual development for characters, environments, and props
 - **Reference gathering**: Collect reference images, videos, and motion reference for every element
 
 ### Production
+
 1. **Modeling**: Create 3D geometry for characters, props, and environments
 2. **Texturing/Surfacing**: Apply materials, colors, and surface detail
 3. **Rigging**: Build the skeleton and control system that animators will use to pose characters
@@ -166,6 +190,7 @@ Same as 2D through the animatic stage. Additionally:
 7. **Compositing**: Combine render passes (diffuse, specular, shadow, ambient occlusion) and add final touches
 
 ### 3D Software Options
+
 - **Blender**: Free, full-featured, massive community. Suitable for all stages of 3D production. Highly recommended for independent creators.
 - **Maya**: Industry standard for character animation and VFX. Subscription-based. Deep rigging and animation tools.
 - **Cinema 4D**: Strong for motion graphics and design-oriented 3D. Excellent After Effects integration.
@@ -173,7 +198,9 @@ Same as 2D through the animatic stage. Additionally:
 - **ZBrush**: Digital sculpting. Used for character modeling and high-detail organic forms.
 
 ### Rigging Basics
+
 A rig is the skeleton and control system inside a 3D model:
+
 - **Bones/Joints**: The skeleton hierarchy. Parent-child relationships define how parts move together.
 - **IK (Inverse Kinematics)**: Move the hand and the arm follows. Used for limbs that interact with the environment.
 - **FK (Forward Kinematics)**: Rotate from the shoulder out. Used for overlapping action and flowing movements.
@@ -184,6 +211,7 @@ A rig is the skeleton and control system inside a 3D model:
 ## Motion Graphics vs Character Animation
 
 ### Motion Graphics
+
 - Focuses on graphic elements: text, shapes, icons, data visualization
 - Typically shorter format: title sequences, explainers, social media
 - Design-driven: typography, color, composition are primary
@@ -191,6 +219,7 @@ A rig is the skeleton and control system inside a 3D model:
 - Primary tools: After Effects, Cinema 4D, Blender (motion graphics nodes)
 
 ### Character Animation
+
 - Focuses on bringing characters to life with personality and emotion
 - Requires understanding of acting, body mechanics, and physics
 - Performance-driven: the character must feel like a thinking, feeling being
@@ -198,6 +227,7 @@ A rig is the skeleton and control system inside a 3D model:
 - Primary tools: Maya, Blender, Toon Boom, TVPaint
 
 ### Where They Overlap
+
 - Animated explainers with character hosts
 - Brand mascot animation
 - Animated music videos
@@ -207,12 +237,14 @@ A rig is the skeleton and control system inside a 3D model:
 ## After Effects Animation Workflow
 
 ### Setting Up for Animation
+
 1. Create a composition at your target resolution and frame rate
 2. Import assets: Illustrator files (import as composition to retain layers), Photoshop files, image sequences
 3. Organize layers with color labels and clear naming
 4. Pre-compose groups of related layers to keep the timeline manageable
 
 ### Essential Animation Techniques in AE
+
 - **Keyframe types**: Linear (constant speed), Easy Ease (natural acceleration/deceleration), Bezier (custom curves)
 - **Graph Editor**: The most important panel for quality animation. Control the exact velocity and value curves of every property.
 - **Parenting**: Link layers so child layers follow parent movement. Essential for building character hierarchies.
@@ -221,6 +253,7 @@ A rig is the skeleton and control system inside a 3D model:
 - **Shape layers**: Vector-based shapes with powerful animation controls (trim paths, merge paths, repeater).
 
 ### Motion Graphics Principles
+
 - **Easing**: Never use linear keyframes for organic motion. Ease in and out of every movement.
 - **Overshoot**: Elements arrive at their destination and slightly overshoot before settling. Adds energy and polish.
 - **Offset and delay**: Stagger the timing of multiple elements. Everything arriving simultaneously looks robotic.
@@ -230,12 +263,14 @@ A rig is the skeleton and control system inside a 3D model:
 ## Blender Animation Workflow
 
 ### Setting Up a Scene
+
 1. Set frame rate in Output Properties (24, 25, or 30fps)
 2. Import or create your assets
 3. Set up the camera and basic lighting
 4. Open the Dope Sheet or Graph Editor alongside the 3D viewport
 
 ### Animating in Blender
+
 1. Go to frame 1. Pose your character or object.
 2. Select the properties to keyframe (location, rotation, scale) and press I to insert keyframe.
 3. Move to the next key frame. Adjust the pose. Insert another keyframe.
@@ -244,6 +279,7 @@ A rig is the skeleton and control system inside a 3D model:
 6. Use the Dope Sheet to adjust timing by moving keyframes.
 
 ### Blender-Specific Tips
+
 - **Auto-keying**: Enable to automatically create keyframes when you transform objects (useful but can create unwanted keys -- use carefully)
 - **NLA Editor**: Non-Linear Animation editor for combining and blending animation clips
 - **Grease Pencil**: Blender's built-in 2D animation system, fully integrated into the 3D environment
@@ -253,6 +289,7 @@ A rig is the skeleton and control system inside a 3D model:
 ## Building Animation Skills
 
 ### Essential Exercises (in order)
+
 1. **Bouncing ball**: Master timing, spacing, squash and stretch, and arcs
 2. **Bouncing ball with personality**: Same exercise but make the ball feel heavy, light, excited, or tired
 3. **Pendulum**: Overlapping action and follow-through
@@ -262,12 +299,14 @@ A rig is the skeleton and control system inside a 3D model:
 7. **Dialogue shot**: Lip sync and acting. The test of character animation skill.
 
 ### Study Methods
+
 - **Frame-by-frame analysis**: Download animation you admire and step through it frame by frame. Study the spacing and poses.
 - **Video reference**: Film yourself or others performing the action you want to animate. Use it as reference, not as rotoscope.
 - **Thumbnail sketches**: Before animating, sketch small quick pose drawings to plan the movement.
 - **Animation journals**: Keep notes on techniques you learn, mistakes you made, and breakthroughs you had.
 
 ### Online Learning Resources
+
 - **Animator's Survival Kit** by Richard Williams (essential reading)
 - **The Illusion of Life** by Thomas and Johnston (the Disney principles bible)
 - **11 Second Club**: Monthly dialogue animation competition with community feedback
@@ -277,11 +316,13 @@ A rig is the skeleton and control system inside a 3D model:
 ## Rendering and Output
 
 ### 2D Output
+
 - Export as image sequence (PNG) for maximum quality and flexibility
 - Composite image sequence into video in your editing software or After Effects
 - Final export: H.264 for web, ProRes for quality archival
 
 ### 3D Render Settings
+
 - **Resolution**: Match your delivery format (1920x1080, 3840x2160)
 - **Samples**: Higher = cleaner image, longer render. Start with 128 and increase as needed.
 - **Render passes**: Separate diffuse, specular, shadow, AO for compositing flexibility
@@ -289,11 +330,12 @@ A rig is the skeleton and control system inside a 3D model:
 - **Denoising**: AI-based denoising (OptiX, OIDN) allows lower sample counts with clean results
 
 ### Render Farm Options
+
 For projects where local rendering is too slow:
+
 - **SheepIt**: Free, community-powered render farm for Blender
 - **Render.st, GarageFarm, RebusFarm**: Paid cloud rendering services
 - **Your own network**: Use multiple computers on a local network for distributed rendering
-
 
 ## Output Format
 
@@ -307,13 +349,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with animation creator for a mid-size project."
 
 **Output:** A complete animation creator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

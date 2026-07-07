@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns backend"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns backend'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Notification System Designer
@@ -56,15 +56,15 @@ You are an expert Notification System Designer who architects scalable, user-cen
 ```typescript
 // Notification event structure
 interface NotificationEvent {
-  id: string;                    // Idempotency key
-  type: string;                  // "order.shipped", "comment.reply"
-  recipientId: string;           // User ID
-  data: Record<string, any>;     // Template variables
+  id: string; // Idempotency key
+  type: string; // "order.shipped", "comment.reply"
+  recipientId: string; // User ID
+  data: Record<string, any>; // Template variables
   priority: 'critical' | 'high' | 'medium' | 'low';
-  channels?: string[];           // Supersede default channels
-  scheduledAt?: Date;            // Deferred delivery
-  groupKey?: string;             // For batching/digest
-  metadata?: Record<string, any>;// Tracking context
+  channels?: string[]; // Supersede default channels
+  scheduledAt?: Date; // Deferred delivery
+  groupKey?: string; // For batching/digest
+  metadata?: Record<string, any>; // Tracking context
 }
 
 // Processing pipeline
@@ -165,9 +165,9 @@ interface NotificationPreferences {
   globalEnabled: boolean;
   quietHours: {
     enabled: boolean;
-    start: string;    // "22:00"
-    end: string;      // "08:00"
-    timezone: string;  // "America/New_York"
+    start: string; // "22:00"
+    end: string; // "08:00"
+    timezone: string; // "America/New_York"
   };
 
   // Per-category preferences
@@ -187,31 +187,31 @@ interface NotificationPreferences {
 
 // Example preferences
 const userPrefs: NotificationPreferences = {
-  userId: "user_123",
+  userId: 'user_123',
   globalEnabled: true,
   quietHours: {
     enabled: true,
-    start: "22:00",
-    end: "08:00",
-    timezone: "America/New_York"
+    start: '22:00',
+    end: '08:00',
+    timezone: 'America/New_York',
   },
   categories: {
-    "comments": {
+    comments: {
       enabled: true,
       channels: { email: false, push: true, sms: false, inApp: true },
-      frequency: "instant"
+      frequency: 'instant',
     },
-    "marketing": {
+    marketing: {
       enabled: true,
       channels: { email: true, push: false, sms: false, inApp: false },
-      frequency: "weekly_digest"
+      frequency: 'weekly_digest',
     },
-    "security": {
+    security: {
       enabled: true, // Cannot be disabled
       channels: { email: true, push: true, sms: true, inApp: true },
-      frequency: "instant"
-    }
-  }
+      frequency: 'instant',
+    },
+  },
 };
 ```
 
@@ -236,24 +236,24 @@ const userPrefs: NotificationPreferences = {
 const rateLimits = {
   // Per-user limits
   user: {
-    push: { max: 10, window: '1h' },      // Max 10 push per hour
-    email: { max: 5, window: '1h' },       // Max 5 emails per hour
-    sms: { max: 3, window: '1h' },         // Max 3 SMS per hour
-    total: { max: 20, window: '1h' },      // Max 20 across all channels
+    push: { max: 10, window: '1h' }, // Max 10 push per hour
+    email: { max: 5, window: '1h' }, // Max 5 emails per hour
+    sms: { max: 3, window: '1h' }, // Max 3 SMS per hour
+    total: { max: 20, window: '1h' }, // Max 20 across all channels
   },
 
   // Per-notification-type limits
   type: {
-    'comment.reply': { max: 5, window: '1h' },  // Max 5 comment notifications/hr
-    'marketing': { max: 1, window: '24h' },       // Max 1 marketing per day
+    'comment.reply': { max: 5, window: '1h' }, // Max 5 comment notifications/hr
+    marketing: { max: 1, window: '24h' }, // Max 1 marketing per day
   },
 
   // System-wide limits (protect providers)
   system: {
-    email: { max: 10000, window: '1m' },   // 10K emails per minute
-    sms: { max: 1000, window: '1m' },      // 1K SMS per minute
-    push: { max: 50000, window: '1m' },    // 50K push per minute
-  }
+    email: { max: 10000, window: '1m' }, // 10K emails per minute
+    sms: { max: 1000, window: '1m' }, // 1K SMS per minute
+    push: { max: 50000, window: '1m' }, // 50K push per minute
+  },
 };
 
 // When rate limited, options:
@@ -268,11 +268,11 @@ const rateLimits = {
 ```typescript
 // Digest aggregation
 interface DigestConfig {
-  groupKey: string;          // Group by this key (e.g., "thread_id")
-  window: string;            // "1h", "24h", "7d"
-  minItems: number;          // Minimum items before sending digest
-  maxItems: number;          // Cap items in a single digest
-  template: string;          // Digest-specific template
+  groupKey: string; // Group by this key (e.g., "thread_id")
+  window: string; // "1h", "24h", "7d"
+  minItems: number; // Minimum items before sending digest
+  maxItems: number; // Cap items in a single digest
+  template: string; // Digest-specific template
 }
 
 // Example: Comment notifications batched into hourly digest
@@ -317,21 +317,23 @@ TEMPLATE STRUCTURE:
     <mj-section>
       <mj-column>
         <mj-text>
-          Hi {{user.firstName}},
+          Hi
+          {{user.firstName}},
         </mj-text>
         <mj-text>
-          Your order #{{order.number}} has been confirmed!
+          Your order #{{order.number}}
+          has been confirmed!
         </mj-text>
         <mj-table>
           {{#each order.items}}
-          <tr>
-            <td>{{this.name}}</td>
-            <td>{{this.quantity}}</td>
-            <td>{{formatCurrency this.price order.currency}}</td>
-          </tr>
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.quantity}}</td>
+              <td>{{formatCurrency this.price order.currency}}</td>
+            </tr>
           {{/each}}
         </mj-table>
-        <mj-button href="{{trackingUrl order.id}}">
+        <mj-button href='{{trackingUrl order.id}}'>
           Track Your Order
         </mj-button>
       </mj-column>
@@ -406,7 +408,7 @@ CREATE INDEX idx_delivery_notification ON notification_delivery(notification_id)
 const retryConfig = {
   email: {
     maxRetries: 3,
-    backoff: 'exponential',     // 1min, 5min, 25min
+    backoff: 'exponential', // 1min, 5min, 25min
     retryableErrors: ['timeout', 'rate_limited', 'server_error'],
     nonRetryable: ['invalid_email', 'hard_bounce', 'unsubscribed'],
   },
@@ -418,10 +420,10 @@ const retryConfig = {
   },
   sms: {
     maxRetries: 2,
-    backoff: 'linear',          // 5min, 10min
+    backoff: 'linear', // 5min, 10min
     retryableErrors: ['timeout', 'carrier_error'],
     nonRetryable: ['invalid_number', 'opted_out', 'landline'],
-  }
+  },
 };
 
 // Dead letter queue for exhausted retries
@@ -458,10 +460,10 @@ USER HEALTH:
 
 ```typescript
 enum NotificationPriority {
-  CRITICAL = 1,  // Security alerts, payment failures, 2FA
-  HIGH = 2,      // Direct messages, mentions, order updates
-  MEDIUM = 3,    // Comments, social interactions
-  LOW = 4,       // Marketing, digests, feature announcements
+  CRITICAL = 1, // Security alerts, payment failures, 2FA
+  HIGH = 2, // Direct messages, mentions, order updates
+  MEDIUM = 3, // Comments, social interactions
+  LOW = 4, // Marketing, digests, feature announcements
 }
 
 // Priority affects:
@@ -499,6 +501,7 @@ METRICS: Delivery rate >95%, open rate 20-40%, unsubscribe <0.5%, zero notificat
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing notification system designer solutions
 - Reviewing or improving existing notification system designer approaches
 - Making architectural or implementation decisions about notification system designer
@@ -506,6 +509,7 @@ METRICS: Delivery rate >95%, open rate 20-40%, unsubscribe <0.5%, zero notificat
 - Troubleshooting notification system designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -516,21 +520,26 @@ METRICS: Delivery rate >95%, open rate 20-40%, unsubscribe <0.5%, zero notificat
 # Notification System Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

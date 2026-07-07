@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks template advanced api-design testing analysis research"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks template advanced api-design testing analysis research'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Pricing Architect
@@ -22,15 +22,16 @@ You are an expert in pricing strategy who helps businesses and freelancers set p
 
 **IMPORTANT DISCLAIMER: This skill provides general pricing strategy education and frameworks. It is NOT business, legal, or financial advice. Pricing decisions involve legal considerations (antitrust, price discrimination laws, contractual obligations) that vary by jurisdiction and industry. Consult qualified legal and financial professionals for specific pricing decisions.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pricing architect techniques or best practices
 - User needs guidance on pricing architect concepts
 - User wants to implement or improve their approach to pricing architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of pricing architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,13 +64,13 @@ PHASE 4: OPTIMIZATION    - Implement with pricing psychology and iterate
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Value-Based Pricing | B2B; high-differentiation; consulting/services | Price based on the value delivered, not what it costs you | Requires deep understanding of customer economics; hard to quantify for consumer products |
-| Cost-Plus Pricing | Manufacturing; commodities; regulated industries | Ensure all costs are covered plus a margin; simple to calculate | Ignores customer value and willingness to pay; leaves money on the table |
-| Competitive Pricing | Commodity markets; price-sensitive segments | Price relative to competitors; match, undercut, or premium position | Creates race to the bottom; assumes competitors priced correctly |
-| Freemium Model | SaaS; digital products; network effects | Free tier acquires users at scale; convert a percentage to paid | Low conversion rates (2-5% typical); can anchor customers at $0 |
-| Willingness-to-Pay Research (Van Westendorp, Gabor-Granger) | New products; price optimization; any segment | Directly measure what customers will actually pay through structured research | Hypothetical responses may differ from actual behavior; requires sample size |
+| Approach                                                    | Best For                                         | Key Insight                                                                   | Limitation                                                                                |
+| ----------------------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Value-Based Pricing                                         | B2B; high-differentiation; consulting/services   | Price based on the value delivered, not what it costs you                     | Requires deep understanding of customer economics; hard to quantify for consumer products |
+| Cost-Plus Pricing                                           | Manufacturing; commodities; regulated industries | Ensure all costs are covered plus a margin; simple to calculate               | Ignores customer value and willingness to pay; leaves money on the table                  |
+| Competitive Pricing                                         | Commodity markets; price-sensitive segments      | Price relative to competitors; match, undercut, or premium position           | Creates race to the bottom; assumes competitors priced correctly                          |
+| Freemium Model                                              | SaaS; digital products; network effects          | Free tier acquires users at scale; convert a percentage to paid               | Low conversion rates (2-5% typical); can anchor customers at $0                           |
+| Willingness-to-Pay Research (Van Westendorp, Gabor-Granger) | New products; price optimization; any segment    | Directly measure what customers will actually pay through structured research | Hypothetical responses may differ from actual behavior; requires sample size              |
 
 ## Phase 1: Value Map
 
@@ -341,14 +342,14 @@ PROPOSED CHANGES:
 
 ### Common Pricing Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Pricing based on cost, not value | Easiest to calculate; feels "fair" | Complete the Value Map; price at 10-30% of value created |
-| Pricing too low out of fear | Fear of rejection; imposter syndrome | Test a higher price; you can always lower it; much harder to raise |
-| One price for everyone | Simplicity; not recognizing segment differences | Design tiers or packaging for different segments |
-| Never raising prices | Fear of losing customers | Raise prices for new customers first; grandfather existing at old rate |
-| Hourly pricing for services | Industry convention; clients expect it | Transition to project or value-based pricing; scope outcomes not hours |
-| Free tier too generous | Wanting users; fear they will not sign up otherwise | Free tier should create desire for paid; give enough to taste value, not enough to satisfy |
+| Mistake                          | Why It Happens                                      | Fix                                                                                        |
+| -------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Pricing based on cost, not value | Easiest to calculate; feels "fair"                  | Complete the Value Map; price at 10-30% of value created                                   |
+| Pricing too low out of fear      | Fear of rejection; imposter syndrome                | Test a higher price; you can always lower it; much harder to raise                         |
+| One price for everyone           | Simplicity; not recognizing segment differences     | Design tiers or packaging for different segments                                           |
+| Never raising prices             | Fear of losing customers                            | Raise prices for new customers first; grandfather existing at old rate                     |
+| Hourly pricing for services      | Industry convention; clients expect it              | Transition to project or value-based pricing; scope outcomes not hours                     |
+| Free tier too generous           | Wanting users; fear they will not sign up otherwise | Free tier should create desire for paid; give enough to taste value, not enough to satisfy |
 
 ## Further Reading
 
@@ -362,7 +363,6 @@ For deeper exploration of the source methodologies:
 
 The Price Architecture Framework gives you a systematic approach to one of the most consequential decisions in business - ensuring your prices reflect the value you create and the market you serve.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -370,7 +370,6 @@ The Price Architecture Framework gives you a systematic approach to one of the m
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -391,14 +390,12 @@ The Price Architecture Framework gives you a systematic approach to one of the m
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

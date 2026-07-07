@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml journaling habits research energy-efficiency best-practices cleaning savings"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml journaling habits research energy-efficiency best-practices cleaning savings'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Personal Knowledge Manager
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is starting from scratch and wants to build their first knowledge management system -- including tool selection, folder structure, and daily workflow
 - A user has an existing PKM that is not working -- notes are never retrieved, the inbox is thousands of items deep, or the weekly review has been abandoned for months
 - A user wants to compare PARA, Zettelkasten, GTD, or Building a Second Brain (BASB) and select the right methodology for their role and cognitive style
@@ -30,6 +32,7 @@ metadata:
 - A user asks about specific PKM concepts: progressive summarization, Maps of Content (MOCs), evergreen notes, linked thinking, or the collector's fallacy
 
 **Do NOT use when:**
+
 - The user needs project management or task tracking advice without a knowledge component -- use a dedicated productivity or project management skill instead
 - The user is asking about enterprise knowledge management, wikis, or documentation for teams -- this skill covers personal systems; organizational KM is a separate domain
 - The user needs academic research methodology (systematic literature reviews, citation management at scale, peer review workflows) -- that requires a research methodology skill
@@ -162,46 +165,59 @@ When delivering a PKM recommendation, structure the output as follows:
 ### PARA Structure for This User
 
 ```
+
 Projects/
-  [3-5 example active projects relevant to the user's context]
+[3-5 example active projects relevant to the user's context]
 Areas/
-  [4-6 example areas relevant to the user's role]
+[4-6 example areas relevant to the user's role]
 Resources/
-  [4-6 example resource topics the user mentioned]
+[4-6 example resource topics the user mentioned]
 Archive/
-  [Note: everything completed or inactive moves here]
+[Note: everything completed or inactive moves here]
+
 ```
 
 ### Note Templates
 
 **Permanent Note Template:**
 ```
+
 Title: [Specific claim or concept as a complete phrase]
 Created: [date]
 Tags: [type::concept] [domain::X] [status::draft]
+
 ---
+
 [Main idea in 1-3 paragraphs, entirely in your own words]
 
 **Source:** [Author, title, year -- no raw URL]
 **Connected to:** [[Note A]] because [explicit reason] | [[Note B]] because [explicit reason]
 **Questions this raises:** [1-2 open questions for further investigation]
+
 ```
 
 **Meeting Note Template:**
 ```
+
 Meeting: [Topic] | Date: [date] | Attendees: [names]
 Context: [1 sentence on why this meeting happened]
+
 ---
+
 **Key Decisions:**
+
 - [Decision 1 -- who owns it]
 
 **Action Items:**
+
 - [ ] [Action] -- [Owner] -- [Deadline]
 
 **Follow-up Questions:**
+
 - [Question that needs resolution]
 
 **Linked to:** [[Project]] [[Area]]
+
 ```
 
 ---
@@ -350,6 +366,7 @@ A user migrating from Notion has several specific challenges: Notion's export pr
 ## Example
 
 **User Input:**
+
 > "I'm a content strategist at a tech company. I read about 10 articles per day, take notes in a Google Doc that's now 80 pages long, have 1,200 unread Pocket saves, and a Notion workspace I set up two years ago that I basically never use. I'm trying to write a newsletter on AI and marketing but I can never find what I've already researched when I'm writing. My biggest frustration is sitting down to write and having to re-research everything from scratch."
 
 ---
@@ -370,12 +387,12 @@ A user migrating from Notion has several specific challenges: Notion's export pr
 
 ### Recommended Methodology Stack
 
-| Layer        | Methodology           | Purpose                                    | Tool                    |
-|--------------|-----------------------|--------------------------------------------|-------------------------|
-| Organization | PARA                  | Structure notes around newsletter outputs  | Obsidian                |
-| Reading      | Progressive Summarization | Extract signal from 10 articles/day  | Readwise Reader         |
-| Thinking     | Zettelkasten          | Build permanent knowledge on AI + marketing | Obsidian               |
-| Action       | GTD (lightweight)     | Manage newsletter issues as projects       | Obsidian (Tasks plugin) |
+| Layer        | Methodology               | Purpose                                     | Tool                    |
+| ------------ | ------------------------- | ------------------------------------------- | ----------------------- |
+| Organization | PARA                      | Structure notes around newsletter outputs   | Obsidian                |
+| Reading      | Progressive Summarization | Extract signal from 10 articles/day         | Readwise Reader         |
+| Thinking     | Zettelkasten              | Build permanent knowledge on AI + marketing | Obsidian                |
+| Action       | GTD (lightweight)         | Manage newsletter issues as projects        | Obsidian (Tasks plugin) |
 
 **Rationale:** Your core problem is output-oriented -- you write a newsletter and cannot find your research when you need it. PARA should be structured around your newsletter topics and active issues as Projects. The Zettelkasten layer solves the specific frustration you described: permanent notes with descriptive titles are searchable by claim, so when you sit down to write about AI and personalization, a full-text search returns every note you have ever made on that specific intersection. Readwise Reader replaces Pocket and eliminates the 1,200-item backlog problem permanently.
 
@@ -386,6 +403,7 @@ A user migrating from Notion has several specific challenges: Notion's export pr
 **Primary PKM tool:** Obsidian -- local Markdown files, excellent full-text search, and Dataview queries let you pull all notes tagged for a specific newsletter topic into a single view when writing.
 
 **Capture tools:**
+
 - Web articles: Readwise Reader (replaces Pocket -- highlights sync automatically to Obsidian via the Readwise Official plugin)
 - Mobile quick-capture: Drafts app with an action to append to your Obsidian daily note
 - Research rabbit holes: Obsidian Quick Note shortcut directly into daily note inbox
@@ -394,6 +412,7 @@ A user migrating from Notion has several specific challenges: Notion's export pr
 **Sync:** Obsidian Sync ($4/month) or iCloud -- required for iPhone/Mac continuity.
 
 **Tools to stop using:**
+
 - Google Doc (migrate top 20 most-referenced sections to Obsidian permanent notes this week; archive the rest)
 - Pocket (cancel the subscription; export what you need, import into Readwise Reader, delete the rest)
 - Notion (archive the workspace; do not migrate it -- the structure is wrong for this workflow and migration cost exceeds value)
@@ -429,6 +448,7 @@ Archive/
 ### Note Templates
 
 **Permanent Note Template (for AI + Marketing insights):**
+
 ```
 Title: [Specific claim -- e.g., "First-party data outperforms modeled audiences
         in conversion rate by 3x in cookieless environments"]
@@ -450,6 +470,7 @@ Source topic: AI personalization | Newsletter relevance: Issue 48
 ```
 
 **Newsletter Research Note (for collecting before writing):**
+
 ```
 Newsletter Issue: [Number + Topic]
 Target publish date: [date]
@@ -479,6 +500,7 @@ Target publish date: [date]
 **During day (zero added time):** Save articles to Readwise Reader instead of Pocket. Highlight 3-5 passages maximum per article while reading -- apply the RESCUEE filter before highlighting. Use Drafts to send quick thoughts to the Obsidian daily note.
 
 **Evening (15 min):** Apply the 3-question processing protocol to every item in today's daily note:
+
 1. Actionable within 14 days? → Add to Newsletter Issue project or Task list
 2. Useful for specific active newsletter issue or Area? → File in PARA
 3. Does this change or extend what I believe about AI or marketing? → Write a permanent note
@@ -486,10 +508,11 @@ Target publish date: [date]
 On Tuesdays (newsletter writing day), run a Dataview query: `FROM #domain::ai-marketing WHERE status = "draft"` to surface all relevant permanent notes before writing. You should never need to re-research from scratch -- the query does it for you.
 
 **3-Question Processing Protocol (apply to every inbox item):**
+
 1. Actionable within 14 days? → Next Actions / Projects
 2. Useful for active Project or Area? → File in PARA
 3. Changes or extends what I know? → Create permanent note
-None of the above? → Trash immediately.
+   None of the above? → Trash immediately.
 
 ---
 
@@ -512,15 +535,16 @@ None of the above? → Trash immediately.
 
 **Example scoring for a typical content strategist at this volume:**
 
-| Source | Relevance | Uniqueness | Signal | Actionability | Score | Action |
-|--------|-----------|------------|--------|---------------|-------|--------|
-| MIT Tech Review | 5 | 4 | 3 | 3 | 15 | Keep -- weekly batch read |
-| Marketing Week | 4 | 3 | 3 | 4 | 14 | Keep -- reduce to 2x/week |
-| Generic AI hype newsletter | 2 | 1 | 2 | 2 | 7 | Cut immediately |
-| Podcast: Practical AI | 5 | 4 | 4 | 3 | 16 | Keep -- walk listen + Snipd |
-| Twitter/X AI accounts | 3 | 2 | 2 | 2 | 9 | Cut or max 15 min/day |
+| Source                     | Relevance | Uniqueness | Signal | Actionability | Score | Action                      |
+| -------------------------- | --------- | ---------- | ------ | ------------- | ----- | --------------------------- |
+| MIT Tech Review            | 5         | 4          | 3      | 3             | 15    | Keep -- weekly batch read   |
+| Marketing Week             | 4         | 3          | 3      | 4             | 14    | Keep -- reduce to 2x/week   |
+| Generic AI hype newsletter | 2         | 1          | 2      | 2             | 7     | Cut immediately             |
+| Podcast: Practical AI      | 5         | 4          | 4      | 3             | 16    | Keep -- walk listen + Snipd |
+| Twitter/X AI accounts      | 3         | 2          | 2      | 2             | 9     | Cut or max 15 min/day       |
 
 **Consumption limits for your workflow:**
+
 - Newsletters: Maximum 5 in active Readwise Reader inbox
 - Podcasts: Maximum 3 in rotation (use Snipd to capture clips that auto-sync to Readwise)
 - Articles: Read in one 45-minute batch at 2:00 PM, not throughout the day
@@ -534,6 +558,7 @@ None of the above? → Trash immediately.
 ### 30/60/90 Day Implementation Plan
 
 **Days 1-30 (Foundation -- stop the bleeding, build the base):**
+
 - [ ] Install Obsidian and create PARA folder structure (2 hours, Day 1)
 - [ ] Install plugins: Readwise Official, Dataview, Templater, Tasks (1 hour, Day 1)
 - [ ] Set up Readwise Reader and migrate from Pocket -- save the export but stop processing the backlog
@@ -542,6 +567,7 @@ None of the above? → Trash immediately.
 - [ ] Create 20 permanent notes (5 per week) -- these will form the kernel of your newsletter research vault
 
 **Days 30-60 (Habit formation -- retrieval starts working):**
+
 - [ ] Daily processing habit stable (20 min/day, fewer than 3 missed days per week)
 - [ ] Create your first AI + Marketing MOC with links to all permanent notes created so far
 - [ ] Write one newsletter issue entirely from PKM notes -- measure time saved vs. previous process
@@ -549,6 +575,7 @@ None of the above? → Trash immediately.
 - [ ] Complete first monthly review
 
 **Days 60-90 (Output and retrieval -- the system proves its value):**
+
 - [ ] Permanent note count: 60+ notes
 - [ ] Retrieval test: sit down to write a newsletter issue -- can you produce an outline in under 15 minutes using only PKM search and MOC? Target: yes.
 - [ ] Produce one piece of content that goes beyond the newsletter (a thread, a short report, or a guest post) sourced entirely from PKM permanent notes
@@ -561,11 +588,13 @@ None of the above? → Trash immediately.
 **Your highest risk failure mode:** Collector's fallacy -- your history with 1,200 unread Pocket saves and an 80-page unstructured Google Doc shows a strong capture instinct with an underdeveloped processing instinct. The new system is designed to make processing non-optional.
 
 **Preventive habits:**
+
 1. The Readwise Reader inbox cap: never let saved-but-unread articles exceed 20. When you hit 20, process before saving more. This is a hard stop, not a soft guideline.
 2. The permanent note gate: before you are allowed to save a new research note to your PARA Projects folder, you must have written at least one permanent note from your processing session. No note, no save. This forces the conversion from raw input to original thinking.
 3. The pre-writing ritual: every Tuesday (newsletter writing day) begins with a Dataview query, not a Google search. If you catch yourself opening a browser to research something you feel like you have already read, check the PKM first. Building this habit is the fastest path to experiencing the system's value.
 
 **System health check (run first Monday of each month):**
+
 - Readwise Reader unread inbox: target under 20
 - Obsidian inbox items (unprocessed daily notes): target under 10
 - Active permanent notes created this month: target 20+

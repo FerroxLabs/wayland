@@ -54,11 +54,7 @@ const SyncCard: React.FC = () => {
             </div>
           </div>
         </Card>
-        <SyncPassphraseDialog
-          open={enableOpen}
-          onClose={() => setEnableOpen(false)}
-          onEnabled={refresh}
-        />
+        <SyncPassphraseDialog open={enableOpen} onClose={() => setEnableOpen(false)} onEnabled={refresh} />
       </>
     );
   }
@@ -94,12 +90,11 @@ const SyncCard: React.FC = () => {
         <div className='flex flex-col gap-12px'>
           <div className='flex items-center gap-10px text-13px'>
             <ShieldCheck size={14} className='text-[var(--success)]' />
-            <span className='text-[var(--text-primary)]'>
-              {t('settings.storagePage.sync.enabledStatus')}
-            </span>
+            <span className='text-[var(--text-primary)]'>{t('settings.storagePage.sync.enabledStatus')}</span>
             <span className='text-[var(--text-muted)]'>·</span>
             <span className='text-[var(--text-muted)]'>
-              {t('settings.storagePage.sync.lastSync')}{': '}
+              {t('settings.storagePage.sync.lastSync')}
+              {': '}
               {formatRelative(status.lastSync, t('settings.storagePage.sync.never'))}
             </span>
             {typeof status.itemsCount === 'number' && (

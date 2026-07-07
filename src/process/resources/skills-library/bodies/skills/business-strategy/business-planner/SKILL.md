@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning template"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning template'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Business Planner
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to create a comprehensive business plan with financial projections and market analysis
 - The user needs help with Business Model Canvas, lean startup methodology, or go-to-market strategy
 - The user is preparing a business plan for a bank loan, investors, or internal stakeholders
 - The user needs competitive analysis frameworks or revenue model design
 
 **Do NOT use this skill when:**
+
 - The user is building a pitch deck specifically for investors (use pitch-deck-builder instead)
 - The user needs deep competitive intelligence beyond the business plan (use competitive-analyst instead)
 - The user wants to run a specific type of business and needs operational guidance (use the relevant business-type skill)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on business planner
 - User asks about business planner best practices or techniques
 - User wants a structured approach to business planner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of business planner
 
@@ -121,7 +125,7 @@ TEAM
 
 ## Step 2: Business Model Canvas
 
-The Business Model Canvas was created by Alexander Osterwalder and Yves Pigneur (Strategyzer AG). The original canvas is licensed under Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0). For the complete methodology, see Osterwalder and Pigneur's *Business Model Generation* and strategyzer.com.
+The Business Model Canvas was created by Alexander Osterwalder and Yves Pigneur (Strategyzer AG). The original canvas is licensed under Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0). For the complete methodology, see Osterwalder and Pigneur's _Business Model Generation_ and strategyzer.com.
 
 Complete each of the nine blocks systematically.
 
@@ -175,6 +179,7 @@ Complete each of the nine blocks systematically.
 ### Validation Checklist
 
 For each canvas block, verify:
+
 - [ ] Value Proposition directly addresses a validated customer pain
 - [ ] Customer Segments are specific (not "everyone")
 - [ ] Channels match where your customers actually spend time
@@ -221,13 +226,13 @@ SERVICEABLE OBTAINABLE MARKET (SOM)
 
 Rate each force from 1 (low) to 5 (high):
 
-| Force | Rating | Analysis |
-|-------|--------|----------|
-| Threat of New Entrants | {{1-5}} | {{barriers_to_entry}} |
+| Force                         | Rating  | Analysis                    |
+| ----------------------------- | ------- | --------------------------- |
+| Threat of New Entrants        | {{1-5}} | {{barriers_to_entry}}       |
 | Bargaining Power of Suppliers | {{1-5}} | {{supplier_power_analysis}} |
-| Bargaining Power of Buyers | {{1-5}} | {{buyer_power_analysis}} |
-| Threat of Substitutes | {{1-5}} | {{substitute_analysis}} |
-| Competitive Rivalry | {{1-5}} | {{rivalry_analysis}} |
+| Bargaining Power of Buyers    | {{1-5}} | {{buyer_power_analysis}}    |
+| Threat of Substitutes         | {{1-5}} | {{substitute_analysis}}     |
+| Competitive Rivalry           | {{1-5}} | {{rivalry_analysis}}        |
 
 **Overall Industry Attractiveness:** {{high/medium/low}}
 
@@ -461,14 +466,15 @@ RUNWAY: {{months}} months at projected burn rate of ${{monthly_burn}}/month
 
 ### Risk Matrix
 
-| Risk | Likelihood (1-5) | Impact (1-5) | Score | Mitigation |
-|------|------------------|--------------|-------|------------|
-| {{risk_1}} | {{}} | {{}} | {{}} | {{mitigation_1}} |
-| {{risk_2}} | {{}} | {{}} | {{}} | {{mitigation_2}} |
-| {{risk_3}} | {{}} | {{}} | {{}} | {{mitigation_3}} |
-| {{risk_4}} | {{}} | {{}} | {{}} | {{mitigation_4}} |
+| Risk       | Likelihood (1-5) | Impact (1-5) | Score | Mitigation       |
+| ---------- | ---------------- | ------------ | ----- | ---------------- |
+| {{risk_1}} | {{}}             | {{}}         | {{}}  | {{mitigation_1}} |
+| {{risk_2}} | {{}}             | {{}}         | {{}}  | {{mitigation_2}} |
+| {{risk_3}} | {{}}             | {{}}         | {{}}  | {{mitigation_3}} |
+| {{risk_4}} | {{}}             | {{}}         | {{}}  | {{mitigation_4}} |
 
 Common risk categories to address:
+
 - **Market risk:** Demand does not materialize as projected
 - **Competitive risk:** Incumbent or new entrant captures market
 - **Execution risk:** Team cannot deliver product on time
@@ -539,7 +545,6 @@ Before delivering the final business plan, verify:
 - [ ] Risk analysis addresses top 5 threats with mitigations
 - [ ] All numbers are internally consistent
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -552,13 +557,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with business planner for a mid-size project."
 
 **Output:** A complete business planner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

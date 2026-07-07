@@ -9,9 +9,9 @@ test('renders Google Workspace detail page', () => {
   render(
     <MemoryRouter initialEntries={[`/settings/mcp-library/${id}`]}>
       <Routes>
-        <Route path="/settings/mcp-library/:entryId" element={<DetailPage />} />
+        <Route path='/settings/mcp-library/:entryId' element={<DetailPage />} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
   );
   expect(screen.getByText('Google Workspace')).toBeInTheDocument();
   // Redesigned detail page: the setup tab label is now "Setup".

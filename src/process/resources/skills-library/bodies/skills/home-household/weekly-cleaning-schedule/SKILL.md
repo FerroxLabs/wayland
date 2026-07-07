@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cleaning checklist time-management"
-  category: "home-household"
-  subcategory: "cleaning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cleaning checklist time-management'
+  category: 'home-household'
+  subcategory: 'cleaning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Weekly Cleaning Schedule
 
 ## When to Use
@@ -35,6 +36,7 @@ Use this skill when the user's request falls into one of these specific scenario
 - User is overwhelmed by housework and wants to know what actually matters versus what can wait
 
 **Do NOT use this skill when:**
+
 - User needs a thorough deep-clean (scrubbing grout, cleaning behind appliances, washing walls) -- use `deep-cleaning-checklist` instead
 - User is cleaning a home for move-in or move-out inspection -- use `move-cleaning`, which covers a different task scope and sequence
 - User primarily needs to remove clutter and reorganize storage before cleaning is meaningful -- use `decluttering-method` first, then return here
@@ -64,20 +66,21 @@ Use calibrated time benchmarks to set realistic expectations before building the
 
 **Per-room time benchmarks (maintenance level):**
 
-| Room | Light Household | Medium Household | Pets or Kids |
-|------|----------------|-----------------|--------------|
-| Kitchen (full clean) | 20-25 min | 28-35 min | +8-12 min |
-| Primary bathroom | 12-15 min | 15-18 min | +3-5 min |
-| Secondary bathroom | 8-10 min | 10-13 min | +2-3 min |
-| Master bedroom | 10-14 min | 12-16 min | +4-6 min |
-| Secondary bedroom | 7-10 min | 8-12 min | +3-5 min |
-| Living room | 15-20 min | 18-25 min | +8-12 min |
-| Dining room | 5-8 min | 6-10 min | +3-5 min |
-| Home office | 5-8 min | 6-10 min | -- |
-| Hallways + entryway | 5-8 min | 7-10 min | +2-4 min |
-| Laundry room | 5-8 min | 5-8 min | -- |
+| Room                 | Light Household | Medium Household | Pets or Kids |
+| -------------------- | --------------- | ---------------- | ------------ |
+| Kitchen (full clean) | 20-25 min       | 28-35 min        | +8-12 min    |
+| Primary bathroom     | 12-15 min       | 15-18 min        | +3-5 min     |
+| Secondary bathroom   | 8-10 min        | 10-13 min        | +2-3 min     |
+| Master bedroom       | 10-14 min       | 12-16 min        | +4-6 min     |
+| Secondary bedroom    | 7-10 min        | 8-12 min         | +3-5 min     |
+| Living room          | 15-20 min       | 18-25 min        | +8-12 min    |
+| Dining room          | 5-8 min         | 6-10 min         | +3-5 min     |
+| Home office          | 5-8 min         | 6-10 min         | --           |
+| Hallways + entryway  | 5-8 min         | 7-10 min         | +2-4 min     |
+| Laundry room         | 5-8 min         | 5-8 min          | --           |
 
 **Whole-home weekly totals (excluding daily touch-ups):**
+
 - Studio or 1BR/1BA: 45-75 minutes
 - 2BR/1BA: 75-110 minutes
 - 3BR/2BA: 110-165 minutes
@@ -93,18 +96,21 @@ If the user's time budget is less than what the baseline calculation requires, f
 Match the schedule structure to the user's life, not the other way around. There are three primary architectures:
 
 **Architecture 1 -- Single Weekly Session (best for: solo occupants, studio/1BR, people with unpredictable weekday schedules)**
+
 - All rooms cleaned in one block, typically Saturday or Sunday morning
 - Works best when the home is small (under 2BR) or the occupant is disciplined about daily touch-ups
 - Risk: If the session gets skipped, the whole week falls behind. Build in a "makeup day" (e.g., "If Saturday is missed, do it Sunday before noon")
 - Practical ceiling: around 90-120 minutes before fatigue and diminishing motivation set in. Homes larger than 3BR are poor candidates for single-session cleaning
 
 **Architecture 2 -- Daily Mini-Sessions (best for: families, busy professionals who prefer short daily commitments, people with ADHD or attention-management challenges)**
+
 - 15-25 minutes per day, rotating rooms or task categories
 - The daily touch-up (10-12 minutes) is non-negotiable and separate from these sessions
 - Highly sustainable because no single session feels burdensome
 - Structure: Monday bathrooms, Tuesday kitchen deep, Wednesday bedrooms, Thursday living areas, Friday floors/entryway, weekend catch-up and rotation tasks
 
 **Architecture 3 -- Hybrid Two-Session System (best for: 2-4 person households, 3BR/2BA homes, couples splitting responsibilities)**
+
 - Mid-week session (Wednesday or Thursday): kitchen full clean + all bathrooms
 - Weekend session (Saturday morning): bedrooms + living areas + floors
 - Daily touch-ups bridge the gap
@@ -117,20 +123,24 @@ The daily touch-up is the single highest-leverage habit in the entire schedule. 
 Structure every daily touch-up with these four components:
 
 **1. Kitchen Reset (4-6 min):**
+
 - Clear the sink: all dishes either loaded into dishwasher or hand-washed and drying
 - Wipe stovetop with a damp microfiber cloth while still warm after cooking (this prevents cooked-on residue that requires 10x more effort to remove the next day)
 - Wipe countertops with an all-purpose cleaner or vinegar solution
 - A quick dry sweep of the kitchen floor if crumbs are visible
 
 **2. Bathroom Surface Reset (1-2 min, morning routine integration):**
+
 - After brushing teeth and washing face, spend 60-90 seconds: wipe the sink basin and faucet with a dry cloth left under the sink, wipe mirror with a microfiber cloth. This takes almost no time because the sink is already wet and the motion is trivial
 
 **3. Clutter Pickup (3-4 min):**
+
 - One pass through every shared living area to return items to their home location
 - This is not organizing -- it is returning things that have drifted. Mail goes to the inbox, shoes go to the entryway, jackets go to hooks
 - The "10-item pickup" method: challenge yourself to put away exactly 10 items. This creates a fast, gamelike habit rather than an open-ended task
 
 **4. Pet and Child Micro-Tasks (2-3 min, if applicable):**
+
 - Wipe pet feeding area after meals (prevents ant attraction and odor)
 - Return children's toys to a designated bin (not to shelves -- a bin is fast)
 - Quick lint roller pass on a pet's primary furniture spot
@@ -140,11 +150,13 @@ Structure every daily touch-up with these four components:
 Cleaning order matters. Using the wrong sequence means you clean the same surface twice or spread contamination. Apply these rules within every session:
 
 **Macro order (room sequence):**
+
 - Start in the room farthest from the front door and work toward the exit. This way you never walk dirty-footed over cleaned floors
 - Bathrooms and kitchen first (highest germ load, require products to dwell), bedrooms and living rooms last (lowest germ load)
 - Exception: if vacuuming, do floors last in every room
 
 **Micro order (within each room):**
+
 1. Remove clutter and items that don't belong in the room
 2. Dust top surfaces first: ceiling fans, tops of cabinets, light fixtures, crown molding (if within reach)
 3. Dust mid-level: shelves, furniture surfaces, window sills, picture frames
@@ -164,6 +176,7 @@ Dust and sweep before wiping and mopping. Wet surfaces trap dust. Dusting after 
 Not every task needs weekly attention. Overloading the weekly schedule with unnecessary tasks causes burnout and schedule abandonment. Use this frequency framework:
 
 **Truly weekly (health, hygiene, and rapid-degradation tasks):**
+
 - Kitchen: counters, stovetop, sink, floor, trash, exterior of appliances
 - Bathrooms: toilet bowl and exterior, sink, mirror, floor
 - All floors (vacuum/sweep) -- or twice weekly with pets
@@ -172,6 +185,7 @@ Not every task needs weekly attention. Overloading the weekly schedule with unne
 - Pet-specific tasks
 
 **Biweekly (moderate accumulation rate):**
+
 - Inside microwave
 - Wipe cabinet and appliance fronts
 - Dust below-eye-level surfaces and baseboards
@@ -181,6 +195,7 @@ Not every task needs weekly attention. Overloading the weekly schedule with unne
 - Window sills
 
 **Monthly (slow accumulation, no health consequence if skipped one week):**
+
 - Ceiling fans (use pillowcase method: slip an old pillowcase over each blade and pull back, trapping dust inside rather than releasing it into the air)
 - Refrigerator interior (remove all items, wipe shelves and door gaskets)
 - Interior window glass
@@ -345,6 +360,7 @@ When a user has a genuinely extreme time constraint -- single parent, multiple j
 The three zones that degrade fastest and pose hygiene risks if neglected: kitchen (foodborne bacteria, pest attraction), bathrooms (mold, cross-contamination), and high-traffic floors (allergen and debris accumulation). Everything else is cosmetic or can rotate every 2-3 weeks without consequence.
 
 **Minimum Viable Clean structure (45-55 min per week + 8 min/day daily touch-up):**
+
 - Kitchen (15-18 min): sink, counters, stovetop, floor -- no microwave interior, no cabinet fronts, no appliance deep wipe
 - Bathroom 1 (12-14 min): toilet, sink, mirror, floor -- no tub unless visibly dirty
 - Bathroom 2 (8-10 min): toilet, sink, floor
@@ -358,6 +374,7 @@ Frame this explicitly as "maintaining hygiene and preventing rapid deterioration
 A whole-home weekly clean for a large home requires 3-4+ hours in a single session. This is unsustainable for most households and leads to cleaning burnout -- the pattern of cleaning intensively once or twice, then abandoning the schedule entirely for weeks.
 
 **Zone-rotation system for large homes:**
+
 - Divide the home into 3-4 geographic zones (e.g., Zone 1: master suite + master bath; Zone 2: secondary bedrooms + hall bath; Zone 3: kitchen + dining + laundry; Zone 4: living areas + office + guest bath)
 - Each week, one zone receives a full clean (30-45 min)
 - All zones receive daily touch-ups throughout the week
@@ -410,6 +427,7 @@ After a household illness event (flu, stomach virus, respiratory illness) or aft
 When a user has not been maintaining any cleaning routine for weeks or months, the first session is not a maintenance clean -- it is a reset clean, and trying to fit it into the weekly schedule time budget will fail and discourage the user from continuing.
 
 **Handle the restart explicitly:**
+
 - Acknowledge that the first session will take longer -- typically 1.5-2x the normal weekly session time for a moderately neglected home
 - Break the restart into two separate sessions over the first weekend: Session 1 (kitchen + all bathrooms, 90-120 min) on Saturday; Session 2 (all other rooms, 90-120 min) on Sunday
 - After the reset, the normal weekly schedule will work as specified because maintenance cleaning is much faster than remedial cleaning
@@ -433,7 +451,7 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 
 ### Daily Touch-Up (Every Day, 10-13 min)
 
-*Do this every day. It is not optional and it is not part of your session time. It is what makes the sessions fast.*
+_Do this every day. It is not optional and it is not part of your session time. It is what makes the sessions fast._
 
 - [ ] Wipe stovetop with a damp microfiber cloth while still warm after cooking -- 2 min
 - [ ] Clear sink: load dishes into dishwasher or hand wash and rack dry -- 4 min
@@ -453,7 +471,7 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 
 **Kitchen (28-35 min):**
 
-*Start here. Apply cleaner to the sink and let it dwell while you do the first few tasks.*
+_Start here. Apply cleaner to the sink and let it dwell while you do the first few tasks._
 
 - [ ] Spray kitchen sink with all-purpose cleaner or baking soda. Leave to dwell. Move on -- 0.5 min
 - [ ] Clear any remaining items from countertops, remove dish drying rack and wipe beneath it -- 2 min
@@ -468,7 +486,7 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 
 **Primary Bathroom (18-22 min):**
 
-*Apply toilet bowl cleaner inside the bowl and spray the shower/tub with bathroom cleaner at the start. Let both dwell for at least 3-5 minutes while you do other tasks.*
+_Apply toilet bowl cleaner inside the bowl and spray the shower/tub with bathroom cleaner at the start. Let both dwell for at least 3-5 minutes while you do other tasks._
 
 - [ ] Apply toilet bowl cleaner inside bowl (get under the rim). Apply bathroom/shower cleaner to tub surfaces and tile walls. Let both dwell -- 1 min
 - [ ] Wipe mirror with a dry microfiber cloth (no streaks) or glass cleaner -- 1.5 min
@@ -481,7 +499,7 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 
 **Hall / Guest Bathroom (12-15 min):**
 
-*Same spray-and-dwell sequence.*
+_Same spray-and-dwell sequence._
 
 - [ ] Apply toilet bowl cleaner, spray sink. Dwell -- 1 min
 - [ ] Wipe mirror -- 1 min
@@ -499,7 +517,8 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 
 **Partner 1: Bedrooms (35-40 min total)**
 
-*Primary Bedroom (15-18 min):*
+_Primary Bedroom (15-18 min):_
+
 - [ ] Strip bed and start sheets in the washing machine before you begin anything else -- 3 min
 - [ ] Dust nightstands, dresser, headboard, and all horizontal surfaces with a damp microfiber cloth (damp, not wet -- traps dust rather than spreading it) -- 4 min
 - [ ] Dust ceiling fan blades using the pillowcase method: slip an old pillowcase over each blade, pull back to trap dust inside the case rather than releasing it into the air -- 3 min
@@ -507,34 +526,40 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 - [ ] Move bed sheets from washer to dryer before finishing the room -- 1 min
 - [ ] Remake bed with clean sheets when dry (this takes ~5 min and can be done any time before bed Saturday night)
 
-*Bedroom 2 / Office (10-12 min):*
+_Bedroom 2 / Office (10-12 min):_
+
 - [ ] Dust all surfaces with damp microfiber cloth -- 3 min
 - [ ] Tidy desk: return items to drawers, clear paperwork to inbox tray -- 3 min
 - [ ] Vacuum floor -- 4 min
 
-*Bedroom 3 / Guest Room (8-10 min):*
+_Bedroom 3 / Guest Room (8-10 min):_
+
 - [ ] Quick dust of main surfaces -- 2 min
 - [ ] Vacuum floor -- 4 min
 - [ ] Open window for 10 minutes while vacuuming to ventilate (guest rooms get stale air quickly, especially when unused) -- 0 min active
 
 **Partner 2: Living Areas + Floors (35-40 min total)**
 
-*Living Room (20-25 min):*
+_Living Room (20-25 min):_
+
 - [ ] Clear any remaining items from surfaces and coffee table -- 2 min
 - [ ] Dust all surfaces with damp microfiber cloth: shelves, TV stand, coffee table, end tables, window sills -- 6 min
 - [ ] Use upholstery attachment on vacuum to remove dog hair from couch cushions, armchair, and any other upholstered surfaces. Lift cushions and vacuum beneath them -- 6 min
 - [ ] Wipe light switches, TV remote, door handles, and any frequently touched surfaces with disinfectant wipe -- 2 min
 - [ ] Fluff cushions, fold throws -- 1 min
 
-*Hallways, Entryway, Stairs (8-10 min):*
+_Hallways, Entryway, Stairs (8-10 min):_
+
 - [ ] Vacuum or sweep hallway, entryway, and stairs -- 5 min
 - [ ] Wipe entryway floor with damp mop or cloth -- muddy paw prints concentrate here -- 3 min
 - [ ] Check entryway organization: shoes, coats, leashes in their designated spots -- 1 min
 
-*All-Room Floor Vacuum (runs while Partner 1 does final bedroom):*
+_All-Room Floor Vacuum (runs while Partner 1 does final bedroom):_
+
 - [ ] Vacuum all carpeted and hard floors throughout the home in one pass after Partner 1 has finished dusting all rooms (dust before vacuuming) -- 10-12 min
 
 **Dog-Specific Tasks (Saturday, ~8-10 min):**
+
 - [ ] Vacuum dog's primary sleeping area and any furniture the dog uses regularly -- 4 min
 - [ ] Wash dog bed cover or blanket (add to laundry with towels) -- 1 min setup, machine does the rest
 - [ ] Wipe down dog's regular contact surfaces (couch arm, window seat if used) with damp cloth -- 2 min
@@ -545,11 +570,13 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 ### Biweekly Rotation (Alternate Saturday sessions, ~15-20 min added)
 
 **Week A -- Add to this Saturday's session:**
+
 - [ ] Wipe all cabinet and drawer fronts in kitchen with damp cloth (fingerprints and splatter accumulate here) -- 5 min
 - [ ] Clean refrigerator interior: remove all items, wipe shelves and door gaskets, discard expired items, replace -- 10 min
 - [ ] Vacuum baseboards and corners throughout main living areas (use brush attachment) -- 5 min
 
 **Week B -- Add to this Saturday's session:**
+
 - [ ] Vacuum under couch, under beds (if not done during bedroom clean), and under dining table -- 6 min
 - [ ] Wipe interior of trash cans in kitchen and bathrooms -- 4 min
 - [ ] Clean bathroom exhaust fans: vacuum the grate cover with a brush attachment. If accessible, wipe the fan blades -- 5 min
@@ -569,13 +596,13 @@ When a user has not been maintaining any cleaning routine for weeks or months, t
 
 ### Total Weekly Time Summary
 
-| Component | Minutes |
-|-----------|---------|
-| Daily touch-up (7 days x 12 min) | 84 min |
-| Wednesday session (kitchen + 2 bathrooms) | 68 min |
-| Saturday session (bedrooms + living areas + floors + dog tasks) | 73 min |
-| Biweekly rotation (weekly average: ~18 min / 2) | 9 min |
-| **Total** | **234 min (~3 hrs 54 min)** |
+| Component                                                       | Minutes                     |
+| --------------------------------------------------------------- | --------------------------- |
+| Daily touch-up (7 days x 12 min)                                | 84 min                      |
+| Wednesday session (kitchen + 2 bathrooms)                       | 68 min                      |
+| Saturday session (bedrooms + living areas + floors + dog tasks) | 73 min                      |
+| Biweekly rotation (weekly average: ~18 min / 2)                 | 9 min                       |
+| **Total**                                                       | **234 min (~3 hrs 54 min)** |
 
 **vs. your stated budget:** You said 2.5-3 hours. The sessions themselves (Wednesday + Saturday) total ~141 minutes (~2 hrs 21 min), which fits inside 2.5 hours. The daily touch-ups are not weekend time -- they are 12 minutes distributed across each day, integrated into your existing morning and evening routines. The schedule is within reach.
 

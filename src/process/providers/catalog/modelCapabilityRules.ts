@@ -34,17 +34,11 @@ export const CAPABILITY_RULES: Partial<Record<ProviderId, CapabilityRule[]>> = {
     { match: /.+/i, capabilities: ['chat'] },
   ],
 
-  elevenlabs: [
-    { match: /.+/i, capabilities: ['audio'] },
-  ],
+  elevenlabs: [{ match: /.+/i, capabilities: ['audio'] }],
 
-  deepgram: [
-    { match: /.+/i, capabilities: ['audio'] },
-  ],
+  deepgram: [{ match: /.+/i, capabilities: ['audio'] }],
 
-  assemblyai: [
-    { match: /.+/i, capabilities: ['audio'] },
-  ],
+  assemblyai: [{ match: /.+/i, capabilities: ['audio'] }],
 
   deepseek: [
     { match: /r1|reasoner/i, capabilities: ['chat', 'reasoning'] },
@@ -72,9 +66,7 @@ export const CAPABILITY_RULES: Partial<Record<ProviderId, CapabilityRule[]>> = {
     { match: /.+/i, capabilities: ['chat'] },
   ],
 
-  moonshot: [
-    { match: /.+/i, capabilities: ['chat'] },
-  ],
+  moonshot: [{ match: /.+/i, capabilities: ['chat'] }],
 
   qwen: [
     { match: /qwen-vl|vl/i, capabilities: ['chat', 'vision'] },

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "language-learning study-skills step-by-step guide"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'language-learning study-skills step-by-step guide'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Conversation Practice
 
 ## When to Use
@@ -30,6 +31,7 @@ Use this skill when the learner explicitly wants to engage in interactive, real-
 - A learner has reached a "plateau" where grammar study no longer helps and needs communicative exposure to move forward
 
 **Do NOT use when:**
+
 - The learner is asking WHY a grammatical rule works or asking to drill a specific structure -- use `grammar-practice` instead, which focuses on form-focused instruction and pattern drilling
 - The learner wants to expand their word bank, learn new vocabulary sets, or practice flashcard-style recall -- use `vocabulary-building` instead
 - The learner wants to convert text between two languages or understand translation equivalence -- use `translation-practice` instead
@@ -255,27 +257,35 @@ AI: [First free-conversation question in target language]
 ## Edge Cases
 
 ### The Learner Freezes or Goes Silent During the Dialogue
+
 This is the most common challenge in AI conversation practice and must be handled without breaking the target-language immersion unnecessarily. First, offer a prompt in the target language that narrows the expected response: if you asked an open question and they froze, ask a yes/no version of the same question. If they still cannot respond, offer a sentence starter in the target language: "You could start with..." followed by 2-3 words. Only if they explicitly ask for English help should you briefly step out of character, and you should re-enter the target language immediately after. Note the vocabulary gap for the error analysis phase -- freezing is usually a retrieval failure, not a grammar problem.
 
 ### The Learner's Level Self-Assessment Is Significantly Inaccurate
+
 Learners frequently overestimate (claiming B2 but producing A2-level output) or underestimate (claiming A2 but handling B1 tasks comfortably) their level. Recalibrate within the first 4-5 turns based on evidence: sentence complexity, tense range, vocabulary diversity, and ability to handle unexpected topic shifts. If recalibrating downward, do so gradually -- introduce simpler vocabulary in your next turn and slow your turn complexity rather than announcing the level adjustment, which can be discouraging. If recalibrating upward, increase complexity and reduce scaffolding incrementally and note the adjustment at the end of the session.
 
 ### The Learner Is Preparing for a Specific High-Stakes Situation Within 48 Hours
+
 A learner saying "I have a job interview in French on Thursday" needs scenario-specific rehearsal, not general fluency work. In this case, prioritize exact scenario fidelity over CEFR progression: identify the 10-15 most likely questions in that specific context, drill the learner's responses to those questions, identify 3-4 phrases that will signal fluency and competence to a native-speaking interviewer (discourse markers, hedging language, professional register), and run a full timed mock session. The error analysis should focus only on errors that would make the learner sound unprofessional to a native speaker, not minor morphological issues that would not affect the interview outcome.
 
 ### The Learner Uses Their Native Language for Emotional or Complex Content
+
 When learners hit emotionally resonant or cognitively complex content (describing a difficult personal experience, making a complex argument), they often revert to their L1 because the cognitive and emotional load of the content competes with the linguistic load of production. Do not treat this as a failure. Acknowledge the content briefly in English, then model how to express a simplified version of the same idea in the target language. Say explicitly: "Here is one way to express that in [target language] at your current level -- it won't capture everything you said in English, but it's a real start." This validates the learner's communicative intent while giving them a productive reformulation.
 
 ### The Learner Wants to Practice a Very Low-Frequency or Specialized Register
+
 A learner wanting to practice medical Spanish, legal German, diplomatic French, or technical Japanese is requesting content that requires domain-specific vocabulary above and beyond standard CLT materials. In these cases, build the vocabulary support section with 15-20 domain-specific terms before the dialogue begins, even at B2+ level where scaffolding is normally minimal. Run the scenario with explicit acknowledgment that the learner may need to ask for repetition or clarification frequently -- this is realistic and appropriate for domain-specific communication even for advanced speakers. Recommend that after this session, the learner do a dedicated vocabulary-building session focused on the domain before the next conversation practice.
 
 ### The Target Language Has Significant Politeness or Formality Systems That Are Non-Obvious
+
 Japanese (keigo), Korean (speech levels), Javanese (ngoko/krama), Thai (polite particles), and to a lesser extent French (tu/vous), German (du/Sie), and Spanish (tú/usted/vos) all have formality systems where using the wrong register causes genuine social offense or communicative failure -- not just awkwardness. Before beginning any scenario in these languages, explicitly identify the appropriate register for the scenario (a conversation with a store clerk requires different forms than a conversation with a CEO) and note any key politeness markers the learner should use. At the end of the session, include a register check in the error analysis: not just grammatical accuracy, but whether the learner's register choices were appropriate throughout.
 
 ### The Learner Wants to Practice With a Specific Dialect or Accent Variation They Will Encounter
+
 A learner preparing to live in Québec needs exposure to joual expressions and Québécois features (tu as → t'as, je ne → j'pas) that standard Parisian French practice will not prepare them for. A learner moving to Buenos Aires needs Rioplatense voseo (vos querés, not tú quieres). In these cases, conduct the entire AI side of the conversation in the target regional variety, explicitly flag non-standard features when they appear with a brief note ("This is typical Québécois -- standard French would be..."), and build the vocabulary support section with dialect-specific terms. Note, however, that learners should have standard variety competence before adding dialect variation -- if the learner is below B1, redirect to standard variety practice first.
 
 ### The Learner Has Already Done Multiple Sessions on the Same Topic Without Progress
+
 If a learner reports they have practiced the same scenario many times but still struggle, the problem is almost certainly not a lack of conversation practice -- it is a specific underlying gap in grammar, vocabulary, or phonology that conversation practice cannot fix. Diagnose the specific bottleneck by asking them to produce 5 sentences on the topic and analyzing the pattern of errors. If errors cluster around a specific structure (e.g., all errors involve subjunctive, or all errors involve particle use), redirect immediately to `grammar-practice` for that structure. Return to conversation practice only after the target structure has been addressed. Continuing conversation practice when a learner has a fixable structural gap produces fossilization -- the error becomes permanently embedded in their productive system.
 
 ---
@@ -301,46 +311,46 @@ If a learner reports they have practiced the same scenario many times but still 
 
 Review these before we start. Try to use them naturally during the conversation.
 
-| Spanish Phrase | Meaning | Register Note |
-|----------------|---------|---------------|
-| Tengo una reserva a nombre de... | I have a reservation under the name of... | Neutral -- standard check-in phrase |
-| ¿Me podría cambiar de habitación? | Could you change my room? | Polite -- use this, not the blunt "cambia mi habitación" |
-| La habitación da a la calle | The room faces the street | Neutral -- useful for explaining the problem |
-| Hace bastante ruido | It's quite noisy | Neutral |
-| ¿Qué recomienda por aquí? | What do you recommend around here? | Informal-neutral -- perfect for this context |
-| A unos minutos a pie | A few minutes on foot | Common local expression -- very natural in Spain |
-| Me lo apunto | I'll make a note of that / I'll remember that | Informal -- sounds very natural and native |
-| ¿Hasta qué hora abre? | Until what time is it open? | Neutral -- essential for checking hours |
-| Está de maravilla | It's wonderful / It's fantastic | Informal -- commonly heard in Madrid |
-| ¿Tiene algo más tranquilo? | Do you have something quieter? | Polite -- useful alternative to the room-change request |
+| Spanish Phrase                    | Meaning                                       | Register Note                                            |
+| --------------------------------- | --------------------------------------------- | -------------------------------------------------------- |
+| Tengo una reserva a nombre de...  | I have a reservation under the name of...     | Neutral -- standard check-in phrase                      |
+| ¿Me podría cambiar de habitación? | Could you change my room?                     | Polite -- use this, not the blunt "cambia mi habitación" |
+| La habitación da a la calle       | The room faces the street                     | Neutral -- useful for explaining the problem             |
+| Hace bastante ruido               | It's quite noisy                              | Neutral                                                  |
+| ¿Qué recomienda por aquí?         | What do you recommend around here?            | Informal-neutral -- perfect for this context             |
+| A unos minutos a pie              | A few minutes on foot                         | Common local expression -- very natural in Spain         |
+| Me lo apunto                      | I'll make a note of that / I'll remember that | Informal -- sounds very natural and native               |
+| ¿Hasta qué hora abre?             | Until what time is it open?                   | Neutral -- essential for checking hours                  |
+| Está de maravilla                 | It's wonderful / It's fantastic               | Informal -- commonly heard in Madrid                     |
+| ¿Tiene algo más tranquilo?        | Do you have something quieter?                | Polite -- useful alternative to the room-change request  |
 
 ---
 
 ### Phase 1: Warm-Up (3 turns)
 
-*Let's start easy before the main scenario. Respond in Spanish.*
+_Let's start easy before the main scenario. Respond in Spanish._
 
 **AI:** ¡Buenas tardes! ¿Qué tal el viaje desde casa?
-*(Good afternoon! How was the trip from home?)*
+_(Good afternoon! How was the trip from home?)_
 
 [Learner responds]
 
 **AI:** Ah, ¡qué bien! Los vuelos a Madrid suelen ser cómodos. ¿Es la primera vez que visitas la ciudad?
-*(Ah, great! Flights to Madrid are usually comfortable. Is this your first time visiting the city?)*
+_(Ah, great! Flights to Madrid are usually comfortable. Is this your first time visiting the city?)_
 
 [Learner responds]
 
 **AI:** Perfecto. Pues bienvenido/a. Madrid tiene mucho que ofrecer.
-*(Perfect. Well, welcome. Madrid has a lot to offer.)*
+_(Perfect. Well, welcome. Madrid has a lot to offer.)_
 
 ---
 
 ### Phase 2: Structured Scenario (12-15 turns)
 
-*The main role-play begins now. You are arriving at the hotel. Come to the front desk.*
+_The main role-play begins now. You are arriving at the hotel. Come to the front desk._
 
 **AI (as receptionist):** Buenas tardes, ¿en qué le puedo ayudar?
-*(Good afternoon, how can I help you?)*
+_(Good afternoon, how can I help you?)_
 
 [Learner checks in -- try to use "Tengo una reserva a nombre de..."]
 
@@ -374,7 +384,7 @@ Review these before we start. Try to use them naturally during the conversation.
 
 ### Phase 3: Free Conversation (5-6 turns)
 
-*Great work on the scenario. Now let's talk more freely. No vocabulary list -- just talk. I'll ask you some questions and you can ask me anything too.*
+_Great work on the scenario. Now let's talk more freely. No vocabulary list -- just talk. I'll ask you some questions and you can ask me anything too._
 
 **AI:** ¿Ya tienes planes para mañana en Madrid, o todavía no has decidido qué hacer?
 
@@ -394,17 +404,18 @@ Review these before we start. Try to use them naturally during the conversation.
 
 ### Error Analysis
 
-*End of conversation. Here are the most important things to review from your session.*
+_End of conversation. Here are the most important things to review from your session._
 
 **Errors Corrected This Session:** 3 (prioritized by communicative impact)
 
-| # | What You Said | Correct Form | Rule / Explanation |
-|---|--------------|--------------|-------------------|
-| 1 | "Quiero cambiar la habitación" | "¿Me podría cambiar de habitación?" or "¿Tiene algo más tranquilo?" | Direct imperatives and bare infinitives (quiero + infinitive) sound abrupt in Spanish service contexts. Use conditional courtesy forms (podría, tendría) for requests to strangers -- this is a register issue, not a grammar error, but it matters significantly in Spain. |
-| 2 | "El museo es abierto?" | "¿El museo está abierto?" or "¿A qué hora abre el museo?" | Ser vs. estar: conditions and states that can change (open/closed, available/unavailable) use estar, not ser. "Es abierto" sounds like a permanent characteristic, which is unnatural here. |
-| 3 | "Desde cuándo cierra?" | "¿Hasta qué hora cierra?" or "¿A qué hora cierra?" | Desde (since/from) is used for the beginning of a time period; hasta (until) is for the end. "¿Desde cuándo cierra?" asks when it started being closed, not what time it closes tonight. |
+| #   | What You Said                  | Correct Form                                                        | Rule / Explanation                                                                                                                                                                                                                                                          |
+| --- | ------------------------------ | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | "Quiero cambiar la habitación" | "¿Me podría cambiar de habitación?" or "¿Tiene algo más tranquilo?" | Direct imperatives and bare infinitives (quiero + infinitive) sound abrupt in Spanish service contexts. Use conditional courtesy forms (podría, tendría) for requests to strangers -- this is a register issue, not a grammar error, but it matters significantly in Spain. |
+| 2   | "El museo es abierto?"         | "¿El museo está abierto?" or "¿A qué hora abre el museo?"           | Ser vs. estar: conditions and states that can change (open/closed, available/unavailable) use estar, not ser. "Es abierto" sounds like a permanent characteristic, which is unnatural here.                                                                                 |
+| 3   | "Desde cuándo cierra?"         | "¿Hasta qué hora cierra?" or "¿A qué hora cierra?"                  | Desde (since/from) is used for the beginning of a time period; hasta (until) is for the end. "¿Desde cuándo cierra?" asks when it started being closed, not what time it closes tonight.                                                                                    |
 
 **Retrieval Practice -- Try these now:**
+
 1. Ask me what time a restaurant closes, using the correct preposition.
 2. Make a polite request asking if the hotel has a pool -- use the conditional form.
 
@@ -427,6 +438,7 @@ Review these before we start. Try to use them naturally during the conversation.
 3. **¿Hasta qué hora...?** -- Use this whenever you need to ask about closing times, deadlines, or end-of-period information. It will come up constantly in travel contexts.
 
 **Practice Schedule:**
+
 - **Today:** Write each of the three phrases in 3 new sentences about a different travel scenario (train station, restaurant, museum)
 - **Day 3:** Cover the Spanish and try to recall each phrase from only the English meaning
 - **Day 7:** Do a 2-minute spoken monologue in Spanish describing what you'd do on your first evening in Madrid, using all three phrases naturally

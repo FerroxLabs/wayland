@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml deep-learning guide"
-  category: "ai-machine-learning"
-  subcategory: "applied-ai"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml deep-learning guide'
+  category: 'ai-machine-learning'
+  subcategory: 'applied-ai'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Computer Vision
@@ -57,14 +57,14 @@ class ImagePreprocessor:
 
 ### Common Preprocessing Operations
 
-| Operation | When to Use | Library |
-|-----------|------------|---------|
-| Resize | Always (model input size) | cv2, PIL, torchvision |
-| Normalize | Always (ImageNet stats for pretrained) | torchvision |
-| Grayscale | OCR, edge detection | cv2 |
-| Histogram equalization | Low contrast images | cv2 (CLAHE) |
-| Denoising | Noisy images | cv2.fastNlMeansDenoising |
-| Crop | Focus on region of interest | cv2, PIL |
+| Operation              | When to Use                            | Library                  |
+| ---------------------- | -------------------------------------- | ------------------------ |
+| Resize                 | Always (model input size)              | cv2, PIL, torchvision    |
+| Normalize              | Always (ImageNet stats for pretrained) | torchvision              |
+| Grayscale              | OCR, edge detection                    | cv2                      |
+| Histogram equalization | Low contrast images                    | cv2 (CLAHE)              |
+| Denoising              | Noisy images                           | cv2.fastNlMeansDenoising |
+| Crop                   | Focus on region of interest            | cv2, PIL                 |
 
 ## Data Augmentation
 
@@ -184,14 +184,14 @@ trainer.train()
 
 ### Model Selection Guide
 
-| Model | Params | Accuracy (ImageNet) | Speed | Best For |
-|-------|--------|-------------------|-------|----------|
-| MobileNetV3-Small | 2.5M | 67.4% | Very fast | Mobile/edge |
-| EfficientNet-B0 | 5.3M | 77.1% | Fast | Balanced |
-| ResNet-50 | 25M | 80.4% | Medium | General purpose |
-| EfficientNet-V2-S | 21M | 84.2% | Medium | High accuracy |
-| ViT-B/16 | 86M | 84.5% | Slower | Max accuracy |
-| ConvNeXt-Base | 88M | 85.8% | Slower | SOTA accuracy |
+| Model             | Params | Accuracy (ImageNet) | Speed     | Best For        |
+| ----------------- | ------ | ------------------- | --------- | --------------- |
+| MobileNetV3-Small | 2.5M   | 67.4%               | Very fast | Mobile/edge     |
+| EfficientNet-B0   | 5.3M   | 77.1%               | Fast      | Balanced        |
+| ResNet-50         | 25M    | 80.4%               | Medium    | General purpose |
+| EfficientNet-V2-S | 21M    | 84.2%               | Medium    | High accuracy   |
+| ViT-B/16          | 86M    | 84.5%               | Slower    | Max accuracy    |
+| ConvNeXt-Base     | 88M    | 85.8%               | Slower    | SOTA accuracy   |
 
 ## Object Detection
 
@@ -250,13 +250,13 @@ names:
 
 ### Detection Model Comparison
 
-| Model | mAP@50 (COCO) | Speed (ms) | Params | Best For |
-|-------|---------------|------------|--------|----------|
-| YOLOv8n | 37.3 | 1.2 | 3.2M | Real-time, edge |
-| YOLOv8s | 44.9 | 2.0 | 11.2M | Balanced |
-| YOLOv8m | 50.2 | 4.2 | 25.9M | High accuracy |
-| YOLOv8x | 53.9 | 8.7 | 68.2M | Max accuracy |
-| RT-DETR-L | 53.0 | 9.3 | 32M | Transformer-based |
+| Model     | mAP@50 (COCO) | Speed (ms) | Params | Best For          |
+| --------- | ------------- | ---------- | ------ | ----------------- |
+| YOLOv8n   | 37.3          | 1.2        | 3.2M   | Real-time, edge   |
+| YOLOv8s   | 44.9          | 2.0        | 11.2M  | Balanced          |
+| YOLOv8m   | 50.2          | 4.2        | 25.9M  | High accuracy     |
+| YOLOv8x   | 53.9          | 8.7        | 68.2M  | Max accuracy      |
+| RT-DETR-L | 53.0          | 9.3        | 32M    | Transformer-based |
 
 ## Image Segmentation
 
@@ -488,6 +488,7 @@ Latency requirement?
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing computer vision solutions
 - Reviewing or improving existing computer vision approaches
 - Making architectural or implementation decisions about computer vision
@@ -495,6 +496,7 @@ Latency requirement?
 - Troubleshooting computer vision-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -505,21 +507,26 @@ Latency requirement?
 # Computer Vision Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

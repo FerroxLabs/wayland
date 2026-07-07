@@ -33,10 +33,10 @@ function makeConfig(overrides: Partial<IChannelPluginConfig['credentials']> = {}
 
 function mockTokenOk(): void {
   mockFetch.mockResolvedValue(
-    new Response(
-      JSON.stringify({ access_token: 'mock-bearer-token', expires_in: 3600 }),
-      { status: 200, headers: { 'content-type': 'application/json' } },
-    ),
+    new Response(JSON.stringify({ access_token: 'mock-bearer-token', expires_in: 3600 }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })
   );
 }
 

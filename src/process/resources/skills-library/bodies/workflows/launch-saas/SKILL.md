@@ -7,12 +7,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture api-design devops cloud security step-by-step planning"
-  category: "software-development"
-  depends: "system-design-process rest-api-design authentication-patterns serverless-patterns ci-cd-pipeline-design deployment-strategies monitoring-alerting"
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture api-design devops cloud security step-by-step planning'
+  category: 'software-development'
+  depends: 'system-design-process rest-api-design authentication-patterns serverless-patterns ci-cd-pipeline-design deployment-strategies monitoring-alerting'
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Launch a SaaS Product
@@ -107,7 +107,7 @@ Set up observability for the production system so that problems are detected bef
   - **AWS:** Lambda for serverless, SQS for queues, ECS or EKS for persistent workers
   - **GCP:** Cloud Functions for serverless, Pub/Sub for queues, Cloud Run for persistent workers
   - **Azure:** Azure Functions for serverless, Service Bus for queues, Container Apps for persistent workers
-  If **budget is constrained** (under $100 per month for infrastructure), use a single VPS with systemd-managed background workers instead of managed serverless services. Revisit serverless when traffic justifies the cost.
+    If **budget is constrained** (under $100 per month for infrastructure), use a single VPS with systemd-managed background workers instead of managed serverless services. Revisit serverless when traffic justifies the cost.
 
 - **At Step 6:** If the product has **fewer than 100 expected users at launch**, a simple rolling deployment is sufficient -- skip blue-green complexity. If you expect **more than 1,000 users at launch** or have **zero-downtime requirements**, implement blue-green or canary deployment as described in Step 6.
 

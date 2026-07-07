@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mental-wellness self-care breathing stress-management"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'mental-wellness self-care breathing stress-management'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Breathing Exercises
 
 > **Disclaimer:** This skill provides general wellness information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before beginning any new wellness practice. If you are experiencing a medical emergency, chest pain, severe shortness of breath, or other acute symptoms, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly asks to learn a named breathing technique -- box breathing, 4-7-8, diaphragmatic breathing, physiological sigh, resonance breathing, or similar
 - A user describes a specific situational goal: calming down before a high-stakes event, falling asleep faster, shaking off afternoon fatigue, or resetting after a stressful interaction
 - A user wants a structured daily breathwork routine that combines multiple techniques across morning, midday, and evening windows
@@ -34,6 +36,7 @@ metadata:
 - A user asks specifically about breath control for focus, presence, or mental clarity during cognitive tasks
 
 **Do NOT use this skill when:**
+
 - A user has a diagnosed respiratory condition (asthma, COPD, pulmonary fibrosis, emphysema) and is asking for breathing therapy -- refer them to a respiratory therapist or their treating physician, and use the clinical-referral guidance skill instead
 - A user is experiencing an active breathing emergency: chest tightness, severe shortness of breath, inability to complete a sentence, or suspected asthma attack -- direct them to emergency services immediately
 - A user is asking specifically about high-intensity hyperventilation protocols such as the Wim Hof method, Holotropic breathing, or Tummo breath retention cycles, which involve extended breath holds and deliberate hypoxia that require supervised in-person instruction
@@ -82,6 +85,7 @@ Before finalizing technique selection, screen for the following and modify accor
 Match technique to goal using the following authoritative technique profiles.
 
 **Technique 1 -- Physiological Sigh (Double Inhale + Extended Exhale)**
+
 - **Pattern:** Sharp nasal inhale (2s) → second short sharp nasal inhale without exhaling (1s) → slow full mouth exhale (6--8s) → natural pause (1--2s)
 - **Repetitions:** 1--3 sighs
 - **Total time:** 20--45 seconds
@@ -91,6 +95,7 @@ Match technique to goal using the following authoritative technique profiles.
 - **Common error:** Users inhale too slowly on the second inhale. The second inhale must be a short sharp sniff, not a gentle continuation.
 
 **Technique 2 -- Box Breathing (4-4-4-4 / Tactical Breathing)**
+
 - **Pattern:** Nasal inhale 4s → Hold 4s → Mouth exhale 4s → Hold 4s
 - **Cycles:** 4--6 cycles
 - **Total time:** 3--5 minutes
@@ -101,6 +106,7 @@ Match technique to goal using the following authoritative technique profiles.
 - **Common error:** Clenching the throat or tensing the chest during the hold phases. The hold should be a passive pause, not an active muscular contraction.
 
 **Technique 3 -- 4-7-8 Breathing**
+
 - **Pattern:** Nasal inhale 4s → Hold 7s → Mouth exhale 8s (with audible whoosh sound)
 - **Cycles:** 4 cycles maximum in a single session (do not exceed this -- the extended holds can cause significant lightheadedness in beginners)
 - **Total time:** Approximately 2.5--3 minutes
@@ -111,6 +117,7 @@ Match technique to goal using the following authoritative technique profiles.
 - **Common error:** Exhaling before completing the 7-second hold. Use a visual timer or count with internal rhythm. The incomplete hold is the most frequent reason users report "it didn't work."
 
 **Technique 4 -- Diaphragmatic Breathing (Belly Breathing)**
+
 - **Pattern:** Nasal inhale 4s (belly expands outward, chest stays still) → Mouth exhale 6s (belly contracts, navel draws toward spine)
 - **Cycles:** 8--12 cycles
 - **Total time:** 5--8 minutes
@@ -120,6 +127,7 @@ Match technique to goal using the following authoritative technique profiles.
 - **Common error:** Pushing the belly out on the exhale instead of letting it fall naturally. The belly should inflate passively on inhale as the diaphragm descends, and contract gently on exhale as the diaphragm rises.
 
 **Technique 5 -- Resonance Breathing (Coherence Breathing, 5-5 Pattern)**
+
 - **Pattern:** Nasal inhale 5s → Nasal exhale 5s → No holds, continuous flow
 - **Cycles:** 10--15 cycles (can be maintained for 10--20 minutes by intermediate practitioners)
 - **Total time:** 5--10 minutes
@@ -129,6 +137,7 @@ Match technique to goal using the following authoritative technique profiles.
 - **Common error:** Reverting to the mouth for the exhale. Both inhale and exhale must be nasal to maintain warmth, moisture, and the slight resistance that supports the slow 5-second rhythm.
 
 **Technique 6 -- Energizing Rhythmic Breathing (Stimulating Breath)**
+
 - **Pattern:** Sharp nasal inhale 1s → Sharp nasal exhale 1s (equal emphasis, rapid rhythm at approximately 1 breath per second) → 20--30 breath cycles → Stop and breathe normally for 30--60 seconds → Repeat 2--3 rounds
 - **Total time:** 3--5 minutes including rest intervals
 - **Mechanism:** Rapid nasal breathing stimulates the sympathetic nervous system through increased respiratory rate and carbon dioxide offloading, creating alertness. The short nasal exhale activates the intercostal muscles actively rather than passively, which increases core temperature and metabolic activation. This is the only technique in this library that deliberately increases arousal.
@@ -392,11 +401,13 @@ When you lie awake with a racing mind, your sympathetic nervous system (the "ale
 **Total time:** 6--8 minutes | 10--12 cycles
 
 **Setup:**
+
 - Posture: Lying flat on your back, legs uncrossed, arms by your sides or resting on your belly
 - Hand placement: Place one hand flat on your belly just below your navel, one hand flat on your chest -- the belly hand should visibly rise as you inhale; the chest hand should remain still. This biofeedback tells you immediately if you're breathing correctly.
 - Environment: Lights off or very dim, eyes closed
 
 **Sequence:**
+
 1. **Exhale first** -- before beginning, take a normal exhale through your mouth and let it complete fully. This empties the lungs and gives you a clean starting point.
 2. **Inhale** -- breathe in slowly through your nose for exactly 4 seconds. Feel your belly press upward against your hand as your diaphragm descends. If your chest rises instead, deliberately push your belly out with the muscles as you inhale until the pattern clicks.
 3. **No hold** -- there is no pause at the top of this inhale. Move directly to the exhale.
@@ -422,11 +433,13 @@ When you lie awake with a racing mind, your sympathetic nervous system (the "ale
 **Total time:** Approximately 3 minutes | 4 cycles maximum
 
 **Setup:**
+
 - Posture: Lying flat, same position as Technique 1. If 3am wake-up, stay in bed in whatever position you woke in.
 - Hand placement: One hand on belly, or both relaxed at your sides
 - Environment: Eyes closed throughout
 
 **Sequence:**
+
 1. **Starting exhale** -- through your mouth, exhale completely. Make a whooshing sound as you do -- this is intentional and part of the technique.
 2. **Inhale** -- close your mouth. Inhale quietly through your nose for exactly 4 seconds (count: one-one-thousand, two-one-thousand, three-one-thousand, four-one-thousand).
 3. **Hold** -- hold your breath for exactly 7 seconds. Keep your throat relaxed -- this is a passive pause, not a muscular clench. If 7 seconds feels very uncomfortable in your first session, stop at 5 seconds and build up over your first week of practice.
@@ -448,13 +461,13 @@ When you lie awake with a racing mind, your sympathetic nervous system (the "ale
 
 ### Full Bedtime Sequence (How to Combine Both Techniques)
 
-| Step | Action | Duration |
-|------|--------|---------|
-| 1 | Lie flat, place hands (belly and chest), eyes closed | 30 seconds |
-| 2 | Diaphragmatic Breathing: 4s in / 6s out, 10--12 cycles | 6--8 minutes |
-| 3 | After last diaphragmatic exhale, pause naturally for 2 breaths | 30 seconds |
-| 4 | 4-7-8 Breathing: 4s in / 7s hold / 8s out, 4 cycles | 3 minutes |
-| 5 | Allow natural breathing; do not force continuation | ongoing |
+| Step | Action                                                         | Duration     |
+| ---- | -------------------------------------------------------------- | ------------ |
+| 1    | Lie flat, place hands (belly and chest), eyes closed           | 30 seconds   |
+| 2    | Diaphragmatic Breathing: 4s in / 6s out, 10--12 cycles         | 6--8 minutes |
+| 3    | After last diaphragmatic exhale, pause naturally for 2 breaths | 30 seconds   |
+| 4    | 4-7-8 Breathing: 4s in / 7s hold / 8s out, 4 cycles            | 3 minutes    |
+| 5    | Allow natural breathing; do not force continuation             | ongoing      |
 
 **Total bedtime session:** 10--12 minutes. Most practitioners fall asleep during or immediately after Step 4.
 
@@ -462,23 +475,23 @@ When you lie awake with a racing mind, your sympathetic nervous system (the "ale
 
 ### Quick Reference: Which Technique When
 
-| Situation | Technique | Time Needed | Why It Works |
-|-----------|-----------|-------------|--------------|
-| Lying awake, mind racing at bedtime | Diaphragmatic Breathing + 4-7-8 | 10--12 min | Diaphragmatic phase lowers arousal baseline; 4-7-8 delivers sedating parasympathetic activation |
-| Woke at 3am, can't get back to sleep | 4-7-8 Breathing alone | 3 min | Body is already partially relaxed; technique rapidly depresses remaining sympathetic activity |
-| Anxious before bed, need quick reset before lying down | Physiological Sigh (3 sighs) | 30 sec | Fastest sympathetic downregulation available; use while seated before getting into bed |
-| Feel physically tense (shoulders, jaw, chest) | Diaphragmatic Breathing | 6--8 min | Body-focused attention and slow exhale release muscular tension driven by autonomic nervous system |
-| Want a daily habit to improve sleep over time | Resonance Breathing (5-5 nasal) | 10 min (evening) | Consistent HRV resonance practice lowers baseline cortisol and resting heart rate over 4--6 weeks |
+| Situation                                              | Technique                       | Time Needed      | Why It Works                                                                                       |
+| ------------------------------------------------------ | ------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------- |
+| Lying awake, mind racing at bedtime                    | Diaphragmatic Breathing + 4-7-8 | 10--12 min       | Diaphragmatic phase lowers arousal baseline; 4-7-8 delivers sedating parasympathetic activation    |
+| Woke at 3am, can't get back to sleep                   | 4-7-8 Breathing alone           | 3 min            | Body is already partially relaxed; technique rapidly depresses remaining sympathetic activity      |
+| Anxious before bed, need quick reset before lying down | Physiological Sigh (3 sighs)    | 30 sec           | Fastest sympathetic downregulation available; use while seated before getting into bed             |
+| Feel physically tense (shoulders, jaw, chest)          | Diaphragmatic Breathing         | 6--8 min         | Body-focused attention and slow exhale release muscular tension driven by autonomic nervous system |
+| Want a daily habit to improve sleep over time          | Resonance Breathing (5-5 nasal) | 10 min (evening) | Consistent HRV resonance practice lowers baseline cortisol and resting heart rate over 4--6 weeks  |
 
 ---
 
 ### Daily Practice Schedule
 
-| Time of Day | Technique | Duration | Physiological Purpose |
-|-------------|-----------|----------|-----------------------|
-| Evening (30 min before bed) | Resonance Breathing -- 5s nasal in / 5s nasal out, no holds, 10--15 cycles | 8--10 min | Begins the parasympathetic shift from waking activity to sleep preparation; trains HRV coherence over time |
-| At bedtime (lying down) | Diaphragmatic Breathing → 4-7-8 | 10--12 min | Direct sleep onset protocol; transitions the nervous system from alert to sleep-ready state |
-| 3am wake-up (as needed) | 4-7-8 alone | 3 min | Rapid re-sedation without needing to fully wake up |
+| Time of Day                 | Technique                                                                  | Duration   | Physiological Purpose                                                                                      |
+| --------------------------- | -------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------- |
+| Evening (30 min before bed) | Resonance Breathing -- 5s nasal in / 5s nasal out, no holds, 10--15 cycles | 8--10 min  | Begins the parasympathetic shift from waking activity to sleep preparation; trains HRV coherence over time |
+| At bedtime (lying down)     | Diaphragmatic Breathing → 4-7-8                                            | 10--12 min | Direct sleep onset protocol; transitions the nervous system from alert to sleep-ready state                |
+| 3am wake-up (as needed)     | 4-7-8 alone                                                                | 3 min      | Rapid re-sedation without needing to fully wake up                                                         |
 
 **Week 1:** Evening Resonance Breathing only. Focus on nasal exhale and maintaining the 5-second rhythm without a timer. Don't add the bedtime sequence yet -- let one habit establish first.
 **Weeks 2--4:** Add the full bedtime Diaphragmatic + 4-7-8 sequence. Track how long it takes to fall asleep (rough estimate) and note any change from your baseline 60-minute onset.

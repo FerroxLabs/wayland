@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks template research"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks template research'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Relationship Builder
 
 You are an expert in relationship science who helps users build stronger connections with romantic partners, family members, friends, and colleagues. You draw from research-backed relationship frameworks while remaining sensitive to individual differences, cultural contexts, and diverse relationship structures. You understand that healthy relationships are skills that can be learned and practiced, not just feelings that happen.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about relationship builder techniques or best practices
 - User needs guidance on relationship builder concepts
 - User wants to implement or improve their approach to relationship builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of relationship builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,12 +64,12 @@ PILLAR 4: GROWTH       - Evolving together rather than apart
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Gottman Principles (John Gottman) | Romantic relationships; predicting relationship health | The ratio of positive to negative interactions predicts relationship survival; repair attempts matter more than conflict avoidance | Research primarily on heterosexual married couples; cultural specificity |
-| Attachment Theory (Bowlby/Ainsworth) | Understanding connection patterns; anxiety and avoidance in relationships | Early attachment experiences create patterns that affect adult relationships; patterns can be changed | Can oversimplify into categories; self-diagnosis risks; therapy is often needed for deep pattern change |
-| Love Languages (Gary Chapman) | Expressing appreciation; reducing feeling unappreciated | People express and receive love differently; speak their language, not yours | Oversimplifies; limited research base; can be used to excuse not learning other ways to connect |
-| Emotional Intelligence (Goleman/Salovey/Mayer) | Any interpersonal relationship; self-awareness; empathy | The ability to recognize, understand, and manage emotions in yourself and others is the foundation of all relationship skills | Broad framework; not specifically designed for intimate relationships |
+| Approach                                       | Best For                                                                  | Key Insight                                                                                                                        | Limitation                                                                                              |
+| ---------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Gottman Principles (John Gottman)              | Romantic relationships; predicting relationship health                    | The ratio of positive to negative interactions predicts relationship survival; repair attempts matter more than conflict avoidance | Research primarily on heterosexual married couples; cultural specificity                                |
+| Attachment Theory (Bowlby/Ainsworth)           | Understanding connection patterns; anxiety and avoidance in relationships | Early attachment experiences create patterns that affect adult relationships; patterns can be changed                              | Can oversimplify into categories; self-diagnosis risks; therapy is often needed for deep pattern change |
+| Love Languages (Gary Chapman)                  | Expressing appreciation; reducing feeling unappreciated                   | People express and receive love differently; speak their language, not yours                                                       | Oversimplifies; limited research base; can be used to excuse not learning other ways to connect         |
+| Emotional Intelligence (Goleman/Salovey/Mayer) | Any interpersonal relationship; self-awareness; empathy                   | The ability to recognize, understand, and manage emotions in yourself and others is the foundation of all relationship skills      | Broad framework; not specifically designed for intimate relationships                                   |
 
 ## Pillar 1: Safety - Trust and Emotional Security
 
@@ -350,14 +351,14 @@ LOWEST SCORING PILLAR: _______________ (start here)
 
 ### Common Relationship Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Assuming they should "just know" | Expecting mind-reading; fear of being needy | State needs directly and specifically |
-| Keeping score | Resentment; fairness fixation | Focus on contributing, not accounting |
-| Trying to change the other person | Believing the relationship would be perfect "if only they..." | Change what you can (yourself); accept or leave what you cannot |
-| Avoiding conflict | Fear of rupture; conflict-avoidant attachment pattern | Small, timely conversations prevent large explosions |
-| Neglecting the relationship when things are "fine" | Complacency; busyness | Regular appreciation and check-ins maintain connection |
-| Comparing to others or to ideals | Social media; unrealistic expectations | Compare to your own shared values and goals |
+| Mistake                                            | Why It Happens                                                | Fix                                                             |
+| -------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| Assuming they should "just know"                   | Expecting mind-reading; fear of being needy                   | State needs directly and specifically                           |
+| Keeping score                                      | Resentment; fairness fixation                                 | Focus on contributing, not accounting                           |
+| Trying to change the other person                  | Believing the relationship would be perfect "if only they..." | Change what you can (yourself); accept or leave what you cannot |
+| Avoiding conflict                                  | Fear of rupture; conflict-avoidant attachment pattern         | Small, timely conversations prevent large explosions            |
+| Neglecting the relationship when things are "fine" | Complacency; busyness                                         | Regular appreciation and check-ins maintain connection          |
+| Comparing to others or to ideals                   | Social media; unrealistic expectations                        | Compare to your own shared values and goals                     |
 
 ### When to Seek Professional Help
 
@@ -384,7 +385,6 @@ For deeper exploration of the source methodologies:
 
 The Connection Framework gives you a research-informed, practical system for building and maintaining healthy relationships through safety, communication, repair, and growth.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -392,7 +392,6 @@ The Connection Framework gives you a research-informed, practical system for bui
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -413,14 +412,12 @@ The Connection Framework gives you a research-informed, practical system for bui
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

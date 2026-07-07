@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "podcast planning template"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'podcast planning template'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Podcast Episode Planning
 
 ## When to Use
@@ -56,7 +57,7 @@ Collect all required inputs before producing any output. Missing a single input 
 - **Target episode length in minutes:** this is the post-edit target, not the raw recording target. If the user wants a 30-minute episode, the recording session should run 40-50 minutes to allow for editing. Note this in the brief.
 - **Guest name, title, and primary domain of expertise** (for interview and panel formats): this allows the guest briefing to be specific rather than generic.
 - **Target listener profile:** not just demographics, but the specific question the listener brings to this episode. A product manager asking "how do I get my engineers to ship faster?" is different from an engineer asking "how do I stop being the bottleneck?" Same topic, completely different episode framing.
-- **The single listener takeaway:** ask the user to complete this sentence: "After this episode, a listener will be able to ____." The answer should be a concrete behavior, belief, or capability -- not a vague state of awareness.
+- **The single listener takeaway:** ask the user to complete this sentence: "After this episode, a listener will be able to \_\_\_\_." The answer should be a concrete behavior, belief, or capability -- not a vague state of awareness.
 - **Monetization context:** does this episode have a sponsor mid-roll? Is there a product promotion embedded? This affects segment timing and requires placeholder ad break slots in the structure.
 
 ---
@@ -315,24 +316,31 @@ The podcast directory description (Apple Podcasts, Spotify, Overcast, Pocket Cas
 ## Edge Cases
 
 ### Solo Episode (No Guest)
+
 Remove the guest briefing section entirely. The cold open should tease the episode's most counterintuitive claim or the specific insight that the listener does not have yet -- not a quote from a guest. Segment 2 must be explicitly structured with sub-points because there is no conversational partner to draw out new angles organically. Include a "monologue pacing note" for the host: recommend inserting a 1-2 second intentional pause between major sub-points to give the listener processing time and to give the editor clean cut points. Show notes should include a "Key Takeaways" section with three to five bullet points since solo episodes often contain denser information without conversational repetition to reinforce ideas.
 
 ### Panel Discussion (Three or More Guests)
+
 Add a **Speaker Map** table to the segment structure showing each panelist's name, role, and the specific angle or position they represent. Assign "anchor questions" -- questions directed at specific panelists by name -- to prevent the most dominant voice from answering every question. Include a moderator note at the top of the brief: "If two panelists are responding simultaneously, redirect to the one whose expertise is most specific to the question. If a panelist has been quiet for more than four minutes, use a direct address question." Technical note: panel recordings require each participant to record a local track. Include this in the technical requirements for every panelist: Riverside.fm and Squadcast support local recording natively; Zoom does not without a third-party recording tool.
 
 ### Narrative or Documentary Format
+
 Replace the thesis with a story spine. Replace segment titles with narrative beat labels: Setup, Inciting Incident, Rising Action, Turning Point, Resolution, and Lesson. The cold open is a scene excerpt -- a specific moment with sensory detail -- not a thesis preview. Transition language includes sound design cues written as stage directions: "[MUSIC: ambient tension fades to silence]" or "[SFX: archival audio clip 4 seconds]". The show notes for narrative episodes should include a "Story Summary" field separate from the episode summary -- one paragraph that tells the narrative arc without spoiling the resolution.
 
 ### Very Short Episode (Under 12 Minutes)
+
 Compress to three segments: combined cold open + intro (maximum 1:30), core content (8-9 minutes), and outro (1:00). Remove the Setup/Problem segment -- the problem must be stated in one sentence during the intro. Remove the Application segment -- actionable advice is integrated directly into the core content as the final sub-point. Remove the mid-roll ad placement; a mid-roll in a sub-12-minute episode interrupts the listening experience too severely and signals low production value. Guest briefings for short episodes should include a note: "We will keep the conversation tight. Please give direct, concise answers -- we can always expand if the conversation calls for it, but we will edit to keep under 12 minutes."
 
 ### Sensitive or Controversial Topic
+
 Add a **Content Advisory** block at the very top of the episode brief, before the thesis. The content advisory specifies: the nature of the sensitive content (graphic descriptions of violence, mental health crisis content, explicit discussion of substance use, etc.), the specific language the host should use to introduce it ("This episode discusses suicide prevention and contains specific references to methods -- listener discretion is advised"), and a note on whether platform content flags are required (Apple Podcasts requires explicit content flagging for episodes with profanity or adult content; failure to flag can result in demotion from search results). Include a **Framing Note** for the host: the exact opening language to set tone, including what NOT to say (avoid clinical detachment, avoid language that sensationalizes, avoid euphemisms that obscure the seriousness of the topic). Add a **Resources Mentioned** requirement: for mental health, addiction, or crisis topics, a standard resource (hotline number, national organization) must appear in both the show notes and be read aloud by the host at the end of the episode.
 
 ### Serialized or Multi-Part Episode
+
 Add a **Series Context** block to the episode brief showing where this episode falls in the arc (Episode 2 of 4, for example), what was established in the previous episode that this one builds on, and what must be left unresolved to create a continuation hook. The outro for a mid-series episode is structurally different from a standalone episode outro: instead of a generic episode tease, it must include a specific unresolved question or reveal that was deliberately withheld in the current episode. The cold open for episode 2 and beyond should include a one-sentence "previously on" recap -- no longer, or it will feel like padding.
 
 ### Repurposed Content Episode (Based on Existing Material)
+
 When the user wants to build an episode around an existing blog post, webinar, presentation, or previous episode, the thesis must be restated from the source material's argument -- not copied verbatim. Ask the user: "What does your audience know from reading/watching the original? What can the audio format reveal that the written/visual format could not?" The answer defines the episode's unique value. Guest or co-host presence becomes particularly valuable here -- a second voice adds the conversational texture and spontaneous insight that distinguishes the podcast version from the original. Note in the brief: "This episode is adapted from [source]. The show notes should link to the original source and note the connection explicitly."
 
 ---
@@ -370,16 +378,16 @@ Culture does not survive hyper-growth by accident -- it survives because someone
 
 ### Segment Structure
 
-| # | Segment | Content Description | Start | Duration |
-|---|---------|---------------------|-------|----------|
-| - | Cold Open | Guest quote: "At employee 80, I realized we had already lost the culture we were trying to protect. We had been so focused on hiring fast that we forgot to teach anyone what we actually believed. That was the moment I stopped treating culture as a feeling and started treating it as a system." | 0:00 | 0:50 |
-| - | Intro | Theme music, "The Ops Room," episode number, host intro. Guest intro: "[Guest Name] is the COO who took [Company] from 20 to 200 people in 18 months -- and is here today because their team retention rate during that period was 91%. They are also a former D1 athlete, which, as you will hear, turns out to be directly relevant to how they think about culture." | 0:50 | 1:30 |
-| [AD] | Mid-roll Ad placeholder | [Sponsor TBD] | 2:20 | 1:00 |
-| 1 | The Myth of Culture Fit | What most operators believe about culture during scaling: that hiring for "culture fit" will protect it. Why this belief is dangerous. How culture fit becomes a proxy for homogeneity and the guest's specific moment of realization. | 3:20 | 8:00 |
-| 2 | Culture as Operating System | The thesis: culture survives scaling when it is converted from unwritten norms into documented systems BEFORE headcount doubles. Guest's framework: the Culture Codification Sprint (identify the 10 most important unwritten norms, write the decision rule behind each one, embed each rule into one operational process). Evidence from the 20-to-200 journey. The counterargument ("culture can't be documented without killing it") and why it is wrong. The implication: most COOs are 30 days behind on this at all times. | 11:20 | 16:00 |
-| 3 | The Ops Playbook: What to Do This Month | Three specific actions: (1) Run the Culture Audit -- list the ten norms that would disappear if your founding team left tomorrow. (2) Assign a Culture Owner for each norm -- not HR, but a named senior IC who embodies it. (3) Write one decision rule per norm and embed it in the onboarding checklist for the next hire. Guest shares the single change that had the highest ROI during the 20-to-200 scaling period. | 27:20 | 10:00 |
-| - | Outro | Thesis restatement, guest's primary resource to share, CTA (subscribe + newsletter), next episode tease | 37:20 | 2:40 |
-| | **Total** | | | **40:00** |
+| #    | Segment                                 | Content Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Start | Duration  |
+| ---- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------- |
+| -    | Cold Open                               | Guest quote: "At employee 80, I realized we had already lost the culture we were trying to protect. We had been so focused on hiring fast that we forgot to teach anyone what we actually believed. That was the moment I stopped treating culture as a feeling and started treating it as a system."                                                                                                                                                                                                                             | 0:00  | 0:50      |
+| -    | Intro                                   | Theme music, "The Ops Room," episode number, host intro. Guest intro: "[Guest Name] is the COO who took [Company] from 20 to 200 people in 18 months -- and is here today because their team retention rate during that period was 91%. They are also a former D1 athlete, which, as you will hear, turns out to be directly relevant to how they think about culture."                                                                                                                                                           | 0:50  | 1:30      |
+| [AD] | Mid-roll Ad placeholder                 | [Sponsor TBD]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2:20  | 1:00      |
+| 1    | The Myth of Culture Fit                 | What most operators believe about culture during scaling: that hiring for "culture fit" will protect it. Why this belief is dangerous. How culture fit becomes a proxy for homogeneity and the guest's specific moment of realization.                                                                                                                                                                                                                                                                                            | 3:20  | 8:00      |
+| 2    | Culture as Operating System             | The thesis: culture survives scaling when it is converted from unwritten norms into documented systems BEFORE headcount doubles. Guest's framework: the Culture Codification Sprint (identify the 10 most important unwritten norms, write the decision rule behind each one, embed each rule into one operational process). Evidence from the 20-to-200 journey. The counterargument ("culture can't be documented without killing it") and why it is wrong. The implication: most COOs are 30 days behind on this at all times. | 11:20 | 16:00     |
+| 3    | The Ops Playbook: What to Do This Month | Three specific actions: (1) Run the Culture Audit -- list the ten norms that would disappear if your founding team left tomorrow. (2) Assign a Culture Owner for each norm -- not HR, but a named senior IC who embodies it. (3) Write one decision rule per norm and embed it in the onboarding checklist for the next hire. Guest shares the single change that had the highest ROI during the 20-to-200 scaling period.                                                                                                        | 27:20 | 10:00     |
+| -    | Outro                                   | Thesis restatement, guest's primary resource to share, CTA (subscribe + newsletter), next episode tease                                                                                                                                                                                                                                                                                                                                                                                                                           | 37:20 | 2:40      |
+|      | **Total**                               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |       | **40:00** |
 
 ---
 
@@ -414,6 +422,7 @@ Culture does not survive hyper-growth by accident -- it survives because someone
 The Ops Room audience is made up of COOs, VPs of Operations, and chiefs of staff who are either in the middle of a scaling event or know one is coming. This episode's central argument is that culture survives rapid growth not through good intentions or careful hiring but through deliberate operationalization -- converting unwritten cultural norms into documented systems before headcount doubles. Your experience taking [Company] from 20 to 200 employees in 18 months with a 91% retention rate is a rare, concrete proof point for this argument. The listener will walk away with a specific three-step process they can begin this week.
 
 **Questions to expect (not exhaustive):**
+
 1. Most operators believe that hiring for "culture fit" is how you protect culture during fast growth. What do you believe instead, and when did your thinking shift?
 2. You have described culture as an "operating system" rather than a feeling. Walk me through what you mean by that and how you started treating it that way.
 3. There is a real argument that once you write culture down, you kill its authenticity -- it becomes a marketing document, not a lived experience. How do you respond to that?
@@ -421,15 +430,18 @@ The Ops Room audience is made up of COOs, VPs of Operations, and chiefs of staff
 5. What is the single change you made during the 20-to-200 period that had the highest return on culture preservation?
 
 **Please prepare:**
+
 - One specific story -- ideally a moment when you saw the culture beginning to erode, what you observed, and what you did about it
 - One data point from your own experience: retention rate, engagement score, a specific outcome that shows the approach worked
 - One thing a listener can do within 48 hours that will make a meaningful difference -- specific enough to be actionable, not just a mindset shift
 
 **Please do NOT prepare:**
+
 - A polished narrative that covers every aspect of the topic from start to finish -- the best moments in this kind of interview come from real-time thinking and reaction, not rehearsed answers
 - A list of all the points you want to make -- trust the conversation to surface them
 
 **Technical requirements:**
+
 - Platform: [Riverside.fm / Squadcast -- link sent separately 24 hours before recording]
 - Microphone: USB dynamic microphone strongly preferred (Audio-Technica ATR2100x, Samson Q2U, Blue Yeti all work well) -- wired earbuds with inline mic are acceptable as a minimum; please do not use AirPods or other Bluetooth headphones
 - Room: Choose a room with soft surfaces -- a bedroom, a carpeted home office, or any room with bookshelves or fabric furniture. Avoid kitchens, bathrooms, open office environments, or rooms with large glass walls
@@ -447,6 +459,7 @@ The Ops Room audience is made up of COOs, VPs of Operations, and chiefs of staff
 [Guest Name] is the COO who took [Company] from 20 to 200 employees in 18 months -- and maintained a 91% team retention rate while doing it. In this episode, they explain why the conventional wisdom of "hire for culture fit" is one of the most dangerous beliefs during a scaling event, and introduce the Culture Codification Sprint: a specific process for converting unwritten cultural norms into operational systems before headcount doubles. If your company is approaching or in the middle of a growth surge, this episode gives you a concrete three-step playbook to start this week.
 
 **Timestamps:**
+
 - 0:00 -- Cold open: the moment culture started disappearing at employee 80
 - 3:20 -- Why hiring for "culture fit" is dangerous during rapid growth
 - 11:20 -- Culture as an operating system: the Culture Codification Sprint framework
@@ -457,6 +470,7 @@ The Ops Room audience is made up of COOs, VPs of Operations, and chiefs of staff
 - 37:20 -- Where to find [Guest Name] and closing
 
 **Resources Mentioned:**
+
 - [Book or article referenced by guest during recording -- to be confirmed]
 - Culture Codification Sprint framework -- [Guest Name]'s description and template [add link if guest shares one]
 - [Any specific tool, process, or framework named during recording]
@@ -464,11 +478,13 @@ The Ops Room audience is made up of COOs, VPs of Operations, and chiefs of staff
 **Guest:** [Guest Name] is the COO of [Company], where they led the organization from 20 to 200 employees in 18 months while maintaining a 91% team retention rate. Prior to [Company], [Guest Name] served as [previous relevant role]. They write about operations and organizational design at [publication or newsletter -- to confirm]. [Guest Name] is also a former [D1 sport] athlete, a background that directly informs their systems-based approach to team culture.
 
 **Connect with [Guest Name]:**
+
 - Website: [to confirm]
 - LinkedIn: [to confirm]
 - Newsletter / writing: [to confirm]
 
 **Connect with The Ops Room:**
+
 - Newsletter: [link]
 - Website: [link]
 - Subscribe on Apple Podcasts / Spotify / [other platform]

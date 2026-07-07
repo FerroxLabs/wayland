@@ -99,9 +99,7 @@ async function inspect() {
     const errorBoundary = root?.innerHTML?.includes('Something went wrong') || false;
     const wrapper = document.querySelector('.settings-page-wrapper');
     const content = document.querySelector('.settings-page-content');
-    const grid = document.querySelector(
-      '.settings-page-content [class*="grid-cols"]'
-    );
+    const grid = document.querySelector('.settings-page-content [class*="grid-cols"]');
     const articles = grid ? Array.from(grid.children) : [];
 
     const rect = (el) => {
@@ -133,13 +131,14 @@ async function inspect() {
       content: rect(content),
       contentMaxWidth: content ? getComputedStyle(content).maxWidth : null,
       grid: rect(grid),
-      gridCols: articles.length > 0 ? (() => {
-        // Count cards in the first row by matching y
-        const first = articles[0].getBoundingClientRect();
-        return articles.filter(
-          (a) => Math.abs(a.getBoundingClientRect().top - first.top) < 4
-        ).length;
-      })() : null,
+      gridCols:
+        articles.length > 0
+          ? (() => {
+              // Count cards in the first row by matching y
+              const first = articles[0].getBoundingClientRect();
+              return articles.filter((a) => Math.abs(a.getBoundingClientRect().top - first.top) < 4).length;
+            })()
+          : null,
       cards: articles.slice(0, 3).map((a) => {
         const r = a.getBoundingClientRect();
         return { w: r.width, h: r.height, x: r.left };
@@ -221,9 +220,7 @@ const md = [
   ``,
   '| Theme | Slug | Kind | Status | Issues |',
   '|---|---|---|---|---|',
-  ...report.map(
-    (r) => `| ${r.theme} | ${r.slug} | ${r.kind} | ${r.status} | ${r.issues.join('; ') || '-'} |`
-  ),
+  ...report.map((r) => `| ${r.theme} | ${r.slug} | ${r.kind} | ${r.status} | ${r.issues.join('; ') || '-'} |`),
 ].join('\n');
 await writeFile(`${outDir}/report.md`, md);
 

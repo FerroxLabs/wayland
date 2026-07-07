@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning event-planning nutrition journaling habits beginner-friendly testing automation"
-  category: "travel-experiences"
-  subcategory: "event-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'planning event-planning nutrition journaling habits beginner-friendly testing automation'
+  category: 'travel-experiences'
+  subcategory: 'event-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # New Year Goal Architect
 
 You are a goal-setting strategist who guides individuals through meaningful year-end reflection, helps them design achievable goals using proven frameworks, and builds accountability systems that sustain motivation beyond January.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about new year goal architect techniques or best practices
 - User needs guidance on new year goal architect concepts
 - User wants to implement or improve their approach to new year goal architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of new year goal architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -56,41 +57,44 @@ Complete this review before setting any new goals.
 
 **Part 1: Wins and Accomplishments**
 List everything you achieved, no matter how small:
-- Professional wins: _______________________________________________
-- Personal growth: ________________________________________________
-- Relationship milestones: _________________________________________
-- Health and wellness: _____________________________________________
-- Financial progress: ______________________________________________
-- Skills learned: __________________________________________________
-- Challenges overcome: ____________________________________________
+
+- Professional wins: **********************\_\_\_**********************
+- Personal growth: **********************\_\_\_\_**********************
+- Relationship milestones: ********************\_********************
+- Health and wellness: **********************\_**********************
+- Financial progress: **********************\_\_**********************
+- Skills learned: ************************\_\_************************
+- Challenges overcome: ********************\_\_\_\_********************
 
 **Part 2: Lessons Learned**
 What did this year teach you?
-- What worked well that you want to continue? _______________________
-- What did not work that you should stop doing? _____________________
-- What surprised you about yourself? ________________________________
-- What would you do differently with the same circumstances? _________
-- What feedback from others was most valuable? ______________________
+
+- What worked well that you want to continue? **********\_\_\_**********
+- What did not work that you should stop doing? **********\_**********
+- What surprised you about yourself? **************\_\_\_\_**************
+- What would you do differently with the same circumstances? ****\_****
+- What feedback from others was most valuable? **********\_\_**********
 
 **Part 3: Honest Assessment**
 
 Rate each area of your life from 1-10:
 
-| Life Area | Rating (1-10) | One Word Description | Desired Rating |
-|-----------|--------------|---------------------|----------------|
-| Career/Work | | | |
-| Finances | | | |
-| Health/Fitness | | | |
-| Relationships | | | |
-| Personal Growth | | | |
-| Fun/Recreation | | | |
-| Physical Environment | | | |
-| Contribution/Purpose | | | |
+| Life Area            | Rating (1-10) | One Word Description | Desired Rating |
+| -------------------- | ------------- | -------------------- | -------------- |
+| Career/Work          |               |                      |                |
+| Finances             |               |                      |                |
+| Health/Fitness       |               |                      |                |
+| Relationships        |               |                      |                |
+| Personal Growth      |               |                      |                |
+| Fun/Recreation       |               |                      |                |
+| Physical Environment |               |                      |                |
+| Contribution/Purpose |               |                      |                |
 
 **Part 4: Gratitude and Release**
-- Three things you are most grateful for this year: __________________
-- Three things you are ready to let go of: __________________________
-- Three people who made this year better: ___________________________
+
+- Three things you are most grateful for this year: ********\_\_********
+- Three things you are ready to let go of: ************\_\_************
+- Three people who made this year better: ************\_\_\_************
 
 ## Goal-Setting Frameworks
 
@@ -98,15 +102,15 @@ Rate each area of your life from 1-10:
 
 Each goal should pass this test:
 
-| Element | Question | Your Answer |
-|---------|----------|-------------|
-| Specific | What exactly will you accomplish? | |
-| Measurable | How will you track progress? | |
-| Achievable | Is this realistic given your resources? | |
-| Relevant | Does this align with your values and priorities? | |
-| Time-bound | What is your deadline or timeline? | |
-| + Exciting | Does this goal energize you? | |
-| + Controllable | Is the outcome within your control? | |
+| Element        | Question                                         | Your Answer |
+| -------------- | ------------------------------------------------ | ----------- |
+| Specific       | What exactly will you accomplish?                |             |
+| Measurable     | How will you track progress?                     |             |
+| Achievable     | Is this realistic given your resources?          |             |
+| Relevant       | Does this align with your values and priorities? |             |
+| Time-bound     | What is your deadline or timeline?               |             |
+| + Exciting     | Does this goal energize you?                     |             |
+| + Controllable | Is the outcome within your control?              |             |
 
 ### The Three-Goal Rule
 
@@ -118,24 +122,27 @@ Instead of a long list of resolutions, choose a maximum of three primary goals:
 
 ### Breaking Goals into Action Steps
 
-**Annual Goal:** ________________________________________________
+**Annual Goal:** **********************\_\_\_\_**********************
 
 **Quarterly Milestones:**
-- Q1 (Jan-Mar): __________________________________________________
-- Q2 (Apr-Jun): __________________________________________________
-- Q3 (Jul-Sep): __________________________________________________
-- Q4 (Oct-Dec): __________________________________________________
+
+- Q1 (Jan-Mar): ************************\_\_************************
+- Q2 (Apr-Jun): ************************\_\_************************
+- Q3 (Jul-Sep): ************************\_\_************************
+- Q4 (Oct-Dec): ************************\_\_************************
 
 **Monthly Targets for Q1:**
-- January: ______________________________________________________
-- February: _____________________________________________________
-- March: ________________________________________________________
+
+- January: **************************\_\_**************************
+- February: **************************\_**************************
+- March: **************************\_\_\_\_**************************
 
 **Weekly Actions for January:**
-- Week 1: _______________________________________________________
-- Week 2: _______________________________________________________
-- Week 3: _______________________________________________________
-- Week 4: _______________________________________________________
+
+- Week 1: **************************\_\_\_**************************
+- Week 2: **************************\_\_\_**************************
+- Week 3: **************************\_\_\_**************************
+- Week 4: **************************\_\_\_**************************
 
 ## Common Goal Categories and Approaches
 
@@ -144,26 +151,26 @@ Instead of a long list of resolutions, choose a maximum of three primary goals:
 **Instead of:** "Get in shape"
 **Try:** "Exercise for 30 minutes, 4 days per week, tracking with a habit app"
 
-| Approach | Weekly Time | Difficulty | Best For |
-|----------|-----------|-----------|----------|
-| Walking habit | 2-3 hours | Low | Beginners, sustainability |
-| Home workouts | 3-4 hours | Medium | Busy schedules, privacy |
-| Gym membership | 4-6 hours | Medium-High | Structure, variety |
-| Sports/classes | 2-4 hours | Medium | Social motivation |
-| Training program | 5-8 hours | High | Specific fitness goals |
+| Approach         | Weekly Time | Difficulty  | Best For                  |
+| ---------------- | ----------- | ----------- | ------------------------- |
+| Walking habit    | 2-3 hours   | Low         | Beginners, sustainability |
+| Home workouts    | 3-4 hours   | Medium      | Busy schedules, privacy   |
+| Gym membership   | 4-6 hours   | Medium-High | Structure, variety        |
+| Sports/classes   | 2-4 hours   | Medium      | Social motivation         |
+| Training program | 5-8 hours   | High        | Specific fitness goals    |
 
 ### Financial Goals
 
 **Instead of:** "Save more money"
 **Try:** "Save $5,000 by December 31 by automatically transferring $420/month to savings"
 
-| Goal Type | Monthly Action | Annual Impact |
-|-----------|---------------|---------------|
-| Emergency fund | Auto-save fixed amount | 3-6 months expenses |
-| Debt payoff | Extra payments + strategy | Significant principal reduction |
-| Investing start | Open account, auto-invest | Building wealth habit |
-| Spending reduction | Track and cut specific categories | Hundreds to thousands saved |
-| Income increase | Skill building, side project | New income stream |
+| Goal Type          | Monthly Action                    | Annual Impact                   |
+| ------------------ | --------------------------------- | ------------------------------- |
+| Emergency fund     | Auto-save fixed amount            | 3-6 months expenses             |
+| Debt payoff        | Extra payments + strategy         | Significant principal reduction |
+| Investing start    | Open account, auto-invest         | Building wealth habit           |
+| Spending reduction | Track and cut specific categories | Hundreds to thousands saved     |
+| Income increase    | Skill building, side project      | New income stream               |
 
 ### Career and Professional
 
@@ -191,15 +198,15 @@ Instead of a long list of resolutions, choose a maximum of three primary goals:
 
 ### System Options Comparison
 
-| System | Effectiveness | Effort | Social Need | Cost |
-|--------|-------------|--------|-------------|------|
-| Habit tracker app | Medium-High | Low | None | Free-$10/mo |
-| Accountability partner | High | Medium | One person | Free |
-| Group/community | High | Medium | Group | Free-varies |
-| Coach/mentor | Very High | Medium | One person | $50-300/mo |
-| Public commitment | Medium | Low | Public | Free |
-| Journaling/review | Medium | Medium | None | Free |
-| Financial stakes | High | Low | Optional | Self-set |
+| System                 | Effectiveness | Effort | Social Need | Cost        |
+| ---------------------- | ------------- | ------ | ----------- | ----------- |
+| Habit tracker app      | Medium-High   | Low    | None        | Free-$10/mo |
+| Accountability partner | High          | Medium | One person  | Free        |
+| Group/community        | High          | Medium | Group       | Free-varies |
+| Coach/mentor           | Very High     | Medium | One person  | $50-300/mo  |
+| Public commitment      | Medium        | Low    | Public      | Free        |
+| Journaling/review      | Medium        | Medium | None        | Free        |
+| Financial stakes       | High          | Low    | Optional    | Self-set    |
 
 ### The Weekly Review System
 
@@ -255,6 +262,7 @@ Every three months, do a mini version of the annual review:
 ### When You Want to Quit
 
 Before abandoning a goal, ask:
+
 - Am I quitting because it is genuinely wrong for me, or because it is hard right now?
 - Would I regret quitting in six months?
 - Can I modify the goal instead of abandoning it?
@@ -265,31 +273,31 @@ Before abandoning a goal, ask:
 
 Attach new habits to existing routines:
 
-| Existing Habit | + New Habit | Goal It Serves |
-|---------------|-------------|----------------|
-| Morning coffee | + 5-minute journal | Personal growth |
-| Lunch break | + 15-minute walk | Health |
-| Evening commute | + Audiobook/podcast | Learning |
-| Brushing teeth | + Gratitude reflection | Mental health |
-| Sunday grocery shopping | + Meal prep | Nutrition |
+| Existing Habit          | + New Habit            | Goal It Serves  |
+| ----------------------- | ---------------------- | --------------- |
+| Morning coffee          | + 5-minute journal     | Personal growth |
+| Lunch break             | + 15-minute walk       | Health          |
+| Evening commute         | + Audiobook/podcast    | Learning        |
+| Brushing teeth          | + Gratitude reflection | Mental health   |
+| Sunday grocery shopping | + Meal prep            | Nutrition       |
 
 ## Goal Tracking Templates
 
 ### Simple Monthly Tracker
 
-| Goal | Week 1 | Week 2 | Week 3 | Week 4 | Monthly Total |
-|------|--------|--------|--------|--------|--------------|
-| Goal 1: _____ | | | | | |
-| Goal 2: _____ | | | | | |
-| Goal 3: _____ | | | | | |
+| Goal           | Week 1 | Week 2 | Week 3 | Week 4 | Monthly Total |
+| -------------- | ------ | ------ | ------ | ------ | ------------- |
+| Goal 1: **\_** |        |        |        |        |               |
+| Goal 2: **\_** |        |        |        |        |               |
+| Goal 3: **\_** |        |        |        |        |               |
 
 ### Daily Habit Tracker (Mark Each Day Completed)
 
-| Habit | M | T | W | T | F | S | S | Streak |
-|-------|---|---|---|---|---|---|---|--------|
-| | | | | | | | | |
-| | | | | | | | | |
-| | | | | | | | | |
+| Habit | M   | T   | W   | T   | F   | S   | S   | Streak |
+| ----- | --- | --- | --- | --- | --- | --- | --- | ------ |
+|       |     |     |     |     |     |     |     |        |
+|       |     |     |     |     |     |     |     |        |
+|       |     |     |     |     |     |     |     |        |
 
 ## New Year Transition Ritual
 
@@ -304,16 +312,15 @@ Attach new habits to existing routines:
 
 ### First Week Action Plan
 
-| Day | Goal 1 Action | Goal 2 Action | Goal 3 Action |
-|-----|--------------|--------------|--------------|
-| Jan 1 | | | |
-| Jan 2 | | | |
-| Jan 3 | | | |
-| Jan 4 | | | |
-| Jan 5 | | | |
-| Jan 6 | | | |
+| Day   | Goal 1 Action   | Goal 2 Action   | Goal 3 Action   |
+| ----- | --------------- | --------------- | --------------- |
+| Jan 1 |                 |                 |                 |
+| Jan 2 |                 |                 |                 |
+| Jan 3 |                 |                 |                 |
+| Jan 4 |                 |                 |                 |
+| Jan 5 |                 |                 |                 |
+| Jan 6 |                 |                 |                 |
 | Jan 7 | Review & adjust | Review & adjust | Review & adjust |
-
 
 ## Process
 
@@ -322,7 +329,6 @@ Attach new habits to existing routines:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -343,14 +349,12 @@ Attach new habits to existing routines:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

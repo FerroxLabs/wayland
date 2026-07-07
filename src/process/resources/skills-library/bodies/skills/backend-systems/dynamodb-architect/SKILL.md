@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql cloud"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database sql cloud'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # DynamoDB Architect
@@ -83,44 +83,47 @@ Step 4: Design GSIs for remaining patterns
 ```javascript
 // DynamoDB single-table operations
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand, QueryCommand,
-         TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, QueryCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 
 const client = DynamoDBDocumentClient.from(new DynamoDBClient({}));
 const TABLE = 'MyApp';
 
 // Access Pattern 1: Create user
 async function createUser(user) {
-  await client.send(new PutCommand({
-    TableName: TABLE,
-    Item: {
-      PK: `USER#${user.id}`,
-      SK: 'PROFILE',
-      entityType: 'User',
-      name: user.name,
-      email: user.email,
-      createdAt: new Date().toISOString(),
-      // GSI1: enable lookup by email
-      GSI1PK: `EMAIL#${user.email}`,
-      GSI1SK: `USER#${user.id}`,
-    },
-    ConditionExpression: 'attribute_not_exists(PK)', // Prevent overwrite
-  }));
+  await client.send(
+    new PutCommand({
+      TableName: TABLE,
+      Item: {
+        PK: `USER#${user.id}`,
+        SK: 'PROFILE',
+        entityType: 'User',
+        name: user.name,
+        email: user.email,
+        createdAt: new Date().toISOString(),
+        // GSI1: enable lookup by email
+        GSI1PK: `EMAIL#${user.email}`,
+        GSI1SK: `USER#${user.id}`,
+      },
+      ConditionExpression: 'attribute_not_exists(PK)', // Prevent overwrite
+    })
+  );
 }
 
 // Access Pattern 2: Get user's orders (sorted by date, newest first)
 async function getUserOrders(userId, limit = 20, lastKey = null) {
-  const result = await client.send(new QueryCommand({
-    TableName: TABLE,
-    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
-    ExpressionAttributeValues: {
-      ':pk': `USER#${userId}`,
-      ':sk': 'ORDER#',
-    },
-    ScanIndexForward: false,  // Newest first
-    Limit: limit,
-    ExclusiveStartKey: lastKey,
-  }));
+  const result = await client.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+      ExpressionAttributeValues: {
+        ':pk': `USER#${userId}`,
+        ':sk': 'ORDER#',
+      },
+      ScanIndexForward: false, // Newest first
+      Limit: limit,
+      ExclusiveStartKey: lastKey,
+    })
+  );
 
   return {
     orders: result.Items,
@@ -130,16 +133,18 @@ async function getUserOrders(userId, limit = 20, lastKey = null) {
 
 // Access Pattern 3: Get order with all items (single query)
 async function getOrderWithItems(orderId) {
-  const result = await client.send(new QueryCommand({
-    TableName: TABLE,
-    KeyConditionExpression: 'PK = :pk',
-    ExpressionAttributeValues: {
-      ':pk': `ORDER#${orderId}`,
-    },
-  }));
+  const result = await client.send(
+    new QueryCommand({
+      TableName: TABLE,
+      KeyConditionExpression: 'PK = :pk',
+      ExpressionAttributeValues: {
+        ':pk': `ORDER#${orderId}`,
+      },
+    })
+  );
 
-  const order = result.Items.find(i => i.SK === 'METADATA');
-  const items = result.Items.filter(i => i.SK.startsWith('ITEM#'));
+  const order = result.Items.find((i) => i.SK === 'METADATA');
+  const items = result.Items.filter((i) => i.SK.startsWith('ITEM#'));
   return { order, items };
 }
 
@@ -158,7 +163,7 @@ async function createOrder(order, items) {
           orderId: order.id,
           status: 'pending',
           total: order.total,
-          GSI2PK: 'pending',         // Status index
+          GSI2PK: 'pending', // Status index
           GSI2SK: timestamp,
         },
       },
@@ -179,7 +184,7 @@ async function createOrder(order, items) {
       },
     },
     // Order items
-    ...items.map(item => ({
+    ...items.map((item) => ({
       Put: {
         TableName: TABLE,
         Item: {
@@ -194,9 +199,11 @@ async function createOrder(order, items) {
     })),
   ];
 
-  await client.send(new TransactWriteCommand({
-    TransactItems: transactItems,
-  }));
+  await client.send(
+    new TransactWriteCommand({
+      TransactItems: transactItems,
+    })
+  );
 }
 ```
 
@@ -380,15 +387,17 @@ export async function handler(event) {
 // Setting TTL on items
 const SEVEN_DAYS = 7 * 24 * 60 * 60;
 
-await client.send(new PutCommand({
-  TableName: TABLE,
-  Item: {
-    PK: `SESSION#${sessionId}`,
-    SK: `USER#${userId}`,
-    createdAt: new Date().toISOString(),
-    ttl: Math.floor(Date.now() / 1000) + SEVEN_DAYS, // Expires in 7 days
-  },
-}));
+await client.send(
+  new PutCommand({
+    TableName: TABLE,
+    Item: {
+      PK: `SESSION#${sessionId}`,
+      SK: `USER#${userId}`,
+      createdAt: new Date().toISOString(),
+      ttl: Math.floor(Date.now() / 1000) + SEVEN_DAYS, // Expires in 7 days
+    },
+  })
+);
 
 // Enable TTL on the table (one-time setup)
 // aws dynamodb update-time-to-live --table-name MyApp \
@@ -460,6 +469,7 @@ Cost Control:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing dynamodb architect solutions
 - Reviewing or improving existing dynamodb architect approaches
 - Making architectural or implementation decisions about dynamodb architect
@@ -467,6 +477,7 @@ Cost Control:
 - Troubleshooting dynamodb architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -477,21 +488,26 @@ Cost Control:
 # Dynamodb Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

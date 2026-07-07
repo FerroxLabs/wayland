@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "swift mobile testing"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'swift mobile testing'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Swift Testing Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is writing unit tests, integration tests, or UI tests for a Swift application and wants to apply idiomatic patterns beyond the basics
 - User is migrating from XCTest to the new Swift Testing framework (introduced in Xcode 15 / Swift 5.9) and needs to understand the differences and migration path
 - User wants to implement testable architecture patterns in Swift -- dependency injection, protocol-based mocking, or actor-isolated testing
@@ -29,6 +31,7 @@ metadata:
 - User asks about property-based testing, snapshot testing, or contract testing in a Swift context
 
 **Do NOT use this skill when:**
+
 - User needs Objective-C testing patterns -- the runtime model, OCMock usage, and method swizzling patterns differ substantially; use a dedicated Objective-C skill
 - User is asking about Xcode configuration, test targets setup, or CI/CD pipeline configuration for test runners -- those are infrastructure concerns, not code patterns
 - User needs XCUITest or Accessibility Inspector workflows for UI automation scripting -- that is a dedicated test automation skill
@@ -206,27 +209,35 @@ Step 3: [Third concrete action]
 ## Edge Cases
 
 ### Testing `@MainActor`-isolated SwiftUI ViewModels
+
 When a ViewModel is annotated with `@MainActor`, test functions must also be `@MainActor` or the compiler will require `await` on every property access. Annotate the entire `XCTestCase` subclass with `@MainActor` rather than individual test methods. In Swift Testing, annotate the `@Suite` struct. Be aware that `@MainActor` on an `XCTestCase` subclass runs `setUp` and `tearDown` on the main thread -- this is usually correct but can deadlock if `setUp` calls `async` code that itself dispatches to `MainActor` from within a `Task`. Use `await MainActor.run {}` to safely dispatch when needed.
 
 ### Testing Code That Uses `@Observable` (Swift 5.9 Observation Framework)
+
 `@Observable` types do not expose a publisher or combine stream by default. To test reactive behavior, observe property changes by reading the property after triggering the action: `await viewModel.triggerFetch(); #expect(viewModel.users.count == 3)`. If you need to assert that a property change fires at least once, use `withObservationTracking` in a test helper that records observed changes. Do not attempt to use `Combine` sink patterns on `@Observable` types unless you have manually bridged to a publisher.
 
 ### Testing Error Propagation Through `throws` and `async throws`
+
 When verifying that a function throws a specific error type, use `#expect(throws: NetworkError.self)` in Swift Testing or `XCTAssertThrowsError` with type-casting in XCTest. Never use a bare `try?` in a test that is supposed to verify error throwing -- silent failure converts a thrown error into nil and the test passes incorrectly. For async throwing functions in XCTest, use `await XCTAssertThrowsError(try await sut.fetch())` -- note that this requires Xcode 13.2+ where the async overload of `XCTAssertThrowsError` is available. In earlier Xcode versions, use a `do/catch` with `XCTFail` in the `catch` block.
 
 ### Testing Code Using `Sendable` and Structured Concurrency
+
 Strict concurrency checking (`-strict-concurrency=complete`) can cause test helpers to generate warnings or errors when they capture values in closures across actor boundaries. When writing test helpers that use `Task {}` internally, annotate them with `@Sendable` where necessary and use `@unchecked Sendable` sparingly only on types that you have verified are thread-safe through locks or serial queues. Test targets should compile with the same concurrency checking level as the production target to catch real issues.
 
 ### Snapshot Tests Across Device Configurations
+
 Point-Free's swift-snapshot-testing library stores reference images in the repository. These images are resolution- and OS-version-dependent. Establish a strict policy: snapshot tests run only on a single designated simulator configuration (e.g., iPhone 15 Pro, iOS 17.2) on CI. Use `XCTSkip` guarded by a runtime check when not on the designated device: `try XCTSkipUnless(UIDevice.current.name.contains("iPhone 15 Pro"), "Snapshot tests require iPhone 15 Pro simulator")`. Record mode (`record: true`) must be disabled before committing -- use an environment variable `SNAPSHOT_RECORD` to gate this, never hardcode `true`.
 
 ### Testing Combine Pipelines with Backpressure and Buffering
+
 When testing `Combine` pipelines that use `.buffer(size:prefetch:whenFull:)` or `.debounce(for:scheduler:)`, you must inject a fake `Scheduler`. Use `ImmediateScheduler.shared` for synchronous pipelines or `TestScheduler` from the CombineSchedulers library (Point-Free) for time-sensitive pipelines. A test that uses `RunLoop.main` or `DispatchQueue.main` as the scheduler will behave differently in a headless CI test runner versus an interactive session. Never rely on `RunLoop.main` advancing automatically in a test -- it may not.
 
 ### Modular SPM Projects with Cross-Module Dependency Injection
+
 In a multi-module Swift package, test targets cannot import types marked `internal` from sibling modules. Structure the codebase so that protocols defining injection points are `public` and live in a dedicated `Interfaces` module. The concrete implementations live in a `Implementations` module. The test target imports `Interfaces` and provides its own test double conformances. This avoids the circular dependency that arises when the test target tries to import the real `Implementations` module just to access a protocol.
 
 ### Legacy `XCTestCase` Migration to Swift Testing
+
 Do not migrate `XCTestCase` subclasses that contain `setUp`, `tearDown`, and more than 30 test methods all at once. Migrate one logical group at a time. Critical difference: Swift Testing `@Suite` structs do not run `XCTest` assertions -- `XCTAssertEqual` compiles but does not integrate with the Swift Testing runner. Audit the test file for `XCTAssert*` calls and replace them with `#expect` during migration. Mixed files (some `@Test` functions in a class that also inherits `XCTestCase`) are not supported -- a type must be one or the other.
 
 ---
@@ -240,6 +251,7 @@ Do not migrate `XCTestCase` subclasses that contain `setUp`, `tearDown`, and mor
 ### Swift Testing Assessment
 
 **Project Context**
+
 - Swift version: 5.9 with Xcode 15
 - Testing framework: Swift Testing available (use for new tests)
 - Test pyramid status: 0% coverage -- starting from scratch
@@ -462,20 +474,20 @@ Eight tests in 31 milliseconds -- well under the 0.1-second-per-test target. The
 
 ### Dependency Injection Strategy Summary
 
-| Dependency | Injection Pattern | Test Double | Notes |
-|---|---|---|---|
-| `URLSession` / `HTTPClient` | Protocol injection | `MockHTTPClient` (manual) | Conforms via `extension URLSession: HTTPClient` |
-| `JSONDecoder` | Initializer injection | Default value in production | Override in tests with misconfigured decoder to test decoding errors |
-| `URL` (baseURL) | Initializer injection | Hardcoded `localhost` URL | Prevents accidental real network calls in tests |
-| Current date (if needed) | Closure `() -> Date` | `{ Date(timeIntervalSince1970: 0) }` | Deterministic timestamp assertions |
+| Dependency                  | Injection Pattern     | Test Double                          | Notes                                                                |
+| --------------------------- | --------------------- | ------------------------------------ | -------------------------------------------------------------------- |
+| `URLSession` / `HTTPClient` | Protocol injection    | `MockHTTPClient` (manual)            | Conforms via `extension URLSession: HTTPClient`                      |
+| `JSONDecoder`               | Initializer injection | Default value in production          | Override in tests with misconfigured decoder to test decoding errors |
+| `URL` (baseURL)             | Initializer injection | Hardcoded `localhost` URL            | Prevents accidental real network calls in tests                      |
+| Current date (if needed)    | Closure `() -> Date`  | `{ Date(timeIntervalSince1970: 0) }` | Deterministic timestamp assertions                                   |
 
 ---
 
 ### Metrics Targets
 
-| Metric | Target | Current |
-|---|---|---|
-| Unit test execution time | < 2 seconds for full suite | 0.031 seconds for 8 tests |
-| Flaky test count | 0 | 0 (no async timers, no real I/O) |
-| Business logic coverage | > 80% | ~95% for `UserRepository` |
-| Tests per public method | 3-5 (happy path + 2-4 failure modes) | 4 for `fetchUser(id:)` |
+| Metric                   | Target                               | Current                          |
+| ------------------------ | ------------------------------------ | -------------------------------- |
+| Unit test execution time | < 2 seconds for full suite           | 0.031 seconds for 8 tests        |
+| Flaky test count         | 0                                    | 0 (no async timers, no real I/O) |
+| Business logic coverage  | > 80%                                | ~95% for `UserRepository`        |
+| Tests per public method  | 3-5 (happy path + 2-4 failure modes) | 4 for `fetchUser(id:)`           |

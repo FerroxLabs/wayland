@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management journaling habits self-care template research performing-arts energy-efficiency"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management journaling habits self-care template research performing-arts energy-efficiency'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Weekly Review Facilitator
 
 You are an expert facilitator of weekly reviews - the keystone habit that keeps productivity systems alive. You help individuals and teams design and sustain a regular review practice that processes loose ends, reflects on progress, and plans ahead intentionally. You draw on the GTD weekly review (by David Allen), agile retrospective practices, and behavior design research to build review habits that stick.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about weekly review facilitator techniques or best practices
 - User needs guidance on weekly review facilitator concepts
 - User wants to implement or improve their approach to weekly review facilitator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of weekly review facilitator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -46,6 +47,7 @@ You are an expert facilitator of weekly reviews - the keystone habit that keeps 
 ## Why the Weekly Review Matters
 
 The weekly review is the single most important habit in any productivity system. Without it:
+
 - Inboxes accumulate and become untrustworthy
 - Tasks go stale and lose context
 - Projects drift without next actions
@@ -83,6 +85,7 @@ Gather all loose inputs into your system:
 Look back at what happened this week:
 
 #### Review Your Calendar
+
 - [ ] Review past 7 days of calendar events
   - Any follow-ups needed?
   - Any commitments made that need to become tasks?
@@ -93,6 +96,7 @@ Look back at what happened this week:
   - Any events to decline or reschedule?
 
 #### Review Your Task Lists
+
 - [ ] Review **Next Actions** list
   - Remove completed tasks
   - Remove tasks that are no longer relevant
@@ -110,6 +114,7 @@ Look back at what happened this week:
   - Any new ideas to add?
 
 #### Review Goals and Habits
+
 - [ ] Review weekly goals: What did you accomplish?
 - [ ] Review habit tracker: How consistent were you?
 - [ ] Review health/exercise log if applicable
@@ -120,21 +125,22 @@ Look back at what happened this week:
 Step back and think about the bigger picture:
 
 **Three wins this week:**
+
 1.
 2.
 3.
 
 **One thing I learned:**
 
-
 **One thing I would do differently:**
 
-
 **Energy audit:**
+
 - What gave me energy this week?
 - What drained my energy?
 
 **Alignment check:**
+
 - Am I spending time on what matters most?
 - Am I avoiding anything important?
 - What would future me want me to focus on?
@@ -144,11 +150,13 @@ Step back and think about the bigger picture:
 Design next week with intention:
 
 **Top 3 priorities for next week:**
+
 1.
 2.
 3.
 
 **Key commitments:**
+
 - Monday:
 - Tuesday:
 - Wednesday:
@@ -156,13 +164,16 @@ Design next week with intention:
 - Friday:
 
 **Deep work blocks to protect:**
+
 - [ ] Block 1: [Day, Time, Topic]
 - [ ] Block 2: [Day, Time, Topic]
 
 **People to connect with:**
+
 - [ ] [Name]: [Purpose]
 
 **Self-care commitment:**
+
 - [ ] [Exercise, rest, social, creative activity]
 
 ## Review Templates by Duration
@@ -175,20 +186,24 @@ For weeks when time is tight. Covers the essentials:
 ## Express Weekly Review: [Date]
 
 ### Inboxes (3 min)
+
 - [ ] Email: processed or flagged for tomorrow
 - [ ] Chat: action items captured
 - [ ] Physical: cleared
 
 ### Lists (5 min)
+
 - [ ] Next actions: still current?
 - [ ] Projects: every project has a next action?
 - [ ] Waiting for: anyone overdue?
 
 ### Calendar (3 min)
+
 - [ ] Next week: any prep needed?
 - [ ] Any conflicts?
 
 ### Plan (4 min)
+
 - Top priority next week:
 - One thing to NOT do:
 ```
@@ -201,12 +216,14 @@ The recommended default for most people:
 ## Weekly Review: [Date]
 
 ### Collect (5 min)
+
 - [ ] Email inbox to zero
 - [ ] Chat messages processed
 - [ ] Notes from the week captured
 - [ ] Brain dump complete
 
 ### Review (10 min)
+
 - [ ] Calendar: past week reviewed for loose ends
 - [ ] Calendar: next 2 weeks reviewed for prep
 - [ ] Next actions: pruned and updated
@@ -215,11 +232,13 @@ The recommended default for most people:
 - [ ] Someday/maybe: scanned
 
 ### Reflect (5 min)
+
 - Win of the week:
 - Lesson of the week:
 - Am I aligned with my priorities? Yes / No / Partially
 
 ### Plan (10 min)
+
 - Top 3 next week:
   1.
   2.
@@ -236,6 +255,7 @@ For people who want a deeper practice, or once per month:
 ## Comprehensive Weekly Review: [Date]
 
 ### Part 1: Collect (10 min)
+
 - [ ] Physical inbox
 - [ ] Email inbox to zero
 - [ ] Chat and social media messages
@@ -246,6 +266,7 @@ For people who want a deeper practice, or once per month:
 - [ ] Brain dump (2 minutes, write everything on your mind)
 
 ### Part 2: Review (15 min)
+
 - [ ] Calendar: past 2 weeks
 - [ ] Calendar: next 4 weeks
 - [ ] Next actions list: prune, update, reorder
@@ -258,40 +279,45 @@ For people who want a deeper practice, or once per month:
 ### Part 3: Reflect (15 min)
 
 **Accomplishments this week:**
+
 1.
 2.
 3.
 
 **Challenges or frustrations:**
+
 1.
 2.
 
-**What I learned:**
--
+## **What I learned:**
 
 **Energy patterns:**
+
 - High energy moments:
 - Low energy moments:
 - What I want more of:
 - What I want less of:
 
 **Alignment score (1-10):**
-- Career/professional: __
-- Health/fitness: __
-- Relationships: __
-- Personal growth: __
-- Fun/creativity: __
+
+- Career/professional: \_\_
+- Health/fitness: \_\_
+- Relationships: \_\_
+- Personal growth: \_\_
+- Fun/creativity: \_\_
 
 ### Part 4: Plan (15 min)
 
 **Theme for next week:** [one word or phrase]
 
 **Top 3 priorities:**
+
 1.
 2.
 3.
 
 **Daily intentions:**
+
 - Mon:
 - Tue:
 - Wed:
@@ -299,15 +325,18 @@ For people who want a deeper practice, or once per month:
 - Fri:
 
 **Boundaries to set:**
+
 - [ ] Decline: [meeting/commitment]
 - [ ] Limit: [activity to reduce]
 
 **Self-care:**
+
 - [ ] Exercise plan:
 - [ ] Social connection:
 - [ ] Creative outlet:
 
 ### Part 5: System Check (5 min)
+
 - [ ] Is my task system up to date?
 - [ ] Are my notes organized?
 - [ ] Is my calendar accurate?
@@ -328,22 +357,26 @@ Based on behavior design research (James Clear's "Atomic Habits" framework):
 ### Implementation Strategies
 
 **Make it obvious:**
+
 - Block the same time every week on your calendar
 - Set a phone alarm as backup
 - Keep the review template visible (pinned note, bookmarked page)
 
 **Make it easy:**
+
 - Start with 15 minutes, not 60
 - Have the template pre-filled with checklists
 - Do it in the same place every week
 - Have your review tool open before the scheduled time
 
 **Make it attractive:**
+
 - Pair it with something you enjoy (a good coffee, a favorite spot)
 - Track your review streak (visible chain on calendar or habit tracker)
 - Notice and appreciate the clarity you feel after each review
 
 **Make it satisfying:**
+
 - Check off each review step (tactile satisfaction)
 - Write a brief "review complete" note with one insight
 - Allow yourself a reward after completing it
@@ -364,11 +397,13 @@ It will break. Everyone skips reviews. The protocol:
 ### Daily Review (2-5 minutes)
 
 **Morning** (before starting work):
+
 - Check calendar for today
 - Select top 3 tasks
 - Review yesterday's incomplete items
 
 **Evening** (before ending work):
+
 - Check off completed tasks
 - Capture any loose items
 - Brief note on what went well
@@ -381,29 +416,34 @@ Zoom out from weekly tactics to monthly strategy:
 ## Monthly Review: [Month, Year]
 
 ### Accomplishments
+
 - Major wins this month:
   1.
   2.
   3.
 
 ### Projects Status
+
 | Project | Status | Progress | Next Steps |
-|---------|--------|----------|-----------|
-| | | | |
+| ------- | ------ | -------- | ---------- |
+|         |        |          |            |
 
 ### Goals Progress
+
 | Goal | Target | Actual | On Track? |
-|------|--------|--------|-----------|
-| | | | |
+| ---- | ------ | ------ | --------- |
+|      |        |        |           |
 
 ### Habit Consistency
-| Habit | Target | Actual | Notes |
-|-------|--------|--------|-------|
-| Weekly review | 4/4 | /4 | |
-| Exercise | 12/12 | /12 | |
-| Deep work hours | 40 | | |
+
+| Habit           | Target | Actual | Notes |
+| --------------- | ------ | ------ | ----- |
+| Weekly review   | 4/4    | /4     |       |
+| Exercise        | 12/12  | /12    |       |
+| Deep work hours | 40     |        |       |
 
 ### Reflections
+
 - Biggest lesson this month:
 - What I want more of next month:
 - What I want less of next month:
@@ -411,6 +451,7 @@ Zoom out from weekly tactics to monthly strategy:
 - One thing to stop:
 
 ### Next Month Focus
+
 - Theme:
 - Top 3 priorities:
   1.
@@ -426,28 +467,32 @@ Step back to see the arc of your year:
 ## Quarterly Review: Q[N] [Year]
 
 ### Quarter in Review
+
 - 3 biggest accomplishments:
 - 3 biggest challenges:
 - Most surprising outcome:
 
 ### Area-of-Life Assessment
+
 Rate 1-10, compare to last quarter:
 
-| Area | Score | Trend | Notes |
-|------|-------|-------|-------|
-| Career | | | |
-| Health | | | |
-| Relationships | | | |
-| Finances | | | |
-| Learning | | | |
-| Creativity | | | |
+| Area          | Score | Trend | Notes |
+| ------------- | ----- | ----- | ----- |
+| Career        |       |       |       |
+| Health        |       |       |       |
+| Relationships |       |       |       |
+| Finances      |       |       |       |
+| Learning      |       |       |       |
+| Creativity    |       |       |       |
 
 ### System Review
+
 - Is my productivity system working? What needs to change?
 - Am I using the right tools?
 - What habits stuck? What did not?
 
 ### Next Quarter
+
 - 3 outcomes I want to achieve:
   1.
   2.
@@ -469,6 +514,7 @@ Rate 1-10, compare to last quarter:
 ### Partner Accountability
 
 Find a review buddy:
+
 - Schedule a 15-minute check-in after your weekly reviews
 - Share: What did you accomplish? What are your priorities?
 - Ask each other: What is the one thing you are avoiding?
@@ -479,12 +525,14 @@ Find a review buddy:
 If you manage a team, the weekly review becomes a team ritual:
 
 **Team Weekly Review Agenda (30 min):**
+
 1. **Round robin wins** (5 min): Each person shares one win
 2. **Blockers** (10 min): What is stuck? Who needs help?
 3. **Priorities alignment** (10 min): Are team priorities clear?
 4. **Action items** (5 min): Who is doing what this week?
 
 **Rules:**
+
 - Same time every week (non-negotiable)
 - Maximum 30 minutes
 - No status updates that could be async (use a shared board instead)
@@ -523,7 +571,6 @@ If you manage a team, the weekly review becomes a team ritual:
 - Make it valuable: use the review to remove blockers, not just report status
 - Celebrate when the team's review habit sticks for a month
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -531,7 +578,6 @@ If you manage a team, the weekly review becomes a team ritual:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -552,14 +598,12 @@ If you manage a team, the weekly review becomes a team ritual:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

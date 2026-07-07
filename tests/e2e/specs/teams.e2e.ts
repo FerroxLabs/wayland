@@ -106,7 +106,9 @@ test.describe('Teams bridge lifecycle', () => {
     }
   });
 
-  test('team.add-agent returns a TeamAgent with slotId (or skips when create requires richer params)', async ({ page }) => {
+  test('team.add-agent returns a TeamAgent with slotId (or skips when create requires richer params)', async ({
+    page,
+  }) => {
     if (!(await teamModeEnabled(page))) {
       test.skip(true, 'TEAM_MODE_ENABLED=false in this build');
       return;

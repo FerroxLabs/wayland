@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events planning guide checklist"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events planning guide checklist'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Immigration Guide
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on immigration guide
 - User asks about immigration guide best practices or techniques
 - User wants a structured approach to immigration guide
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of immigration guide
 
@@ -153,6 +154,7 @@ SPECIAL PROGRAMS:
 ## Application Process General Framework
 
 ### Steps for Most Immigration Processes
+
 ```
 1. DETERMINE ELIGIBILITY
    - Which visa/status category fits your situation?
@@ -191,6 +193,7 @@ SPECIAL PROGRAMS:
 ```
 
 ### Key Documentation Checklist
+
 ```
 UNIVERSAL DOCUMENTS:
   [ ] Valid passport (6+ months validity for most processes)
@@ -221,6 +224,7 @@ FAMILY-BASED ADDITIONAL:
 ## Settlement Planning
 
 ### Before You Arrive
+
 ```
 ESSENTIALS TO ARRANGE:
   [ ] Housing (temporary at minimum; research neighborhoods)
@@ -251,6 +255,7 @@ WHAT TO BRING:
 ```
 
 ### First Week Priorities
+
 ```
   [ ] Report your arrival (if required by visa type)
   [ ] Apply for Social Security Number (if eligible)
@@ -264,6 +269,7 @@ WHAT TO BRING:
 ```
 
 ### First Month Priorities
+
 ```
   [ ] Obtain state ID or driver's license (requirements vary by state)
   [ ] Enroll children in school
@@ -278,6 +284,7 @@ WHAT TO BRING:
 ## Cultural Adjustment
 
 ### Understanding Culture Shock
+
 ```
 STAGES OF CULTURAL ADJUSTMENT:
 
@@ -305,6 +312,7 @@ with yourself and seek support when you need it.
 ```
 
 ### Common Cultural Differences (US-Specific)
+
 ```
 WORKPLACE:
   - Direct communication is generally valued (not seen as rude)
@@ -332,6 +340,7 @@ SOCIAL:
 ## Language Resources
 
 ### English Language Development
+
 ```
 FREE RESOURCES:
   - USA Learns (usalearns.org): Free online English classes
@@ -359,6 +368,7 @@ PRACTICAL TIPS:
 ## Finding Community
 
 ### Immigrant Community Resources
+
 ```
 WHERE TO FIND COMMUNITY:
   [ ] Cultural associations and community centers
@@ -389,6 +399,7 @@ MAINTAINING CULTURAL IDENTITY:
 ## Legal Requirements and Rights
 
 ### Maintaining Legal Status
+
 ```
 CRITICAL OBLIGATIONS:
   - Always carry proof of immigration status
@@ -409,6 +420,7 @@ GREEN CARD HOLDERS ADDITIONALLY:
 ```
 
 ### Know Your Rights
+
 ```
 ALL PEOPLE IN THE US, REGARDLESS OF STATUS, HAVE:
   - Right to remain silent (5th Amendment)
@@ -430,6 +442,7 @@ IF ENCOUNTERED BY IMMIGRATION ENFORCEMENT:
 ```
 
 ### Path to Citizenship
+
 ```
 NATURALIZATION REQUIREMENTS (general):
   - Be at least 18 years old
@@ -450,6 +463,7 @@ PREPARATION:
 ## Quick Reference
 
 When providing guidance, apply these principles:
+
 - **"Where do I start?"** → Determine your category, then consult an attorney. Start with USCIS.gov for general information.
 - **"How long will this take?"** → Check current processing times at egov.uscis.gov/processing-times
 - **"I can't afford a lawyer"** → Legal aid organizations, law school immigration clinics, DOJ-accredited representatives, CLINIC network
@@ -457,7 +471,6 @@ When providing guidance, apply these principles:
 - **"I feel overwhelmed"** → This is one of the hardest things a person can do. Take it one step at a time. Find community. You are not alone.
 
 Immigration is a marathon, not a sprint. Be patient with the process and with yourself. Millions of people have walked this path before you, and there are people and resources ready to help.
-
 
 ## Output Format
 
@@ -471,13 +484,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with immigration guide for a mid-size project."
 
 **Output:** A complete immigration guide framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

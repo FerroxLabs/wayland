@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'technical-writing documentation guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Docs Site Builder
@@ -22,18 +22,18 @@ You are an expert documentation site builder who creates professional, searchabl
 
 ## Tool Selection Matrix
 
-| Factor | Docusaurus | MkDocs Material | VitePress |
-|---|---|---|---|
-| Language ecosystem | JavaScript/React | Python | JavaScript/Vue |
-| Best for | Product docs + blog | Technical docs, API refs | Library docs, lightweight |
-| Customization | React components | Jinja2 templates, CSS | Vue components |
-| Search | Algolia, local plugin | Built-in (lunr), Algolia | Built-in (MiniSearch) |
-| Versioning | Built-in | mike plugin | Manual (branches) |
-| i18n | Built-in | Plugin-based | Built-in |
-| MDX support | Native | No (Markdown extensions) | Native |
-| Build speed | Moderate | Fast | Very fast |
-| Plugin ecosystem | Growing | Extensive | Growing |
-| Learning curve | Medium (React) | Low (YAML + Markdown) | Low-Medium (Vue) |
+| Factor             | Docusaurus            | MkDocs Material          | VitePress                 |
+| ------------------ | --------------------- | ------------------------ | ------------------------- |
+| Language ecosystem | JavaScript/React      | Python                   | JavaScript/Vue            |
+| Best for           | Product docs + blog   | Technical docs, API refs | Library docs, lightweight |
+| Customization      | React components      | Jinja2 templates, CSS    | Vue components            |
+| Search             | Algolia, local plugin | Built-in (lunr), Algolia | Built-in (MiniSearch)     |
+| Versioning         | Built-in              | mike plugin              | Manual (branches)         |
+| i18n               | Built-in              | Plugin-based             | Built-in                  |
+| MDX support        | Native                | No (Markdown extensions) | Native                    |
+| Build speed        | Moderate              | Fast                     | Very fast                 |
+| Plugin ecosystem   | Growing               | Extensive                | Growing                   |
+| Learning curve     | Medium (React)        | Low (YAML + Markdown)    | Low-Medium (Vue)          |
 
 ### Quick Decision Guide
 
@@ -157,11 +157,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Getting Started',
       collapsed: false,
-      items: [
-        'getting-started/installation',
-        'getting-started/quick-start',
-        'getting-started/configuration',
-      ],
+      items: ['getting-started/installation', 'getting-started/quick-start', 'getting-started/configuration'],
     },
     {
       type: 'category',
@@ -197,15 +193,19 @@ import React from 'react';
 
 type CalloutType = 'info' | 'warning' | 'danger' | 'tip';
 
-export function Callout({ type = 'info', title, children }: {
+export function Callout({
+  type = 'info',
+  title,
+  children,
+}: {
   type?: CalloutType;
   title?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className={`callout callout--${type}`}>
-      {title && <div className="callout__title">{title}</div>}
-      <div className="callout__body">{children}</div>
+      {title && <div className='callout__title'>{title}</div>}
+      <div className='callout__body'>{children}</div>
     </div>
   );
 }
@@ -325,12 +325,12 @@ docs/
 
 ### Content Type Guidelines
 
-| Content Type | Purpose | Structure |
-|---|---|---|
-| Tutorial | Learning-oriented, step-by-step | Numbered steps, expected output at each step |
-| How-To Guide | Task-oriented, solves specific problem | Prerequisites, steps, verification |
-| Reference | Information-oriented, complete and accurate | Tables, parameter lists, exhaustive |
-| Explanation | Understanding-oriented, background context | Diagrams, comparisons, rationale |
+| Content Type | Purpose                                     | Structure                                    |
+| ------------ | ------------------------------------------- | -------------------------------------------- |
+| Tutorial     | Learning-oriented, step-by-step             | Numbered steps, expected output at each step |
+| How-To Guide | Task-oriented, solves specific problem      | Prerequisites, steps, verification           |
+| Reference    | Information-oriented, complete and accurate | Tables, parameter lists, exhaustive          |
+| Explanation  | Understanding-oriented, background context  | Diagrams, comparisons, rationale             |
 
 ## Deployment Patterns
 
@@ -409,6 +409,7 @@ All three tools also deploy to **Netlify** (via `netlify.toml`) and **Vercel** (
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing docs site builder solutions
 - Reviewing or improving existing docs site builder approaches
 - Making architectural or implementation decisions about docs site builder
@@ -416,6 +417,7 @@ All three tools also deploy to **Netlify** (via `netlify.toml`) and **Vercel** (
 - Troubleshooting docs site builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -426,21 +428,26 @@ All three tools also deploy to **Netlify** (via `netlify.toml`) and **Vercel** (
 # Docs Site Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

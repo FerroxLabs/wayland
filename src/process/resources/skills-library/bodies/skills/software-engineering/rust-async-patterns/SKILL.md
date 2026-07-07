@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "rust backend optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'rust backend optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Rust Async Patterns
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks which async runtime to choose for a Rust project (Tokio vs async-std vs smol) and needs a decision framework based on ecosystem maturity, feature set, and compatibility
 - Wants to implement async traits in Rust and encounters the "async fn in trait" limitation or needs to understand when to use `async-trait` crate vs native `async fn in trait` (stabilized in Rust 1.75+)
 - Needs to spawn tasks and must decide between `tokio::spawn`, `tokio::task::spawn_local`, `JoinSet`, `FuturesUnordered`, or `join!` based on lifetime, ownership, and cancellation requirements
@@ -30,6 +32,7 @@ metadata:
 - Asks about channels in async contexts: `tokio::sync::mpsc`, `broadcast`, `oneshot`, `watch`, or how to choose between them
 
 **Do NOT use this skill when:**
+
 - The user asks about Rust ownership, lifetimes, or borrow checker issues in async code -- reach for `rust-ownership-patterns` (note: lifetime issues in async closures are ownership topics, not async patterns)
 - The user asks about general Rust performance optimization, SIMD, memory layout, or allocation strategies -- use `rust-performance`
 - The user asks about `Result`, `?` operator, `thiserror`/`anyhow` crate selection, or error propagation strategy -- use `rust-error-handling`
@@ -214,7 +217,7 @@ Testing async requires specific patterns:
 
 When advising on async patterns, structure the response as:
 
-```
+````
 ## Async Pattern Recommendation
 
 ### Use Case Classification
@@ -239,28 +242,33 @@ When advising on async patterns, structure the response as:
 ```rust
 // [Concrete, compilable code specific to user's use case]
 // Include: runtime setup, task spawning, error handling, cancellation
-```
+````
 
 #### Blocking Integration (if applicable)
+
 ```rust
 // spawn_blocking / block_in_place pattern with explanation
 ```
 
 #### Shutdown Handling
+
 ```rust
 // CancellationToken or select! shutdown pattern
 ```
 
 ### Trade-offs and Risks
+
 - [Specific risk #1 and mitigation]
 - [Specific risk #2 and mitigation]
 - [Performance characteristic to watch]
 
 ### Testing Strategy
+
 ```rust
 // #[tokio::test] example with time::pause() or mock if relevant
 ```
-```
+
+````
 
 ---
 
@@ -313,28 +321,36 @@ fn fetch_tree(id: NodeId) -> Pin<Box<dyn Future<Output = Result<Tree, Error>> + 
         Ok(Tree { node, children })
     })
 }
-```
+````
+
 Do not use `#[async_recursion]` in library code without flagging the boxing overhead to callers.
 
 ### Spawning from Synchronous Code
+
 When you have a synchronous function that needs to kick off async work (common in callback-based APIs or plugin systems), you need `Handle::current()`:
+
 ```rust
 fn on_event_sync(event: Event) {
     let handle = tokio::runtime::Handle::current();
     handle.spawn(async move { process_event(event).await });
 }
 ```
+
 This requires the synchronous function to be called from within a Tokio runtime context. If you cannot guarantee a runtime is active, use `Handle::try_current()` and handle the `NoRuntimeFound` error. Never call `Runtime::block_on` from within an async context -- this panics ("cannot start a runtime from within a runtime").
 
 ### Backpressure and Channel Sizing
+
 Unbounded channels (`tokio::sync::mpsc::unbounded_channel()`) can grow without limit when producers outpace consumers, leading to OOM. Prefer bounded channels with explicit capacity:
+
 - `mpsc::channel(256)` -- 256-item buffer; senders apply backpressure when full (`.send().await` blocks)
 - Capacity sizing: buffer = (consumer latency in ms) × (message rate per ms). For a 10ms consumer at 5k msg/s, buffer = 50 items. Double this for burst headroom.
 - Use `try_send` instead of `send().await` when the sender should drop messages rather than back-pressure (e.g., metrics, logging) -- this avoids making the caller async unnecessarily.
 - `broadcast::channel(capacity)` requires power-of-two capacity and drops oldest messages when the buffer is full. This is appropriate for cache invalidation events but not for durability-required work items.
 
 ### Panic Handling in Spawned Tasks
+
 A panic in `tokio::spawn`-ed task does not propagate to the spawner. The `JoinHandle` returns `Err(JoinError)` where `join_error.is_panic()` returns true. If you do not `.await` the handle, the panic is silently swallowed (a warning is logged but execution continues). Always `.await` `JoinHandle`s or use `set.join_next().await` with `JoinSet`. For critical background tasks, install a panic hook that triggers graceful shutdown:
+
 ```rust
 std::panic::set_hook(Box::new(|info| {
     tracing::error!("task panicked: {info}");
@@ -343,7 +359,9 @@ std::panic::set_hook(Box::new(|info| {
 ```
 
 ### Connection Pool Exhaustion Under Load
+
 When using `JoinSet` or `buffer_unordered` to make database or HTTP calls, unbounded fan-out exhausts connection pools. Symptom: first requests succeed, then requests begin timing out waiting for a connection. Fix:
+
 - Use `Semaphore` to cap concurrency:
   ```rust
   let sem = Arc::new(Semaphore::new(20)); // max 20 concurrent DB calls
@@ -370,22 +388,25 @@ When using `JoinSet` or `buffer_unordered` to make database or HTTP calls, unbou
 ### Async Pattern Recommendation
 
 #### Use Case Classification
+
 I/O Concurrency (concurrent fan-out to 3 services) + CPU Offload (pricing calculation)
 
 #### Runtime Decision
-| Factor | Assessment | Decision |
-|--------|------------|----------|
-| Ecosystem fit | Axum requires Tokio | Tokio (`rt-multi-thread`) |
-| Concurrency model | HTTP handlers run on multiple threads | `multi_thread` flavor (Axum default) |
-| `Send` requirement | All futures cross thread boundaries in Axum | All futures must be `Send` |
-| Library or binary | Binary service | Embed runtime via `#[tokio::main]` |
+
+| Factor             | Assessment                                  | Decision                             |
+| ------------------ | ------------------------------------------- | ------------------------------------ |
+| Ecosystem fit      | Axum requires Tokio                         | Tokio (`rt-multi-thread`)            |
+| Concurrency model  | HTTP handlers run on multiple threads       | `multi_thread` flavor (Axum default) |
+| `Send` requirement | All futures cross thread boundaries in Axum | All futures must be `Send`           |
+| Library or binary  | Binary service                              | Embed runtime via `#[tokio::main]`   |
 
 #### Spawning Strategy
-| Scenario | Primitive | Reason |
-|----------|-----------|--------|
+
+| Scenario                       | Primitive                  | Reason                                               |
+| ------------------------------ | -------------------------- | ---------------------------------------------------- |
 | 3 independent downstream calls | `try_join!` with `timeout` | Concurrent, fails fast on any error, bounded latency |
-| CPU-intensive pricing calc | `spawn_blocking` | Prevents blocking executor workers |
-| Axum handler structure | Plain `async fn` | Axum manages its own spawning per request |
+| CPU-intensive pricing calc     | `spawn_blocking`           | Prevents blocking executor workers                   |
+| Axum handler structure         | Plain `async fn`           | Axum manages its own spawning per request            |
 
 #### Implementation
 

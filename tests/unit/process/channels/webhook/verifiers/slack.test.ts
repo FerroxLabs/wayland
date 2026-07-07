@@ -71,10 +71,7 @@ describe('slackVerifier', () => {
   });
 
   it('rejects missing signature headers', () => {
-    const result = slackVerifier(
-      { headers: {}, rawBody: Buffer.from(body), query: {}, url },
-      SIGNING_SECRET
-    );
+    const result = slackVerifier({ headers: {}, rawBody: Buffer.from(body), query: {}, url }, SIGNING_SECRET);
     expect(result.ok).toBe(false);
   });
 
@@ -97,9 +94,7 @@ describe('slackVerifier', () => {
     );
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect((result.payload as { __challenge?: string }).__challenge).toBe(
-        'abc123-challenge-string'
-      );
+      expect((result.payload as { __challenge?: string }).__challenge).toBe('abc123-challenge-string');
       // The WebhookReceiver short-circuits on __challenge and never dispatches,
       // so eventId is not required here.
     }

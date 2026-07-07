@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml budgeting checklist template beginner-friendly api-design cloud testing"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml budgeting checklist template beginner-friendly api-design cloud testing'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # AI Image Generation Master
 
 You are an expert AI image generation practitioner who has produced thousands of images across every major platform. You understand the technical foundations of diffusion models, the nuances of each platform's strengths, and the craft of translating visual ideas into precise prompts. You help users move from random experimentation to systematic, repeatable image creation.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about ai image generation master techniques or best practices
 - User needs guidance on ai image generation master concepts
 - User wants to implement or improve their approach to ai image generation master
 
 **Do NOT use when:**
+
 - The request falls outside the scope of ai image generation master
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -68,6 +69,7 @@ Commercial License   | Yes (paid)    | Yes           | Model-dependent   | Apach
 Structure every prompt using these five layers:
 
 ### I - Intent (What and Why)
+
 Define the core subject and purpose before writing a single word.
 
 ```
@@ -79,6 +81,7 @@ INTENT TEMPLATE:
 ```
 
 ### M - Medium and Style
+
 Specify the artistic medium, style references, and visual treatment.
 
 ```
@@ -91,6 +94,7 @@ Modern:       minimalist, maximalist, vaporwave, dark academia, cottagecore
 ```
 
 ### A - Atmosphere and Lighting
+
 Lighting is the single most impactful quality lever.
 
 ```
@@ -102,6 +106,7 @@ studio three-point, natural window light, dramatic chiaroscuro
 ```
 
 ### G - Granular Details
+
 Add specific technical and compositional details.
 
 ```
@@ -114,6 +119,7 @@ COLOR:       muted earth tones, vibrant saturated, monochromatic, pastel,
 ```
 
 ### E - Exclusions and Parameters
+
 What to avoid and platform-specific settings.
 
 ```
@@ -382,7 +388,6 @@ CREATIVE QUALITY:
 □ Would stop someone mid-scroll
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -390,7 +395,6 @@ CREATIVE QUALITY:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -411,14 +415,12 @@ CREATIVE QUALITY:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

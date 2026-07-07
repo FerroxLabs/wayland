@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spreadsheets automation template"
-  category: "data-analysis"
-  subcategory: "spreadsheets"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'spreadsheets automation template'
+  category: 'data-analysis'
+  subcategory: 'spreadsheets'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Spreadsheet Automation
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants a spreadsheet that recalculates summaries, rankings, or filtered views automatically when source data changes -- without manual copy-paste or formula dragging
 - The user asks "how do I avoid updating this manually every month?" or "how do I make this formula expand automatically when I add rows?"
 - The user wants cascading dropdown lists that control what other dropdowns, charts, or summary tables display
@@ -30,6 +32,7 @@ metadata:
 - The user has interdependent data structures -- where changing one cell should trigger updates across multiple dependent sections simultaneously
 
 **Do NOT use when:**
+
 - The user wants to design data entry rules such as rejecting numbers outside a range or enforcing text format -- use the `data-validation-setup` skill instead
 - The user wants to clean, deduplicate, or standardize existing raw data using formulas -- use the `spreadsheet-data-cleaning` skill instead
 - The user wants to write Google Apps Script, VBA macros, or Python to automate spreadsheet actions -- those are software development tasks outside this skill's scope
@@ -59,19 +62,19 @@ Map each manual pain point to a specific technique category. Multiple techniques
 
 **Technique Classification Matrix:**
 
-| Manual Pain Point | Automation Technique | Core Tool |
-|---|---|---|
-| Dragging formulas down when rows are added | Structured Excel Table (Ctrl+T) | Table column references `[ColumnName]` |
-| Updating range boundaries in formulas | Dynamic named range | OFFSET+COUNTA or Table reference |
-| Manually filtering to a category | FILTER function (365/Sheets) | `=FILTER(array, include, [if_empty])` |
-| Running subtotals for different selections | SUMIFS / COUNTIFS / AVERAGEIFS | Multi-criteria aggregation |
-| Extracting a unique list from a column | UNIQUE function (365/Sheets) | `=UNIQUE(range)` |
-| Sorting output automatically | SORT / SORTBY | `=SORT(range, sort_index, order)` |
-| Querying with SQL-like logic (Sheets only) | QUERY | `=QUERY(range, "SELECT...")` |
-| Making a formula reference a sheet by name from a cell value | INDIRECT | `=INDIRECT("'"&A2&"'!B2:B100")` |
-| Cascading dropdowns (child list depends on parent choice) | INDIRECT + named ranges | Named range per parent value |
-| Rank-based retrieval (e.g., top 5 products) | LARGE / SMALL + INDEX/MATCH | `=INDEX(range, MATCH(LARGE(...), ..., 0))` |
-| Cross-sheet lookup that stays current | INDEX/MATCH or XLOOKUP | `=XLOOKUP(lookup, lookup_range, return_range)` |
+| Manual Pain Point                                            | Automation Technique            | Core Tool                                      |
+| ------------------------------------------------------------ | ------------------------------- | ---------------------------------------------- |
+| Dragging formulas down when rows are added                   | Structured Excel Table (Ctrl+T) | Table column references `[ColumnName]`         |
+| Updating range boundaries in formulas                        | Dynamic named range             | OFFSET+COUNTA or Table reference               |
+| Manually filtering to a category                             | FILTER function (365/Sheets)    | `=FILTER(array, include, [if_empty])`          |
+| Running subtotals for different selections                   | SUMIFS / COUNTIFS / AVERAGEIFS  | Multi-criteria aggregation                     |
+| Extracting a unique list from a column                       | UNIQUE function (365/Sheets)    | `=UNIQUE(range)`                               |
+| Sorting output automatically                                 | SORT / SORTBY                   | `=SORT(range, sort_index, order)`              |
+| Querying with SQL-like logic (Sheets only)                   | QUERY                           | `=QUERY(range, "SELECT...")`                   |
+| Making a formula reference a sheet by name from a cell value | INDIRECT                        | `=INDIRECT("'"&A2&"'!B2:B100")`                |
+| Cascading dropdowns (child list depends on parent choice)    | INDIRECT + named ranges         | Named range per parent value                   |
+| Rank-based retrieval (e.g., top 5 products)                  | LARGE / SMALL + INDEX/MATCH     | `=INDEX(range, MATCH(LARGE(...), ..., 0))`     |
+| Cross-sheet lookup that stays current                        | INDEX/MATCH or XLOOKUP          | `=XLOOKUP(lookup, lookup_range, return_range)` |
 
 Apply this matrix to every manual action the user described. Produce a prioritized list: start with the highest-frequency pain (the thing they do most often) and automate that first.
 
@@ -109,36 +112,44 @@ Named ranges are the connective tissue of spreadsheet automation. Build them bef
 This is where the actual formulas are constructed. Build in dependency order: foundational references first, derived formulas second, display formulas last.
 
 **For FILTER-based automation (Excel 365 / Google Sheets):**
+
 ```
 =IFERROR(FILTER(SalesTable[Product], SalesTable[Region]=SelectedRegion), "No data for selected region")
 ```
+
 - FILTER spills results automatically -- it does not need to be dragged. Place it once in the top-left cell of the output area
 - Multiple conditions use multiplication (AND logic): `=FILTER(range, (col1=val1)*(col2=val2), "No results")`
 - Multiple conditions using OR logic use addition: `=FILTER(range, (col1=val1)+(col1=val2), "No results")`
 - Always include the third argument (if_empty) to prevent #CALC! errors when no rows match
 
 **For SUMIFS-based automation (works in all Excel versions and Sheets):**
+
 ```
 =IFERROR(SUMIFS(SalesTable[Revenue], SalesTable[Region], SelectedRegion, SalesTable[Product], F5), 0)
 ```
+
 - SUMIFS handles multiple criteria without array entry
 - Use absolute references for the criteria range and criteria value when dragging formulas; use mixed references for the criteria itself when the criterion comes from a list being traversed
 - AVERAGEIFS and COUNTIFS follow the exact same argument pattern: `=COUNTIFS(criteria_range1, criteria1, criteria_range2, criteria2)`
 
 **For INDIRECT-driven dynamic references:**
+
 ```
 =IFERROR(INDIRECT("'"&SelectedSheet&"'!"&"B2:B"&COUNTA(INDIRECT("'"&SelectedSheet&"'!B:B"))), "Invalid sheet")
 ```
+
 - Always wrap INDIRECT in IFERROR -- if the referenced sheet is deleted, renamed, or the workbook is closed, INDIRECT returns #REF! with no warning otherwise
 - Single quotes around the sheet name handle sheets with spaces: `"'"&SheetName&"'!A1"` is correct; `SheetName&"!A1"` fails if SheetName contains a space
 - INDIRECT is volatile -- it recalculates on every workbook change, not just when its dependencies change. In workbooks with hundreds of INDIRECT calls, this causes visible slowdown. Minimize to essential uses only
 
 **For cascading dropdowns:**
+
 - Create a named range for each parent value, named exactly as the parent value appears in the first dropdown. If parent values are "North", "South", "East", "West", create named ranges with those exact names containing the respective child lists
 - Second dropdown data validation source: `=INDIRECT(ParentCell)` where ParentCell is the named range or direct reference to the first dropdown's cell
 - If parent values contain spaces, replace spaces with underscores in the named range name AND transform the cell value with SUBSTITUTE: `=INDIRECT(SUBSTITUTE(G2," ","_"))`
 
 **For pre-365 Excel without FILTER or UNIQUE:**
+
 - Unique list extraction: Use a helper column with `=IF(COUNTIF($B$2:B2,B2)=1,B2,"")` dragged down, then reference the non-blank values
 - Conditional row extraction (simulating FILTER): Use an INDEX/MATCH+IFERROR pattern with a helper rank column, or use AGGREGATE with function number 15 (SMALL with ignore errors) for a compact approach:
   ```
@@ -233,7 +244,9 @@ Every automation must be verified against realistic failure conditions before de
 **Platform:** [Excel 365 / Excel 2019+ / All versions / Google Sheets only]
 
 ```
+
 [exact, paste-ready formula]
+
 ```
 
 **Depends on:** [Named ranges, table columns, or cells this formula reads]
@@ -249,7 +262,9 @@ Every automation must be verified against realistic failure conditions before de
 **Platform:** [compatibility]
 
 ```
+
 [exact formula]
+
 ```
 
 **Depends on:** [dependencies]
@@ -350,6 +365,7 @@ Every automation must be verified against realistic failure conditions before de
 The user is on Excel 2016 or 2019, which has no FILTER, UNIQUE, SORT, XLOOKUP, or dynamic array spill behavior.
 
 **Handling:**
+
 - Replace UNIQUE with a helper column pattern: in column Z, enter `=IF(COUNTIF($B$2:B2,B2)=1,B2,"")` from Z2 downward. This flags the first occurrence of each value. The output list then uses `=IFERROR(INDEX($Z$2:$Z$500, MATCH(0, COUNTIF($F$4:F4, $Z$2:$Z$500) + ($Z$2:$Z$500=""), 0)), "")` entered as an array formula with Ctrl+Shift+Enter
 - Replace FILTER with a helper column containing `=IF(B2=SelectedRegion, ROW(), "")` and then use `=IFERROR(INDEX($A$2:$A$1000, MATCH(SMALL($Z$2:$Z$1000, ROW()-ROW($H$2)+1), $Z$2:$Z$1000, 0)-1), "")` for each output row
 - Replace XLOOKUP with `=IFERROR(INDEX(return_range, MATCH(lookup_value, lookup_range, 0)), "Not found")`
@@ -361,6 +377,7 @@ The user is on Excel 2016 or 2019, which has no FILTER, UNIQUE, SORT, XLOOKUP, o
 The user has 12 monthly sheets (Jan, Feb, Mar, ...) with identical column structures and wants a summary that covers all of them.
 
 **Handling:**
+
 - For Google Sheets, use `=QUERY({Jan!A2:D500; Feb!A2:D500; Mar!A2:D500}, "SELECT Col2, SUM(Col4) WHERE Col2 = '"&SelectedRegion&"' GROUP BY Col2 LABEL SUM(Col4) 'Revenue'")` -- the curly braces with semicolons stack ranges vertically
 - For Excel 365, use `=VSTACK(Jan!A2:D500, Feb!A2:D500, Mar!A2:D500)` to create a combined virtual table, then apply FILTER or SUMIFS against it
 - For legacy Excel, recommend creating a dedicated consolidation sheet where data from each monthly sheet is manually appended or use Power Query (Get & Transform > Append Queries) to union all sheets automatically -- this is the correct tool for multi-sheet consolidation at scale
@@ -371,6 +388,7 @@ The user has 12 monthly sheets (Jan, Feb, Mar, ...) with identical column struct
 The user's source data lives in a separate workbook that is not always open, and they want formulas in a dashboard workbook to reference it.
 
 **Handling:**
+
 - Standard cell-reference links (`=[Source.xlsx]Sheet1!$A$2`) work when the source file is open but return stale cached values when closed -- this is often acceptable for read-only dashboards
 - INDIRECT **cannot** reference closed workbooks under any circumstances. It returns #REF! the moment the source file is closed. Do not attempt to use INDIRECT for cross-workbook references
 - For Google Sheets, use IMPORTRANGE: `=IMPORTRANGE("spreadsheet_id", "Sheet1!A2:D1000")` -- this maintains a live connection. Note that the user must authorize the connection the first time and the source spreadsheet must be accessible to the user's Google account
@@ -382,6 +400,7 @@ The user's source data lives in a separate workbook that is not always open, and
 The user has a source table with 100,000 or more rows and wants filter/summary automation on top of it.
 
 **Handling:**
+
 - FILTER on 100,000 rows causes noticeable recalculation delay -- users will see the screen flash on every dropdown change. Recommend moving data transformation to Power Query and using formulas only on the aggregated output (which will be far smaller)
 - SUMIFS on full-column references (`A:A`) across 100,000 rows is measurably slower than scoped table references. Use `TableName[ColumnName]` structured references which scope automatically to the data
 - Dynamic array functions that spill large results (e.g., a FILTER that returns 50,000 rows) consume significant memory and are not the right tool -- the output of a spilled array is meant to be consumed at a summary level
@@ -394,6 +413,7 @@ The user has a source table with 100,000 or more rows and wants filter/summary a
 The user adds a new region to their data occasionally and wants the dropdown list to include it automatically without manual maintenance.
 
 **Handling:**
+
 - In Excel 365, create a helper range with `=SORT(UNIQUE(SalesTable[Region]))` placed in a dedicated column (e.g., a "Lists" sheet, column A). This spills and auto-updates. Name this spilled range with `=OFFSET(Lists!$A$1,0,0,COUNTA(Lists!$A:$A),1)` -- or, more cleanly in 365, define the named range to reference the spill operator: `=Lists!$A$1#` (the `#` symbol references the entire spill range)
 - The Data Validation source for the dropdown then uses `=RegionList` (the named range). When a new region appears in the source data, UNIQUE adds it, the spill expands, and the dropdown includes it on next open
 - In Google Sheets, use `=SORT(UNIQUE(SalesTable!B2:B))` in a helper cell, then reference that range in the dropdown validation
@@ -404,6 +424,7 @@ The user adds a new region to their data occasionally and wants the dropdown lis
 A cross-platform workbook (e.g., a template shared with users on both platforms).
 
 **Handling:**
+
 - Common ground: SUMIFS, COUNTIFS, AVERAGEIFS, INDEX/MATCH, IFERROR, IF, LEFT/MID/RIGHT, TEXT, AND/OR all work identically in both platforms
 - Excel-only (no Sheets equivalent): Power Query, XLOOKUP (Sheets now has it but behavior differs slightly), structured Table references (`TableName[Column]`), Ctrl+Shift+Enter array formulas
 - Sheets-only: QUERY, IMPORTRANGE, ARRAYFORMULA (wraps a non-array formula to behave as an array formula across a range), `REGEXMATCH`/`REGEXEXTRACT`
@@ -416,6 +437,7 @@ A cross-platform workbook (e.g., a template shared with users on both platforms)
 The user renames a sheet and suddenly multiple formulas show #REF!.
 
 **Handling:**
+
 - This is the core vulnerability of hardcoded sheet name references. `=Sheet1!A2` breaks if Sheet1 is renamed to "Sales Data"
 - The fix is to never hardcode sheet names in formulas -- use named ranges defined at workbook scope. A workbook-scoped named range like `SalesData = Sheet1!$A$2:$D$500` continues to resolve correctly even if Sheet1 is renamed, because the Name Manager tracks the sheet by internal ID, not name
 - For INDIRECT-based sheet references, the sheet name is just a string -- renaming breaks it immediately and IFERROR will suppress the error silently. Pair INDIRECT sheet references with a visible validation check: `=IFERROR(INDIRECT(...),"⚠ Sheet not found: "&A2)` so the user sees a warning rather than blank
@@ -434,6 +456,7 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 ## Spreadsheet Automation Design
 
 ### Summary
+
 - **Platform:** Google Sheets
 - **Automation type:** Parameter-driven (dropdown selections drive all output)
 - **Source data structure:** Sheet named "Data", columns A--E, flat table, new rows added daily at the bottom
@@ -444,12 +467,12 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 
 ### Data Structure Requirements
 
-| Requirement | Status / Action |
-|---|---|
-| Flat table (one row per record) | Confirmed -- one sale per row |
-| No merged cells in source range | Confirm and remove any merged cells in columns A--E |
-| Header row in row 1 | Confirmed -- Date, Region, Salesperson, Product, Revenue |
-| No blank rows in middle of data | Confirm -- blanks break COUNTA-based counts |
+| Requirement                     | Status / Action                                          |
+| ------------------------------- | -------------------------------------------------------- |
+| Flat table (one row per record) | Confirmed -- one sale per row                            |
+| No merged cells in source range | Confirm and remove any merged cells in columns A--E      |
+| Header row in row 1             | Confirmed -- Date, Region, Salesperson, Product, Revenue |
+| No blank rows in middle of data | Confirm -- blanks break COUNTA-based counts              |
 
 **Note:** Google Sheets does not have formal Excel Tables, so the source range will be referenced as `Data!A:E` (full-column references are efficient in Sheets). New rows added to the bottom are captured automatically by full-column references.
 
@@ -457,17 +480,17 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 
 ### Named Ranges
 
-| Name | Scope | Reference | Purpose |
-|---|---|---|---|
-| SalesDate | Workbook | Data!A2:A | All date values in source |
-| SalesRegion | Workbook | Data!B2:B | All region values in source |
-| SalesPerson | Workbook | Data!C2:C | All salesperson values in source |
-| SalesProduct | Workbook | Data!D2:D | All product values in source |
-| SalesRevenue | Workbook | Data!E2:E | All revenue values in source |
-| RegionList | Workbook | Dashboard!H2:H | Dynamic unique region list (see Formula 1) |
-| MonthList | Workbook | Dashboard!I2:I | Dynamic unique month list (see Formula 2) |
-| SelectedRegion | Workbook | Dashboard!B2 | User's region selection |
-| SelectedMonth | Workbook | Dashboard!B3 | User's month selection |
+| Name           | Scope    | Reference      | Purpose                                    |
+| -------------- | -------- | -------------- | ------------------------------------------ |
+| SalesDate      | Workbook | Data!A2:A      | All date values in source                  |
+| SalesRegion    | Workbook | Data!B2:B      | All region values in source                |
+| SalesPerson    | Workbook | Data!C2:C      | All salesperson values in source           |
+| SalesProduct   | Workbook | Data!D2:D      | All product values in source               |
+| SalesRevenue   | Workbook | Data!E2:E      | All revenue values in source               |
+| RegionList     | Workbook | Dashboard!H2:H | Dynamic unique region list (see Formula 1) |
+| MonthList      | Workbook | Dashboard!I2:I | Dynamic unique month list (see Formula 2)  |
+| SelectedRegion | Workbook | Dashboard!B2   | User's region selection                    |
+| SelectedMonth  | Workbook | Dashboard!B3   | User's month selection                     |
 
 **Setup:** Data menu > Named ranges > + Add a range > enter name and cell reference for each row above.
 
@@ -475,10 +498,10 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 
 ### Parameter Controls (Dropdown Cells)
 
-| Cell | Label (in adjacent cell) | Named Range | Source Formula | Validation Type |
-|---|---|---|---|---|
-| B2 | "Select Region:" (in A2) | SelectedRegion | =RegionList | Data validation > Dropdown from a range > Dashboard!H2:H |
-| B3 | "Select Month:" (in A3) | SelectedMonth | =MonthList | Data validation > Dropdown from a range > Dashboard!I2:I |
+| Cell | Label (in adjacent cell) | Named Range    | Source Formula | Validation Type                                          |
+| ---- | ------------------------ | -------------- | -------------- | -------------------------------------------------------- |
+| B2   | "Select Region:" (in A2) | SelectedRegion | =RegionList    | Data validation > Dropdown from a range > Dashboard!H2:H |
+| B3   | "Select Month:" (in A3)  | SelectedMonth  | =MonthList     | Data validation > Dropdown from a range > Dashboard!I2:I |
 
 **Note:** Columns H and I on the Dashboard sheet are helper columns for the dynamic lists. Hide these columns after setup (right-click column header > Hide column) to keep the dashboard clean.
 
@@ -487,6 +510,7 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 ### Core Automation Formulas
 
 #### Formula 1: Dynamic Region List (Dropdown Source)
+
 **Purpose:** Extracts all unique region values from source data, sorted alphabetically. Automatically includes new regions when they appear.
 **Cell:** Dashboard!H2
 **Spills:** Yes -- do not place content in H3 downward
@@ -502,6 +526,7 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 ---
 
 #### Formula 2: Dynamic Month List (Dropdown Source)
+
 **Purpose:** Extracts all unique month values present in the data, formatted as "Jan 2024", sorted chronologically.
 **Cell:** Dashboard!I2
 **Spills:** Yes -- do not place content in I3 downward
@@ -517,6 +542,7 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 ---
 
 #### Formula 3: Total Revenue for Selected Region and Month
+
 **Purpose:** Single-number KPI showing total revenue for the exact region/month combination the user selected.
 **Cell:** Dashboard!B6
 **Spills:** No -- single cell result
@@ -539,6 +565,7 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 ---
 
 #### Formula 4: Salesperson Revenue Breakdown (Unique Salesperson List)
+
 **Purpose:** First column of the salesperson breakdown table -- unique salesperson names for the selected region/month.
 **Cell:** Dashboard!A10
 **Spills:** Yes -- fills downward with one row per salesperson who has sales in the selection
@@ -564,6 +591,7 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 ---
 
 #### Formula 5: Salesperson Revenue Values
+
 **Purpose:** Second column of the salesperson breakdown -- revenue for each salesperson in the spilled list above.
 **Cell:** Dashboard!B10
 **Spills:** Yes -- one value per row, matching the spill from Formula 4
@@ -587,6 +615,7 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
 **Note on A10#:** The `#` operator in Google Sheets references the entire spill range dynamically. ARRAYFORMULA forces SUMPRODUCT to evaluate against each value in the spill array, producing one revenue sum per salesperson
 
 **Alternative (simpler for each row individually):** If the ARRAYFORMULA approach feels complex, place this formula in B10 and drag down to B20:
+
 ```
 =IFERROR(
   SUMPRODUCT(
@@ -598,11 +627,13 @@ The user renames a sheet and suddenly multiple formulas show #REF!.
   0
 )
 ```
+
 This is less automated (requires dragging) but more readable for maintenance.
 
 ---
 
 #### Formula 6: Top 3 Products by Revenue
+
 **Purpose:** Automatically identifies the three products with highest revenue for the selected region/month combination and displays them with their revenue totals.
 **Cell:** Dashboard!A15 (product names, spills 3 rows) and Dashboard!B15 (revenue, spills 3 rows)
 
@@ -692,14 +723,14 @@ Product B      | $22,000       |
 
 ### Cell Protection Map
 
-| Zone | Cells | Locked? | Reason |
-|---|---|---|---|
-| Region dropdown | B2 | No | User selection |
-| Month dropdown | B3 | No | User selection |
-| Total revenue | B6 | Yes | Formula (Formula 3) |
-| Salesperson list | A10:B25 | Yes | Spill formulas (4 and 5) |
-| Top 3 products | A15:B17 | Yes | Spill formulas (Formula 6) |
-| Helper columns H--K | H:K | Yes, then hidden | List sources and intermediate calculations |
+| Zone                | Cells   | Locked?          | Reason                                     |
+| ------------------- | ------- | ---------------- | ------------------------------------------ |
+| Region dropdown     | B2      | No               | User selection                             |
+| Month dropdown      | B3      | No               | User selection                             |
+| Total revenue       | B6      | Yes              | Formula (Formula 3)                        |
+| Salesperson list    | A10:B25 | Yes              | Spill formulas (4 and 5)                   |
+| Top 3 products      | A15:B17 | Yes              | Spill formulas (Formula 6)                 |
+| Helper columns H--K | H:K     | Yes, then hidden | List sources and intermediate calculations |
 
 **Setup:** Data menu > Protect sheets and ranges > Add a range > enter the formula cells > set permissions to "Only you" or specific editors.
 

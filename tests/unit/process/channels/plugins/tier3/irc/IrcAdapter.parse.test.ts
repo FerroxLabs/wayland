@@ -37,20 +37,14 @@ describe('toUnifiedIncomingFromIrc - happy paths', () => {
   });
 
   it('uses sender nick as chatId for direct (private) messages', () => {
-    const result = toUnifiedIncomingFromIrc(
-      privmsg({ target: SELF_NICK, nick: 'bob', message: 'hey bot' }),
-      SELF_NICK,
-    );
+    const result = toUnifiedIncomingFromIrc(privmsg({ target: SELF_NICK, nick: 'bob', message: 'hey bot' }), SELF_NICK);
     expect(result).not.toBeNull();
     expect(result!.chatId).toBe('bob');
   });
 
   it('strips mIRC color codes from incoming text', () => {
     // \x0304red\x03 = color code 04 (red)
-    const result = toUnifiedIncomingFromIrc(
-      privmsg({ message: '\x0304red text\x03 normal' }),
-      SELF_NICK,
-    );
+    const result = toUnifiedIncomingFromIrc(privmsg({ message: '\x0304red text\x03 normal' }), SELF_NICK);
     expect(result).not.toBeNull();
     expect(result!.content.text).toBe('red text normal');
   });
@@ -59,17 +53,14 @@ describe('toUnifiedIncomingFromIrc - happy paths', () => {
     const result = toUnifiedIncomingFromIrc(
       // bold=\x02, underline=\x1f, italic=\x1d, reset=\x0f
       privmsg({ message: '\x02bold\x02 and \x1funderline\x0f' }),
-      SELF_NICK,
+      SELF_NICK
     );
     expect(result).not.toBeNull();
     expect(result!.content.text).toBe('bold and underline');
   });
 
   it('converts /me ACTION CTCP to a readable emote line', () => {
-    const result = toUnifiedIncomingFromIrc(
-      privmsg({ message: '\x01ACTION waves at everyone\x01' }),
-      SELF_NICK,
-    );
+    const result = toUnifiedIncomingFromIrc(privmsg({ message: '\x01ACTION waves at everyone\x01' }), SELF_NICK);
     expect(result).not.toBeNull();
     expect(result!.content.text).toBe('* alice waves at everyone');
   });
@@ -91,18 +82,12 @@ describe('toUnifiedIncomingFromIrc - happy paths', () => {
 
 describe('toUnifiedIncomingFromIrc - skip conditions', () => {
   it('returns null for messages from our own nick (echo filter)', () => {
-    const result = toUnifiedIncomingFromIrc(
-      privmsg({ nick: SELF_NICK }),
-      SELF_NICK,
-    );
+    const result = toUnifiedIncomingFromIrc(privmsg({ nick: SELF_NICK }), SELF_NICK);
     expect(result).toBeNull();
   });
 
   it('echo filter is case-insensitive', () => {
-    const result = toUnifiedIncomingFromIrc(
-      privmsg({ nick: SELF_NICK.toUpperCase() }),
-      SELF_NICK,
-    );
+    const result = toUnifiedIncomingFromIrc(privmsg({ nick: SELF_NICK.toUpperCase() }), SELF_NICK);
     expect(result).toBeNull();
   });
 
@@ -114,10 +99,7 @@ describe('toUnifiedIncomingFromIrc - skip conditions', () => {
 
   it('returns null for messages that are empty after stripping control chars', () => {
     // A message that is entirely control characters becomes empty.
-    const result = toUnifiedIncomingFromIrc(
-      privmsg({ message: '\x02\x1f\x0f' }),
-      SELF_NICK,
-    );
+    const result = toUnifiedIncomingFromIrc(privmsg({ message: '\x02\x1f\x0f' }), SELF_NICK);
     expect(result).toBeNull();
   });
 });

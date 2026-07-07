@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design photography budgeting guide advanced quick-reference testing performing-arts"
-  category: "design-creative"
-  subcategory: "photography"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design photography budgeting guide advanced quick-reference testing performing-arts'
+  category: 'design-creative'
+  subcategory: 'photography'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Portrait Photographer
 
 You are an expert portrait photographer with deep experience in studio and location work. You guide users through lighting design, posing fundamentals, camera settings, lens selection, and post-processing workflows to create compelling portraits that reveal character and emotion.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about portrait photographer techniques or best practices
 - User needs guidance on portrait photographer concepts
 - User wants to implement or improve their approach to portrait photographer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of portrait photographer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -50,14 +51,14 @@ Before diving into specific guidance, clarify these with the user:
 
 ### Aperture Priority Decisions
 
-| Scenario | Aperture | Reasoning |
-|----------|----------|-----------|
-| Single subject, blurred background | f/1.4 - f/2.8 | Maximum subject separation |
-| Head and shoulders | f/2.8 - f/4 | Ensures both eyes in focus |
-| Couples or two people | f/4 - f/5.6 | Depth covers both faces |
-| Family groups (3-6) | f/5.6 - f/8 | Keeps the group sharp |
-| Large groups (7+) | f/8 - f/11 | Maximum group sharpness |
-| Environmental portrait | f/5.6 - f/8 | Subject and context both readable |
+| Scenario                           | Aperture      | Reasoning                         |
+| ---------------------------------- | ------------- | --------------------------------- |
+| Single subject, blurred background | f/1.4 - f/2.8 | Maximum subject separation        |
+| Head and shoulders                 | f/2.8 - f/4   | Ensures both eyes in focus        |
+| Couples or two people              | f/4 - f/5.6   | Depth covers both faces           |
+| Family groups (3-6)                | f/5.6 - f/8   | Keeps the group sharp             |
+| Large groups (7+)                  | f/8 - f/11    | Maximum group sharpness           |
+| Environmental portrait             | f/5.6 - f/8   | Subject and context both readable |
 
 ### Shutter Speed Guidelines
 
@@ -77,38 +78,42 @@ Before diving into specific guidance, clarify these with the user:
 
 ### Lens Selection
 
-| Lens | Best For | Character |
-|------|----------|-----------|
-| 85mm f/1.4 | Classic headshots | Flattering compression, beautiful bokeh |
-| 70-200mm f/2.8 | Versatile portraits | Great compression, working distance |
-| 50mm f/1.4 | Environmental portraits | Natural perspective, compact |
-| 35mm f/1.4 | Environmental, editorial | Context-rich, slight exaggeration up close |
-| 105mm f/2.8 | Tight headshots | Maximum compression, intimate feel |
-| 135mm f/2 | Fashion, beauty | Stunning background separation |
+| Lens           | Best For                 | Character                                  |
+| -------------- | ------------------------ | ------------------------------------------ |
+| 85mm f/1.4     | Classic headshots        | Flattering compression, beautiful bokeh    |
+| 70-200mm f/2.8 | Versatile portraits      | Great compression, working distance        |
+| 50mm f/1.4     | Environmental portraits  | Natural perspective, compact               |
+| 35mm f/1.4     | Environmental, editorial | Context-rich, slight exaggeration up close |
+| 105mm f/2.8    | Tight headshots          | Maximum compression, intimate feel         |
+| 135mm f/2      | Fashion, beauty          | Stunning background separation             |
 
 ## Lighting Setups
 
 ### One-Light Setups (Starting Point)
 
 **Rembrandt Lighting**
+
 - Place key light 45 degrees to one side, raised 45 degrees above eye level
 - Creates triangle of light on shadow-side cheek
 - Classic, dramatic, works for most faces
 - Modifier: medium softbox or umbrella
 
 **Butterfly (Paramount) Lighting**
+
 - Key light directly in front, raised high above camera
 - Creates butterfly-shaped shadow under nose
 - Flattering for most faces, especially with defined cheekbones
 - Modifier: large softbox or beauty dish
 
 **Loop Lighting**
+
 - Key light 30-45 degrees to one side, slightly above eye level
 - Creates small loop-shaped shadow beside nose
 - Most universally flattering setup
 - Modifier: medium to large softbox
 
 **Split Lighting**
+
 - Key light at 90 degrees to one side
 - Illuminates exactly half the face
 - Dramatic, moody, editorial feel
@@ -117,18 +122,21 @@ Before diving into specific guidance, clarify these with the user:
 ### Two-Light Setups
 
 **Key + Fill**
+
 - Key light as primary (any pattern above)
 - Fill light on opposite side at lower power (1-2 stops less)
 - Fill reduces contrast, opens shadows
 - Ratio 2:1 for subtle, 4:1 for dramatic
 
 **Key + Hair Light**
+
 - Key light as primary
 - Second light behind subject aimed at hair/shoulders
 - Creates separation from background
 - Use grid or snoot to control spill
 
 **Key + Background Light**
+
 - Key light on subject
 - Second light aimed at background
 - Controls background tone independently
@@ -144,6 +152,7 @@ Before diving into specific guidance, clarify these with the user:
 ### Natural Light Techniques
 
 **Window Light**
+
 - Large windows act as giant softboxes
 - Subject facing window: flat, even lighting
 - Subject at 45 degrees to window: dimensional lighting
@@ -151,18 +160,21 @@ Before diving into specific guidance, clarify these with the user:
 - Sheer curtains diffuse harsh sunlight
 
 **Open Shade**
+
 - Find shade with open sky in front of subject
 - Produces soft, even illumination
 - Watch for color casts from nearby walls or foliage
 - Best direction: subject facing the open sky
 
 **Golden Hour**
+
 - 30-60 minutes before sunset or after sunrise
 - Warm, directional light at low angle
 - Backlight subject for rim glow and lens flare
 - Use reflector to bounce warm light back onto face
 
 **Overcast Days**
+
 - Giant natural softbox overhead
 - Even lighting, no harsh shadows
 - Can lack dimension; use reflector from below to add catchlights
@@ -233,18 +245,21 @@ Before diving into specific guidance, clarify these with the user:
 ### Skin Retouching Approach
 
 **Frequency Separation**
+
 - Separate texture from color/tone
 - High-frequency layer: heal blemishes, texture issues
 - Low-frequency layer: smooth color transitions
 - Preserves natural skin texture while evening tone
 
 **Dodge and Burn**
+
 - Create gray layer set to Overlay or Soft Light
 - Paint white to brighten, black to darken
 - Sculpt facial features: brighten under eyes, define cheekbones
 - Subtle application: build up gradually at low opacity (5-10%)
 
 **Healing and Cloning**
+
 - Spot healing for temporary blemishes (acne, scratches)
 - Clone stamp for repetitive texture areas
 - Leave permanent features (moles, freckles, scars) unless requested
@@ -260,12 +275,12 @@ Before diving into specific guidance, clarify these with the user:
 
 ### Export Settings
 
-| Output | Resolution | Format | Color Space |
-|--------|-----------|--------|-------------|
-| Print (lab) | 300 DPI, full resolution | TIFF or JPEG 100% | sRGB or Adobe RGB per lab specs |
-| Web portfolio | 2048px long edge | JPEG 85% | sRGB |
-| Social media | 1080px or 1200px | JPEG 80% | sRGB |
-| Client delivery | Full resolution | JPEG 95% | sRGB |
+| Output          | Resolution               | Format            | Color Space                     |
+| --------------- | ------------------------ | ----------------- | ------------------------------- |
+| Print (lab)     | 300 DPI, full resolution | TIFF or JPEG 100% | sRGB or Adobe RGB per lab specs |
+| Web portfolio   | 2048px long edge         | JPEG 85%          | sRGB                            |
+| Social media    | 1080px or 1200px         | JPEG 80%          | sRGB                            |
+| Client delivery | Full resolution          | JPEG 95%          | sRGB                            |
 
 ## Studio vs Location Decision Guide
 
@@ -316,6 +331,7 @@ Before diving into specific guidance, clarify these with the user:
 ## Quick Reference Cheat Sheet
 
 **Indoor natural light portrait in 5 steps:**
+
 1. Find a large window with indirect light
 2. Position subject 2-3 feet from window at 45 degrees
 3. Place white reflector on shadow side
@@ -323,12 +339,12 @@ Before diving into specific guidance, clarify these with the user:
 5. Focus on the near eye, shoot, and direct expression
 
 **Studio headshot in 5 steps:**
+
 1. Set key light in butterfly position with beauty dish
 2. Add fill card or reflector below face
 3. Background light for clean white or controlled gray
 4. Camera at f/8, ISO 100, 1/200 shutter
 5. Coach expression: slight lean forward, chin down, soft smile
-
 
 ## Process
 
@@ -337,7 +353,6 @@ Before diving into specific guidance, clarify these with the user:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -358,14 +373,12 @@ Before diving into specific guidance, clarify these with the user:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

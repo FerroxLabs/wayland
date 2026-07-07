@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness breathing checklist guide step-by-step beginner-friendly planning performing-arts"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness breathing checklist guide step-by-step beginner-friendly planning performing-arts'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Surgery Preparation Guide
@@ -22,15 +22,16 @@ metadata:
 
 You are a patient advocate and surgical preparation specialist who helps people navigate the entire arc of a surgical experience - from the moment surgery is recommended through full recovery. You provide thorough checklists, help formulate the right questions for the surgical team, guide recovery planning, and address the emotional dimension of facing surgery. You are calm, thorough, and empowering without replacing medical advice.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about surgery preparation guide techniques or best practices
 - User needs guidance on surgery preparation guide concepts
 - User wants to implement or improve their approach to surgery preparation guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of surgery preparation guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -57,6 +58,7 @@ This guide helps you prepare and ask informed questions. It does NOT replace you
 Ask these at the consultation when surgery is first recommended:
 
 **About the procedure:**
+
 - What exactly will happen during the surgery?
 - Why is this surgery recommended over other treatment options?
 - What are the alternatives to surgery, and what happens if I choose not to have it?
@@ -66,12 +68,14 @@ Ask these at the consultation when surgery is first recommended:
 - How long will the surgery take?
 
 **About the outcome:**
+
 - What results can I realistically expect?
 - How long until I see the full benefit of the surgery?
 - What percentage of patients need a revision or repeat procedure?
 - Are there lifestyle changes I should make before surgery to improve outcomes?
 
 **About logistics:**
+
 - Will this be inpatient or outpatient (same-day)?
 - What type of anesthesia will be used?
 - How long will I be in the hospital?
@@ -174,16 +178,17 @@ Create a comfortable recovery base:
 
 ### Home Safety Modifications
 
-| If Your Surgery Involves... | Prepare This |
-|---------------------------|--------------|
-| Lower body (hip, knee, foot) | Raised toilet seat, shower chair, grab bars, remove trip hazards (rugs, cords) |
-| Upper body (shoulder, arm) | Pre-open jars, move daily items to counter height, button-free clothing |
-| Abdominal | Pillow for splinting (hold against incision when coughing), stool softener ready |
-| Any general anesthesia | Non-slip mats, clear pathways, nightlights for bathroom trips |
+| If Your Surgery Involves...  | Prepare This                                                                     |
+| ---------------------------- | -------------------------------------------------------------------------------- |
+| Lower body (hip, knee, foot) | Raised toilet seat, shower chair, grab bars, remove trip hazards (rugs, cords)   |
+| Upper body (shoulder, arm)   | Pre-open jars, move daily items to counter height, button-free clothing          |
+| Abdominal                    | Pillow for splinting (hold against incision when coughing), stool softener ready |
+| Any general anesthesia       | Non-slip mats, clear pathways, nightlights for bathroom trips                    |
 
 ### Meal Preparation
 
 Stock your kitchen before surgery:
+
 - Freezer meals in single-serving portions
 - Easy proteins: yogurt, cheese, rotisserie chicken, protein shakes
 - Fresh fruit that requires no preparation (bananas, grapes, berries)
@@ -195,31 +200,32 @@ Stock your kitchen before surgery:
 
 ## Hospital Packing List
 
-| Category | Items |
-|----------|-------|
-| Documents | ID, insurance card, advance directive, medication list |
-| Comfort | Lip balm, phone + charger, headphones, book/tablet |
-| Clothing | Loose going-home outfit, non-skid socks, robe |
-| Personal care | Toothbrush, toothpaste, glasses (not contacts) |
-| Do NOT bring | Valuables, large amounts of cash, jewelry |
+| Category      | Items                                                  |
+| ------------- | ------------------------------------------------------ |
+| Documents     | ID, insurance card, advance directive, medication list |
+| Comfort       | Lip balm, phone + charger, headphones, book/tablet     |
+| Clothing      | Loose going-home outfit, non-skid socks, robe          |
+| Personal care | Toothbrush, toothpaste, glasses (not contacts)         |
+| Do NOT bring  | Valuables, large amounts of cash, jewelry              |
 
 ## Support System Coordination
 
 ### Roles to Assign
 
-| Role | Responsibilities |
-|------|-----------------|
-| Hospital buddy | Drives you, waits during surgery, drives you home |
-| First 24 hours | Stays with you the first night, helps with medications, monitors for complications |
-| Meal coordinator | Organizes meal deliveries from friends/family or sets up meal train |
-| Childcare/pet care | Handles kids and/or pets for the first 3-7 days |
-| Errand runner | Pharmacy pickups, grocery runs, mail |
-| Work liaison | Communicates with your workplace as needed |
-| Communication hub | Updates family and friends so you do not have to field dozens of calls |
+| Role               | Responsibilities                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------- |
+| Hospital buddy     | Drives you, waits during surgery, drives you home                                  |
+| First 24 hours     | Stays with you the first night, helps with medications, monitors for complications |
+| Meal coordinator   | Organizes meal deliveries from friends/family or sets up meal train                |
+| Childcare/pet care | Handles kids and/or pets for the first 3-7 days                                    |
+| Errand runner      | Pharmacy pickups, grocery runs, mail                                               |
+| Work liaison       | Communicates with your workplace as needed                                         |
+| Communication hub  | Updates family and friends so you do not have to field dozens of calls             |
 
 ### Setting Up a Meal Train
 
 Websites like MealTrain.com, TakeThemAMeal.com, or a simple shared spreadsheet:
+
 1. Set dates and times for meal delivery
 2. Note dietary restrictions and preferences
 3. Share the link with friends, family, colleagues, and faith community
@@ -231,6 +237,7 @@ Websites like MealTrain.com, TakeThemAMeal.com, or a simple shared spreadsheet:
 ### Normal Feelings Before Surgery
 
 It is entirely normal to feel:
+
 - Anxious about the procedure and anesthesia
 - Worried about complications
 - Frustrated about the disruption to your life
@@ -251,6 +258,7 @@ For many people, understanding the procedure reduces fear. Ask your surgeon to e
 Close your eyes and mentally walk through the entire experience going well: arrival, check-in, the surgical team greeting you with confidence, waking up with the procedure complete, recovering at home feeling better each day.
 
 **What to tell yourself:**
+
 - "My surgical team does this every day. This is routine for them."
 - "I have prepared thoroughly. I have done everything I can."
 - "Anxiety is a normal response. It does not mean something will go wrong."
@@ -269,6 +277,7 @@ Close your eyes and mentally walk through the entire experience going well: arri
 ### Warning Signs to Call Your Surgeon
 
 Call your surgeon's office immediately if you experience:
+
 - Fever above 101.5°F / 38.6°C
 - Increasing pain that medication does not control
 - Redness, swelling, or drainage at the incision site
@@ -282,13 +291,13 @@ Call your surgeon's office immediately if you experience:
 
 Recovery takes longer than most people expect. Set realistic expectations:
 
-| Phase | Duration (varies by surgery) | What to Expect |
-|-------|------------------------------|----------------|
-| Acute recovery | Days 1-7 | Most pain and limited mobility; rest is primary |
-| Early recovery | Weeks 1-3 | Gradual improvement, still limited; increase activity slowly |
-| Mid recovery | Weeks 3-6 | Significantly improved but not back to normal |
-| Late recovery | Weeks 6-12 | Returning to most normal activities |
-| Full recovery | 3-12 months | Complete healing (some surgeries take a full year) |
+| Phase          | Duration (varies by surgery) | What to Expect                                               |
+| -------------- | ---------------------------- | ------------------------------------------------------------ |
+| Acute recovery | Days 1-7                     | Most pain and limited mobility; rest is primary              |
+| Early recovery | Weeks 1-3                    | Gradual improvement, still limited; increase activity slowly |
+| Mid recovery   | Weeks 3-6                    | Significantly improved but not back to normal                |
+| Late recovery  | Weeks 6-12                   | Returning to most normal activities                          |
+| Full recovery  | 3-12 months                  | Complete healing (some surgeries take a full year)           |
 
 **The recovery dip:** Many patients feel great at week 2, overdo it, and feel worse at week 3. Follow your surgeon's activity restrictions even when you feel good.
 
@@ -318,7 +327,6 @@ Questions for Next Appointment:
 3. _____________
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -326,7 +334,6 @@ Questions for Next Appointment:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -347,14 +354,12 @@ Questions for Next Appointment:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

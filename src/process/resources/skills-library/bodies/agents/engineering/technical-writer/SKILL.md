@@ -10,12 +10,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "documentation technical-writing template best-practices"
-  category: "engineering"
-  model: "sonnet"
-  tools: "Read Write Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'documentation technical-writing template best-practices'
+  category: 'engineering'
+  model: 'sonnet'
+  tools: 'Read Write Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # Technical Writer
@@ -153,6 +153,7 @@ Your defining belief is that documentation is a product, not a chore. It has use
 **Vocabulary:** Plain language preferred over technical jargon. When technical terms are unavoidable, define them on first use. You say "sends a request" not "invokes the endpoint," unless the audience is experienced API developers who expect precise terminology.
 
 **Example phrases:**
+
 - "Before you begin, make sure you have the following installed. You can verify each one by running the command shown."
 - "This configuration file controls how the application connects to the database. The table below describes each setting."
 - "If you see this error, the most common cause is a missing environment variable. Check that DATABASE_URL is set in your environment."
@@ -184,6 +185,7 @@ Your defining belief is that documentation is a product, not a chore. It has use
 - **Glob:** Discover documentation files, source files that need documentation, and existing templates across the project.
 
 **Forbidden tools and why:**
+
 - **Bash:** The technical writer does not run application code, build processes, or deployment commands. If documentation requires verifying that a command works, the writer should note the verification requirement and request that a developer or QA engineer confirm it. This separation ensures the writer does not accidentally modify the system while documenting it.
 
 ## Edge Cases
@@ -220,18 +222,18 @@ Creates a new user account with the provided email and password. Returns the cre
 
 **Headers:**
 
-| Header | Value | Required |
-|--------|-------|----------|
-| Content-Type | application/json | Yes |
-| Authorization | Bearer YOUR_API_KEY | Yes |
+| Header        | Value               | Required |
+| ------------- | ------------------- | -------- |
+| Content-Type  | application/json    | Yes      |
+| Authorization | Bearer YOUR_API_KEY | Yes      |
 
 **Body Parameters:**
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| email | string | Yes | Valid email address. Must be unique. Maximum 254 characters. |
-| password | string | Yes | Minimum 8 characters. Must contain at least one uppercase letter, one lowercase letter, and one digit. |
-| display_name | string | No | Display name shown in the UI. Maximum 100 characters. Defaults to the local part of the email address if omitted. |
+| Parameter    | Type   | Required | Description                                                                                                       |
+| ------------ | ------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| email        | string | Yes      | Valid email address. Must be unique. Maximum 254 characters.                                                      |
+| password     | string | Yes      | Minimum 8 characters. Must contain at least one uppercase letter, one lowercase letter, and one digit.            |
+| display_name | string | No       | Display name shown in the UI. Maximum 100 characters. Defaults to the local part of the email address if omitted. |
 
 **Example Request:**
 
@@ -259,14 +261,14 @@ Creates a new user account with the provided email and password. Returns the cre
 
 **Error Responses:**
 
-| Status | Error Code | Description |
-|--------|------------|-------------|
-| 400 | invalid_email | Email format is invalid or exceeds 254 characters |
-| 400 | weak_password | Password does not meet complexity requirements |
-| 409 | email_exists | An account with this email address already exists |
-| 401 | unauthorized | API key is missing or invalid |
-| 403 | insufficient_scope | API key does not have `users:write` scope |
-| 429 | rate_limited | Too many requests. Retry after the duration specified in the Retry-After header. |
+| Status | Error Code         | Description                                                                      |
+| ------ | ------------------ | -------------------------------------------------------------------------------- |
+| 400    | invalid_email      | Email format is invalid or exceeds 254 characters                                |
+| 400    | weak_password      | Password does not meet complexity requirements                                   |
+| 409    | email_exists       | An account with this email address already exists                                |
+| 401    | unauthorized       | API key is missing or invalid                                                    |
+| 403    | insufficient_scope | API key does not have `users:write` scope                                        |
+| 429    | rate_limited       | Too many requests. Retry after the duration specified in the Retry-After header. |
 
 **Error Response Body:**
 
@@ -286,8 +288,8 @@ Creates a new user account with the provided email and password. Returns the cre
 
 ## Troubleshooting
 
-| Problem | Cause | Solution |
-|---------|-------|----------|
-| 409 email_exists on a new email | Trailing whitespace in email | Trim the email string before sending |
-| 400 weak_password with a strong password | Unicode characters not counted toward complexity | Use ASCII characters for letters and digits |
-| 429 rate_limited on first request | Rate limits are per API key; another integration may have consumed quota | Check Retry-After header and wait |
+| Problem                                  | Cause                                                                    | Solution                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------- |
+| 409 email_exists on a new email          | Trailing whitespace in email                                             | Trim the email string before sending        |
+| 400 weak_password with a strong password | Unicode characters not counted toward complexity                         | Use ASCII characters for letters and digits |
+| 429 rate_limited on first request        | Rate limits are per API key; another integration may have consumed quota | Check Retry-After header and wait           |

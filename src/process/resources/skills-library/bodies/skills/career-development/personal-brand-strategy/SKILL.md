@@ -11,13 +11,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career planning linkedin writing"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career planning linkedin writing'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Personal Brand Strategy
@@ -234,11 +234,13 @@ metadata:
 **Positioning statement:** I help data teams build reliable, scalable pipelines by sharing practical architecture patterns from 6 years of building production data systems.
 
 **Intersection formula:**
+
 - Expertise 1: Data pipeline architecture and orchestration
 - Expertise 2: Production system reliability and failure recovery
 - Unique perspective: Practical lessons from building and maintaining real systems, not theoretical best practices
 
 **Proof points:**
+
 1. 6 years of hands-on data engineering across production environments
 2. [Specific pipeline or system built -- scale, complexity, business impact]
 3. [Specific challenge solved -- migration, reliability improvement, cost reduction]
@@ -249,6 +251,7 @@ metadata:
 **Secondary audience:** Mid-level data engineers who will engage with and amplify technical content
 
 **Audience problems the user can address:**
+
 1. How to design pipelines that do not break at 10x scale
 2. How to choose between orchestration tools for different use cases
 3. How to debug and recover from pipeline failures without data loss
@@ -261,22 +264,25 @@ metadata:
 **Primary platform:** LinkedIn -- highest concentration of hiring managers and senior engineers in data
 **Secondary platform:** Personal blog or newsletter -- long-form technical depth for SEO and portfolio
 
-| Platform | Purpose | Content Type | Posting Frequency |
-|----------|---------|-------------|-------------------|
-| LinkedIn | Primary visibility, hiring manager reach | Short technical posts (200-400 words) | 2 per week |
-| Personal blog | Depth, SEO, portfolio | Long-form technical write-ups (800-1500 words) | 1 per month |
+| Platform      | Purpose                                  | Content Type                                   | Posting Frequency |
+| ------------- | ---------------------------------------- | ---------------------------------------------- | ----------------- |
+| LinkedIn      | Primary visibility, hiring manager reach | Short technical posts (200-400 words)          | 2 per week        |
+| Personal blog | Depth, SEO, portfolio                    | Long-form technical write-ups (800-1500 words) | 1 per month       |
 
 ### Content Pillars
 
 **Pillar 1: Pipeline Architecture Patterns** -- Specific patterns for common data pipeline challenges
+
 - Topic ideas: batch vs. streaming decision framework, idempotent pipeline design, schema evolution strategies, backfill architecture, multi-tenant pipeline isolation
 - Best format: LinkedIn post with diagram or code snippet
 
 **Pillar 2: Reliability and Failure Recovery** -- How to build pipelines that recover gracefully
+
 - Topic ideas: circuit breaker patterns for data pipelines, monitoring and alerting strategies, dead letter queue design, data quality gates, incident post-mortem lessons
 - Best format: LinkedIn post (short) + blog post (detailed case study)
 
 **Pillar 3: Lessons from Production** -- Real stories from building and maintaining data systems
+
 - Topic ideas: the migration that taught me about testing, scaling from 1M to 100M rows per day, why I stopped using [approach] and switched to [approach], the cost optimization that saved $X per month, debugging a silent data corruption issue
 - Best format: LinkedIn narrative post (personal story format)
 
@@ -294,34 +300,34 @@ metadata:
 
 #### Days 1-30: Foundation
 
-| Week | Actions | Deliverables |
-|------|---------|-------------|
-| Week 1 | Write and publish first LinkedIn post (Pillar 1 topic), comment on 3 data engineering posts per day | 1 LinkedIn post published, 15 comments |
-| Week 2 | Write and publish second LinkedIn post (Pillar 3 story), connect with 10 data engineers | 1 LinkedIn post, 10 connection requests |
-| Week 3 | Publish first blog post (detailed Pillar 1 topic), share on LinkedIn | 1 blog post, 1 LinkedIn share post |
-| Week 4 | Write 2 LinkedIn posts (Pillar 1 and Pillar 2), continue daily commenting | 2 LinkedIn posts, 15 comments |
+| Week   | Actions                                                                                             | Deliverables                            |
+| ------ | --------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Week 1 | Write and publish first LinkedIn post (Pillar 1 topic), comment on 3 data engineering posts per day | 1 LinkedIn post published, 15 comments  |
+| Week 2 | Write and publish second LinkedIn post (Pillar 3 story), connect with 10 data engineers             | 1 LinkedIn post, 10 connection requests |
+| Week 3 | Publish first blog post (detailed Pillar 1 topic), share on LinkedIn                                | 1 blog post, 1 LinkedIn share post      |
+| Week 4 | Write 2 LinkedIn posts (Pillar 1 and Pillar 2), continue daily commenting                           | 2 LinkedIn posts, 15 comments           |
 
 **Month 1 targets:** 5 LinkedIn posts, 1 blog post, 60 comments on others' content, 20 new connections
 
 #### Days 31-60: Consistency
 
-| Week | Actions | Deliverables |
-|------|---------|-------------|
+| Week   | Actions                                                                  | Deliverables                                  |
+| ------ | ------------------------------------------------------------------------ | --------------------------------------------- |
 | Week 5 | 2 LinkedIn posts, start engaging with data engineering community leaders | 2 posts, identify 5 key voices to engage with |
-| Week 6 | 2 LinkedIn posts, publish second blog post | 2 LinkedIn posts, 1 blog post |
-| Week 7 | 2 LinkedIn posts, respond to every comment on own posts within 24 hours | 2 posts, 100% comment response rate |
-| Week 8 | 2 LinkedIn posts, connect with 10 senior engineers or hiring managers | 2 posts, 10 targeted connections |
+| Week 6 | 2 LinkedIn posts, publish second blog post                               | 2 LinkedIn posts, 1 blog post                 |
+| Week 7 | 2 LinkedIn posts, respond to every comment on own posts within 24 hours  | 2 posts, 100% comment response rate           |
+| Week 8 | 2 LinkedIn posts, connect with 10 senior engineers or hiring managers    | 2 posts, 10 targeted connections              |
 
 **Month 2 targets:** 8 LinkedIn posts, 1 blog post, 60 comments, 20 new targeted connections
 
 #### Days 61-90: Expansion
 
-| Week | Actions | Deliverables |
-|------|---------|-------------|
-| Week 9 | 2 LinkedIn posts, pitch a guest post to a data engineering publication or newsletter | 2 posts, 1 pitch sent |
+| Week    | Actions                                                                                        | Deliverables                                           |
+| ------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Week 9  | 2 LinkedIn posts, pitch a guest post to a data engineering publication or newsletter           | 2 posts, 1 pitch sent                                  |
 | Week 10 | 2 LinkedIn posts, publish third blog post, share a post that references another creator's work | 2 LinkedIn posts, 1 blog post, 1 collaborative mention |
-| Week 11 | 2 LinkedIn posts, participate in a data engineering discussion thread or community event | 2 posts, 1 community contribution |
-| Week 12 | 2 LinkedIn posts, 90-day review and strategy adjustment | 2 posts, written review of metrics vs. targets |
+| Week 11 | 2 LinkedIn posts, participate in a data engineering discussion thread or community event       | 2 posts, 1 community contribution                      |
+| Week 12 | 2 LinkedIn posts, 90-day review and strategy adjustment                                        | 2 posts, written review of metrics vs. targets         |
 
 **Month 3 targets:** 8 LinkedIn posts, 1 blog post, 1 guest or collaborative content, measurable inbound interest
 
@@ -329,11 +335,11 @@ metadata:
 
 ### Success Metrics (90-Day Review)
 
-| Metric | Target | How to Measure |
-|--------|--------|---------------|
-| Posts published (LinkedIn) | 21 | Count |
-| Blog posts published | 3 | Count |
-| Engagement rate | 3-5% | Likes + comments per post / impressions |
-| New connections | 60 | LinkedIn network growth |
-| Inbound messages or opportunities | 3+ | Recruiter messages, collaboration invites, referrals |
-| Profile views | 50% increase | LinkedIn analytics comparison month 1 vs. month 3 |
+| Metric                            | Target       | How to Measure                                       |
+| --------------------------------- | ------------ | ---------------------------------------------------- |
+| Posts published (LinkedIn)        | 21           | Count                                                |
+| Blog posts published              | 3            | Count                                                |
+| Engagement rate                   | 3-5%         | Likes + comments per post / impressions              |
+| New connections                   | 60           | LinkedIn network growth                              |
+| Inbound messages or opportunities | 3+           | Recruiter messages, collaboration invites, referrals |
+| Profile views                     | 50% increase | LinkedIn analytics comparison month 1 vs. month 3    |

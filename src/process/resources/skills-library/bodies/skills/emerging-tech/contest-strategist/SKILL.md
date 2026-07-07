@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming stress-management template guide beginner-friendly python testing"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming stress-management template guide beginner-friendly python testing'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Contest Strategist
 
 You are an expert competitive programming strategist and coach. You guide contestants through contest time management, problem selection tactics, debugging under pressure, mental models for rating improvement, practice planning, and meta-skills that separate top performers from the rest.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about contest strategist techniques or best practices
 - User needs guidance on contest strategist concepts
 - User wants to implement or improve their approach to contest strategist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of contest strategist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -72,17 +73,17 @@ Phase 5: Review & Debug (10-15 min)
 
 ### Constraint-Based Complexity Guide
 
-| Constraint (n) | Expected Complexity | Common Patterns |
-|----------------|-------------------|-----------------|
-| n <= 10 | O(n!) or O(2^n * n) | Brute force, bitmask DP |
-| n <= 20 | O(2^n) | Bitmask DP, meet in middle |
-| n <= 100 | O(n^3) | Floyd-Warshall, interval DP |
-| n <= 1,000 | O(n^2) | Simple DP, all pairs |
-| n <= 10,000 | O(n^2) barely | DP with optimization |
-| n <= 100,000 | O(n log n) | Sorting, binary search, segment tree |
-| n <= 1,000,000 | O(n) or O(n log n) | Two pointers, greedy, linear DP |
-| n <= 10^8 | O(n) | Simple scan, math formula |
-| n <= 10^18 | O(log n) or O(sqrt(n)) | Binary search, math, matrix exponent |
+| Constraint (n) | Expected Complexity    | Common Patterns                      |
+| -------------- | ---------------------- | ------------------------------------ |
+| n <= 10        | O(n!) or O(2^n \* n)   | Brute force, bitmask DP              |
+| n <= 20        | O(2^n)                 | Bitmask DP, meet in middle           |
+| n <= 100       | O(n^3)                 | Floyd-Warshall, interval DP          |
+| n <= 1,000     | O(n^2)                 | Simple DP, all pairs                 |
+| n <= 10,000    | O(n^2) barely          | DP with optimization                 |
+| n <= 100,000   | O(n log n)             | Sorting, binary search, segment tree |
+| n <= 1,000,000 | O(n) or O(n log n)     | Two pointers, greedy, linear DP      |
+| n <= 10^8      | O(n)                   | Simple scan, math formula            |
+| n <= 10^18     | O(log n) or O(sqrt(n)) | Binary search, math, matrix exponent |
 
 ### Problem Classification Keywords
 
@@ -190,16 +191,16 @@ int main() {
 
 ### Common Bug Patterns
 
-| Bug | Symptom | Fix |
-|-----|---------|-----|
-| Integer overflow | WA on large inputs | Use `long long`, check multiplication |
-| Array out of bounds | RE or WA | Check array sizes, 0 vs 1 indexed |
-| Uninitialized variables | WA, random behavior | Initialize all vars, memset arrays |
-| Wrong comparison operator | WA on sorted/ordering | Double-check < vs <= vs > |
-| Not resetting between test cases | WA from 2nd test on | Clear all globals between cases |
-| Modular arithmetic missing | WA on counting | Add MOD after every add/multiply |
-| skipping `\n` in fast I/O | TLE due to flushing | Use `\n` not `endl` |
-| Map instead of unordered_map | TLE on 10^6 operations | Use unordered_map or array |
+| Bug                              | Symptom                | Fix                                   |
+| -------------------------------- | ---------------------- | ------------------------------------- |
+| Integer overflow                 | WA on large inputs     | Use `long long`, check multiplication |
+| Array out of bounds              | RE or WA               | Check array sizes, 0 vs 1 indexed     |
+| Uninitialized variables          | WA, random behavior    | Initialize all vars, memset arrays    |
+| Wrong comparison operator        | WA on sorted/ordering  | Double-check < vs <= vs >             |
+| Not resetting between test cases | WA from 2nd test on    | Clear all globals between cases       |
+| Modular arithmetic missing       | WA on counting         | Add MOD after every add/multiply      |
+| skipping `\n` in fast I/O        | TLE due to flushing    | Use `\n` not `endl`                   |
+| Map instead of unordered_map     | TLE on 10^6 operations | Use unordered_map or array            |
 
 ## Practice Planning
 
@@ -380,16 +381,16 @@ When you cannot solve optimally, consider:
 
 ## Common Pitfalls
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| Reading problem too quickly | Misunderstand constraints | Read twice, highlight key details |
-| Starting to code before thinking | Wasted time on wrong approach | Think 5 min, code 15 min |
-| Not testing before submission | Wrong answer penalty | Test edge cases locally |
-| Getting stuck on one problem | Wasted contest time | Move on after time limit |
-| Copying from editorials | No learning, no rating improvement | Understand then implement yourself |
-| Only solving easy problems | Plateau in rating | Consistently attempt above-level problems |
-| Skipping virtual contests | Poor time management skills | Do at least one virtual per week |
-| Not analyzing mistakes | Repeat same bugs | Keep a bug/mistake log |
+| Mistake                          | Impact                             | Solution                                  |
+| -------------------------------- | ---------------------------------- | ----------------------------------------- |
+| Reading problem too quickly      | Misunderstand constraints          | Read twice, highlight key details         |
+| Starting to code before thinking | Wasted time on wrong approach      | Think 5 min, code 15 min                  |
+| Not testing before submission    | Wrong answer penalty               | Test edge cases locally                   |
+| Getting stuck on one problem     | Wasted contest time                | Move on after time limit                  |
+| Copying from editorials          | No learning, no rating improvement | Understand then implement yourself        |
+| Only solving easy problems       | Plateau in rating                  | Consistently attempt above-level problems |
+| Skipping virtual contests        | Poor time management skills        | Do at least one virtual per week          |
+| Not analyzing mistakes           | Repeat same bugs                   | Keep a bug/mistake log                    |
 
 ## Exercises
 
@@ -399,7 +400,6 @@ When you cannot solve optimally, consider:
 4. **Constraint Analysis**: For 10 random problems, predict the expected algorithm from constraints alone before reading the editorial
 5. **Upsolve Log**: Maintain a log of 20 upsolves with problem link, technique, key insight, and mistakes made
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -407,7 +407,6 @@ When you cannot solve optimally, consider:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -428,14 +427,12 @@ When you cannot solve optimally, consider:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

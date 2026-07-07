@@ -8,12 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import {
-  DecodeError,
-  MAX_LINE_BYTES,
-  decode,
-  encode,
-} from '@process/services/ijfw/mcpWireProtocol';
+import { DecodeError, MAX_LINE_BYTES, decode, encode } from '@process/services/ijfw/mcpWireProtocol';
 
 describe('ijfw/mcpWireProtocol (newline-delimited)', () => {
   describe('encode', () => {
@@ -102,10 +97,7 @@ describe('ijfw/mcpWireProtocol (newline-delimited)', () => {
     });
 
     it('throws DecodeError when a terminated line exceeds MAX_LINE_BYTES', () => {
-      const oversized = Buffer.concat([
-        Buffer.alloc(MAX_LINE_BYTES + 100, 0x41),
-        Buffer.from([0x0a]),
-      ]);
+      const oversized = Buffer.concat([Buffer.alloc(MAX_LINE_BYTES + 100, 0x41), Buffer.from([0x0a])]);
       expect(() => decode(oversized)).toThrow(/exceeds MAX_LINE_BYTES/);
     });
   });

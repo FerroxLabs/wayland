@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "newsletter writing email"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'newsletter writing email'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Newsletter Writing
 
 ## When to Use
@@ -25,6 +26,7 @@ metadata:
 Use this skill when the user needs to produce a complete newsletter edition -- a structured, multi-element email sent to a subscribed audience with the intent to inform, engage, retain, or occasionally promote.
 
 **Trigger scenarios:**
+
 - User asks to write a newsletter edition with multiple content items (a story, a recommendation, a product update, a CTA)
 - User needs help structuring a recurring email format (weekly, biweekly, monthly) for a named or unnamed newsletter
 - User wants a complete draft including subject line, body copy, sign-off, and preview text for subscriber distribution
@@ -34,6 +36,7 @@ Use this skill when the user needs to produce a complete newsletter edition -- a
 - User needs a reengagement or "come back" edition to reconnect with a dormant list
 
 **Do NOT use when:**
+
 - The user only needs subject line options for an existing draft -- use `newsletter-subject-lines` instead
 - The user wants to cold-prospect strangers via email -- use `cold-email-outreach` instead
 - The user needs a single transactional or professional email (a meeting follow-up, a client update, an invoice email) -- use `professional-email` instead
@@ -79,6 +82,7 @@ Newsletter structure is not decorative -- it determines what gets read and what 
 - **Product-focused editorial (300-500 words):** 60-70% useful editorial content, 30-40% promotion, structured so the promotion feels earned by the value delivered first. Common for e-commerce brands, SaaS companies, and creator product launches.
 
 **Decision framework:**
+
 - If the user has one strong story or insight: single-topic deep dive
 - If the user has 4+ items of similar weight: multi-section curated digest
 - If the user is a coach, consultant, or personal brand: story + lesson
@@ -92,6 +96,7 @@ Newsletter structure is not decorative -- it determines what gets read and what 
 The subject line and preview text together determine whether the newsletter gets opened. A great newsletter with a weak subject line fails its readers.
 
 **Subject line principles:**
+
 - Target 35-50 characters for mobile preview (Gmail clips at 77 characters in mobile, but the visual weight at 40 chars is stronger)
 - The goal is earned curiosity or a specific, concrete promise -- not vague intrigue ("You won't believe this") or false urgency ("Don't miss this")
 - Effective formulas: the unexpected number ("The 7-minute user test"), the named tension ("Why your welcome email is failing"), the specific outcome ("How I cut churn by 22%"), the honest tease ("Something I got wrong last year")
@@ -99,11 +104,13 @@ The subject line and preview text together determine whether the newsletter gets
 - Subject lines that feel written to one person ("A question I keep getting") outperform broadcast-style subject lines ("This month's design roundup") on average by 15-25% open rate in studied creator newsletter data
 
 **Write 3 options per edition:**
+
 1. Curiosity-driven -- implies a story, reveals something partially, or names a tension
 2. Benefit-driven -- states the concrete takeaway or outcome the reader will get
 3. Direct/descriptive -- names the content plainly; best for audiences who want to know exactly what they are getting (often better for established, loyal lists)
 
 **Preview text (pre-header):**
+
 - 85-100 characters is optimal -- enough to complete the subject line's thought but short enough to avoid truncation on most clients
 - Must NOT duplicate the subject line -- it should add information, extend the tease, or add context
 - Treat it as the second line of the open invitation: subject line hooks, preview text deepens
@@ -116,12 +123,14 @@ The subject line and preview text together determine whether the newsletter gets
 The first 1-3 sentences of a newsletter have one job: earn the continued read. Fifty percent of readers who open a newsletter do not finish it. The opening hook is the gate.
 
 **What works:**
+
 - Drop into a specific scene, observation, or moment without preamble ("Last Thursday I made a mistake that cost a client three weeks of work. Here is what I learned.")
 - State a counterintuitive claim and immediately signal you will explain it ("The most-read section of most newsletters is the P.S. Here is why.")
 - Name the reader's situation with precision ("If you have ever spent two hours on a design only to hear a stakeholder say 'can we just move the logo?', this one is for you.")
 - Ask a specific question that the rest of the newsletter answers ("What is the actual difference between a strategy and a plan?")
 
 **What fails:**
+
 - "Welcome to this week's edition of [Newsletter Name]" -- this is administrative, not editorial
 - "Happy Monday/Friday!" -- signals filler before content
 - "I hope this finds you well" -- signals a form email, not a personal one
@@ -134,6 +143,7 @@ The first 1-3 sentences of a newsletter have one job: earn the continued read. F
 With the structure chosen and the hook written, develop each section with the following discipline:
 
 **Length and density targets by format:**
+
 - Single-topic: 400-700 words total, with sections no longer than 250 words each before a break
 - Multi-section digest: 80-150 words per item; 4-5 items maximum before the format becomes exhausting
 - Story + lesson: 150-250 words for the story, 150-200 words for the lesson
@@ -141,17 +151,20 @@ With the structure chosen and the hook written, develop each section with the fo
 - Product-focused editorial: 200-350 words of editorial value, then 100-200 words of clean promotion
 
 **Paragraph construction:**
+
 - 1-3 sentences per paragraph, maximum. Email is read on phones in portrait orientation; dense paragraphs cause readers to lose their place
 - Every paragraph should either advance the story, add a new piece of information, or shift the perspective -- no paragraph should just restate the previous one differently
 - Use white space aggressively -- blank lines between paragraphs are not wasted space, they are cognitive breathing room
 
 **Voice consistency:**
+
 - "I" for solo creators and personal brands; "we" for brand teams
 - Address the reader as "you" (singular), never "you all," "everyone," "folks," or "readers"
 - If the user has an established voice, match it precisely. Identify three voice markers in their previous writing (e.g., short declarative sentences, rhetorical questions, em dashes for asides) and reproduce them
 - Avoid throat-clearing phrases: "It goes without saying," "As we all know," "Now more than ever," "In today's fast-paced world"
 
 **Subheadings in newsletters:**
+
 - Use sparingly -- 1-2 subheadings maximum per 600-word newsletter, or none at all for story-format newsletters
 - Bold a key phrase rather than using a full subheading for shorter sections
 - Avoid H1/H2 heading-style formatting -- it makes the newsletter look like a web article, not a letter
@@ -163,6 +176,7 @@ With the structure chosen and the hook written, develop each section with the fo
 Every newsletter edition should have one primary CTA and no more. Multiple CTAs create decision paralysis; studied email data shows that adding a second CTA can reduce click-through on both by 30-50%.
 
 **CTA taxonomy -- choose one:**
+
 - **Reply CTA:** "Reply and tell me your answer" -- the highest-engagement CTA for small lists; builds relationship; replies improve deliverability by signaling to email providers that real people want this email
 - **Click CTA:** Drives traffic to an article, product page, registration form, or resource -- requires a clear benefit statement in the link text ("Read the full case study," not "click here")
 - **Share CTA:** Ask readers to forward to one specific person ("If you know someone building their first newsletter, forward this to them") -- more effective than generic "share this newsletter"
@@ -170,6 +184,7 @@ Every newsletter edition should have one primary CTA and no more. Multiple CTAs 
 - **Community CTA:** Join a Slack, Discord, community forum, or membership space -- works best when the newsletter has demonstrated enough value that the reader wants more
 
 **CTA placement and framing:**
+
 - Always after the value delivery, never before
 - Set it up with a one-sentence transition that connects the content to the ask ("If the 5-second method above sounds useful, the workshop next week goes three layers deeper.")
 - Write the CTA as a sentence, not a button label -- in plain-text email style, a bolded sentence outperforms generic "CLICK HERE" formatting
@@ -182,11 +197,13 @@ Every newsletter edition should have one primary CTA and no more. Multiple CTAs 
 The sign-off and P.S. are the two most-read elements of any newsletter after the subject line. They are consistently under-used.
 
 **Sign-off:**
+
 - Personal closer that matches the newsletter's register -- formal ("Until next time"), warm ("Talk soon"), personal ("Be well, and thanks for reading"), or informal ("Later")
 - Author name or pen name -- first name only for personal newsletters, full name for brand-style newsletters
 - Optional one-line bio or context on first editions only: "Jordan -- UX designer and occasional over-tester"
 
 **P.S. line:**
+
 - Use the P.S. for one secondary item: a personal note, a soft CTA, a related resource, a link to an archive, or a joke that only loyal readers will appreciate
 - Never use the P.S. for a second primary CTA -- it dilutes the one you already made
 - Keep it to one or two sentences
@@ -250,12 +267,12 @@ P.S. [One to two sentences. Secondary note, soft CTA, or personality moment.]
 
 **Supplementary notes block (optional -- include if useful):**
 
-| Element | Decision Made | Rationale |
-|---|---|---|
-| Format chosen | [e.g., Story + lesson] | [e.g., One strong story with universal takeaway] |
-| Word count | [e.g., 520 words] | [e.g., Within biweekly newsletter norm for this audience] |
-| CTA type | [e.g., Reply CTA] | [e.g., Small list; replies improve deliverability] |
-| Tone register | [e.g., Personal/conversational] | [e.g., Solo creator, established list] |
+| Element       | Decision Made                   | Rationale                                                 |
+| ------------- | ------------------------------- | --------------------------------------------------------- |
+| Format chosen | [e.g., Story + lesson]          | [e.g., One strong story with universal takeaway]          |
+| Word count    | [e.g., 520 words]               | [e.g., Within biweekly newsletter norm for this audience] |
+| CTA type      | [e.g., Reply CTA]               | [e.g., Small list; replies improve deliverability]        |
+| Tone register | [e.g., Personal/conversational] | [e.g., Solo creator, established list]                    |
 
 ---
 
@@ -326,16 +343,16 @@ The fundamental rule is: write in the client's voice, not the ghostwriter's. Bef
 
 ---
 
-SUBJECT LINE OPTIONS
---------------------
+## SUBJECT LINE OPTIONS
+
 A. The 7-minute user test that actually worked (47 chars)
 B. One testing method I wish I learned three years sooner (55 chars -- trim to: Cut your testing time by 80%) (40 chars)
 C. Design Notes: faster testing + a book you need (48 chars)
 
-*(Note: Option B revised to meet the 50-character rule.)*
+_(Note: Option B revised to meet the 50-character rule.)_
 
-PREVIEW TEXT
-------------
+## PREVIEW TEXT
+
 Plus a book that reframes content structure as a design problem, not a content problem. (88 chars)
 
 ---
@@ -373,10 +390,10 @@ P.S. -- A question I keep getting after editions like this one: "How do you recr
 
 **Supplementary notes block:**
 
-| Element | Decision Made | Rationale |
-|---|---|---|
-| Format chosen | Multi-section (3 items) | Three distinct content types of similar weight; no single item warranted a deep dive |
-| Word count | ~540 words | Biweekly cadence; audience is professionals reading during work hours; fits 2-scroll mobile read |
-| CTA type | Reply CTA (workshop) | Small-to-mid-size community list; reply signals engagement to email providers and reduces friction vs. link click |
-| Tone register | Personal/conversational, first-person singular | Solo creator, established community relationship; treats reader as a peer not an audience |
-| P.S. usage | Reader question + reply invitation | Extends the workshop's value proposition; invites reply that improves deliverability; rewards curiosity |
+| Element       | Decision Made                                  | Rationale                                                                                                         |
+| ------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Format chosen | Multi-section (3 items)                        | Three distinct content types of similar weight; no single item warranted a deep dive                              |
+| Word count    | ~540 words                                     | Biweekly cadence; audience is professionals reading during work hours; fits 2-scroll mobile read                  |
+| CTA type      | Reply CTA (workshop)                           | Small-to-mid-size community list; reply signals engagement to email providers and reduces friction vs. link click |
+| Tone register | Personal/conversational, first-person singular | Solo creator, established community relationship; treats reader as a peer not an audience                         |
+| P.S. usage    | Reader question + reply invitation             | Extends the workshop's value proposition; invites reply that improves deliverability; rewards curiosity           |

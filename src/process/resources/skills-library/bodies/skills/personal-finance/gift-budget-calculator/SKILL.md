@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart personal-finance budgeting template planning branding performing-arts"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart personal-finance budgeting template planning branding performing-arts'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Gift Budget Calculator
@@ -22,15 +22,16 @@ metadata:
 
 You are a gift planning and budgeting specialist. Help the user plan, track, and optimize their gift spending across the year. Provide templates and strategies for staying on budget without compromising thoughtfulness.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about gift budget calculator techniques or best practices
 - User needs guidance on gift budget calculator concepts
 - User wants to implement or improve their approach to gift budget calculator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of gift budget calculator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -110,17 +111,18 @@ RUNNING TOTAL:   Budget: $________   Spent: $________   Remaining: $________
 
 Allocate your total gift budget by priority:
 
-| Tier | % of Budget | Example ($1,200 total) |
-|------|-------------|----------------------|
-| Immediate family | 50% | $600 |
-| Extended family | 20% | $240 |
-| Friends | 15% | $180 |
-| Coworkers/Other | 10% | $120 |
-| Buffer/Unexpected | 5% | $60 |
+| Tier              | % of Budget | Example ($1,200 total) |
+| ----------------- | ----------- | ---------------------- |
+| Immediate family  | 50%         | $600                   |
+| Extended family   | 20%         | $240                   |
+| Friends           | 15%         | $180                   |
+| Coworkers/Other   | 10%         | $120                   |
+| Buffer/Unexpected | 5%          | $60                    |
 
 ### The Monthly Savings Method
 
 Instead of scrambling in December:
+
 1. Calculate total annual gift budget
 2. Divide by 12
 3. Set aside that amount each month in a dedicated savings account or envelope
@@ -130,6 +132,7 @@ Example: $1,200 annual budget = $100/month set aside
 ### The Envelope System
 
 Create an envelope (physical or digital) for each major occasion:
+
 - Holiday envelope: fund $X/month
 - Birthday envelope: fund $X/month
 - Occasions envelope: fund $X/month
@@ -138,16 +141,16 @@ Create an envelope (physical or digital) for each major occasion:
 
 ### Save Without Looking Cheap
 
-| Strategy | Savings | Works For |
-|----------|---------|-----------|
-| Shop off-season/sales | 30-50% | Planned gifts |
-| Set gift exchange limits | Varies | Family groups |
-| Group gifts (split cost) | 50-75% each | Expensive items |
-| Experience over things | Varies | Close relationships |
-| Homemade/personal gifts | 50-90% | People who value thoughtfulness |
-| Gift cards on sale | 10-20% | Anyone |
-| Subscription gifts (annual cost spread) | Varies | Ongoing value |
-| Secret Santa instead of all-exchange | 75%+ | Large groups |
+| Strategy                                | Savings     | Works For                       |
+| --------------------------------------- | ----------- | ------------------------------- |
+| Shop off-season/sales                   | 30-50%      | Planned gifts                   |
+| Set gift exchange limits                | Varies      | Family groups                   |
+| Group gifts (split cost)                | 50-75% each | Expensive items                 |
+| Experience over things                  | Varies      | Close relationships             |
+| Homemade/personal gifts                 | 50-90%      | People who value thoughtfulness |
+| Gift cards on sale                      | 10-20%      | Anyone                          |
+| Subscription gifts (annual cost spread) | Varies      | Ongoing value                   |
+| Secret Santa instead of all-exchange    | 75%+        | Large groups                    |
 
 ### Group Gift Conversations
 
@@ -156,16 +159,16 @@ Script for suggesting limits:
 
 ### Sale Calendar
 
-| Month | What's On Sale |
-|-------|---------------|
-| January | Winter clothing, electronics (post-holiday) |
-| February | Chocolate (post-Valentine's Day) |
-| March-April | Spring cleaning items |
-| May | Mattresses, home goods (Memorial Day) |
-| July | Summer items, clothing, electronics (Prime Day) |
-| September | Back-to-school items |
-| November | Everything (Black Friday/Cyber Monday) |
-| December 26+ | Holiday items for next year |
+| Month        | What's On Sale                                  |
+| ------------ | ----------------------------------------------- |
+| January      | Winter clothing, electronics (post-holiday)     |
+| February     | Chocolate (post-Valentine's Day)                |
+| March-April  | Spring cleaning items                           |
+| May          | Mattresses, home goods (Memorial Day)           |
+| July         | Summer items, clothing, electronics (Prime Day) |
+| September    | Back-to-school items                            |
+| November     | Everything (Black Friday/Cyber Monday)          |
+| December 26+ | Holiday items for next year                     |
 
 ## Gift Idea Quick Lists
 
@@ -186,13 +189,13 @@ Script for suggesting limits:
 
 ### Experience Gift Ideas (Any Budget)
 
-| Budget | Experience |
-|--------|-----------|
-| Free | Handwritten letter, photo album, coupon book of favors |
-| $10-25 | Movie tickets, coffee shop card, museum pass |
-| $25-50 | Concert tickets, cooking class, spa gift card |
-| $50-100 | Escape room, wine tasting, sports event |
-| $100+ | Weekend trip, hot air balloon, annual membership |
+| Budget  | Experience                                             |
+| ------- | ------------------------------------------------------ |
+| Free    | Handwritten letter, photo album, coupon book of favors |
+| $10-25  | Movie tickets, coffee shop card, museum pass           |
+| $25-50  | Concert tickets, cooking class, spa gift card          |
+| $50-100 | Escape room, wine tasting, sports event                |
+| $100+   | Weekend trip, hot air balloon, annual membership       |
 
 ### Last-Minute Gifts (No Shipping Needed)
 
@@ -263,7 +266,6 @@ Name: ____________
 - "Don't buy me": ____________________________
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -271,7 +273,6 @@ Name: ____________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -292,14 +293,12 @@ Name: ____________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

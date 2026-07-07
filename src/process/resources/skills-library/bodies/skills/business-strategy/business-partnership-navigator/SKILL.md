@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning contracts"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning contracts'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Business Partnership Navigator
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user is evaluating or selecting a business partner and needs a structured decision framework
 - The user needs help structuring equity splits, operating agreements, or decision rights
 - The user wants guidance on resolving partnership conflicts, planning exits, or managing buyouts
 - The user is defining roles, responsibilities, and accountability structures with a co-founder
 
 **Do NOT use this skill when:**
+
 - The user needs general business planning without a partnership dimension (use business-planner instead)
 - The user wants legal advice on partnership agreements (use relevant legal-civic skill)
 - The user is looking for strategic alliances between companies rather than co-ownership
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on business partnership navigator
 - User asks about business partnership navigator best practices or techniques
 - User wants a structured approach to business partnership navigator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of business partnership navigator
 
@@ -149,6 +153,7 @@ DIMENSION 5: TRACK RECORD (weight: 10%)
 ```
 
 ### The Trial Period
+
 ```
 BEFORE FORMALIZING A PARTNERSHIP:
   1. Work together on a defined project for 60-90 days
@@ -168,6 +173,7 @@ TRIAL PERIOD AGREEMENT:
 ## Equity Split Frameworks
 
 ### The Contribution-Weighted Model
+
 ```
 STEP 1: Identify all contribution categories
   Category          | Weight | Partner A | Partner B
@@ -192,6 +198,7 @@ EXAMPLE:
 ```
 
 ### The Dynamic Equity (Slicing Pie) Model
+
 ```
 CONCEPT: Equity is earned over time based on actual contributions,
 not promised upfront based on projected contributions.
@@ -219,6 +226,7 @@ WHEN TO USE: Pre-revenue, early-stage, uncertain commitment levels.
 ```
 
 ### Equal Split (50/50) Considerations
+
 ```
 WHEN 50/50 WORKS:
   - Both partners contribute equally across time, money, and skill
@@ -242,6 +250,7 @@ DEADLOCK RESOLUTION FOR 50/50 SPLITS:
 ## Operating Agreement Essentials
 
 ### Required Provisions
+
 ```
 SECTION 1: ROLES AND RESPONSIBILITIES
   Partner A: [Title] -- Responsible for [domains]
@@ -300,6 +309,7 @@ SECTION 10: DISSOLUTION
 ```
 
 ### Vesting Schedule
+
 ```
 STANDARD VESTING: 4-year vest, 1-year cliff
 
@@ -322,6 +332,7 @@ ACCELERATION TRIGGERS:
 ## Conflict Resolution
 
 ### The Conflict Escalation Ladder
+
 ```
 LEVEL 1: OPERATIONAL DISAGREEMENT
   What it looks like: Different opinions on a specific decision.
@@ -356,6 +367,7 @@ LEVEL 4: PARTNERSHIP BREAKDOWN
 ```
 
 ### Preventing Conflict
+
 ```
 PRACTICE 1: WEEKLY PARTNER CHECK-IN (30 minutes)
   Agenda:
@@ -385,6 +397,7 @@ PRACTICE 3: ANNUAL PARTNERSHIP HEALTH CHECK
 ## Exit Planning
 
 ### Exit Clause Templates
+
 ```
 BUYOUT CLAUSE:
   Trigger: Either partner can initiate a buyout with [90] days written notice.
@@ -419,6 +432,7 @@ DEATH OR DISABILITY:
 ```
 
 ### Departure Scenarios
+
 ```
 SCENARIO 1: VOLUNTARY DEPARTURE (friendly)
   - Invoke buyout clause
@@ -458,7 +472,6 @@ SCENARIO 4: DISSOLUTION
 - [ ] Life insurance and disability provisions addressed
 - [ ] Attorney review of all legal documents completed
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -471,13 +484,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with business partnership navigator for a mid-size project."
 
 **Output:** A complete business partnership navigator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

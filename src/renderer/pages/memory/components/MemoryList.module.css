@@ -94,7 +94,7 @@
 
 /* Active/selected chip: orange accent */
 .chip.chipActive {
-  background: var(--color-primary-light-1, rgba(255, 107, 53, 0.10));
+  background: var(--color-primary-light-1, rgba(255, 107, 53, 0.1));
   border-color: var(--color-primary-6, var(--color-primary));
   color: var(--color-primary-6, var(--color-primary));
 }

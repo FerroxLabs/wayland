@@ -150,8 +150,7 @@ export async function dispatchAutonomousStep(
   // in particular) read this at spawn; without it the child worker falls back
   // to the CLI default model (e.g. gpt-5.3-codex), which a ChatGPT-account
   // user cannot use. (GitHub #111.)
-  const inheritedModelId =
-    typeof parentExtra.currentModelId === 'string' ? parentExtra.currentModelId : undefined;
+  const inheritedModelId = typeof parentExtra.currentModelId === 'string' ? parentExtra.currentModelId : undefined;
 
   const dispatchId = randomUUID();
   const childName = `${parent.workflow_title} - Step ${stepN}`;

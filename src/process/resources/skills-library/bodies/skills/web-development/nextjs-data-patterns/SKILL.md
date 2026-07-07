@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript frameworks backend database"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript frameworks backend database'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Next.js Data Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to fetch data in a Next.js App Router project and needs to choose between Server Components, Route Handlers, or client-side fetching
 - The user is deciding between `generateStaticParams`, Incremental Static Regeneration (ISR), or fully dynamic rendering for a specific route
 - The user needs to implement caching strategies with `fetch` cache options, `unstable_cache`, or React cache deduplication in Next.js 13+
@@ -30,6 +32,7 @@ metadata:
 - The user is migrating a Pages Router (`getServerSideProps`, `getStaticProps`) application to the App Router and needs equivalent patterns
 
 **Do NOT use this skill when:**
+
 - The user is asking about general React state management (Zustand, Jotai, Redux) with no Next.js-specific data fetching question -- use a React state management skill
 - The user needs CSS, layout, or UI component advice in Next.js -- use a Next.js UI/styling skill
 - The user is building a pure API backend with no rendering layer -- use a Node.js/Express API skill
@@ -258,6 +261,7 @@ Next.js automatically exposes environment variables prefixed with `NEXT_PUBLIC_`
 ## Data Pattern Recommendation: E-Commerce Product Page (`/products/[slug]`)
 
 ### Context Assessment
+
 - Rendering strategy: ISR for static product content (revalidate: 300) + Dynamic for stock + Client-side for cart
 - Data sources: PostgreSQL via Prisma (product data, stock count), Server Action (add to cart)
 - Auth required: Partial -- cart requires session, product page is public
@@ -265,12 +269,12 @@ Next.js automatically exposes environment variables prefixed with `NEXT_PUBLIC_`
 
 ### Rendering Strategy Decision
 
-| Factor                  | Assessment                        | Impact                                    |
-|-------------------------|-----------------------------------|-------------------------------------------|
-| Product data staleness  | Changes infrequently (admin edits) | ISR revalidate: 300, on-demand via tag    |
-| Stock availability      | Must be current per request        | Dynamic child component with no-store fetch |
-| Cart state              | Per-user, real-time                | Client Component + Server Action          |
-| External API latency    | No external APIs -- Prisma direct  | Fast, no Suspense needed for product data |
+| Factor                 | Assessment                         | Impact                                      |
+| ---------------------- | ---------------------------------- | ------------------------------------------- |
+| Product data staleness | Changes infrequently (admin edits) | ISR revalidate: 300, on-demand via tag      |
+| Stock availability     | Must be current per request        | Dynamic child component with no-store fetch |
+| Cart state             | Per-user, real-time                | Client Component + Server Action            |
+| External API latency   | No external APIs -- Prisma direct  | Fast, no Suspense needed for product data   |
 
 ### Implementation
 
@@ -434,13 +438,9 @@ const AddToCartSchema = z.object({
   quantity: z.number().int().min(1).max(10),
 });
 
-type ActionResult =
-  | { success: true; cartItemCount: number }
-  | { success: false; error: string };
+type ActionResult = { success: true; cartItemCount: number } | { success: false; error: string };
 
-export async function addToCart(
-  input: z.infer<typeof AddToCartSchema>
-): Promise<ActionResult> {
+export async function addToCart(input: z.infer<typeof AddToCartSchema>): Promise<ActionResult> {
   // 1. Validate input
   const parsed = AddToCartSchema.safeParse(input);
   if (!parsed.success) {
@@ -567,12 +567,12 @@ export async function POST(req: NextRequest) {
 
 ### Cache Strategy Summary
 
-| Layer                    | Mechanism             | Key                            | Revalidation                         |
-|--------------------------|-----------------------|--------------------------------|--------------------------------------|
-| Product data             | `unstable_cache`      | `['product-by-slug', slug]`    | Time-based (300s) + `revalidateTag('products')` |
-| Stock availability       | No cache              | N/A                            | Per-request always                   |
-| Static product params    | `generateStaticParams` | Route segment                 | ISR at route level (300s)            |
-| Cart mutation            | Server Action         | N/A                            | `revalidatePath('/cart')` on success |
+| Layer                 | Mechanism              | Key                         | Revalidation                                    |
+| --------------------- | ---------------------- | --------------------------- | ----------------------------------------------- |
+| Product data          | `unstable_cache`       | `['product-by-slug', slug]` | Time-based (300s) + `revalidateTag('products')` |
+| Stock availability    | No cache               | N/A                         | Per-request always                              |
+| Static product params | `generateStaticParams` | Route segment               | ISR at route level (300s)                       |
+| Cart mutation         | Server Action          | N/A                         | `revalidatePath('/cart')` on success            |
 
 ### Trade-offs and Alternatives
 

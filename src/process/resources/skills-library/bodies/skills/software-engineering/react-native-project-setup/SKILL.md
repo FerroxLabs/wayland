@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile javascript frameworks"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile javascript frameworks'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React Native Project Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is initializing a new React Native project and needs to choose between Expo managed workflow, Expo bare workflow, or React Native CLI (community template)
 - The user is setting up a production-grade React Native app from scratch and needs to configure TypeScript, navigation, state management, testing, and CI/CD from the beginning
 - The user is migrating an existing Expo managed workflow project to bare workflow or React Native CLI to access native modules
@@ -29,6 +31,7 @@ metadata:
 - The user needs to configure platform-specific build tooling -- Gradle for Android, Xcode project settings and CocoaPods for iOS
 
 **Do NOT use this skill when:**
+
 - The user needs help with a specific React Native feature or component (navigation implementation, animation, camera -- check sibling skills)
 - The user is building a purely web-based React project (use a React web project setup skill)
 - The user is asking about native iOS development (Swift/Objective-C) or native Android development (Kotlin/Java) without React Native
@@ -139,6 +142,7 @@ React Navigation 6 (or 7 when stable) is the production standard. Configure it o
 - Install: `@react-navigation/native`, `@react-navigation/native-stack`, `react-native-screens`, `react-native-safe-area-context`.
 - Enable `react-native-screens`: call `enableScreens()` from `react-native-screens` at the top of `index.js` (or `App.tsx` before any navigator renders). This replaces JavaScript Views with native UIViewController/Fragment containers -- critical for performance.
 - Define a single `navigation/types.ts` file with the full type tree:
+
   ```typescript
   export type RootStackParamList = {
     Home: undefined;
@@ -152,6 +156,7 @@ React Navigation 6 (or 7 when stable) is the production standard. Configure it o
     ForgotPassword: { email?: string };
   };
   ```
+
 - Use `useNavigation<NativeStackNavigationProp<RootStackParamList>>()` in every screen. Never call `useNavigation()` without the generic type argument -- you lose all type safety on route params.
 - Configure `initialRouteName` explicitly. Do not rely on the default (first defined route) -- it creates invisible coupling between declaration order and behavior.
 - Configure deep linking in `linking.ts` and pass it to `NavigationContainer`. Test deep links on physical devices during initial setup, not at the end of the project. Deep link issues in Xcode entitlements and `AndroidManifest.xml` are far easier to fix early.
@@ -167,6 +172,7 @@ Choose the right tool for the state complexity. Over-engineering state managemen
 - **Redux Toolkit:** Only introduce when the team already knows Redux, the state logic is highly complex with many interdependencies, or you need Redux DevTools for time-travel debugging. RTK adds meaningful boilerplate overhead for simple apps.
 - **MMKV:** Replace `AsyncStorage` with `react-native-mmkv` for persisted key-value storage. MMKV is synchronous and ~10x faster than AsyncStorage for reads. Use it for auth tokens, user preferences, and persisting Zustand state.
 - Configure Zustand persistence with `zustand/middleware` `persist` middleware backed by MMKV:
+
   ```typescript
   import { create } from 'zustand';
   import { persist, createJSONStorage } from 'zustand/middleware';
@@ -591,13 +597,10 @@ export const useOfflineQueueStore = create<OfflineQueueStore>()(
             },
           ],
         })),
-      dequeue: (id) =>
-        set((state) => ({ queue: state.queue.filter((m) => m.id !== id) })),
+      dequeue: (id) => set((state) => ({ queue: state.queue.filter((m) => m.id !== id) })),
       incrementRetry: (id) =>
         set((state) => ({
-          queue: state.queue.map((m) =>
-            m.id === id ? { ...m, retryCount: m.retryCount + 1 } : m,
-          ),
+          queue: state.queue.map((m) => (m.id === id ? { ...m, retryCount: m.retryCount + 1 } : m)),
         })),
     }),
     {
@@ -607,8 +610,8 @@ export const useOfflineQueueStore = create<OfflineQueueStore>()(
         setItem: (key, value) => storage.set(key, value),
         removeItem: (key) => storage.delete(key),
       })),
-    },
-  ),
+    }
+  )
 );
 ```
 
@@ -692,24 +695,29 @@ Date: 2024-01-15
 Status: Accepted
 
 ## Context
+
 Team has 2 web engineers and 2 senior RN engineers. App requires offline SQLite,
 camera for photo attachments, and keychain for token storage.
 
 ## Decision
+
 Use Expo Bare Workflow initialized with `bare-minimum` template.
 
 ## Rationale
+
 - Web engineers use EAS Build; no local Xcode/Gradle setup required
 - Senior engineers retain full native module access
 - expo-sqlite, expo-image, and react-native-keychain all support bare workflow
 - EAS Build provides managed signing and CI/CD for both platforms
 
 ## Consequences
+
 - Cannot use Expo Go for development; must use Development Builds (`eas build --profile development`)
 - Must run `pod install` after adding native dependencies
 - Native code changes require new EAS build (no OTA for native layer)
 
 ## Rejected Alternatives
+
 - Managed workflow: blocked by react-native-mmkv and react-native-keychain
 - RN CLI: increases onboarding time for web engineers by 2-3 days (Xcode setup)
 ```

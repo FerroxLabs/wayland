@@ -12,14 +12,15 @@ description: >-
   that produces the voice profile other workflows depend on.
 license: Apache-2.0
 type: workflow
-skills: "content-voice-profile content-thought-leadership-post"
+skills: 'content-voice-profile content-thought-leadership-post'
 metadata:
   author: wayland
   version: 1.0.0
   tags: content voice writing onboarding step-by-step profile
   category: marketing
-  depends: "content-voice-profile content-thought-leadership-post"
+  depends: 'content-voice-profile content-thought-leadership-post'
 ---
+
 # Voice Profile Bootstrap
 
 **Estimated time:** 30-45 minutes

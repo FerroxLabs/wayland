@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks stress-management template testing emergency-preparedness performing-arts energy-efficiency"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks stress-management template testing emergency-preparedness performing-arts energy-efficiency'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Stress Resilience Builder
@@ -22,15 +22,16 @@ You are an expert in stress management and resilience science who helps users bu
 
 **IMPORTANT: This skill provides general education about stress management and resilience-building techniques. It is NOT therapy, clinical treatment, or a substitute for professional mental health care. If you are experiencing severe anxiety, depression, PTSD, suicidal thoughts, or a mental health crisis, please contact a licensed mental health professional, call 988 (Suicide and Crisis Lifeline in the US), or go to your nearest emergency room. These frameworks complement, but do not replace, professional care.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about stress resilience builder techniques or best practices
 - User needs guidance on stress resilience builder concepts
 - User wants to implement or improve their approach to stress resilience builder
 
 **Do NOT use when:**
+
 - The request falls outside the scope of stress resilience builder
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -62,13 +63,13 @@ DIMENSION 3: ACTION  - What you do in response to stress
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| CBT (Beck/Ellis) | Anxiety, depression, distorted thinking patterns | Thoughts drive feelings; identify and challenge irrational thoughts to change emotional responses | Can oversimplify by implying "just think differently"; less effective for trauma without modification |
-| ACT (Steven Hayes) | Chronic stress, values-based living, psychological flexibility | Do not fight difficult thoughts/feelings; accept them AND take valued action simultaneously | Counterintuitive; "acceptance" can be confused with resignation; requires practice |
-| Stoic Philosophy (Epictetus, Marcus Aurelius, Seneca) | Uncertainty, things beyond control, building equanimity | Focus only on what you can control; everything else is not your concern | Can be used to dismiss legitimate emotions; requires nuanced application |
-| Polyvagal Theory (Stephen Porges) | Trauma, chronic stress, nervous system dysregulation | The nervous system has three states; safety is the foundation of all resilience | Complex neuroscience; sometimes oversimplified in popular media; not a therapy itself |
-| Stress Inoculation Training (Meichenbaum) | Performance under pressure; anticipated stressors; professional resilience | Gradually expose yourself to manageable stressors to build capacity; the vaccine metaphor | Requires careful calibration; too much too fast can be harmful |
+| Approach                                              | Best For                                                                   | Key Insight                                                                                       | Limitation                                                                                            |
+| ----------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| CBT (Beck/Ellis)                                      | Anxiety, depression, distorted thinking patterns                           | Thoughts drive feelings; identify and challenge irrational thoughts to change emotional responses | Can oversimplify by implying "just think differently"; less effective for trauma without modification |
+| ACT (Steven Hayes)                                    | Chronic stress, values-based living, psychological flexibility             | Do not fight difficult thoughts/feelings; accept them AND take valued action simultaneously       | Counterintuitive; "acceptance" can be confused with resignation; requires practice                    |
+| Stoic Philosophy (Epictetus, Marcus Aurelius, Seneca) | Uncertainty, things beyond control, building equanimity                    | Focus only on what you can control; everything else is not your concern                           | Can be used to dismiss legitimate emotions; requires nuanced application                              |
+| Polyvagal Theory (Stephen Porges)                     | Trauma, chronic stress, nervous system dysregulation                       | The nervous system has three states; safety is the foundation of all resilience                   | Complex neuroscience; sometimes oversimplified in popular media; not a therapy itself                 |
+| Stress Inoculation Training (Meichenbaum)             | Performance under pressure; anticipated stressors; professional resilience | Gradually expose yourself to manageable stressors to build capacity; the vaccine metaphor         | Requires careful calibration; too much too fast can be harmful                                        |
 
 ## Dimension 1: Mind - Cognitive Resilience
 
@@ -361,15 +362,15 @@ When stressed: _______________
 
 ### Common Resilience Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| "I should not be stressed about this" | Self-judgment; comparing to others | All emotions are valid data; judging them adds a second layer of stress |
-| Pushing through without recovery | Achievement culture; "no pain no gain" mindset | Resilience requires oscillation between stress and recovery |
-| Numbing instead of processing | Avoiding discomfort feels like coping | Numbing (alcohol, screens, overwork) delays processing; emotions compound |
-| Isolation when stressed | Wanting to "not burden" others; shame | Connection is the strongest resilience factor; reach out, not in |
-| Waiting for motivation to act | Depression depletes motivation | Act on values first; motivation often follows action, not the other way around |
-| Only using cognitive techniques | Over-reliance on thinking your way through | Body-based regulation is often faster and more effective for acute stress |
-| Ignoring chronic stress | "It is just how life is" | Chronic stress has cumulative physiological effects; it must be addressed |
+| Mistake                               | Why It Happens                                 | Fix                                                                            |
+| ------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------ |
+| "I should not be stressed about this" | Self-judgment; comparing to others             | All emotions are valid data; judging them adds a second layer of stress        |
+| Pushing through without recovery      | Achievement culture; "no pain no gain" mindset | Resilience requires oscillation between stress and recovery                    |
+| Numbing instead of processing         | Avoiding discomfort feels like coping          | Numbing (alcohol, screens, overwork) delays processing; emotions compound      |
+| Isolation when stressed               | Wanting to "not burden" others; shame          | Connection is the strongest resilience factor; reach out, not in               |
+| Waiting for motivation to act         | Depression depletes motivation                 | Act on values first; motivation often follows action, not the other way around |
+| Only using cognitive techniques       | Over-reliance on thinking your way through     | Body-based regulation is often faster and more effective for acute stress      |
+| Ignoring chronic stress               | "It is just how life is"                       | Chronic stress has cumulative physiological effects; it must be addressed      |
 
 ## Further Reading
 
@@ -383,7 +384,6 @@ For deeper exploration of the source methodologies:
 
 The Resilience Operating System gives you a multi-dimensional approach to building the capacity to handle life's challenges while maintaining your health, relationships, and sense of purpose.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -391,7 +391,6 @@ The Resilience Operating System gives you a multi-dimensional approach to buildi
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -412,14 +411,12 @@ The Resilience Operating System gives you a multi-dimensional approach to buildi
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

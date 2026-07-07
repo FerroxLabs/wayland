@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care checklist home-maintenance"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'elder-care checklist home-maintenance'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Home Safety Assessment for Aging in Place
@@ -27,6 +27,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about making a home safer for an aging parent or relative
 - User wants a fall prevention checklist for a senior's home
 - User asks about aging-in-place modifications or accommodations
@@ -34,6 +35,7 @@ metadata:
 - User asks about bathroom safety, grab bars, or mobility aids for the home
 
 **Do NOT use this skill when:**
+
 - User wants to evaluate care facilities (use `care-facility-evaluation`)
 - User needs medical assessment of fall risk or mobility (physician assessment required)
 - User wants full home renovation planning (this covers safety modifications only)
@@ -148,21 +150,21 @@ metadata:
 
 5. **Estimate costs for modifications.** Provide general cost ranges:
 
-   | Modification | Estimated Cost Range | DIY Possible |
-   |-------------|---------------------|--------------|
-   | Grab bars (per bar, installed) | $30-80 | Yes, if anchored into studs |
-   | Non-slip bath adhesives | $10-25 per set | Yes |
-   | Raised toilet seat | $25-80 | Yes |
-   | Handheld showerhead | $25-60 | Yes |
-   | Night lights (motion-activated, 6-pack) | $15-30 | Yes |
-   | Shower chair or transfer bench | $40-150 | N/A |
-   | Under-cabinet lighting (per section) | $20-60 | Yes |
-   | Lever door handles (per handle) | $15-40 | Yes |
-   | Stove guard auto-shutoff | $80-200 | Yes |
-   | Personal emergency response device | $20-50/month | N/A |
-   | Stair lift (installed) | $3,000-8,000 | No |
-   | Walk-in shower conversion | $3,000-10,000 | No |
-   | Wheelchair ramp (installed) | $1,000-4,000 | Possible for experienced DIY |
+   | Modification                            | Estimated Cost Range | DIY Possible                 |
+   | --------------------------------------- | -------------------- | ---------------------------- |
+   | Grab bars (per bar, installed)          | $30-80               | Yes, if anchored into studs  |
+   | Non-slip bath adhesives                 | $10-25 per set       | Yes                          |
+   | Raised toilet seat                      | $25-80               | Yes                          |
+   | Handheld showerhead                     | $25-60               | Yes                          |
+   | Night lights (motion-activated, 6-pack) | $15-30               | Yes                          |
+   | Shower chair or transfer bench          | $40-150              | N/A                          |
+   | Under-cabinet lighting (per section)    | $20-60               | Yes                          |
+   | Lever door handles (per handle)         | $15-40               | Yes                          |
+   | Stove guard auto-shutoff                | $80-200              | Yes                          |
+   | Personal emergency response device      | $20-50/month         | N/A                          |
+   | Stair lift (installed)                  | $3,000-8,000         | No                           |
+   | Walk-in shower conversion               | $3,000-10,000        | No                           |
+   | Wheelchair ramp (installed)             | $1,000-4,000         | Possible for experienced DIY |
 
 6. **Create the follow-up schedule:**
    - [ ] Re-assess home safety every 6 months or after any change in mobility
@@ -248,6 +250,7 @@ metadata:
 ## Home Safety Assessment Report
 
 ### Resident Profile
+
 - **Name:** [User's father]
 - **Mobility status:** Walker
 - **Recent falls:** 1 fall in the past month (bathroom)
@@ -256,6 +259,7 @@ metadata:
 ### Priority Action Plan
 
 **Immediate (This Week) -- Estimated Cost: $45-85:**
+
 1. Remove all loose area rugs throughout the house -- $0 -- Family member
 2. Install 3 motion-activated night lights along path from bedroom to bathroom -- $15-30 -- Family member
 3. Verify hot water heater is set to 120 degrees F or below -- $0 -- Family member
@@ -263,6 +267,7 @@ metadata:
 5. Clear any items stored on stairway steps -- $0 -- Family member
 
 **Short-Term (Within 1 Month) -- Estimated Cost: $200-450:**
+
 1. Install 3 grab bars in bathroom: beside toilet, shower entry, shower back wall (wall-mounted, 250+ lb rated, anchored into studs) -- $90-240 installed -- Handyperson or family member with stud finder
 2. Place non-slip adhesive strips inside tub or shower -- $10-25 -- Family member
 3. Install raised toilet seat (adds 4 inches) -- $40-80 -- Family member
@@ -270,6 +275,7 @@ metadata:
 5. Install handheld showerhead for seated bathing -- $25-60 -- Family member or plumber
 
 **Medium-Term (Within 3 Months) -- Estimated Cost: $300-700:**
+
 1. Add second handrail to stairway (currently likely has one side only) -- $100-200 installed -- Handyperson
 2. Replace round doorknobs with lever handles on bathroom and bedroom doors -- $60-160 (4 handles) -- Family member
 3. Install under-cabinet kitchen lighting -- $40-120 -- Family member
@@ -277,6 +283,7 @@ metadata:
 5. Install shower chair or transfer bench -- $50-150 -- Family member
 
 **Long-Term Planning -- Estimated Cost: $3,000-10,000:**
+
 1. Evaluate stair lift installation for main stairway -- $3,000-8,000 -- Professional installation required
 2. Consider converting ground-floor room to bedroom to eliminate stair use entirely -- Variable -- Contractor assessment needed
 3. Evaluate walk-in shower conversion to replace tub -- $3,000-10,000 -- Professional installation required
@@ -286,20 +293,22 @@ metadata:
 
 ### Bathroom-Specific Findings (Fall Location)
 
-| Item | Status | Action | Priority | Est. Cost |
-|------|--------|--------|----------|-----------|
-| Grab bars near toilet | FAIL | Install wall-mounted bar | Short-term | $30-80 |
-| Grab bars in shower | FAIL | Install 2 bars (entry + back wall) | Short-term | $60-160 |
-| Non-slip tub surface | FAIL | Add adhesive strips | Short-term | $10-25 |
-| Raised toilet seat | FAIL | Install 4-inch riser | Short-term | $40-80 |
-| Night light | FAIL | Install sensor night light | Immediate | $5-10 |
-| Floor mat | CHECK | Verify non-slip backing, lies flat | Immediate | $0-15 |
-| Shower chair | ABSENT | Provide for seated bathing | Medium-term | $50-150 |
+| Item                  | Status | Action                             | Priority    | Est. Cost |
+| --------------------- | ------ | ---------------------------------- | ----------- | --------- |
+| Grab bars near toilet | FAIL   | Install wall-mounted bar           | Short-term  | $30-80    |
+| Grab bars in shower   | FAIL   | Install 2 bars (entry + back wall) | Short-term  | $60-160   |
+| Non-slip tub surface  | FAIL   | Add adhesive strips                | Short-term  | $10-25    |
+| Raised toilet seat    | FAIL   | Install 4-inch riser               | Short-term  | $40-80    |
+| Night light           | FAIL   | Install sensor night light         | Immediate   | $5-10     |
+| Floor mat             | CHECK  | Verify non-slip backing, lies flat | Immediate   | $0-15     |
+| Shower chair          | ABSENT | Provide for seated bathing         | Medium-term | $50-150   |
 
 ### Critical Note About Stairs
+
 Your father uses a walker on a two-story home. Stairs with a walker are a significant fall risk. The short-term plan adds a second handrail, but the long-term goal should be either a stair lift or moving his bedroom and primary bathroom to the ground floor. Discuss this with his physician and consider an occupational therapist home visit for a professional stair safety assessment.
 
 ### Follow-Up Schedule
+
 - Next full reassessment: 6 months from now or immediately after any fall
 - Monthly: test smoke detectors, check night light function, check grab bar anchoring
 - Quarterly: review emergency contacts, confirm emergency response device is functioning

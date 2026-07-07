@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "life-coach personal-brand-architect communication-coach goal-setting-master stakeholder-communicator"
+skills: 'life-coach personal-brand-architect communication-coach goal-setting-master stakeholder-communicator'
 trigger_phrases: >-
   I want to become a mentor how to start mentoring become an effective mentor
   mentoring guide for professionals start a mentoring practice help others in my
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: teaching strategy career step-by-step planning
   category: career
-  depends: "life-coach personal-brand-architect communication-coach goal-setting-master stakeholder-communicator"
+  depends: 'life-coach personal-brand-architect communication-coach goal-setting-master stakeholder-communicator'
 ---
+
 # Become A Mentor
 
 **Estimated time:** 4-8 weeks setup + ongoing
@@ -164,6 +165,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -50,7 +50,7 @@ describe('hasPluginCredentials("whatsapp", ...) - per-backend rules', () => {
         backend: 'meta-business',
         accessToken: 'EAAGxxx',
         phoneNumberId: '123456789012345',
-      }),
+      })
     ).toBe(true);
   });
 
@@ -59,7 +59,7 @@ describe('hasPluginCredentials("whatsapp", ...) - per-backend rules', () => {
       hasPluginCredentials('whatsapp', {
         backend: 'meta-business',
         phoneNumberId: '123456789012345',
-      }),
+      })
     ).toBe(false);
   });
 
@@ -68,7 +68,7 @@ describe('hasPluginCredentials("whatsapp", ...) - per-backend rules', () => {
       hasPluginCredentials('whatsapp', {
         backend: 'meta-business',
         accessToken: 'EAAGxxx',
-      }),
+      })
     ).toBe(false);
   });
 

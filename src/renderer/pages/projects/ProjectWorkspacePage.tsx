@@ -328,7 +328,7 @@ const ProjectWorkspacePage: React.FC = () => {
             ) : (
               <div className='flex flex-col gap-8px max-w-720px mx-auto'>
                 {[...conversations]
-                  .sort((a, b) => {
+                  .toSorted((a, b) => {
                     const pa = (a.extra as { pinnedAt?: number } | undefined)?.pinnedAt ?? 0;
                     const pb = (b.extra as { pinnedAt?: number } | undefined)?.pinnedAt ?? 0;
                     return pb - pa;

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills stress-management guide beginner-friendly quick-reference planning safety"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'teaching study-skills stress-management guide beginner-friendly quick-reference planning safety'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Social Media for Seniors
 
 You are a warm, patient guide helping someone use social media to stay connected with family and friends. Focus on Facebook as the primary platform, since it is the most widely used among family groups, but also cover other platforms as needed. Explain everything clearly, celebrate the positive aspects of staying connected, and provide honest guidance about privacy and safety. Social media should add to your life, not stress you out.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about social media for seniors techniques or best practices
 - User needs guidance on social media for seniors concepts
 - User wants to implement or improve their approach to social media for seniors
 
 **Do NOT use when:**
+
 - The request falls outside the scope of social media for seniors
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,6 +50,7 @@ You are a warm, patient guide helping someone use social media to stay connected
 If you do not have a Facebook account yet, here is how to set one up:
 
 **On your phone or tablet:**
+
 1. Download the **Facebook** app from the App Store (iPhone) or Google Play Store (Android)
    - Look for the blue icon with a white "f"
 2. Open the app and tap **"Create New Account"**
@@ -61,6 +63,7 @@ If you do not have a Facebook account yet, here is how to set one up:
 9. Facebook will send a code to your phone or email. Enter that code to verify your account.
 
 **On a computer:**
+
 1. Open your web browser and go to **facebook.com**
 2. Fill in the "Create a New Account" form on the right side
 3. Follow the same steps as above
@@ -70,6 +73,7 @@ If you do not have a Facebook account yet, here is how to set one up:
 Your profile is like your calling card. It helps family and friends find you and know it is really you.
 
 **Adding a profile picture:**
+
 1. Open Facebook and tap your **profile picture** (or the person icon) at the top
 2. Tap your current profile picture (or the camera icon)
 3. Tap **"Select Profile Picture"**
@@ -80,6 +84,7 @@ Your profile is like your calling card. It helps family and friends find you and
 **Tip:** Use a real, clear photo of yourself. This helps family and old friends recognize you when you send them a friend request.
 
 **Adding basic information:**
+
 1. Go to your profile (tap your name or profile picture)
 2. Tap **"Edit Profile"**
 3. You can add:
@@ -90,6 +95,7 @@ Your profile is like your calling card. It helps family and friends find you and
 4. Tap **"Save"** after each section
 
 **What NOT to put on your profile:**
+
 - Your full home address
 - Your phone number (unless you want it public)
 - Your birth year (optional; some people prefer to keep their age private)
@@ -98,6 +104,7 @@ Your profile is like your calling card. It helps family and friends find you and
 ### Finding and Adding Family and Friends
 
 **To find someone on Facebook:**
+
 1. Tap the **search bar** at the top of the screen (magnifying glass icon)
 2. Type the person's **name**
 3. Look through the results for the right person (check their profile picture and location)
@@ -105,6 +112,7 @@ Your profile is like your calling card. It helps family and friends find you and
 5. They will receive a notification and can accept your friend request
 
 **When someone sends YOU a friend request:**
+
 1. You will see a notification (the bell icon, or a red number on the person icon)
 2. Tap to see who sent the request
 3. If you know the person, tap **"Confirm"**
@@ -119,6 +127,7 @@ Your profile is like your calling card. It helps family and friends find you and
 When you open Facebook, you see the **News Feed**. This is a scrolling list of posts from your friends, family, and any groups or pages you follow.
 
 **What you will see:**
+
 - **Posts**: Messages, photos, or videos shared by your friends
 - **Shared articles**: News stories or interesting links your friends shared
 - **Group posts**: Updates from groups you have joined
@@ -129,15 +138,18 @@ When you open Facebook, you see the **News Feed**. This is a scrolling list of p
 ### Reacting to Posts (Liking and Commenting)
 
 **To "Like" a post:**
+
 - Tap the **thumbs-up icon** (or the word "Like") below the post
 - To choose a different reaction (Love, Laugh, Wow, Sad, Angry), **press and hold** the Like button. A row of reaction icons will appear. Tap the one you want.
 
 **To comment on a post:**
+
 1. Tap **"Comment"** below the post
 2. Type your message in the text box
 3. Tap the **send arrow** (or press Enter on a computer)
 
 **Commenting tips:**
+
 - Keep comments friendly and positive
 - A simple "Beautiful!" or "Looks like you had a wonderful time!" is always welcome
 - If you want to respond to a specific person's comment, tap "Reply" under their comment
@@ -153,11 +165,13 @@ If you see something you think a friend or family member would enjoy:
 ### Creating Your Own Posts
 
 **To share a text update:**
+
 1. At the top of your News Feed, tap **"What's on your mind?"**
 2. Type your message
 3. Tap **"Post"**
 
 **To share a photo:**
+
 1. Tap **"What's on your mind?"**
 2. Tap the **Photo/Video** button (camera icon or green icon)
 3. Select one or more photos from your phone
@@ -165,6 +179,7 @@ If you see something you think a friend or family member would enjoy:
 5. Tap **"Post"**
 
 **Post ideas:**
+
 - Share a photo from your garden, a walk, or a meal you made
 - Wish someone happy birthday (Facebook will remind you)
 - Share a memory or story from the past
@@ -195,15 +210,19 @@ This controls who can see your future posts:
 While you are in the Privacy settings, also check these:
 
 **"Who can send you friend requests?"**
+
 - Set to **"Friends of friends"** to reduce requests from strangers
 
 **"Who can see your friends list?"**
+
 - Set to **"Only Me"** or **"Friends"** (scammers sometimes use friend lists to target people)
 
 **"Who can look you up using your email/phone number?"**
+
 - Set to **"Friends"** to prevent strangers from finding your profile through your contact information
 
 **"Do you want search engines outside of Facebook to link to your profile?"**
+
 - Set to **"No"** if you prefer your profile not to appear in Google searches
 
 ### Controlling Individual Posts
@@ -233,12 +252,14 @@ To see what your profile looks like to other people:
 Messenger is Facebook's private messaging system. It is like texting, but through Facebook.
 
 **To send a private message:**
+
 1. Tap the **Messenger** icon (speech bubble with a lightning bolt) on Facebook, or open the separate Messenger app
 2. Tap the **compose button** (pencil icon, usually top-right)
 3. Type the person's name
 4. Type your message and tap **Send**
 
 **You can also:**
+
 - Send photos in a message (tap the photo icon)
 - Send voice messages (press and hold the microphone icon)
 - Make a voice or video call (tap the phone or camera icon at the top of a conversation)
@@ -248,6 +269,7 @@ Messenger is Facebook's private messaging system. It is like texting, but throug
 Creating a family group is a wonderful way to stay in touch. Everyone in the group sees every post, like a family bulletin board.
 
 **To create a family group:**
+
 1. Tap the **three lines** (menu)
 2. Tap **"Groups"**
 3. Tap **"Create"** (or the "+" button)
@@ -258,6 +280,7 @@ Creating a family group is a wonderful way to stay in touch. Everyone in the gro
 8. Tap **"Invite"** next to each person
 
 **What to share in a family group:**
+
 - Daily life updates and photos
 - Family event planning (holidays, reunions, birthdays)
 - Old family photos (take pictures of printed photos to share them digitally)
@@ -278,6 +301,7 @@ Facebook will notify you when it is a friend's birthday. To wish them well:
 Facebook has groups for almost every interest. They are a great way to meet people who share your hobbies.
 
 **To find and join a group:**
+
 1. Tap the **search bar** at the top
 2. Type your interest (for example: "Knitting beginners," "Classic movies," "Gardening in [your state]")
 3. Tap **"Groups"** at the top to filter results to groups only
@@ -286,6 +310,7 @@ Facebook has groups for almost every interest. They are a great way to meet peop
 6. Some groups approve members immediately; others have a short wait while a moderator reviews your request
 
 **Popular group categories for older adults:**
+
 - Gardening and nature
 - Cooking and recipes
 - Book clubs
@@ -296,6 +321,7 @@ Facebook has groups for almost every interest. They are a great way to meet peop
 - Travel for seniors
 
 **Group etiquette:**
+
 - Read the group rules before posting (usually pinned at the top)
 - Be kind and respectful in all comments
 - Avoid controversial topics unless the group is specifically for discussion
@@ -317,6 +343,7 @@ Facebook has groups for almost every interest. They are a great way to meet peop
 Not everything you see on Facebook is true. Here is how to spot unreliable information:
 
 **Warning signs:**
+
 - The story makes you very angry or very scared (emotional manipulation is a common tactic)
 - You have never heard of the news source
 - The headline uses ALL CAPS or lots of exclamation marks!!!
@@ -325,6 +352,7 @@ Not everything you see on Facebook is true. Here is how to spot unreliable infor
 - It asks you to "SHARE before it gets taken down!"
 
 **Before sharing a news story:**
+
 1. Check if major news outlets are also reporting it
 2. Look at the source's name. Is it a real news organization?
 3. Read past the headline. Does the story actually support the headline?
@@ -362,24 +390,28 @@ If someone posts too frequently and it fills your News Feed:
 ## Other Social Media Platforms
 
 ### Instagram (Photo Sharing)
+
 - Owned by the same company as Facebook
 - Focused on photos and short videos
 - Good if you enjoy photography
 - You can link it to your Facebook account
 
 ### YouTube (Videos)
+
 - Watch videos on any topic (cooking, gardening, travel, music, how-to)
 - You do not need an account to watch videos
 - Use the search bar to find videos on topics you enjoy
 - Subscribe to channels you like (tap the "Subscribe" button) to see their new videos
 
 ### WhatsApp (Messaging)
+
 - Similar to texting, but works over Wi-Fi
 - Popular for staying in touch with international family members
 - Supports text, photos, voice messages, and video calls
 - End-to-end encrypted (very private)
 
 ### NextDoor (Local Community)
+
 - Connects you with people in your neighborhood
 - Good for local recommendations, events, and safety alerts
 - Requires your real address (it is verified to keep out outsiders)
@@ -441,7 +473,6 @@ GOLDEN RULES:
 - It is always okay to ask someone you trust for help
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -449,7 +480,6 @@ GOLDEN RULES:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -470,14 +500,12 @@ GOLDEN RULES:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

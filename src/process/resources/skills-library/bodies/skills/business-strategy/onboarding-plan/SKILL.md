@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning template checklist guide strategy"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'planning template checklist guide strategy'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Onboarding Plan
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to create a structured 30-60-90 day plan for a new full-time employee joining a team or organization
 - A user wants to define what success looks like in the first three months for a specific role (e.g., "What should my new sales engineer accomplish by day 60?")
 - A manager needs to prepare before a new hire's start date -- equipment orders, account provisioning, stakeholder introductions
@@ -28,6 +30,7 @@ metadata:
 - A new hire wants to proactively draft their own 30-60-90 plan to present to their manager before or at the start of employment
 
 **Do NOT use this skill when:**
+
 - The user needs to write a job description or define a role's requirements before hiring (use `job-description`)
 - The user wants to design a formal training course, learning module, or instructor-led curriculum (use `lesson-plan`)
 - The user is onboarding a vendor, contractor, or agency partner for a specific project -- that is project documentation and scope-of-work management, not HR onboarding
@@ -143,32 +146,32 @@ Before delivering the plan, apply four calibration checks to ensure it is approp
 
 ### Overview
 
-| Field | Detail |
-|-------|--------|
-| Start Date | [Date] |
-| Manager | [Name, Title] |
-| Onboarding Buddy | [Name, Role -- must be a peer, not the manager] |
-| Department | [Department] |
-| Team | [Team name or immediate group] |
-| Work Arrangement | [Remote / Hybrid (X days in-office) / On-site] |
-| Probation Period | [Length, if applicable] |
-| 90-Day Review Date | [Date] |
+| Field              | Detail                                          |
+| ------------------ | ----------------------------------------------- |
+| Start Date         | [Date]                                          |
+| Manager            | [Name, Title]                                   |
+| Onboarding Buddy   | [Name, Role -- must be a peer, not the manager] |
+| Department         | [Department]                                    |
+| Team               | [Team name or immediate group]                  |
+| Work Arrangement   | [Remote / Hybrid (X days in-office) / On-site]  |
+| Probation Period   | [Length, if applicable]                         |
+| 90-Day Review Date | [Date]                                          |
 
 ---
 
 ### Pre-Start Checklist
 
-| Task | Owner | Due Date | Status |
-|------|-------|----------|--------|
-| Order hardware (laptop, monitor, peripherals) | IT / Office Ops | [Day -10] | [ ] |
-| Provision email and directory account | IT | [Day -3] | [ ] |
-| Provision role-specific tools: [list systems] | IT | [Day -3] | [ ] |
-| Issue VPN credentials or building access badge | IT / Office | [Day -2] | [ ] |
-| Send welcome email with Day 1 schedule | Manager | [Day -3] | [ ] |
-| Brief onboarding buddy on their role | Manager | [Day -3] | [ ] |
-| Prepare onboarding reading list (max 10 docs) | Manager | [Day -1] | [ ] |
-| Send benefits enrollment instructions | HR | [Day 1] | [ ] |
-| Ship home office kit (remote only) | Office Ops | [Day -7] | [ ] |
+| Task                                           | Owner           | Due Date  | Status |
+| ---------------------------------------------- | --------------- | --------- | ------ |
+| Order hardware (laptop, monitor, peripherals)  | IT / Office Ops | [Day -10] | [ ]    |
+| Provision email and directory account          | IT              | [Day -3]  | [ ]    |
+| Provision role-specific tools: [list systems]  | IT              | [Day -3]  | [ ]    |
+| Issue VPN credentials or building access badge | IT / Office     | [Day -2]  | [ ]    |
+| Send welcome email with Day 1 schedule         | Manager         | [Day -3]  | [ ]    |
+| Brief onboarding buddy on their role           | Manager         | [Day -3]  | [ ]    |
+| Prepare onboarding reading list (max 10 docs)  | Manager         | [Day -1]  | [ ]    |
+| Send benefits enrollment instructions          | HR              | [Day 1]   | [ ]    |
+| Ship home office kit (remote only)             | Office Ops      | [Day -7]  | [ ]    |
 
 ---
 
@@ -176,25 +179,25 @@ Before delivering the plan, apply four calibration checks to ensure it is approp
 
 **Target cognitive load: Max 4 hours of scheduled activity per day**
 
-| Day | Activity | With / Led By | Duration | Format |
-|-----|----------|--------------|----------|--------|
-| Day 1 AM | Manager welcome -- review onboarding plan, 90-day goals, expectations | Manager | 45 min | 1:1 |
-| Day 1 AM | IT access verification for all systems | IT + New Hire | 60 min | Hands-on |
-| Day 1 PM | Team lunch or virtual coffee chat | Buddy + Team | 60 min | Social |
-| Day 1 PM | HR orientation: paperwork, benefits enrollment deadline, policies | HR | 45 min | Meeting |
-| Day 2 AM | Company overview: mission, product, business model, customers | Manager or CEO | 60 min | Presentation |
-| Day 2 PM | Security and compliance training | Self-paced | 60 min | Async |
-| Day 3 | Product demo / core product walkthrough | PM or Senior IC | 90 min | Demo |
-| Day 3-4 | Stakeholder 1:1s (key collaborators -- see list below) | New Hire + each | 30 min each | 1:1 |
-| Day 4 | Shadow [team member] on [core workflow or customer call] | Buddy | 2 hrs | Observation |
-| Day 5 | Week 1 debrief with manager: What's clear? What's confusing? | Manager | 30 min | 1:1 |
+| Day      | Activity                                                              | With / Led By   | Duration    | Format       |
+| -------- | --------------------------------------------------------------------- | --------------- | ----------- | ------------ |
+| Day 1 AM | Manager welcome -- review onboarding plan, 90-day goals, expectations | Manager         | 45 min      | 1:1          |
+| Day 1 AM | IT access verification for all systems                                | IT + New Hire   | 60 min      | Hands-on     |
+| Day 1 PM | Team lunch or virtual coffee chat                                     | Buddy + Team    | 60 min      | Social       |
+| Day 1 PM | HR orientation: paperwork, benefits enrollment deadline, policies     | HR              | 45 min      | Meeting      |
+| Day 2 AM | Company overview: mission, product, business model, customers         | Manager or CEO  | 60 min      | Presentation |
+| Day 2 PM | Security and compliance training                                      | Self-paced      | 60 min      | Async        |
+| Day 3    | Product demo / core product walkthrough                               | PM or Senior IC | 90 min      | Demo         |
+| Day 3-4  | Stakeholder 1:1s (key collaborators -- see list below)                | New Hire + each | 30 min each | 1:1          |
+| Day 4    | Shadow [team member] on [core workflow or customer call]              | Buddy           | 2 hrs       | Observation  |
+| Day 5    | Week 1 debrief with manager: What's clear? What's confusing?          | Manager         | 30 min      | 1:1          |
 
 **Priority stakeholder 1:1 list (complete by Day 21):**
 
-| Name | Role | Purpose of Meeting | Priority |
-|------|------|-------------------|----------|
-| [Name] | [Role] | [Understand their team's interface with this role] | Week 1 |
-| [Name] | [Role] | [Understand their team's interface with this role] | Week 2 |
+| Name   | Role   | Purpose of Meeting                                 | Priority |
+| ------ | ------ | -------------------------------------------------- | -------- |
+| [Name] | [Role] | [Understand their team's interface with this role] | Week 1   |
+| [Name] | [Role] | [Understand their team's interface with this role] | Week 2   |
 | [Name] | [Role] | [Understand their team's interface with this role] | Week 2-3 |
 
 ---
@@ -206,12 +209,12 @@ Before delivering the plan, apply four calibration checks to ensure it is approp
 
 #### Knowledge Milestones
 
-| Milestone | Success Criteria | Due | Owner |
-|-----------|-----------------|-----|-------|
-| [e.g., Complete product deep-dive] | [Can demonstrate or explain the product without notes] | Day 14 | New Hire |
-| [e.g., Customer immersion: attend 3 calls] | [Listened to 3+ customer calls; written 1-page summary of patterns observed] | Day 21 | Buddy + New Hire |
-| [e.g., First deliverable complete] | [Specific output delivered and accepted -- e.g., PR merged, report published, analysis shared] | Day 21-28 | New Hire |
-| [e.g., All required training complete] | [Security, compliance, and tool certifications 100% done] | Day 14 | New Hire |
+| Milestone                                  | Success Criteria                                                                               | Due       | Owner            |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------- | --------- | ---------------- |
+| [e.g., Complete product deep-dive]         | [Can demonstrate or explain the product without notes]                                         | Day 14    | New Hire         |
+| [e.g., Customer immersion: attend 3 calls] | [Listened to 3+ customer calls; written 1-page summary of patterns observed]                   | Day 21    | Buddy + New Hire |
+| [e.g., First deliverable complete]         | [Specific output delivered and accepted -- e.g., PR merged, report published, analysis shared] | Day 21-28 | New Hire         |
+| [e.g., All required training complete]     | [Security, compliance, and tool certifications 100% done]                                      | Day 14    | New Hire         |
 
 #### Key Activities
 
@@ -225,6 +228,7 @@ Before delivering the plan, apply four calibration checks to ensure it is approp
 #### Check-In: Day 30 -- Learning Review (45 min with Manager)
 
 Agenda:
+
 1. What surprised you about the role, team, or product?
 2. What is still unclear that is blocking you?
 3. Are the 60-day milestones still appropriate?
@@ -239,12 +243,12 @@ Agenda:
 
 #### Contribution Milestones
 
-| Milestone | Success Criteria | Due | Owner |
-|-----------|-----------------|-----|-------|
-| [e.g., Own project X] | [Delivered on time; quality meets team standard] | Day 45-50 | New Hire |
-| [e.g., Lead one team meeting or presentation] | [Facilitated with positive feedback from at least one peer] | Day 50 | New Hire |
-| [e.g., Independent on routine tasks] | [Manager confirms new hire does not need guidance on [list specific task types]] | Day 60 | Manager assessment |
-| [e.g., Peer relationship building] | [Coffee chats completed with 5+ cross-functional peers] | Day 55 | New Hire |
+| Milestone                                     | Success Criteria                                                                 | Due       | Owner              |
+| --------------------------------------------- | -------------------------------------------------------------------------------- | --------- | ------------------ |
+| [e.g., Own project X]                         | [Delivered on time; quality meets team standard]                                 | Day 45-50 | New Hire           |
+| [e.g., Lead one team meeting or presentation] | [Facilitated with positive feedback from at least one peer]                      | Day 50    | New Hire           |
+| [e.g., Independent on routine tasks]          | [Manager confirms new hire does not need guidance on [list specific task types]] | Day 60    | Manager assessment |
+| [e.g., Peer relationship building]            | [Coffee chats completed with 5+ cross-functional peers]                          | Day 55    | New Hire           |
 
 #### Key Activities
 
@@ -257,6 +261,7 @@ Agenda:
 #### Check-In: Day 60 -- Contribution Review (45 min with Manager)
 
 Agenda:
+
 1. What has the new hire delivered, and does quality and pace meet expectations?
 2. Where has the manager had to intervene unexpectedly?
 3. Is the new hire building the right relationships?
@@ -271,11 +276,11 @@ Agenda:
 
 #### Ownership Milestones
 
-| Milestone | Success Criteria | Due | Owner |
-|-----------|-----------------|-----|-------|
-| [e.g., Deliver first major project] | [Specific output with measurable impact: [metric, amount, or quality standard]] | Day 80 | New Hire |
-| [e.g., Submit improvement proposal] | [Written proposal with problem statement, proposed solution, and resource estimate] | Day 85 | New Hire |
-| [e.g., 90-day performance benchmark] | [Manager confirms performance at or above expectations on core responsibilities] | Day 90 | Manager |
+| Milestone                              | Success Criteria                                                                      | Due    | Owner    |
+| -------------------------------------- | ------------------------------------------------------------------------------------- | ------ | -------- |
+| [e.g., Deliver first major project]    | [Specific output with measurable impact: [metric, amount, or quality standard]]       | Day 80 | New Hire |
+| [e.g., Submit improvement proposal]    | [Written proposal with problem statement, proposed solution, and resource estimate]   | Day 85 | New Hire |
+| [e.g., 90-day performance benchmark]   | [Manager confirms performance at or above expectations on core responsibilities]      | Day 90 | Manager  |
 | [e.g., Role-specific output benchmark] | [e.g., Pipeline at 30% of quota / 8 story points average velocity / 2 campaigns live] | Day 90 | New Hire |
 
 #### Key Activities
@@ -289,6 +294,7 @@ Agenda:
 #### Check-In: Day 90 -- Formal 90-Day Review (60 min with Manager + HR optional)
 
 Agenda:
+
 1. Manager assessment against each milestone: hit / partially hit / missed
 2. New hire self-assessment against the same milestones
 3. Discussion of gaps between the two assessments
@@ -299,30 +305,30 @@ Agenda:
 
 ### Support Structure
 
-| Support Type | Person | Frequency | Format | Notes |
-|-------------|--------|-----------|--------|-------|
-| Manager 1:1 | [Manager name] | Weekly (all 90 days) | 30 min video or in-person | Shift to bi-weekly post-90 days |
-| Buddy check-in | [Buddy name] | Daily (Week 1), then as-needed | Async preferred, sync optional | Buddy is peer, not manager |
-| Skip-level meeting | [Manager's manager] | Once by Day 30 | 30 min | Social + orientation; not evaluative |
-| HR check-in | [HR contact name] | Day 30 and Day 60 | 30 min | Confidential; surfaces non-manager concerns |
-| Cross-team peer chats | [Names or "self-scheduled"] | 5+ by Day 60 | 20-30 min coffee chat | Tracked by new hire |
+| Support Type          | Person                      | Frequency                      | Format                         | Notes                                       |
+| --------------------- | --------------------------- | ------------------------------ | ------------------------------ | ------------------------------------------- |
+| Manager 1:1           | [Manager name]              | Weekly (all 90 days)           | 30 min video or in-person      | Shift to bi-weekly post-90 days             |
+| Buddy check-in        | [Buddy name]                | Daily (Week 1), then as-needed | Async preferred, sync optional | Buddy is peer, not manager                  |
+| Skip-level meeting    | [Manager's manager]         | Once by Day 30                 | 30 min                         | Social + orientation; not evaluative        |
+| HR check-in           | [HR contact name]           | Day 30 and Day 60              | 30 min                         | Confidential; surfaces non-manager concerns |
+| Cross-team peer chats | [Names or "self-scheduled"] | 5+ by Day 60                   | 20-30 min coffee chat          | Tracked by new hire                         |
 
 ---
 
 ### Administrative Completion Tracker
 
-| Task | Owner | Deadline | Status |
-|------|-------|----------|--------|
-| I-9 employment verification | HR | Day 3 (US legal requirement) | [ ] |
-| Benefits enrollment | New Hire + HR | [Enrollment deadline -- typically Day 30] | [ ] |
-| Direct deposit setup | New Hire | Day 1-2 | [ ] |
-| Signed offer letter on file | HR | Pre-start | [ ] |
-| Signed NDA and IP agreement | New Hire | Day 1 | [ ] |
-| Employee handbook acknowledgment | New Hire | Day 3 | [ ] |
-| Security awareness training | New Hire | Day 7 | [ ] |
-| [Additional compliance: HIPAA / SOC2 / etc.] | New Hire | Day 14 | [ ] |
-| Equipment serial number registered | IT | Day 2 | [ ] |
-| Emergency contact on file | New Hire | Day 3 | [ ] |
+| Task                                         | Owner         | Deadline                                  | Status |
+| -------------------------------------------- | ------------- | ----------------------------------------- | ------ |
+| I-9 employment verification                  | HR            | Day 3 (US legal requirement)              | [ ]    |
+| Benefits enrollment                          | New Hire + HR | [Enrollment deadline -- typically Day 30] | [ ]    |
+| Direct deposit setup                         | New Hire      | Day 1-2                                   | [ ]    |
+| Signed offer letter on file                  | HR            | Pre-start                                 | [ ]    |
+| Signed NDA and IP agreement                  | New Hire      | Day 1                                     | [ ]    |
+| Employee handbook acknowledgment             | New Hire      | Day 3                                     | [ ]    |
+| Security awareness training                  | New Hire      | Day 7                                     | [ ]    |
+| [Additional compliance: HIPAA / SOC2 / etc.] | New Hire      | Day 14                                    | [ ]    |
+| Equipment serial number registered           | IT            | Day 2                                     | [ ]    |
+| Emergency contact on file                    | New Hire      | Day 3                                     | [ ]    |
 ```
 
 ---
@@ -417,37 +423,37 @@ The critical additions for new manager onboarding: (1) Week 1 must include 1:1s 
 
 ### Overview
 
-| Field | Detail |
-|-------|--------|
-| Start Date | [In 3 weeks] |
-| Manager | VP of Product |
-| Onboarding Buddy | [Senior PM on Growth or Platform team -- peer, not direct team member] |
-| Department | Product |
-| Team | Enterprise Product |
-| Work Arrangement | Fully remote |
-| Probation Period | 90 days |
-| 90-Day Review Date | [Day 90 from start] |
+| Field                        | Detail                                                                                                     |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Start Date                   | [In 3 weeks]                                                                                               |
+| Manager                      | VP of Product                                                                                              |
+| Onboarding Buddy             | [Senior PM on Growth or Platform team -- peer, not direct team member]                                     |
+| Department                   | Product                                                                                                    |
+| Team                         | Enterprise Product                                                                                         |
+| Work Arrangement             | Fully remote                                                                                               |
+| Probation Period             | 90 days                                                                                                    |
+| 90-Day Review Date           | [Day 90 from start]                                                                                        |
 | Critical External Dependency | Series B roadmap review at Week 8 -- new hire must be prepared to present or co-present enterprise roadmap |
 
 ---
 
 ### Pre-Start Checklist
 
-| Task | Owner | Due Date | Status |
-|------|-------|----------|--------|
-| Order laptop (MacBook Pro 14" or equivalent, company standard) | IT | Day -14 | [ ] |
-| Ship laptop + peripherals to home address (confirm address) | IT / Ops | Day -10 | [ ] |
-| Create email and Google Workspace account | IT | Day -3 | [ ] |
-| Provision Slack (add to #product, #enterprise, #general, and core cross-functional channels) | IT | Day -3 | [ ] |
-| Provision Jira (add to enterprise board with triage access) | IT | Day -3 | [ ] |
-| Provision Notion (add to Product workspace with editor access) | IT | Day -3 | [ ] |
-| Provision Figma (add to Product team with viewer + comment access) | IT | Day -3 | [ ] |
-| Provision Productboard (add with contributor access) | IT | Day -3 | [ ] |
-| Send welcome email with Day 1 schedule (time-blocked) | VP of Product | Day -3 | [ ] |
-| Brief onboarding buddy -- provide one-page buddy guide | VP of Product | Day -3 | [ ] |
-| Prepare enterprise onboarding reading list (10 docs max) | VP of Product | Day -2 | [ ] |
-| Schedule Week 1 stakeholder 1:1s in advance | EA or Manager | Day -3 | [ ] |
-| Send benefits enrollment instructions | HR | Day 1 | [ ] |
+| Task                                                                                         | Owner         | Due Date | Status |
+| -------------------------------------------------------------------------------------------- | ------------- | -------- | ------ |
+| Order laptop (MacBook Pro 14" or equivalent, company standard)                               | IT            | Day -14  | [ ]    |
+| Ship laptop + peripherals to home address (confirm address)                                  | IT / Ops      | Day -10  | [ ]    |
+| Create email and Google Workspace account                                                    | IT            | Day -3   | [ ]    |
+| Provision Slack (add to #product, #enterprise, #general, and core cross-functional channels) | IT            | Day -3   | [ ]    |
+| Provision Jira (add to enterprise board with triage access)                                  | IT            | Day -3   | [ ]    |
+| Provision Notion (add to Product workspace with editor access)                               | IT            | Day -3   | [ ]    |
+| Provision Figma (add to Product team with viewer + comment access)                           | IT            | Day -3   | [ ]    |
+| Provision Productboard (add with contributor access)                                         | IT            | Day -3   | [ ]    |
+| Send welcome email with Day 1 schedule (time-blocked)                                        | VP of Product | Day -3   | [ ]    |
+| Brief onboarding buddy -- provide one-page buddy guide                                       | VP of Product | Day -3   | [ ]    |
+| Prepare enterprise onboarding reading list (10 docs max)                                     | VP of Product | Day -2   | [ ]    |
+| Schedule Week 1 stakeholder 1:1s in advance                                                  | EA or Manager | Day -3   | [ ]    |
+| Send benefits enrollment instructions                                                        | HR            | Day 1    | [ ]    |
 
 ---
 
@@ -455,31 +461,31 @@ The critical additions for new manager onboarding: (1) Week 1 must include 1:1s 
 
 **Target cognitive load: Max 4 hours of scheduled activity per day. Camera-on default for all scheduled calls.**
 
-| Day | Activity | With / Led By | Duration | Format |
-|-----|----------|--------------|----------|--------|
-| Day 1 AM | Manager welcome -- review onboarding plan, 90-day goals, Series B context, working style preferences | VP of Product | 60 min | Video 1:1 |
-| Day 1 AM | IT access verification for all systems (Jira, Notion, Figma, Productboard, Slack) | IT Help Desk | 60 min | Video + screen share |
-| Day 1 PM | Buddy intro + informal orientation (unwritten rules, team culture, how things actually work) | Onboarding Buddy | 45 min | Video |
-| Day 1 PM | HR orientation: I-9, benefits enrollment deadline, handbook, payroll setup | HR | 45 min | Video |
-| Day 2 AM | Company overview: founding story, business model, ARR stage, customer profile, competitive landscape | CEO or VP of Sales | 60 min | Video |
-| Day 2 PM | Product architecture walkthrough: how the platform is built, enterprise vs. SMB product split | CTO or Senior Engineer | 60 min | Video + screen share |
-| Day 3 AM | Enterprise customer overview: top 10 accounts, contract values, health scores, key contacts | Head of Enterprise CS | 60 min | Video |
-| Day 3 PM | Security awareness training + data handling policy | Self-paced (Slack DM links) | 60 min | Async |
-| Day 4 AM | Current enterprise roadmap briefing: what exists, what is in progress, what is planned | VP of Product | 90 min | Working session |
-| Day 4 PM | Productboard deep-dive: existing feature requests, vote counts, top enterprise ask themes | Buddy | 60 min | Video + screen share |
-| Day 5 AM | Jira board walkthrough: current sprint, backlog structure, story conventions, engineering team rhythm | Tech Lead or PM | 60 min | Video |
-| Day 5 PM | Week 1 debrief with VP of Product: What's clear? What's confusing? Any immediate questions? | VP of Product | 30 min | Video 1:1 |
+| Day      | Activity                                                                                              | With / Led By               | Duration | Format               |
+| -------- | ----------------------------------------------------------------------------------------------------- | --------------------------- | -------- | -------------------- |
+| Day 1 AM | Manager welcome -- review onboarding plan, 90-day goals, Series B context, working style preferences  | VP of Product               | 60 min   | Video 1:1            |
+| Day 1 AM | IT access verification for all systems (Jira, Notion, Figma, Productboard, Slack)                     | IT Help Desk                | 60 min   | Video + screen share |
+| Day 1 PM | Buddy intro + informal orientation (unwritten rules, team culture, how things actually work)          | Onboarding Buddy            | 45 min   | Video                |
+| Day 1 PM | HR orientation: I-9, benefits enrollment deadline, handbook, payroll setup                            | HR                          | 45 min   | Video                |
+| Day 2 AM | Company overview: founding story, business model, ARR stage, customer profile, competitive landscape  | CEO or VP of Sales          | 60 min   | Video                |
+| Day 2 PM | Product architecture walkthrough: how the platform is built, enterprise vs. SMB product split         | CTO or Senior Engineer      | 60 min   | Video + screen share |
+| Day 3 AM | Enterprise customer overview: top 10 accounts, contract values, health scores, key contacts           | Head of Enterprise CS       | 60 min   | Video                |
+| Day 3 PM | Security awareness training + data handling policy                                                    | Self-paced (Slack DM links) | 60 min   | Async                |
+| Day 4 AM | Current enterprise roadmap briefing: what exists, what is in progress, what is planned                | VP of Product               | 90 min   | Working session      |
+| Day 4 PM | Productboard deep-dive: existing feature requests, vote counts, top enterprise ask themes             | Buddy                       | 60 min   | Video + screen share |
+| Day 5 AM | Jira board walkthrough: current sprint, backlog structure, story conventions, engineering team rhythm | Tech Lead or PM             | 60 min   | Video                |
+| Day 5 PM | Week 1 debrief with VP of Product: What's clear? What's confusing? Any immediate questions?           | VP of Product               | 30 min   | Video 1:1            |
 
 **Priority stakeholder 1:1 list (complete by Day 21):**
 
-| Name | Role | Purpose | Priority |
-|------|------|---------|----------|
-| [VP of Sales] | Revenue leader | Understand enterprise sales motion, top objections, roadmap requests from sales | Week 1-2 |
-| [Head of Enterprise CS] | Enterprise customer health | Understand churn risks, expansion signals, and what customers are asking for right now | Week 1-2 |
-| [CTO] | Engineering leadership | Understand engineering capacity, technical constraints, and how Product-Engineering decisions are made | Week 2 |
-| [Head of Design] | Design lead | Understand design team process, capacity, and how PM and Design currently collaborate | Week 2 |
-| [CFO or VP Finance] | Revenue and pricing context | Understand enterprise pricing model, contract structures, and any financial constraints on product decisions | Week 2-3 |
-| [Top enterprise customer contact (via CS introduction)] | Customer perspective | Listen to a strategic customer conversation -- not to pitch, but to understand their experience | Week 3 |
+| Name                                                    | Role                        | Purpose                                                                                                      | Priority |
+| ------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------ | -------- |
+| [VP of Sales]                                           | Revenue leader              | Understand enterprise sales motion, top objections, roadmap requests from sales                              | Week 1-2 |
+| [Head of Enterprise CS]                                 | Enterprise customer health  | Understand churn risks, expansion signals, and what customers are asking for right now                       | Week 1-2 |
+| [CTO]                                                   | Engineering leadership      | Understand engineering capacity, technical constraints, and how Product-Engineering decisions are made       | Week 2   |
+| [Head of Design]                                        | Design lead                 | Understand design team process, capacity, and how PM and Design currently collaborate                        | Week 2   |
+| [CFO or VP Finance]                                     | Revenue and pricing context | Understand enterprise pricing model, contract structures, and any financial constraints on product decisions | Week 2-3 |
+| [Top enterprise customer contact (via CS introduction)] | Customer perspective        | Listen to a strategic customer conversation -- not to pitch, but to understand their experience              | Week 3   |
 
 ---
 
@@ -491,14 +497,14 @@ The critical additions for new manager onboarding: (1) Week 1 must include 1:1s 
 
 #### Knowledge Milestones
 
-| Milestone | Success Criteria | Due | Owner |
-|-----------|-----------------|-----|-------|
-| Enterprise customer landscape internalized | Can name the top 10 enterprise accounts, their primary use cases, health status, and the top 3 feature requests that come up most often | Day 14 | New Hire |
-| Existing roadmap mastery | Can walk through the current enterprise roadmap including scope, timeline, and rationale for prioritization decisions -- without referring to notes | Day 21 | New Hire |
-| Attend 3 live enterprise customer calls | Written summary of each call identifying the customer problem, the customer's sentiment about the product, and one implication for the roadmap | Day 21 | CS lead + New Hire |
-| Tool proficiency: Jira, Productboard, Notion | Has written one Jira story, made one Productboard prioritization note, and created one Notion document using team conventions | Day 14 | New Hire |
-| First Figma engagement | Has left substantive comments on at least one active design file for an enterprise feature in progress | Day 21 | New Hire |
-| Complete all required training | Security, compliance, and any company-required certifications: 100% complete | Day 10 | New Hire |
+| Milestone                                    | Success Criteria                                                                                                                                    | Due    | Owner              |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------ |
+| Enterprise customer landscape internalized   | Can name the top 10 enterprise accounts, their primary use cases, health status, and the top 3 feature requests that come up most often             | Day 14 | New Hire           |
+| Existing roadmap mastery                     | Can walk through the current enterprise roadmap including scope, timeline, and rationale for prioritization decisions -- without referring to notes | Day 21 | New Hire           |
+| Attend 3 live enterprise customer calls      | Written summary of each call identifying the customer problem, the customer's sentiment about the product, and one implication for the roadmap      | Day 21 | CS lead + New Hire |
+| Tool proficiency: Jira, Productboard, Notion | Has written one Jira story, made one Productboard prioritization note, and created one Notion document using team conventions                       | Day 14 | New Hire           |
+| First Figma engagement                       | Has left substantive comments on at least one active design file for an enterprise feature in progress                                              | Day 21 | New Hire           |
+| Complete all required training               | Security, compliance, and any company-required certifications: 100% complete                                                                        | Day 10 | New Hire           |
 
 #### Onboarding Reading List (Max 10 documents)
 

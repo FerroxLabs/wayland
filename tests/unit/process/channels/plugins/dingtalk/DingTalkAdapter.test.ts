@@ -43,9 +43,7 @@ describe('DingTalkAdapter - chatId round-trip', () => {
   });
 
   it('R16 M3: throws for unprefixed legacy chatIds (no silent user fallback)', () => {
-    expect(() => parseChatId('unprefixed-legacy')).toThrow(
-      /parseChatId: unrecognized id format: unprefixed-legacy/
-    );
+    expect(() => parseChatId('unprefixed-legacy')).toThrow(/parseChatId: unrecognized id format: unprefixed-legacy/);
   });
 });
 
@@ -238,9 +236,7 @@ describe('DingTalkAdapter - toDingTalkSendParams', () => {
 describe('DingTalkPlugin - webhook URL validation + signing (HIGH-1)', () => {
   it('isValidDingTalkWebhook accepts the official robot/send endpoint', async () => {
     const { DingTalkPlugin } = await import('@process/channels/plugins/dingtalk/DingTalkPlugin');
-    expect(
-      DingTalkPlugin.isValidDingTalkWebhook('https://oapi.dingtalk.com/robot/send?access_token=abc')
-    ).toBe(true);
+    expect(DingTalkPlugin.isValidDingTalkWebhook('https://oapi.dingtalk.com/robot/send?access_token=abc')).toBe(true);
   });
 
   it('isValidDingTalkWebhook rejects non-https URLs', async () => {

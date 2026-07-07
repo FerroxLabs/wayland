@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance checklist guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance checklist guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Home Maintenance Scheduler
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about home maintenance scheduler
 - User needs guidance on home maintenance scheduler topics
 - User wants a structured approach to home maintenance scheduler
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -42,6 +45,7 @@ metadata:
 10. **Any recent major work?** (New roof, HVAC, appliances -- with dates)
 
 ## The 1% Rule
+
 ```
 MAINTENANCE BUDGET PLANNING:
 
@@ -72,6 +76,7 @@ MAJOR SYSTEM LIFESPANS (budget for replacement):
 ## Monthly Maintenance Checklist
 
 ### Every Month (12x/Year)
+
 ```
 MONTHLY HOME MAINTENANCE:
 
@@ -118,6 +123,7 @@ Tools needed: None (visual inspection)
 ## Seasonal Maintenance Schedules
 
 ### Spring (March - May)
+
 ```
 SPRING MAINTENANCE CHECKLIST:
 EXTERIOR - HIGH PRIORITY:
@@ -181,6 +187,7 @@ PEST PREVENTION:
 ```
 
 ### Summer (June - August)
+
 ```
 SUMMER MAINTENANCE CHECKLIST:
 
@@ -221,6 +228,7 @@ SAFETY:
 ```
 
 ### Fall (September - November)
+
 ```
 FALL MAINTENANCE CHECKLIST:
 
@@ -281,6 +289,7 @@ SAFETY:
 ```
 
 ### Winter (December - February)
+
 ```
 WINTER MAINTENANCE CHECKLIST:
 
@@ -319,6 +328,7 @@ PROJECTS (indoor focus while weather is poor):
 ```
 
 ## Annual Maintenance Tasks
+
 ```
 ANNUAL TASKS (schedule once per year):
 
@@ -342,6 +352,7 @@ ANNUAL TASKS (schedule once per year):
 ## System-Specific Maintenance Guides
 
 ### HVAC Maintenance
+
 ```
 HVAC MAINTENANCE SCHEDULE:
 
@@ -370,6 +381,7 @@ SIGNS YOU NEED SERVICE:
 ```
 
 ### Plumbing Basics
+
 ```
 PLUMBING MAINTENANCE:
 
@@ -407,6 +419,7 @@ WHEN TO CALL A PLUMBER:
 ```
 
 ### Electrical Safety
+
 ```
 ELECTRICAL MAINTENANCE:
 
@@ -437,6 +450,7 @@ WARNING SIGNS (call electrician immediately):
 ```
 
 ## Maintenance Tracking Template
+
 ```
 HOME MAINTENANCE LOG:
 
@@ -464,6 +478,7 @@ SYSTEM AGES AND REPLACEMENT PLANNING:
 ```
 
 ## DIY vs Professional Decision Guide
+
 ```
 DIY IF:
   - You have the skills, tools, and time
@@ -488,6 +503,7 @@ HIRE A PRO IF:
 ## Output Format
 
 When creating a maintenance plan:
+
 ```
 HOME MAINTENANCE PLAN
 

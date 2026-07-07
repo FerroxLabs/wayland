@@ -38,6 +38,6 @@ For any pending spend — hire, contract, ad budget — compute: months of runwa
 
 ## Before / after
 
-**Before:** *"We've got about $200k in the bank, we're fine for a while."*
+**Before:** _"We've got about $200k in the bank, we're fine for a while."_
 
-**After:** *"Cash on hand $182k after this month's payables. Three-month average net burn $26.4k. Runway: 6.9 months — out of cash on December 11, 2026. Kill-line: contractor payments at $11k/mo; cutting that to in-house labor at half the rate adds 2.1 months. Owner is on $0 salary; at market comp of $7k/mo, true runway is 5.0 months. Recommendation: do not hire this quarter, cut contractor spend by 50% this month, revisit in 90 days with three months of real margin data."*
+**After:** _"Cash on hand $182k after this month's payables. Three-month average net burn $26.4k. Runway: 6.9 months — out of cash on December 11, 2026. Kill-line: contractor payments at $11k/mo; cutting that to in-house labor at half the rate adds 2.1 months. Owner is on $0 salary; at market comp of $7k/mo, true runway is 5.0 months. Recommendation: do not hire this quarter, cut contractor spend by 50% this month, revisit in 90 days with three months of real margin data."_

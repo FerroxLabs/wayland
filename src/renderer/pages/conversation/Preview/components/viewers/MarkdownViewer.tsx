@@ -462,7 +462,9 @@ const MarkdownPreview: React.FC<MarkdownPreviewProps> = ({
                           displayMode: true,
                           throwOnError: false,
                         });
-                        return <div className='katex-display' dangerouslySetInnerHTML={{ __html: sanitizeMath(html) }} />;
+                        return (
+                          <div className='katex-display' dangerouslySetInnerHTML={{ __html: sanitizeMath(html) }} />
+                        );
                       } catch {
                         // Fall through to render as code block if KaTeX fails
                       }

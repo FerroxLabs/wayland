@@ -172,9 +172,7 @@ export class ModelPricing implements IModelPricing {
     const cacheReadTokens = t.cacheRead ?? 0;
     // A model without a dedicated cache-read rate is priced at its input rate.
     const cacheReadRate = cost.cache_read ?? cost.input;
-    return (
-      (t.input / 1e6) * cost.input + (t.output / 1e6) * cost.output + (cacheReadTokens / 1e6) * cacheReadRate
-    );
+    return (t.input / 1e6) * cost.input + (t.output / 1e6) * cost.output + (cacheReadTokens / 1e6) * cacheReadRate;
   }
 }
 

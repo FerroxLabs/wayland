@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript frameworks backend web-development"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript frameworks backend web-development'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React Server Components
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is deciding whether to use React Server Components (RSC) vs. client components in Next.js App Router, Remix, or a custom RSC-enabled framework
 - The user needs to implement data fetching directly in server components without useEffect or external state managers like React Query
 - The user is debugging hydration mismatches, "use client" boundary errors, or serialization failures in an RSC application
@@ -29,6 +31,7 @@ metadata:
 - The user needs to understand the RSC payload format, streaming behavior, or Suspense integration for progressive rendering
 
 **Do NOT use this skill when:**
+
 - The user is asking about React without a framework that supports RSC -- raw Create React App, Vite with standard React, or Webpack-only setups do not support RSC natively; redirect to client-side React patterns
 - The user needs help with Next.js Pages Router (`pages/` directory) -- RSC concepts do not apply there; check sibling skills for Pages Router patterns
 - The user is building a React Native application -- RSC support in React Native is experimental and follow different constraints
@@ -200,27 +203,35 @@ app/
 ## Edge Cases
 
 ### Async Client Components Are Not Supported
+
 React does not support `async` client components. If you write `"use client"` at the top of an async function component, you will get a runtime error: "async/await is not yet supported in Client Components." The solution is to split the component: create a server component wrapper that awaits the data and passes it as props to the synchronous client component. Never try to fetch data inside a client component with async/await at the top level -- use a Server Component parent to supply the data.
 
 ### Third-Party Libraries That Break Server Components
+
 Many npm packages assume a browser environment. Packages that reference `window`, `document`, or `navigator` at import time (not just at runtime) will throw during server-side rendering because these globals do not exist on the server. The fix is to import these packages inside a `"use client"` component or use `next/dynamic` with `{ ssr: false }`. Common offenders include charting libraries (Recharts reads `window` at import in some versions), drag-and-drop libraries, and browser-native PDF renderers. Always check whether a library is RSC-compatible before using it in a server component.
 
 ### Context API Limitations Across the Server-Client Boundary
+
 React Context does not work in server components -- `createContext` and `useContext` are client-only APIs. This breaks the common pattern of "provide a value at the root and consume it anywhere." The RSC-compatible replacement is to pass data through props (for simple cases), use URL-based state (for shareable state like filters and tabs), or create a thin client-side context provider that wraps server component children and provides only client-side interactive state (theme, modal open state, not database data).
 
 ### Next.js 15 Breaking Change: params and searchParams as Promises
+
 Starting in Next.js 15, `params` and `searchParams` in page and layout components are Promises, not synchronous objects. Code written for Next.js 14 that accesses `params.id` directly will break with a type error and a deprecation warning. Always `await params` before destructuring: `const { id } = await params`. The `searchParams` object is similarly wrapped. This affects all page, layout, and route handler files in the App Router.
 
 ### Hydration Mismatches from Server-Client Rendering Differences
+
 Hydration mismatches occur when the HTML the server renders differs from what the client renders during hydration. Common causes in RSC applications: (1) `Date.now()` or `new Date()` called in a server component produces a different timestamp than when the client re-renders; (2) locale-sensitive formatting (number formatting, date formatting) that differs between server timezone (UTC) and client timezone; (3) browser extensions that modify the DOM before hydration. For (1) and (2), perform all formatting on the server and pass the pre-formatted string as a prop to the client component. For (3), use `suppressHydrationWarning` only on the specific element affected, not on entire sections.
 
 ### Server Actions in Non-Next.js RSC Environments
+
 Server Actions are a Next.js-specific abstraction built on top of the RSC foundation. In a custom RSC setup (e.g., using React Server Components with a custom Express server or the experimental `react-server-dom-webpack` package), Server Actions as Next.js defines them do not exist. Mutations must go through traditional API route handlers. When helping a user not on Next.js, do not recommend `"use server"` actions, `revalidatePath`, or `useActionState` -- these are Next.js APIs, not React APIs.
 
 ### Circular Import Problems Between Server and Client Components
+
 If a server component imports a client component, and that client component imports back into a file that contains server-only code (even indirectly through a shared utility), the server-only code can end up in the client bundle. This creates security issues when secrets are involved. The solution is a strict module dependency rule: client component files must NEVER import from server-only files. Use the `server-only` package as enforcement. Shared utilities used by both server and client components must be written to work in both environments (no Node.js-only APIs, no browser-only APIs) and must NOT import server-only modules.
 
 ### Large Datasets and RSC Payload Size
+
 Passing large arrays as props from server components to client components serializes them into the RSC payload (a JSON-like wire format). A table with 10,000 rows passed as props will bloat the RSC payload and slow down Time-to-Interactive. The fix is to render the data on the server -- the table markup itself should be server-rendered HTML, not data passed as props to a client-side table renderer. Only pass the minimum state required for interactivity (selected row ID, sort column, page number) to the client component. For truly large datasets requiring client-side interactivity (sorting, filtering), implement server-side sorting/filtering using URL searchParams and server component re-rendering rather than shipping the dataset to the client.
 
 ---
@@ -235,24 +246,24 @@ Passing large arrays as props from server components to client components serial
 
 ### Component Boundary Analysis
 
-| Component | Render Location | Reason | Client Directive |
-|-----------|----------------|--------|-----------------|
-| `ProductPage` (page.tsx) | Server (async) | Fetches product from DB, params access | None |
-| `ProductImages` | Server | Renders static image gallery, no interaction | None |
-| `ProductInfo` | Server | Renders title, price, description from DB | None |
-| `QuantitySelector` | Client | Uses useState for count, onClick handlers | `"use client"` |
-| `AddToCartButton` | Client | Calls Server Action, uses useOptimistic | `"use client"` |
-| `RelatedProducts` | Server (async, Suspense) | Fetches related items from DB independently | None |
+| Component                | Render Location          | Reason                                       | Client Directive |
+| ------------------------ | ------------------------ | -------------------------------------------- | ---------------- |
+| `ProductPage` (page.tsx) | Server (async)           | Fetches product from DB, params access       | None             |
+| `ProductImages`          | Server                   | Renders static image gallery, no interaction | None             |
+| `ProductInfo`            | Server                   | Renders title, price, description from DB    | None             |
+| `QuantitySelector`       | Client                   | Uses useState for count, onClick handlers    | `"use client"`   |
+| `AddToCartButton`        | Client                   | Calls Server Action, uses useOptimistic      | `"use client"`   |
+| `RelatedProducts`        | Server (async, Suspense) | Fetches related items from DB independently  | None             |
 
 The `QuantitySelector` and `AddToCartButton` should be co-located in a single `ProductActions.client.tsx` file since they share quantity state.
 
 ### Data Fetching Strategy
 
-| Data Source | Caching Strategy | Revalidation Trigger | Location |
-|-------------|-----------------|---------------------|----------|
-| Product by ID | `revalidate: 3600` (1 hour) | `revalidateTag('product-[id]')` on admin update | `getProduct()` in page.tsx |
-| Related products | `revalidate: 7200` (2 hours) | `revalidateTag('products')` on catalog update | `getRelatedProducts()` in RelatedProducts.tsx |
-| Cart mutation | `cache: 'no-store'` (N/A) | `revalidatePath` after add-to-cart action | Server Action |
+| Data Source      | Caching Strategy             | Revalidation Trigger                            | Location                                      |
+| ---------------- | ---------------------------- | ----------------------------------------------- | --------------------------------------------- |
+| Product by ID    | `revalidate: 3600` (1 hour)  | `revalidateTag('product-[id]')` on admin update | `getProduct()` in page.tsx                    |
+| Related products | `revalidate: 7200` (2 hours) | `revalidateTag('products')` on catalog update   | `getRelatedProducts()` in RelatedProducts.tsx |
+| Cart mutation    | `cache: 'no-store'` (N/A)    | `revalidatePath` after add-to-cart action       | Server Action                                 |
 
 ### File Structure
 
@@ -281,47 +292,43 @@ lib/
 
 ```typescript
 // lib/db/index.ts
-import { drizzle } from 'drizzle-orm/postgres-js'
-import postgres from 'postgres'
-import * as schema from './schema'
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
 
 // Initialized at module scope -- NOT inside a component or function
 const client = postgres(process.env.DATABASE_URL!, {
   max: 10, // connection pool size
   idle_timeout: 20,
-})
+});
 
-export const db = drizzle(client, { schema })
+export const db = drizzle(client, { schema });
 ```
 
 ```typescript
 // lib/db/queries/products.ts
-import 'server-only' // Prevents accidental client-side import
-import { cache } from 'react'
-import { db } from '../index'
-import { products, categories } from '../schema'
-import { eq } from 'drizzle-orm'
+import 'server-only'; // Prevents accidental client-side import
+import { cache } from 'react';
+import { db } from '../index';
+import { products, categories } from '../schema';
+import { eq } from 'drizzle-orm';
 
 // cache() deduplicates calls within the same request render
 export const getProduct = cache(async (id: string) => {
   const result = await db.query.products.findFirst({
     where: eq(products.id, id),
     with: { category: true, images: true },
-  })
-  return result ?? null
-})
+  });
+  return result ?? null;
+});
 
-export const getRelatedProducts = cache(async (
-  categoryId: string,
-  excludeId: string,
-  limit = 4
-) => {
+export const getRelatedProducts = cache(async (categoryId: string, excludeId: string, limit = 4) => {
   return db.query.products.findMany({
     where: eq(products.categoryId, categoryId),
     limit,
     // Filtering excludeId done in-query for efficiency
-  })
-})
+  });
+});
 ```
 
 ```typescript
@@ -462,50 +469,51 @@ export default function ProductActions({
 
 ```typescript
 // app/products/[id]/actions.ts
-'use server'
+'use server';
 
-import { revalidatePath, revalidateTag } from 'next/cache'
-import { z } from 'zod'
-import { auth } from '@/lib/auth' // Your auth library
-import { db } from '@/lib/db'
-import { cartItems } from '@/lib/db/schema'
+import { revalidatePath, revalidateTag } from 'next/cache';
+import { z } from 'zod';
+import { auth } from '@/lib/auth'; // Your auth library
+import { db } from '@/lib/db';
+import { cartItems } from '@/lib/db/schema';
 
 const AddToCartSchema = z.object({
   productId: z.string().uuid(),
   quantity: z.number().int().min(1).max(100),
-})
+});
 
-export async function addToCart(
-  input: unknown
-): Promise<{ success: boolean; error?: string }> {
+export async function addToCart(input: unknown): Promise<{ success: boolean; error?: string }> {
   // 1. Authenticate
-  const session = await auth()
+  const session = await auth();
   if (!session?.user?.id) {
-    return { success: false, error: 'Not authenticated' }
+    return { success: false, error: 'Not authenticated' };
   }
 
   // 2. Validate
-  const parsed = AddToCartSchema.safeParse(input)
+  const parsed = AddToCartSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: 'Invalid input' }
+    return { success: false, error: 'Invalid input' };
   }
 
-  const { productId, quantity } = parsed.data
+  const { productId, quantity } = parsed.data;
 
   // 3. Mutate
-  await db.insert(cartItems).values({
-    userId: session.user.id,
-    productId,
-    quantity,
-  }).onConflictDoUpdate({
-    target: [cartItems.userId, cartItems.productId],
-    set: { quantity: sql`cart_items.quantity + ${quantity}` },
-  })
+  await db
+    .insert(cartItems)
+    .values({
+      userId: session.user.id,
+      productId,
+      quantity,
+    })
+    .onConflictDoUpdate({
+      target: [cartItems.userId, cartItems.productId],
+      set: { quantity: sql`cart_items.quantity + ${quantity}` },
+    });
 
   // 4. Revalidate -- after mutation completes
-  revalidateTag(`cart-${session.user.id}`)
+  revalidateTag(`cart-${session.user.id}`);
 
-  return { success: true }
+  return { success: true };
 }
 ```
 

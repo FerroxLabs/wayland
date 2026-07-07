@@ -41,9 +41,7 @@ describe('hasPluginCredentials for email-agentmail', () => {
 
   it('returns false when only one of apiKey / inboxAddress is set', () => {
     expect(hasPluginCredentials('email-agentmail', { apiKey: 'am_xxx' })).toBe(false);
-    expect(
-      hasPluginCredentials('email-agentmail', { inboxAddress: 'agent@workspace.agentmail.to' })
-    ).toBe(false);
+    expect(hasPluginCredentials('email-agentmail', { inboxAddress: 'agent@workspace.agentmail.to' })).toBe(false);
   });
 
   it('returns true when both apiKey and inboxAddress are set', () => {

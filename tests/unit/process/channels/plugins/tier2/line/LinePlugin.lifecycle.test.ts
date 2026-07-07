@@ -54,7 +54,7 @@ describe('LinePlugin lifecycle', () => {
       plugin.initialize({
         ...validConfig,
         credentials: { channelSecret: 'sec' },
-      }),
+      })
     ).rejects.toThrow(/channel access token/i);
     expect(plugin.status).toBe('error');
   });
@@ -65,7 +65,7 @@ describe('LinePlugin lifecycle', () => {
       plugin.initialize({
         ...validConfig,
         credentials: { channelAccessToken: 'tok' },
-      }),
+      })
     ).rejects.toThrow(/channel secret/i);
     expect(plugin.status).toBe('error');
   });

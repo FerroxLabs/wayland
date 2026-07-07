@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spreadsheets data-visualization analysis"
-  category: "data-analysis"
-  subcategory: "spreadsheets"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'spreadsheets data-visualization analysis'
+  category: 'data-analysis'
+  subcategory: 'spreadsheets'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Pivot Table Builder
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to summarize a flat dataset by one or more categorical dimensions -- for example, total sales by region, average ticket resolution time by team and priority, headcount by department and job grade, or defect rate by product line and factory shift
 - The user asks for a "cross-tab," "summary table," "breakdown by," or "how many/how much per [category]" -- all of these map to pivot table logic
 - The user wants to compare the same metric across two dimensions simultaneously -- for example, revenue by both product category (rows) and sales channel (columns), creating a matrix view
@@ -29,6 +31,7 @@ metadata:
 - The user wants to calculate percentage-of-total breakdowns, running totals, or rank metrics derived from a raw dataset
 
 **Do NOT use when:**
+
 - The user needs to look up a specific value from a reference table using a key -- use the `excel-lookup-formulas` skill instead (VLOOKUP, INDEX/MATCH, XLOOKUP)
 - The user's data is messy and needs deduplication, type conversion, or structural repair before summarizing -- use `spreadsheet-data-cleaning` first, then return to this skill
 - The user's primary goal is to produce a chart or graph rather than a summary table -- build the pivot table first, then hand off to `chart-type-selector` for visualization guidance
@@ -59,18 +62,21 @@ Before touching field placement, extract the exact analytical question. This pre
 Every element of a pivot table falls into exactly one of four areas. Use this deterministic logic to assign each field:
 
 **Rows area -- the primary grouping dimension:**
+
 - The field the user says "by [field]" or "per [field]" -- "by region," "per salesperson"
 - Use the field with fewer unique values as the outer (first) row when nesting -- Region (5 values) wraps around City (50 values), not the reverse
 - Do not place a field with more than 200 unique distinct values in the Rows area without first recommending grouping -- a 500-row pivot table defeats the purpose of summarizing
 - If the user wants two levels of row grouping (e.g., Region then City), nest them: drag Region first, then City below it in the Rows zone
 
 **Columns area -- the cross-tabulation dimension:**
+
 - Use this area only when the user needs a matrix view (metric at the intersection of two dimensions)
 - The ideal column field has 2--7 unique values: Quarter (4), Status (3), Product Category (5--6)
 - Never place a date field directly in Columns without grouping it first -- raw dates produce one column per day (potentially hundreds)
 - If the field has more than 10 unique values and grouping is not possible, move it to Rows instead and eliminate the Columns area entirely -- a long narrow table is more readable than a wide unreadable one
 
 **Values area -- the measures to aggregate:**
+
 - Every field here requires an explicit aggregation function -- never accept the default without verifying it matches the data type and intent
 - Multiple value fields are fine (Revenue + Quantity + Margin%) -- each becomes a separate column within each group
 - Currency fields: SUM is almost always correct for totals; AVERAGE only if analyzing unit economics
@@ -78,6 +84,7 @@ Every element of a pivot table falls into exactly one of four areas. Use this de
 - Count fields: use COUNT (counts numeric cells) for numeric IDs, COUNTA for text IDs, and Distinct Count (Data Model only) for unique entity counts
 
 **Filters area -- the interactive slicers:**
+
 - Place here any field the user wants to use to narrow the dataset interactively without changing the row/column structure
 - Slicers (Insert > Slicer in Excel) are more user-friendly than filter dropdowns for dashboards; recommend them when the user mentions "easy to switch between"
 - Do not overcrowd the Filters area -- if the user lists more than 4 filter fields, ask which 2--3 are most frequently needed and move the rest to Row nesting
@@ -88,15 +95,15 @@ Every element of a pivot table falls into exactly one of four areas. Use this de
 
 This is the step most users get wrong. Enforce it rigorously.
 
-| Value Field Characteristics | Required Aggregation | Common Mistake to Prevent |
-|---|---|---|
-| Revenue, Cost, Units Sold, Hours, Quantity | SUM | Using COUNT because the field is text-formatted |
-| Price per unit, Score, Rate, Time (average makes sense) | AVERAGE | Using SUM -- summing prices produces meaningless totals |
-| Conversion %, Margin %, Error Rate | AVERAGE | Summing percentages -- produces values over 100% and is statistically incorrect |
-| Record existence (counting transactions, tickets, orders) | COUNT or COUNTA | Using SUM on a numeric ID column -- produces ID totals, not counts |
-| Unique customer count, distinct order count | Distinct Count (Data Model) | Using COUNT -- counts all rows, not unique entities |
-| Earliest/Latest date in a group | MIN (first date) or MAX (last date) | Averaging dates -- the result is mathematically valid but analytically useless |
-| Budget vs Actual (variance analysis) | SUM for both, then Calculated Field for difference | Manually computing outside the pivot -- breaks when refreshed |
+| Value Field Characteristics                               | Required Aggregation                               | Common Mistake to Prevent                                                       |
+| --------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Revenue, Cost, Units Sold, Hours, Quantity                | SUM                                                | Using COUNT because the field is text-formatted                                 |
+| Price per unit, Score, Rate, Time (average makes sense)   | AVERAGE                                            | Using SUM -- summing prices produces meaningless totals                         |
+| Conversion %, Margin %, Error Rate                        | AVERAGE                                            | Summing percentages -- produces values over 100% and is statistically incorrect |
+| Record existence (counting transactions, tickets, orders) | COUNT or COUNTA                                    | Using SUM on a numeric ID column -- produces ID totals, not counts              |
+| Unique customer count, distinct order count               | Distinct Count (Data Model)                        | Using COUNT -- counts all rows, not unique entities                             |
+| Earliest/Latest date in a group                           | MIN (first date) or MAX (last date)                | Averaging dates -- the result is mathematically valid but analytically useless  |
+| Budget vs Actual (variance analysis)                      | SUM for both, then Calculated Field for difference | Manually computing outside the pivot -- breaks when refreshed                   |
 
 To set the aggregation in Excel: drag field to Values area > right-click the value in the pivot > Value Field Settings > select function. In Google Sheets: click the value field chip in the pivot editor > Summarize by > select function.
 
@@ -109,18 +116,21 @@ If the user needs a ratio not present in the source data (e.g., Revenue per Unit
 Grouping converts granular values into meaningful summary buckets. Get the settings exactly right.
 
 **Date field grouping:**
+
 - Always confirm the fiscal year start before choosing grouping: a company with a fiscal year starting April 1 needs FY quarters, not calendar quarters -- standard Excel grouping cannot do this natively, requiring a helper column: `=CHOOSE(MONTH(A2),4,4,4,1,1,1,2,2,2,3,3,3)` to assign fiscal quarter numbers
 - For calendar grouping in Excel: right-click any date cell in the pivot table body (not the header) > Group > select one or more of: Days, Months, Quarters, Years. Selecting Months + Years creates a hierarchy (2023 > January, February...). Selecting only Months collapses all years into Jan, Feb... (useful for seasonal analysis, dangerous if data spans multiple years)
 - Google Sheets auto-groups dates -- click the date row/column chip > Date bucket type > choose Day, Week, Month, Quarter, or Year
 - If the date field is stored as text, grouping fails silently -- the field will appear in the Rows area as individual text strings. Diagnose this: if all dates appear as individual rows rather than grouped buckets, the field is text. Fix before proceeding (refer to `spreadsheet-data-cleaning`)
 
 **Numeric field grouping:**
+
 - Use for: age ranges, score bins, price tiers, revenue buckets
 - Right-click any numeric cell in the pivot > Group > set Starting at (minimum), Ending at (maximum), By (interval width)
 - Choose interval widths that produce 5--12 buckets for readability: a 0--100 score field in intervals of 10 produces 10 buckets (ideal); intervals of 1 produce 100 rows (defeats the purpose)
 - If the numeric field contains blanks, Excel will refuse to group and show an error -- blanks must be filled (with 0 or a sentinel value) before grouping works
 
 **Text field consolidation:**
+
 - When a text dimension has 50+ unique values (e.g., 200 product SKUs), grouping is not built into pivot tables -- instead, add a helper column to the source data mapping each SKU to a parent category, then use the helper column as the Row field
 - Alert the user explicitly: "Your [field] has [N] unique values. I recommend adding a Category column to your source data that maps these to broader groups before building the pivot."
 
@@ -130,14 +140,14 @@ Grouping converts granular values into meaningful summary buckets. Get the setti
 
 Beyond raw aggregations, pivot tables can compute derived metrics automatically using the "Show Values As" setting. These are applied after aggregation and do not require calculated fields.
 
-| Analytical Goal | Show Values As Setting | When to Use |
-|---|---|---|
-| What percent of total does each category represent? | % of Grand Total | Market share analysis, budget allocation review |
-| What percent of each row does each column represent? | % of Row Total | Conversion funnel, distribution across channels |
-| What percent of each column does each row represent? | % of Column Total | Team contribution within each quarter |
-| Cumulative running total over time | Running Total In (select date field) | YTD revenue, cumulative spend |
-| Rank each row by value | Rank Largest to Smallest | Leaderboard tables, territory rankings |
-| How does each value compare to a specific base item? | % Difference From (select base) | Month-over-month change, vs. prior year |
+| Analytical Goal                                      | Show Values As Setting               | When to Use                                     |
+| ---------------------------------------------------- | ------------------------------------ | ----------------------------------------------- |
+| What percent of total does each category represent?  | % of Grand Total                     | Market share analysis, budget allocation review |
+| What percent of each row does each column represent? | % of Row Total                       | Conversion funnel, distribution across channels |
+| What percent of each column does each row represent? | % of Column Total                    | Team contribution within each quarter           |
+| Cumulative running total over time                   | Running Total In (select date field) | YTD revenue, cumulative spend                   |
+| Rank each row by value                               | Rank Largest to Smallest             | Leaderboard tables, territory rankings          |
+| How does each value compare to a specific base item? | % Difference From (select base)      | Month-over-month change, vs. prior year         |
 
 In Excel: right-click any value cell > Show Values As > select the option. In Google Sheets: click the value chip > Show as > select option.
 
@@ -148,6 +158,7 @@ In Excel: right-click any value cell > Show Values As > select the option. In Go
 ### Step 6: Write the Complete Field Placement Specification
 
 Produce the full pivot table specification document following the Output Format exactly. Include:
+
 - Every field in the source data accounted for (assigned to an area or explicitly noted as unused)
 - The exact aggregation function for every Values field
 - All grouping rules with step-by-step menu paths
@@ -335,27 +346,35 @@ Before finalizing, run this checklist:
 ## Edge Cases
 
 ### Distinct Count (Counting Unique Entities)
+
 Standard pivot COUNT aggregates all rows, including duplicates. A user who wants "how many unique customers placed orders in each region" will get the wrong answer with COUNT. In Excel 365 with the Data Model: when inserting the pivot, check "Add this data to the Data Model" on the creation dialog > drag Customer_ID to Values > right-click > Value Field Settings > Distinct Count. In Excel 2016+ without Data Model: create a helper column in the source data with the formula `=IF(COUNTIFS($A$2:A2, A2, $C$2:C2, C2) = 1, 1, 0)` (where A is Customer_ID and C is Region) and SUM this helper column in the pivot. In Google Sheets: Distinct Count is available natively in the value chip > Summarize by > COUNTUNIQUE.
 
 ### Fiscal Year Grouping (Non-Calendar Year)
+
 Excel's built-in date grouping always uses calendar quarters (Jan--Mar = Q1). For a company whose fiscal year starts on April 1 (FY Q1 = Apr--Jun), built-in grouping is incorrect. Solution: add two helper columns to the source data before creating the pivot. Fiscal Quarter: `=CHOOSE(MONTH(A2),4,4,4,1,1,1,2,2,2,3,3,3)` returns 1--4 in fiscal order. Fiscal Year: `=IF(MONTH(A2)>=4, YEAR(A2), YEAR(A2)-1)` returns the fiscal year label. Use these helper columns as the Column and/or Row fields instead of the raw date field. Do not use built-in date grouping at all. Flag this to the user any time they mention "fiscal year," "FY," or a fiscal calendar.
 
 ### Multiple Value Fields Displaying Incorrectly
+
 When two or more fields are in the Values area, Excel creates a virtual "Values" field in the Columns area, displaying each value metric as a sub-column within each column group. This is correct behavior but surprises users who expect separate rows. If the user wants the metrics stacked as rows rather than split as sub-columns: drag the "Values" chip from the Columns zone to the Rows zone in the PivotTable Fields pane. This produces a layout where each Row group has sub-rows for each metric (Revenue, then Quantity, then Margin under each Region) rather than side-by-side columns.
 
 ### Source Data Spanning Multiple Sheets or Files
+
 A single pivot table can only reference one contiguous data range or one named Table. If the user's data is split across multiple sheets (Jan on Sheet1, Feb on Sheet2, March on Sheet3), they must consolidate into one flat table before building the pivot. Options: (a) copy all sheets below each other into one sheet manually; (b) use Power Query (Excel: Data > Get Data > From Table/Range, then Append Queries) to combine and load into a single table; (c) use a VSTACK formula (Excel 365): `=VSTACK(Sheet1!A2:F100, Sheet2!A2:F100, Sheet3!A2:F100)` pasted into a new sheet, then build the pivot on that. Refer to `spreadsheet-data-cleaning` for Power Query consolidation if the user is unfamiliar with it.
 
 ### Too Many Unique Row Values (Long Pivot Problem)
+
 A pivot table with 300+ row values defeats the summarization purpose. Diagnose by asking: "What does each row represent in your source data?" If rows correspond to individual SKUs, employee IDs, or ZIP codes, the user needs a parent grouping. Resolution path: (1) identify a hierarchical parent field that already exists in the source data (e.g., Product Category for SKUs, Department for Employee IDs, City for ZIP codes) and use that as the Row field instead; (2) if no parent field exists, add one as a helper column using IF/IFS/VLOOKUP mapping logic; (3) for numeric fields, use numeric range grouping (right-click > Group). Target 5--20 row values for a readable summary table.
 
 ### Refreshing a Pivot Table Breaks Calculated Fields
+
 When the user adds a Calculated Field that references a source column by name, and then the source column is renamed or deleted, the Calculated Field shows "#NAME?" or "#REF!" errors throughout the pivot. This error propagates invisibly -- the pivot still appears to refresh without warning. Prevent this by (1) using named Tables so column references are stable; (2) documenting all Calculated Field formulas in a comment or notes cell outside the pivot; (3) after any source data restructuring, immediately verify the pivot refreshes cleanly. If the user encounters this error, they must delete the broken Calculated Field (PivotTable Analyze > Fields, Items & Sets > Calculated Field > select > Delete) and re-create it with the corrected column name.
 
 ### Google Sheets Pivot Limitations Compared to Excel
+
 Users switching from Excel will encounter these gaps in Google Sheets: (1) No Calculated Fields with division -- Sheets supports basic arithmetic Calculated Fields but division between two source fields does not work reliably; use a helper column in the source data instead; (2) No Distinct Count on a specific combination of fields -- COUNTUNIQUE counts distinct values in the value field alone, not in combination with another field; (3) No numeric range grouping -- Sheets cannot group a numeric field into bins the way Excel can; add a helper column using IFS to assign bin labels; (4) No "Show Values As: Rank" -- must compute rank outside the pivot; (5) Date grouping is automatic and less configurable for fiscal periods. When the user is on Sheets and needs any of these features, provide the workaround approach rather than the Excel path.
 
 ### Pivot Table Showing Incorrect Totals (Grand Total Mismatch)
+
 If the Grand Total row in the pivot does not match a SUMIF or manual sum of the source data, the most common causes are: (1) the source range is too small and excludes some rows -- verify by comparing COUNT in pivot to row count in source; (2) filters are active in the source data range (the data has active Excel AutoFilter rows hidden) -- pivot tables on filtered ranges only see visible rows; remove all filters from the source before creating the pivot; (3) the data contains duplicate rows that inflate the total unexpectedly -- verify with a COUNTIFS check; (4) a Calculated Field is summing values that are already being aggregated, resulting in double-counting. Walk through each of these checks systematically and correct the root cause before proceeding.
 
 ---
@@ -371,9 +390,11 @@ If the Grand Total row in the pivot does not match a SUMIF or manual sum of the 
 ## Pivot Table Specification
 
 ### Summary Question
+
 What is the average resolution time and average CSAT score for each combination of support team (Tier1/Tier2) and ticket category (Billing, Technical, Account, Onboarding), and how do these metrics vary when filtered by quarter or priority level?
 
 ### Source Data
+
 - **Application:** Excel (recommended; Google Sheets notes provided at the end)
 - **Range:** Convert to named Table first. Select A1 through last row > Ctrl+T > Name the table **SupportTickets** in the Table Design tab.
 - **Table format:** Transaction-level (one row per ticket)
@@ -397,49 +418,49 @@ What is the average resolution time and average CSAT score for each combination 
 
 ### Field Placement
 
-| Area | Field Name | Aggregation / Role | Notes |
-|------|-----------|-------------------|-------|
-| Rows | Team | Group by | 2 unique values (Tier1, Tier2) -- broadest grouping |
-| Rows (nested) | Category | Sub-group by | 4 unique values -- place below Team in Rows zone |
-| Values | Resolution_Time_Hours | AVERAGE | Average handle time per team/category combination. Do NOT use SUM -- summed hours are meaningless for performance analysis |
-| Values | Resolution_Time_Hours (second copy) | COUNT | Count of resolved tickets (blanks excluded) -- drag the field into Values twice; rename second copy "Resolved Tickets" |
-| Values | CSAT_Score | AVERAGE | Average satisfaction score. Do NOT use SUM -- summed CSAT scores are not interpretable |
-| Filters | Created_Date (grouped by Quarter) | Slice by time period | Add as Slicer for easy quarter switching |
-| Filters | Priority | Slice by urgency level | Add as Slicer; 4 values (Low, Medium, High, Critical) |
-| Unused | Ticket_ID | Not used | Available for Distinct Count if unique ticket count needed (requires Data Model) |
-| Unused | Agent_Name | Not used in this pivot | High cardinality (~40 values) -- build a separate pivot by Agent if agent-level drill-down needed |
-| Unused | Closed_Date | Not used | Consider as a secondary filter if open/closed segmentation is needed |
+| Area          | Field Name                          | Aggregation / Role     | Notes                                                                                                                      |
+| ------------- | ----------------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Rows          | Team                                | Group by               | 2 unique values (Tier1, Tier2) -- broadest grouping                                                                        |
+| Rows (nested) | Category                            | Sub-group by           | 4 unique values -- place below Team in Rows zone                                                                           |
+| Values        | Resolution_Time_Hours               | AVERAGE                | Average handle time per team/category combination. Do NOT use SUM -- summed hours are meaningless for performance analysis |
+| Values        | Resolution_Time_Hours (second copy) | COUNT                  | Count of resolved tickets (blanks excluded) -- drag the field into Values twice; rename second copy "Resolved Tickets"     |
+| Values        | CSAT_Score                          | AVERAGE                | Average satisfaction score. Do NOT use SUM -- summed CSAT scores are not interpretable                                     |
+| Filters       | Created_Date (grouped by Quarter)   | Slice by time period   | Add as Slicer for easy quarter switching                                                                                   |
+| Filters       | Priority                            | Slice by urgency level | Add as Slicer; 4 values (Low, Medium, High, Critical)                                                                      |
+| Unused        | Ticket_ID                           | Not used               | Available for Distinct Count if unique ticket count needed (requires Data Model)                                           |
+| Unused        | Agent_Name                          | Not used in this pivot | High cardinality (~40 values) -- build a separate pivot by Agent if agent-level drill-down needed                          |
+| Unused        | Closed_Date                         | Not used               | Consider as a secondary filter if open/closed segmentation is needed                                                       |
 
 ---
 
 ### Grouping Rules
 
-| Field | Area | Grouping Type | Exact Setting |
-|-------|------|--------------|---------------|
-| Created_Date | Filters (Slicer) | Date grouping | Right-click any date cell inside the pivot > Group > check **Quarters** and **Years** > OK. The slicer will then show Q1 2023, Q2 2023, etc. |
-| Priority | Filters (Slicer) | No grouping needed | 4 text values -- use as-is; recommend ordering slicer items: Critical, High, Medium, Low |
-| Resolution_Time_Hours | Values | No grouping | Used as AVERAGE -- numeric grouping not applicable here |
+| Field                 | Area             | Grouping Type      | Exact Setting                                                                                                                                |
+| --------------------- | ---------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Created_Date          | Filters (Slicer) | Date grouping      | Right-click any date cell inside the pivot > Group > check **Quarters** and **Years** > OK. The slicer will then show Q1 2023, Q2 2023, etc. |
+| Priority              | Filters (Slicer) | No grouping needed | 4 text values -- use as-is; recommend ordering slicer items: Critical, High, Medium, Low                                                     |
+| Resolution_Time_Hours | Values           | No grouping        | Used as AVERAGE -- numeric grouping not applicable here                                                                                      |
 
-*Note: If you add a separate "Resolution Time Distribution" pivot later, you can group Resolution_Time_Hours into ranges: 0--24 hrs, 25--48 hrs, 49--72 hrs, 73--120 hrs, 120+ hrs using right-click > Group > Starting at: 0, Ending at: 500, By: 24.*
+_Note: If you add a separate "Resolution Time Distribution" pivot later, you can group Resolution_Time_Hours into ranges: 0--24 hrs, 25--48 hrs, 49--72 hrs, 73--120 hrs, 120+ hrs using right-click > Group > Starting at: 0, Ending at: 500, By: 24._
 
 ---
 
 ### Value Formatting
 
-| Value Field | Display Name | Excel Format Code | Show Values As | Sort |
-|-------------|-------------|-------------------|----------------|------|
-| Average of Resolution_Time_Hours | Avg Resolution (hrs) | #,##0.0 | Default (raw hours) | Descending within each Team group -- longest resolution time at top |
-| Count of Resolution_Time_Hours | Resolved Tickets | #,##0 | Default | -- |
-| Average of CSAT_Score | Avg CSAT | 0.00 | Default (1.00 -- 5.00 scale) | Ascending within each Team group -- lowest CSAT at top (flag underperformers) |
+| Value Field                      | Display Name         | Excel Format Code | Show Values As               | Sort                                                                          |
+| -------------------------------- | -------------------- | ----------------- | ---------------------------- | ----------------------------------------------------------------------------- |
+| Average of Resolution_Time_Hours | Avg Resolution (hrs) | #,##0.0           | Default (raw hours)          | Descending within each Team group -- longest resolution time at top           |
+| Count of Resolution_Time_Hours   | Resolved Tickets     | #,##0             | Default                      | --                                                                            |
+| Average of CSAT_Score            | Avg CSAT             | 0.00              | Default (1.00 -- 5.00 scale) | Ascending within each Team group -- lowest CSAT at top (flag underperformers) |
 
-*To rename a value field: right-click value in pivot > Value Field Settings > change "Custom Name" field at the top*
+_To rename a value field: right-click value in pivot > Value Field Settings > change "Custom Name" field at the top_
 
 ---
 
 ### Calculated Fields (if needed)
 
-| Field Name | Formula | Purpose |
-|-----------|---------|---------|
+| Field Name         | Formula                  | Purpose                                                          |
+| ------------------ | ------------------------ | ---------------------------------------------------------------- |
 | CSAT Response Rate | = CSAT_Score / Ticket_ID | Cannot be done correctly as a Calculated Field -- see note below |
 
 **Important note on CSAT Response Rate:** The ratio of tickets with a CSAT response to total tickets cannot be correctly computed as a pivot Calculated Field because the numerator requires counting non-blank CSAT values while the denominator requires counting all tickets. This is best handled with COUNTIF/COUNTIFS formulas outside the pivot referencing the pivot's summary values, or with a helper column in the source: `=IF(ISBLANK(I2), 0, 1)` labeled CSAT_Received, then SUM this in the pivot and divide by the Count of Ticket_ID in a separate formula cell.
@@ -468,41 +489,42 @@ What is the average resolution time and average CSAT score for each combination 
 1. Select data range A1 to I18001 (all columns, all rows) > Insert > Pivot table > New sheet > Create.
 2. In Pivot table editor: Rows > Add > **Team**. Then Rows > Add > **Category**. Confirm Team is listed above Category in the Rows panel.
 3. Values > Add > **Resolution_Time_Hours** > Summarize by: **AVERAGE** > Show as: Default. Rename: click the field chip > Custom: **Avg Resolution (hrs)**.
-4. Values > Add > **Resolution_Time_Hours** (second time) > Summarize by: **COUNTA** > Rename: **Resolved Tickets**. *(COUNTA on a numeric field counts non-blank cells, giving resolved ticket count.)*
+4. Values > Add > **Resolution_Time_Hours** (second time) > Summarize by: **COUNTA** > Rename: **Resolved Tickets**. _(COUNTA on a numeric field counts non-blank cells, giving resolved ticket count.)_
 5. Values > Add > **CSAT_Score** > Summarize by: **AVERAGE** > Rename: **Avg CSAT**.
 6. Filters > Add > **Priority**. Filters > Add > **Created_Date**.
 7. For date filtering by quarter in Sheets: the filter on Created_Date will show individual dates. Instead, add a helper column in the source data on column J with the formula `="Q" & ROUNDUP(MONTH(B2)/3,0) & " " & YEAR(B2)` (label it **Quarter**) and add **Quarter** as a Filter in the pivot editor. This produces Q1 2023, Q2 2023, etc. as filter options.
 8. Format value columns: select the Avg Resolution cells in the pivot > Format > Number > Custom number format > `#,##0.0`. Select Avg CSAT cells > Format > Number > Custom > `0.00`.
 
-*Sheets limitation: No built-in date slicer equivalent. The helper column approach above is the standard workaround.*
+_Sheets limitation: No built-in date slicer equivalent. The helper column approach above is the standard workaround._
 
 ---
 
 ### Expected Output Preview
 
-*(Values are illustrative. Actual results will reflect your data.)*
+_(Values are illustrative. Actual results will reflect your data.)_
 
 | Team -- Category | Avg Resolution (hrs) | Resolved Tickets | Avg CSAT |
-|---|---|---|---|
-| **Tier1** | | | |
-| -- Billing | 18.4 | 2,140 | 3.82 |
-| -- Technical | 24.7 | 3,890 | 3.54 |
-| -- Account | 12.1 | 1,670 | 4.21 |
-| -- Onboarding | 9.8 | 980 | 4.45 |
-| **Tier1 Total** | **18.6** | **8,680** | **3.89** |
-| **Tier2** | | | |
-| -- Billing | 8.2 | 890 | 4.12 |
-| -- Technical | 31.5 | 4,820 | 3.38 |
-| -- Account | 5.1 | 620 | 4.67 |
-| -- Onboarding | 4.3 | 210 | 4.78 |
-| **Tier2 Total** | **22.1** | **6,540** | **3.72** |
-| **Grand Total** | **20.1** | **15,220** | **3.82** |
+| ---------------- | -------------------- | ---------------- | -------- |
+| **Tier1**        |                      |                  |          |
+| -- Billing       | 18.4                 | 2,140            | 3.82     |
+| -- Technical     | 24.7                 | 3,890            | 3.54     |
+| -- Account       | 12.1                 | 1,670            | 4.21     |
+| -- Onboarding    | 9.8                  | 980              | 4.45     |
+| **Tier1 Total**  | **18.6**             | **8,680**        | **3.89** |
+| **Tier2**        |                      |                  |          |
+| -- Billing       | 8.2                  | 890              | 4.12     |
+| -- Technical     | 31.5                 | 4,820            | 3.38     |
+| -- Account       | 5.1                  | 620              | 4.67     |
+| -- Onboarding    | 4.3                  | 210              | 4.78     |
+| **Tier2 Total**  | **22.1**             | **6,540**        | **3.72** |
+| **Grand Total**  | **20.1**             | **15,220**       | **3.82** |
 
-*Grand Total "Resolved Tickets" of 15,220 (not 18,000) reflects that ~2,780 tickets are still open (no Resolution_Time_Hours value) and are correctly excluded from this count and from the AVERAGE calculations.*
+_Grand Total "Resolved Tickets" of 15,220 (not 18,000) reflects that ~2,780 tickets are still open (no Resolution_Time_Hours value) and are correctly excluded from this count and from the AVERAGE calculations._
 
 ---
 
 ### Maintenance Notes
+
 - **Adding new tickets:** Paste new rows starting at row 18,002 (below existing data, within the SupportTickets Table). Table will expand automatically. Right-click pivot > Refresh to include new rows.
 - **New agents or categories:** If a new Category value appears in the source data, it will automatically appear as a new row in the pivot after refresh. No configuration change needed.
 - **Monthly performance review:** Use the Quarter slicer to select the current quarter for in-period monitoring; select the prior quarter for closed-period reporting. To compare two quarters simultaneously, hold Ctrl while clicking slicer items.

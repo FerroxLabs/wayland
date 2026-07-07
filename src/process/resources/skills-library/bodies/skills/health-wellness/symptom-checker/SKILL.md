@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide checklist"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness guide checklist'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Health Symptom Triage Guide
@@ -23,12 +23,14 @@ metadata:
 > **CRITICAL DISCLAIMER:** This skill is for **GENERAL INFORMATIONAL PURPOSES ONLY**. It is **NOT** a diagnostic tool, medical device, or substitute for professional medical advice, diagnosis, or treatment.
 >
 > **THIS TOOL CANNOT AND DOES NOT:**
+>
 > - Diagnose any medical condition
 > - Recommend specific treatments or medications
 > - Replace consultation with a licensed healthcare provider
 > - Account for your complete medical history
 >
 > **ALWAYS:**
+>
 > - Consult a qualified healthcare provider for medical concerns
 > - Call **911** (or your local emergency number) for life-threatening emergencies
 > - When in doubt, seek medical attention - it is ALWAYS better to be safe
@@ -39,11 +41,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about symptom checker
 - User needs guidance on symptom checker topics
 - User wants a structured approach to symptom checker
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -123,6 +127,7 @@ symptoms for discussion with a healthcare provider.
 ### When to Call 911 / Go to Emergency Room
 
 **Call 911 immediately for:**
+
 - Chest pain or pressure lasting more than a few minutes
 - Signs of stroke: Face drooping, Arm weakness, Speech difficulty, Time to call 911 (FAST)
 - Severe difficulty breathing
@@ -141,6 +146,7 @@ symptoms for discussion with a healthcare provider.
 ### When to Go to Urgent Care (same day)
 
 **Seek same-day care for:**
+
 - Fever over 103F (39.4C) in adults
 - Moderate cuts that may need stitches (but bleeding is controlled)
 - Possible broken bone (can still move, no bone visible)
@@ -157,6 +163,7 @@ symptoms for discussion with a healthcare provider.
 ### When to Schedule a Doctor Appointment (within days)
 
 **See your doctor soon for:**
+
 - Cold or flu symptoms lasting more than 10 days
 - Persistent low-grade fever
 - Recurring headaches
@@ -171,6 +178,7 @@ symptoms for discussion with a healthcare provider.
 ### When Home Care May Be Appropriate
 
 **May manage at home (with monitoring):**
+
 - Common cold (runny nose, mild cough, sore throat)
 - Mild headache responding to OTC pain relief
 - Minor cuts and scrapes (clean, small, not deep)
@@ -327,6 +335,7 @@ D - DEFIBRILLATION  Use AED if available
 ```
 
 ### Basic Wound Care Steps
+
 1. Wash your hands or wear gloves
 2. Apply direct pressure with clean cloth to stop bleeding
 3. Clean the wound with clean running water
@@ -335,6 +344,7 @@ D - DEFIBRILLATION  Use AED if available
 6. Seek medical care if: deep, gaping, won't stop bleeding, animal bite, dirty/rusty object, signs of infection
 
 ### Signs of Infection (see a doctor)
+
 - Increasing redness spreading from wound
 - Increased swelling
 - Warmth around the wound
@@ -349,17 +359,19 @@ D - DEFIBRILLATION  Use AED if available
 
 > **Always tell your doctor and pharmacist about ALL medications, supplements, and herbal products you take.** Never start, stop, or change medication dosage without consulting your healthcare provider.
 
-| Common OTC Med | Watch Out For | Why |
-|---------------|--------------|-----|
-| Ibuprofen (Advil) | Blood thinners, aspirin, other NSAIDs | Increased bleeding risk |
-| Acetaminophen (Tylenol) | Alcohol (3+ drinks), other acetaminophen-containing products | Liver damage risk |
-| Aspirin | Blood thinners, ibuprofen | Bleeding risk, interaction effects |
-| Antihistamines (Benadryl) | Sedatives, alcohol, anti-anxiety meds | Excessive drowsiness |
-| Decongestants (Sudafed) | Blood pressure medications, MAOIs | Blood pressure increase |
-| Antacids | Some antibiotics, thyroid medication | Absorption interference |
+| Common OTC Med            | Watch Out For                                                | Why                                |
+| ------------------------- | ------------------------------------------------------------ | ---------------------------------- |
+| Ibuprofen (Advil)         | Blood thinners, aspirin, other NSAIDs                        | Increased bleeding risk            |
+| Acetaminophen (Tylenol)   | Alcohol (3+ drinks), other acetaminophen-containing products | Liver damage risk                  |
+| Aspirin                   | Blood thinners, ibuprofen                                    | Bleeding risk, interaction effects |
+| Antihistamines (Benadryl) | Sedatives, alcohol, anti-anxiety meds                        | Excessive drowsiness               |
+| Decongestants (Sudafed)   | Blood pressure medications, MAOIs                            | Blood pressure increase            |
+| Antacids                  | Some antibiotics, thyroid medication                         | Absorption interference            |
 
 ### Red Flags for Drug Interactions
+
 Seek medical help if you experience after taking medication:
+
 - Unusual bleeding or bruising
 - Severe dizziness or fainting
 - Rapid or irregular heartbeat
@@ -461,7 +473,6 @@ This guide is designed to help you think through when different levels of medica
 **When in doubt, always err on the side of seeking medical care.**
 
 Your health and safety are the top priority. No question is too small for a healthcare provider, and no concern is too minor to be checked.
-
 
 ## Output Format
 

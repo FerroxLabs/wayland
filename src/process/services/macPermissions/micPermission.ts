@@ -21,13 +21,7 @@
 
 import { systemPreferences } from 'electron';
 
-export type MicPermissionStatus =
-  | 'granted'
-  | 'denied'
-  | 'restricted'
-  | 'not-determined'
-  | 'unknown'
-  | 'unsupported';
+export type MicPermissionStatus = 'granted' | 'denied' | 'restricted' | 'not-determined' | 'unknown' | 'unsupported';
 
 /** Current microphone TCC status WITHOUT prompting. */
 export function getMicrophoneStatus(): MicPermissionStatus {

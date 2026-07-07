@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making template planning"
-  category: "productivity"
-  subcategory: "decision-making"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'decision-making template planning'
+  category: 'productivity'
+  subcategory: 'decision-making'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Decision Journal
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has made a decision and wants to document it formally before memory distortion sets in -- the window of accurate recall narrows within 24-72 hours of deciding
 - The user explicitly asks to create a decision log, decision record, or decision journal entry for future review and learning
 - The user wants to make their reasoning legible to their future self so they can distinguish between "I made a bad decision" and "I made a good decision under the information available"
@@ -29,6 +31,7 @@ metadata:
 - The user wants to build a personal base rate library -- a catalog of their past predictions versus actual outcomes -- to calibrate their confidence in future decisions
 
 **Do NOT use when:**
+
 - The user has not yet decided and needs help choosing -- use `weighted-decision-matrix` for multi-criteria trade-off analysis or `pro-con-analysis` for binary comparisons
 - The user wants to map second- and third-order consequences before committing -- use `second-order-thinking` to explore cascade effects first, then return here to document
 - The user wants to stress-test the decision by imagining failure scenarios -- use `premortem-analysis` first, then document findings here under the uncertainty section
@@ -130,6 +133,7 @@ Compile all collected information into the full journal entry format. Do not sum
 ---
 
 ## Entry Header
+
 - **Entry ID:** [YYYY-MM-DD-###, e.g., 2024-11-15-001]
 - **Entry Type:** [Contemporaneous / Prospective / Retrospective -- note days since decision if retrospective]
 - **Decision Date:** [date the decision was made or will be made]
@@ -143,17 +147,20 @@ Compile all collected information into the full journal entry format. Do not sum
 ## Context
 
 ### Situation
+
 - **Trigger type:** [Deadline pressure | Opportunity arrival | Threshold crossing | Deliberate timing]
 - **Trigger description:** [What specific event or condition made this decision necessary now?]
 - **Time pressure:** [No pressure | Soft self-imposed deadline | Hard external deadline by [date] | Emergency]
 
 ### Information State at Decision Time
+
 - **Known:** [What facts, data, or evidence was available]
 - **Unknown but knowable:** [What could have been researched with more time]
 - **Fundamentally unknowable:** [What could not be known regardless of effort]
 - **Information quality rating:** [Sufficient | Partially informed | Deciding with significant gaps]
 
 ### Decision Maker State
+
 - **Mental/emotional state:** [Calm and analytical | Excited | Anxious | Fatigued | Pressured | Conflicted | Describe]
 - **Social influence present?** [Yes -- describe | No]
 - **Note if retrospective:** [Describe any difference between remembered state and current perspective]
@@ -162,12 +169,12 @@ Compile all collected information into the full journal entry format. Do not sum
 
 ## Options Considered
 
-| # | Option | Steelman (Best Argument For) | Strongest Objection Against | Rejection Reason | Status |
-|---|--------|-----------------------------|-----------------------------|-----------------|--------|
-| 1 | [option name] | [best argument for this option] | [genuine weakness] | -- | **CHOSEN** |
-| 2 | [option name] | [best argument for this option] | [genuine weakness] | [specific reason rejected] | Rejected |
-| 3 | [option name] | [best argument for this option] | [genuine weakness] | [specific reason rejected] | Rejected |
-| 4 | Do nothing / defer | [best argument for waiting] | [cost of inaction] | [reason inaction was rejected] | Rejected |
+| #   | Option             | Steelman (Best Argument For)    | Strongest Objection Against | Rejection Reason               | Status     |
+| --- | ------------------ | ------------------------------- | --------------------------- | ------------------------------ | ---------- |
+| 1   | [option name]      | [best argument for this option] | [genuine weakness]          | --                             | **CHOSEN** |
+| 2   | [option name]      | [best argument for this option] | [genuine weakness]          | [specific reason rejected]     | Rejected   |
+| 3   | [option name]      | [best argument for this option] | [genuine weakness]          | [specific reason rejected]     | Rejected   |
+| 4   | Do nothing / defer | [best argument for waiting]     | [cost of inaction]          | [reason inaction was rejected] | Rejected   |
 
 **Note:** If the null option was not considered at all, explain why inaction was not a live option.
 
@@ -187,21 +194,24 @@ Compile all collected information into the full journal entry format. Do not sum
 ## Predicted Outcomes
 
 ### Leading Indicators (30-90 days)
-| Prediction | Measurable Signal | Target Date | Confidence % | Worst Realistic Case |
-|------------|------------------|-------------|--------------|----------------------|
-| [specific prediction] | [how to measure it] | [date] | [X%] | [bad but plausible outcome] |
-| [specific prediction] | [how to measure it] | [date] | [X%] | [bad but plausible outcome] |
+
+| Prediction            | Measurable Signal   | Target Date | Confidence % | Worst Realistic Case        |
+| --------------------- | ------------------- | ----------- | ------------ | --------------------------- |
+| [specific prediction] | [how to measure it] | [date]      | [X%]         | [bad but plausible outcome] |
+| [specific prediction] | [how to measure it] | [date]      | [X%]         | [bad but plausible outcome] |
 
 ### Medium-Term Outcomes (3-12 months)
-| Prediction | Measurable Signal | Target Date | Confidence % | Worst Realistic Case |
-|------------|------------------|-------------|--------------|----------------------|
-| [specific prediction] | [how to measure it] | [date] | [X%] | [bad but plausible outcome] |
-| [specific prediction] | [how to measure it] | [date] | [X%] | [bad but plausible outcome] |
+
+| Prediction            | Measurable Signal   | Target Date | Confidence % | Worst Realistic Case        |
+| --------------------- | ------------------- | ----------- | ------------ | --------------------------- |
+| [specific prediction] | [how to measure it] | [date]      | [X%]         | [bad but plausible outcome] |
+| [specific prediction] | [how to measure it] | [date]      | [X%]         | [bad but plausible outcome] |
 
 ### Terminal Outcomes (1-5 years)
-| Prediction | Measurable Signal | Target Date | Confidence % | Worst Realistic Case |
-|------------|------------------|-------------|--------------|----------------------|
-| [specific prediction] | [how to measure it] | [date] | [X%] | [bad but plausible outcome] |
+
+| Prediction            | Measurable Signal   | Target Date | Confidence % | Worst Realistic Case        |
+| --------------------- | ------------------- | ----------- | ------------ | --------------------------- |
+| [specific prediction] | [how to measure it] | [date]      | [X%]         | [bad but plausible outcome] |
 
 **Overall decision confidence:** [X]/10
 **Confidence rationale:** [Why this score -- what would push it higher, what drives the uncertainty]
@@ -211,15 +221,16 @@ Compile all collected information into the full journal entry format. Do not sum
 ## Values Alignment Check
 
 **Stated priorities in this life/work domain (top 3):**
+
 1. [Priority 1]
 2. [Priority 2]
 3. [Priority 3]
 
-| Priority | Does chosen option advance this? | Assessment |
-|----------|--------------------------------|------------|
-| [Priority 1] | [Advances / Neutral / Conflicts] | [explain] |
-| [Priority 2] | [Advances / Neutral / Conflicts] | [explain] |
-| [Priority 3] | [Advances / Neutral / Conflicts] | [explain] |
+| Priority     | Does chosen option advance this? | Assessment |
+| ------------ | -------------------------------- | ---------- |
+| [Priority 1] | [Advances / Neutral / Conflicts] | [explain]  |
+| [Priority 2] | [Advances / Neutral / Conflicts] | [explain]  |
+| [Priority 3] | [Advances / Neutral / Conflicts] | [explain]  |
 
 **Values-action gap:** [None detected | Gap exists -- describe what was sacrificed and whether it was deliberate]
 **Am I optimizing for long-term or short-term?** [Long-term | Short-term | Both -- explain]
@@ -228,34 +239,35 @@ Compile all collected information into the full journal entry format. Do not sum
 
 ## Review Schedule
 
-| Review Type | Date | What to Evaluate (Specific Metrics) | Trigger Condition for Early Review | Status |
-|-------------|------|------------------------------------|------------------------------------|--------|
-| Short-term (leading indicators) | [date, 30-90 days] | [exact metrics and predictions to check] | [kill switch event or unexpected development] | Pending |
-| Long-term (outcome assessment) | [date, 6-24 months] | [exact metrics and predictions to check] | [kill switch event or unexpected development] | Pending |
+| Review Type                     | Date                | What to Evaluate (Specific Metrics)      | Trigger Condition for Early Review            | Status  |
+| ------------------------------- | ------------------- | ---------------------------------------- | --------------------------------------------- | ------- |
+| Short-term (leading indicators) | [date, 30-90 days]  | [exact metrics and predictions to check] | [kill switch event or unexpected development] | Pending |
+| Long-term (outcome assessment)  | [date, 6-24 months] | [exact metrics and predictions to check] | [kill switch event or unexpected development] | Pending |
 
 ---
 
 ## Review Block (complete at each review date)
 
-**Review Date:** _______________
-**Days since decision:** _______________
+**Review Date:** ******\_\_\_******
+**Days since decision:** ******\_\_\_******
 **Reviewing:** [Short-term / Long-term]
 
 ### Outcome vs. Prediction
-| Original Prediction | Confidence % | Actual Outcome | Hit? (Y/N/Partial) |
-|--------------------|--------------|----------------|-------------------|
-| [prediction text] | [X%] | [what actually happened] | [Y/N/Partial] |
 
-**Prediction accuracy score:** ___/10
-**Overall decision quality rating:** ___/10
-*(Note: Separate these two. A bad outcome does not mean a bad decision. A good outcome does not mean a good decision. Rate the quality of the process, not just the result.)*
+| Original Prediction | Confidence % | Actual Outcome           | Hit? (Y/N/Partial) |
+| ------------------- | ------------ | ------------------------ | ------------------ |
+| [prediction text]   | [X%]         | [what actually happened] | [Y/N/Partial]      |
 
-**What I got right:** _______________
-**What I got wrong:** _______________
-**What I failed to anticipate:** _______________
+**Prediction accuracy score:** **_/10
+**Overall decision quality rating:** _**/10
+_(Note: Separate these two. A bad outcome does not mean a bad decision. A good outcome does not mean a good decision. Rate the quality of the process, not just the result.)_
+
+**What I got right:** ******\_\_\_******
+**What I got wrong:** ******\_\_\_******
+**What I failed to anticipate:** ******\_\_\_******
 **Calibration note:** [Were my confidence percentages too high, too low, or accurate?]
-**Would I make the same decision again with the same information available at decision time?** ___
-**What would I do differently next time?** _______________
+**Would I make the same decision again with the same information available at decision time?** **\_
+**What would I do differently next time?** ******\_********
 ```
 
 ---
@@ -295,6 +307,7 @@ Compile all collected information into the full journal entry format. Do not sum
 Memory distortion -- specifically hindsight bias and outcome bias -- is the core problem here. Research by Baruch Fischhoff on hindsight bias shows that people systematically misremember their pre-decision uncertainty as lower than it was once they know the outcome.
 
 Handle this by:
+
 - Flagging the entry prominently as RETROSPECTIVE with the number of days since the decision
 - Asking two separate questions: "What do you remember thinking at the time?" and "What do you think now?" Record both
 - For predictions, ask the user to try to reconstruct their genuine pre-outcome beliefs -- not what they know happened. If they cannot separate these, note that the predictions section may reflect hindsight rather than original foresight
@@ -306,6 +319,7 @@ Handle this by:
 This is arguably the most valuable use case. A prospective entry forces the user to articulate their reasoning before committing -- which often reveals gaps, unstated assumptions, and options not yet considered.
 
 Handle this by:
+
 - Marking the entry clearly as PROSPECTIVE
 - Completing all sections except "Chosen option," "Primary reason," and "Decision Date"
 - After the options table and values check are complete, use the entry as a decision-forcing prompt: "Now that you see all your options, their steelman arguments, and how they align with your stated priorities -- what do you choose?" This often makes the decision clear
@@ -317,6 +331,7 @@ Handle this by:
 Do not criticize the decision process in the journal entry. Document the conditions honestly and without judgment.
 
 Handle this by:
+
 - Recording "Emergency / Minimal analysis time available" clearly in the time pressure and information state fields
 - Noting what information was and was not available given the time constraint
 - Making the kill switch especially prominent -- fast decisions made with limited information need clear reversal conditions more than deliberate decisions do
@@ -328,6 +343,7 @@ Handle this by:
 This is a second-order use of the skill -- not creating an entry, but completing the review block of an existing one.
 
 Handle this by:
+
 - Asking the user to share the original predictions verbatim (do not paraphrase them)
 - Completing the Review Block section for each prediction: what was predicted, what actually happened, whether it was a hit
 - Calculating a prediction accuracy score: the percentage of predictions that came true, weighted by stated confidence (a 90% confidence prediction that failed is a bigger calibration error than a 50% prediction that failed)
@@ -340,6 +356,7 @@ Handle this by:
 This usually signals one of three things: the user made an impulsive decision and did not consider alternatives, the user is framing the decision as "do X or not" when there are richer options available, or the user genuinely faced a situation where only one option was viable.
 
 Handle this by:
+
 - Probing with: "Was there a version of this decision that was more conservative? More aggressive? That involved waiting?" This usually surfaces at least one or two additional options
 - Always inserting the null option (do nothing, defer, or maintain status quo) as a documented option even if it was not seriously considered
 - If after probing the user genuinely had only one viable option, note this in the rationale: "This was not a selection between alternatives -- it was a decision to act on the only available path. The journal records the context and reasoning for executing the action."
@@ -350,6 +367,7 @@ Handle this by:
 Decision journals are traditionally individual instruments. Group decisions introduce additional dynamics.
 
 Handle this by:
+
 - Documenting the user's individual reasoning and vote/preference before recording the group outcome
 - Noting whether the user advocated for their view or deferred to group pressure -- this is important for calibration (if the user consistently suppresses their views and the group is consistently wrong, that is a pattern worth noticing)
 - Recording the group's stated rationale separately from the user's personal rationale
@@ -361,6 +379,7 @@ Handle this by:
 A very high confidence score is a significant data point that requires acknowledgment, not silent acceptance.
 
 Handle this by:
+
 - Explicitly noting: "A confidence score of 9-10/10 on a complex decision is unusual and worth examining. This is not a criticism -- it may be justified. Let's verify."
 - Asking: "What is the most plausible way this decision could go wrong?" If the user can name even one realistic failure path, a score below 9 is more accurate
 - Asking: "Have you made similar decisions in the past at this confidence level? How often did they work out as predicted?" This connects the current confidence to historical calibration
@@ -371,6 +390,7 @@ Handle this by:
 For example: "I decided to accept the job offer -- but I haven't gotten final confirmation on the salary yet" or "I decided to start the project -- but the budget hasn't been approved."
 
 Handle this by:
+
 - Documenting the decision as made, but flagging the unconfirmed dependency explicitly in the "Least confident about" and "Unknown but knowable" fields
 - Adding a conditional kill switch: "If [unconfirmed variable] resolves as [unfavorable outcome], this decision is reversed"
 - Setting an interim check before the first scheduled review date -- specifically to confirm whether the dependency resolved favorably
@@ -389,6 +409,7 @@ Handle this by:
 # DECISION JOURNAL ENTRY
 
 ## Entry Header
+
 - **Entry ID:** 2024-11-15-001
 - **Entry Type:** Contemporaneous (documented 1 day after decision -- high fidelity)
 - **Decision Date:** November 14, 2024
@@ -402,17 +423,20 @@ Handle this by:
 ## Context
 
 ### Situation
+
 - **Trigger type:** Opportunity arrival combined with deadline pressure
 - **Trigger description:** The startup offer arrived with a 72-hour acceptance window that overlapped with my employer's informal promotion cycle. Waiting for more certainty on the internal promotion was not viable within the offer window.
 - **Time pressure:** Hard external deadline -- offer expired November 15 at 5pm
 
 ### Information State at Decision Time
+
 - **Known:** Startup offer details (title: Senior Product Manager, base salary: $145K, equity: 0.15% vesting over 4 years, 40-person company, Series B of $22M closed 6 months ago). Current company salary: $118K. Promotion if received would likely bring base to approximately $128-132K with no equity.
 - **Unknown but knowable (if I had more time):** Startup's burn rate and runway length. More detailed cap table to understand equity dilution. References from current startup employees beyond the two I spoke with. Whether my employer would have matched or accelerated my promotion timeline if I raised the external offer.
 - **Fundamentally unknowable:** Whether the promotion would have materialized (it was informal and not guaranteed). Startup's probability of successful exit or IPO. Whether the market for my skill set will remain strong in 24 months.
 - **Information quality rating:** Partially informed -- sufficient on role and compensation, significant gaps on startup financial health and equity value
 
 ### Decision Maker State
+
 - **Mental/emotional state:** Excited by the opportunity, moderately anxious about the financial risk, slightly fatigued from a compressed decision window
 - **Social influence present?** Yes -- a former mentor encouraged the startup move strongly. I gave this more weight than I should have without independently validating his view. Note this for review calibration.
 - **Memory note:** Decision was made yesterday. Memory is fresh. This is a contemporaneous entry.
@@ -421,12 +445,12 @@ Handle this by:
 
 ## Options Considered
 
-| # | Option | Steelman (Best Argument For) | Strongest Objection Against | Rejection Reason | Status |
-|---|--------|-----------------------------|-----------------------------|-----------------|--------|
-| 1 | Accept startup offer | Higher immediate comp, equity upside, faster scope of impact at a smaller company, forces new skill development | Startup risk is real -- ~65% of Series B companies do not reach exit; equity may be worth nothing; less stability | -- | **CHOSEN** |
-| 2 | Decline startup, wait for internal promotion | Known entity, promotion track record at this employer is solid, lower financial risk, no disruption | Promotion is informal and not guaranteed; comp ceiling is lower; limited equity; I have been frustrated with the pace here for 18 months | Promotion is not certain, the comp gap is too large to ignore, and I am already dissatisfied with growth rate | Rejected |
-| 3 | Negotiate with startup for more equity before deciding | Could improve the upside meaningfully -- 0.15% is on the lower end for a Series B PM hire | Risky -- startup had already said the equity band was fixed; could have withdrawn the offer | Employer signaled firm equity band during initial negotiation; risk of losing the offer outweighed potential equity gain | Rejected |
-| 4 | Do nothing / ask for extension on offer deadline | Could have used 2+ more weeks to research startup financials and test internal promotion prospects | Startup was clear that the window was firm; inaction would have effectively meant declining | Extension was not a viable option; inaction was equivalent to rejection given the 72-hour window | Rejected |
+| #   | Option                                                 | Steelman (Best Argument For)                                                                                    | Strongest Objection Against                                                                                                              | Rejection Reason                                                                                                         | Status     |
+| --- | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| 1   | Accept startup offer                                   | Higher immediate comp, equity upside, faster scope of impact at a smaller company, forces new skill development | Startup risk is real -- ~65% of Series B companies do not reach exit; equity may be worth nothing; less stability                        | --                                                                                                                       | **CHOSEN** |
+| 2   | Decline startup, wait for internal promotion           | Known entity, promotion track record at this employer is solid, lower financial risk, no disruption             | Promotion is informal and not guaranteed; comp ceiling is lower; limited equity; I have been frustrated with the pace here for 18 months | Promotion is not certain, the comp gap is too large to ignore, and I am already dissatisfied with growth rate            | Rejected   |
+| 3   | Negotiate with startup for more equity before deciding | Could improve the upside meaningfully -- 0.15% is on the lower end for a Series B PM hire                       | Risky -- startup had already said the equity band was fixed; could have withdrawn the offer                                              | Employer signaled firm equity band during initial negotiation; risk of losing the offer outweighed potential equity gain | Rejected   |
+| 4   | Do nothing / ask for extension on offer deadline       | Could have used 2+ more weeks to research startup financials and test internal promotion prospects              | Startup was clear that the window was firm; inaction would have effectively meant declining                                              | Extension was not a viable option; inaction was equivalent to rejection given the 72-hour window                         | Rejected   |
 
 **Note:** The null option (do nothing) was considered but was functionally equivalent to declining the offer given the hard deadline.
 
@@ -446,23 +470,26 @@ Handle this by:
 ## Predicted Outcomes
 
 ### Leading Indicators (30-90 days)
-| Prediction | Measurable Signal | Target Date | Confidence % | Worst Realistic Case |
-|------------|------------------|-------------|--------------|----------------------|
-| I will be fully onboarded and have a clear 90-day product roadmap ownership | Delivered first roadmap presentation to stakeholders | Feb 14, 2025 | 80% | Onboarding is disorganized; no clear owner accountability; I am still scrambling for context at day 90 |
-| The team and culture match the interview impression | I would recommend the company to a trusted peer after 60 days | Jan 14, 2025 | 75% | Culture is more chaotic and less collaborative than presented; early-stage dysfunction is disguised as "moving fast" |
+
+| Prediction                                                                  | Measurable Signal                                             | Target Date  | Confidence % | Worst Realistic Case                                                                                                 |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------ | ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| I will be fully onboarded and have a clear 90-day product roadmap ownership | Delivered first roadmap presentation to stakeholders          | Feb 14, 2025 | 80%          | Onboarding is disorganized; no clear owner accountability; I am still scrambling for context at day 90               |
+| The team and culture match the interview impression                         | I would recommend the company to a trusted peer after 60 days | Jan 14, 2025 | 75%          | Culture is more chaotic and less collaborative than presented; early-stage dysfunction is disguised as "moving fast" |
 
 ### Medium-Term Outcomes (3-12 months)
-| Prediction | Measurable Signal | Target Date | Confidence % | Worst Realistic Case |
-|------------|------------------|-------------|--------------|----------------------|
-| I am owning a product surface that ships 2+ meaningful features to production | Shipped features are live and measurable | Nov 14, 2025 | 70% | Company pivots or deprioritizes my product area; I spend the year in planning without shipping |
-| The startup raises Series C or demonstrates credible path to profitability | Public funding announcement or internal financial update showing >18 months runway | Nov 14, 2025 | 55% | Series C is not raised; company enters cost-cutting mode within 12 months; layoff risk rises substantially |
-| Total compensation including equity annualized value is higher than my previous employer's promotion-track trajectory | Annual base + equity fair market value exceeds $165K annualized | Nov 14, 2025 | 60% | Equity is underwater or unvested cliff is still far away; total comp is only marginally better than the promotion I passed up |
+
+| Prediction                                                                                                            | Measurable Signal                                                                  | Target Date  | Confidence % | Worst Realistic Case                                                                                                          |
+| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------ | ------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| I am owning a product surface that ships 2+ meaningful features to production                                         | Shipped features are live and measurable                                           | Nov 14, 2025 | 70%          | Company pivots or deprioritizes my product area; I spend the year in planning without shipping                                |
+| The startup raises Series C or demonstrates credible path to profitability                                            | Public funding announcement or internal financial update showing >18 months runway | Nov 14, 2025 | 55%          | Series C is not raised; company enters cost-cutting mode within 12 months; layoff risk rises substantially                    |
+| Total compensation including equity annualized value is higher than my previous employer's promotion-track trajectory | Annual base + equity fair market value exceeds $165K annualized                    | Nov 14, 2025 | 60%          | Equity is underwater or unvested cliff is still far away; total comp is only marginally better than the promotion I passed up |
 
 ### Terminal Outcomes (1-5 years)
-| Prediction | Measurable Signal | Target Date | Confidence % | Worst Realistic Case |
-|------------|------------------|-------------|--------------|----------------------|
-| The startup reaches a liquidity event (acquisition or IPO) within 5 years and my equity is worth at least $200K | Actual liquidity event with equity payout | Nov 14, 2029 | 35% | Company shuts down, is acqui-hired at a minimal valuation, or I leave before the 4-year vest cliff -- equity worth near zero |
-| This role is the catalyst for a Director/VP of Product role within 3 years | Promoted or recruited to VP-level role by 2027 | Nov 14, 2027 | 65% | The startup stagnates; I leave in 18 months with modest resume improvement but without the career acceleration I anticipated |
+
+| Prediction                                                                                                      | Measurable Signal                              | Target Date  | Confidence % | Worst Realistic Case                                                                                                         |
+| --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------ | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| The startup reaches a liquidity event (acquisition or IPO) within 5 years and my equity is worth at least $200K | Actual liquidity event with equity payout      | Nov 14, 2029 | 35%          | Company shuts down, is acqui-hired at a minimal valuation, or I leave before the 4-year vest cliff -- equity worth near zero |
+| This role is the catalyst for a Director/VP of Product role within 3 years                                      | Promoted or recruited to VP-level role by 2027 | Nov 14, 2027 | 65%          | The startup stagnates; I leave in 18 months with modest resume improvement but without the career acceleration I anticipated |
 
 **Overall decision confidence:** 7/10
 **Confidence rationale:** Strong conviction on role fit and the growth opportunity. Significant uncertainty on startup financial health, equity value, and long-term trajectory. The 7 reflects genuine optimism tempered by the information gaps I was unable to close in 72 hours. A 9 would require seeing the cap table and burn rate; I do not have that yet.
@@ -472,15 +499,16 @@ Handle this by:
 ## Values Alignment Check
 
 **Stated priorities in this life/work domain (top 3):**
+
 1. Career growth rate and scope expansion -- moving faster than a large company allows
 2. Financial security -- building meaningful savings and net worth
 3. Intellectual challenge -- working on genuinely hard product problems
 
-| Priority | Does chosen option advance this? | Assessment |
-|----------|--------------------------------|------------|
-| Career growth rate | Advances | Startup scope is broader; decision-making cycle is faster; I will own more with less committee overhead |
-| Financial security | Mixed | Base salary is higher ($145K vs. $118K current, vs. ~$130K estimated promotion). But equity is speculative. Short-term financial security improves; long-term remains uncertain |
-| Intellectual challenge | Advances | The product problem is genuinely novel; current employer's PM work has become incremental and predictable |
+| Priority               | Does chosen option advance this? | Assessment                                                                                                                                                                      |
+| ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Career growth rate     | Advances                         | Startup scope is broader; decision-making cycle is faster; I will own more with less committee overhead                                                                         |
+| Financial security     | Mixed                            | Base salary is higher ($145K vs. $118K current, vs. ~$130K estimated promotion). But equity is speculative. Short-term financial security improves; long-term remains uncertain |
+| Intellectual challenge | Advances                         | The product problem is genuinely novel; current employer's PM work has become incremental and predictable                                                                       |
 
 **Values-action gap:** Minor gap exists. I say I value financial security, but I made a choice with meaningful financial risk (equity uncertainty, startup stability). This gap is deliberate -- I am accepting short-term uncertainty in exchange for potential long-term upside. I am treating career growth as the dominant priority here, which is the honest operating value even if financial security sounds more responsible.
 **Am I optimizing for long-term or short-term?** Long-term -- this decision trades short-term certainty for long-term career trajectory and financial upside
@@ -489,31 +517,32 @@ Handle this by:
 
 ## Review Schedule
 
-| Review Type | Date | What to Evaluate (Specific Metrics) | Trigger for Early Review | Status |
-|-------------|------|------------------------------------|-----------------------------|--------|
-| Short-term (90 days) | February 14, 2025 | Onboarding quality, roadmap ownership achieved, culture assessment (1-5 scale), burn rate information obtained, kill switch condition check | Discovery that startup burn rate exceeds $1.5M/month without credible Series C path | Pending |
-| Long-term (12 months) | November 14, 2025 | Feature shipping record, Series C status, total comp vs. benchmark, regret rating (1-10), would I recommend this company to a peer | Layoff or restructuring event; formal acquisition offer | Pending |
+| Review Type           | Date              | What to Evaluate (Specific Metrics)                                                                                                         | Trigger for Early Review                                                            | Status  |
+| --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------- |
+| Short-term (90 days)  | February 14, 2025 | Onboarding quality, roadmap ownership achieved, culture assessment (1-5 scale), burn rate information obtained, kill switch condition check | Discovery that startup burn rate exceeds $1.5M/month without credible Series C path | Pending |
+| Long-term (12 months) | November 14, 2025 | Feature shipping record, Series C status, total comp vs. benchmark, regret rating (1-10), would I recommend this company to a peer          | Layoff or restructuring event; formal acquisition offer                             | Pending |
 
 ---
 
 ## Review Block (complete at each review date)
 
-**Review Date:** _______________
-**Days since decision:** _______________
+**Review Date:** ******\_\_\_******
+**Days since decision:** ******\_\_\_******
 **Reviewing:** [Short-term / Long-term]
 
 ### Outcome vs. Prediction
-| Original Prediction | Confidence % | Actual Outcome | Hit? (Y/N/Partial) |
-|--------------------|--------------|----------------|-------------------|
-| [prediction text] | [X%] | [what actually happened] | [Y/N/Partial] |
 
-**Prediction accuracy score:** ___/10
-**Decision quality rating (separate from outcome quality):** ___/10
-*(Was the process good, given what I knew at the time? Rate independently of outcome.)*
+| Original Prediction | Confidence % | Actual Outcome           | Hit? (Y/N/Partial) |
+| ------------------- | ------------ | ------------------------ | ------------------ |
+| [prediction text]   | [X%]         | [what actually happened] | [Y/N/Partial]      |
 
-**What I got right:** _______________
-**What I got wrong:** _______________
-**What I failed to anticipate entirely:** _______________
+**Prediction accuracy score:** **_/10
+**Decision quality rating (separate from outcome quality):** _**/10
+_(Was the process good, given what I knew at the time? Rate independently of outcome.)_
+
+**What I got right:** ******\_\_\_******
+**What I got wrong:** ******\_\_\_******
+**What I failed to anticipate entirely:** ******\_\_\_******
 **Calibration note:** [Were my confidence percentages too high, too low, or well-calibrated?]
-**Would I make the same decision again with the same information available on November 14, 2024?** ___
-**What would I do differently in my decision process?** _______________
+**Would I make the same decision again with the same information available on November 14, 2024?** **\_
+**What would I do differently in my decision process?** ******\_********

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship strategy planning"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship strategy planning'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Salon Owner
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to open or manage a salon, barbershop, or beauty studio
 - The user needs help with booking systems, staff commission structures, or inventory management for salon products
 - The user wants guidance on client retention strategies, review management, or social media marketing for a salon
 - The user needs expansion planning, retail product sales strategies, or financial operations for a beauty business
 
 **Do NOT use this skill when:**
+
 - The user is opening a gym or fitness studio (use gym-studio-owner instead)
 - The user wants personal grooming or beauty tips (use relevant personal care skill)
 - The user needs general small business advice not specific to salons (use business-planner instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on salon owner
 - User asks about salon owner best practices or techniques
 - User wants a structured approach to salon owner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of salon owner
 
@@ -513,7 +517,6 @@ KEY METRICS:
 9. Poor inventory management leading to overstocking or stockouts
 10. Not responding to online reviews (especially negative ones)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -526,13 +529,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with salon owner for a mid-size project."
 
 **Output:** A complete salon owner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

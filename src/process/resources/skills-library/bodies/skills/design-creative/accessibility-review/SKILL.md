@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility design checklist"
-  category: "design-creative"
-  subcategory: "ui-ux-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'accessibility design checklist'
+  category: 'design-creative'
+  subcategory: 'ui-ux-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Accessibility Review
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks for a WCAG 2.1 AA (or AAA) compliance review of a specific interface, page, or component
 - The user wants to audit color contrast ratios, keyboard navigation flows, or screen reader markup on a design mockup or live interface
 - The user needs a structured remediation checklist before handing a design off to developers or before a product launch
@@ -30,6 +32,7 @@ metadata:
 - The user describes an accessibility complaint received from a user with a disability or a result from an automated accessibility scan and wants to understand severity and remediation
 
 **Do NOT use when:**
+
 - The user wants a general usability audit covering task completion, information architecture, or cognitive load beyond disability-specific concerns -- use `ux-audit`
 - The user wants to critique visual hierarchy, typography scale, or design aesthetics -- use `visual-hierarchy-review`
 - The user wants to design or test responsive breakpoints and fluid layouts -- use `responsive-layout-design`
@@ -61,6 +64,7 @@ If the user provides a verbal description only, state explicitly which findings 
 Work through each sub-principle systematically. For each finding, record the criterion number, a specific finding, and a specific fix.
 
 **1.1 -- Text Alternatives (SC 1.1.1)**
+
 - Every non-text element (image, icon, chart, infographic, CAPTCHA, video thumbnail, decorative divider) needs a text alternative or must be explicitly marked decorative
 - Decorative images: `alt=""` on `<img>` or `role="presentation"` / `aria-hidden="true"` on SVG and icon fonts
 - Informative images: `alt` text that conveys the meaning, not just a file name or "image of..."
@@ -70,6 +74,7 @@ Work through each sub-principle systematically. For each finding, record the cri
 - Animated GIFs that convey information need a text alternative; purely decorative animated GIFs should be `aria-hidden`
 
 **1.3 -- Adaptable Structure (SC 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5)**
+
 - Heading hierarchy must be logical and not skip levels (h1 -> h2 -> h3, never h1 -> h3). A page should have exactly one `<h1>`.
 - Landmark regions must be present: `<header>`, `<nav>`, `<main>`, `<footer>`, and optionally `<aside>`, `<section>` (with accessible name). Every visible page region should map to a landmark.
 - Lists of items must use `<ul>`, `<ol>`, or `<dl>` -- not manually typed bullets or numbers in a paragraph
@@ -83,13 +88,13 @@ Work through each sub-principle systematically. For each finding, record the cri
 
 Color contrast is the most commonly failed criterion. Apply these exact thresholds:
 
-| Text Type | Minimum (AA) | Enhanced (AAA) |
-|---|---|---|
-| Normal text (below 18px regular or 14px bold) | 4.5:1 | 7:1 |
-| Large text (18px+ regular or 14px+ bold) | 3:1 | 4.5:1 |
-| UI component boundaries, icons, focus indicators | 3:1 | N/A (AAA) |
-| Inactive/disabled elements | Exempt | Exempt |
-| Logo/brand elements | Exempt | Exempt |
+| Text Type                                        | Minimum (AA) | Enhanced (AAA) |
+| ------------------------------------------------ | ------------ | -------------- |
+| Normal text (below 18px regular or 14px bold)    | 4.5:1        | 7:1            |
+| Large text (18px+ regular or 14px+ bold)         | 3:1          | 4.5:1          |
+| UI component boundaries, icons, focus indicators | 3:1          | N/A (AAA)      |
+| Inactive/disabled elements                       | Exempt       | Exempt         |
+| Logo/brand elements                              | Exempt       | Exempt         |
 
 - Always state contrast as a specific ratio (e.g., "2.7:1, fails the 4.5:1 AA minimum by 40%"). Never say "low contrast" without a number.
 - Common contrast failures to check: placeholder text in inputs (almost always too light), hint/helper text, disabled-looking but actually active elements, ghost buttons with colored text on white, light gray text on white (#767676 is the lightest gray that passes 4.5:1 on white -- anything lighter fails)
@@ -105,6 +110,7 @@ Color contrast is the most commonly failed criterion. Apply these exact threshol
 ### Step 3 -- Evaluate Operable Criteria (WCAG Principle 2)
 
 **2.1 -- Keyboard Accessible (SC 2.1.1, 2.1.2, 2.1.4)**
+
 - The cardinal rule: every action achievable with a mouse must also be achievable with a keyboard alone
 - Tab sequence test: Tab forward through all interactive elements, Shift+Tab backward. Verify every button, link, input, select, checkbox, and custom widget receives focus.
 - Keyboard trap test: When focus enters a modal, datepicker, or third-party widget, can the user Tab out or press Escape to dismiss? A keyboard trap is a WCAG 2.1.2 critical failure.
@@ -119,6 +125,7 @@ Color contrast is the most commonly failed criterion. Apply these exact threshol
 - SC 2.1.4 -- Character Key Shortcuts: If single-character keyboard shortcuts are implemented, they must be remappable, disableable, or only active on focus
 
 **2.4 -- Navigable (SC 2.4.1 through 2.4.7)**
+
 - SC 2.4.1 -- Skip links: A "Skip to main content" link must be the first focusable element on every page. It can be visually hidden until focused, but must become visible on focus and must work (actually move focus to `<main>` or the landmark).
 - SC 2.4.2 -- Page titles: Format as "Page Name -- Site Name". Every page must have a unique title. Single-page apps must update `document.title` on route changes.
 - SC 2.4.3 -- Focus order: The tab sequence must follow a logical reading flow. A common failure: modals that open at the bottom of the DOM while visually appearing in the center -- focus continues behind the modal overlay.
@@ -127,6 +134,7 @@ Color contrast is the most commonly failed criterion. Apply these exact threshol
 - SC 2.4.7 -- Focus visible: The default browser focus ring must not be removed (`outline: none` or `outline: 0` without a replacement is a critical failure). Replacement focus indicators must meet 3:1 contrast against adjacent colors. WCAG 2.2 SC 2.4.11 (AA) strengthens this to require a minimum 2px perimeter with specified area -- consider flagging this as a forward-looking recommendation.
 
 **2.5 -- Input Modalities (SC 2.5.1 through 2.5.4)**
+
 - SC 2.5.1 -- Pointer gestures: Any functionality using a multipoint (pinch-to-zoom, two-finger swipe) or path-based gesture (swipe to delete, drag-and-drop) must also be operable with a single pointer (tap or click). Alternative: a button labeled "Delete" alongside swipe-to-delete.
 - SC 2.5.2 -- Pointer cancellation: For single-pointer events, the action must be completable using the up-event (mouseup, touchend), not the down-event. This allows users to cancel accidentally initiated actions by dragging the pointer off the control before releasing.
 - SC 2.5.3 -- Label in name: If a component has a visible text label, its accessible name (from `aria-label`, `aria-labelledby`, or `<label>`) must contain or start with that visible text. A button that says "Submit" must not have `aria-label="Send form"` -- voice control users say what they see.
@@ -137,18 +145,21 @@ Color contrast is the most commonly failed criterion. Apply these exact threshol
 ### Step 4 -- Evaluate Understandable Criteria (WCAG Principle 3)
 
 **3.1 -- Readable (SC 3.1.1, 3.1.2)**
+
 - SC 3.1.1: The primary language of the page must be declared in the `<html lang="en">` attribute (or appropriate BCP 47 language code: `fr`, `es`, `zh-Hans`, `ar`, etc.)
 - SC 3.1.2: Inline language changes must be marked with `lang` attributes on the specific element. A French phrase in an English page needs `<span lang="fr">...</span>` so screen readers switch pronunciation accordingly.
 
 **3.2 -- Predictable (SC 3.2.1, 3.2.2, 3.2.3, 3.2.4)**
+
 - SC 3.2.1 -- On focus: Receiving focus must not trigger a context change. A dropdown that auto-submits when an option is focused (not selected) fails.
 - SC 3.2.2 -- On input: Changing an input value must not cause an unexpected context change. A search field that submits automatically after 3 characters without warning fails. Provide a submit button or warn the user.
 - SC 3.2.3 -- Consistent navigation: Navigation menus must appear in the same order and position on every page of a site.
 - SC 3.2.4 -- Consistent identification: If a component appears on multiple pages (search field, cart icon, user avatar menu), it must have the same accessible name everywhere.
 
 **3.3 -- Input Assistance (SC 3.3.1 through 3.3.4)**
+
 - SC 3.3.1 -- Error identification: When validation fails, identify the specific field(s) in error and describe what is wrong in text. "Invalid input" fails. "Email address must include an @ symbol" passes.
-- SC 3.3.2 -- Labels or instructions: Required fields must be identified (asterisk must be explained before the form, e.g., "* indicates required"). Date formats must be specified inline or in a hint (MM/DD/YYYY vs. YYYY-MM-DD). Password requirements must be visible before submission, not only after an error.
+- SC 3.3.2 -- Labels or instructions: Required fields must be identified (asterisk must be explained before the form, e.g., "\* indicates required"). Date formats must be specified inline or in a hint (MM/DD/YYYY vs. YYYY-MM-DD). Password requirements must be visible before submission, not only after an error.
 - SC 3.3.3 -- Error suggestion: When a user makes a predictable error (wrong date format, email missing @, zip code wrong length), suggest the correct input format in the error message.
 - SC 3.3.4 -- Error prevention: For submissions with legal, financial, health, or data-deletion consequences, provide at least one of: reversibility (undo option), opportunity to review and correct before finalizing, or a confirmation step.
 
@@ -159,11 +170,13 @@ Color contrast is the most commonly failed criterion. Apply these exact threshol
 **4.1 -- Compatible (SC 4.1.1, 4.1.2, 4.1.3)**
 
 SC 4.1.1 (Parsing) is largely addressed by valid HTML, but several patterns still cause real-world screen reader failures:
+
 - Duplicate `id` attributes: If two elements share an `id`, `aria-labelledby` and `<label for>` associations break
 - Improperly nested elements: `<button>` inside `<a>`, `<div>` as direct child of `<ul>`, `<p>` wrapping block elements all cause parsing errors
 - Unclosed tags or malformed attribute syntax cause assistive technology parsers to misinterpret the tree
 
 SC 4.1.2 -- Name, Role, Value -- is the most technically demanding criterion:
+
 - **Name:** Every interactive element must have an accessible name. Sources in priority order: `aria-labelledby` (references visible text) > `aria-label` (invisible string) > `<label>` (for form controls) > `alt` (for images) > `title` (fallback, not reliable) > element content (for buttons/links)
 - **Role:** Native HTML elements carry implicit roles. Custom widgets built from `<div>` or `<span>` must have explicit ARIA roles: `role="button"`, `role="dialog"`, `role="tablist"`, `role="tab"`, `role="tabpanel"`, `role="menu"`, `role="menuitem"`, `role="combobox"`, `role="listbox"`, `role="option"`, `role="grid"`, etc.
 - **Value/State:** Interactive elements must expose their current state: `aria-expanded="true/false"` (accordions, dropdowns), `aria-checked="true/false/mixed"` (checkboxes, toggle buttons), `aria-selected="true/false"` (tabs, options), `aria-pressed="true/false"` (toggle buttons), `aria-disabled="true"` (disabled controls that should remain focusable for discovery), `aria-invalid="true"` (fields in error), `aria-required="true"` (required fields, though native `required` attribute is preferred)
@@ -177,18 +190,21 @@ SC 4.1.2 -- Name, Role, Value -- is the most technically demanding criterion:
 For every finding, assign:
 
 **Result classification:**
+
 - **FAIL** -- Does not meet the applicable WCAG 2.1 AA success criterion. Must be remediated for compliance.
 - **WARN** -- Technically passes the criterion but creates a demonstrably poor experience for users with disabilities. Strongly recommended to fix.
 - **PASS** -- Meets the criterion.
 - **N/A** -- The criterion does not apply (e.g., 1.2.1 Audio-only on a page with no audio content).
 
 **Priority classification:**
+
 - **P1 (Critical):** Blocks access completely -- keyboard trap, no accessible name on primary CTA, missing form labels, media with no alternative. Fix before release.
 - **P2 (Serious):** Significantly degrades experience -- low contrast below 3:1, missing focus indicator, error messages not linked to fields. Fix in next sprint.
 - **P3 (Moderate):** Creates friction but workaround exists -- missing autocomplete, non-descriptive link text that is still technically unique, small touch targets (30-43px). Fix in backlog.
 - **P4 (Minor):** Best practice improvement -- inconsistent focus order that is logical but not optimal, redundant ARIA labels. Fix when convenient.
 
 **Effort estimation:**
+
 - **S (Small):** CSS-only change, single attribute addition -- under 1 hour developer time
 - **M (Medium):** HTML restructuring, JavaScript state management, content rewrite -- 1-4 hours
 - **L (Large):** Component architecture change, design revision required, third-party replacement -- multi-day
@@ -198,6 +214,7 @@ For every finding, assign:
 ### Step 7 -- Compile the Full Review Report
 
 Structure the report using the Output Format below. Include:
+
 - A summary with counts by result type and a highlighted list of P1 critical failures
 - Tables for each WCAG principle covering all tested criteria
 - A prioritized remediation checklist with P1 items first
@@ -353,18 +370,22 @@ Structure the report using the Output Format below. Include:
 ## Edge Cases
 
 ### Design Mockup Without Live Code
+
 When only static design artifacts (Figma frames, screenshots, wireframes) are available:
+
 - Evaluate all visual criteria normally: contrast ratios, text alternatives for visible images, touch target sizes (measure against the spec's dimensions), visual focus indicator presence, heading hierarchy from typography styles, landmark regions implied by layout zones, and color-only information encoding.
 - For every criterion that requires runtime behavior (keyboard navigation, ARIA state announcements, focus management, error messages, live regions, keyboard traps), write "SPEC REQUIRED" instead of PASS/FAIL and provide the expected behavior specification -- e.g., "When the dropdown opens, focus should move to the first option. Arrow keys should navigate options. Escape should close and return focus to the trigger button."
 - Include a section called "Design-Stage Recommendations" that identifies accessibility decisions that must be made in design before development begins: focus indicator style, error state visual design, empty state copy, loading state announcements.
 
 ### Single-Page Application (SPA) with Dynamic Route Changes
+
 - The most critical SPA failure: when a route changes, the page title does not update and focus does not move to the new content. Both are WCAG failures (SC 2.4.2 and SC 2.4.3 respectively).
 - Recommended pattern: On route change, update `document.title` to the new page title, then move programmatic focus to either the `<h1>` of the new view or to a `role="status"` region that announces the new page name. Do not move focus to `<body>` -- VoiceOver reads the entire page.
 - Dynamic content loading (infinite scroll, filtered results, lazy-loaded cards): When new content loads below the current viewport in response to user action, add a `role="status"` announcement like "12 more results loaded" so screen reader users know the page has updated.
 - Back-button behavior must restore scroll position and focus to the previously focused element, not always reset to the top.
 
 ### Complex Data Visualizations (Charts, Graphs, Maps, Heatmaps)
+
 - A chart's `alt` text must not describe the visual appearance ("A bar chart with blue bars") but must convey the data insight ("Revenue grew from $2.1M in Q1 to $4.7M in Q4 2023, a 124% increase").
 - For datasets with more than ~10 data points, a linked or expandable data table is required as an alternative to an exhaustive alt text.
 - Color coding in charts (line series, pie segments, legend) must be supplemented with direct labels on data points, distinct patterns/textures, or shapes in addition to color.
@@ -372,6 +393,7 @@ When only static design artifacts (Figma frames, screenshots, wireframes) are av
 - Geographical maps with data overlays (choropleth maps) are among the most difficult to make accessible. At minimum, provide a table with the same data. Consider a textual summary of the geographic patterns. Interactive map controls (zoom, pan) need keyboard equivalents.
 
 ### Forms with Complex Validation and Multi-Step Flows
+
 - When a form has multiple error states that appear simultaneously on submit, focus must move to either (a) an error summary at the top of the form listing all errors as links that jump to the relevant fields, or (b) the first field with an error. Never leave focus at the submit button after validation fails.
 - Error messages must be programmatically associated with their fields using `aria-describedby`. An error message appearing visually below a field but not connected programmatically fails SC 4.1.2 -- the screen reader user hears the field label but not the error.
 - For multi-step forms (wizards, checkout flows), the current step must be announced. Use `aria-current="step"` on the active step indicator, or announce step progress via a live region: "Step 2 of 4: Shipping address."
@@ -379,12 +401,14 @@ When only static design artifacts (Figma frames, screenshots, wireframes) are av
 - File upload controls need accessible names. The native `<input type="file">` exposes its label via `<label>`. Custom drag-and-drop upload zones must have `role="button"` or be a native `<button>`, with keyboard instructions in the visible UI or via `aria-describedby`.
 
 ### Third-Party Embedded Content
+
 - Identify upfront whether content inside iframes, embedded widgets, maps, chat windows, or social media embeds is within the organization's control or vendor-controlled.
 - For vendor-controlled content: Document the failures, note which WCAG criteria are impacted, and provide a recommendation to either contact the vendor with a specific remediation request, evaluate an accessible alternative product, or -- if the embedded content is supplementary -- provide equivalent content outside the iframe.
 - For all iframes: The `<iframe>` element must have a `title` attribute that describes its content ("Google Maps showing office location", "Customer support chat window"). An untitled iframe is a 4.1.2 failure for every interactive element within it that a keyboard user encounters.
 - Embedded video players (YouTube, Vimeo, third-party): Verify captions are available and accurate -- auto-generated captions alone often fail SC 1.2.2 due to poor accuracy. Keyboard control of the player (play/pause, volume, seek, full screen, caption toggle) must be operable.
 
 ### Mobile Native Applications (iOS and Android)
+
 - iOS VoiceOver and Android TalkBack have different interaction models than desktop screen readers. Swipe to navigate between elements (not Tab key). Double-tap to activate (not Enter). Swipe up/down to read through options in a listbox.
 - Touch targets on mobile: The 44x44 CSS pixel rule applies to web on mobile. For native apps, Apple HIG recommends 44x44 pt minimum; Material Design recommends 48x48 dp minimum (with 8dp spacing between targets). Both platforms enforce these in their accessibility guidelines.
 - Mobile-specific failure: Elements that are visually grouped (e.g., a card with an image, title, and description) should be grouped as a single focusable element for screen reader users rather than exposing three separate focus stops. Use `accessibilityElement(isAccessibilityElement: true)` (iOS) or `importantForAccessibility="yes"` with `focusable="true"` (Android).
@@ -392,6 +416,7 @@ When only static design artifacts (Figma frames, screenshots, wireframes) are av
 - Sufficient contrast must be validated in both light and dark mode, as many apps support both and each may have separate contrast issues.
 
 ### Video and Audio Content
+
 - SC 1.2.1 (Audio-only and Video-only, Prerecorded): Podcasts and audio clips need a full transcript. Silent videos (animation, product demos without narration) need an alternative describing the visual content.
 - SC 1.2.2 (Captions, Prerecorded): Captions must include speaker identification for multi-speaker content, non-speech audio cues ("[doorbell rings]", "[background music]"), and accurate transcription. Auto-generated captions require human review. Caption files should be in a standard format (WebVTT, SRT) served alongside the video, not burned in.
 - SC 1.2.3 and 1.2.5 (Audio Description): Prerecorded videos with visual information not conveyed through dialogue need audio descriptions. This is an SC that many teams deprioritize -- flag it clearly and note that audio description requires post-production work and should be planned in the video production phase, not added later.
@@ -408,6 +433,7 @@ When only static design artifacts (Figma frames, screenshots, wireframes) are av
 ## Accessibility Review: Checkout Flow (3-Step Form)
 
 ### Summary
+
 - **Review date:** Based on description provided
 - **Target level:** WCAG 2.1 AA
 - **Artifacts reviewed:** Verbal description of design (no live code available)
@@ -422,12 +448,13 @@ When only static design artifacts (Figma frames, screenshots, wireframes) are av
 
 ### Principle 1 -- Perceivable
 
-| Criterion | SC Title                    | Result | Finding                                                                                           | Required Fix                                                                                                                    |
-|-----------|-----------------------------|--------|---------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| 1.1.1     | Non-text content            | FAIL   | Lock icon next to "Place Order" has no text alternative. Screen reader users hear nothing or "image". | Add `aria-label="Secure transaction"` to the icon element, or add visually hidden text `<span class="sr-only">Secure transaction</span>` adjacent to the icon. Mark the icon itself `aria-hidden="true"`. |
-| 1.3.1     | Info and relationships      | FAIL   | Required fields indicated by red asterisk only; no programmatic `aria-required="true"` or native `required` attribute. Step indicator active state conveyed only by green color. | Add `required` attribute (or `aria-required="true"`) to all required inputs. Add `aria-current="step"` to the active step in the step indicator. |
-| 1.3.5     | Identify input purpose      | WARN   | Credit card number, expiration, CVV, name, and address fields are missing `autocomplete` attributes. | Add `autocomplete="cc-number"`, `autocomplete="cc-exp"`, `autocomplete="cc-csc"`, `autocomplete="name"`, `autocomplete="address-line1"`, `autocomplete="address-line2"`, `autocomplete="address-level2"` (city), `autocomplete="address-level1"` (state), `autocomplete="postal-code"`. |
-| 1.4.1     | Use of color                | FAIL   | Step indicator distinguishes active vs. inactive steps using only green vs. gray color. Users with color blindness (protanopia, deuteranopia) cannot identify the active step. | Add `aria-current="step"` programmatically. Visually, supplement color with a bold weight, underline, or visible step number text style change (not color alone). |
-| 1.4.3     | Contrast (minimum) -- body text | PASS | #767676 on #FFFFFF = 4.48:1. This is the minimum passing value for normal text (≥4.5:1 required). Note: this is a marginal pass. Any antialiasing or rendering variation could push it below threshold. | Consider upgrading to #757575 (4.60:1) or #6B6B6B (5.74:1) for a more robust margin. Technically a pass; flagged as WARN. |
-| 1.4.3     | Contrast (minimum) -- placeholder text | FAIL | #B0B0B0 on #FFFFFF = 2.3:1. Fails the 4.5:1 minimum. Placeholder text is not exempt from contrast requirements when it provides instructions or serves as a label substitute. | Darken placeholder text to #767676 (4.48:1, marginal) or #696969 (5.74:1, preferred). Do not use placeholder text as a substitute for visible labels. |
-| 1.4.3     
+| Criterion | SC Title                               | Result | Finding                                                                                                                                                                                                 | Required Fix                                                                                                                                                                                                                                                                            |
+| --------- | -------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.1.1     | Non-text content                       | FAIL   | Lock icon next to "Place Order" has no text alternative. Screen reader users hear nothing or "image".                                                                                                   | Add `aria-label="Secure transaction"` to the icon element, or add visually hidden text `<span class="sr-only">Secure transaction</span>` adjacent to the icon. Mark the icon itself `aria-hidden="true"`.                                                                               |
+| 1.3.1     | Info and relationships                 | FAIL   | Required fields indicated by red asterisk only; no programmatic `aria-required="true"` or native `required` attribute. Step indicator active state conveyed only by green color.                        | Add `required` attribute (or `aria-required="true"`) to all required inputs. Add `aria-current="step"` to the active step in the step indicator.                                                                                                                                        |
+| 1.3.5     | Identify input purpose                 | WARN   | Credit card number, expiration, CVV, name, and address fields are missing `autocomplete` attributes.                                                                                                    | Add `autocomplete="cc-number"`, `autocomplete="cc-exp"`, `autocomplete="cc-csc"`, `autocomplete="name"`, `autocomplete="address-line1"`, `autocomplete="address-line2"`, `autocomplete="address-level2"` (city), `autocomplete="address-level1"` (state), `autocomplete="postal-code"`. |
+| 1.4.1     | Use of color                           | FAIL   | Step indicator distinguishes active vs. inactive steps using only green vs. gray color. Users with color blindness (protanopia, deuteranopia) cannot identify the active step.                          | Add `aria-current="step"` programmatically. Visually, supplement color with a bold weight, underline, or visible step number text style change (not color alone).                                                                                                                       |
+| 1.4.3     | Contrast (minimum) -- body text        | PASS   | #767676 on #FFFFFF = 4.48:1. This is the minimum passing value for normal text (≥4.5:1 required). Note: this is a marginal pass. Any antialiasing or rendering variation could push it below threshold. | Consider upgrading to #757575 (4.60:1) or #6B6B6B (5.74:1) for a more robust margin. Technically a pass; flagged as WARN.                                                                                                                                                               |
+| 1.4.3     | Contrast (minimum) -- placeholder text | FAIL   | #B0B0B0 on #FFFFFF = 2.3:1. Fails the 4.5:1 minimum. Placeholder text is not exempt from contrast requirements when it provides instructions or serves as a label substitute.                           | Darken placeholder text to #767676 (4.48:1, marginal) or #696969 (5.74:1, preferred). Do not use placeholder text as a substitute for visible labels.                                                                                                                                   |
+
+| 1.4.3

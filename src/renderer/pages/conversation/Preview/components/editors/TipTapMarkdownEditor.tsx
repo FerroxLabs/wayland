@@ -371,10 +371,13 @@ const TipTapMarkdownEditor: React.FC<TipTapMarkdownEditorProps> = ({
     setHoveredPos(pos);
   }, []);
 
-  const bubbleShouldShow = useCallback(({ state }: { state: { selection: { from: number; to: number; empty: boolean } } }) => {
-    const { from, to, empty } = state.selection;
-    return !empty && from !== to;
-  }, []);
+  const bubbleShouldShow = useCallback(
+    ({ state }: { state: { selection: { from: number; to: number; empty: boolean } } }) => {
+      const { from, to, empty } = state.selection;
+      return !empty && from !== to;
+    },
+    []
+  );
 
   // "+" button: insert an empty paragraph after the hovered block and put
   // the cursor there. The user can then type "/" to open the slash menu.
@@ -402,13 +405,7 @@ const TipTapMarkdownEditor: React.FC<TipTapMarkdownEditorProps> = ({
           Agent is writing…
         </div>
       )}
-      {slashState && (
-        <SlashMenuPopup
-          {...slashState}
-          keyHandleRef={slashKeyRef}
-          onClose={() => setSlashState(null)}
-        />
-      )}
+      {slashState && <SlashMenuPopup {...slashState} keyHandleRef={slashKeyRef} onClose={() => setSlashState(null)} />}
       {editor && editable && <TopToolbar editor={editor} />}
       {editor && editable && (
         <BubbleMenu editor={editor} shouldShow={bubbleShouldShow}>

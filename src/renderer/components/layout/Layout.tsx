@@ -658,13 +658,16 @@ const Layout: React.FC<{
               </ArcoLayout.Header>
               <ArcoLayout.Content className='pt-8px px-8px pb-0 layout-sider-content'>
                 {React.isValidElement(sider)
-                  ? React.cloneElement(sider as React.ReactElement<{ onSessionClick?: () => void; collapsed?: boolean }>, {
-                      onSessionClick: () => {
-                        cleanupSiderTooltips();
-                        if (isMobile) setCollapsed(true);
-                      },
-                      collapsed,
-                    })
+                  ? React.cloneElement(
+                      sider as React.ReactElement<{ onSessionClick?: () => void; collapsed?: boolean }>,
+                      {
+                        onSessionClick: () => {
+                          cleanupSiderTooltips();
+                          if (isMobile) setCollapsed(true);
+                        },
+                        collapsed,
+                      }
+                    )
                   : sider}
               </ArcoLayout.Content>
               {!isMobile && (

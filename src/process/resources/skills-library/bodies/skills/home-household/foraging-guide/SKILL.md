@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning guide"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cooking meal-planning guide'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Foraging Guide
@@ -25,11 +25,13 @@ You are an expert in wild food foraging and ethnobotany. You help users safely i
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about foraging guide
 - User needs guidance on foraging guide topics
 - User wants a structured approach to foraging guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -225,30 +227,30 @@ These species have highly distinctive features and no deadly look-alikes in most
 
 ### Greens and Herbs
 
-| Species | Season | Key ID Features | Habitat | Notes |
-|---------|--------|----------------|---------|-------|
-| Dandelion (Taraxacum officinale) | Spring-Fall | Single yellow flower per stem, hollow stem with milky sap, basal rosette of toothed leaves | Lawns, fields, disturbed ground | Entire plant edible; young leaves less bitter |
-| Chickweed (Stellaria media) | Spring, Fall | Small white star-shaped flowers, single line of hair on stem, opposite leaves | Gardens, shaded moist areas | Mild flavor, good raw in salads |
-| Violet (Viola spp.) | Spring | Heart-shaped leaves, distinctive 5-petal flowers (purple, white, yellow) | Forest edges, moist shade | Leaves and flowers edible |
-| Clover (Trifolium spp.) | Spring-Fall | Iconic 3-leaf pattern, round flower heads (red or white) | Lawns, fields everywhere | Flowers sweet; dry leaves for tea |
-| Lamb's Quarters (Chenopodium album) | Summer-Fall | Diamond-shaped leaves with dusty white coating underneath, no thorns | Gardens, disturbed soil | One of the most nutritious wild greens |
+| Species                             | Season       | Key ID Features                                                                            | Habitat                         | Notes                                         |
+| ----------------------------------- | ------------ | ------------------------------------------------------------------------------------------ | ------------------------------- | --------------------------------------------- |
+| Dandelion (Taraxacum officinale)    | Spring-Fall  | Single yellow flower per stem, hollow stem with milky sap, basal rosette of toothed leaves | Lawns, fields, disturbed ground | Entire plant edible; young leaves less bitter |
+| Chickweed (Stellaria media)         | Spring, Fall | Small white star-shaped flowers, single line of hair on stem, opposite leaves              | Gardens, shaded moist areas     | Mild flavor, good raw in salads               |
+| Violet (Viola spp.)                 | Spring       | Heart-shaped leaves, distinctive 5-petal flowers (purple, white, yellow)                   | Forest edges, moist shade       | Leaves and flowers edible                     |
+| Clover (Trifolium spp.)             | Spring-Fall  | Iconic 3-leaf pattern, round flower heads (red or white)                                   | Lawns, fields everywhere        | Flowers sweet; dry leaves for tea             |
+| Lamb's Quarters (Chenopodium album) | Summer-Fall  | Diamond-shaped leaves with dusty white coating underneath, no thorns                       | Gardens, disturbed soil         | One of the most nutritious wild greens        |
 
 ### Berries and Fruits
 
-| Species | Season | Key ID Features | Habitat | Look-alike Warning |
-|---------|--------|----------------|---------|-------------------|
-| Blackberry (Rubus spp.) | Summer | Thorny canes, compound leaves (3-5 leaflets), aggregate berries | Forest edges, hedgerows | None deadly; distinguish from similar Rubus species |
-| Wild Blueberry (Vaccinium spp.) | Summer | Small shrub, oval leaves, bell-shaped flowers, blue berries with crown | Acidic soil, forests, heaths | Confirm crown on berry; avoid any blue berry without it |
-| Rose Hips (Rosa spp.) | Fall | Round red/orange fruit on rose bush with thorns, familiar rose leaves | Hedgerows, forest edges | No deadly look-alikes |
-| Elderberry (Sambucus nigra/canadensis) | Late Summer | Compound leaves, flat-topped white flower clusters, dark purple-black berry clusters | Moist areas, forest edges | IMPORTANT: Red elderberry (S. racemosa) may be toxic; only black/blue species |
+| Species                                | Season      | Key ID Features                                                                      | Habitat                      | Look-alike Warning                                                            |
+| -------------------------------------- | ----------- | ------------------------------------------------------------------------------------ | ---------------------------- | ----------------------------------------------------------------------------- |
+| Blackberry (Rubus spp.)                | Summer      | Thorny canes, compound leaves (3-5 leaflets), aggregate berries                      | Forest edges, hedgerows      | None deadly; distinguish from similar Rubus species                           |
+| Wild Blueberry (Vaccinium spp.)        | Summer      | Small shrub, oval leaves, bell-shaped flowers, blue berries with crown               | Acidic soil, forests, heaths | Confirm crown on berry; avoid any blue berry without it                       |
+| Rose Hips (Rosa spp.)                  | Fall        | Round red/orange fruit on rose bush with thorns, familiar rose leaves                | Hedgerows, forest edges      | No deadly look-alikes                                                         |
+| Elderberry (Sambucus nigra/canadensis) | Late Summer | Compound leaves, flat-topped white flower clusters, dark purple-black berry clusters | Moist areas, forest edges    | IMPORTANT: Red elderberry (S. racemosa) may be toxic; only black/blue species |
 
 ### Nuts
 
-| Species | Season | Key ID Features | Habitat |
-|---------|--------|----------------|---------|
-| Black Walnut (Juglans nigra) | Fall | Compound leaves (15-23 leaflets), green husk turning dark, distinctive chambered nut | Forests, yards (eastern N. America) |
-| Hazelnut (Corylus spp.) | Fall | Rounded serrated leaves, nuts in papery husk clusters | Forest understory, hedgerows |
-| Acorn (Quercus spp.) | Fall | Oak leaves (lobed), cap on nut | Forests (many regions) -- must leach tannins before eating |
+| Species                      | Season | Key ID Features                                                                      | Habitat                                                    |
+| ---------------------------- | ------ | ------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| Black Walnut (Juglans nigra) | Fall   | Compound leaves (15-23 leaflets), green husk turning dark, distinctive chambered nut | Forests, yards (eastern N. America)                        |
+| Hazelnut (Corylus spp.)      | Fall   | Rounded serrated leaves, nuts in papery husk clusters                                | Forest understory, hedgerows                               |
+| Acorn (Quercus spp.)         | Fall   | Oak leaves (lobed), cap on nut                                                       | Forests (many regions) -- must leach tannins before eating |
 
 ---
 
@@ -477,6 +479,7 @@ When guiding a user on foraging, provide:
 **Region:** Pacific Northwest (WA/OR) | **Season:** September-October | **Level:** Absolute beginner
 
 ### The 3 Universal Safety Rules (Memorize Before Entering the Field)
+
 1. NEVER eat anything you cannot identify with 100% certainty
 2. Use at least 2 independent field guides to confirm every identification
 3. When in doubt, leave it. No foraged food is worth a hospital visit.
@@ -484,34 +487,40 @@ When guiding a user on foraging, provide:
 ### 5 Beginner-Friendly Species (Hard to Misidentify)
 
 **1. Blackberries (Rubus armeniacus)**
+
 - Season: Aug-Oct | Where: Roadsides, trails, disturbed ground -- EVERYWHERE in PNW
 - ID: Thorny canes, compound leaves in 3s or 5s, unmistakable berry clusters
 - Look-alikes: None dangerous. Salmonberries and thimbleberries are also edible.
 - Harvest: Pick dark, fully ripe berries that pull off easily
 
 **2. Chanterelle Mushrooms (Cantharellus cibarius)**
+
 - Season: Sep-Nov | Where: Under Douglas fir and hemlock in mossy forests
 - ID: Golden-orange, funnel-shaped, false gills (blunt ridges, not thin blades), smells faintly of apricots
 - CRITICAL: Learn to distinguish from Jack O'Lantern (Omphalotus olearius) -- Jack O'Lanterns grow in clusters on wood, chanterelles grow singly from soil
 - Harvest: Cut at base with knife, do not pull (preserves mycelium)
 
 **3. Stinging Nettles (Urtica dioica)**
+
 - Season: Spring best, but young growth available into fall
 - ID: Opposite serrated leaves with visible stinging hairs on stem
 - Safety: Wear gloves to harvest. Cooking neutralizes the sting completely.
 - Use: Steam like spinach, or dry for tea
 
 **4. Rosehips (Rosa spp.)**
+
 - Season: Sep-Nov (after first frost is best) | Where: Edges of trails, open areas
 - ID: Red-orange fruit on wild rose bushes (Rosa nutkana in PNW)
 - Harvest: Pick when bright red and slightly soft. Very high in vitamin C.
 
 **5. Dandelion Greens (Taraxacum officinale)**
+
 - Season: Year-round | Where: Lawns, fields (harvest AWAY from pesticide-treated areas)
 - ID: Unmistakable toothed leaves, hollow stem with white latex sap, yellow flower
 - Harvest: Young leaves before flowering are least bitter
 
 ### Field Kit
+
 - 2 field guides (PNW-specific)
 - Mesh bags or paper bags (not plastic -- prevents sweating)
 - Small knife for mushrooms

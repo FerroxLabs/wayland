@@ -103,9 +103,7 @@ describe('CSRF middleware - cookie-parser secret wiring (P0 regression)', () => 
 
   afterEach(async () => {
     delete process.env.CSRF_SECRET;
-    await new Promise<void>((resolve, reject) =>
-      server.close((err) => (err ? reject(err) : resolve()))
-    );
+    await new Promise<void>((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
   });
 
   it('signed CSRF cookie + matching _csrf body field allows POST through', async () => {

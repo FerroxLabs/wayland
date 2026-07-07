@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks budgeting template beginner-friendly automation analysis planning"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management frameworks budgeting template beginner-friendly automation analysis planning'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Zero-Based Budgeter
@@ -22,15 +22,16 @@ You are an expert in personal budgeting methodologies who helps users build a cu
 
 **IMPORTANT DISCLAIMER: This skill provides general financial education and budgeting frameworks. It is NOT financial advice. Individual financial situations vary significantly. Consult a qualified financial advisor or certified financial planner for personalized financial advice. Tax implications, legal considerations, and specific investment decisions require professional guidance.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about zero based budgeter techniques or best practices
 - User needs guidance on zero based budgeter concepts
 - User wants to implement or improve their approach to zero based budgeter
 
 **Do NOT use when:**
+
 - The request falls outside the scope of zero based budgeter
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -61,13 +62,13 @@ PHASE 3: AUTOMATION  - Build systems so good decisions happen without willpower
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Ramsey Envelope System | Overspenders; those who need physical constraints | Cash in envelopes creates visceral awareness of spending | Inflexible; does not work well for online spending; all-or-nothing philosophy |
-| YNAB (You Need A Budget) | Proactive planners; variable income | Give every dollar a job; roll with the punches when plans change | Software-dependent; learning curve; subscription cost |
-| 50/30/20 Rule (Warren) | Beginners; those wanting simplicity | Needs 50%, Wants 30%, Savings 20% - simple framework | Percentages may not fit high-cost-of-living areas or low incomes |
-| Pay Yourself First (Clason/Chilton) | Savings-focused; those who spend what is left | Automate savings BEFORE spending; treat savings as a non-negotiable bill | Does not address spending management; assumes sufficient income |
-| Kakeibo (Japanese method) | Mindful spenders; those wanting intentionality | Handwritten tracking + reflection questions before purchases | Analog only; time-intensive; cultural translation can feel forced |
+| Approach                            | Best For                                          | Key Insight                                                              | Limitation                                                                    |
+| ----------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Ramsey Envelope System              | Overspenders; those who need physical constraints | Cash in envelopes creates visceral awareness of spending                 | Inflexible; does not work well for online spending; all-or-nothing philosophy |
+| YNAB (You Need A Budget)            | Proactive planners; variable income               | Give every dollar a job; roll with the punches when plans change         | Software-dependent; learning curve; subscription cost                         |
+| 50/30/20 Rule (Warren)              | Beginners; those wanting simplicity               | Needs 50%, Wants 30%, Savings 20% - simple framework                     | Percentages may not fit high-cost-of-living areas or low incomes              |
+| Pay Yourself First (Clason/Chilton) | Savings-focused; those who spend what is left     | Automate savings BEFORE spending; treat savings as a non-negotiable bill | Does not address spending management; assumes sufficient income               |
+| Kakeibo (Japanese method)           | Mindful spenders; those wanting intentionality    | Handwritten tracking + reflection questions before purchases             | Analog only; time-intensive; cultural translation can feel forced             |
 
 ## Phase 1: Awareness
 
@@ -234,11 +235,13 @@ MONTHLY:
 For categories where you tend to overspend, use bounded containers:
 
 **Physical envelopes** (cash):
+
 - Withdraw the allocated amount in cash
 - When the envelope is empty, you are done spending in that category
 - Most effective for dining out, entertainment, personal spending
 
 **Digital envelopes** (separate accounts or app categories):
+
 - Use separate checking accounts or sub-accounts for each major category
 - Virtual envelopes in budgeting apps serve the same function
 - Best for people who rarely use cash
@@ -247,13 +250,13 @@ For categories where you tend to overspend, use bounded containers:
 
 ### Step 1: Choose Your Tracking Style
 
-| Personality | Tracking Method | Why |
-|------------|----------------|-----|
-| "I hate tracking" | Automated app + monthly review only | Minimum friction; bank sync does the work |
-| "I want awareness" | Kakeibo notebook or manual entry | Forces mindful interaction with every transaction |
-| "I want control" | Spreadsheet with custom categories | Maximum customization and analysis capability |
-| "I need constraints" | Envelope method (cash or digital) | Physical/visual limits prevent overspending |
-| "I have variable income" | YNAB-style (allocate money as it arrives) | Handles irregular income natively |
+| Personality              | Tracking Method                           | Why                                               |
+| ------------------------ | ----------------------------------------- | ------------------------------------------------- |
+| "I hate tracking"        | Automated app + monthly review only       | Minimum friction; bank sync does the work         |
+| "I want awareness"       | Kakeibo notebook or manual entry          | Forces mindful interaction with every transaction |
+| "I want control"         | Spreadsheet with custom categories        | Maximum customization and analysis capability     |
+| "I need constraints"     | Envelope method (cash or digital)         | Physical/visual limits prevent overspending       |
+| "I have variable income" | YNAB-style (allocate money as it arrives) | Handles irregular income natively                 |
 
 ### Step 2: Set Your Emergency Fund Target
 
@@ -317,15 +320,15 @@ Goal savings:   $______ / $______ target
 
 ### Common Budgeting Failure Patterns
 
-| Failure | Root Cause | Fix |
-|---------|-----------|-----|
-| "Budget lasted 2 weeks" | Too restrictive; willpower-dependent | Increase Tier 3; add automation; use rolling adjustments |
-| "I have no idea where money goes" | No tracking system | Start with the 30-Day Money Audit; use any tracking method |
-| "I overspend on dining/shopping" | No friction; no awareness | Use envelopes for problem categories; add Kakeibo pause |
-| "Variable income makes budgeting impossible" | Using fixed-income assumptions | Switch to baseline budgeting with buffer account |
-| "My partner and I fight about money" | No shared values discussion; no agreed system | Have a values conversation first; design budget together; allow personal spending |
-| "I feel guilty about everything I spend" | Budget too restrictive or shame-based | Include guilt-free personal spending; Tier 3 is for YOUR values |
-| "Unexpected expenses wreck the budget" | Emergency fund inadequate; not expecting irregular expenses | Budget for irregular expenses monthly (car repairs, medical, home maintenance) |
+| Failure                                      | Root Cause                                                  | Fix                                                                               |
+| -------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| "Budget lasted 2 weeks"                      | Too restrictive; willpower-dependent                        | Increase Tier 3; add automation; use rolling adjustments                          |
+| "I have no idea where money goes"            | No tracking system                                          | Start with the 30-Day Money Audit; use any tracking method                        |
+| "I overspend on dining/shopping"             | No friction; no awareness                                   | Use envelopes for problem categories; add Kakeibo pause                           |
+| "Variable income makes budgeting impossible" | Using fixed-income assumptions                              | Switch to baseline budgeting with buffer account                                  |
+| "My partner and I fight about money"         | No shared values discussion; no agreed system               | Have a values conversation first; design budget together; allow personal spending |
+| "I feel guilty about everything I spend"     | Budget too restrictive or shame-based                       | Include guilt-free personal spending; Tier 3 is for YOUR values                   |
+| "Unexpected expenses wreck the budget"       | Emergency fund inadequate; not expecting irregular expenses | Budget for irregular expenses monthly (car repairs, medical, home maintenance)    |
 
 ### The Irregular Expense Buffer
 
@@ -358,7 +361,6 @@ For deeper exploration of the source methodologies:
 
 The Intentional Money System integrates these approaches so every dollar serves a purpose you chose deliberately.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -366,7 +368,6 @@ The Intentional Money System integrates these approaches so every dollar serves 
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -387,14 +388,12 @@ The Intentional Money System integrates these approaches so every dollar serves 
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

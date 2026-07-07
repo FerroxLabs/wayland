@@ -13,7 +13,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "debt-strategist debt-elimination-strategist negotiation-coach budget-builder savings-planner"
+skills: 'debt-strategist debt-elimination-strategist negotiation-coach budget-builder savings-planner'
 trigger_phrases: >-
   I want to get out of debt help me pay off my debt how to become debt-free
   eliminate my credit card debt pay off student loans debt payoff plan
@@ -22,8 +22,9 @@ metadata:
   version: 1.0.0
   tags: debt-management budgeting personal-finance step-by-step planning
   category: business-operations
-  depends: "debt-strategist debt-elimination-strategist negotiation-coach budget-builder savings-planner"
+  depends: 'debt-strategist debt-elimination-strategist negotiation-coach budget-builder savings-planner'
 ---
+
 # Get Out Of Debt
 
 This workflow references financial information for educational purposes only. It is not financial advice. Consult a qualified financial advisor before making major financial decisions.
@@ -161,6 +162,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -171,7 +173,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **No emergency fund during payoff:** Without a mini emergency fund, the first unexpected expense sends you back to credit cards.
 - **Strategy without execution:** The best plan means nothing without consistent monthly action. Automate everything possible.
 - **Debt fatigue:** Long payoff periods are mentally exhausting. Celebrate milestones and track progress visually.
-
 
 ### Timeline Considerations
 

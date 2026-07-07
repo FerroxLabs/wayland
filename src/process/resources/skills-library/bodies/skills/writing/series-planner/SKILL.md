@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing planning"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing planning'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Series Planner
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on series planner
 - User asks about series planner best practices or techniques
 - User wants a structured approach to series planner
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of series planner
 
@@ -57,9 +58,11 @@ You are an expert series architect who has planned and managed multi-book fictio
 ## Series Architecture Types
 
 ### Type 1: Sequential Series (Must Read in Order)
+
 Each book continues directly from the previous one. The overall arc is one continuous story divided into volumes.
 
 **Characteristics:**
+
 - Cliffhanger or unresolved ending in each book (except the last)
 - Characters and world carry forward with full continuity
 - Reader must start at Book 1
@@ -70,9 +73,11 @@ Each book continues directly from the previous one. The overall arc is one conti
 **Planning requirement:** Must have the full series arc planned before publishing Book 1. Foreshadowing and setup in early books pay off in later ones.
 
 ### Type 2: Standalone Series (Any Reading Order)
+
 Each book is a complete story with different protagonists, connected by shared world, organization, or theme.
 
 **Characteristics:**
+
 - Each book has full resolution
 - Shared setting, recurring secondary characters, or thematic connection
 - Reader can enter at any book
@@ -83,9 +88,11 @@ Each book is a complete story with different protagonists, connected by shared w
 **Planning requirement:** Must define the shared elements (world, town, organization) thoroughly, but individual book plots can be developed one at a time.
 
 ### Type 3: Hybrid Series
+
 Each book has a self-contained story (beginning, middle, satisfying end) but also advances a larger series arc.
 
 **Characteristics:**
+
 - Single-book plots resolve; series-level questions remain open
 - Same protagonist throughout
 - Each book introduces new challenges while advancing the macro conflict
@@ -98,13 +105,16 @@ Each book has a self-contained story (beginning, middle, satisfying end) but als
 ## The Series Arc
 
 ### Macro Arc Design
+
 The series arc is the overarching story question that spans all books. It must:
+
 - Be compelling enough to sustain multiple books
 - Allow for escalation (each book raises the stakes)
 - Have a clear resolution (even if you do not reveal it to readers until the end)
 - Be present in every book, even if it is in the background
 
 ### Series Arc Template
+
 ```
 SERIES TITLE:
 NUMBER OF PLANNED BOOKS:
@@ -156,6 +166,7 @@ Book 1: Solve the mystery > Book 2: The mystery was hiding a conspiracy > Book 3
 ### Protagonist Arc Across Multiple Books
 
 **The Multi-Book Character Arc:**
+
 - Book 1: Establish the character's wound, lie, want, and need. Resolve the book-level conflict but leave the deepest character issue unresolved.
 - Middle Books: Deepen the character's understanding, introduce new challenges that test growth, allow regression under pressure (characters do not grow linearly).
 - Final Book: The character faces the ultimate test of their growth. The series-level arc resolves.
@@ -164,6 +175,7 @@ Book 1: Solve the mystery > Book 2: The mystery was hiding a conspiracy > Book 3
 Each book should change the character in some way. If your protagonist is identical at the start of Book 3 as they were at the end of Book 2, you have a stagnation problem.
 
 ### Character Tracking Matrix
+
 ```
 | Character | Book 1 Status | Book 2 Status | Book 3 Status | Notes |
 |-----------|--------------|---------------|---------------|-------|
@@ -171,6 +183,7 @@ Each book should change the character in some way. If your protagonist is identi
 ```
 
 Track for every recurring character:
+
 - Physical state (injuries, aging, appearance changes)
 - Emotional state
 - Relationship status with other characters
@@ -179,6 +192,7 @@ Track for every recurring character:
 - Unresolved threads
 
 ### Introducing and Retiring Characters
+
 - **New characters each book:** Keeps the series fresh. Introduce at least one significant new character per book.
 - **Recurring characters:** Should evolve, not just reappear unchanged.
 - **Character deaths:** Must be earned and have consequences that echo through subsequent books.
@@ -187,7 +201,9 @@ Track for every recurring character:
 ## Timeline Tracking
 
 ### The Series Timeline
+
 Maintain a master timeline document that tracks:
+
 - Real-time dates of events (even if you use a fictional calendar)
 - Character ages at each point
 - Seasonal details (weather, holidays, school terms)
@@ -195,12 +211,14 @@ Maintain a master timeline document that tracks:
 - Key world events (wars, natural disasters, political changes)
 
 ### Timeline Template
+
 ```
 YEAR/DATE | EVENT | BOOK | CHAPTER | CHARACTERS INVOLVED | NOTES
 ---------|-------|------|---------|---------------------|------
 ```
 
 ### Common Timeline Errors
+
 - Characters age inconsistently between books
 - Seasons do not match the stated timeline
 - Travel takes different amounts of time for the same journey
@@ -210,9 +228,11 @@ YEAR/DATE | EVENT | BOOK | CHAPTER | CHARACTERS INVOLVED | NOTES
 ## The Series Bible
 
 ### What Goes in a Series Bible
+
 The series bible is the master reference document for continuity. It should include:
 
 **Section 1: World**
+
 - Geography and maps
 - Political systems
 - Magic/technology rules
@@ -221,6 +241,7 @@ The series bible is the master reference document for continuity. It should incl
 - Key locations with descriptions
 
 **Section 2: Characters**
+
 - Every named character with full profile
 - Relationship web
 - Character status tracker (alive, dead, missing, current location)
@@ -228,41 +249,50 @@ The series bible is the master reference document for continuity. It should incl
 - Speech patterns and verbal tics
 
 **Section 3: Timeline**
+
 - Master chronology of all events
 - Per-book timeline
 - Character age tracker
 
 **Section 4: Plot Threads**
+
 - Active threads (introduced but not resolved)
 - Resolved threads (when introduced, when resolved)
 - Foreshadowing tracker (what was planted, where, and has it paid off?)
 - Mysteries and secrets (who knows what, and when are they revealed?)
 
 **Section 5: Terminology**
+
 - Glossary of invented terms
 - Pronunciation guide
 - Naming conventions by culture/region
 
 **Section 6: Rules and Systems**
+
 - Magic system rules and limitations
 - Technology capabilities and limits
 - Political structures and laws
 - Any in-world rules that must be consistent
 
 ### Updating the Series Bible
+
 Update the bible after completing each book's draft. During revision, check every detail against the bible. Before starting each new book, review the bible thoroughly. This is especially critical if there is a gap between writing books.
 
 ## Standalone vs Sequential: Design Decisions
 
 ### Making Sequels Work as Entry Points
+
 For hybrid and standalone series, each book must:
+
 - Reintroduce the world and characters naturally (not with info dumps)
 - Provide enough context for new readers without boring returning readers
 - Resolve its primary conflict completely
 - Leave series-level questions open enough to entice continued reading
 
 ### The Reintroduction Problem
+
 Returning readers do not want to be re-told things they already know. New readers need context. Solutions:
+
 - **Weave exposition into new situations** (character encounters a familiar element in a new context)
 - **Use new characters as audience surrogates** (a newcomer asks the questions a new reader would)
 - **Brief, purposeful reminders** (a sentence or two, not a paragraph of recap)
@@ -271,20 +301,25 @@ Returning readers do not want to be re-told things they already know. New reader
 ## Reading Order and Series Structure
 
 ### Linear Series
+
 Books 1 > 2 > 3 > 4. Simple, clear. Readers know exactly where to start.
 
 ### Branching Series
+
 A main series with spinoff subseries or companion novels. Plan which books are essential and which are supplementary.
 
 ### Companion Novels
+
 Same events from a different character's perspective, or parallel events in the same world. Must stand alone but enrich the main series.
 
 ### Prequels
+
 Tricky --- they remove suspense about characters the reader already knows survive. Best used for world-building or exploring a different time period rather than for protagonists from the main series.
 
 ## Release Strategy
 
 ### Self-Publishing Series Strategy
+
 - **Rapid release (preferred):** Publish books 4-12 weeks apart. Reader momentum and algorithm benefits are enormous.
 - **Write 2-3 books before publishing Book 1** if possible
 - **Perma-free or $0.99 Book 1** drives read-through
@@ -292,6 +327,7 @@ Tricky --- they remove suspense about characters the reader already knows surviv
 - **Amazon Ads on Book 1** with read-through revenue justifying the spend
 
 ### Traditional Publishing Series Strategy
+
 - Typically 12-18 months between books
 - Publisher may not commit to the full series upfront (common to contract 1-2 books with options)
 - **Book 1 must sell well enough to justify Book 2** --- do not end Book 1 on a cliffhanger with no resolution
@@ -299,19 +335,18 @@ Tricky --- they remove suspense about characters the reader already knows surviv
 
 ## Common Series Planning Mistakes
 
-| Mistake | Problem | Fix |
-|---------|---------|-----|
-| No series arc planned | Books feel random and disconnected | Define the series question and macro arc before Book 1 |
-| Book 1 is all setup | Reader never returns because nothing resolved | Book 1 must tell a complete, satisfying story |
-| Escalation failure | Later books feel like reruns at the same level | Plan escalation pattern deliberately |
-| Character stagnation | Protagonist is boring by Book 3 | Plan character growth milestones per book |
-| Continuity errors | Details contradict between books | Maintain and consult the series bible religiously |
-| No new elements | Series feels repetitive | Introduce new characters, settings, and complications each book |
-| Unresolvable tangle | Too many threads to ever resolve | Cap the number of open threads; resolve before adding new ones |
-| Bloat | Series stretches far beyond its natural arc | Know your ending; plan the number of books and stick to it |
+| Mistake               | Problem                                        | Fix                                                             |
+| --------------------- | ---------------------------------------------- | --------------------------------------------------------------- |
+| No series arc planned | Books feel random and disconnected             | Define the series question and macro arc before Book 1          |
+| Book 1 is all setup   | Reader never returns because nothing resolved  | Book 1 must tell a complete, satisfying story                   |
+| Escalation failure    | Later books feel like reruns at the same level | Plan escalation pattern deliberately                            |
+| Character stagnation  | Protagonist is boring by Book 3                | Plan character growth milestones per book                       |
+| Continuity errors     | Details contradict between books               | Maintain and consult the series bible religiously               |
+| No new elements       | Series feels repetitive                        | Introduce new characters, settings, and complications each book |
+| Unresolvable tangle   | Too many threads to ever resolve               | Cap the number of open threads; resolve before adding new ones  |
+| Bloat                 | Series stretches far beyond its natural arc    | Know your ending; plan the number of books and stick to it      |
 
 The best series feel inevitable in retrospect --- as if every book was always leading to that ending. That feeling does not happen by accident. It happens because someone planned the architecture before laying the first brick. Plan the series. Write one great book at a time. Trust the architecture.
-
 
 ## Output Format
 
@@ -325,13 +360,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with series planner for a mid-size project."
 
 **Output:** A complete series planner framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

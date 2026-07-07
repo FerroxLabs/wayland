@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "retirement-planning personal-finance investing planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'retirement-planning personal-finance investing planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Retirement Savings Calculator
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, certified financial planner (CFP), or licensed tax professional before making financial decisions.
@@ -30,6 +31,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks "how much do I need to save each month to retire with $X?" and provides concrete numbers to work with
 - The user wants to see whether their current savings rate will reach a specific retirement balance by a target date
 - The user asks "if I save $Y per month, what will I have at retirement?" -- a forward projection rather than a backward solve
@@ -39,6 +41,7 @@ metadata:
 - The user wants to understand what "real" (inflation-adjusted) vs. "nominal" growth assumptions mean for their specific numbers
 
 **Do NOT use this skill when:**
+
 - The user wants to decide how to allocate their portfolio across stocks, bonds, and other asset classes -- use `portfolio-allocation-framework`
 - The user wants to understand the mechanics of Roth IRAs, traditional IRAs, 401(k)s, HSAs, or other account wrappers -- use `investment-account-types`
 - The user wants to optimize contributions across account types for tax efficiency -- use `tax-advantaged-optimizer`
@@ -78,6 +81,7 @@ This is the most common source of confusion in retirement math and must be resol
 Perform and show all calculations step by step. Never present only results without showing the mechanics.
 
 **Define variables precisely:**
+
 ```
 FV  = Target retirement amount
 PV  = Current retirement savings (today's balance)
@@ -87,16 +91,19 @@ PMT = Required monthly contribution (solved for)
 ```
 
 **Calculate the future value of current savings:**
+
 ```
 FV_current = PV * (1 + r)^n
 ```
 
 **Calculate the gap that contributions must fill:**
+
 ```
 FV_gap = FV - FV_current
 ```
 
 **Solve for required monthly contribution:**
+
 ```
 If FV_gap > 0:
   PMT = FV_gap * r / ((1 + r)^n - 1)
@@ -122,6 +129,7 @@ Run the full calculation at three growth rates and present all three simultaneou
 **If the user specified a rate:** Use their rate as the base scenario, and ± 2 percentage points for the others. Label them clearly as the user's assumption, not as categorically correct.
 
 **For each scenario calculate and display:**
+
 - Required monthly contribution (PMT)
 - Annual contribution equivalent (PMT × 12)
 - Total contributions over the full horizon (PMT × n)
@@ -150,6 +158,7 @@ Balance(t) = PV * (1 + r)^t + PMT * ((1 + r)^t - 1) / r
 Compare current savings behavior to what is required, and show every major lever the user has.
 
 **Gap analysis:**
+
 ```
 Monthly gap = Required PMT -- Current monthly contribution
 Annual gap = Monthly gap * 12
@@ -157,6 +166,7 @@ As % of gross income = (Monthly gap / Monthly gross income) * 100  [if income pr
 ```
 
 **Employer match leverage (critical -- often overlooked):**
+
 - If the user has an employer match, show the effective contribution rate. A 50% match on the first 6% of salary means a 3% salary contribution generates 3% from the employer -- a 100% instant return on matched dollars.
 - Show what the required PMT drops to if the employer match is counted as part of the total monthly savings.
 - Many users under-save partly because they do not conceptualize the match as part of their monthly savings.
@@ -166,6 +176,7 @@ As % of gross income = (Monthly gap / Monthly gross income) * 100  [if income pr
 Calculate the required PMT if the user starts today, in 1 year, 2 years, 3 years, and 5 years. Present as a table. This is often the most motivating output -- the cost of a 5-year delay frequently doubles the required monthly payment.
 
 **Formula for delay cost (starting D years later):**
+
 ```
 n_delayed = (n_years - D) * 12
 FV_current_delayed = PV * (1 + r)^(n_delayed)
@@ -184,10 +195,12 @@ Retiring 5 years earlier has a double-compounding effect: fewer months of contri
 Show $800K, $1M, and $1.2M if the base is $1M. Demonstrates the linearity of the PMT calculation -- a 20% higher target requires roughly 20% higher monthly contributions if everything else is fixed.
 
 **Variable 3 -- Lump sum injection (what if user adds $10K, $25K, or $50K today):**
+
 ```
 FV_with_lump = (PV + lump_sum) * (1 + r)^n
 PMT_with_lump = (FV - FV_with_lump) * r / ((1 + r)^n - 1)
 ```
+
 This is highly relevant for users with bonuses, tax refunds, or inheritance.
 
 **Variable 4 -- Growth rate (already covered in Step 4, but cross-reference):**
@@ -198,6 +211,7 @@ The scenario table in Step 4 serves as the growth-rate sensitivity analysis. Do 
 Every retirement projection carries meaningful uncertainty. Surface the most important caveats with specific context, not boilerplate.
 
 **Required caveats:**
+
 - Growth rates are mathematical scenarios. They do not predict actual market returns. Historical 10-year rolling returns for a diversified U.S. equity portfolio have ranged from roughly --1% to +20% annually -- the average tells you little about any specific 35-year window.
 - Sequence-of-returns risk: A market downturn in the final 5--7 years before retirement has an outsized negative effect on terminal balance compared to the same downturn early in the savings period. This model does not capture that.
 - Inflation: If using nominal rates and a nominal target, the purchasing power of that target depends entirely on realized inflation over the horizon.
@@ -206,6 +220,7 @@ Every retirement projection carries meaningful uncertainty. Surface the most imp
 - Social Security and pension offsets: Not included by default. If the user provides expected Social Security income in today's dollars, reduce the required monthly PMT by the present value of that income stream.
 
 **Behavioral flags:**
+
 - If required PMT > 25% of stated gross monthly income: Flag this as a signal to revisit the target amount, timeline, or both. This threshold, not 50%, is where most financial planners begin discussing plan feasibility.
 - If required PMT < 10% of stated gross monthly income: Note that the savings goal appears achievable within standard planning guidelines and encourage consistency.
 - If the user is over age 50: Flag catch-up contribution provisions. In the U.S. for 2024, the 401(k) catch-up limit is an additional $7,500/year (total $30,500), and IRA catch-up is an additional $1,000/year (total $8,000). These increase the ceiling on tax-advantaged savings meaningfully.
@@ -253,19 +268,21 @@ Growth Ratio = percentage of terminal balance derived from investment growth (no
 ### Core Math (Base Scenario -- Shown for Verification)
 
 ```
-Annual rate:           [X]%
-Monthly rate (exact):  (1 + [X])^(1/12) - 1 = [X]%  (NOT [annual/12])
-Months to retirement:  [years] × 12 = [n] months
+
+Annual rate: [X]%
+Monthly rate (exact): (1 + [X])^(1/12) - 1 = [X]% (NOT [annual/12])
+Months to retirement: [years] × 12 = [n] months
 
 FV of current savings:
-  $[PV] × (1 + [r])^[n] = $[FV_current]
+$[PV] × (1 + [r])^[n] = $[FV_current]
 
 Gap to fill via contributions:
-  $[FV_target] - $[FV_current] = $[FV_gap]
+$[FV_target] - $[FV_current] = $[FV_gap]
 
 Required monthly contribution:
-  PMT = $[FV_gap] × [r] / ((1 + [r])^[n] - 1)
-      = $[PMT]
+PMT = $[FV_gap] × [r] / ((1 + [r])^[n] - 1)
+= $[PMT]
+
 ```
 
 ---
@@ -396,7 +413,7 @@ Required monthly contribution:
 
 11. **If the required PMT is negative (current savings trajectory already exceeds the target), do not tell the user to stop saving.** Show the surplus, explain what it means (they could retire earlier, target a higher amount, or save less monthly), and present the options as a decision -- not a recommendation.
 
-12. **Always flag the crossover point** -- the year when annual investment growth first exceeds the annual contribution amount. This milestone is pedagogically important and motivates continued saving. Calculate it by finding the smallest t where: PV * (1+r)^t * r * 12 + PMT * ((1+r)^t - 1) / r * r * 12 > PMT * 12.
+12. **Always flag the crossover point** -- the year when annual investment growth first exceeds the annual contribution amount. This milestone is pedagogically important and motivates continued saving. Calculate it by finding the smallest t where: PV _ (1+r)^t _ r _ 12 + PMT _ ((1+r)^t - 1) / r _ r _ 12 > PMT \* 12.
 
 ---
 
@@ -472,6 +489,7 @@ If current PMT + employer match already meets or exceeds the required PMT at the
 ### 8. User Is Self-Employed with No Employer Match
 
 Flag that self-employed individuals in the U.S. have access to account types with significantly higher contribution limits than standard W-2 employees:
+
 - SEP-IRA: Up to 25% of net self-employment income, maximum $69,000 (2024)
 - Solo 401(k): Up to $69,000 total ($23,000 employee + $46,000 employer/profit-sharing, 2024)
 - SIMPLE IRA: Up to $16,000 employee contribution + 3% employer match on own income
@@ -499,18 +517,18 @@ These higher limits can dramatically accelerate accumulation and change the mont
 
 ### Your Inputs
 
-| Parameter                        | Value                      |
-|----------------------------------|----------------------------|
-| Target retirement amount         | $1,200,000 (today's dollars)|
-| Dollar basis                     | Real (today's dollars)     |
-| Current age                      | 34                         |
-| Target retirement age            | 67                         |
-| Years / Months until retirement  | 33 years / 396 months      |
-| Current retirement savings       | $48,000                    |
-| Current monthly contribution     | $650 (your contribution)   |
-| Employer monthly match           | $212/month                 |
-| Effective total monthly savings  | $862/month                 |
-| Growth rate framework            | Real (nominal rate -- 3%)  |
+| Parameter                       | Value                        |
+| ------------------------------- | ---------------------------- |
+| Target retirement amount        | $1,200,000 (today's dollars) |
+| Dollar basis                    | Real (today's dollars)       |
+| Current age                     | 34                           |
+| Target retirement age           | 67                           |
+| Years / Months until retirement | 33 years / 396 months        |
+| Current retirement savings      | $48,000                      |
+| Current monthly contribution    | $650 (your contribution)     |
+| Employer monthly match          | $212/month                   |
+| Effective total monthly savings | $862/month                   |
+| Growth rate framework           | Real (nominal rate -- 3%)    |
 
 ---
 
@@ -540,14 +558,14 @@ Required total monthly contribution (employee + employer):
 
 ### Required Monthly Contribution -- Three Scenarios
 
-| Scenario         | Real Rate | Monthly Rate | Req. Total Monthly | Req. Employee Only | Annual Equiv. | Total Contrib. | Total Growth | Growth Ratio |
-|------------------|-----------|-------------|-------------------|-------------------|--------------|--------------|------------|-------------|
-| Conservative     | 4.00%     | 0.3274%     | $1,042            | $830              | $12,504      | $412,632     | $787,368   | 66%         |
-| **Base**         | **6.00%** | **0.4868%** | **$729**          | **$517**          | **$8,748**   | **$288,408** | **$911,592**| **76%**    |
-| Aggressive       | 8.00%     | 0.6434%     | $488              | $276              | $5,856       | $193,248     | $1,006,752 | 84%         |
+| Scenario     | Real Rate | Monthly Rate | Req. Total Monthly | Req. Employee Only | Annual Equiv. | Total Contrib. | Total Growth | Growth Ratio |
+| ------------ | --------- | ------------ | ------------------ | ------------------ | ------------- | -------------- | ------------ | ------------ |
+| Conservative | 4.00%     | 0.3274%      | $1,042             | $830               | $12,504       | $412,632       | $787,368     | 66%          |
+| **Base**     | **6.00%** | **0.4868%**  | **$729**           | **$517**           | **$8,748**    | **$288,408**   | **$911,592** | **76%**      |
+| Aggressive   | 8.00%     | 0.6434%      | $488               | $276               | $5,856        | $193,248       | $1,006,752   | 84%          |
 
-*"Req. Employee Only" = Total required monthly minus employer match of $212/month.*
-*Growth Ratio = share of $1,200,000 terminal balance coming from investment growth.*
+_"Req. Employee Only" = Total required monthly minus employer match of $212/month._
+_Growth Ratio = share of $1,200,000 terminal balance coming from investment growth._
 
 At the base rate of 6%, **76 cents of every dollar in your retirement account at age 67 will come from compound growth -- not from your contributions.** This illustrates why consistency and time in market matter more than optimizing the exact contribution amount in any single year.
 
@@ -555,17 +573,17 @@ At the base rate of 6%, **76 cents of every dollar in your retirement account at
 
 ### Growth Trajectory (Base Scenario -- $729/month total at 6% real)
 
-| Year | Age | Months | Cumul. Contributions | Cumul. Growth | Projected Balance | Milestone                          |
-|------|-----|--------|---------------------|--------------|------------------|------------------------------------|
-| 0    | 34  | 0      | $48,000             | $0           | $48,000          | Starting balance                   |
-| 5    | 39  | 60     | $91,740             | $28,892      | $120,632         |                                    |
-| 10   | 44  | 120    | $135,480            | $81,285      | $216,765         |                                    |
-| 15   | 49  | 180    | $179,220            | $178,200     | $357,420         |                                    |
-| 18   | 52  | 216    | $206,652            | $282,513     | $489,165         | **Crossover: annual growth ($28,267) exceeds annual contributions ($8,748)** |
-| 20   | 54  | 240    | $222,960            | $338,408     | $561,368         |                                    |
-| 25   | 59  | 300    | $266,700            | $580,127     | $846,827         |                                    |
-| 30   | 64  | 360    | $310,440            | $903,741     | $1,052,181       | 88% of target                      |
-| 33   | 67  | 396    | $336,852            | $863,148     | $1,200,000       | **TARGET REACHED**                 |
+| Year | Age | Months | Cumul. Contributions | Cumul. Growth | Projected Balance | Milestone                                                                    |
+| ---- | --- | ------ | -------------------- | ------------- | ----------------- | ---------------------------------------------------------------------------- |
+| 0    | 34  | 0      | $48,000              | $0            | $48,000           | Starting balance                                                             |
+| 5    | 39  | 60     | $91,740              | $28,892       | $120,632          |                                                                              |
+| 10   | 44  | 120    | $135,480             | $81,285       | $216,765          |                                                                              |
+| 15   | 49  | 180    | $179,220             | $178,200      | $357,420          |                                                                              |
+| 18   | 52  | 216    | $206,652             | $282,513      | $489,165          | **Crossover: annual growth ($28,267) exceeds annual contributions ($8,748)** |
+| 20   | 54  | 240    | $222,960             | $338,408      | $561,368          |                                                                              |
+| 25   | 59  | 300    | $266,700             | $580,127      | $846,827          |                                                                              |
+| 30   | 64  | 360    | $310,440             | $903,741      | $1,052,181        | 88% of target                                                                |
+| 33   | 67  | 396    | $336,852             | $863,148      | $1,200,000        | **TARGET REACHED**                                                           |
 
 **Crossover point: Year 18 (age 52).** Beginning at this point, your investments earn more in a single year than you contribute. From age 52 to 67, growth delivers more than $580,000 of your terminal balance.
 
@@ -573,14 +591,14 @@ At the base rate of 6%, **76 cents of every dollar in your retirement account at
 
 ### Gap Analysis
 
-| Metric                                    | Value              |
-|-------------------------------------------|--------------------|
-| Required total monthly (base, 6%)         | $729               |
-| Your current monthly contribution         | $650               |
-| Employer match (monthly)                  | $212               |
-| Effective total monthly savings           | $862               |
-| Monthly surplus vs. required              | **+$133**          |
-| As % of gross income ($85,000 / 12)       | 12.2% personal rate; 14.4% combined rate |
+| Metric                              | Value                                    |
+| ----------------------------------- | ---------------------------------------- |
+| Required total monthly (base, 6%)   | $729                                     |
+| Your current monthly contribution   | $650                                     |
+| Employer match (monthly)            | $212                                     |
+| Effective total monthly savings     | $862                                     |
+| Monthly surplus vs. required        | **+$133**                                |
+| As % of gross income ($85,000 / 12) | 12.2% personal rate; 14.4% combined rate |
 
 **Your combined contribution of $862/month already exceeds the required $729/month at the 6% real rate.** At the conservative 4% rate, you need $1,042/month and currently contribute $862 -- a $180/month gap. See below.
 
@@ -589,12 +607,12 @@ At the base rate of 6%, **76 cents of every dollar in your retirement account at
 Shown here as a reference for the cost of inaction -- this illustrates what every year of delay means.
 
 | Start Delay  | Months Remaining | Required Total Monthly | Monthly Increase vs. Now | Extra Total Cost (nominal) |
-|--------------|-----------------|----------------------|--------------------------|---------------------------|
-| Start now    | 396             | $729                 | --                       | --                        |
-| 1-year delay | 384             | $759                 | +$30                     | +$11,520                  |
-| 2-year delay | 372             | $793                 | +$64                     | +$23,808                  |
-| 3-year delay | 360             | $830                 | +$101                    | +$36,360                  |
-| 5-year delay | 336             | $913                 | +$184                    | +$61,056                  |
+| ------------ | ---------------- | ---------------------- | ------------------------ | -------------------------- |
+| Start now    | 396              | $729                   | --                       | --                         |
+| 1-year delay | 384              | $759                   | +$30                     | +$11,520                   |
+| 2-year delay | 372              | $793                   | +$64                     | +$23,808                   |
+| 3-year delay | 360              | $830                   | +$101                    | +$36,360                   |
+| 5-year delay | 336              | $913                   | +$184                    | +$61,056                   |
 
 A 5-year delay starting from today -- if you reduced your contributions to zero -- would require an extra $184/month for the remaining 28 years, costing an additional $61,056 in total contributions just to end up at the same place.
 
@@ -604,35 +622,35 @@ A 5-year delay starting from today -- if you reduced your contributions to zero 
 
 **Retirement age (6% real rate, $1,200,000 target):**
 
-| Retire At | Years Remaining | Required Total Monthly | vs. Base  |
-|-----------|----------------|----------------------|-----------|
-| 62        | 28 years       | $997                 | +$268     |
-| 64        | 30 years       | $892                 | +$163     |
-| **67**    | **33 years**   | **$729**             | **Base**  |
-| 70        | 36 years       | $597                 | -$132     |
-| 72        | 38 years       | $536                 | -$193     |
+| Retire At | Years Remaining | Required Total Monthly | vs. Base |
+| --------- | --------------- | ---------------------- | -------- |
+| 62        | 28 years        | $997                   | +$268    |
+| 64        | 30 years        | $892                   | +$163    |
+| **67**    | **33 years**    | **$729**               | **Base** |
+| 70        | 36 years        | $597                   | -$132    |
+| 72        | 38 years        | $536                   | -$193    |
 
 **Retiring at 62 instead of 67 requires $268/month more and also means fewer years of contributions and more years of drawdown -- a compounding disadvantage in both directions.**
 
 **Target amount (6% real rate, retiring at 67):**
 
-| Target          | Required Total Monthly | vs. Base  |
-|-----------------|----------------------|-----------|
-| $900,000        | $547                 | -$182     |
-| $1,000,000      | $608                 | -$121     |
-| **$1,200,000**  | **$729**             | **Base**  |
-| $1,500,000      | $911                 | +$182     |
-| $1,800,000      | $1,094               | +$365     |
+| Target         | Required Total Monthly | vs. Base |
+| -------------- | ---------------------- | -------- |
+| $900,000       | $547                   | -$182    |
+| $1,000,000     | $608                   | -$121    |
+| **$1,200,000** | **$729**               | **Base** |
+| $1,500,000     | $911                   | +$182    |
+| $1,800,000     | $1,094                 | +$365    |
 
 **Lump-sum injection today (6% real rate, base scenario):**
 
 | One-Time Addition | Revised Required Monthly | Monthly Reduction |
-|-------------------|--------------------------|------------------|
-| $0 (base)         | $729                     | --               |
-| $10,000           | $663                     | -$66             |
-| $25,000           | $564                     | -$165            |
-| $50,000           | $399                     | -$330            |
-| $100,000          | $68                      | -$661            |
+| ----------------- | ------------------------ | ----------------- |
+| $0 (base)         | $729                     | --                |
+| $10,000           | $663                     | -$66              |
+| $25,000           | $564                     | -$165             |
+| $50,000           | $399                     | -$330             |
+| $100,000          | $68                      | -$661             |
 
 A $50,000 lump sum today (e.g., from a bonus or windfall) would reduce your required monthly savings by $330 -- more than your entire current personal contribution -- because it has 33 years to compound.
 
@@ -643,10 +661,10 @@ A $50,000 lump sum today (e.g., from a bonus or windfall) would reduce your requ
 Since you are already saving $862/month, here is the projected terminal balance at each growth rate -- showing whether you overshoot, hit, or undershoot $1,200,000:
 
 | Growth Rate | Projected Balance at 67 | vs. $1,200,000 Target |
-|-------------|------------------------|-----------------------|
-| 4% real     | $983,000               | -$217,000 (18% short) |
-| 6% real     | $1,424,000             | +$224,000 (19% above) |
-| 8% real     | $2,063,000             | +$863,000 (72% above) |
+| ----------- | ----------------------- | --------------------- |
+| 4% real     | $983,000                | -$217,000 (18% short) |
+| 6% real     | $1,424,000              | +$224,000 (19% above) |
+| 8% real     | $2,063,000              | +$863,000 (72% above) |
 
 At 4%, you have an $18/month shortfall relative to the $1,042 required. Increasing to $880/month total (adding $18/month to your contribution) closes this gap at the conservative scenario.
 
@@ -655,6 +673,7 @@ At 4%, you have an $18/month shortfall relative to the $1,042 required. Increasi
 ### Caveats and Flags
 
 **⚠ Important limitations of this projection:**
+
 - Growth rates are mathematical scenarios, not forecasts. Historical 10-year rolling real returns for U.S. equities have ranged from approximately -4% to +17% annually.
 - Sequence-of-returns risk is not modeled. A significant downturn in the 5--7 years before age 67 could materially reduce your terminal balance even if the long-run average rate holds.
 - Pre-tax account balances (401(k)) will be reduced by ordinary income taxes on withdrawal. If your $48,000 is in pre-tax accounts and your future contributions are also pre-tax, the after-tax value of $1,200,000 depends on your tax bracket in retirement.
@@ -663,6 +682,7 @@ At 4%, you have an $18/month shortfall relative to the $1,042 required. Increasi
 - **$1,200,000 in today's dollars in 33 years assumes you successfully adjust your target for inflation.** Using a real rate (as this projection does) addresses this correctly -- your $1,200,000 target retains today's purchasing power.
 
 **ℹ Positive flags:**
+
 - Your combined savings rate (14.4% of gross income including employer match) is within the range most financial planners consider sufficient for retirement by traditional retirement age.
 - You are capturing 100% of your employer match -- this is optimal.
 - At 6% real growth, you have a comfortable buffer above your target.

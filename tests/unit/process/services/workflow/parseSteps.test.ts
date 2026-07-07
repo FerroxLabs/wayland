@@ -166,16 +166,7 @@ describe('parseSteps', () => {
   });
 
   it('tolerates multiple blank lines between sections', () => {
-    const body = [
-      '## Step 1: First',
-      'Body one.',
-      '',
-      '',
-      '',
-      '',
-      '## Step 2: Second',
-      'Body two.',
-    ].join('\n');
+    const body = ['## Step 1: First', 'Body one.', '', '', '', '', '## Step 2: Second', 'Body two.'].join('\n');
     const result = parseSteps(body);
     expect(result.steps).toHaveLength(2);
     expect(result.steps[0].body_excerpt).toContain('Body one.');

@@ -31,7 +31,7 @@ describe('SkRaceResolver.resolve - matched', () => {
   });
 
   it('sends Authorization header with the key', async () => {
-    const fetchFn = vi.fn(async () => ({ status: 200, ok: true } as Response)) as unknown as typeof fetch;
+    const fetchFn = vi.fn(async () => ({ status: 200, ok: true }) as Response) as unknown as typeof fetch;
     const resolver = new SkRaceResolver(fetchFn);
     await resolver.resolve('sk-mykey123', ['openai']);
     expect(fetchFn).toHaveBeenCalledWith(
@@ -43,7 +43,7 @@ describe('SkRaceResolver.resolve - matched', () => {
   });
 
   it('sends User-Agent: Wayland/1.0', async () => {
-    const fetchFn = vi.fn(async () => ({ status: 200, ok: true } as Response)) as unknown as typeof fetch;
+    const fetchFn = vi.fn(async () => ({ status: 200, ok: true }) as Response) as unknown as typeof fetch;
     const resolver = new SkRaceResolver(fetchFn);
     await resolver.resolve('sk-mykey123', ['openai']);
     expect(fetchFn).toHaveBeenCalledWith(
@@ -97,7 +97,9 @@ describe('SkRaceResolver.resolve - none', () => {
 
 describe('SkRaceResolver.resolve - error resilience', () => {
   it('treats fetch errors as inconclusive', async () => {
-    const fetchFn = vi.fn(async () => { throw new Error('Network error'); }) as unknown as typeof fetch;
+    const fetchFn = vi.fn(async () => {
+      throw new Error('Network error');
+    }) as unknown as typeof fetch;
     const resolver = new SkRaceResolver(fetchFn);
     const result = await resolver.resolve('sk-testkey', CANDIDATES);
     expect(result.kind).toBe('none');

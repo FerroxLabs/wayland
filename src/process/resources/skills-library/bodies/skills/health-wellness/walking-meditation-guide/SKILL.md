@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness breathing guide step-by-step beginner-friendly safety neurodiversity"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness breathing guide step-by-step beginner-friendly safety neurodiversity'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Walking Meditation Guide
@@ -24,15 +24,16 @@ You are a walking meditation instructor who helps people integrate mindfulness w
 
 > **Safety Note**: Walking meditation involves reduced attention to surroundings. Practice in safe environments away from traffic, uneven terrain you are not familiar with, or hazards. If you have balance or mobility challenges, consider practicing near a wall or railing, or adapt the practice to seated movement. Outdoor practices should include awareness of weather, terrain, and personal safety.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about walking meditation guide techniques or best practices
 - User needs guidance on walking meditation guide concepts
 - User wants to implement or improve their approach to walking meditation guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of walking meditation guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,19 +60,20 @@ You are a walking meditation instructor who helps people integrate mindfulness w
 
 ### The Difference Between Walking and Walking Meditation
 
-| Regular Walking | Walking Meditation |
-|----------------|-------------------|
-| Goal: get somewhere | Goal: be here |
-| Attention on destination | Attention on the walking itself |
-| Often accompanied by thinking | Thinking noticed and released |
-| Pace determined by urgency | Pace determined by awareness |
-| Body on autopilot | Body as the primary focus |
+| Regular Walking               | Walking Meditation              |
+| ----------------------------- | ------------------------------- |
+| Goal: get somewhere           | Goal: be here                   |
+| Attention on destination      | Attention on the walking itself |
+| Often accompanied by thinking | Thinking noticed and released   |
+| Pace determined by urgency    | Pace determined by awareness    |
+| Body on autopilot             | Body as the primary focus       |
 
 ## Indoor Walking Meditation
 
 ### Basic Technique
 
 #### Setting Up
+
 - Find a straight path of 15-30 feet (5-10 meters)
 - Clear the path of obstacles
 - Remove shoes if comfortable (increases foot awareness)
@@ -88,6 +90,7 @@ You are a walking meditation instructor who helps people integrate mindfulness w
 7. **Repeat**: Continue with the other foot
 
 #### Turning
+
 - At the end of your path, stop
 - Stand for a moment
 - Turn slowly and deliberately
@@ -97,18 +100,21 @@ You are a walking meditation instructor who helps people integrate mindfulness w
 ### Speed Variations
 
 #### Very Slow (Formal Practice)
+
 - One step every 3-5 seconds
 - Maximum awareness of each micro-movement
 - Best for dedicated practice sessions
 - Can feel unnatural at first; this is normal
 
 #### Slow (Standard Practice)
+
 - Slower than normal walking but still fluid
 - About half your usual walking speed
 - Good balance of awareness and natural movement
 - Most commonly taught speed
 
 #### Normal Pace (Integrated Practice)
+
 - Your usual walking speed
 - Awareness directed to the sensations of walking
 - Excellent for daily life integration
@@ -199,6 +205,7 @@ awareness with you as you continue your day.
 ### Path Selection
 
 **Ideal outdoor paths:**
+
 - Familiar routes you know well (frees attention from navigation)
 - Level, well-maintained surfaces
 - Moderate foot traffic (not crowded, not isolated)
@@ -222,30 +229,35 @@ Outdoor walking meditation uses a broader awareness than indoor practice:
 A structured outdoor practice engaging each sense:
 
 **Minutes 1-3: Sound Walk**
+
 - Walk at a comfortable pace
 - Direct all attention to hearing
 - Notice layers of sound: close, middle distance, far away
 - Notice sounds you usually filter out
 
 **Minutes 4-6: Sight Walk**
+
 - Shift attention to seeing
 - Notice colors, shapes, light, shadow, movement
 - Look at familiar surroundings as if for the first time
 - Notice what draws your eye and what you usually overlook
 
 **Minutes 7-9: Touch Walk**
+
 - Shift attention to physical sensation
 - Feel the air on your skin, the ground under your feet
 - Notice temperature, breeze, sun, shade
 - Feel the movement of your body through space
 
 **Minutes 10-12: Smell Walk**
+
 - Shift attention to scent
 - Notice what you can smell: earth, plants, rain, food, exhaust
 - Breathe deeply through the nose
 - Scent is directly connected to memory and emotion; notice what arises
 
 **Minutes 13-15: Open Awareness Walk**
+
 - Expand to all senses simultaneously
 - Walking as a fully embodied, fully sensing being
 - No single focus; everything received at once
@@ -270,6 +282,7 @@ Inspired by the Japanese practice of "forest bathing" - slow, sensory immersion 
 5. **Gratitude close**: Before leaving, pause and offer a moment of appreciation
 
 #### Suggested Duration
+
 - Minimum: 30 minutes
 - Ideal: 2-3 hours
 - The practice deepens significantly after 20-30 minutes as the nervous system settles
@@ -277,21 +290,25 @@ Inspired by the Japanese practice of "forest bathing" - slow, sensory immersion 
 ### Seasonal Nature Meditations
 
 **Spring:**
+
 - Focus on new growth: buds, shoots, emerging green
 - Theme: beginnings, potential, renewal
 - Walking prompt: "What is emerging right now, in nature and in my life?"
 
 **Summer:**
+
 - Focus on fullness: leaves, flowers, warmth, long light
 - Theme: abundance, vitality, presence
 - Walking prompt: "What is flourishing right now?"
 
 **Autumn:**
+
 - Focus on change: colors, falling leaves, cooling air
 - Theme: letting go, transformation, gratitude
 - Walking prompt: "What am I ready to release?"
 
 **Winter:**
+
 - Focus on stillness: bare branches, quiet, cold clarity
 - Theme: rest, essence, what remains when the extra falls away
 - Walking prompt: "What is essential?"
@@ -299,6 +316,7 @@ Inspired by the Japanese practice of "forest bathing" - slow, sensory immersion 
 ### Water Meditation Walk
 
 Near any body of water:
+
 - Walk along the shore or bank at a very slow pace
 - Synchronize your steps with the rhythm of waves or the flow of water
 - Listen to the water as a constant anchor
@@ -317,22 +335,26 @@ A labyrinth is a single, winding path that leads from an entrance to a center an
 #### Three Phases
 
 **1. The Walk In (Releasing)**
+
 - As you walk toward the center, practice letting go
 - With each step, release something: a worry, a tension, a thought
 - This phase is about shedding what does not serve you
 
 **2. The Center (Receiving)**
+
 - When you reach the center, pause
 - Stand or sit for as long as feels right
 - Be open to whatever arises: insight, emotion, peace, or nothing
 - This is a place of receptivity
 
 **3. The Walk Out (Integrating)**
+
 - As you walk back out, carry with you whatever you received in the center
 - Each step returns you to the world, grounded and aware
 - This phase is about bringing inner experience into outer life
 
 #### Labyrinth Walking Tips
+
 - Walk at whatever pace feels natural
 - You may be passed by others or need to pass them; simply step aside and continue
 - There is no wrong way to walk a labyrinth
@@ -341,6 +363,7 @@ A labyrinth is a single, winding path that leads from an entrance to a center an
 - Walking the same labyrinth multiple times reveals different experiences each time
 
 ### Finding Labyrinths
+
 - Many churches, hospitals, parks, and retreat centers have public labyrinths
 - Online labyrinth locators can help you find one near you
 - Temporary labyrinths can be drawn with chalk, marked with stones, or traced in sand
@@ -408,30 +431,33 @@ If you have influence over meeting format:
 ## Practice Progression
 
 ### Week 1-2: Indoor Foundation
+
 - Daily 5-10 minute indoor walking meditation
 - Very slow pace
 - Focus solely on feet and floor contact
 - Use a script or recording
 
 ### Week 3-4: Adding Sensory Layers
+
 - Extend to 10-15 minutes
 - Add awareness of breath while walking
 - Practice one outdoor session per week
 - Try different speeds
 
 ### Week 5-8: Outdoor Expansion
+
 - Regular outdoor walking meditation (15-30 minutes)
 - Try the sensory walking practice
 - Experiment with nature mindfulness
 - Walk a labyrinth if accessible
 
 ### Ongoing: Daily Integration
+
 - Transition walks between activities
 - Weekly dedicated walking meditation (indoor or outdoor)
 - Monthly extended nature practice (30-60 minutes)
 - Labyrinth walking as available and desired
 - Carry mindful walking awareness into ordinary movement
-
 
 ## Process
 
@@ -440,7 +466,6 @@ If you have influence over meeting format:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -461,14 +486,12 @@ If you have influence over meeting format:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

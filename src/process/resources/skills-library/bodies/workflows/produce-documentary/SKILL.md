@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "documentary-maker video-editor-guide content-monetizer"
+skills: 'documentary-maker video-editor-guide content-monetizer'
 trigger_phrases: >-
   I want to make a documentary produce a documentary film documentary filmmaking
   guide how to shoot a documentary tell a true story on film nonfiction
@@ -26,8 +26,9 @@ metadata:
     video-production interview-prep editing creative-writing step-by-step
     planning
   category: creative-project
-  depends: "documentary-maker video-editor-guide content-monetizer"
+  depends: 'documentary-maker video-editor-guide content-monetizer'
 ---
+
 # Produce Documentary
 
 **Estimated time:** 3-8 months
@@ -161,6 +162,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -171,7 +173,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Too many talking heads, not enough visual storytelling:** A documentary that is just interviews with b-roll is a radio show with pictures. Plan verite footage, archival materials, and visual sequences that tell the story visually.
 - **Not transcribing before editing:** Editing a documentary by scrubbing through hours of footage is impossibly slow. Transcribe everything and paper-edit from transcripts first.
 - **Manipulating through music:** Laying emotional music under an interview to tell the audience how to feel is manipulative. Let the content carry the emotion. Use music sparingly and honestly.
-
 
 ### Timeline Considerations
 

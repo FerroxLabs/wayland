@@ -63,9 +63,7 @@ async function resolveJwksUri(): Promise<string> {
   });
 
   if (!resp.ok) {
-    throw new Error(
-      `Bot Framework OpenID metadata fetch failed (${resp.status}): ${BF_OPENID_URL}`,
-    );
+    throw new Error(`Bot Framework OpenID metadata fetch failed (${resp.status}): ${BF_OPENID_URL}`);
   }
 
   const meta = (await resp.json()) as { jwks_uri?: string };
@@ -89,9 +87,7 @@ async function getRemoteJwks(): Promise<ReturnType<typeof createRemoteJWKSet>> {
   return remoteJwks;
 }
 
-function extractBearer(
-  headers: Record<string, string | string[] | undefined>,
-): string | null {
+function extractBearer(headers: Record<string, string | string[] | undefined>): string | null {
   const raw = headers['authorization'];
   const value = Array.isArray(raw) ? (raw[0] ?? '') : (raw ?? '');
   if (!value.toLowerCase().startsWith('bearer ')) return null;
@@ -103,10 +99,7 @@ function extractBearer(
  * Exported for unit testing - verifies a Bot Framework Bearer JWT.
  * `audience` is the bot's Azure AD appId (expected `aud` claim).
  */
-export async function verifyMsTeamsJwt(
-  token: string,
-  audience: string,
-): Promise<{ ok: boolean; reason?: string }> {
+export async function verifyMsTeamsJwt(token: string, audience: string): Promise<{ ok: boolean; reason?: string }> {
   if (!audience) {
     return { ok: false, reason: 'audience (appId) not configured' };
   }
@@ -140,10 +133,7 @@ export async function verifyMsTeamsJwt(
  * (used as the expected JWT audience). The operator sets this to the
  * MicrosoftAppId when enabling the plugin.
  */
-export const msTeamsVerifier: WebhookVerifier = async (
-  input,
-  secret,
-): Promise<WebhookVerificationResult> => {
+export const msTeamsVerifier: WebhookVerifier = async (input, secret): Promise<WebhookVerificationResult> => {
   const bearer = extractBearer(input.headers);
   if (!bearer) {
     return { ok: false, reason: 'missing-bearer-token', status: 401 };

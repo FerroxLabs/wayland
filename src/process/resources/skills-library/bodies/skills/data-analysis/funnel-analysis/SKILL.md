@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis data-science data-visualization"
-  category: "data-analysis"
-  subcategory: "business-intelligence"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis data-science data-visualization'
+  category: 'data-analysis'
+  subcategory: 'business-intelligence'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Funnel Analysis
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to analyze a conversion funnel for any sequential process -- signup, purchase, onboarding, activation, feature adoption, trial-to-paid upgrade, or support resolution
 - The user wants to identify where users drop off in a multi-step process and quantify the magnitude of each leak
 - The user asks "where are we losing customers?", "why is our conversion rate low?", or "what is our checkout completion rate?"
@@ -30,6 +32,7 @@ metadata:
 - The user has completed a funnel change (redesign, copy test, flow simplification) and wants to evaluate before-and-after performance
 
 **Do NOT use when:**
+
 - The user wants to analyze retention curves or churn over time by signup cohort -- use `cohort-analysis`, which tracks the same group of users across calendar time rather than through a fixed step sequence
 - The user wants to group users by behavioral or demographic attributes to create actionable segments -- use `segmentation-design`
 - The user wants to define, select, or weight KPIs for a team or product -- use `kpi-definition`
@@ -96,6 +99,7 @@ For each stage, calculate:
 - **Cumulative drop-off:** (Users at Stage 1 minus Users at Stage N) ÷ Users at Stage 1. Useful for showing total attrition through any given point in the funnel.
 
 For step conversion rate benchmarks by funnel type:
+
 - E-commerce add-to-cart rates: 5-15% is typical; above 20% is strong
 - E-commerce checkout completion (begin checkout to order): 50-70% is typical; below 40% indicates significant friction
 - SaaS trial signup (landing to account creation): 15-25% is typical
@@ -339,6 +343,7 @@ Before diagnosing a behavioral cause, check: Did conversion at this stage drop t
 **Input:** "Analyze our SaaS product's free trial activation funnel. Steps are: Trial Signup, Email Verified, Profile Completed, First Project Created, First Team Member Invited, Integration Connected. We're looking at the last 30 days. We have desktop and mobile segments."
 
 **Data provided:**
+
 - Trial Signup: 8,400 users (desktop: 5,460 / mobile: 2,940)
 - Email Verified: 6,048 users (desktop: 4,241 / mobile: 1,807)
 - Profile Completed: 4,234 users (desktop: 3,178 / mobile: 1,056)
@@ -356,6 +361,7 @@ Before diagnosing a behavioral cause, check: Did conversion at this stage drop t
 ## Funnel Analysis: Free Trial Activation
 
 ### Funnel Definition
+
 - **Process:** Free trial signup through full product activation (project, team, and integration setup)
 - **Date range:** Last 30 days (entering cohort: Jan 27 -- Feb 26, 2026)
 - **Cohort status:** Closed cohort -- all users who entered the funnel have had their full 7-day window to complete. Users who signed up in the final 7 days of the period are excluded.
@@ -369,14 +375,14 @@ Before diagnosing a behavioral cause, check: Did conversion at this stage drop t
 
 ### Funnel Performance Table
 
-| Stage | Stage Name | Entry Event | Users | Step Conv. Rate | Overall Conv. Rate | Drop-off (Users) | Drop-off % | Revenue at Risk |
-|-------|-----------|------------|-------|-----------------|-------------------|-----------------|------------|----------------|
-| 1 | Trial Signup | `trial_signup_completed` | 8,400 | -- | 100% | 2,352 | 28.0% | $93,139 |
-| 2 | Email Verified | `email_verified` | 6,048 | 72.0% | 72.0% | 1,814 | 30.0% | $71,835 |
-| 3 | Profile Completed | `profile_completed` | 4,234 | 70.0% | 50.4% | 1,185 | 28.0% | $46,922 |
-| 4 | First Project Created | `project_created` | 3,049 | 72.0% | 36.3% | 1,524 | 50.0% | $60,321 |
-| 5 | First Team Member Invited | `team_member_invited` | 1,525 | 50.0% | 18.2% | 762 | 50.0% | $30,171 |
-| 6 | Integration Connected | `integration_connected` | 763 | 50.0% | 9.1% | -- | -- | -- |
+| Stage | Stage Name                | Entry Event              | Users | Step Conv. Rate | Overall Conv. Rate | Drop-off (Users) | Drop-off % | Revenue at Risk |
+| ----- | ------------------------- | ------------------------ | ----- | --------------- | ------------------ | ---------------- | ---------- | --------------- |
+| 1     | Trial Signup              | `trial_signup_completed` | 8,400 | --              | 100%               | 2,352            | 28.0%      | $93,139         |
+| 2     | Email Verified            | `email_verified`         | 6,048 | 72.0%           | 72.0%              | 1,814            | 30.0%      | $71,835         |
+| 3     | Profile Completed         | `profile_completed`      | 4,234 | 70.0%           | 50.4%              | 1,185            | 28.0%      | $46,922         |
+| 4     | First Project Created     | `project_created`        | 3,049 | 72.0%           | 36.3%              | 1,524            | 50.0%      | $60,321         |
+| 5     | First Team Member Invited | `team_member_invited`    | 1,525 | 50.0%           | 18.2%              | 762              | 50.0%      | $30,171         |
+| 6     | Integration Connected     | `integration_connected`  | 763   | 50.0%           | 9.1%               | --               | --         | --              |
 
 Revenue at Risk = Drop-off Users × 22% activation-to-paid rate × $1,800 ACV ÷ 12 months (monthly value)
 
@@ -387,12 +393,12 @@ Revenue at Risk = Drop-off Users × 22% activation-to-paid rate × $1,800 ACV ÷
 
 ### Critical Drop-off Summary
 
-| Priority | Transition | Users Lost | Step Conv. Rate | Revenue at Risk (monthly) | Drop-off Type |
-|----------|-----------|------------|-----------------|--------------------------|---------------|
-| #1 | Project Created → Team Invited | 1,524 | 50.0% | $60,321 | Both volume AND rate |
-| #2 | Trial Signup → Email Verified | 2,352 | 72.0% | $93,139 | Volume (expected attrition) |
-| #3 | Team Invited → Integration Connected | 762 | 50.0% | $30,171 | Rate (low conversion, smaller pool) |
-| #4 | Profile Completed → Project Created | 1,185 | 72.0% | $46,922 | Volume |
+| Priority | Transition                           | Users Lost | Step Conv. Rate | Revenue at Risk (monthly) | Drop-off Type                       |
+| -------- | ------------------------------------ | ---------- | --------------- | ------------------------- | ----------------------------------- |
+| #1       | Project Created → Team Invited       | 1,524      | 50.0%           | $60,321                   | Both volume AND rate                |
+| #2       | Trial Signup → Email Verified        | 2,352      | 72.0%           | $93,139                   | Volume (expected attrition)         |
+| #3       | Team Invited → Integration Connected | 762        | 50.0%           | $30,171                   | Rate (low conversion, smaller pool) |
+| #4       | Profile Completed → Project Created  | 1,185      | 72.0%           | $46,922                   | Volume                              |
 
 **Biggest absolute drop-off:** Stage 1 to Stage 2 (2,352 users lost) -- however, email verification drop-off of 28% is within industry norms (20-30%). This is partially expected attrition from mistyped emails, inactive addresses, and low-intent signups.
 
@@ -406,59 +412,71 @@ Revenue at Risk = Drop-off Users × 22% activation-to-paid rate × $1,800 ACV ÷
 
 **Stage 4 → Stage 5: First Project Created → First Team Member Invited (50.0% -- 1,524 users lost)**
 
-*Expectation mismatch:*
+_Expectation mismatch:_
+
 - Are solo users (freelancers, individual contributors) signing up for the trial without any intention of inviting teammates? If so, the funnel definition may need a "solo user" vs. "team user" segmentation -- a solo user who creates a project and connects an integration IS fully activated, even without an invitation step.
 - Does the product communicate clearly that team collaboration is a core value proposition during onboarding? Or does the invite prompt appear as an afterthought after project creation?
 
-*Friction audit:*
+_Friction audit:_
+
 - How many steps does it take to invite a team member? Is it a modal that appears after project creation, or does the user need to navigate to Settings > Team > Invite?
 - Does the invite flow require entering multiple email addresses at once? Users who want to invite one person are often blocked by interfaces designed for bulk invitations.
 - Is team invite gated behind a plan tier that free trial users cannot access? If invite is a paid feature, this drop-off is expected and the funnel definition should exclude it as an activation criterion for solo users.
 
-*Information gap:*
+_Information gap:_
+
 - Does the user understand WHY they should invite a teammate? Is the value of collaboration visible at the moment the invite prompt appears (e.g., "projects with 2+ members complete 3x faster")?
 - Does the user have teammates who would use the product? If they signed up from a personal email, they may not have work colleagues in their address book.
 
-*Technical failure hypothesis:*
+_Technical failure hypothesis:_
+
 - Does the invite email land in spam for corporate domains? Gmail and Outlook have aggressive spam filtering for SaaS invitation emails. Test delivery from common corporate domains (Google Workspace, Microsoft 365, large enterprise domains).
 - Is the invite confirmation that "invitation sent" appearing? If the UI shows no feedback after clicking Send, users may not know the action completed and abandon.
 
-*Alternative path hypothesis:*
+_Alternative path hypothesis:_
+
 - Are some users completing the integration step without inviting a teammate? Check how many users went directly from Stage 4 (project created) to Stage 6 (integration connected), skipping Stage 5 entirely. If this path exists, it suggests some users are solo adopters who connect integrations without team buy-in -- a legitimate activation path.
 
 ---
 
 **Stage 1 → Stage 2: Trial Signup → Email Verified (72.0% -- 2,352 users lost)**
 
-*Expectation mismatch:*
+_Expectation mismatch:_
+
 - Did users understand at signup that email verification was required before accessing the product? If the product appeared to accept them ("Welcome! Your account is ready") before verification, the verification email feels like an unexpected gate.
 - What is the delay between signup and receipt of the verification email? Delays over 2 minutes dramatically reduce verification rates as users move on to other tasks.
 
-*Friction audit:*
+_Friction audit:_
+
 - How many clicks does email verification require? The gold standard is a single magic-link click. If users are required to copy a code and return to the app, a meaningful percentage will abandon.
 - Is a "Resend Verification Email" button accessible immediately and prominently on the waiting state? Users who don't receive the first email within 30 seconds will need this.
 - Is the product fully locked until email is verified, or is there a limited "preview" mode that lets users see value before completing verification? Products that show value before verification see 15-20% higher verification completion rates.
 
-*Technical failure hypothesis:*
+_Technical failure hypothesis:_
+
 - Are verification emails landing in spam? Check SPF, DKIM, and DMARC records. Test deliverability to Gmail, Outlook, Yahoo, and major corporate domains.
 - Are users signing up with work email addresses that have aggressive spam filtering? If >40% of signups use corporate domains, email deliverability is the most likely technical cause.
 
-*Information gap:*
+_Information gap:_
+
 - Is the from-address recognizable? Verification emails from `noreply@cloudplatform-notifications.io` will be ignored; emails from `hello@[ProductName].com` perform measurably better.
 
 ---
 
 **Stage 5 → Stage 6: First Team Member Invited → Integration Connected (50.0% -- 762 users lost)**
 
-*Expectation mismatch:*
+_Expectation mismatch:_
+
 - Do users understand what "integration" means in this context? If users think "integration" means API access or a developer-only feature, non-technical users will not attempt it.
 - Is the integration step positioned as essential to product value, or as an optional power-user feature? If it's framed as optional, many users who invited teammates will consider themselves "done" with onboarding.
 
-*Friction audit:*
+_Friction audit:_
+
 - How many integrations are available, and how are they surfaced? An integration catalog with 50 options and no recommendation logic will paralyze users with choice. The highest-converting onboarding flows show 3-5 "most popular integrations" specific to the user's role or company type.
 - Is OAuth the primary connection method? OAuth integrations have 70-80% completion rates when initiated; API-key-based integrations have 30-50% because users must navigate to a third-party settings page to generate a key.
 
-*Technical failure hypothesis:*
+_Technical failure hypothesis:_
+
 - Are there specific integrations with broken OAuth flows? A single broken Salesforce or Slack OAuth connection that throws a 500 error will silently fail for all users attempting that integration. Check error rates by integration type.
 
 ---
@@ -466,9 +484,9 @@ Revenue at Risk = Drop-off Users × 22% activation-to-paid rate × $1,800 ACV ÷
 ### Segment Comparison
 
 | Segment | Stage 1 Users | Email Verified | Profile Completed | Project Created | Team Invited | Integration Connected | Overall Conv. | Gap vs. Average |
-|---------|--------------|----------------|------------------|-----------------|--------------|----------------------|---------------|-----------------|
-| Desktop | 5,460 | 77.7% | 75.0% | 78.0% | 55.0% | 52.0% | 13.0% | +3.9pp |
-| Mobile | 2,940 | 61.5% | 58.4% | 53.9% | 28.3% | 37.9% | 1.8% | -7.3pp |
+| ------- | ------------- | -------------- | ----------------- | --------------- | ------------ | --------------------- | ------------- | --------------- |
+| Desktop | 5,460         | 77.7%          | 75.0%             | 78.0%           | 55.0%        | 52.0%                 | 13.0%         | +3.9pp          |
+| Mobile  | 2,940         | 61.5%          | 58.4%             | 53.9%           | 28.3%        | 37.9%                 | 1.8%          | -7.3pp          |
 
 **Highest-leverage segment:** Mobile users -- 35% of total signups, overall conversion 1.8% vs. 9.1% aggregate, representing a 7.3pp gap. Closing mobile conversion to even 5% (half the desktop rate) would add approximately 94 monthly activating users, or ~$3,384 MRR at current activation-to-paid rates.
 
@@ -480,18 +498,19 @@ Additionally, email verification is 16pp lower on mobile (61.5% vs. 77.7% deskto
 
 ### Recommendations
 
-| Tier | Recommendation | Stage Targeted | Expected Lift | Effort | Testable Hypothesis |
-|------|---------------|----------------|---------------|--------|---------------------|
-| 1 | Audit team invite email for spam delivery on corporate domains | Stage 4 → 5 | 3-5pp | Low (2 hrs) | We believe invite emails are landing in spam for corporate domains because SPF/DKIM records are not fully configured, causing the 50% invite step conversion to be artificially low for enterprise signups |
-| 1 | Add "Resend verification email" button with 30-second auto-prompt on verification waiting state | Stage 1 → 2 | 2-4pp | Low (1 day) | We believe users who don't receive the verification email within 60 seconds abandon without knowing how to resend it, because the current waiting state shows no resend option for 5 minutes |
-| 2 | Add contextual invite prompt immediately after first project save, with social proof copy ("Teams with 2+ members are 3x more likely to ship on time") | Stage 4 → 5 | 5-8pp | Medium (1 sprint) | We believe users who create a project are receptive to inviting teammates at the moment of project creation because the value of collaboration is most salient immediately after creating something worth sharing |
-| 2 | Redesign mobile project creation flow to reduce required fields from 6 to 3 (defer optional fields to post-creation) | Stage 3 → 4 mobile | 10-15pp mobile | Medium (1 sprint) | We believe mobile users abandon project creation because the 6-field form is difficult to complete on a small screen without a keyboard, and that 3 required fields would meet the minimum viable project creation threshold |
-| 2 | Offer SMS verification as alternative to email for mobile signups | Stage 1 → 2 mobile | 8-12pp mobile | Medium (2 sprints) | We believe mobile signers-up do not complete email verification because they sign up on mobile but their email client is on desktop or is inaccessible during the signup session |
-| 3 | Implement integration recommendation engine that surfaces the top 3 integrations based on user role and connected apps | Stage 5 → 6 | 8-12pp | High (1 quarter) | We believe users abandon the integration step because they are overwhelmed by the full integration catalog and cannot identify which integration is most relevant to them, whereas a personalized 3-option prompt would reduce decision fatigue |
+| Tier | Recommendation                                                                                                                                         | Stage Targeted     | Expected Lift  | Effort             | Testable Hypothesis                                                                                                                                                                                                                             |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | -------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Audit team invite email for spam delivery on corporate domains                                                                                         | Stage 4 → 5        | 3-5pp          | Low (2 hrs)        | We believe invite emails are landing in spam for corporate domains because SPF/DKIM records are not fully configured, causing the 50% invite step conversion to be artificially low for enterprise signups                                      |
+| 1    | Add "Resend verification email" button with 30-second auto-prompt on verification waiting state                                                        | Stage 1 → 2        | 2-4pp          | Low (1 day)        | We believe users who don't receive the verification email within 60 seconds abandon without knowing how to resend it, because the current waiting state shows no resend option for 5 minutes                                                    |
+| 2    | Add contextual invite prompt immediately after first project save, with social proof copy ("Teams with 2+ members are 3x more likely to ship on time") | Stage 4 → 5        | 5-8pp          | Medium (1 sprint)  | We believe users who create a project are receptive to inviting teammates at the moment of project creation because the value of collaboration is most salient immediately after creating something worth sharing                               |
+| 2    | Redesign mobile project creation flow to reduce required fields from 6 to 3 (defer optional fields to post-creation)                                   | Stage 3 → 4 mobile | 10-15pp mobile | Medium (1 sprint)  | We believe mobile users abandon project creation because the 6-field form is difficult to complete on a small screen without a keyboard, and that 3 required fields would meet the minimum viable project creation threshold                    |
+| 2    | Offer SMS verification as alternative to email for mobile signups                                                                                      | Stage 1 → 2 mobile | 8-12pp mobile  | Medium (2 sprints) | We believe mobile signers-up do not complete email verification because they sign up on mobile but their email client is on desktop or is inaccessible during the signup session                                                                |
+| 3    | Implement integration recommendation engine that surfaces the top 3 integrations based on user role and connected apps                                 | Stage 5 → 6        | 8-12pp         | High (1 quarter)   | We believe users abandon the integration step because they are overwhelmed by the full integration catalog and cannot identify which integration is most relevant to them, whereas a personalized 3-option prompt would reduce decision fatigue |
 
 **Immediate next step:** Before building anything, run session recordings (FullStory or LogRocket) on 50 mobile sessions that drop off between Project Created and Team Invited. Confirm whether users are seeing the invite prompt at all, clicking it and abandoning mid-flow, or never reaching it. This 2-hour investigation will determine whether the fix is prompt placement (low effort) or invite flow redesign (medium effort).
 
 **Data gaps that would sharpen this analysis:**
+
 1. **Solo vs. team intent at signup:** A survey question at signup ("Are you using this for yourself or with a team?") would allow separation of the funnel by intended use case and remove the confound of solo users in the team-invite stage.
 2. **Integration error logs by integration type:** Knowing which specific integrations have the highest failure rates at OAuth connection would immediately surface whether this is a UX problem or a broken connector problem.
 3. **Activation-to-paid rate by activation path:** If users who skip the team invite step and go directly to integration have a different paid conversion rate than those who follow the full path, the activation definition itself may need revision.

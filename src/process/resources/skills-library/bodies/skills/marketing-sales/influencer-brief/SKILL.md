@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing social-media planning template"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing social-media planning template'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Influencer Brief
 
 ## When to Use
@@ -64,16 +65,19 @@ If budget is provided, note it but do not let budget alone dictate deliverable s
 Before writing, internally classify the campaign along three dimensions. Each classification changes how the brief is written:
 
 **Content integration depth:**
+
 - **Dedicated post:** Entire piece of content is about the brand (common for product launches, exclusive codes)
 - **Integrated mention:** Brand appears within a broader piece of content the creator was already planning (common for YouTube mid-rolls, podcast ads, lifestyle Reels)
 - **Ambient brand presence:** Product appears in environment but is not the focal point (common for lifestyle photography, home and fashion creators)
 
 **Creative latitude level:**
+
 - **High structure (specific claims required):** Pharmaceuticals, supplements, financial products, and legal services require approved language and cannot give creators open-ended freedom
 - **Medium structure (talking points, not scripts):** Consumer goods, apps, and DTC brands -- creators need guidance but should not be scripted
 - **Low structure (brand-supplied product, creator-driven story):** Lifestyle brands, fashion, food -- over-briefing destroys authenticity here
 
 **Relationship type:**
+
 - **One-off campaign post:** Short brief, project-based deliverables
 - **Multi-post campaign:** Coordinated content across a defined window
 - **Brand ambassador:** Ongoing relationship with evolving briefs, exclusivity clauses, and regular check-ins
@@ -96,24 +100,29 @@ This is the section brands most commonly get wrong -- they paste marketing boile
 Vague deliverables create disputes. Every deliverable line must contain format, specification, and timing. Use these platform-specific standards:
 
 **Instagram:**
+
 - Reels: Vertical 9:16, 1080x1920 minimum resolution, 15 seconds to 90 seconds (60-90 seconds performs best for campaign content), H.264 codec, audio required, caption up to 2,200 characters
 - Stories: Vertical 9:16, 1080x1920, up to 15 seconds per card (3-5 cards is standard for a story sequence), interactive elements (polls, stickers) allowed and encouraged
 - Static feed posts: 1:1 (1080x1080) or 4:5 (1080x1350) preferred for feed real estate
 
 **TikTok:**
+
 - Standard video: Vertical 9:16, 1080x1920, 15 seconds to 10 minutes (45-60 seconds performs best for sponsored content), H.264 or H.265
 - Spark Ads: Requires creator to authorize the post for boosting -- specify in brief if Spark Ads authorization is required, as it affects how creators think about the content
 
 **YouTube:**
+
 - Dedicated video: 16:9 landscape, minimum 1080p, 8-15 minutes optimal for retention with sponsorship integrated
 - Integrated mention (mid-roll): 60-90 second scripted or semi-scripted segment within the creator's standard content -- must specify whether talking points are provided or creator writes their own read
 - YouTube Shorts: Vertical 9:16, up to 60 seconds
 
 **Podcasts:**
+
 - Host-read ad: 30-second pre-roll (standard fee: 15-20% of episode sponsorship), 60-second mid-roll (most common, 60-70% of episode sponsorship fee), 90-second post-roll
 - Specify: talking points provided vs. talking points plus custom story vs. fully scripted read
 
 **Specify usage rights on every deliverable line.** Usage rights are one of the most frequently disputed areas in influencer marketing. The three tiers are:
+
 - **Organic repost only:** Brand can repost to brand channels with credit -- no additional fee typical
 - **Whitelisting/allowlisting:** Brand can run paid ads through the creator's account handle -- requires 20-50% fee uplift typically, and must be specified in advance
 - **Full buyout:** Brand can repurpose content in any channel without attribution limit -- requires significant premium (commonly 2x-3x the organic rate) and must be negotiated before the brief is accepted
@@ -123,11 +132,13 @@ Vague deliverables create disputes. Every deliverable line must contain format, 
 The content guidance section is where briefs most commonly fail. Brands over-script, creators produce stilted content, and audiences detect inauthenticity immediately -- resulting in poor engagement and no ROI for the brand.
 
 Use the "briefing triangle" principle:
+
 - **Required coverage:** The 2-3 product facts that must be communicated (e.g., "mention it's plant-based and certified cruelty-free")
 - **Suggested angles:** 3-4 scenarios or hooks the creator can adapt (e.g., "post-workout refresh routine," "Sunday reset ritual") -- present these as options, not requirements
 - **Creative territory:** Explicit statement that the creator owns everything else -- music, setting, tone, personal story
 
 Specific guidance on talking points:
+
 - Maximum 5 talking points. Three is better. Creators cannot naturally incorporate more than 3 into authentic content.
 - Write talking points in the creator's voice register, not the brand's. "Our formula uses 94% naturally derived ingredients" sounds like a press release. "It's plant-based, so you are not getting bleach in the same room as your kids" is a talking point a creator can use.
 - Never include a talking point that requires a specific percentage, clinical claim, or technical specification unless the brand has confirmed this is legally cleared for consumer-facing use
@@ -138,12 +149,14 @@ Specific guidance on talking points:
 Generic dos and don'ts ("be authentic," "don't mention competitors") waste everyone's time. Effective guardrails are category-specific:
 
 **Dos:**
+
 - Reference specific product benefits with approved language
 - Show the product in actual use (not just held, styled, or posed with)
 - Share personal, specific reactions (not generic praise)
 - Include disclosure language exactly as specified (see FTC requirements below)
 
 **Don'ts:**
+
 - Never say "chemical-free" (all matter is chemical -- this claim is scientifically false and FTC will flag it)
 - Never say "clinically proven," "doctor recommended," or "FDA approved" unless the brand has confirmed these claims are substantiated and cleared
 - Never show or name competitor products (even if the creator normally does comparison content)
@@ -151,6 +164,7 @@ Generic dos and don'ts ("be authentic," "don't mention competitors") waste every
 - Never show alcohol content being consumed by anyone who appears under 25 (platform policy and DRAM shop liability)
 
 **FTC disclosure requirements (as of current FTC guidelines):**
+
 - Any material connection between a brand and creator (payment, free product, commission, family/employment relationship) must be disclosed clearly and conspicuously
 - "Ad," "Paid partnership," "Sponsored," or "#ad" are all acceptable disclosure labels
 - Disclosure must appear at the beginning of the content (first 3 seconds of video, above the fold in captions) -- buried disclosures are non-compliant
@@ -164,6 +178,7 @@ Generic dos and don'ts ("be authentic," "don't mention competitors") waste every
 These are the most operationally important fields in the brief. Vague compensation or timeline terms cause delayed campaigns and creator disputes.
 
 **Compensation benchmarks by tier (industry ranges, not guarantees -- vary by niche, engagement rate, and content type):**
+
 - Nano (under 10K): $0-$200 per deliverable, often product-only; treat gifting campaigns as awareness plays, not performance drivers
 - Micro (10K-100K): $100-$1,000 per post; $200-$500 per Reel is a common range for consumer goods
 - Mid-tier (100K-500K): $1,000-$5,000 per dedicated post; YouTube integrations in niche categories command higher rates
@@ -171,12 +186,14 @@ These are the most operationally important fields in the brief. Vague compensati
 - Mega/celebrity (1M+): $25,000-$1M+; rates are relationship- and category-dependent
 
 **Compensation structures:**
+
 - **Flat fee:** Cleanest arrangement, preferred by creators; reduces performance anxiety and produces more authentic content
 - **Flat fee + performance bonus:** Base flat fee for posting, bonus triggered by promo code redemptions, affiliate link clicks, or view thresholds -- balances brand risk with creator incentive
 - **Affiliate/commission only:** Very low creator uptake; only use with established audiences already engaged in shopping content; commission rates typically 10-20%
 - **Product gifting only:** Reduces deliverable expectations significantly -- creators have no contractual obligation to post; treat as earned media, not guaranteed placements
 
 **Timeline milestones to always include:**
+
 1. Brief sent and creator confirms receipt
 2. Agreement or contract signed (before any product ships)
 3. Product shipped to creator (include tracking)
@@ -396,13 +413,16 @@ We are excited to see what you make.
 ## Edge Cases
 
 ### Product-Gifting-Only Campaigns (No Payment)
+
 When no fee is being offered, the creator has no contractual posting obligation -- only a disclosure obligation if they choose to post. Adjust the brief accordingly:
+
 - Remove the deliverables table's "Draft Due" and "Post Window" columns -- replace with "Requested (Not Required)"
 - Replace the Compensation section with a Gifting Terms section that clearly states this is a gifted collaboration and posting is at the creator's discretion
 - Set realistic expectations with the user: gifted campaigns have a 30-60% post rate on average -- do not build campaign projections assuming 100% creator posting
 - Include disclosure guidance anyway: if the creator posts, they are still obligated by FTC rules to disclose the gifted relationship even without payment
 
 ### Regulated Industry Campaigns (Supplements, Financial Products, Alcohol, Healthcare)
+
 These campaigns require additional guardrails that must be woven into every content guidance section:
 
 - **Supplements and wellness:** Creators may not make disease treatment claims. "This supplement helped me feel less bloated" is acceptable. "This supplement treats IBS" is an unauthorized drug claim. Include the exact approved language the creator must use.
@@ -411,14 +431,18 @@ These campaigns require additional guardrails that must be woven into every cont
 - **Healthcare and pharma:** Creator content for prescription drugs requires pre-approval at every level and almost always requires agency legal review. Flag this to the user and recommend they involve their legal team before the brief is distributed.
 
 ### Multi-Creator Campaigns with Coordinated Launch Windows
+
 When three or more creators are posting within the same campaign window:
+
 - Create a master brief with all shared elements (brand overview, key message, campaign hashtag, dos/don'ts) and a creator-specific addendum for deliverables, posting windows, and promo codes
 - Stagger posting windows by 48-72 hours if possible to avoid audience overlap fatigue -- unless the brand specifically wants a simultaneous launch for a product debut
 - Assign unique promo codes or UTM parameters per creator (e.g., CREATOR1, CREATOR2) -- this enables per-creator performance tracking and accurate attribution
 - Include a coordination note: creators should not copy each other's hooks or angles. Encourage distinctly different takes on the same brief.
 
 ### Long-Term Brand Ambassador Programs
+
 A one-off brief is not adequate for ambassador relationships. Extend the brief structure:
+
 - Replace the single Campaign Objective section with a Quarterly Objectives section that outlines evolving goals by phase (awareness in Q1, conversion in Q2, loyalty and community in Q3)
 - Include a Monthly Deliverable Cadence table rather than a single posting window
 - Add a Relationship Management section: monthly check-in call cadence, escalation contact, and how the creator can request changes to talking points or creative direction
@@ -426,7 +450,9 @@ A one-off brief is not adequate for ambassador relationships. Extend the brief s
 - Include early termination terms in the brief so both parties understand what triggers end of the relationship (breach of brand safety, follower count drops below threshold, category conflict)
 
 ### UGC (User-Generated Content) Creator Campaigns -- Content for Brand Ads, Not Organic Posting
+
 UGC creator campaigns differ fundamentally from influencer campaigns:
+
 - The creator does not post the content -- the brand runs it as paid advertising
 - FTC disclosure rules still apply if the content will run as paid social ads: Meta, TikTok, and YouTube require advertiser disclosure on paid placements, but the creator's personal disclosure in caption is not required since they are not posting to their audience
 - Usage rights are a full buyout by default -- this must be stated clearly
@@ -434,7 +460,9 @@ UGC creator campaigns differ fundamentally from influencer campaigns:
 - Brief the creator on ad performance norms: hooks in first 3 seconds, problem-solution-proof structure, and no organic-feeling ending -- UGC ads need a clear CTA
 
 ### Creator Has An MCN, Agent, or Manager
+
 When a creator is represented:
+
 - The brief goes to the representative first, not the creator directly
 - Add a Representative Contact field to the Key Contacts table
 - Compensation section must note that representative fees are the creator's responsibility (brand pays creator's stated rate; split with manager is private)
@@ -442,7 +470,9 @@ When a creator is represented:
 - Representatives may push back on specific dos/don'ts or exclusivity terms -- treat these as negotiation inputs, not rejections, and flag them to the user for resolution before the campaign moves forward
 
 ### Campaign Using Creator-Provided Statistics or Expert Positioning
+
 When the brand wants the creator to leverage their "expert" status (e.g., a fitness creator recommending a protein powder, a dermatologist creator discussing a skincare ingredient):
+
 - Expert positioning triggers higher FTC scrutiny -- the creator's area of expertise must actually align with the claim being made
 - Do not brief a lifestyle creator to make clinical or expert claims. Brief them as an enthusiastic user instead.
 - If the creator is a credentialed expert (MD, RD, CFP), include in the brief a note that they should speak from their area of credentialed expertise only, and that claims outside their credential scope require the same approved language guardrails as non-expert creators
@@ -486,28 +516,29 @@ When the brand wants the creator to leverage their "expert" status (e.g., a fitn
 
 **Success Metrics:**
 
-| Metric | Target | Measurement Method |
-|--------|--------|--------------------|
-| Promo code redemptions | 80 uses within 30 days of posting | Backend Shopify code tracking |
-| TikTok video views | 100,000+ | Creator analytics screenshot at Day 14 |
-| Instagram Reel views | 50,000+ | Creator analytics screenshot at Day 14 |
-| Combined engagement rate | 3%+ across both posts | Creator analytics screenshots |
-| Cost per acquisition (CPA) | Under $43 | Total fee / total redemptions |
+| Metric                     | Target                            | Measurement Method                     |
+| -------------------------- | --------------------------------- | -------------------------------------- |
+| Promo code redemptions     | 80 uses within 30 days of posting | Backend Shopify code tracking          |
+| TikTok video views         | 100,000+                          | Creator analytics screenshot at Day 14 |
+| Instagram Reel views       | 50,000+                           | Creator analytics screenshot at Day 14 |
+| Combined engagement rate   | 3%+ across both posts             | Creator analytics screenshots          |
+| Cost per acquisition (CPA) | Under $43                         | Total fee / total redemptions          |
 
 ---
 
 ### 3. Deliverables
 
-| # | Content Type | Platform | Format Specs | Draft Due | Posting Window | Usage Rights |
-|---|-------------|----------|--------------|-----------|----------------|--------------|
-| 1 | TikTok video -- dedicated workout integration | TikTok | Vertical 9:16, 1080x1920, 45-75 seconds, audio required, Branded Content toggle ON | [Date: 12 days from today] | [Date: Day 16 to Day 21] | Organic repost to brand TikTok with credit. No Spark Ads without separate agreement. |
-| 2 | Instagram Reel -- dedicated workout integration | Instagram | Vertical 9:16, 1080x1920, 45-75 seconds, H.264, Paid Partnership label ON | [Same draft date] | [Same posting window as TikTok, minimum 24-hour stagger recommended] | Organic repost to brand Instagram with credit. No whitelisting without separate agreement. |
+| #   | Content Type                                    | Platform  | Format Specs                                                                       | Draft Due                  | Posting Window                                                       | Usage Rights                                                                               |
+| --- | ----------------------------------------------- | --------- | ---------------------------------------------------------------------------------- | -------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| 1   | TikTok video -- dedicated workout integration   | TikTok    | Vertical 9:16, 1080x1920, 45-75 seconds, audio required, Branded Content toggle ON | [Date: 12 days from today] | [Date: Day 16 to Day 21]                                             | Organic repost to brand TikTok with credit. No Spark Ads without separate agreement.       |
+| 2   | Instagram Reel -- dedicated workout integration | Instagram | Vertical 9:16, 1080x1920, 45-75 seconds, H.264, Paid Partnership label ON          | [Same draft date]          | [Same posting window as TikTok, minimum 24-hour stagger recommended] | Organic repost to brand Instagram with credit. No whitelisting without separate agreement. |
 
 **Total Deliverable Count:** 2 pieces of dedicated content
 
 **Usage Rights Summary:** Brand may repost both pieces of content to brand-owned TikTok and Instagram accounts with creator credit tag. Any paid advertising use, whitelisting, or Spark Ads authorization requires a separate written agreement and additional compensation negotiated before use.
 
 **Review Process:**
+
 - Creator submits draft content via shared Google Drive folder (link to be provided upon agreement signing)
 - Brand provides feedback within 3 business days of draft submission
 - Creator has 5 business days to implement any revisions
@@ -522,19 +553,21 @@ When the brand wants the creator to leverage their "expert" status (e.g., a fitn
 **Creative Latitude Level:** Medium structure -- talking points required, everything else is the creator's call
 
 **Key Talking Points** (2-3 must be covered; 5 maximum provided):
+
 1. Creatine monohydrate is the most research-backed supplement for strength and power output -- it is not a trend, it is decades of evidence (say this in your own words; do not use clinical language)
 2. [Brand]'s creatine is third-party tested, no fillers, no proprietary blends -- just 5 grams per serving of the actual compound that works
 3. Use code [CREATOR] for [X]% off first order (must be spoken aloud in video AND included in caption and bio link or sticker)
 
-**Optional Additional Talking Point:**
-4. It dissolves clean -- show mixing it if that is authentic to your routine
+**Optional Additional Talking Point:** 4. It dissolves clean -- show mixing it if that is authentic to your routine
 
 **Suggested Scenarios** (creator's choice -- pick one, adapt it, or combine elements):
+
 - Pre-workout preparation sequence: filming your supplement setup, showing the creatine scoop and mix, cutting to the training session, ending with a performance moment (a PR, a clean rep, a heavy set)
 - "What I actually take" format: talking directly to camera about your supplement stack, with creatine featured as the one you have taken the longest and trust the most
 - Myth-bust hook: opening with a common creatine misconception ("It's just for bodybuilders," "It's a steroid," "You have to load it") and correcting it with what you actually know from your own experience -- then showing [Brand] as what you use
 
 **Mandatory Inclusions (Non-Negotiable):**
+
 - [ ] Product (tub or packet) visible and identifiable on screen during use -- not just placed in the background
 - [ ] TikTok Branded Content toggle must be ON before posting (required by TikTok policy)
 - [ ] Instagram Paid Partnership label with @[BrandHandle] must be active before posting (required by FTC and Meta policy)
@@ -549,15 +582,15 @@ Everything else. Hook, narrative structure, music, gym location, what exercise y
 
 ### 5. Dos and Don'ts
 
-| Do | Don't |
-|----|-------|
-| Show yourself actually using and mixing the product as part of your real routine | Stage a product shot without demonstrating actual use |
-| Reference that it is third-party tested and free from proprietary blends | Claim it is "clinically proven" -- this specific phrasing has not been cleared |
-| Say creatine monohydrate is research-backed for strength and power (this is substantiated) | Claim creatine treats any medical condition, disease, or injury |
-| Speak from your personal experience ("I've been taking creatine for three years...") | Make performance guarantees for your audience ("This will help you hit a PR") |
-| Include the promo code clearly -- spoken and in caption | Forget to activate the Branded Content toggle (TikTok) or Paid Partnership label (Instagram) before posting |
-| Show creatine as one element of a smart, evidence-based approach to training | Position creatine as a replacement for training consistency, sleep, or nutrition |
-| Keep your typical tone -- irreverent, direct, or technical, depending on your style | Use language that sounds like a supplement ad ("Unlock your potential," "Maximum gains formula") |
+| Do                                                                                         | Don't                                                                                                       |
+| ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Show yourself actually using and mixing the product as part of your real routine           | Stage a product shot without demonstrating actual use                                                       |
+| Reference that it is third-party tested and free from proprietary blends                   | Claim it is "clinically proven" -- this specific phrasing has not been cleared                              |
+| Say creatine monohydrate is research-backed for strength and power (this is substantiated) | Claim creatine treats any medical condition, disease, or injury                                             |
+| Speak from your personal experience ("I've been taking creatine for three years...")       | Make performance guarantees for your audience ("This will help you hit a PR")                               |
+| Include the promo code clearly -- spoken and in caption                                    | Forget to activate the Branded Content toggle (TikTok) or Paid Partnership label (Instagram) before posting |
+| Show creatine as one element of a smart, evidence-based approach to training               | Position creatine as a replacement for training consistency, sleep, or nutrition                            |
+| Keep your typical tone -- irreverent, direct, or technical, depending on your style        | Use language that sounds like a supplement ad ("Unlock your potential," "Maximum gains formula")            |
 
 **Regulatory Notes:**
 Creatine monohydrate is a dietary supplement, not a drug. Do not use any language that implies creatine treats, cures, or prevents any medical condition. Approved claim territory: performance (strength, power output, training volume), not health outcomes (recovery from injury, treatment of any condition). Any questions about specific language before filming -- ask us first.
@@ -566,48 +599,48 @@ Creatine monohydrate is a dietary supplement, not a drug. Do not use any languag
 
 ### 6. Compensation
 
-| Component | Detail |
-|-----------|--------|
-| Base Fee | $3,500 flat fee for both deliverables (TikTok video + Instagram Reel) |
-| Performance Bonus | $250 bonus if combined promo code redemptions exceed 150 within 30 days of posting |
-| Product | Full-size creatine (one 60-serving tub), retail value $55, shipped upon agreement signing |
-| Affiliate Commission | None -- flat fee structure only for this campaign |
-| Whitelisting Uplift | Not included in this brief; requires separate negotiation and written addendum |
-| Payment Terms | Net 15 from date both posts are live, triggered by creator invoice and confirmation of posting URLs |
-| Exclusivity | No sponsored posts for competing creatine or pre-workout supplement brands for 30 days following campaign posting date |
+| Component            | Detail                                                                                                                 |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Base Fee             | $3,500 flat fee for both deliverables (TikTok video + Instagram Reel)                                                  |
+| Performance Bonus    | $250 bonus if combined promo code redemptions exceed 150 within 30 days of posting                                     |
+| Product              | Full-size creatine (one 60-serving tub), retail value $55, shipped upon agreement signing                              |
+| Affiliate Commission | None -- flat fee structure only for this campaign                                                                      |
+| Whitelisting Uplift  | Not included in this brief; requires separate negotiation and written addendum                                         |
+| Payment Terms        | Net 15 from date both posts are live, triggered by creator invoice and confirmation of posting URLs                    |
+| Exclusivity          | No sponsored posts for competing creatine or pre-workout supplement brands for 30 days following campaign posting date |
 
 ---
 
 ### 7. Campaign Timeline
 
-| Milestone | Responsible Party | Target Date |
-|-----------|-------------------|-------------|
-| Brief sent to creator | Brand | Day 0 |
-| Creator confirms receipt, submits questions | Creator | Day 0 + 2 business days |
-| Agreement signed by both parties | Both | Day 5 |
-| Product shipped to creator with tracking | Brand | Day 5 (same day as signing) |
-| Creator confirms product received | Creator | Day 8-10 |
-| Draft content submitted via Google Drive | Creator | Day 12 |
-| Brand provides feedback (if needed) | Brand | Day 15 (3 business days after draft) |
-| Revised content submitted (if revision requested) | Creator | Day 20 |
-| Final approval confirmed via email | Brand | Day 20 (same day if revision minor) |
-| TikTok posted (with Branded Content toggle ON) | Creator | Day 17-21 (posting window) |
-| Instagram Reel posted (24+ hours after TikTok) | Creator | Day 18-21 (posting window) |
-| Creator submits posting URLs + analytics screenshots | Creator | Day 35 (14 days after posting) |
-| Performance bonus evaluated | Brand | Day 47 (30 days after posting) |
-| Payment invoice submitted by creator | Creator | Day of both posts going live |
-| Payment processed | Brand | Net 15 from posting date |
+| Milestone                                            | Responsible Party | Target Date                          |
+| ---------------------------------------------------- | ----------------- | ------------------------------------ |
+| Brief sent to creator                                | Brand             | Day 0                                |
+| Creator confirms receipt, submits questions          | Creator           | Day 0 + 2 business days              |
+| Agreement signed by both parties                     | Both              | Day 5                                |
+| Product shipped to creator with tracking             | Brand             | Day 5 (same day as signing)          |
+| Creator confirms product received                    | Creator           | Day 8-10                             |
+| Draft content submitted via Google Drive             | Creator           | Day 12                               |
+| Brand provides feedback (if needed)                  | Brand             | Day 15 (3 business days after draft) |
+| Revised content submitted (if revision requested)    | Creator           | Day 20                               |
+| Final approval confirmed via email                   | Brand             | Day 20 (same day if revision minor)  |
+| TikTok posted (with Branded Content toggle ON)       | Creator           | Day 17-21 (posting window)           |
+| Instagram Reel posted (24+ hours after TikTok)       | Creator           | Day 18-21 (posting window)           |
+| Creator submits posting URLs + analytics screenshots | Creator           | Day 35 (14 days after posting)       |
+| Performance bonus evaluated                          | Brand             | Day 47 (30 days after posting)       |
+| Payment invoice submitted by creator                 | Creator           | Day of both posts going live         |
+| Payment processed                                    | Brand             | Net 15 from posting date             |
 
 ---
 
 ### 8. Key Contacts
 
-| Role | Name | Contact |
-|------|------|---------|
+| Role                                      | Name   | Contact |
+| ----------------------------------------- | ------ | ------- |
 | Campaign Lead (brief questions, approval) | [Name] | [Email] |
-| Content Review | [Name] | [Email] |
-| Product Shipping | [Name] | [Email] |
-| Contracts and Payment | [Name] | [Email] |
+| Content Review                            | [Name] | [Email] |
+| Product Shipping                          | [Name] | [Email] |
+| Contracts and Payment                     | [Name] | [Email] |
 
 ---
 

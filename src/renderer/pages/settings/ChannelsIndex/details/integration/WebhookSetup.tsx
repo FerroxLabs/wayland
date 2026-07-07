@@ -41,11 +41,7 @@ const WebhookSetup: React.FC = () => {
   }, []);
 
   return (
-    <ChannelDetailLayout
-      channelId='webhook'
-      displayName='Webhook'
-      pluginId={pluginStatus?.id ?? 'webhook_default'}
-    >
+    <ChannelDetailLayout channelId='webhook' displayName='Webhook' pluginId={pluginStatus?.id ?? 'webhook_default'}>
       <WebhookConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />
     </ChannelDetailLayout>
   );

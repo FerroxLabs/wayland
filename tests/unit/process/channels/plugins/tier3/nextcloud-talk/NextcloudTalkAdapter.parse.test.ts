@@ -49,20 +49,12 @@ describe('toUnifiedIncomingFromNextcloudTalk - text message', () => {
   });
 
   it('converts the unix timestamp (seconds) to milliseconds', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ timestamp: 1_700_000_000 }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ timestamp: 1_700_000_000 }), ROOM, SELF);
     expect(result!.timestamp).toBe(1_700_000_000 * 1000);
   });
 
   it('falls back to actorId for displayName when actorDisplayName is empty', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ actorDisplayName: '' }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ actorDisplayName: '' }), ROOM, SELF);
     expect(result!.user.displayName).toBe('alice');
   });
 
@@ -73,11 +65,7 @@ describe('toUnifiedIncomingFromNextcloudTalk - text message', () => {
   });
 
   it('trims leading/trailing whitespace from message text', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ message: '  hi  ' }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ message: '  hi  ' }), ROOM, SELF);
     expect(result!.content.text).toBe('hi');
   });
 });
@@ -86,38 +74,22 @@ describe('toUnifiedIncomingFromNextcloudTalk - text message', () => {
 
 describe('toUnifiedIncomingFromNextcloudTalk - system events dropped', () => {
   it('returns null for system messages (user joined)', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ systemMessage: 'user_added' }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ systemMessage: 'user_added' }), ROOM, SELF);
     expect(result).toBeNull();
   });
 
   it('returns null for call_started system message', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ systemMessage: 'call_started' }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ systemMessage: 'call_started' }), ROOM, SELF);
     expect(result).toBeNull();
   });
 
   it('returns null for empty message text', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ message: '' }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ message: '' }), ROOM, SELF);
     expect(result).toBeNull();
   });
 
   it('returns null for whitespace-only message text', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ message: '   ' }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ message: '   ' }), ROOM, SELF);
     expect(result).toBeNull();
   });
 });
@@ -126,20 +98,12 @@ describe('toUnifiedIncomingFromNextcloudTalk - system events dropped', () => {
 
 describe('toUnifiedIncomingFromNextcloudTalk - echo filter', () => {
   it('returns null for messages sent by the bot itself', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ actorId: SELF }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ actorId: SELF }), ROOM, SELF);
     expect(result).toBeNull();
   });
 
   it('does not filter messages from other users with similar names', () => {
-    const result = toUnifiedIncomingFromNextcloudTalk(
-      makeMsg({ actorId: 'bot2' }),
-      ROOM,
-      SELF,
-    );
+    const result = toUnifiedIncomingFromNextcloudTalk(makeMsg({ actorId: 'bot2' }), ROOM, SELF);
     expect(result).not.toBeNull();
   });
 });
@@ -158,7 +122,7 @@ describe('toUnifiedIncomingFromNextcloudTalk - reply threading', () => {
         },
       }),
       ROOM,
-      SELF,
+      SELF
     );
     expect(result!.replyToMessageId).toBe('10');
   });

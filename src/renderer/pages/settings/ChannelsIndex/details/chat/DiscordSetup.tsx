@@ -47,7 +47,7 @@ const DiscordSetup: React.FC = () => {
       pluginId='discord_default'
       helpText={t(
         'settings.channels.discord.help',
-        'Native Discord bot integration via the Gateway. Create a Discord application and bot in the Developer Portal, then paste the bot token below.',
+        'Native Discord bot integration via the Gateway. Create a Discord application and bot in the Developer Portal, then paste the bot token below.'
       )}
     >
       <DiscordConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

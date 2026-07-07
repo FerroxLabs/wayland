@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml guide best-practices"
-  category: "ai-machine-learning"
-  subcategory: "applied-ai"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml guide best-practices'
+  category: 'ai-machine-learning'
+  subcategory: 'applied-ai'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Knowledge Graph Builder
@@ -42,14 +42,14 @@ Knowledge graphs represent structured relationships between entities, enabling p
 
 ## Graph Database Selection
 
-| Feature | Neo4j | Amazon Neptune | ArangoDB | TigerGraph | Dgraph |
-|---------|-------|---------------|----------|------------|--------|
-| Query Lang | Cypher | Gremlin/SPARQL | AQL | GSQL | GraphQL+- |
-| Hosting | Both | Managed (AWS) | Both | Both | Both |
-| Vector Support | Since 5.13 | No | No | No | No |
-| RDF Support | Limited | Native | No | No | No |
-| Community | Very Large | AWS ecosystem | Medium | Medium | Medium |
-| Learning Curve | Low | Medium | Medium | High | Medium |
+| Feature        | Neo4j      | Amazon Neptune | ArangoDB | TigerGraph | Dgraph    |
+| -------------- | ---------- | -------------- | -------- | ---------- | --------- |
+| Query Lang     | Cypher     | Gremlin/SPARQL | AQL      | GSQL       | GraphQL+- |
+| Hosting        | Both       | Managed (AWS)  | Both     | Both       | Both      |
+| Vector Support | Since 5.13 | No             | No       | No         | No        |
+| RDF Support    | Limited    | Native         | No       | No         | No        |
+| Community      | Very Large | AWS ecosystem  | Medium   | Medium     | Medium    |
+| Learning Curve | Low        | Medium         | Medium   | High       | Medium    |
 
 ```
 Selection guide:
@@ -162,24 +162,24 @@ class KnowledgeExtractor:
 
 ### Extraction Method Comparison
 
-| Method | Speed | Quality | Cost | Best For |
-|--------|-------|---------|------|----------|
-| SpaCy NER | Very Fast | Good | Free | Standard entities, high volume |
-| LLM extraction | Slow | Excellent | API cost | Complex relations, custom schema |
-| Fine-tuned BERT | Fast | Very Good | Free (GPU) | Domain-specific entities |
-| Hybrid (SpaCy + LLM) | Medium | Excellent | Moderate | Best quality/cost balance |
+| Method               | Speed     | Quality   | Cost       | Best For                         |
+| -------------------- | --------- | --------- | ---------- | -------------------------------- |
+| SpaCy NER            | Very Fast | Good      | Free       | Standard entities, high volume   |
+| LLM extraction       | Slow      | Excellent | API cost   | Complex relations, custom schema |
+| Fine-tuned BERT      | Fast      | Very Good | Free (GPU) | Domain-specific entities         |
+| Hybrid (SpaCy + LLM) | Medium    | Excellent | Moderate   | Best quality/cost balance        |
 
 ## GraphRAG
 
 ### GraphRAG vs. Vector RAG
 
-| Dimension | Vector RAG | GraphRAG | Hybrid |
-|-----------|-----------|----------|--------|
-| Retrieval | Semantic similarity | Structural traversal | Both |
-| Reasoning | Limited | Multi-hop relationships | Strong |
-| Explainability | Low | High (explicit paths) | High |
-| Setup complexity | Low | High | High |
-| Best for | Unstructured Q&A | Relational questions | Complex domains |
+| Dimension        | Vector RAG          | GraphRAG                | Hybrid          |
+| ---------------- | ------------------- | ----------------------- | --------------- |
+| Retrieval        | Semantic similarity | Structural traversal    | Both            |
+| Reasoning        | Limited             | Multi-hop relationships | Strong          |
+| Explainability   | Low                 | High (explicit paths)   | High            |
+| Setup complexity | Low                 | High                    | High            |
+| Best for         | Unstructured Q&A    | Relational questions    | Complex domains |
 
 ### Implementation
 
@@ -241,12 +241,12 @@ class GraphRAGPipeline:
 
 ## Knowledge Graph Embeddings
 
-| Model | Approach | Best For |
-|-------|----------|----------|
-| TransE | Translational (h + r = t) | Hierarchical relations |
-| DistMult | Bilinear diagonal | Symmetric relations |
-| ComplEx | Complex-valued bilinear | Asymmetric relations |
-| RotatE | Rotational | Inferring new relations |
+| Model    | Approach                  | Best For                |
+| -------- | ------------------------- | ----------------------- |
+| TransE   | Translational (h + r = t) | Hierarchical relations  |
+| DistMult | Bilinear diagonal         | Symmetric relations     |
+| ComplEx  | Complex-valued bilinear   | Asymmetric relations    |
+| RotatE   | Rotational                | Inferring new relations |
 
 ## Query Optimization
 
@@ -284,6 +284,7 @@ MATCH (p:Person {name: $name}) RETURN p;
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing knowledge graph builder solutions
 - Reviewing or improving existing knowledge graph builder approaches
 - Making architectural or implementation decisions about knowledge graph builder
@@ -291,6 +292,7 @@ MATCH (p:Person {name: $name}) RETURN p;
 - Troubleshooting knowledge graph builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -301,21 +303,26 @@ MATCH (p:Person {name: $name}) RETURN p;
 # Knowledge Graph Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

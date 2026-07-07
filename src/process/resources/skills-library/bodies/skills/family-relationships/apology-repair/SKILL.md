@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships research strategy"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships research strategy'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Apology Repair
 
 Meaningful apologies are one of the most researched and most poorly executed skills in human relationships. This skill draws from relationship science -- including the work of Harriet Lerner, John Gottman, Barry Schwartz, and attachment researchers -- to help an AI assistant guide users through the full process of apologizing well, understanding why previous apologies failed, and building trust repair plans that actually work. A script alone cannot rebuild trust. Trust is rebuilt through consistent behavior over time. This skill produces both the words and the roadmap.
@@ -26,6 +27,7 @@ For severe relational trauma -- infidelity, abuse, or long-term patterns of harm
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to apologize to a partner, family member, close friend, or co-parent after causing hurt, and they want to do it well rather than just "get it over with"
 - The user has already apologized but the other person said it didn't feel genuine, didn't feel like enough, or explicitly said "you don't get it" -- this is a signal the apology was structurally incomplete
 - The user is confused about why the other person is still hurt after an apology was given, and wants to understand what went wrong in the apology itself
@@ -36,6 +38,7 @@ For severe relational trauma -- infidelity, abuse, or long-term patterns of harm
 - The user is trying to understand whether their own apology was genuine or if they are still defending themselves internally
 
 **Do NOT use when:**
+
 - The user has not yet decided whether to apologize and is still working through whether they did something wrong -- use a values clarification or perspective-taking approach first, not this script-building framework
 - The situation involves legal liability, admission of fault in a formal dispute, or anything that could be used in legal proceedings -- refer to professional legal counsel
 - The apology is for a corporate, institutional, or public-relations context -- that requires a crisis communication framework, not a personal relationship repair framework
@@ -95,12 +98,14 @@ Every situation has its own specific failure points. Based on what the user tell
 ### Step 5: Build the Apology Script
 
 Construct the script in two parts:
+
 - A **short-form version** (3-5 sentences) that can be used in a spontaneous moment or when the conversation is brief
 - A **full version** that covers all components in natural, non-formulaic language
 
 The script must sound like the user, not like a legal document or a therapy exercise. Adjust the language to match the user's voice based on how they have described the situation.
 
 The script must include all five core components in sequence:
+
 1. Acknowledgment (specific behavior)
 2. Responsibility (unqualified ownership)
 3. Impact recognition (their experience, not yours)
@@ -249,9 +254,11 @@ Even a structurally perfect apology can fail if delivered at the wrong time or i
 ## Edge Cases
 
 ### The User Has Apologized Multiple Times for the Same Behavior
+
 This is the most common and most difficult edge case. The problem is no longer the apology -- it is the pattern. The other person has likely stopped trusting apologies entirely, because previous apologies have not predicted behavior change. Treat this as a trust-repair problem, not an apology-wording problem.
 
 The new apology must:
+
 1. Name the pattern explicitly and honestly ("I have apologized for this before. I know my apologies have lost meaning because the behavior has not changed.")
 2. Explain -- if the user genuinely understands -- why the pattern has continued (this may require honest self-examination, not excuse-making)
 3. Shift the weight from the apology itself to the behavioral plan ("I don't expect you to trust my words anymore. I'm asking for the chance to show you through what I do differently")
@@ -260,6 +267,7 @@ The new apology must:
 Do not produce a standard five-component apology for this scenario without the above additions. A structurally improved apology for a pattern the other person has seen before will be received as "more of the same."
 
 ### The Other Person Refuses to Hear the Apology
+
 The other person has the right to not be ready. They may be too hurt, too flooded, or too exhausted to hear anything yet. The user cannot force repair on someone else's timeline.
 
 Coach the user to say: "I understand you're not ready. I have something I want to say to you when you are. There's no deadline -- I'll be here."
@@ -269,6 +277,7 @@ Then -- critically -- the user must actually wait without pressuring, without as
 If the other person continues to refuse to engage indefinitely, note that there may come a point where the user has done what they can and the other person's process is outside their control. This is a grief process in its own right, distinct from the apology question.
 
 ### The User Does Not Know What They Did Wrong
+
 This is not a reason to skip the apology -- it is a reason to start with curiosity rather than an apology script. Prematurely apologizing without understanding what specifically hurt the other person will feel hollow.
 
 Coach the user to open with: "I can see that something I did -- or didn't do -- hurt you, and I want to understand it. I'm not going to be defensive. Can you help me see what happened from your side?"
@@ -276,6 +285,7 @@ Coach the user to open with: "I can see that something I did -- or didn't do -- 
 Then actively listen. Resist the urge to explain or defend during this phase. The goal is genuine understanding. Build the apology only after the user has a real picture of what the other person experienced.
 
 ### The Hurt Was Mutual -- Both People Did Something Wrong
+
 Each person's apology must stand on its own and must not be contingent on the other person's apology. This is the hardest rule for users to accept, because it feels unfair to take full responsibility for your part when the other person has also caused harm.
 
 The answer is: "You can address your part fully and cleanly. What the other person does with their part is their decision. A contingent apology ('I'm sorry for X, but you need to apologize for Y') is not an apology -- it is a negotiation."
@@ -283,9 +293,11 @@ The answer is: "You can address your part fully and cleanly. What the other pers
 If the user is dealing with a genuinely mutual conflict where both parties need to hear from each other, it may be useful to note that couples therapy or mediated conversation can create a structured space for that exchange -- but neither person's apology should be held hostage to the other's.
 
 ### The User Believes the Other Person Is Overreacting
+
 This belief is one of the most common barriers to a genuine apology, and it almost always leaks into the words. The user cannot deliver a genuine empathic apology while internally maintaining that the hurt is disproportionate.
 
 The work here is perspective-taking, not script-writing. Help the user examine:
+
 - What does this situation mean to the other person, given their history, values, and relationship with the user?
 - Is it possible that what feels small to the user carries significant symbolic weight for the other person? (Missing a birthday is one data point; for someone who has history of feeling forgotten or deprioritized, it confirms an existing fear)
 - Is the user's assessment of "overreacting" based on how THEY would feel in the same situation -- rather than how this specific person, with this specific history, actually feels?
@@ -293,9 +305,11 @@ The work here is perspective-taking, not script-writing. Help the user examine:
 The other person's experience of the impact does not require the apologizer's validation to be real. You can simultaneously believe the reaction is more intense than you would have had AND accept that it is real and valid for them.
 
 ### The Breach is Severe (Infidelity, Major Deception, Significant Betrayal)
+
 A framework apology is not adequate for severe breaches. Note this clearly and compassionately.
 
 Severe trust violations require:
+
 1. The full apology framework as a starting point, not an endpoint
 2. An explicit acknowledgment that this is the beginning of a long repair process, not the resolution of one
 3. An agreement -- if both parties want to try to repair -- to engage in professional support (couples therapy, ideally with a therapist trained in trust repair or infidelity recovery)
@@ -305,6 +319,7 @@ Severe trust violations require:
 For these situations, produce a framework apology but explicitly note: "This is the first conversation, not the last. Trust repair at this scale is a long arc, and professional support will make a significant difference."
 
 ### The User Wants to Apologize for Something That Happened Years Ago
+
 Old hurts can still need apologies. The apology framework is the same, but the context requires additions:
 
 - Acknowledge explicitly why the apology is coming now -- without making that explanation sound like an excuse for the delay
@@ -323,6 +338,7 @@ Old hurts can still need apologies. The apology framework is the same, but the c
 ## Apology and Repair Plan
 
 ### Situation Summary
+
 - **What happened:** You disclosed that your best friend is seeing a therapist -- without her permission -- to a mutual friend at a party. This is a confidence breach involving sensitive personal information (mental health) in a social context where it spread back to her.
 - **Who was hurt and how:** Your best friend. She is likely experiencing betrayal (her closest friend shared something private), exposure and vulnerability (information about her mental health is now circulating in your shared social network), and loss of safety in the friendship (if you shared this, what else might you share?).
 - **Current relationship status:** Four days of silence after receiving your text -- active withdrawal. She has seen the apology and has not responded, which suggests the text apology did not land.
@@ -333,23 +349,25 @@ Old hurts can still need apologies. The apology framework is the same, but the c
 
 ### The Components Applied to This Situation
 
-| Component | What It Looks Like Here |
-|-----------|------------------------|
-| Acknowledgment | "I shared that you were in therapy with [mutual friend] at the party without asking you first." |
-| Responsibility | "That was a violation of your trust. There is no version of this where that was okay for me to do." |
-| Impact recognition | "I imagine you feel exposed, betrayed, and unsafe with me -- the person who was supposed to be the safest person to tell. I understand if the friendship feels different right now." |
-| Intention statement | "I didn't share it maliciously -- it came out casually, and I minimized it in my head in the moment. I now see how much that minimizing was the problem." |
+| Component            | What It Looks Like Here                                                                                                                                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Acknowledgment       | "I shared that you were in therapy with [mutual friend] at the party without asking you first."                                                                                                                                 |
+| Responsibility       | "That was a violation of your trust. There is no version of this where that was okay for me to do."                                                                                                                             |
+| Impact recognition   | "I imagine you feel exposed, betrayed, and unsafe with me -- the person who was supposed to be the safest person to tell. I understand if the friendship feels different right now."                                            |
+| Intention statement  | "I didn't share it maliciously -- it came out casually, and I minimized it in my head in the moment. I now see how much that minimizing was the problem."                                                                       |
 | Commitment to change | "What you share with me stays with me. I will not share your personal information -- health, relationship, or anything else -- with anyone, ever. If I am ever uncertain whether something is shareable, I will ask you first." |
-| Open inquiry | "I'm not asking you to respond right now. When you're ready to talk -- or if you decide you never want to -- I'll understand. I just needed to say this properly." |
+| Open inquiry         | "I'm not asking you to respond right now. When you're ready to talk -- or if you decide you never want to -- I'll understand. I just needed to say this properly."                                                              |
 
 ---
 
 ### Short-Form Apology (for spontaneous moments)
+
 > "I need to apologize to you properly. I shared your information without your permission, and I called it an accident when really I just wasn't thinking about your privacy. That was a betrayal of trust and I own it completely. What you tell me is yours, not mine to share with anyone. I'm not asking you to be okay yet. I just want you to know I understand what I did."
 
 ---
 
 ### Full Apology Script
+
 > "I need to try this again, because what I sent you the other day wasn't really an apology. Here is what I should have said.
 >
 > I told [mutual friend] that you were seeing a therapist. I said it casually, without thinking -- and without asking you, which is the only thing that should have mattered. I didn't have the right to share anything about your mental health with anyone. That's yours. I violated your privacy in a space where you trusted me completely, and I did it in a social setting where you couldn't control who else found out. That's a real betrayal, and I take full responsibility for it.
@@ -364,36 +382,39 @@ Old hurts can still need apologies. The apology framework is the same, but the c
 
 ### Anti-Patterns to Avoid in This Conversation
 
-| Do NOT Say | Why It Undermines the Apology | Say Instead |
-|------------|-------------------------------|-------------|
-| "I didn't think it was a big deal at the time" | Minimizes the harm; implies her reaction is disproportionate to the offense as you perceived it | "I minimized it in my head in the moment -- and I now understand that minimizing was part of the problem" |
-| "I didn't mean for it to get back to you" | Frames the problem as the exposure, not the disclosure -- implies you'd be fine if she hadn't found out | "I shouldn't have shared it at all, regardless of what happened next" |
-| "I thought we were close enough that it wouldn't matter" | Inverts the logic -- closeness means MORE protection of her information, not less | "Being close means I should have been the most careful with what you told me" |
-| "You know I would never intentionally hurt you" | Shifts focus to your intent and asks her to comfort you; intent does not erase impact | "I know I didn't mean harm -- and I also understand that my intent doesn't change what it felt like for you" |
-| "She probably won't tell anyone else" | Damage control framing -- makes it worse by demonstrating you're still thinking about the logistics | Do not say anything about managing the spread; that is her decision, not yours |
+| Do NOT Say                                               | Why It Undermines the Apology                                                                           | Say Instead                                                                                                  |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| "I didn't think it was a big deal at the time"           | Minimizes the harm; implies her reaction is disproportionate to the offense as you perceived it         | "I minimized it in my head in the moment -- and I now understand that minimizing was part of the problem"    |
+| "I didn't mean for it to get back to you"                | Frames the problem as the exposure, not the disclosure -- implies you'd be fine if she hadn't found out | "I shouldn't have shared it at all, regardless of what happened next"                                        |
+| "I thought we were close enough that it wouldn't matter" | Inverts the logic -- closeness means MORE protection of her information, not less                       | "Being close means I should have been the most careful with what you told me"                                |
+| "You know I would never intentionally hurt you"          | Shifts focus to your intent and asks her to comfort you; intent does not erase impact                   | "I know I didn't mean harm -- and I also understand that my intent doesn't change what it felt like for you" |
+| "She probably won't tell anyone else"                    | Damage control framing -- makes it worse by demonstrating you're still thinking about the logistics     | Do not say anything about managing the spread; that is her decision, not yours                               |
 
 ---
 
 ### Repair Plan
 
 #### Structural Changes
-| Change | What It Looks Like | Why It Matters |
-|--------|--------------------|----------------|
-| Never share personal information without asking | The new default is: if she told you, it stays with you. If you are unsure whether something is public, ask her before mentioning it to anyone | Demonstrates the commitment is structural, not just emotional intensity in this moment |
-| Check in on what she needs regarding [mutual friend] | Ask if she wants you to address the disclosure with [mutual friend], or if she prefers you not to | Gives her control over a situation where she had none |
-| Avoid discussing her therapy or mental health with anyone | Even if information about it becomes more public, you do not contribute to or discuss it | Signals you have actually internalized what was private about this |
+
+| Change                                                    | What It Looks Like                                                                                                                            | Why It Matters                                                                         |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Never share personal information without asking           | The new default is: if she told you, it stays with you. If you are unsure whether something is public, ask her before mentioning it to anyone | Demonstrates the commitment is structural, not just emotional intensity in this moment |
+| Check in on what she needs regarding [mutual friend]      | Ask if she wants you to address the disclosure with [mutual friend], or if she prefers you not to                                             | Gives her control over a situation where she had none                                  |
+| Avoid discussing her therapy or mental health with anyone | Even if information about it becomes more public, you do not contribute to or discuss it                                                      | Signals you have actually internalized what was private about this                     |
 
 #### Follow-Up Timeline
-| When | Action | How to Frame It |
-|------|--------|----------------|
-| Now (before she responds) | Send the full apology via text or letter; do not attempt to call without warning -- she may not be ready for live conversation | "I want to try this apology again, properly. No need to respond right now." |
-| 5-7 days if no response | A single, brief, low-pressure follow-up -- not another apology, but a signal you are still present and not abandoning the friendship under pressure | "I'm not going anywhere. I know you need space and I'm giving it to you. I'm here when you're ready." |
-| When she is ready to talk | Let her set the agenda. Do not rush to "are we okay?" Ask: "What do you need from me right now?" and then listen before speaking | She may need to express the hurt directly to you; receive it without defending yourself |
-| 1 month out | Visible behavioral evidence -- she should be able to observe that you are more careful with her information in general, not just the explicit commitment | You do not need to narrate this; she will notice |
+
+| When                      | Action                                                                                                                                                   | How to Frame It                                                                                       |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Now (before she responds) | Send the full apology via text or letter; do not attempt to call without warning -- she may not be ready for live conversation                           | "I want to try this apology again, properly. No need to respond right now."                           |
+| 5-7 days if no response   | A single, brief, low-pressure follow-up -- not another apology, but a signal you are still present and not abandoning the friendship under pressure      | "I'm not going anywhere. I know you need space and I'm giving it to you. I'm here when you're ready." |
+| When she is ready to talk | Let her set the agenda. Do not rush to "are we okay?" Ask: "What do you need from me right now?" and then listen before speaking                         | She may need to express the hurt directly to you; receive it without defending yourself               |
+| 1 month out               | Visible behavioral evidence -- she should be able to observe that you are more careful with her information in general, not just the explicit commitment | You do not need to narrate this; she will notice                                                      |
 
 ---
 
 ### If She Is Not Ready to Accept
+
 > "I hear you. You don't have to be ready. I meant what I said -- there's no deadline on this from my side. I care about you and this friendship too much to rush you. I'll be here."
 
 Do not follow up more than once if she does not respond. Repeated attempts begin to look like you are trying to resolve your own discomfort rather than respecting hers.
@@ -401,6 +422,7 @@ Do not follow up more than once if she does not respond. Repeated attempts begin
 ---
 
 ### If the Hurt Surfaces Again Later
+
 > "I know. I'm glad you can tell me that it's still there. I don't want you to pretend you're over something you're not. What can I do right now that would help?"
 
 Resist every impulse to say "I thought we moved past this." Hurt from a real breach does not follow a linear timeline. The fact that she is still bringing it up means she is still in the relationship and still believes it can be repaired -- that is not a problem, it is information. Receive it as such.
@@ -408,6 +430,7 @@ Resist every impulse to say "I thought we moved past this." Hurt from a real bre
 ---
 
 ### When to Consider Professional Support
+
 This situation does not require professional support to resolve. It is a friendship breach that can be repaired through sustained behavioral change over time.
 
 However -- if this disclosure is part of a broader pattern of boundary violations in your friendships or other close relationships, individual therapy can be valuable for exploring why you minimize others' privacy, what you tell yourself to justify casual disclosure, and how to build a more consistent internal filter. Not as punishment, but as genuine self-understanding that makes the behavioral change stick.

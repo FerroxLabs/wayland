@@ -13,14 +13,15 @@ description: >-
   one atomic skill can draft on its own.
 license: Apache-2.0
 type: workflow
-skills: "ops-handbook"
+skills: 'ops-handbook'
 metadata:
   author: wayland
   version: 1.0.0
   tags: business-ops handbook operations decision-rights step-by-step
   category: Business Operations
-  depends: "ops-handbook"
+  depends: 'ops-handbook'
 ---
+
 # Build the Operations Handbook
 
 **Estimated time:** 60-90 minutes

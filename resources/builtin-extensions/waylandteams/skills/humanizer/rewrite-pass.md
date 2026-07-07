@@ -86,11 +86,11 @@ Higher AI-likelihood = more AI. Higher sub-axes = more human. A good rewrite mov
 
 **Input draft (9/10 AI-likelihood):**
 
-> *In today's digital age, organizations must embark on a robust strategy to navigate the multifaceted challenges of customer engagement and _unlock_ comprehensive growth opportunities.*
+> _In today's digital age, organizations must embark on a robust strategy to navigate the multifaceted challenges of customer engagement and *unlock* comprehensive growth opportunities._
 
 **Output:**
 
-> *Most "customer engagement strategies" are dashboards stapled to a quarterly review. Useless. If you cannot tell me what one customer actually did yesterday, you do not have a strategy. You have a Notion page.*
+> _Most "customer engagement strategies" are dashboards stapled to a quarterly review. Useless. If you cannot tell me what one customer actually did yesterday, you do not have a strategy. You have a Notion page._
 
 ```
 Scores: AI-flatness before 1/10 → after 8/10 | Rhythm before 2/10 → after 9/10 | Composite AI-likelihood before 9/10 → after 2/10

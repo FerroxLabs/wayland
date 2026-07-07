@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships beginner-friendly quick-reference testing planning game-design parenting cleaning"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships beginner-friendly quick-reference testing planning game-design parenting cleaning'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Blended Family Navigator
 
 ## When to Use
 
 **Use this skill when:**
+
 - A step-parent describes feeling like an outsider in their own home and wants concrete strategies for building genuine connection with stepchildren
 - A biological parent asks how to manage loyalty conflicts their child is experiencing between households
 - A couple preparing to merge two households wants a realistic framework for the transition, including timelines and milestones
@@ -31,6 +33,7 @@ metadata:
 - A user asks about how to talk to extended family members (grandparents, aunts, uncles) who are excluding or favoring certain children in the blended family
 
 **Do NOT use when:**
+
 - The user describes acute safety concerns -- physical abuse, child neglect, or domestic violence -- redirect immediately to emergency services or a crisis hotline and use a crisis-intervention approach instead
 - The user is a child or teenager navigating this situation without adult involvement; redirect to age-appropriate support resources and consider whether a guardian should be involved
 - The request is primarily a legal question about custody arrangements, child support, or divorce proceedings -- redirect to a family law guidance skill and advise consulting a licensed attorney
@@ -69,29 +72,34 @@ Child age at the time of blending is the single biggest variable in what strateg
 Map the user's situation to one of five core challenge categories. Each has a distinct framework:
 
 **Category 1 -- Step-Parent Authority and Connection**
+
 - The step-parent has not yet established credibility with the child
 - Primary intervention: the "Warm Authority Ladder" (warmth first, authority second, always with biological parent as lead enforcer in early years)
 - Timeline: 12-24 months minimum before shared discipline feels natural to the child
 - Immediate tool: shared low-stakes activities with zero performance pressure (fishing, baking, driving to activities) -- side-by-side time is more bonding than face-to-face interaction for resistant children
 
 **Category 2 -- Loyalty Binds and Emotional Triangulation**
+
 - A child visibly shuts down affection toward the step-parent after a visit to the other household, or expresses that loving the step-parent feels like a betrayal
 - Primary intervention: explicit verbal permission from the biological parent ("It is okay to love Sam. Your heart is big enough for everyone")
 - Critical rule: the biological parent, not the step-parent, must deliver this message -- it carries no weight coming from the step-parent
 - Secondary intervention: eliminate any behavior in the household that signals competition with the other household (do not compare gifts, do not comment on the other home's rules)
 
 **Category 3 -- Co-Parenting and Between-Household Conflict**
+
 - Logistics, disputes, and communication with the other biological parent are creating household stress
 - Primary framework: the Business Partner Model -- communication is factual, child-focused, and documented
 - Tool recommendation: structured co-parenting apps (OurFamilyWizard, TalkingParents, AppClose) provide timestamped records and reduce emotional escalation in written communication
 - For high-conflict situations: parallel parenting replaces co-parenting -- minimize all direct contact, make independent decisions within your own household, use a parenting coordinator for contested decisions
 
 **Category 4 -- Logistics and Transition Management**
+
 - Custody transitions, holidays, school events, and scheduling are causing recurring conflict
 - Primary intervention: transition buffer protocol (30-minute decompression period when children return from the other home -- no demands, no interrogation, no emotional processing requests)
 - Holiday framework: start planning 6-8 weeks ahead, rotate primary holidays on a two-year cycle, create a "shadow celebration" tradition for years when children are at the other home
 
 **Category 5 -- Couple Relationship Under Strain**
+
 - Partners disagree on parenting approaches, one partner feels unsupported, biological parent feels torn between partner and child
 - Primary intervention: the Couple-First Protocol (weekly 30-minute check-in, child-free; present unified front on major decisions; biological parent advocates for step-parent's legitimate authority)
 - Critical framing: the couple relationship is the structural foundation -- if it fails, the blended family cannot hold. This is not selfish; it is architectural
@@ -323,6 +331,7 @@ A child with autism, ADHD, anxiety, trauma history, or other significant needs i
 ## Blended Family Navigator: Situation Assessment
 
 ### Family Snapshot
+
 - **Configuration**: Step-parent (no prior parenting experience) living with biological parent and two children -- 13-year-old girl (stepdaughter), 10-year-old boy (stepson)
 - **Blending Duration**: 14 months
 - **Current Stage**: Reality Stage transitioning into early Mobilization -- this is exactly when the invisible wall dynamic typically surfaces and becomes undeniable
@@ -376,12 +385,12 @@ By the time she is 15-16 and developmentally beginning to individuate, you may f
 
 ### Scripts and Language
 
-| Situation | What to Say | What to Avoid |
-|---|---|---|
-| She walks past without responding to good morning | Nothing. Look up, make brief eye contact, go back to what you're doing. | "Good morning? Hello? Do you hear me?" -- pursuit creates a power dynamic she will win every time |
-| You bring up the situation to your partner | "I need to tell you how I'm feeling. I don't feel like I have a real place in this house yet, and that's affecting me. I'm not asking you to make her love me -- I'm asking you to hear me." | "Your daughter is being rude and you're not doing anything about it" -- this positions her as defending the child against you |
-| She does respond or initiates something | Keep it brief, warm, and do not make it a big deal. Match her energy exactly. If she says two sentences, say two sentences back. | "I'm so glad you're talking to me! This means so much!" -- emotional intensity will make her retreat |
-| Your partner says "just give it time" | "I hear that, and I'm willing to. I also need us to check in about this together every couple of months so I don't feel alone in it." | Accepting "give it time" without getting your own need for support met -- this leads to silent accumulation |
+| Situation                                         | What to Say                                                                                                                                                                                  | What to Avoid                                                                                                                 |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| She walks past without responding to good morning | Nothing. Look up, make brief eye contact, go back to what you're doing.                                                                                                                      | "Good morning? Hello? Do you hear me?" -- pursuit creates a power dynamic she will win every time                             |
+| You bring up the situation to your partner        | "I need to tell you how I'm feeling. I don't feel like I have a real place in this house yet, and that's affecting me. I'm not asking you to make her love me -- I'm asking you to hear me." | "Your daughter is being rude and you're not doing anything about it" -- this positions her as defending the child against you |
+| She does respond or initiates something           | Keep it brief, warm, and do not make it a big deal. Match her energy exactly. If she says two sentences, say two sentences back.                                                             | "I'm so glad you're talking to me! This means so much!" -- emotional intensity will make her retreat                          |
+| Your partner says "just give it time"             | "I hear that, and I'm willing to. I also need us to check in about this together every couple of months so I don't feel alone in it."                                                        | Accepting "give it time" without getting your own need for support met -- this leads to silent accumulation                   |
 
 ---
 
@@ -402,16 +411,17 @@ By the time she is 15-16 and developmentally beginning to individuate, you may f
 
 ### Realistic Milestones
 
-| Timeframe | What to Expect | What Would Be a Concern |
-|---|---|---|
-| 1-3 months | Stepdaughter's behavior remains largely unchanged, but the emotional charge around it decreases as you shift your approach; couple communication improves with intentional work | Partner continues to shut down all conversations; stepdaughter's behavior becomes actively hostile or aggressive (beyond invisible) |
-| 6-12 months | Occasional voluntary interactions with stepdaughter -- she may initiate something small; your sense of having a legitimate place in the household increases as couple communication improves | No change whatsoever in any direction; you feel more invisible than you did at month 3; partner still unable to affirm your role in the family |
-| 2-4 years | Stepdaughter in late adolescence begins showing more openness; a shared history of small interactions has accumulated into a foundation; you no longer feel like a guest in the house | The relationship with your partner has not recovered; you have disengaged emotionally from the stepdaughter and built no common ground; she leaves for college with no relationship at all and no reason to return |
+| Timeframe   | What to Expect                                                                                                                                                                               | What Would Be a Concern                                                                                                                                                                                            |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1-3 months  | Stepdaughter's behavior remains largely unchanged, but the emotional charge around it decreases as you shift your approach; couple communication improves with intentional work              | Partner continues to shut down all conversations; stepdaughter's behavior becomes actively hostile or aggressive (beyond invisible)                                                                                |
+| 6-12 months | Occasional voluntary interactions with stepdaughter -- she may initiate something small; your sense of having a legitimate place in the household increases as couple communication improves | No change whatsoever in any direction; you feel more invisible than you did at month 3; partner still unable to affirm your role in the family                                                                     |
+| 2-4 years   | Stepdaughter in late adolescence begins showing more openness; a shared history of small interactions has accumulated into a foundation; you no longer feel like a guest in the house        | The relationship with your partner has not recovered; you have disengaged emotionally from the stepdaughter and built no common ground; she leaves for college with no relationship at all and no reason to return |
 
 ---
 
 ### Follow-Up Questions Worth Exploring
 
 Two pieces of information would sharpen these recommendations significantly:
+
 1. Is there an active biological father in the picture for the children, and what is that co-parenting relationship like? If the 13-year-old is actively loyal to a father who is resistant to the blended family, her behavior has an additional layer of meaning.
 2. Has your partner spoken directly to her daughter about your role in the household -- explicitly affirmed it, explained it, invited her daughter to share her feelings about it? If not, this is the single highest-leverage intervention available, and it can only come from your partner.

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql guide"
-  category: "data-engineering"
-  subcategory: "streaming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-science sql guide'
+  category: 'data-engineering'
+  subcategory: 'streaming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Streaming Architect
@@ -151,6 +151,7 @@ Source -> Kafka (idempotent producer)
 ```
 
 Key requirements:
+
 1. **Producer**: `enable.idempotence=true`, `transactional.id` set
 2. **Consumer**: `isolation.level=read_committed`
 3. **Processing**: Deterministic transforms (same input = same output)
@@ -253,12 +254,12 @@ query = windowed_counts.writeStream \
 
 ### Late Data Strategies
 
-| Strategy | Behavior | Use When |
-|----------|----------|----------|
-| Drop late data | Discard events arriving after watermark | Metrics where approximation is acceptable |
-| Side output | Route late data to separate stream | Need to reprocess late data differently |
-| Allowed lateness | Keep window state beyond watermark | Need accurate counts, can tolerate delays |
-| Retraction | Update previous results | Dashboard/materialized view updates |
+| Strategy         | Behavior                                | Use When                                  |
+| ---------------- | --------------------------------------- | ----------------------------------------- |
+| Drop late data   | Discard events arriving after watermark | Metrics where approximation is acceptable |
+| Side output      | Route late data to separate stream      | Need to reprocess late data differently   |
+| Allowed lateness | Keep window state beyond watermark      | Need accurate counts, can tolerate delays |
+| Retraction       | Update previous results                 | Dashboard/materialized view updates       |
 
 ## Schema Registry
 
@@ -371,7 +372,7 @@ kind: Deployment
 metadata:
   name: order-processor
 spec:
-  replicas: 6  # Match partition count or be a divisor
+  replicas: 6 # Match partition count or be a divisor
   selector:
     matchLabels:
       app: order-processor
@@ -384,7 +385,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 0  # Zero-downtime deployment
+      maxUnavailable: 0 # Zero-downtime deployment
 ```
 
 ## Capacity Planning
@@ -436,6 +437,7 @@ Total cluster storage = sum(all topics) + 20% overhead
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing streaming architect solutions
 - Reviewing or improving existing streaming architect approaches
 - Making architectural or implementation decisions about streaming architect
@@ -443,6 +445,7 @@ Total cluster storage = sum(all topics) + 20% overhead
 - Troubleshooting streaming architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -453,21 +456,26 @@ Total cluster storage = sum(all topics) + 20% overhead
 # Streaming Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

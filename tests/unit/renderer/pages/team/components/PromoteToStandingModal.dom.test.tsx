@@ -60,9 +60,7 @@ describe('PromoteToStandingModal', () => {
     // Header title
     expect(screen.getByText('Promote to Standing Company')).toBeTruthy();
     // Description
-    expect(
-      screen.getByText(/Standing Companies persist across sessions/i)
-    ).toBeTruthy();
+    expect(screen.getByText(/Standing Companies persist across sessions/i)).toBeTruthy();
     // Team name displayed
     expect(screen.getByTestId('promote-to-standing-team-name').textContent).toBe('Renewal Push');
     // Both opt-in checkboxes present

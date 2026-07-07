@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "organization-coach interior-designer cleaning-system habit-tracker"
+skills: 'organization-coach interior-designer cleaning-system habit-tracker'
 trigger_phrases: >-
   I need to declutter my house help me organize my home home organization plan
   too much stuff in my house I want a minimalist home how to declutter room by
@@ -22,10 +22,11 @@ metadata:
   version: 1.0.0
   tags: decluttering home-maintenance cleaning habits step-by-step planning
   category: life-event
-  depends: "organization-coach interior-designer cleaning-system habit-tracker"
+  depends: 'organization-coach interior-designer cleaning-system habit-tracker'
   disclaimer: none
   difficulty: beginner
 ---
+
 # Declutter Organize Home
 
 **Estimated time:** 4-8 weeks
@@ -155,6 +156,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -165,7 +167,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Starting with sentimental items:** Sentimental rooms are the hardest. Start with bathrooms, kitchens, or utility areas to build decision-making muscles.
 - **Perfectionism:** An organized home does not mean a magazine home. Functional and maintainable is the goal.
 - **Doing it alone in a shared home:** Everyone who lives there must be involved. Unilateral decluttering causes conflict.
-
 
 ### Timeline Considerations
 

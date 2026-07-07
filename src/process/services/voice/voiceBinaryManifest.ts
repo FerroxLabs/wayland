@@ -89,11 +89,7 @@ const MANIFEST: Record<BinaryKind, KindManifest> = {
  * Internal helper - exposed so tests can call it with an arbitrary
  * platform/arch pair without needing to mock `process`.
  */
-export const pickManifestEntry = (
-  kind: BinaryKind,
-  platform: string,
-  arch: string,
-): ManifestEntry | null => {
+export const pickManifestEntry = (kind: BinaryKind, platform: string, arch: string): ManifestEntry | null => {
   const key: PlatformArch = `${platform}-${arch}` as PlatformArch;
   return MANIFEST[kind][key] ?? null;
 };
@@ -112,7 +108,7 @@ export const resolveBinaryAsset = (kind: BinaryKind): ManifestEntry | null =>
 export class BinaryAcquisitionError extends Error {
   constructor(
     public readonly kind: BinaryKind,
-    message: string,
+    message: string
   ) {
     super(`BinaryAcquisitionError(${kind}): ${message}`);
     this.name = 'BinaryAcquisitionError';
@@ -166,21 +162,18 @@ export const defaultBinaryPostInstallIo: BinaryPostInstallIo = {
  */
 export const acquireBinary = async (
   kind: BinaryKind,
-  io: BinaryPostInstallIo = defaultBinaryPostInstallIo,
+  io: BinaryPostInstallIo = defaultBinaryPostInstallIo
 ): Promise<string> => {
   const entry = resolveBinaryAsset(kind);
   if (!entry) {
-    throw new BinaryAcquisitionError(
-      kind,
-      `unsupported platform: ${process.platform}-${process.arch}`,
-    );
+    throw new BinaryAcquisitionError(kind, `unsupported platform: ${process.platform}-${process.arch}`);
   }
 
   const binDir = path.join(
     getPlatformServices().paths.getDataDir(),
     'voice',
     'bin',
-    `${process.platform}-${process.arch}`,
+    `${process.platform}-${process.arch}`
   );
   const destPath = path.join(binDir, entry.filename);
   const assetId = `${kind}-${process.platform}-${process.arch}`;

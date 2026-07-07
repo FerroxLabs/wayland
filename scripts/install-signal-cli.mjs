@@ -40,11 +40,8 @@ function looksLikeArchive(name) {
 }
 
 function pickAsset(assets, platform, arch) {
-  const archives = assets.filter(
-    (a) => a.name && a.browser_download_url && looksLikeArchive(a.name),
-  );
-  const byName = (pattern) =>
-    archives.find((a) => pattern.test(a.name.toLowerCase()));
+  const archives = assets.filter((a) => a.name && a.browser_download_url && looksLikeArchive(a.name));
+  const byName = (pattern) => archives.find((a) => pattern.test(a.name.toLowerCase()));
 
   if (platform === 'linux') {
     if (arch === 'x64') return byName(/linux-native/) ?? byName(/linux/) ?? archives[0];
@@ -140,7 +137,7 @@ async function main() {
         'Install signal-cli manually:\n' +
         '  brew install signal-cli         # macOS (any arch)\n' +
         '  sudo apt-get install signal-cli # Debian/Ubuntu\n' +
-        'Then set the cliPath in Wayland Signal settings.',
+        'Then set the cliPath in Wayland Signal settings.'
     );
     process.exit(0);
   }

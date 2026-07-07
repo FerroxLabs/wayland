@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy checklist step-by-step guide"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy checklist step-by-step guide'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Small Claims Court Prep
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to understand whether small claims court is the right venue before committing to filing
 - The user is preparing to file a small claims case and needs a step-by-step roadmap covering demand letters, filing, service, and hearing preparation
 - The user has an upcoming court date (as plaintiff or defendant) and needs to organize evidence and rehearse their presentation
@@ -33,6 +35,7 @@ metadata:
 - The user needs help writing a demand letter before filing that demonstrates good faith and preserves their legal position
 
 **Do NOT use this skill when:**
+
 - The claim amount exceeds the small claims jurisdictional limit and the user is unwilling to waive the excess -- refer to the civil litigation or attorney consultation skill
 - The matter involves criminal charges, criminal restitution, or a traffic offense -- these go through criminal or traffic court, not small claims
 - The matter involves family law: divorce, child custody, child support, alimony, or paternity -- refer to the family law literacy skill
@@ -58,22 +61,23 @@ Gather the following information before providing any guidance. Do not skip this
 **Jurisdictional Limits -- Know These Numbers:**
 Small claims limits change periodically. The figures below reflect typical current limits but must be verified at the specific courthouse.
 
-| State | Limit | State | Limit |
-|-------|-------|-------|-------|
-| California | $12,500 (individuals); $6,250 (businesses) | New York | $10,000 (NYC); $5,000 (elsewhere) |
-| Florida | $8,000 | Texas | $20,000 |
-| Illinois | $10,000 | Georgia | $15,000 |
-| Pennsylvania | $12,000 | Ohio | $6,000 |
-| Michigan | $7,000 | Tennessee | $25,000 |
-| Arizona | $3,500 | Kentucky | $2,500 |
-| Washington | $10,000 | Massachusetts | $7,000 |
-| Colorado | $7,500 | Virginia | $5,000 |
+| State        | Limit                                      | State         | Limit                             |
+| ------------ | ------------------------------------------ | ------------- | --------------------------------- |
+| California   | $12,500 (individuals); $6,250 (businesses) | New York      | $10,000 (NYC); $5,000 (elsewhere) |
+| Florida      | $8,000                                     | Texas         | $20,000                           |
+| Illinois     | $10,000                                    | Georgia       | $15,000                           |
+| Pennsylvania | $12,000                                    | Ohio          | $6,000                            |
+| Michigan     | $7,000                                     | Tennessee     | $25,000                           |
+| Arizona      | $3,500                                     | Kentucky      | $2,500                            |
+| Washington   | $10,000                                    | Massachusetts | $7,000                            |
+| Colorado     | $7,500                                     | Virginia      | $5,000                            |
 
 - If the claim is **at or below** the limit: small claims is appropriate.
 - If the claim is **slightly above** the limit (within 15-20%): explain the option of reducing the claim by waiving the excess amount. Document this trade-off explicitly. The user permanently gives up the right to collect the waived portion.
 - If the claim is **significantly above** the limit: recommend filing in the appropriate civil court (magistrate, district, circuit, or superior court depending on the state). Note that those courts usually require formal pleadings and may require an attorney.
 
 **Special Rules to Flag:**
+
 - California prohibits businesses from filing in small claims court more than twice per year.
 - Some states (Michigan, Nebraska) prohibit attorneys from representing clients at small claims hearings.
 - Some states (Massachusetts, Tennessee) allow attorneys; this can disadvantage a self-represented party.
@@ -84,12 +88,14 @@ Small claims limits change periodically. The figures below reflect typical curre
 ### Step 2: Draft or Review the Demand Letter
 
 A demand letter is not merely a courtesy -- it is a strategic document that:
+
 1. Documents that the user attempted resolution (many judges ask if a demand was made)
 2. Is required before filing in some states (California for most consumer claims, New Jersey for many disputes)
 3. Creates a paper trail establishing the facts of the dispute on the user's terms
 4. Sometimes results in settlement without court involvement
 
 **Demand Letter Must-Haves:**
+
 - Date the letter prominently at the top
 - Clearly identify both parties (full legal names, addresses)
 - State the specific facts of the dispute in chronological order -- dates, amounts, what was promised, what was not delivered
@@ -101,6 +107,7 @@ A demand letter is not merely a courtesy -- it is a strategic document that:
 - Keep the original letter and the certified mail tracking number and return receipt
 
 **Optional but powerful additions:**
+
 - Reference any applicable consumer protection statute (state UDAP statutes, state contractor licensing laws, state landlord-tenant statutes) -- mentioning these signals the user knows the law
 - If the defendant is a licensed contractor or professional, note that you are aware of their licensing obligations -- this adds pressure to settle
 
@@ -109,6 +116,7 @@ A demand letter is not merely a courtesy -- it is a strategic document that:
 ### Step 3: Identify the Correct Courthouse and Understand Filing Procedures
 
 Small claims court goes by different names in different states:
+
 - "Small Claims Court" (California, Florida, New York, Michigan)
 - "Magistrate Court" (Georgia, West Virginia, South Carolina)
 - "Justice Court" (Texas, Arizona, Montana)
@@ -117,12 +125,14 @@ Small claims court goes by different names in different states:
 
 **Determining the Correct Courthouse:**
 Priority order for venue (where to file):
+
 1. County where the defendant lives (most common for individual defendants)
 2. County where the defendant's principal place of business is located (for business defendants)
 3. County where the contract was signed or performed
 4. County where the incident occurred (for property damage cases)
 
 **Filing the Claim -- What to Bring to the Clerk's Office:**
+
 - The completed claim form (often downloadable from the court's website; sometimes the clerk provides it)
 - Defendant's full legal name: for individuals, first and last name; for businesses, the exact legal entity name as registered with the state (find this via the state's Secretary of State business entity search database -- available in all 50 states)
 - Defendant's current address: for service of process, this address must be accurate
@@ -131,6 +141,7 @@ Priority order for venue (where to file):
 - Filing fee payment: typically $30-$100; some courts charge a percentage of the claim amount; most courts accept cash, check, or card
 
 **What the Clerk Does:**
+
 - Assigns a case number
 - Schedules a hearing date (typically 30-70 days out, sometimes 90 days in high-volume urban courts)
 - Issues the summons to be served on the defendant
@@ -152,12 +163,14 @@ Service of process is the most common reason small claims cases are dismissed or
 | Publication | $100-$400+ | Last resort | For defendants whose location cannot be determined after diligent search |
 
 **Critical Rules for Service:**
+
 - The person serving cannot be a party to the case (the plaintiff cannot serve the defendant themselves in virtually all jurisdictions)
 - Obtain a **Proof of Service** (also called "Affidavit of Service" or "Return of Service") and file it with the court before the hearing date -- many courts will not hear the case without it
 - Service must typically be completed at least 5-15 days before the hearing (varies by jurisdiction -- verify this window)
 - If service fails, the user must request a new hearing date from the clerk and re-attempt service
 
 **Serving a Business:**
+
 - Look up the registered agent via the state Secretary of State's business entity database
 - Serve the registered agent directly by name (e.g., "John Smith, Registered Agent for ABC Painting LLC")
 - Alternatively, serve an officer (president, vice president, managing member for LLCs) or, in many states, any manager at the business location
@@ -168,6 +181,7 @@ Service of process is the most common reason small claims cases are dismissed or
 ### Step 5: Build a Comprehensive Evidence Plan
 
 Evidence in small claims court must prove four things for virtually every case type:
+
 1. **Liability** -- the defendant is legally responsible
 2. **Causation** -- the defendant's action or inaction caused the loss
 3. **Damages** -- the loss exists and can be measured in dollars
@@ -176,6 +190,7 @@ Evidence in small claims court must prove four things for virtually every case t
 **Evidence by Category:**
 
 **Documents (highest weight in small claims):**
+
 - Written contracts, service agreements, purchase orders, proposals -- the clearest proof of an agreement
 - Invoices, receipts, bills of sale, credit card statements, bank records
 - Estimates from licensed professionals establishing the cost of repair or completion
@@ -184,6 +199,7 @@ Evidence in small claims court must prove four things for virtually every case t
 - Lease agreements and move-in/move-out inspection checklists (for security deposit cases)
 
 **Communications (very persuasive):**
+
 - Emails: print the full header showing sender, recipient, and date -- not just the body
 - Text messages: screenshot the full thread with timestamps visible; note the phone numbers at the top
 - Voicemail transcriptions: write out the content and note the date
@@ -191,18 +207,21 @@ Evidence in small claims court must prove four things for virtually every case t
 - Social media messages: screenshot with the platform name, usernames, and timestamps visible
 
 **Photographs and Video:**
+
 - Use geotagged photos from a smartphone when possible -- the metadata embeds location and timestamp
 - For property damage: photograph from wide angle (showing context) and close-up (showing specific damage); include a ruler or common object for scale
 - "Before" photos are extremely valuable -- pull from old social media posts, listing photos, real estate records if needed
 - Video walkthroughs are more compelling than still photos for condition-of-property disputes
 
 **Third-Party Corroboration:**
+
 - Written estimates from at least two licensed contractors (for repair cost disputes)
 - Appraisals from licensed appraisers (for lost or destroyed property)
 - A written statement from a witness who observed the relevant events -- have the witness sign and date it; note their contact information in case the judge has questions
 - Official records: police reports, fire department incident reports, code enforcement inspection reports -- these carry significant weight because they are created by neutral government parties
 
 **Organizing Exhibits:**
+
 - Number sequentially: Exhibit 1, Exhibit 2, etc.
 - Create a one-page Exhibit List: exhibit number, description, and what element of the case it proves
 - Bring the originals plus **three copies** of every document: one for yourself, one for the judge, one for the opposing party
@@ -216,6 +235,7 @@ Evidence in small claims court must prove four things for virtually every case t
 Small claims hearings are informal compared to regular civil court but they follow a predictable structure. Most judges hear 10-30 cases per session. Brevity and clarity are virtues.
 
 **Hearing Structure:**
+
 1. The clerk calls the case and asks both parties to confirm they are present
 2. The plaintiff presents first (unless the defendant has filed a counterclaim, which may be heard together)
 3. The defendant presents their defense (and counterclaim if applicable)
@@ -235,6 +255,7 @@ Every presentation should follow this sequence:
 6. **The request (10 seconds):** "I respectfully ask the court to award $[exact amount] plus the filing fee of $[amount]."
 
 **Courtroom Conduct Rules:**
+
 - Address the judge as "Your Honor" every time you speak to them
 - Do not interrupt the other party, even if they say something factually wrong -- wait your turn
 - Do not bring a character witness unless they personally witnessed the relevant events -- judges typically do not want to hear "he's a bad person" testimony
@@ -244,6 +265,7 @@ Every presentation should follow this sequence:
 - Silence your phone before entering the courtroom
 
 **Counterclaims (if the user is a defendant):**
+
 - A counterclaim allows the defendant to assert their own claim against the plaintiff in the same proceeding
 - Most states require the counterclaim to be filed and served before the hearing -- typically 5-15 days in advance
 - If the counterclaim exceeds the small claims limit, the entire case may be transferred to a higher court
@@ -259,15 +281,16 @@ A judgment is a court order -- it is not a check. Winning the judgment is step o
 
 **If the Defendant Does Not Pay (Post-Judgment Collection Tools):**
 
-| Tool | How It Works | Requirements | Limitations |
-|------|-------------|-------------|-------------|
-| Wage Garnishment | Court orders defendant's employer to withhold a portion of each paycheck | Employer must be identified; must file garnishment paperwork with court | Federal law caps garnishment at 25% of disposable income; some states have lower caps; self-employed defendants cannot be garnished |
-| Bank Levy | Court orders defendant's bank to freeze and turn over funds | Must identify the bank and branch; file levy paperwork; pay levy fee ($25-$100) | Bank must have defendant's account; retirement accounts (IRA, 401k) are typically exempt |
-| Property Lien | Judgment is recorded against real property the defendant owns | File abstract of judgment with county recorder where property is located | Only collectible when property sells or refinances; defendant may not own property |
-| Till Tap (for businesses) | Sheriff physically collects cash from a business's register | Requires court order and sheriff's execution | Must know business operating hours and location |
-| Keeper Levy | Sheriff "keeps" a business location and collects receipts | Requires court order; daily sheriff fee | Expensive; best for businesses with high daily cash volume |
+| Tool                      | How It Works                                                             | Requirements                                                                    | Limitations                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Wage Garnishment          | Court orders defendant's employer to withhold a portion of each paycheck | Employer must be identified; must file garnishment paperwork with court         | Federal law caps garnishment at 25% of disposable income; some states have lower caps; self-employed defendants cannot be garnished |
+| Bank Levy                 | Court orders defendant's bank to freeze and turn over funds              | Must identify the bank and branch; file levy paperwork; pay levy fee ($25-$100) | Bank must have defendant's account; retirement accounts (IRA, 401k) are typically exempt                                            |
+| Property Lien             | Judgment is recorded against real property the defendant owns            | File abstract of judgment with county recorder where property is located        | Only collectible when property sells or refinances; defendant may not own property                                                  |
+| Till Tap (for businesses) | Sheriff physically collects cash from a business's register              | Requires court order and sheriff's execution                                    | Must know business operating hours and location                                                                                     |
+| Keeper Levy               | Sheriff "keeps" a business location and collects receipts                | Requires court order; daily sheriff fee                                         | Expensive; best for businesses with high daily cash volume                                                                          |
 
 **Practical Collection Strategy:**
+
 - Before using any collection tool, research whether the defendant has collectible assets. A judgment against someone with no income, no bank accounts, and no property is called a "judgment-proof" defendant -- enforcement is nearly impossible until their financial situation changes.
 - Judgments in most states are valid for 5-10 years and can be renewed. There is no immediate deadline to collect.
 - Interest accrues on unpaid judgments at the statutory rate -- in most states between 6% and 12% annually -- which adds leverage over time.
@@ -480,19 +503,25 @@ If offered, consider accepting -- it preserves the hearing option if mediation f
 ## Edge Cases
 
 ### User Has Been Sued as a Defendant (Not the Plaintiff)
+
 Defendants in small claims court have the same procedural rights as plaintiffs but face a default judgment if they fail to appear. Guide the defendant through:
+
 - Reading the summons carefully for the response deadline and hearing date
 - Identifying their defenses: payment was already made, the services were completed as agreed, the damage claimed was pre-existing, the statute of limitations has expired (typically 3-6 years for contract claims, 2-3 years for property damage, depending on state), or the plaintiff lacks standing to sue
 - Filing a counterclaim if the defendant has their own claim against the plaintiff -- this must usually be filed and served 5-15 days before the hearing
 - Appearing at the hearing -- a defendant who does not appear receives an automatic default judgment against them with no opportunity to contest the amount
 
 ### Claim Amount Is Just Above the Jurisdictional Limit
+
 If the claim exceeds the limit by less than 20%, present the trade-off explicitly:
+
 - **Reduce and waive:** The user permanently forfeits the excess amount. For example, a $9,200 claim in a state with an $8,000 limit means permanently giving up $1,200. This is sometimes the right call if the defendant is difficult to locate, if the user wants a faster resolution, or if hiring an attorney for higher court would cost more than the difference.
 - **File in higher court:** The user retains the right to the full amount but faces longer timelines (6-18 months vs. 30-70 days), more complex procedures, and potential attorney fees. Present this as the correct path if the claim significantly exceeds the limit or if the user has a complex legal theory.
 
 ### Defendant Cannot Be Located for Service
+
 This is a serious problem that prevents the case from proceeding. Options in order of preference:
+
 1. **Skip tracing basics:** Check social media, LinkedIn, voter registration records (publicly available in most states), and public court records for the defendant's current address
 2. **Serve at place of employment:** If the user knows where the defendant works, service at a workplace is allowed in most states
 3. **Secretary of State database:** For business defendants, the registered agent address may be current even if the business has moved
@@ -501,7 +530,9 @@ This is a serious problem that prevents the case from proceeding. Options in ord
 6. **File for a continuance:** If service fails before the first hearing date, the clerk can usually reschedule to allow re-service
 
 ### User Won a Judgment but the Defendant Has No Collectible Assets
+
 This is the "judgment-proof defendant" problem. A defendant is judgment-proof when they have no wage income subject to garnishment, no bank accounts with positive balances, no real property, and no non-exempt personal property. In this situation:
+
 - Explain that the judgment is still valid for 5-10 years (varies by state) and earns statutory interest
 - The defendant's financial situation may change -- employment, an inheritance, a tax refund, or property acquisition creates a new collection opportunity
 - In most states, the judgment can be renewed before it expires for another full term
@@ -509,14 +540,18 @@ This is the "judgment-proof defendant" problem. A defendant is judgment-proof wh
 - If the amount is substantial, a collections attorney working on contingency (they take a percentage of what they recover) may be worth consulting
 
 ### The Dispute Involves a Party in Another State
+
 Small claims courts have geographic jurisdiction -- they can only compel defendants who are subject to that state's jurisdiction. For out-of-state defendants:
+
 - **Long-arm statutes:** Most states can assert jurisdiction over an out-of-state defendant if the contract was formed in the state, the defendant did business in the state, or the incident occurred in the state. This is a legal analysis that is fact-specific and often requires attorney input.
 - **Practical approach:** The user may need to file in the defendant's home state, which is impractical for small amounts. A small claims action in a distant state may cost more in travel than the judgment is worth.
 - **Online transactions:** Courts are increasingly willing to assert jurisdiction over defendants who contracted electronically with in-state residents, but outcomes vary by state.
 - **Recommendation:** If the only connection to the user's state is that the user lives there (the defendant lives out of state, the contract was formed out of state, and the services were to be performed out of state), advise the user to consult an attorney before filing or accept that the practical path may be a consumer complaint to the defendant's state attorney general.
 
 ### User Is Suing a Government Entity (City, County, School District)
+
 Government entities have special procedural protections in virtually every state:
+
 - Before filing a lawsuit against a government entity, the user must typically file a **Government Tort Claim** (sometimes called a Notice of Claim or Claim for Damages) with the relevant government agency
 - The deadline to file this pre-suit claim is often very short: 30 days to 1 year from the date of the incident, depending on the state and the nature of the claim
 - Missing this deadline typically **bars the lawsuit permanently** -- this is a hard deadline with very limited exceptions
@@ -525,7 +560,9 @@ Government entities have special procedural protections in virtually every state
 - Recommend attorney consultation for any claim against a government entity due to the complexity of sovereign immunity, the short claims filing deadlines, and the procedural traps
 
 ### Security Deposit Dispute (Landlord-Tenant)
+
 This is among the most common small claims case types and has unique features:
+
 - Most states require the landlord to return the security deposit within 14-30 days of move-out with an itemized written list of deductions
 - Failure to follow this procedure exactly often entitles the tenant to **double or triple damages** plus attorney fees under state landlord-tenant statutes (California Civil Code 1950.5, Florida Statute 83.49, Texas Property Code 92.109, and equivalents in most states)
 - The tenant should document the condition of the unit at move-in (signed move-in checklist, photos) and move-out (photos, video walkthrough, written notice of forwarding address)
@@ -551,16 +588,16 @@ This is among the most common small claims case types and has unique features:
 
 ### Case Overview
 
-| Detail | Information |
-|--------|-------------|
-| Plaintiff (you) | [Your full legal name] |
-| Defendant | [Friend's full legal name] |
-| Defendant's address for service | [Friend's current home address] |
-| Claim amount | $4,000 ($4,500 loaned minus $500 repaid) |
-| Legal basis | Breach of oral/written agreement -- unpaid personal loan |
-| California small claims limit | $12,500 for individuals -- claim is within limit |
-| Correct courthouse | Small Claims Division, Superior Court, [County where defendant lives] |
-| Why this courthouse | Defendant resides in this county |
+| Detail                          | Information                                                           |
+| ------------------------------- | --------------------------------------------------------------------- |
+| Plaintiff (you)                 | [Your full legal name]                                                |
+| Defendant                       | [Friend's full legal name]                                            |
+| Defendant's address for service | [Friend's current home address]                                       |
+| Claim amount                    | $4,000 ($4,500 loaned minus $500 repaid)                              |
+| Legal basis                     | Breach of oral/written agreement -- unpaid personal loan              |
+| California small claims limit   | $12,500 for individuals -- claim is within limit                      |
+| Correct courthouse              | Small Claims Division, Superior Court, [County where defendant lives] |
+| Why this courthouse             | Defendant resides in this county                                      |
 
 ---
 
@@ -573,6 +610,7 @@ At $4,000, the claim is well below California's $12,500 individual limit. Small 
 ### Pre-Filing Checklist
 
 **Before sending the demand letter:**
+
 - [ ] Located all text messages documenting the loan agreement and the 60-day repayment promise -- screenshot the full thread with timestamps and phone numbers visible
 - [ ] Located bank records confirming the original $4,500 transfer (bank statement, Venmo/Zelle/PayPal transaction record, or check image)
 - [ ] Located records confirming the $500 partial repayment (bank statement showing receipt, or text confirming payment)
@@ -580,9 +618,10 @@ At $4,000, the claim is well below California's $12,500 individual limit. Small 
 - [ ] Calculated exact amount owed: $4,500 -- $500 = $4,000
 
 **Demand Letter:**
+
 - [ ] Written demand letter drafted -- see template guidance below
 - [ ] Sent via USPS Certified Mail with Return Receipt Requested to defendant's home address
-- [ ] Tracking number recorded: ___________________
+- [ ] Tracking number recorded: ********\_\_\_********
 - [ ] Return receipt (green card) received and filed with evidence
 - [ ] Waited 21 days for response
 
@@ -617,14 +656,14 @@ Sincerely,
 
 ### Filing Steps
 
-| Step | Action | Estimated Cost | Notes |
-|------|--------|---------------|-------|
-| 1 | Complete SC-100 form (Plaintiff's Claim and Order to Go to Small Claims Court) | $0 | Available online at California Courts website or at the courthouse |
-| 2 | File at Superior Court clerk's office, Small Claims Division | $30-$75 (California fees based on claim amount: $30 for claims up to $1,500; $50 for $1,500-$5,000; $75 for $5,000+) | Bring defendant's full legal name and address |
-| 3 | Serve the defendant | $0-$40 | California allows personal service by anyone over 18 who is not you; sheriff service is ~$40; certified mail is allowed but defendant must sign |
-| 4 | File Proof of Service (SC-104) | $0 | Must be filed before the hearing date; the clerk will not proceed without it |
-| 5 | Prepare exhibit binder | $5-$15 (copying) | 3 copies of all exhibits |
-| 6 | Attend hearing | $0 | Arrive 30 minutes early; attorneys not permitted at California small claims hearings |
+| Step | Action                                                                         | Estimated Cost                                                                                                       | Notes                                                                                                                                           |
+| ---- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Complete SC-100 form (Plaintiff's Claim and Order to Go to Small Claims Court) | $0                                                                                                                   | Available online at California Courts website or at the courthouse                                                                              |
+| 2    | File at Superior Court clerk's office, Small Claims Division                   | $30-$75 (California fees based on claim amount: $30 for claims up to $1,500; $50 for $1,500-$5,000; $75 for $5,000+) | Bring defendant's full legal name and address                                                                                                   |
+| 3    | Serve the defendant                                                            | $0-$40                                                                                                               | California allows personal service by anyone over 18 who is not you; sheriff service is ~$40; certified mail is allowed but defendant must sign |
+| 4    | File Proof of Service (SC-104)                                                 | $0                                                                                                                   | Must be filed before the hearing date; the clerk will not proceed without it                                                                    |
+| 5    | Prepare exhibit binder                                                         | $5-$15 (copying)                                                                                                     | 3 copies of all exhibits                                                                                                                        |
+| 6    | Attend hearing                                                                 | $0                                                                                                                   | Arrive 30 minutes early; attorneys not permitted at California small claims hearings                                                            |
 
 **California-Specific Note:** In California, you cannot serve the defendant yourself. The person who serves the defendant must be over 18 and not a party to the case. A friend, family member, or professional process server is all acceptable. The process server completes Form SC-104 (Proof of Service) and you file it with the clerk before the hearing.
 
@@ -632,15 +671,16 @@ Sincerely,
 
 ### Evidence Plan
 
-| Exhibit # | Description | What It Proves | Copies | Status |
-|-----------|-------------|----------------|--------|--------|
-| 1 | Screenshot of text message thread showing the $4,500 loan agreement and 60-day repayment promise | The agreement existed; its terms; defendant acknowledged the obligation | 3 | [ ] Screenshot and print |
-| 2 | Bank statement / Venmo / Zelle record showing $4,500 transfer to defendant on [date] | The money was actually loaned and received | 3 | [ ] Gather from bank or app |
-| 3 | Bank statement or app record showing $500 repayment from defendant | Defendant partially acknowledged the debt by making one payment | 3 | [ ] Gather from bank or app |
-| 4 | Screenshot of subsequent texts or call logs showing defendant stopped responding | Defendant has been ignoring repayment requests | 3 | [ ] Screenshot and print |
-| 5 | Demand letter (your copy) + USPS Certified Mail receipt and green return receipt card | You attempted to resolve this before filing | 3 | [ ] Mail letter; retain copies |
+| Exhibit # | Description                                                                                      | What It Proves                                                          | Copies | Status                         |
+| --------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ------ | ------------------------------ |
+| 1         | Screenshot of text message thread showing the $4,500 loan agreement and 60-day repayment promise | The agreement existed; its terms; defendant acknowledged the obligation | 3      | [ ] Screenshot and print       |
+| 2         | Bank statement / Venmo / Zelle record showing $4,500 transfer to defendant on [date]             | The money was actually loaned and received                              | 3      | [ ] Gather from bank or app    |
+| 3         | Bank statement or app record showing $500 repayment from defendant                               | Defendant partially acknowledged the debt by making one payment         | 3      | [ ] Gather from bank or app    |
+| 4         | Screenshot of subsequent texts or call logs showing defendant stopped responding                 | Defendant has been ignoring repayment requests                          | 3      | [ ] Screenshot and print       |
+| 5         | Demand letter (your copy) + USPS Certified Mail receipt and green return receipt card            | You attempted to resolve this before filing                             | 3      | [ ] Mail letter; retain copies |
 
 **Evidence Gaps:**
+
 - [ ] **The $500 repayment record** is important because it shows the defendant acknowledged owing the money. Even a Venmo payment with a memo of "loan payment" is strong corroboration. Locate this record before the hearing.
 - [ ] **Print text messages with phone numbers visible at the top of each screenshot.** California judges are familiar with screenshot evidence but expect the phone numbers to be legible so they can confirm who sent each message. If your phone displays contact names but not numbers, go into Settings and temporarily display the number, or note the associated number on the exhibit itself.
 
@@ -650,12 +690,12 @@ Sincerely,
 
 For an unpaid loan claim in California, you must establish all four elements:
 
-| Element | What It Means | Your Evidence | Status |
-|---------|--------------|---------------|--------|
-| Agreement existed | You and defendant agreed on the loan, the amount, and the repayment terms | Exhibit 1 (text messages showing the promise to repay in 60 days) | [ ] Have it |
-| You performed | You actually transferred the money | Exhibit 2 (bank/Venmo transfer record) | [ ] Have it |
-| Defendant failed to perform | Defendant did not repay in full within the agreed time | Exhibit 1 (agreement shows 60-day deadline); Exhibit 2 (no repayment of $4,000 after 8 months) | [ ] Have it |
-| Amount of damages | The specific dollar amount still owed | $4,500 -- $500 = $4,000, documented by Exhibits 2 and 3 | [ ] Have it |
+| Element                     | What It Means                                                             | Your Evidence                                                                                  | Status      |
+| --------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------- |
+| Agreement existed           | You and defendant agreed on the loan, the amount, and the repayment terms | Exhibit 1 (text messages showing the promise to repay in 60 days)                              | [ ] Have it |
+| You performed               | You actually transferred the money                                        | Exhibit 2 (bank/Venmo transfer record)                                                         | [ ] Have it |
+| Defendant failed to perform | Defendant did not repay in full within the agreed time                    | Exhibit 1 (agreement shows 60-day deadline); Exhibit 2 (no repayment of $4,000 after 8 months) | [ ] Have it |
+| Amount of damages           | The specific dollar amount still owed                                     | $4,500 -- $500 = $4,000, documented by Exhibits 2 and 3                                        | [ ] Have it |
 
 **Key Strength of Your Case:** The $500 partial repayment is actually powerful evidence in your favor. It demonstrates that the defendant acknowledged the debt existed by making at least one payment. A judge will have a very hard time believing the defendant had no obligation to repay when they already repaid part of it.
 
@@ -674,6 +714,7 @@ For an unpaid loan claim in California, you must establish all four elements:
 
 **Evidence Walkthrough (60 seconds):**
 "I have five exhibits:
+
 - Exhibit 1: Text messages showing the loan agreement and 60-day repayment promise
 - Exhibit 2: My bank record showing the $4,500 transfer to [Friend's Name]
 - Exhibit 3: The $500 repayment record, showing he acknowledged the debt
@@ -694,6 +735,7 @@ The defendant may claim the money was a gift, not a loan. Your response: "The te
 ### Post-Judgment Action Plan
 
 **If you win:**
+
 - California judgments accrue interest at 10% per year (California Code of Civil Procedure § 685.010) -- this begins running from the date of judgment
 - If [Friend's Name] does not pay voluntarily within 30 days:
   - **Wage garnishment:** California allows creditors to garnish 25% of the debtor's disposable earnings. You need to know his employer's name and address to file an Earnings Withholding Order (form WG-001) with the court.

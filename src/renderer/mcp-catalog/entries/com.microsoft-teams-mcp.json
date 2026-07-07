@@ -15,7 +15,13 @@
       "transport": { "type": "stdio" },
       "environmentVariables": [
         { "name": "TEAMS_CLIENT_ID", "description": "Azure AD app client ID.", "isRequired": true, "isSecret": false },
-        { "name": "TEAMS_TENANT_ID", "description": "Azure AD tenant ID (use 'common' for personal accounts).", "isRequired": true, "isSecret": false, "default": "common" }
+        {
+          "name": "TEAMS_TENANT_ID",
+          "description": "Azure AD tenant ID (use 'common' for personal accounts).",
+          "isRequired": true,
+          "isSecret": false,
+          "default": "common"
+        }
       ]
     }
   ],

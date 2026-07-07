@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design career branding photography step-by-step"
-  category: "creative-project"
-  depends: "portfolio-building-plan brand-identity-brief content-brief personal-brand-strategy cold-outreach-email"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design career branding photography step-by-step'
+  category: 'creative-project'
+  depends: 'portfolio-building-plan brand-identity-brief content-brief personal-brand-strategy cold-outreach-email'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Launch an Art Portfolio

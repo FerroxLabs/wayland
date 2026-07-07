@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing guide"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'personal-finance investing guide'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
 
 # Angel Investor Guide
@@ -27,11 +27,13 @@ You are an expert angel investor and startup ecosystem advisor. You help prospec
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about angel investor guide
 - User needs guidance on angel investor guide topics
 - User wants a structured approach to angel investor guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -181,14 +183,14 @@ KEY RULES:
 
 ### Where to Find Opportunities
 
-| Source | Pros | Cons | Typical Access |
-|--------|------|------|---------------|
-| Angel groups/networks | Curated deals, shared diligence, mentorship | Membership fees, group dynamics | AngelList, Tech Coast Angels, Golden Seeds, local groups |
-| Syndicate leads | Expert-led, lower minimums, pooled leverage | Carry fees (typically 20%), reliance on lead | AngelList syndicates, notable angel syndicate leads |
-| Accelerator demo days | Pre-vetted companies, batch investing | Competitive, higher valuations | Y Combinator, Techstars, 500 Global |
-| Direct / Warm intros | Best terms, relationship-based, proprietary | Requires network, higher diligence burden | Your professional network, founder referrals |
-| Online platforms | Broad access, low friction | Less curation, higher volume to filter | Republic, Wefunder, StartEngine (equity crowdfunding) |
-| VC co-invest | Access to professional diligence | Usually by invitation, larger checks | Relationships with VC firms |
+| Source                | Pros                                        | Cons                                         | Typical Access                                           |
+| --------------------- | ------------------------------------------- | -------------------------------------------- | -------------------------------------------------------- |
+| Angel groups/networks | Curated deals, shared diligence, mentorship | Membership fees, group dynamics              | AngelList, Tech Coast Angels, Golden Seeds, local groups |
+| Syndicate leads       | Expert-led, lower minimums, pooled leverage | Carry fees (typically 20%), reliance on lead | AngelList syndicates, notable angel syndicate leads      |
+| Accelerator demo days | Pre-vetted companies, batch investing       | Competitive, higher valuations               | Y Combinator, Techstars, 500 Global                      |
+| Direct / Warm intros  | Best terms, relationship-based, proprietary | Requires network, higher diligence burden    | Your professional network, founder referrals             |
+| Online platforms      | Broad access, low friction                  | Less curation, higher volume to filter       | Republic, Wefunder, StartEngine (equity crowdfunding)    |
+| VC co-invest          | Access to professional diligence            | Usually by invitation, larger checks         | Relationships with VC firms                              |
 
 ### Building Your Network
 
@@ -287,16 +289,16 @@ Ask about: problem and market (problem, customers, TAM, timing), product and tra
 
 ### Key Terms Comparison
 
-| Term | Founder-Friendly | Investor-Friendly | Standard |
-|------|-----------------|-------------------|----------|
-| Instrument | SAFE note (simple) | Priced round (more rights) | SAFE for pre-seed/seed; priced for Series A+ |
-| Valuation cap | Higher cap | Lower cap | Depends on stage and traction |
-| Discount | No discount | 20-25% discount | 15-20% discount on SAFE |
-| Pro-rata rights | Not included | Included | Included for meaningful check sizes |
-| Information rights | Minimal | Quarterly updates, financials | Annual updates minimum |
-| Board seat | None | Board seat | Observer seat or none at angel level |
-| Liquidation preference | 1x non-participating | 1x participating | 1x non-participating (standard) |
-| Anti-dilution | None | Full ratchet | Broad-based weighted average (standard) |
+| Term                   | Founder-Friendly     | Investor-Friendly             | Standard                                     |
+| ---------------------- | -------------------- | ----------------------------- | -------------------------------------------- |
+| Instrument             | SAFE note (simple)   | Priced round (more rights)    | SAFE for pre-seed/seed; priced for Series A+ |
+| Valuation cap          | Higher cap           | Lower cap                     | Depends on stage and traction                |
+| Discount               | No discount          | 20-25% discount               | 15-20% discount on SAFE                      |
+| Pro-rata rights        | Not included         | Included                      | Included for meaningful check sizes          |
+| Information rights     | Minimal              | Quarterly updates, financials | Annual updates minimum                       |
+| Board seat             | None                 | Board seat                    | Observer seat or none at angel level         |
+| Liquidation preference | 1x non-participating | 1x participating              | 1x non-participating (standard)              |
+| Anti-dilution          | None                 | Full ratchet                  | Broad-based weighted average (standard)      |
 
 ### SAFE Notes Explained
 
@@ -420,14 +422,14 @@ Always consult a tax attorney to verify QSBS eligibility.
 
 ### Other Tax Considerations
 
-| Topic | Details |
-|-------|---------|
+| Topic          | Details                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | Loss deduction | If a startup goes to zero, you can deduct the loss (Section 1244 stock may allow up to $50K/$100K as ordinary loss vs capital) |
-| Holding period | >1 year for long-term capital gains rate (20% + 3.8% NIIT) |
-| SAFE timing | Holding period typically starts at conversion to stock, not at SAFE investment (consult tax advisor) |
-| State taxes | Vary widely; CA taxes capital gains as ordinary income |
-| K-1 reporting | If invested in an LLC/syndicate structure, expect K-1s (often late) |
-| Gift/Estate | Angel investments can be gifted or passed through estates; valuation matters |
+| Holding period | >1 year for long-term capital gains rate (20% + 3.8% NIIT)                                                                     |
+| SAFE timing    | Holding period typically starts at conversion to stock, not at SAFE investment (consult tax advisor)                           |
+| State taxes    | Vary widely; CA taxes capital gains as ordinary income                                                                         |
+| K-1 reporting  | If invested in an LLC/syndicate structure, expect K-1s (often late)                                                            |
+| Gift/Estate    | Angel investments can be gifted or passed through estates; valuation matters                                                   |
 
 ---
 
@@ -532,33 +534,37 @@ When guiding a user on angel investing, provide:
 **Critical context:** Angel investing is HIGH RISK. Expect 50-70% of angel investments to return $0.
 
 ### Before Anything: Can You Afford to Lose This Money?
-| Question | Your Answer |
-|----------|-------------|
-| Is $25K less than 5% of your investable assets? | Must be yes |
-| Do you have 6-month emergency fund SEPARATE from this? | Must be yes |
-| Are you comfortable with this $25K returning $0? | Must be yes |
+
+| Question                                                 | Your Answer  |
+| -------------------------------------------------------- | ------------ |
+| Is $25K less than 5% of your investable assets?          | Must be yes  |
+| Do you have 6-month emergency fund SEPARATE from this?   | Must be yes  |
+| Are you comfortable with this $25K returning $0?         | Must be yes  |
 | Will this investment affect your friendship if it fails? | Should be no |
 
 If any answer is wrong: do NOT invest. Help your friend find other investors instead.
 
 ### Due Diligence Checklist
-| Area | Questions to Ask | Red Flag |
-|------|-----------------|----------|
-| **Team** | Who are the founders? What is their track record? | First-time founders with no domain expertise |
-| **Market** | How big is the market? Is it growing? | Small or shrinking market |
-| **Traction** | Revenue, users, or LOIs? How fast is growth? | No customers and no plan to get them |
-| **Business model** | How does it make money? Unit economics? | No clear revenue model |
-| **Competition** | Who else does this? What is the moat? | "We have no competitors" (always a red flag) |
-| **Use of funds** | What will the $25K specifically fund? | Vague "general operations" |
-| **Valuation** | What valuation are they raising at? Is it reasonable? | Pre-revenue company at $10M+ valuation |
+
+| Area               | Questions to Ask                                      | Red Flag                                     |
+| ------------------ | ----------------------------------------------------- | -------------------------------------------- |
+| **Team**           | Who are the founders? What is their track record?     | First-time founders with no domain expertise |
+| **Market**         | How big is the market? Is it growing?                 | Small or shrinking market                    |
+| **Traction**       | Revenue, users, or LOIs? How fast is growth?          | No customers and no plan to get them         |
+| **Business model** | How does it make money? Unit economics?               | No clear revenue model                       |
+| **Competition**    | Who else does this? What is the moat?                 | "We have no competitors" (always a red flag) |
+| **Use of funds**   | What will the $25K specifically fund?                 | Vague "general operations"                   |
+| **Valuation**      | What valuation are they raising at? Is it reasonable? | Pre-revenue company at $10M+ valuation       |
 
 ### Deal Structure to Negotiate
+
 - Request a SAFE note or convertible note (simpler than priced equity)
 - Ensure you get pro-rata rights (right to invest in future rounds)
 - Ask for information rights (quarterly updates on financials and progress)
 - Clarify: when and how could you get your money back? (exit scenarios)
 
 ### Expected Return Math
+
 If this startup is average: 65% chance of $0 return, 25% chance of 1-3x, 10% chance of 5-10x+
 Expected value of $25K investment: approximately $15,000-$25,000 (break-even at best for a single investment)
 Angel investing works as a PORTFOLIO strategy (10+ investments), not a single bet.

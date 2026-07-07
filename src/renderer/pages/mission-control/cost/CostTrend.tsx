@@ -65,8 +65,20 @@ export const CostTrend: React.FC<CostTrendProps> = ({ series, period }) => {
       </div>
       <svg className={styles.chart} viewBox={`0 0 ${geo.width} ${geo.height}`} role='img'>
         {/* y-axis max gridline + label */}
-        <line className={styles.chartGrid} x1={geo.pad.left} y1={geo.pad.top} x2={geo.width - geo.pad.right} y2={geo.pad.top} />
-        <line className={styles.chartGrid} x1={geo.pad.left} y1={baselineY} x2={geo.width - geo.pad.right} y2={baselineY} />
+        <line
+          className={styles.chartGrid}
+          x1={geo.pad.left}
+          y1={geo.pad.top}
+          x2={geo.width - geo.pad.right}
+          y2={geo.pad.top}
+        />
+        <line
+          className={styles.chartGrid}
+          x1={geo.pad.left}
+          y1={baselineY}
+          x2={geo.width - geo.pad.right}
+          y2={baselineY}
+        />
         <text className={styles.chartAxis} x={geo.pad.left - 6} y={geo.pad.top + 4} textAnchor='end'>
           {formatUsd(geo.maxCostUsd)}
         </text>

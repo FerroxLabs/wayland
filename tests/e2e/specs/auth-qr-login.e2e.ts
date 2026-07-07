@@ -39,9 +39,11 @@ interface QrTokenResult {
  */
 async function directGenerateQRToken(page: import('@playwright/test').Page): Promise<QrTokenResult> {
   return page.evaluate(async () => {
-    const api = (window as unknown as {
-      electronAPI?: { webuiGenerateQRToken?: () => Promise<unknown> };
-    }).electronAPI;
+    const api = (
+      window as unknown as {
+        electronAPI?: { webuiGenerateQRToken?: () => Promise<unknown> };
+      }
+    ).electronAPI;
     if (!api?.webuiGenerateQRToken) {
       return { success: false, msg: 'webuiGenerateQRToken not exposed on electronAPI' };
     }

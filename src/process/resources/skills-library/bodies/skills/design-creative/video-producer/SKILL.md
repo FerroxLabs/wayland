@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production planning"
-  category: "design-creative"
-  subcategory: "video-animation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production planning'
+  category: 'design-creative'
+  subcategory: 'video-animation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Video Producer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on video producer
 - User asks about video producer best practices or techniques
 - User wants a structured approach to video producer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of video producer
 
@@ -62,6 +63,7 @@ Before diving into any production advice, establish the project scope:
 ### Concept Development
 
 Every video starts with a clear creative brief:
+
 - **Objective**: One sentence describing what the video must accomplish
 - **Key Message**: The single takeaway the audience should remember
 - **Tone**: Energetic, somber, professional, playful, cinematic, raw
@@ -71,12 +73,14 @@ Every video starts with a clear creative brief:
 ### Script and Screenplay
 
 Structure depends on format:
+
 - **Narrative**: Three-act structure even for short pieces (setup, confrontation, resolution)
 - **Corporate/Promo**: Hook (0-5s), Problem (5-15s), Solution (15-45s), Proof (45-60s), CTA (60-75s)
 - **Documentary**: Thesis, evidence, counterpoint, synthesis
 - **Tutorial**: Overview, step-by-step, recap, next steps
 
 Script formatting basics:
+
 - Scene headings: INT./EXT. LOCATION - TIME OF DAY
 - Action lines: Present tense, concise, visual descriptions
 - Dialogue: Character name centered, dialogue below
@@ -85,6 +89,7 @@ Script formatting basics:
 ### Script Breakdown
 
 Go through the script scene by scene and extract:
+
 - **Cast**: Who appears in each scene, speaking and non-speaking
 - **Locations**: Every unique location needed
 - **Props**: Every object referenced or implied
@@ -99,6 +104,7 @@ Color-code your breakdown sheets: cast in red, props in purple, wardrobe in oran
 ### Shot List Creation
 
 For every scene, plan your shots:
+
 - **Shot number**: Sequential within each scene
 - **Shot size**: ECU (extreme close-up), CU, MCU, MS, MLS, FS, WS, EWS
 - **Camera angle**: Eye level, low angle, high angle, bird's eye, Dutch
@@ -113,6 +119,7 @@ Organize by shooting order (group by location), not script order.
 ### Storyboarding
 
 You do not need to be an artist. Options by skill level:
+
 - **Stick figures**: Perfectly valid for shot communication
 - **Photo storyboards**: Take reference photos at the location with stand-ins
 - **Digital tools**: Storyboarder (free), Boords, FrameForge
@@ -123,6 +130,7 @@ Each frame should show: framing, subject position, camera movement arrows, key a
 ## Equipment Selection by Budget
 
 ### Zero Budget (Smartphone Only)
+
 - Phone with 4K capability (most phones from 2020+)
 - Free editing app (CapCut, DaVinci Resolve)
 - Natural light and windows
@@ -130,6 +138,7 @@ Each frame should show: framing, subject position, camera movement arrows, key a
 - DIY stabilization (lean against walls, use a stack of books as a tripod)
 
 ### Starter Budget ($200-$500)
+
 - Phone or used DSLR/mirrorless (Canon M50, Sony a6000 used)
 - Budget tripod (Neewer or Amazon Basics)
 - Lavalier mic ($20-$50 range: Boya BY-M1, Rode SmartLav+)
@@ -137,6 +146,7 @@ Each frame should show: framing, subject position, camera movement arrows, key a
 - Reflector ($15-$25 5-in-1 collapsible)
 
 ### Intermediate Budget ($500-$2000)
+
 - Mirrorless camera (Sony a6400, Canon R50, Fuji X-S10)
 - Kit zoom lens + nifty fifty (50mm f/1.8)
 - Shotgun mic (Rode VideoMic Pro+) or wireless lav (Rode Wireless GO II)
@@ -145,6 +155,7 @@ Each frame should show: framing, subject position, camera movement arrows, key a
 - External recorder or field monitor (optional)
 
 ### Professional Budget ($2000-$10000)
+
 - Full-frame mirrorless (Sony A7IV, Canon R6 II, Panasonic S5 II)
 - Lens kit: 24-70mm f/2.8, 70-200mm f/2.8, 35mm or 50mm prime
 - Professional audio: Zoom F6 recorder, Sennheiser MKH 416 shotgun, wireless lavs
@@ -156,24 +167,29 @@ Each frame should show: framing, subject position, camera movement arrows, key a
 ## Lighting Fundamentals
 
 ### Three-Point Lighting
+
 The foundation of all controlled lighting:
+
 1. **Key Light**: Primary light source, placed 30-45 degrees to one side of the subject, slightly above eye level. Sets the mood (hard = dramatic, soft = flattering).
 2. **Fill Light**: Opposite side from key, softer and dimmer (typically 1-2 stops below key). Controls shadow density. Can be a reflector instead of a light.
 3. **Back Light / Rim Light**: Behind the subject, aimed at their head and shoulders. Separates subject from background, adds depth.
 
 ### Lighting Ratios
+
 - **1:1** (key = fill): Flat, broadcast, corporate look
 - **2:1**: Subtle dimension, natural look
 - **4:1**: Dramatic, cinematic
 - **8:1+**: Film noir, very dramatic
 
 ### Natural Light Techniques
+
 - **Golden hour**: First and last hour of sunlight. Warm, directional, cinematic.
 - **Overcast sky**: Giant softbox. Even, flattering light. Best for interviews outdoors.
 - **Window light**: Position subject facing window or at 45 degrees. Use a reflector on the shadow side.
 - **Avoid**: Direct overhead midday sun (harsh shadows under eyes).
 
 ### Modifier Guide
+
 - **Softbox**: Soft, controllable, professional. Good for interviews.
 - **Umbrella**: Broad, soft. Less control than softbox but cheaper and faster to set up.
 - **Bounce/Reflector**: Redirects existing light. Silver is brighter, white is softer, gold adds warmth.
@@ -185,12 +201,14 @@ The foundation of all controlled lighting:
 Audio is more important than video quality. Audiences forgive rough visuals but not bad audio.
 
 ### Microphone Types for Video
+
 - **Shotgun (directional)**: Best for dialogue from off-camera. Rejects off-axis sound. Mount on boom pole overhead.
 - **Lavalier (lapel)**: Clip to talent's chest. Reliable for interviews and presentations. Hide under clothing for narrative.
 - **Handheld dynamic**: For run-and-gun interviews, reporter-style. Shure SM58 is indestructible.
 - **Stereo/Ambience**: For recording room tone, nature, crowds. Zoom H-series recorders are excellent.
 
 ### Audio Recording Rules
+
 1. Always record a separate audio track when possible (dual-system sound)
 2. Record 30 seconds of room tone at every location
 3. Monitor audio with headphones during recording -- never trust meters alone
@@ -202,6 +220,7 @@ Audio is more important than video quality. Audiences forgive rough visuals but 
 ## Production Day Workflow
 
 ### Call Sheet Essentials
+
 - Production title, date, weather forecast
 - Crew call time and location address with parking info
 - Scene/shot numbers being covered that day
@@ -211,6 +230,7 @@ Audio is more important than video quality. Audiences forgive rough visuals but 
 - Nearest hospital address
 
 ### On-Set Efficiency
+
 1. Arrive early. Set up lighting and audio before talent arrives.
 2. Shoot master/wide shots first, then coverage (medium, close-up).
 3. Maintain consistent screen direction (180-degree rule).
@@ -222,6 +242,7 @@ Audio is more important than video quality. Audiences forgive rough visuals but 
 ## Post-Production Workflow
 
 ### Organized Project Structure
+
 ```
 Project_Name/
   01_Footage/
@@ -237,6 +258,7 @@ Project_Name/
 ```
 
 ### Editing Phases
+
 1. **Ingest and organize**: Import, create bins/folders, sync audio, label clips
 2. **Assembly cut**: Lay all scenes in script order, rough timing, no polish
 3. **Rough cut**: Tighten timing, select best takes, establish pacing
@@ -247,13 +269,16 @@ Project_Name/
 8. **Final export**: Master file plus platform-specific deliverables
 
 ### Color Grading Basics
+
 Two-step process:
+
 1. **Color Correction** (technical): Fix white balance, exposure, match shots within a scene so they look consistent
 2. **Color Grading** (creative): Apply a look or mood. Teal and orange, desaturated, high contrast, etc.
 
 Start with correction. Use scopes (waveform, vectorscope, parade) not just your eyes. Match skin tones first -- they are what audiences notice most.
 
 ### Audio Mix Targets
+
 - **Dialogue**: -12dB to -6dB
 - **Music (under dialogue)**: -18dB to -24dB
 - **Music (featured)**: -12dB to -6dB
@@ -263,6 +288,7 @@ Start with correction. Use scopes (waveform, vectorscope, parade) not just your 
 ## Export Settings by Platform
 
 ### YouTube / General Web
+
 - Codec: H.264 or H.265
 - Container: MP4
 - Resolution: 1920x1080 or 3840x2160
@@ -271,18 +297,21 @@ Start with correction. Use scopes (waveform, vectorscope, parade) not just your 
 - Audio: AAC, 320kbps, 48kHz
 
 ### Instagram Reels / TikTok
+
 - Resolution: 1080x1920 (9:16 vertical)
 - Duration: Under 90 seconds for Reels, under 3 minutes for TikTok
 - Frame rate: 30fps
 - Bitrate: 10-15 Mbps
 
 ### Broadcast / TV
+
 - Codec: ProRes 422 or DNxHD
 - Resolution: 1920x1080
 - Frame rate: 23.976, 29.97, or 25 (match regional standard)
 - Audio: PCM, 48kHz, 24-bit
 
 ### Cinema / Festival
+
 - Codec: ProRes 422 HQ or DCP (Digital Cinema Package)
 - Resolution: 2K (2048x1080) or 4K (4096x2160)
 - Frame rate: 24fps
@@ -304,10 +333,13 @@ Start with correction. Use scopes (waveform, vectorscope, parade) not just your 
 ## Scaling Your Production Capability
 
 ### Solo Operator Priorities
+
 Master these in order: audio quality, stable shots, good lighting, then worry about camera upgrades.
 
 ### Building a Crew
+
 First hires in order of impact:
+
 1. Sound recordist (biggest quality jump)
 2. Gaffer/lighting assistant
 3. Production assistant
@@ -315,12 +347,12 @@ First hires in order of impact:
 5. Dedicated editor
 
 ### Continuous Improvement
+
 - Watch your old work critically every 6 months
 - Study one filmmaker's work in depth each month
 - Practice one new technique per project
 - Build a library of reference footage you admire
 - Keep a running document of lessons learned from each shoot
-
 
 ## Output Format
 
@@ -334,13 +366,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with video producer for a mid-size project."
 
 **Output:** A complete video producer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

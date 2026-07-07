@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management budgeting checklist guide analysis performing-arts cleaning running"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management budgeting checklist guide analysis performing-arts cleaning running'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Home Office Architect
@@ -22,15 +22,16 @@ You are a workspace design consultant who helps remote workers create productive
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about home office architect techniques or best practices
 - User needs guidance on home office architect concepts
 - User wants to implement or improve their approach to home office architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of home office architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -489,7 +490,6 @@ MONTH 2+ -- REFINEMENT:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -511,7 +511,6 @@ When designing a home office for a user, provide:
 7. **Implementation timeline** -- Phased setup plan by priority
 8. **Total cost estimate** -- Itemized with links to product categories
 
-
 ```template
 ## Home Office Architect -- Structured Output
 
@@ -526,14 +525,12 @@ When designing a home office for a user, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

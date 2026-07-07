@@ -49,7 +49,8 @@ const ScanReveal: React.FC<ScanRevealProps> = ({ detection }) => {
       });
     }
     if (detection.fluxConnected) out.push({ key: 'flux', label: 'Flux Router · connected', icon: <Zap size={14} /> });
-    if (detection.fluxDesktop.running) out.push({ key: 'flux-desktop', label: 'Flux Desktop', icon: <Radio size={14} /> });
+    if (detection.fluxDesktop.running)
+      out.push({ key: 'flux-desktop', label: 'Flux Desktop', icon: <Radio size={14} /> });
     return out;
   }, [detection, t]);
 
@@ -66,7 +67,9 @@ const ScanReveal: React.FC<ScanRevealProps> = ({ detection }) => {
         </div>
       ) : (
         <p className={styles.revealEmpty}>
-          {t('onboarding.scan.empty', { defaultValue: 'Fresh machine, clean slate. Let us get you powered up in about a minute.' })}
+          {t('onboarding.scan.empty', {
+            defaultValue: 'Fresh machine, clean slate. Let us get you powered up in about a minute.',
+          })}
         </p>
       )}
     </div>

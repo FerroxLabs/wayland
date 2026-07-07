@@ -63,10 +63,7 @@ describe('runDoctor', () => {
 
   it('fails a check that exceeds the timeout', async () => {
     const report = await runDoctor(
-      [
-        check('slow', () => new Promise(() => {})),
-        check('fast', async () => ({ status: 'pass', detail: 'fine' })),
-      ],
+      [check('slow', () => new Promise(() => {})), check('fast', async () => ({ status: 'pass', detail: 'fine' }))],
       20
     );
 

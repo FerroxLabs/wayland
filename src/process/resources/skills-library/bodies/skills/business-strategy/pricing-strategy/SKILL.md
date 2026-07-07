@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy analysis planning sales marketing"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy analysis planning sales marketing'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Pricing Strategy
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to price a new product or service and needs a structured methodology rather than a gut-check number
 - A user wants to evaluate whether their current pricing is too low, too high, or structured incorrectly for their market
 - A user wants to compare pricing models -- subscription vs. usage-based vs. per-seat vs. freemium vs. one-time purchase -- and needs help choosing the right one
@@ -29,6 +31,7 @@ metadata:
 - A user is entering a new market segment and needs to evaluate whether to price at parity, premium, or penetration relative to incumbents
 
 **Do NOT use this skill when:**
+
 - The user needs revenue projections or financial forecasts tied to pricing scenarios -- use `revenue-forecasting` instead
 - The user is asking about unit economics, contribution margin, or LTV/CAC ratios -- use `unit-economics` instead
 - The user needs a full three-statement financial model -- use `financial-model-structure` instead
@@ -104,12 +107,14 @@ Competitive analysis defines the gravitational field that pricing must operate w
 The pricing model -- how the customer pays, not just how much -- is often more important than the specific number. The right model aligns customer value realization with payment, reduces friction at the conversion point, and scales naturally with customer success.
 
 **Flat-rate subscription:**
+
 - Structure: Single price for access to all (or most) features, billed monthly or annually
 - Best for: Products with homogeneous usage patterns, consumer apps, simple B2B tools with a single persona
 - Weakness: Revenue ceiling with each customer; no natural upsell path. Customers who extract 10x the value pay the same as low-usage customers
 - Threshold: Consider flat-rate when 80%+ of customers have similar usage and feature needs
 
 **Tiered subscription (Good-Better-Best):**
+
 - Structure: 2-4 tiers with increasing feature sets, usage limits, or service levels
 - Best for: SaaS products with multiple distinct customer personas (e.g., solo user, small team, department, enterprise)
 - Design principle: Each tier's fence should map to a real behavioral difference in how customers use the product -- not arbitrary feature gates
@@ -117,18 +122,21 @@ The pricing model -- how the customer pays, not just how much -- is often more i
 - Typical tier ratios: Tier 1 to Tier 2: 2.5-4x price increase. Tier 2 to Tier 3: 2-3x price increase. Wider spreads signal the tiers are too far apart; narrower spreads reduce upgrade motivation
 
 **Usage-based / consumption pricing:**
+
 - Structure: Pay per API call, per GB stored, per transaction, per message sent, per AI token consumed
 - Best for: Infrastructure products (AWS charges per GB/compute hour), developer APIs, products where usage directly correlates with customer value and varies widely across accounts
 - Revenue characteristics: Higher revenue ceiling than flat-rate (large customers pay proportionally) but more volatile month-to-month. Build monthly minimum commitments or base fees to protect revenue floor
 - Common mistake: Pure usage-based pricing with no minimum creates free-rider risk and budget anxiety for customers. Add a free tier up to a threshold plus overage billing, or a base fee that includes a usage allowance
 
 **Per-seat / per-user pricing:**
+
 - Best for: Collaboration and communication tools where value scales directly with team size (Slack, Figma, Notion, Salesforce)
 - Weakness: Seat pricing creates incentives for customers to limit adoption (sharing logins, reducing seat count at renewal) -- this caps the network effect that made the product valuable
 - Mitigation: Consider per-seat pricing with a minimum seat threshold (e.g., minimum 5 seats) to protect revenue floor, plus admin accounts free of charge to reduce expansion friction
 - When not to use: Products where a single power user extracts all the value (analytics tools used by one analyst for a whole company) -- per-seat becomes price-gouging optics
 
 **Freemium:**
+
 - Structure: Permanently free tier with limited features/capacity, plus paid upgrade
 - Works when: Product has viral distribution (sharing outputs pulls in new users), network effects (more users = more value), or a genuine "try before you buy" evaluation cycle that requires real usage
 - Failure mode: Freemium without virality or network effects creates a large, costly free user base with 1-3% conversion. Calculate: if free users cost $0.50/month to serve and you have 10,000 free users, that is $60,000/year before a single paid conversion
@@ -136,11 +144,13 @@ The pricing model -- how the customer pays, not just how much -- is often more i
 - Design the free tier to create an "aha moment" (genuine value) but include a natural constraint that drives upgrade (storage limit, export limit, collaboration limit, branding removal)
 
 **Hybrid (base + overage):**
+
 - Structure: Monthly base fee covering a defined usage allowance, plus per-unit overage fee above the threshold
 - Best for: Products with a core value proposition that all customers use plus variable consumption (cloud storage, email sending volume, API calls)
 - Pricing design: The base fee should cover 80-90% of customers' typical usage. Overages should be priced at a per-unit rate approximately 20-30% higher than the effective per-unit rate within the base tier, to incentivize upgrading to the next tier rather than perpetually paying overage
 
 **Outcome-based / success-fee pricing:**
+
 - Structure: Price tied directly to a measurable customer outcome (% of revenue generated, % of cost saved, % of churn prevented)
 - Rare but powerful when: The outcome is clearly measurable, the vendor has high confidence in delivery, and the customer's ROI is so strong that it justifies sharing upside
 - Risk: Requires contractual clarity on how outcomes are measured. Can create misaligned incentives if the metric is gameable. Use only when the product's causal contribution to the outcome is undeniable
@@ -411,6 +421,7 @@ Developer pricing has unique characteristics that break standard B2B SaaS framew
 ## Pricing Strategy: Contract Review AI -- B2B SaaS for In-House Legal Teams
 
 ### Pricing Context
+
 - **Product type:** B2B SaaS -- AI-assisted legal workflow
 - **Pricing model currently in use:** Flat-rate subscription ($500/month)
 - **Target segment:** Mid-market legal teams (200-2,000 employee companies)
@@ -424,17 +435,17 @@ Developer pricing has unique characteristics that break standard B2B SaaS framew
 
 #### 1. Cost-Plus Analysis (Price Floor)
 
-| Cost Component | Per Customer/Month | Notes |
-|---------------|-------------------|-------|
-| AI inference (LLM API calls per contract reviewed) | $18 | ~60 contracts/month per customer × $0.30/contract at current model pricing |
-| Cloud infrastructure (storage, compute) | $8 | $0.067 per GB × avg storage + compute allocation |
-| Third-party integrations (DocuSign, Salesforce connectors) | $4 | API licensing proportioned per account |
-| Payment processing | $15 | 2.9% on $500 = $14.50 rounded |
-| Customer success allocation | $45 | 1 CSM at $90K/year managing 20 accounts |
-| Engineering / bug support allocation | $20 | Allocated from engineering headcount |
-| **Total variable cost per customer** | **$110/month** | |
-| Target gross margin (75% SaaS benchmark) | -- | Minimum defensible for SaaS at this stage |
-| **Cost-plus price (floor)** | **$440/month** | = $110 ÷ (1 -- 0.75) |
+| Cost Component                                             | Per Customer/Month | Notes                                                                      |
+| ---------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------- |
+| AI inference (LLM API calls per contract reviewed)         | $18                | ~60 contracts/month per customer × $0.30/contract at current model pricing |
+| Cloud infrastructure (storage, compute)                    | $8                 | $0.067 per GB × avg storage + compute allocation                           |
+| Third-party integrations (DocuSign, Salesforce connectors) | $4                 | API licensing proportioned per account                                     |
+| Payment processing                                         | $15                | 2.9% on $500 = $14.50 rounded                                              |
+| Customer success allocation                                | $45                | 1 CSM at $90K/year managing 20 accounts                                    |
+| Engineering / bug support allocation                       | $20                | Allocated from engineering headcount                                       |
+| **Total variable cost per customer**                       | **$110/month**     |                                                                            |
+| Target gross margin (75% SaaS benchmark)                   | --                 | Minimum defensible for SaaS at this stage                                  |
+| **Cost-plus price (floor)**                                | **$440/month**     | = $110 ÷ (1 -- 0.75)                                                       |
 
 **Cash-basis floor (excluding deferred R&D):** ~$320/month
 **Key cost risk:** AI inference costs are the most volatile component -- as contract review volume scales per customer, inference costs scale proportionally. Current pricing does not meter this exposure.
@@ -445,16 +456,16 @@ Developer pricing has unique characteristics that break standard B2B SaaS framew
 
 #### 2. Value-Based Analysis (Price Ceiling)
 
-| Value Dimension | Calculation | Annual Value |
-|----------------|-------------|-------------|
-| Outside counsel review replaced | 2 hrs/contract × $400/hr × 60 contracts/month × 12 months | $576,000/year |
-| Capture rate realistic (external counsel is not fully replaced) | 20% displacement assumption | $115,200/year |
-| In-house paralegal time saved | 1 hr/contract × $75/hr blended rate × 60 contracts/mo × 12 mo | $54,000/year |
-| Risk exposure reduced (1 bad clause caught avoids avg $25K dispute) | 2 flagged/month × 12 × $25K × 10% probability of dispute | $60,000/year |
-| Obligation tracking -- missed deadline prevention | 1 missed obligation per quarter × $15K avg remediation | $60,000/year |
-| **Total EVC (economic value to customer)** | | **~$289,200/year** |
-| Value capture rate (15% -- legal buyers are cost-conscious, procurement scrutiny high) | | 15% |
-| **Value-based price (ceiling)** | | **~$43,380/year ($3,615/month)** |
+| Value Dimension                                                                        | Calculation                                                   | Annual Value                     |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------- | -------------------------------- |
+| Outside counsel review replaced                                                        | 2 hrs/contract × $400/hr × 60 contracts/month × 12 months     | $576,000/year                    |
+| Capture rate realistic (external counsel is not fully replaced)                        | 20% displacement assumption                                   | $115,200/year                    |
+| In-house paralegal time saved                                                          | 1 hr/contract × $75/hr blended rate × 60 contracts/mo × 12 mo | $54,000/year                     |
+| Risk exposure reduced (1 bad clause caught avoids avg $25K dispute)                    | 2 flagged/month × 12 × $25K × 10% probability of dispute      | $60,000/year                     |
+| Obligation tracking -- missed deadline prevention                                      | 1 missed obligation per quarter × $15K avg remediation        | $60,000/year                     |
+| **Total EVC (economic value to customer)**                                             |                                                               | **~$289,200/year**               |
+| Value capture rate (15% -- legal buyers are cost-conscious, procurement scrutiny high) |                                                               | 15%                              |
+| **Value-based price (ceiling)**                                                        |                                                               | **~$43,380/year ($3,615/month)** |
 
 **Adjusted for segment size (200-2,000 employees):** Larger companies in the range (1,000+ employees) with 150+ contracts/month can sustain $4,000-6,000/month. Smaller companies at the low end (200 employees, 20 contracts/month) have a more defensible ceiling of $1,500-2,000/month.
 
@@ -464,15 +475,16 @@ Developer pricing has unique characteristics that break standard B2B SaaS framew
 
 #### 3. Competitive Landscape
 
-| Competitor | Plan | Price | Model | Key Differentiators vs. Us |
-|-----------|------|-------|-------|---------------------------|
-| Ironclad | Base platform | $2,000-4,000/mo | Platform + modules | Full CLM (contract lifecycle); no AI clause risk scoring; enterprise only; 6-month implementation |
-| ContractPodAi | Enterprise | $3,000-8,000/mo | Per-seat enterprise | Full CLM + AI; complex; overkill for mid-market; 9-12 month deployment |
-| Juro | Team | $200-400/user/mo | Per-seat | Contract creation focused, not review focused; no AI risk analysis; lighter tool |
-| SpotDraft | Business | $300-600/mo flat | Flat-rate | Good contract management; AI review less sophisticated; newer market entrant |
-| Manual process (outside counsel) | -- | $400-600/hr outside counsel | N/A | Full legal judgment but 10-100x more expensive for volume review |
+| Competitor                       | Plan          | Price                       | Model               | Key Differentiators vs. Us                                                                        |
+| -------------------------------- | ------------- | --------------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
+| Ironclad                         | Base platform | $2,000-4,000/mo             | Platform + modules  | Full CLM (contract lifecycle); no AI clause risk scoring; enterprise only; 6-month implementation |
+| ContractPodAi                    | Enterprise    | $3,000-8,000/mo             | Per-seat enterprise | Full CLM + AI; complex; overkill for mid-market; 9-12 month deployment                            |
+| Juro                             | Team          | $200-400/user/mo            | Per-seat            | Contract creation focused, not review focused; no AI risk analysis; lighter tool                  |
+| SpotDraft                        | Business      | $300-600/mo flat            | Flat-rate           | Good contract management; AI review less sophisticated; newer market entrant                      |
+| Manual process (outside counsel) | --            | $400-600/hr outside counsel | N/A                 | Full legal judgment but 10-100x more expensive for volume review                                  |
 
 **Competitive position of recommended pricing:**
+
 - vs. enterprise CLMs (Ironclad, ContractPodAi): Positioned as accessible mid-market alternative at 40-60% of their entry price with faster time-to-value (days vs. months)
 - vs. lighter tools (Juro, SpotDraft): Positioned as AI-quality premium, differentiated on clause risk analysis and obligation tracking
 - Pricing gap identified: No strong competitor owns the $1,000-2,500/month mid-market legal AI contract review space. This is the target positioning zone.
@@ -489,12 +501,12 @@ Developer pricing has unique characteristics that break standard B2B SaaS framew
 
 #### Tier Structure
 
-| Tier Name | Monthly Price | Annual Price | Target Persona | Core Features | Upgrade Fence |
-|-----------|--------------|-------------|---------------|---------------|---------------|
-| **Essentials** | $900/mo | $9,180/yr (15% off) | In-house counsel at 200-500 employee company; 10-30 contracts/month | AI clause flagging, 5 risk categories, obligation tracker, up to 30 contracts/month, 2 user seats | Contract volume: 30/month; seat limit: 2 |
-| **Professional** | $2,000/mo | $20,400/yr (15% off) | Legal team of 2-5 at 500-1,500 employee company; 30-100 contracts/month | All Essentials + custom clause library, redline suggestions, Salesforce/DocuSign integration, 100 contracts/month, 5 user seats, priority support | Contract volume: 100/month; seat limit: 5; no custom playbook |
-| **Scale** | $3,800/mo | $38,760/yr (15% off) | Legal team of 5-10 at 1,000-2,000 employee company; 100-300 contracts/month | All Professional + custom AI playbook training, obligation workflow automation, unlimited contracts, 15 seats, dedicated CSM, API access | No contract volume cap; custom playbook build-out |
-| **Enterprise** | Custom | Custom | 2,000+ employees, complex multi-entity structure | All Scale + multi-entity, custom SLA, legal hold, SSO, custom implementation | -- |
+| Tier Name        | Monthly Price | Annual Price         | Target Persona                                                              | Core Features                                                                                                                                     | Upgrade Fence                                                 |
+| ---------------- | ------------- | -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Essentials**   | $900/mo       | $9,180/yr (15% off)  | In-house counsel at 200-500 employee company; 10-30 contracts/month         | AI clause flagging, 5 risk categories, obligation tracker, up to 30 contracts/month, 2 user seats                                                 | Contract volume: 30/month; seat limit: 2                      |
+| **Professional** | $2,000/mo     | $20,400/yr (15% off) | Legal team of 2-5 at 500-1,500 employee company; 30-100 contracts/month     | All Essentials + custom clause library, redline suggestions, Salesforce/DocuSign integration, 100 contracts/month, 5 user seats, priority support | Contract volume: 100/month; seat limit: 5; no custom playbook |
+| **Scale**        | $3,800/mo     | $38,760/yr (15% off) | Legal team of 5-10 at 1,000-2,000 employee company; 100-300 contracts/month | All Professional + custom AI playbook training, obligation workflow automation, unlimited contracts, 15 seats, dedicated CSM, API access          | No contract volume cap; custom playbook build-out             |
+| **Enterprise**   | Custom        | Custom               | 2,000+ employees, complex multi-entity structure                            | All Scale + multi-entity, custom SLA, legal hold, SSO, custom implementation                                                                      | --                                                            |
 
 **Anchoring strategy:** Present tiers right to left (Scale → Professional → Essentials) on the pricing page and in sales decks. The $3,800 Scale anchor makes Professional at $2,000 look like strong value. The "Most Popular" badge should be placed on Professional -- it is the target tier for the majority of the addressable market.
 
@@ -502,14 +514,14 @@ Developer pricing has unique characteristics that break standard B2B SaaS framew
 
 #### Price Positioning Summary
 
-| Dimension | Value | Notes |
-|-----------|-------|-------|
-| Cost floor (cost-plus, 75% GM) | $440/month | Current pricing barely clears this |
-| Recommended entry price (Essentials) | $900/month | 105% above cost floor; defensible for small accounts |
-| Recommended core price (Professional) | $2,000/month | Primary revenue driver; 4.5x cost floor; strong margin |
-| Value ceiling (mid-market avg) | $3,615/month | Professional tier captures 55% of EVC -- highly defensible |
-| Gross margin -- Essentials | 88% | ($900 -- $110) ÷ $900 |
-| Gross margin -- Professional | 94% | ($2,000 -- $110) ÷ $2,000 |
-| Annual contract discount | 15% | Standard SaaS; improves cash position and reduces churn |
+| Dimension                             | Value        | Notes                                                      |
+| ------------------------------------- | ------------ | ---------------------------------------------------------- |
+| Cost floor (cost-plus, 75% GM)        | $440/month   | Current pricing barely clears this                         |
+| Recommended entry price (Essentials)  | $900/month   | 105% above cost floor; defensible for small accounts       |
+| Recommended core price (Professional) | $2,000/month | Primary revenue driver; 4.5x cost floor; strong margin     |
+| Value ceiling (mid-market avg)        | $3,615/month | Professional tier captures 55% of EVC -- highly defensible |
+| Gross margin -- Essentials            | 88%          | ($900 -- $110) ÷ $900                                      |
+| Gross margin -- Professional          | 94%          | ($2,000 -- $110) ÷ $2,000                                  |
+| Annual contract discount              | 15%          | Standard SaaS; improves cash position and reduces churn    |
 
 **Note on current beta customers at $500/month:** At the new pricing

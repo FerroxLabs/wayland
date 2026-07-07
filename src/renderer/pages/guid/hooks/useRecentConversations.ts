@@ -60,9 +60,8 @@ function resolveAssistantId(extra: unknown): string | undefined {
 export const useRecentConversations = (): { recents: RecentConversation[] } => {
   const { conversations } = useConversationListSync();
 
-  const { data: extensionAssistants } = useSWR(
-    'extensions.assistants',
-    () => ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
+  const { data: extensionAssistants } = useSWR('extensions.assistants', () =>
+    ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
   );
 
   const extensionLookup = useMemo(() => {

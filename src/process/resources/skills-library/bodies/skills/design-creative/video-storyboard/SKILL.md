@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "video-production planning template"
-  category: "design-creative"
-  subcategory: "video-audio"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'video-production planning template'
+  category: 'design-creative'
+  subcategory: 'video-audio'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Video Storyboard
 
 ## When to Use
@@ -26,6 +27,7 @@ metadata:
 Use this skill when the user needs a structured, shot-by-shot visual plan for a video production -- before a single frame is filmed or animated.
 
 **Trigger scenarios:**
+
 - User asks to storyboard a video concept, ad, demo, explainer, or branded film and needs the result as a shot table rather than a script
 - User has a script or creative brief and needs it translated into production-ready camera direction -- shot types, movements, durations, and audio cues
 - User needs a shot list to hand to a director of photography, videographer, or editor who has not yet read the concept
@@ -35,6 +37,7 @@ Use this skill when the user needs a structured, shot-by-shot visual plan for a 
 - User needs to pitch a video concept to a client, brand stakeholder, or producer and wants a professional pre-visualization document
 
 **Do NOT use when:**
+
 - User needs spoken dialogue, on-camera narration text, or scripted voiceover copy -- use `video-script-writing` instead
 - User is planning a YouTube video's title, thumbnail, tags, or SEO strategy -- use `youtube-video-strategy` instead
 - User needs a hook, caption, or content flow for a sub-60-second social reel or TikTok -- use `short-form-video-planning` instead
@@ -309,6 +312,7 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ## Video Storyboard: Taskframe -- "No More Chaos"
 
 ### Production Assumptions
+
 - Voiceover will be recorded separately in post -- VO lines are drafted here as placeholders linked to the narrative beat; final copy to be written using `video-script-writing`
 - Phone/laptop app UI will be screen-recorded separately and composited as insert shots in post
 - Two actors are the primary subject (manager) and secondary subject (team member in a separate location, shown via a video call on screen)
@@ -318,6 +322,7 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ---
 
 ### Brief Summary
+
 **Target Duration:** 2:00
 **Platform / Format:** Web (company website, sales deck embed)
 **Style:** Commercial/product demo hybrid
@@ -329,19 +334,20 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ---
 
 ### Scene 1: The Problem -- Remote Team Confusion
+
 **Location:** Open office space, desk area
 **Lighting:** Natural light from windows (morning/midday quality), supplemented with softbox positioned off-camera left to fill shadows
 **Narrative Purpose:** Establish the relatable pain point -- tasks falling through cracks in a remote team -- so the viewer self-identifies before the product is introduced
 **Scene Duration:** 28s
 
-| Shot | Type | Movement | Subject Action | Audio | Duration | Notes |
-|------|------|----------|----------------|-------|----------|-------|
-| 1A | WS | Static | Manager at desk surrounded by open browser tabs, sticky notes on monitor, phone and laptop both showing notifications | Ambient: open office, keyboard sounds, distant conversation | 5s | Establish location and chaos visually before VO begins; rule of thirds -- manager left of frame, desk chaos fills right |
-| 1B | CU | Tilt down | Starts on manager's tense face, tilts down to reveal hands hovering over keyboard, not typing -- frozen, overwhelmed | VO: "Your team is working. Tasks are moving." | 4s | Convey cognitive overload through stillness, not action; shot begins on eyes |
-| 1C | Insert | Static | Laptop screen showing three different apps open: a chat tool, a spreadsheet, a calendar -- all showing different "urgent" flags | VO: "But nobody knows who's doing what." | 3s | Screen content must be legible -- use large font mockup. Record screen at 1080p minimum |
-| 1D | MCU | Static | Manager picks up phone, squints at it, sets it back down without responding -- small frustrated exhale | Ambient: notification ping sound | 4s | Small, grounded performance -- no exaggeration. Eye-line matches existing screen position |
-| 1E | OTS | Static | Over manager's shoulder, laptop screen shows a group chat message: "Who's handling the Mercer deadline?" with no replies | VO: "Sound familiar?" | 3s | Camera is behind manager's right shoulder. Screen must fill the frame -- use macro or 85mm+ lens |
-| 1F | CU | Zoom in slow | Manager's face -- slight look of resignation, then determination | Music begins: sparse, slightly tense, building -- single piano | 4s | This shot ends the problem block. Zoom is slow and subtle (5% increase) -- signals a shift is coming. Hold 1 extra second on static after zoom completes |
+| Shot | Type   | Movement     | Subject Action                                                                                                                  | Audio                                                          | Duration | Notes                                                                                                                                                    |
+| ---- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1A   | WS     | Static       | Manager at desk surrounded by open browser tabs, sticky notes on monitor, phone and laptop both showing notifications           | Ambient: open office, keyboard sounds, distant conversation    | 5s       | Establish location and chaos visually before VO begins; rule of thirds -- manager left of frame, desk chaos fills right                                  |
+| 1B   | CU     | Tilt down    | Starts on manager's tense face, tilts down to reveal hands hovering over keyboard, not typing -- frozen, overwhelmed            | VO: "Your team is working. Tasks are moving."                  | 4s       | Convey cognitive overload through stillness, not action; shot begins on eyes                                                                             |
+| 1C   | Insert | Static       | Laptop screen showing three different apps open: a chat tool, a spreadsheet, a calendar -- all showing different "urgent" flags | VO: "But nobody knows who's doing what."                       | 3s       | Screen content must be legible -- use large font mockup. Record screen at 1080p minimum                                                                  |
+| 1D   | MCU    | Static       | Manager picks up phone, squints at it, sets it back down without responding -- small frustrated exhale                          | Ambient: notification ping sound                               | 4s       | Small, grounded performance -- no exaggeration. Eye-line matches existing screen position                                                                |
+| 1E   | OTS    | Static       | Over manager's shoulder, laptop screen shows a group chat message: "Who's handling the Mercer deadline?" with no replies        | VO: "Sound familiar?"                                          | 3s       | Camera is behind manager's right shoulder. Screen must fill the frame -- use macro or 85mm+ lens                                                         |
+| 1F   | CU     | Zoom in slow | Manager's face -- slight look of resignation, then determination                                                                | Music begins: sparse, slightly tense, building -- single piano | 4s       | This shot ends the problem block. Zoom is slow and subtle (5% increase) -- signals a shift is coming. Hold 1 extra second on static after zoom completes |
 
 **Scene 1 Total:** 23s (VO begins at shot 1B and carries through 1E)
 **Transition to Scene 2:** Match cut -- manager's hand reaches toward the laptop trackpad, and Scene 2 opens on a hand clicking to open Taskframe on a clean desktop. The reaching motion is the shared visual element.
@@ -349,17 +355,18 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ---
 
 ### Scene 2: Product Introduction -- First Look at Taskframe
+
 **Location:** Same office desk -- cleared and clean (set dress change between scenes)
 **Lighting:** Same softbox setup -- desk is now clean and ordered to contrast with Scene 1
 **Narrative Purpose:** Introduce the product as the solution in a visual-first, feature-second way. Viewer sees the interface before hearing what it does.
 **Scene Duration:** 22s
 
-| Shot | Type | Movement | Subject Action | Audio | Duration | Notes |
-|------|------|----------|----------------|-------|----------|-------|
-| 2A | Insert | Static | Laptop screen: Taskframe dashboard opens -- clean, color-coded project view. Cursor moves naturally through the interface | Music: brightens slightly, tension resolves | 5s | Screen recording composite -- plan 30-second screen recording to allow edit flexibility. App UI must be final version or high-fidelity mockup |
-| 2B | MCU | Static | Manager's expression changes -- genuine interest, leans slightly forward | VO: "This is Taskframe." | 3s | Natural lean should be directed -- ask actor to feel like they are reading something interesting for the first time |
-| 2C | MS | Gimbal slow track left | Camera moves slowly from laptop screen to reveal manager's full upper body -- creates reveal of person behind the tool | VO: "One place for every task, every deadline, every person." | 5s | Gimbal track is slow and deliberate -- 3-foot lateral move over 5 seconds. This is the hero shot of this scene |
-| 2D | Insert | Static | Laptop screen: zoom into a specific task card -- shows owner name, due date, status badge ("In Progress") | VO: "No emails. No spreadsheets. No guessing." | 4s | Three claims = three visual elements must be on screen. Design the task card UI to show all three |
+| Shot | Type   | Movement               | Subject Action                                                                                                            | Audio                                                         | Duration | Notes                                                                                                                                         |
+| ---- | ------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2A   | Insert | Static                 | Laptop screen: Taskframe dashboard opens -- clean, color-coded project view. Cursor moves naturally through the interface | Music: brightens slightly, tension resolves                   | 5s       | Screen recording composite -- plan 30-second screen recording to allow edit flexibility. App UI must be final version or high-fidelity mockup |
+| 2B   | MCU    | Static                 | Manager's expression changes -- genuine interest, leans slightly forward                                                  | VO: "This is Taskframe."                                      | 3s       | Natural lean should be directed -- ask actor to feel like they are reading something interesting for the first time                           |
+| 2C   | MS     | Gimbal slow track left | Camera moves slowly from laptop screen to reveal manager's full upper body -- creates reveal of person behind the tool    | VO: "One place for every task, every deadline, every person." | 5s       | Gimbal track is slow and deliberate -- 3-foot lateral move over 5 seconds. This is the hero shot of this scene                                |
+| 2D   | Insert | Static                 | Laptop screen: zoom into a specific task card -- shows owner name, due date, status badge ("In Progress")                 | VO: "No emails. No spreadsheets. No guessing."                | 4s       | Three claims = three visual elements must be on screen. Design the task card UI to show all three                                             |
 
 **Scene 2 Total:** 17s
 **Transition to Scene 3:** L-cut -- VO line "No guessing" from Scene 2 continues over the first 2 seconds of Scene 3's establishing shot. Audio bridges the scenes; visual cuts hard.
@@ -367,19 +374,20 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ---
 
 ### Scene 3: Feature Demonstration -- Assigning and Tracking Tasks
+
 **Location:** Office desk (same setup) and video call on screen showing remote team member
 **Lighting:** Softbox maintained. A second small LED panel (or bounce card) should be added to eliminate shadows on the laptop screen during insert shots
 **Narrative Purpose:** Show the manager using Taskframe to assign a task to a remote team member -- demonstrate the core workflow in real time
 **Scene Duration:** 32s
 
-| Shot | Type | Movement | Subject Action | Audio | Duration | Notes |
-|------|------|----------|----------------|-------|----------|-------|
-| 3A | MCU | Static | Manager types in Taskframe, creating a new task card | VO: "Assign a task in seconds." | 4s | Show hands on keyboard in this shot -- framing should capture both face and keyboard action. Consider slightly low angle to capture screen glow on face |
-| 3B | Insert | Static | Screen recording: task card creation -- field fills: task name, assignee selected (team member's name), due date set, priority marked | VO: "Set the owner, the deadline, and the priority." | 5s | This shot must be timed to sync with VO -- each UI action happens on the corresponding VO word. Plan screen recording to hit these beats |
-| 3C | MS | Static | Manager leans back slightly, confident -- clicks "Assign" | SFX: satisfying soft click sound | 2s | The click is a micro-moment of completion. Keep this shot short -- it is a punctuation shot |
-| 3D | WS | Static | Pull back to show manager at desk with laptop open -- the room now feels ordered, in contrast to Scene 1 | Ambient: office sounds return, calmer now | 4s | This is the first WS of Scene 3. Place manager left of frame, clean desk visible. Use the same desk position as Scene 1 for visual continuity -- the contrast should be obvious |
-| 3E | Insert | Static | Laptop screen: notification view in Taskframe shows team member has accepted the task and marked it "In Progress" | VO: "Your team gets notified instantly." | 4s | Screen recording -- team member's avatar/name must appear clearly |
-| 3F | MCU | Static | Manager nods slightly, moves to next item on dashboard -- calm, in control | VO: "And you can see every update in real time." | 4s | Performance note: this is the "relief" shot. The actor should feel like a weight has lifted. No exaggerated smile -- a quiet confidence is more believable |
+| Shot | Type   | Movement | Subject Action                                                                                                                        | Audio                                                | Duration | Notes                                                                                                                                                                           |
+| ---- | ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 3A   | MCU    | Static   | Manager types in Taskframe, creating a new task card                                                                                  | VO: "Assign a task in seconds."                      | 4s       | Show hands on keyboard in this shot -- framing should capture both face and keyboard action. Consider slightly low angle to capture screen glow on face                         |
+| 3B   | Insert | Static   | Screen recording: task card creation -- field fills: task name, assignee selected (team member's name), due date set, priority marked | VO: "Set the owner, the deadline, and the priority." | 5s       | This shot must be timed to sync with VO -- each UI action happens on the corresponding VO word. Plan screen recording to hit these beats                                        |
+| 3C   | MS     | Static   | Manager leans back slightly, confident -- clicks "Assign"                                                                             | SFX: satisfying soft click sound                     | 2s       | The click is a micro-moment of completion. Keep this shot short -- it is a punctuation shot                                                                                     |
+| 3D   | WS     | Static   | Pull back to show manager at desk with laptop open -- the room now feels ordered, in contrast to Scene 1                              | Ambient: office sounds return, calmer now            | 4s       | This is the first WS of Scene 3. Place manager left of frame, clean desk visible. Use the same desk position as Scene 1 for visual continuity -- the contrast should be obvious |
+| 3E   | Insert | Static   | Laptop screen: notification view in Taskframe shows team member has accepted the task and marked it "In Progress"                     | VO: "Your team gets notified instantly."             | 4s       | Screen recording -- team member's avatar/name must appear clearly                                                                                                               |
+| 3F   | MCU    | Static   | Manager nods slightly, moves to next item on dashboard -- calm, in control                                                            | VO: "And you can see every update in real time."     | 4s       | Performance note: this is the "relief" shot. The actor should feel like a weight has lifted. No exaggerated smile -- a quiet confidence is more believable                      |
 
 **Scene 3 Total:** 23s
 **Transition to Scene 4:** J-cut -- music from Scene 4 (warmer, more energetic) begins 1 second before the visual cut. The audio energy shift signals the move to social proof.
@@ -387,17 +395,18 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ---
 
 ### Scene 4: Team Perspective -- The Remote Team Member
+
 **Location:** Separate home office or second desk setup (different visual environment from Scene 1--3)
 **Lighting:** Natural light from window, single LED panel fill to match exposure to Scene 1--3 footage
 **Narrative Purpose:** Shift perspective to the team member to show that Taskframe works for both sides of the manager/contributor relationship -- doubles the audience identification
 **Scene Duration:** 22s
 
-| Shot | Type | Movement | Subject Action | Audio | Duration | Notes |
-|------|------|----------|----------------|-------|----------|-------|
-| 4A | WS | Static | Team member at their own desk, phone buzzes -- they pick it up | Music: warm, upbeat | 4s | Establishing shot for new location. Different visual environment is critical -- wardrobe should also differ from manager |
-| 4B | ECU | Static | Phone screen shows Taskframe mobile notification: "New task assigned: Mercer Proposal -- due Friday" | SFX: notification sound | 3s | This is a callback to the unanswered message in Shot 1E. Connecting these two shots creates narrative payoff |
-| 4C | MCU | Static | Team member taps notification, opens app, reviews task card -- nods | VO: "Your team always knows what's next." | 4s | Match eye-line: team member looks slightly left and down (at phone). Keep camera on their right side to maintain 180-degree consistency with the manager's right-of-axis position |
-| 4D | MS | Gimbal slow track right | Team member sets phone down, opens laptop, begins working -- calm and focused | VO: "No confusion. No missed deadlines." | 5s | Mirror the gimbal track from Shot 2C for visual symmetry between manager and team member scenes -- this is intentional parallel construction |
+| Shot | Type | Movement                | Subject Action                                                                                       | Audio                                     | Duration | Notes                                                                                                                                                                             |
+| ---- | ---- | ----------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4A   | WS   | Static                  | Team member at their own desk, phone buzzes -- they pick it up                                       | Music: warm, upbeat                       | 4s       | Establishing shot for new location. Different visual environment is critical -- wardrobe should also differ from manager                                                          |
+| 4B   | ECU  | Static                  | Phone screen shows Taskframe mobile notification: "New task assigned: Mercer Proposal -- due Friday" | SFX: notification sound                   | 3s       | This is a callback to the unanswered message in Shot 1E. Connecting these two shots creates narrative payoff                                                                      |
+| 4C   | MCU  | Static                  | Team member taps notification, opens app, reviews task card -- nods                                  | VO: "Your team always knows what's next." | 4s       | Match eye-line: team member looks slightly left and down (at phone). Keep camera on their right side to maintain 180-degree consistency with the manager's right-of-axis position |
+| 4D   | MS   | Gimbal slow track right | Team member sets phone down, opens laptop, begins working -- calm and focused                        | VO: "No confusion. No missed deadlines."  | 5s       | Mirror the gimbal track from Shot 2C for visual symmetry between manager and team member scenes -- this is intentional parallel construction                                      |
 
 **Scene 4 Total:** 16s
 **Transition to Scene 5:** Hard cut. Music hits a new phrase. The pace increases for the CTA.
@@ -405,18 +414,19 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ---
 
 ### Scene 5: Benefits Summary and Call-to-Action
+
 **Location:** Clean product surface or office backdrop -- minimal, brand-focused
 **Lighting:** Softbox hero lighting, clean background, no environmental clutter
 **Narrative Purpose:** Crystallize the three core benefits, then deliver the CTA. This is the conversion scene.
 **Scene Duration:** 25s
 
-| Shot | Type | Movement | Subject Action | Audio | Duration | Notes |
-|------|------|----------|----------------|-------|----------|-------|
-| 5A | MS | Static | Manager stands (not seated) in front of clean background -- confident posture, faces camera directly | VO: "Taskframe gives your team clarity..." | 4s | Direct address -- manager looks at camera for the first time. This breaks the fourth wall intentionally to create direct connection with viewer |
-| 5B | Insert | Static | Screen recording: Taskframe dashboard with three projects, all tasks assigned, all statuses green/complete | VO: "...on every project, every day." | 4s | Dashboard must show realistic volume of tasks -- at least 3 projects with 5--8 tasks each. Fake-looking UI breaks trust |
-| 5C | MCU | Static | Manager speaks: "We cut our status meetings in half." | Sync audio: manager's direct testimonial line | 4s | This is the only on-camera sync-audio line. Record with lavalier mic. Keep take options -- aim for 3 clean takes |
-| 5D | WS | Slow gimbal push fwd | Camera moves slowly toward Taskframe logo displayed on a screen or printed backdrop | Music: builds to peak | 4s | Gimbal push is subtle -- 2 feet forward over 4 seconds. End on logo filling center of frame |
-| 5E | CU | Static | Tagline appears on screen: "Taskframe. Your team, in sync." Below it: URL and "Start free for 14 days" | VO: "Start your free trial at taskframe.io" | 4s | End card. Graphic overlay. Hold for full 4 seconds -- viewers need time to read the URL. Audio fades under. Music resolves |
+| Shot | Type   | Movement             | Subject Action                                                                                             | Audio                                         | Duration | Notes                                                                                                                                           |
+| ---- | ------ | -------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5A   | MS     | Static               | Manager stands (not seated) in front of clean background -- confident posture, faces camera directly       | VO: "Taskframe gives your team clarity..."    | 4s       | Direct address -- manager looks at camera for the first time. This breaks the fourth wall intentionally to create direct connection with viewer |
+| 5B   | Insert | Static               | Screen recording: Taskframe dashboard with three projects, all tasks assigned, all statuses green/complete | VO: "...on every project, every day."         | 4s       | Dashboard must show realistic volume of tasks -- at least 3 projects with 5--8 tasks each. Fake-looking UI breaks trust                         |
+| 5C   | MCU    | Static               | Manager speaks: "We cut our status meetings in half."                                                      | Sync audio: manager's direct testimonial line | 4s       | This is the only on-camera sync-audio line. Record with lavalier mic. Keep take options -- aim for 3 clean takes                                |
+| 5D   | WS     | Slow gimbal push fwd | Camera moves slowly toward Taskframe logo displayed on a screen or printed backdrop                        | Music: builds to peak                         | 4s       | Gimbal push is subtle -- 2 feet forward over 4 seconds. End on logo filling center of frame                                                     |
+| 5E   | CU     | Static               | Tagline appears on screen: "Taskframe. Your team, in sync." Below it: URL and "Start free for 14 days"     | VO: "Start your free trial at taskframe.io"   | 4s       | End card. Graphic overlay. Hold for full 4 seconds -- viewers need time to read the URL. Audio fades under. Music resolves                      |
 
 **Scene 5 Total:** 20s (graphic hold on 5E may extend to 6s if viewer engagement data supports it)
 **Transition:** N/A -- final scene
@@ -426,6 +436,7 @@ When the video includes product claims, before-and-after comparisons, testimonia
 ### Production Summary
 
 **Shot Totals**
+
 - Total shots: 18
 - Total planned duration: 1:47 on-screen (under 2:00 target with 13 seconds of buffer for VO timing adjustments, music transitions, and end card extension)
 - Handle time buffer: +2s per shot = 36 seconds additional raw footage
@@ -433,16 +444,17 @@ When the video includes product claims, before-and-after comparisons, testimonia
 
 **Schedule Estimate**
 
-| Location | Shot Count | Setup Type | Estimated Shoot Time |
-|----------|------------|------------|----------------------|
-| Office desk (Scene 1 chaos setup) | 6 | Static + insert | 2.5 hours |
-| Office desk (Scene 2--3 clean setup) | 8 | Static + gimbal + insert | 3 hours |
-| Remote/home desk (Scene 4) | 4 | Static + gimbal | 1.5 hours |
-| Clean CTA backdrop (Scene 5) | 5 | Static + gimbal | 1.5 hours |
-| Screen recordings (all insert shots) | 7 inserts | Screen record/composite | 1 hour (separate session) |
-| **Total** | **18 + 7 inserts** | **Mixed** | **~9.5 hours** |
+| Location                             | Shot Count         | Setup Type               | Estimated Shoot Time      |
+| ------------------------------------ | ------------------ | ------------------------ | ------------------------- |
+| Office desk (Scene 1 chaos setup)    | 6                  | Static + insert          | 2.5 hours                 |
+| Office desk (Scene 2--3 clean setup) | 8                  | Static + gimbal + insert | 3 hours                   |
+| Remote/home desk (Scene 4)           | 4                  | Static + gimbal          | 1.5 hours                 |
+| Clean CTA backdrop (Scene 5)         | 5                  | Static + gimbal          | 1.5 hours                 |
+| Screen recordings (all insert shots) | 7 inserts          | Screen record/composite  | 1 hour (separate session) |
+| **Total**                            | **18 + 7 inserts** | **Mixed**                | **~9.5 hours**            |
 
 **Equipment Requirements**
+
 - Camera: Mirrorless camera with 24--85mm zoom and 85mm prime for ECU/insert shots (confirmed available)
 - Stabilization: Gimbal (confirmed) for Shots 2C, 4D, 5D; tripod for all static shots
 - Lenses: 24--70mm f/2.8 (primary), 85mm f/1.8 or longer for insert/ECU shots
@@ -451,6 +463,7 @@ When the video includes product claims, before-and-after comparisons, testimonia
 - Laptop: Must be functional with Taskframe UI displayed -- confirm final UI is screen-recordable before shoot day
 
 **Assets and Props**
+
 - Scene 1: Sticky notes on monitor, 3--4 browser tabs open with realistic content, phone displaying notifications
 - Scene 1 (chaos): Taskframe does NOT appear in Scene 1 -- no product branding visible
 - Scene 2--3: Clean desk, laptop with Taskframe open (full dashboard view), water glass (set dressing)
@@ -459,12 +472,14 @@ When the video includes product claims, before-and-after comparisons, testimonia
 - Screen recordings: Taskframe dashboard (desktop), Taskframe task creation flow, Taskframe mobile notification -- all must be filmed separately before shoot day and provided to editor as composite assets
 
 **Talent and Wardrobe**
+
 - On-camera subjects: 2 actors -- Manager (primary), Team Member (secondary)
 - Manager: Business-casual, neutral colors (avoid busy patterns -- softbox lighting will accent texture). Same outfit across Scenes 1, 2, 3, and 5 for continuity
 - Team Member: Casual professional, visually distinct from Manager's outfit color palette
 - Continuity risk: Shot 1A to Shot 2A -- desk must be reset from chaos to clean between takes. Allow 10--15 minutes between these scene setups. Photograph Scene 1 setup before striking it.
 
 **Coverage Risks**
+
 - Scene 3 has 6 shots but 2 are screen recording inserts -- if inserts are not available on shoot day, the scene has only 4 live-action shots. Confirm screen recordings are completed before the shoot date
 - Shot 5C (sync dialogue) is the only line-dependent shot in the video. Plan 3--5 takes minimum. If actor performance is inconsistent, this shot can be replaced with an additional insert + VO, but the testimonial format is strongly preferred
 - Scene 4 location lighting must be scouted before shoot day -- if natural light is inconsistent, a second LED panel should be added to the equipment list

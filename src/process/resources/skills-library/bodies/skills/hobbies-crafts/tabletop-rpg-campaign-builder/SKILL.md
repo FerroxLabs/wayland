@@ -14,14 +14,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tabletop-rpg planning template creative-writing"
-  category: "hobbies-crafts"
-  subcategory: "games-puzzles"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'tabletop-rpg planning template creative-writing'
+  category: 'hobbies-crafts'
+  subcategory: 'games-puzzles'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Tabletop RPG Campaign Builder
 
 ## When to Use
@@ -115,12 +116,14 @@ The hook answers three questions simultaneously: Why these characters? Why now? 
 Every session -- whether 2 hours or 6 hours -- has three acts. The time ratios are fixed regardless of session length: Act 1 is 25% of the session, Act 2 is 50%, Act 3 is 25%. This is not a narrative theory -- it is a functional pacing tool that prevents the two most common GM mistakes: spending too long in setup (players feel nothing is happening) and rushing the climax (players feel cheated of the payoff).
 
 **Act 1 -- Setup (25% of session time):**
+
 - Recap: ask 1-2 players to recap the previous session in 2-3 minutes. Do not recap it yourself -- player recaps reveal what they found memorable and significant, which is your most valuable data about what is working
 - Re-establish the situation: where are the characters, what do they know, what immediate problem or opportunity is in front of them? This can be a conversation with an NPC, a letter, a discovery, or just description of the environment
 - Establish the session goal: not a mandatory railroad, but a clear "the situation is X, and the obvious next move is Y." Players will often choose Z, but giving them a clear reference point lets them make a meaningful choice about whether to follow or deviate
 - The opening scene should always include at least one character-specific element -- something that speaks to a specific player's character, not the group as a whole. This signals that the GM has been paying attention
 
 **Act 2 -- Rising Action (50% of session time):**
+
 - Contain 2-4 encounters of varying type. The encounter types are: Combat (physical conflict), Social (negotiation, persuasion, deception, information gathering), Exploration (navigation, discovery, environmental challenge), and Puzzle/Skill Challenge (a multi-step challenge requiring resource management or creative thinking)
 - Never run two encounters of the same type back-to-back. Variety regulates attention and energy at the table
 - Each encounter should change the situation -- the players should end each encounter knowing something they did not know before, or having fewer or different resources, or facing a different problem. An encounter that resolves cleanly and leaves everything unchanged is wasted time
@@ -128,11 +131,13 @@ Every session -- whether 2 hours or 6 hours -- has three acts. The time ratios a
 - Pacing the tension curve: Act 2 should feel like it escalates from "manageable problem" to "serious problem." The last encounter of Act 2 should be the moment when the players realize the situation is more significant than they thought
 
 **Act 3 -- Climax and Resolution (25% of session time):**
+
 - The climactic encounter is the session's highest-stakes moment. It does not have to be a combat -- a climactic negotiation, a desperate escape, a moral choice under time pressure, or a revelation that recontextualizes everything can all serve this function
 - Resolution: immediate consequences. What changed? Who is affected? What do the characters now have that they did not before (information, resources, allies, enemies)?
 - The session hook: end every session on an open question, an unresolved tension, or a revelation that creates immediate curiosity about what comes next. The hook should be specific -- not "the adventure continues" but "Dunmore was last seen leaving town with a hooded stranger, moving fast, in the direction of the deep ruins." Let that image sit in the players' minds until the next session
 
 **Managing Session Time:**
+
 - Track time actively, especially in Act 2. If a combat encounter is running long, use compression techniques: reduce remaining enemy hit points silently, have enemies begin fleeing at 50% casualties, or fast-forward minor enemy actions
 - The 10-minute warning: at 10 minutes before the planned session end, begin moving toward the Act 3 resolution regardless of where the story is. A session that ends mid-Act 2 because of time is deeply unsatisfying. A rushed but complete session arc is always better than a naturalistic but incomplete one
 - Buffer planning: always have 1 optional encounter prepared that can be cut if time is short. This is your "drop scene" -- fully prepared but not structurally necessary
@@ -143,14 +148,14 @@ NPCs are the delivery mechanism for almost all narrative information and emotion
 
 **Full NPC Framework (6 elements):**
 
-| Element | Function | What to Avoid |
-|---------|----------|---------------|
-| **Name** | Memorable, pronounceable in the session, fits the setting's naming conventions | Names that sound too similar to other NPCs; names with apostrophes that no one knows how to say aloud |
-| **Role** | Structural function in the story: ally, rival, antagonist, quest-giver, information broker, moral mirror, mentor, wildcard | Defining NPCs only by their function makes them feel like furniture |
-| **Want** | What they are actively pursuing at this moment in the story. This drives every interaction. Must be specific and personal | "Power" and "money" are not wants -- they are abstract goals. "Enough money to buy her daughter out of the indentured apprenticeship before the contract renews in 30 days" is a want |
-| **Method** | How they pursue their want -- their strategy, their ethics, their personality expressed through action | "Ruthless" is not a method. "Will sacrifice anyone except her immediate family, genuinely regrets it afterward, keeps a list of names" is a method |
-| **Secret** | Something they are hiding that the players can discover and that will change their relationship with this NPC when revealed | The secret should recontextualize the NPC's behavior so far, not just add information. If learning the secret does not change how the players feel about this person, it is not a good secret |
-| **Voice/Mannerism** | One or two specific physical habits or speech patterns that make this NPC recognizable when portrayed at the table | "Speaks confidently" is not a mannerism. "Never uses contractions, always stands at an angle to whoever she is speaking to, taps the table once before making any request" is a mannerism |
+| Element             | Function                                                                                                                    | What to Avoid                                                                                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Name**            | Memorable, pronounceable in the session, fits the setting's naming conventions                                              | Names that sound too similar to other NPCs; names with apostrophes that no one knows how to say aloud                                                                                         |
+| **Role**            | Structural function in the story: ally, rival, antagonist, quest-giver, information broker, moral mirror, mentor, wildcard  | Defining NPCs only by their function makes them feel like furniture                                                                                                                           |
+| **Want**            | What they are actively pursuing at this moment in the story. This drives every interaction. Must be specific and personal   | "Power" and "money" are not wants -- they are abstract goals. "Enough money to buy her daughter out of the indentured apprenticeship before the contract renews in 30 days" is a want         |
+| **Method**          | How they pursue their want -- their strategy, their ethics, their personality expressed through action                      | "Ruthless" is not a method. "Will sacrifice anyone except her immediate family, genuinely regrets it afterward, keeps a list of names" is a method                                            |
+| **Secret**          | Something they are hiding that the players can discover and that will change their relationship with this NPC when revealed | The secret should recontextualize the NPC's behavior so far, not just add information. If learning the secret does not change how the players feel about this person, it is not a good secret |
+| **Voice/Mannerism** | One or two specific physical habits or speech patterns that make this NPC recognizable when portrayed at the table          | "Speaks confidently" is not a mannerism. "Never uses contractions, always stands at an angle to whoever she is speaking to, taps the table once before making any request" is a mannerism     |
 
 **Quick NPC Framework (3 elements):** Name + Role + One memorable trait. A blacksmith named Harren who always looks at the door when you walk in and never at your face. A guard named Pela who is visibly exhausted and keeps yawning. These details cost nothing to prepare and make the world feel populated by people rather than functions.
 
@@ -166,6 +171,7 @@ A villain who is only evil is a narrative prop, not an antagonist. The strongest
 The one-shot has its own arc structure: a tight premise, immediate stakes, a self-contained resolution. The hook must establish everything the players need to know to act immediately. No time for world-building tours. Provide pre-generated characters or character options limited to 3-4 choices. The climax should be reachable in the session time available even if players take a detour.
 
 **For short arcs (3-5 sessions):**
+
 - Sessions 1-2: establish the world, the central problem, and the party's stake in it. End session 2 with a revelation that escalates the stakes
 - Session 3 (the turning point): the situation gets worse. The apparent solution fails or is more complicated than expected. The true scope of the problem becomes visible
 - Sessions 4-5: the approach and the climax. Session 4 is preparation (gathering resources, building alliances, making difficult choices). Session 5 is the confrontation and resolution -- including an epilogue that addresses what changed for each character
@@ -427,6 +433,7 @@ Player conflict is distinct from character conflict and requires immediate inter
 ## Campaign Framework: The Weight of Old Crowns
 
 ### Campaign Brief
+
 - System: D&D 5th Edition
 - Players: 4 (2 with light experience, 2 brand new to tabletop RPGs)
 - Sessions: Biweekly (every other Saturday) | 3.5 hours per session | 8-10 session arc
@@ -436,9 +443,11 @@ Player conflict is distinct from character conflict and requires immediate inter
 ---
 
 ### Session Zero Checklist
+
 **Duration estimate:** 90 minutes
 
 **Safety Tools**
+
 - [ ] Explain Lines and Veils to the full group. Distribute index cards. Ask each person to write their lines (hard limits) and veils (fade to black) privately. Collect and read privately before session one. Add your own as GM.
 - [ ] Introduce the X-Card: "At any time, anyone can say 'X' or hold up this card. The scene stops or skips, no questions asked, no explanation needed. I will use it myself in the first session to normalize it."
 - [ ] State the Open Door Policy explicitly: "If anyone needs to step away at any point -- not just for the bathroom, but if a scene gets uncomfortable -- just say 'I need a minute' and we pause. No explanation needed, no social pressure."
@@ -446,6 +455,7 @@ Player conflict is distinct from character conflict and requires immediate inter
 - [ ] Confirm: end-of-session debrief check-in ("anything new to add before next time?")
 
 **Tone and Expectations**
+
 - [ ] Narrative tone: "Dark and grounded. Think less Tolkien, more George R.R. Martin -- but not grimdark for its own sake. Heroism is possible, just earned. Cynicism is warranted, but hope still exists."
 - [ ] Combat frequency: roleplay-heavy. Most sessions will not have a full combat encounter. When combat happens, it means something -- someone important might die, a major relationship might break.
 - [ ] Lethality: characters can die, but only at dramatically significant moments. A character will never die to a random arrow from an unnamed soldier. Death comes from choices and their consequences.
@@ -454,6 +464,7 @@ Player conflict is distinct from character conflict and requires immediate inter
 - [ ] Metagaming: play what your character knows. Your character does not know that the helpful advisor is a traitor even if you have a suspicion. Stay in character's knowledge base.
 
 **Character Creation**
+
 - [ ] Allowed sources: Player's Handbook only. No supplements, no Unearthed Arcana. This keeps things manageable for new players and reduces rules complexity.
 - [ ] Character connections: use the "web of connections" method. At Session Zero, each player defines one relationship with one other player character. A knows B; B knows C; C knows D; D knows A. No character is a stranger to every other character before the campaign begins.
 - [ ] Backstory format: the "Gift and Wound" worksheet. Each player answers two questions: "What is one thing from your past that you are proud of or that you carry with you?" (Gift -- the GM will use this to give you things you care about) and "What is one thing from your past that is unresolved, broken, or that you regret?" (Wound -- the GM will use this to challenge you and give you a path to growth). This replaces a long backstory.
@@ -461,6 +472,7 @@ Player conflict is distinct from character conflict and requires immediate inter
 - [ ] Starting level: Level 3. Level 1 and 2 characters are fragile in ways that work against an intrigue game where death has narrative weight. Level 3 gives each character their subclass and a clear identity.
 
 **Logistics**
+
 - [ ] Schedule: every other Saturday, [time confirmed by group]
 - [ ] Cancellation policy: if 2 or more players cannot attend, session is rescheduled. No "play with whoever shows up" -- continuity matters in an intrigue campaign
 - [ ] Communication: a group chat for between-session discussion, sharing session notes, and roleplaying minor interactions between sessions
@@ -470,13 +482,13 @@ Player conflict is distinct from character conflict and requires immediate inter
 
 ### World Premise (5 Pillars)
 
-| Pillar | Content |
-|--------|---------|
-| World in one sentence | A crumbling dual monarchy kept alive by old alliances that every major faction is secretly working to dissolve before someone else does it first. |
-| Central tension | The old treaty that has kept two rival nations from war for 60 years requires a royal heir from each side -- but the last heir of the Northern Crown died without children three months ago, and no one has announced it yet. |
-| What makes it different | Magic in this world is bureaucratically controlled -- all licensed spellcasters are registered and taxed by the Treaty Authority. Unlicensed magic is treason. This means information is power, and magic-as-information (scrying, sending, speak with dead) is the most tightly regulated category. |
-| Starting location | Vasskeep -- a treaty city, technically sovereign territory of neither nation, governed by a joint council and held together by commerce, compromise, and mutual suspicion. |
-| The hook | The party has each been summoned separately to Vasskeep by a letter bearing the seal of Councilor Aldric Vane, the most powerful neutral arbiter in the treaty system. The letters arrived the same day the Northern Crown's ambassador died in his chambers of apparent natural causes. Vane wants to meet tonight, privately, at the Assayer's Bridge. He told each of you to come alone. |
+| Pillar                  | Content                                                                                                                                                                                                                                                                                                                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| World in one sentence   | A crumbling dual monarchy kept alive by old alliances that every major faction is secretly working to dissolve before someone else does it first.                                                                                                                                                                                                                                           |
+| Central tension         | The old treaty that has kept two rival nations from war for 60 years requires a royal heir from each side -- but the last heir of the Northern Crown died without children three months ago, and no one has announced it yet.                                                                                                                                                               |
+| What makes it different | Magic in this world is bureaucratically controlled -- all licensed spellcasters are registered and taxed by the Treaty Authority. Unlicensed magic is treason. This means information is power, and magic-as-information (scrying, sending, speak with dead) is the most tightly regulated category.                                                                                        |
+| Starting location       | Vasskeep -- a treaty city, technically sovereign territory of neither nation, governed by a joint council and held together by commerce, compromise, and mutual suspicion.                                                                                                                                                                                                                  |
+| The hook                | The party has each been summoned separately to Vasskeep by a letter bearing the seal of Councilor Aldric Vane, the most powerful neutral arbiter in the treaty system. The letters arrived the same day the Northern Crown's ambassador died in his chambers of apparent natural causes. Vane wants to meet tonight, privately, at the Assayer's Bridge. He told each of you to come alone. |
 
 ---
 
@@ -486,6 +498,6 @@ A city of 12,000 people built on a narrow land bridge between two rivers, Vasske
 
 **Key Locations:**
 
-| # | Location Name | Purpose | Associated NPC or Feature |
-|---|--------------|---------|--------------------------|
-| 1 | The Councilors' Hall | Political center; council sessions, public audiences, private chambers. The seat of the Treaty Authority. | Councilor Aldric
+| #   | Location Name        | Purpose                                                                                                   | Associated NPC or Feature |
+| --- | -------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------- |
+| 1   | The Councilors' Hall | Political center; council sessions, public audiences, private chambers. The seat of the Treaty Authority. | Councilor Aldric          |

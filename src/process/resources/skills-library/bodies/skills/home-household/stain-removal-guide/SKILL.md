@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart home-maintenance guide step-by-step testing cleaning"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart home-maintenance guide step-by-step testing cleaning'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Stain Removal Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user reports a specific stain (fresh or set) on clothing, upholstery, carpet, or household fabrics and needs targeted removal instructions
 - A user asks which cleaning agent to use for a stain on a specific fabric type (e.g., "I got red wine on my silk blouse")
 - A user wants to understand why a previous stain removal attempt failed and how to correct it
@@ -29,6 +31,7 @@ metadata:
 - A user wants to know whether an item requires professional cleaning versus safe home treatment
 
 **Do NOT use when:**
+
 - The stain is on a hard surface such as stone countertops, tile grout, or wood floors -- use a surface-specific cleaning skill instead
 - The item has explicit "dry clean only" or "professional clean only" labeling and the user is not asking about emergency blotting -- redirect to professional dry cleaning advice
 - The stain involves hazardous chemicals (industrial solvents, corrosives, pesticides) on skin or in a living space -- escalate to safety guidance
@@ -271,6 +274,7 @@ Mold stains have both a dye component (the colored spore matter) and a biologica
 ## Stain Removal Guide: Fresh Blood on White Cotton Dress Shirt
 
 ### Situation Assessment
+
 - **Stain type:** Protein (blood -- hemoglobin and serum proteins)
 - **Stain age:** Fresh (under 30 minutes) -- high probability of full removal
 - **Fabric:** White cotton dress shirt -- robust fiber, bleach-tolerant if needed, but bleach is not the first-line treatment here
@@ -278,6 +282,7 @@ Mold stains have both a dye component (the colored spore matter) and a biologica
 - **Treatment protocol:** Protocol A (Cold Flush + Enzyme), with optional hydrogen peroxide follow-up given white fabric
 
 ### Emergency First Response
+
 1. **Stop immediately if you have used or are about to use warm or hot water** -- heat will permanently bond the hemoglobin to the cotton fibers
 2. Run cold tap water through the back (reverse side) of the fabric for 30--60 seconds right now -- the hydraulic pressure pushes the blood back out through the face of the shirt
 3. Do NOT rub -- the cotton weave will trap red blood cells deeper into the fiber if you apply lateral friction
@@ -285,6 +290,7 @@ Mold stains have both a dye component (the colored spore matter) and a biologica
 ### Full Treatment Steps
 
 **What you need:**
+
 - Cold water only (tap, as cold as it gets)
 - Table salt (fine grain)
 - Enzyme liquid laundry detergent or any liquid dish soap
@@ -307,6 +313,7 @@ Mold stains have both a dye component (the colored spore matter) and a biologica
 6. **Final enzyme detergent application.** Apply a small amount of enzyme detergent again, work gently, let sit 10 minutes, rinse with cold water.
 
 **Wash instructions:**
+
 - **Temperature:** 30°C (86°F) or cold cycle -- do not exceed 40°C (104°F) until you have confirmed the stain is fully gone
 - **Detergent:** Enzyme-based liquid laundry detergent, standard dose
 - **Cycle:** Normal or gentle cycle
@@ -319,6 +326,7 @@ Mold stains have both a dye component (the colored spore matter) and a biologica
 - If the stain still remains after two full treatment attempts: a professional shirt laundry or dry cleaner with wet-cleaning capability has access to commercial enzyme spotting agents at concentrations 5--10 times higher than household products.
 
 ### Fabric-Specific Warnings
+
 ⚠️ Although this shirt is white cotton and can tolerate chlorine bleach, do NOT reach for bleach as a first response. Bleach does not remove blood stains effectively -- it oxidizes the yellow-orange components but can leave a ghost stain and weakens the cotton fiber with repeated use. Hydrogen peroxide at 3% performs better on protein stains with no fiber degradation at correct concentration and contact time.
 
 ⚠️ Even on white cotton, avoid temperatures above 40°C in the wash until stain is fully removed. Once the shirt comes out of the wash completely clean, normal hot wash cycles (60°C) are appropriate going forward.

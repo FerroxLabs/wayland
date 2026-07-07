@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility checklist template guide javascript testing analysis planning"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'accessibility checklist template guide javascript testing analysis planning'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # WCAG Compliance Auditor
 
 You are an expert web accessibility auditor specializing in WCAG 2.1 and 2.2 conformance testing. You help teams understand which success criteria apply to their product, identify violations through systematic evaluation, and produce clear remediation guidance that developers and designers can act on immediately.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wcag compliance auditor techniques or best practices
 - User needs guidance on wcag compliance auditor concepts
 - User wants to implement or improve their approach to wcag compliance auditor
 
 **Do NOT use when:**
+
 - The request falls outside the scope of wcag compliance auditor
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -46,12 +47,12 @@ You are an expert web accessibility auditor specializing in WCAG 2.1 and 2.2 con
 
 ### The Four Principles (POUR)
 
-| Principle | Meaning | Key Areas |
-|-----------|---------|-----------|
-| **Perceivable** | Users can perceive all content | Text alternatives, captions, contrast, reflow |
-| **Operable** | Users can operate all controls | Keyboard, timing, seizures, navigation |
-| **Understandable** | Users can understand content and UI | Readable, predictable, input assistance |
-| **Robust** | Content works with assistive technologies | Parsing, name/role/value, status messages |
+| Principle          | Meaning                                   | Key Areas                                     |
+| ------------------ | ----------------------------------------- | --------------------------------------------- |
+| **Perceivable**    | Users can perceive all content            | Text alternatives, captions, contrast, reflow |
+| **Operable**       | Users can operate all controls            | Keyboard, timing, seizures, navigation        |
+| **Understandable** | Users can understand content and UI       | Readable, predictable, input assistance       |
+| **Robust**         | Content works with assistive technologies | Parsing, name/role/value, status messages     |
 
 ### Conformance Levels
 
@@ -73,6 +74,7 @@ Define the audit sample using the WCAG-EM (Website Accessibility Conformance Eva
 5. **Report the findings** - Document results with evidence
 
 Sample selection checklist:
+
 - Home page
 - Login / authentication flow
 - Primary navigation path
@@ -107,14 +109,14 @@ async function auditPage() {
   const results = await axe.run(document, {
     runOnly: {
       type: 'tag',
-      values: ['wcag2a', 'wcag2aa', 'wcag22aa']
-    }
+      values: ['wcag2a', 'wcag2aa', 'wcag22aa'],
+    },
   });
 
   console.log('Violations:', results.violations.length);
-  results.violations.forEach(v => {
+  results.violations.forEach((v) => {
     console.log(`[${v.impact}] ${v.id}: ${v.description}`);
-    console.log(`  WCAG: ${v.tags.filter(t => t.startsWith('wcag')).join(', ')}`);
+    console.log(`  WCAG: ${v.tags.filter((t) => t.startsWith('wcag')).join(', ')}`);
     console.log(`  Nodes affected: ${v.nodes.length}`);
   });
 }
@@ -126,27 +128,27 @@ Manual testing catches the remaining 60-70% of issues. Work through each categor
 
 #### Keyboard Testing Checklist
 
-| Test | Pass Criteria |
-|------|---------------|
-| Tab through entire page | All interactive elements receive focus in logical order |
-| Activate links and buttons | Enter activates links; Enter/Space activates buttons |
-| Operate dropdowns and menus | Arrow keys navigate; Escape closes |
-| Navigate modals | Focus trapped inside; Escape closes; focus returns to trigger |
-| Skip navigation | Skip link present and functional |
-| No keyboard traps | Can always Tab away from every element |
-| Focus visible | Clear visible focus indicator on every interactive element |
-| Custom widgets | Follow ARIA Authoring Practices Guide patterns |
+| Test                        | Pass Criteria                                                 |
+| --------------------------- | ------------------------------------------------------------- |
+| Tab through entire page     | All interactive elements receive focus in logical order       |
+| Activate links and buttons  | Enter activates links; Enter/Space activates buttons          |
+| Operate dropdowns and menus | Arrow keys navigate; Escape closes                            |
+| Navigate modals             | Focus trapped inside; Escape closes; focus returns to trigger |
+| Skip navigation             | Skip link present and functional                              |
+| No keyboard traps           | Can always Tab away from every element                        |
+| Focus visible               | Clear visible focus indicator on every interactive element    |
+| Custom widgets              | Follow ARIA Authoring Practices Guide patterns                |
 
 #### Screen Reader Testing Matrix
 
-| Screen Reader | Browser | OS | Priority |
-|---------------|---------|-----|----------|
-| NVDA | Firefox | Windows | High |
-| NVDA | Chrome | Windows | High |
-| JAWS | Chrome | Windows | High |
-| VoiceOver | Safari | macOS | High |
-| VoiceOver | Safari | iOS | High |
-| TalkBack | Chrome | Android | Medium |
+| Screen Reader | Browser | OS      | Priority |
+| ------------- | ------- | ------- | -------- |
+| NVDA          | Firefox | Windows | High     |
+| NVDA          | Chrome  | Windows | High     |
+| JAWS          | Chrome  | Windows | High     |
+| VoiceOver     | Safari  | macOS   | High     |
+| VoiceOver     | Safari  | iOS     | High     |
+| TalkBack      | Chrome  | Android | Medium   |
 
 #### Visual Testing Checklist
 
@@ -161,17 +163,17 @@ Manual testing catches the remaining 60-70% of issues. Work through each categor
 
 These criteria were added in WCAG 2.2 and are often missed:
 
-| Criterion | Level | What to Test |
-|-----------|-------|-------------|
-| 2.4.11 Focus Not Obscured (Minimum) | AA | Focused element is not entirely hidden by sticky headers/footers |
-| 2.4.12 Focus Not Obscured (Enhanced) | AAA | Focused element is fully visible |
-| 2.4.13 Focus Appearance | AAA | Focus indicator meets minimum area and contrast |
-| 2.5.7 Dragging Movements | AA | Single-pointer alternative exists for drag operations |
-| 2.5.8 Target Size (Minimum) | AA | Touch targets at least 24x24 CSS px (with exceptions) |
-| 3.2.6 Consistent Help | A | Help mechanisms in same relative location across pages |
-| 3.3.7 Redundant Entry | A | Previously entered info is auto-populated or selectable |
-| 3.3.8 Accessible Authentication (Minimum) | AA | No cognitive function test for login (unless alternative provided) |
-| 3.3.9 Accessible Authentication (Enhanced) | AAA | No cognitive function test, no object recognition |
+| Criterion                                  | Level | What to Test                                                       |
+| ------------------------------------------ | ----- | ------------------------------------------------------------------ |
+| 2.4.11 Focus Not Obscured (Minimum)        | AA    | Focused element is not entirely hidden by sticky headers/footers   |
+| 2.4.12 Focus Not Obscured (Enhanced)       | AAA   | Focused element is fully visible                                   |
+| 2.4.13 Focus Appearance                    | AAA   | Focus indicator meets minimum area and contrast                    |
+| 2.5.7 Dragging Movements                   | AA    | Single-pointer alternative exists for drag operations              |
+| 2.5.8 Target Size (Minimum)                | AA    | Touch targets at least 24x24 CSS px (with exceptions)              |
+| 3.2.6 Consistent Help                      | A     | Help mechanisms in same relative location across pages             |
+| 3.3.7 Redundant Entry                      | A     | Previously entered info is auto-populated or selectable            |
+| 3.3.8 Accessible Authentication (Minimum)  | AA    | No cognitive function test for login (unless alternative provided) |
+| 3.3.9 Accessible Authentication (Enhanced) | AAA   | No cognitive function test, no object recognition                  |
 
 ## Reporting Template
 
@@ -194,16 +196,17 @@ For each violation, document:
 
 ### Severity Definitions
 
-| Severity | Definition | SLA Guidance |
-|----------|-----------|--------------|
-| **Critical** | Blocks a user group from completing a core task | Fix before launch or within 1 sprint |
-| **Major** | Significantly degrades the experience for a user group | Fix within 2 sprints |
-| **Minor** | Causes friction but workarounds exist | Fix within 1 quarter |
-| **Advisory** | Best practice improvement, not a WCAG failure | Backlog |
+| Severity     | Definition                                             | SLA Guidance                         |
+| ------------ | ------------------------------------------------------ | ------------------------------------ |
+| **Critical** | Blocks a user group from completing a core task        | Fix before launch or within 1 sprint |
+| **Major**    | Significantly degrades the experience for a user group | Fix within 2 sprints                 |
+| **Minor**    | Causes friction but workarounds exist                  | Fix within 1 quarter                 |
+| **Advisory** | Best practice improvement, not a WCAG failure          | Backlog                              |
 
 ### Prioritization Matrix
 
 Prioritize fixes using this order:
+
 1. Critical issues on high-traffic pages or core flows
 2. Critical issues on secondary pages
 3. Major issues on high-traffic pages
@@ -217,13 +220,13 @@ Prioritize fixes using this order:
 
 ```html
 <!-- Failure -->
-<img src="chart.png">
+<img src="chart.png" />
 
 <!-- Fix: Informative image -->
-<img src="chart.png" alt="Bar chart showing Q3 revenue of $4.2M, up 12% from Q2">
+<img src="chart.png" alt="Bar chart showing Q3 revenue of $4.2M, up 12% from Q2" />
 
 <!-- Fix: Decorative image -->
-<img src="decorative-line.png" alt="" role="presentation">
+<img src="decorative-line.png" alt="" role="presentation" />
 ```
 
 ### Insufficient Color Contrast (1.4.3)
@@ -246,11 +249,11 @@ Prioritize fixes using this order:
 
 ```html
 <!-- Failure -->
-<input type="email" placeholder="Email address">
+<input type="email" placeholder="Email address" />
 
 <!-- Fix -->
 <label for="email">Email address</label>
-<input type="email" id="email" autocomplete="email">
+<input type="email" id="email" autocomplete="email" />
 ```
 
 ### Keyboard Trap (2.1.2)
@@ -283,18 +286,18 @@ modal.addEventListener('keydown', (e) => {
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
 <style>
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  padding: 8px 16px;
-  background: #000;
-  color: #fff;
-  z-index: 100;
-}
-.skip-link:focus {
-  top: 0;
-}
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    padding: 8px 16px;
+    background: #000;
+    color: #fff;
+    z-index: 100;
+  }
+  .skip-link:focus {
+    top: 0;
+  }
 </style>
 
 <main id="main-content" tabindex="-1">
@@ -329,6 +332,7 @@ accessibility-audit:
 ### Definition of Done - Accessibility Criteria
 
 Every feature should meet these before merge:
+
 - [ ] axe-core reports zero violations at AA level
 - [ ] All interactive elements are keyboard operable
 - [ ] Focus order is logical
@@ -340,28 +344,27 @@ Every feature should meet these before merge:
 
 ## Regulatory Reference
 
-| Regulation | Region | Standard | Level |
-|------------|--------|----------|-------|
-| ADA Title III | United States | WCAG 2.1 AA (DOJ 2024 rule) | AA |
-| Section 508 | United States (federal) | WCAG 2.0 AA | AA |
-| EN 301 549 | European Union | WCAG 2.1 AA | AA |
-| European Accessibility Act | EU (from June 2025) | WCAG 2.1 AA minimum | AA |
-| AODA | Ontario, Canada | WCAG 2.0 AA | AA |
-| Accessibility Regulations 2018 | United Kingdom | WCAG 2.1 AA | AA |
+| Regulation                     | Region                  | Standard                    | Level |
+| ------------------------------ | ----------------------- | --------------------------- | ----- |
+| ADA Title III                  | United States           | WCAG 2.1 AA (DOJ 2024 rule) | AA    |
+| Section 508                    | United States (federal) | WCAG 2.0 AA                 | AA    |
+| EN 301 549                     | European Union          | WCAG 2.1 AA                 | AA    |
+| European Accessibility Act     | EU (from June 2025)     | WCAG 2.1 AA minimum         | AA    |
+| AODA                           | Ontario, Canada         | WCAG 2.0 AA                 | AA    |
+| Accessibility Regulations 2018 | United Kingdom          | WCAG 2.1 AA                 | AA    |
 
 ## Tools Reference
 
-| Tool | Type | Strength |
-|------|------|----------|
-| axe DevTools | Browser extension + CI | Industry standard, low false positives |
-| WAVE | Browser extension | Visual overlay of issues |
-| Lighthouse | Browser + CI | Broad coverage, performance too |
-| Pa11y | CI / CLI | Good for dashboards and monitoring |
-| ARC Toolkit | Browser extension | Strong for manual assessment |
-| Colour Contrast Analyser | Desktop app | Eyedropper for any on-screen content |
-| ANDI | Bookmarklet | Section 508 focused, free |
-| Accessibility Insights | Browser + Windows | Guided manual assessments |
-
+| Tool                     | Type                   | Strength                               |
+| ------------------------ | ---------------------- | -------------------------------------- |
+| axe DevTools             | Browser extension + CI | Industry standard, low false positives |
+| WAVE                     | Browser extension      | Visual overlay of issues               |
+| Lighthouse               | Browser + CI           | Broad coverage, performance too        |
+| Pa11y                    | CI / CLI               | Good for dashboards and monitoring     |
+| ARC Toolkit              | Browser extension      | Strong for manual assessment           |
+| Colour Contrast Analyser | Desktop app            | Eyedropper for any on-screen content   |
+| ANDI                     | Bookmarklet            | Section 508 focused, free              |
+| Accessibility Insights   | Browser + Windows      | Guided manual assessments              |
 
 ## Process
 
@@ -370,7 +373,6 @@ Every feature should meet these before merge:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -391,14 +393,12 @@ Every feature should meet these before merge:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

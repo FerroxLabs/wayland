@@ -7,40 +7,41 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot journaling template guide python api-design automation"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced iot journaling template guide python api-design automation'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Raspberry Pi Architect
 
 You are an expert Raspberry Pi systems architect. You guide developers through Linux-based Pi projects including GPIO programming, camera integration, headless configuration, networking, and production-grade system design.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about raspberry pi architect techniques or best practices
 - User needs guidance on raspberry pi architect concepts
 - User wants to implement or improve their approach to raspberry pi architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of raspberry pi architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
 
 ## Platform Selection Guide
 
-| Model | CPU | RAM | WiFi | GPIO | USB | Best For |
-|-------|-----|-----|------|------|-----|----------|
-| Pi 5 | BCM2712 Quad A76 2.4GHz | 4/8 GB | WiFi 5, BLE 5.0 | 40-pin | 2xUSB3, 2xUSB2 | Desktop-class projects |
-| Pi 4B | BCM2711 Quad A72 1.8GHz | 2/4/8 GB | WiFi 5, BLE 5.0 | 40-pin | 2xUSB3, 2xUSB2 | General purpose |
-| Pi Zero 2 W | RP3A0 Quad A53 1GHz | 512 MB | WiFi 4, BLE 4.2 | 40-pin | 1x micro USB | Compact, low-power |
-| Pi Pico W | RP2040 Dual M0+ 133MHz | 264 KB | WiFi 4, BLE 5.2 | 26 GPIO | 1x micro USB | Microcontroller tasks |
+| Model       | CPU                     | RAM      | WiFi            | GPIO    | USB            | Best For               |
+| ----------- | ----------------------- | -------- | --------------- | ------- | -------------- | ---------------------- |
+| Pi 5        | BCM2712 Quad A76 2.4GHz | 4/8 GB   | WiFi 5, BLE 5.0 | 40-pin  | 2xUSB3, 2xUSB2 | Desktop-class projects |
+| Pi 4B       | BCM2711 Quad A72 1.8GHz | 2/4/8 GB | WiFi 5, BLE 5.0 | 40-pin  | 2xUSB3, 2xUSB2 | General purpose        |
+| Pi Zero 2 W | RP3A0 Quad A53 1GHz     | 512 MB   | WiFi 4, BLE 4.2 | 40-pin  | 1x micro USB   | Compact, low-power     |
+| Pi Pico W   | RP2040 Dual M0+ 133MHz  | 264 KB   | WiFi 4, BLE 5.2 | 26 GPIO | 1x micro USB   | Microcontroller tasks  |
 
 ## Headless Setup
 
@@ -463,15 +464,15 @@ sudo systemctl disable dphys-swapfile
 
 ## Common Pitfalls
 
-| Mistake | Impact | Solution |
-|---------|--------|----------|
-| Using RPi.GPIO on Pi 5 | Crashes, no support | Use libgpiod / gpiod |
-| No heat sink on Pi 5/4 | Thermal throttling | Add active/passive cooling |
-| Running as root | Security vulnerability | Use groups (gpio, i2c, spi) |
-| SD card as database store | Card wear, corruption | Use USB SSD or remote DB |
-| Polling GPIO in tight loop | 100% CPU usage | Use edge detection/interrupts |
-| No graceful shutdown | SD card corruption | Add shutdown button circuit |
-| Ignoring power supply | Random crashes, data loss | Use official PSU (5V 3A+) |
+| Mistake                    | Impact                    | Solution                      |
+| -------------------------- | ------------------------- | ----------------------------- |
+| Using RPi.GPIO on Pi 5     | Crashes, no support       | Use libgpiod / gpiod          |
+| No heat sink on Pi 5/4     | Thermal throttling        | Add active/passive cooling    |
+| Running as root            | Security vulnerability    | Use groups (gpio, i2c, spi)   |
+| SD card as database store  | Card wear, corruption     | Use USB SSD or remote DB      |
+| Polling GPIO in tight loop | 100% CPU usage            | Use edge detection/interrupts |
+| No graceful shutdown       | SD card corruption        | Add shutdown button circuit   |
+| Ignoring power supply      | Random crashes, data loss | Use official PSU (5V 3A+)     |
 
 ## Exercises
 
@@ -481,7 +482,6 @@ sudo systemctl disable dphys-swapfile
 4. **GPIO Remote Control**: REST API controlling 4 relay outputs and reading 4 digital inputs, with systemd service and watchdog
 5. **Timelapse System**: Automated timelapse capture with configurable interval, automatic cleanup of old files, and web gallery
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -489,7 +489,6 @@ sudo systemctl disable dphys-swapfile
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -510,14 +509,12 @@ sudo systemctl disable dphys-swapfile
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

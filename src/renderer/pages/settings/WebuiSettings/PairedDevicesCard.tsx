@@ -31,40 +31,38 @@ const PairedDevicesCard: React.FC = () => {
   };
 
   return (
-    <div className="px-[12px] md:px-[28px] py-14px bg-[var(--color-bg-2)] border border-solid border-[var(--color-border-2)] rd-12px">
-      <div className="text-14px font-500 mb-12px text-t-primary">
-        {t('settings.webui.pairedDevices.title')}
-      </div>
+    <div className='px-[12px] md:px-[28px] py-14px bg-[var(--color-bg-2)] border border-solid border-[var(--color-border-2)] rd-12px'>
+      <div className='text-14px font-500 mb-12px text-t-primary'>{t('settings.webui.pairedDevices.title')}</div>
 
       {loading && (
-        <div className="flex justify-center py-12px">
+        <div className='flex justify-center py-12px'>
           <Spin />
         </div>
       )}
 
       {!loading && devices.length === 0 && (
-        <div className="text-13px text-t-tertiary py-8px">{t('settings.webui.pairedDevices.empty')}</div>
+        <div className='text-13px text-t-tertiary py-8px'>{t('settings.webui.pairedDevices.empty')}</div>
       )}
 
       {!loading && devices.length > 0 && (
-        <div className="flex flex-col gap-8px">
+        <div className='flex flex-col gap-8px'>
           {devices.map((device) => (
             <div
               key={device.id}
-              className="flex items-center gap-10px px-12px py-10px rd-10px border border-[var(--color-border-2)] bg-fill-1"
+              className='flex items-center gap-10px px-12px py-10px rd-10px border border-[var(--color-border-2)] bg-fill-1'
             >
-              <Monitor size={16} className="text-t-tertiary shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-13px font-500 text-t-primary truncate">{device.deviceName}</div>
-                <div className="text-11px text-t-tertiary truncate">
+              <Monitor size={16} className='text-t-tertiary shrink-0' />
+              <div className='flex-1 min-w-0'>
+                <div className='text-13px font-500 text-t-primary truncate'>{device.deviceName}</div>
+                <div className='text-11px text-t-tertiary truncate'>
                   {device.ipFirstSeen && <span>{device.ipFirstSeen} · </span>}
                   {t('settings.webui.pairedDevices.lastSeen', { time: formatDate(device.lastSeenAt) })}
                 </div>
               </div>
               <Button
-                type="text"
-                size="small"
-                status="danger"
+                type='text'
+                size='small'
+                status='danger'
                 icon={<Trash2 size={14} />}
                 onClick={() => setRevokeId(device.id)}
               />
@@ -82,7 +80,7 @@ const PairedDevicesCard: React.FC = () => {
         okButtonProps={{ status: 'danger' }}
         okText={t('settings.webui.pairedDevices.revoke')}
       >
-        <p className="text-13px text-t-secondary">{t('settings.webui.pairedDevices.revokeConfirm')}</p>
+        <p className='text-13px text-t-secondary'>{t('settings.webui.pairedDevices.revokeConfirm')}</p>
       </Modal>
     </div>
   );

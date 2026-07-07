@@ -3,16 +3,16 @@ guideVersion: 1.0.0
 estimatedMinutes: 4
 steps:
   - id: install
-    title: "Install the MCP server"
+    title: 'Install the MCP server'
     autoCompletedByInstall: true
     body: |
       Wayland runs `npx @xeroapi/xero-mcp-server` on first launch - no manual install needed.
   - id: oauth-client
-    title: "Create a Xero Custom Connection"
-    externalAction: { label: "Open Xero developer portal", url: "https://developer.xero.com/app/manage" }
+    title: 'Create a Xero Custom Connection'
+    externalAction: { label: 'Open Xero developer portal', url: 'https://developer.xero.com/app/manage' }
     inputs:
-      - { name: XERO_CLIENT_ID, label: "Client ID" }
-      - { name: XERO_CLIENT_SECRET, label: "Client secret", secret: true }
+      - { name: XERO_CLIENT_ID, label: 'Client ID' }
+      - { name: XERO_CLIENT_SECRET, label: 'Client secret', secret: true }
     warning: |
       A Custom Connection is a machine-to-machine app scoped to one Xero organization. It needs a paid Xero subscription.
     body: |

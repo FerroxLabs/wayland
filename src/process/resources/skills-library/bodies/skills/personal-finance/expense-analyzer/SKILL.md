@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance expenses guide"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance expenses guide'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Expense Analyzer
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to analyze their spending patterns and find savings
 - User needs help categorizing and understanding where their money goes
 - User wants to identify unnecessary subscriptions or spending leaks
 - User needs a spending audit to prepare for budgeting
 
 **Do NOT use this skill when:**
+
 - User wants a budget built -- use budget-builder after the analysis
 - User needs investment analysis -- use investment-related skills
 - User wants business expense tracking -- use business accounting skills
@@ -186,6 +188,7 @@ ANNUAL SAVINGS: $__________
 ```
 
 ### Subscription Red Flags
+
 - Not used in the past 30 days
 - Duplicate services (two streaming, two cloud storage)
 - Free trials that converted to paid
@@ -281,6 +284,7 @@ Invest/save the other 50%+ of income increases.
 ```
 
 ### Lifestyle Inflation Warning Signs
+
 - Upgrading cars shortly after raises
 - Moving to more expensive housing without need
 - Increasing dining out frequency
@@ -420,25 +424,27 @@ When delivering expense analysis, provide:
 **Unaccounted:** $770 (potential cash spending or missed categories)
 
 ### Spending Breakdown
-| Category | Amount | % of Income | Benchmark | Status |
-|----------|--------|-------------|-----------|--------|
-| Housing | $1,400 | 28% | 25-30% | OK |
-| Transportation | $500 | 10% | 10-15% | OK |
-| Groceries | $600 | 12% | 8-10% | HIGH |
-| Dining out | $500 | 10% | 5-7% | HIGH |
-| Shopping | $400 | 8% | 3-5% | HIGH |
-| Subscriptions | $180 | 3.6% | 1-2% | HIGH |
-| Utilities | $200 | 4% | 3-5% | OK |
-| Insurance | $250 | 5% | 4-6% | OK |
+
+| Category       | Amount | % of Income | Benchmark | Status |
+| -------------- | ------ | ----------- | --------- | ------ |
+| Housing        | $1,400 | 28%         | 25-30%    | OK     |
+| Transportation | $500   | 10%         | 10-15%    | OK     |
+| Groceries      | $600   | 12%         | 8-10%     | HIGH   |
+| Dining out     | $500   | 10%         | 5-7%      | HIGH   |
+| Shopping       | $400   | 8%          | 3-5%      | HIGH   |
+| Subscriptions  | $180   | 3.6%        | 1-2%      | HIGH   |
+| Utilities      | $200   | 4%          | 3-5%      | OK     |
+| Insurance      | $250   | 5%          | 4-6%      | OK     |
 
 ### Top 5 Savings Opportunities
-| Rank | Action | Monthly Savings |
-|------|--------|----------------|
-| 1 | Reduce dining out to $250/mo (cook 2 extra meals/week) | $250 |
-| 2 | Reduce shopping to $200/mo (30-day rule on purchases over $50) | $200 |
-| 3 | Audit subscriptions -- cancel unused (target $80/mo) | $100 |
-| 4 | Reduce groceries to $450/mo (meal planning, store brand staples) | $150 |
-| 5 | Track the $770 unaccounted spending | $200-400 |
+
+| Rank | Action                                                           | Monthly Savings |
+| ---- | ---------------------------------------------------------------- | --------------- |
+| 1    | Reduce dining out to $250/mo (cook 2 extra meals/week)           | $250            |
+| 2    | Reduce shopping to $200/mo (30-day rule on purchases over $50)   | $200            |
+| 3    | Audit subscriptions -- cancel unused (target $80/mo)             | $100            |
+| 4    | Reduce groceries to $450/mo (meal planning, store brand staples) | $150            |
+| 5    | Track the $770 unaccounted spending                              | $200-400        |
 
 **Potential monthly savings:** $900-$1,100
 **New savings rate:** $1,100-$1,300/mo (22-26% of income)

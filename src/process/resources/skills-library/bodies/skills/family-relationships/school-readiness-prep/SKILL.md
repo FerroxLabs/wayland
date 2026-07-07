@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting checklist planning"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting checklist planning'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # School Readiness Prep
 
 ## When to Use
 
 **Use this skill when:**
+
 - A parent or caregiver asks what their child should know before starting kindergarten or pre-K
 - A user wants a structured checklist of developmental skills to work on before school starts
 - A user is preparing for a first day of school and needs both logistical and emotional preparation guidance
@@ -30,6 +32,7 @@ metadata:
 - A parent wants to practice separation before school starts due to anticipatory anxiety (their own or the child's)
 
 **Do NOT use when:**
+
 - The user describes specific delays in speech, language, motor skills, or behavior that are outside typical developmental ranges -- recommend a pediatric evaluation and/or speech-language assessment before focusing on school readiness activities (these require clinical skill sets)
 - The user asks whether to hold a child back ("redshirting") -- this is a complex decision involving the child's birthday, the school's cutoff date, the specific school culture, and input from the child's preschool teachers and pediatrician; provide context but do not recommend a course of action
 - The user is asking about formal school readiness testing or screening instruments (the Brigance Kindergarten Screen, the Ages and Stages Questionnaire, or a district's developmental screening) -- refer them to the school district's assessment process
@@ -56,6 +59,7 @@ Present the four readiness domains and make clear that kindergarten teachers and
 
 **Domain 1 -- Academic Foundations**
 The following are realistic kindergarten entry expectations based on the Common Core State Standards Kindergarten standards and National Association for the Education of Young Children (NAEYC) guidance. These are typical entry-level ranges, not requirements:
+
 - Letter recognition: 10--20 uppercase letters is typical. Knowing all 26 is an advantage but not required.
 - Letter-sound correspondence: Beginning sounds for common letters (B says /b/, S says /s/) is where instruction begins. Full phonics is taught in kindergarten.
 - Name writing: First name in uppercase is the standard entry expectation. Mixed case or lowercase is above average. If the child can produce letter-like forms that roughly resemble their name, that is developmentally appropriate.
@@ -66,6 +70,7 @@ The following are realistic kindergarten entry expectations based on the Common 
 
 **Domain 2 -- Social-Emotional Skills**
 These skills are the strongest predictors of kindergarten success according to longitudinal research (including the Perry Preschool Project and the Abecedarian Project):
+
 - Ability to separate from the primary caregiver for 2+ hours without sustained distress
 - Taking turns and waiting (in a group of 20+ children, a child may wait 10 minutes for their "turn")
 - Following a 2-step verbal instruction from an unfamiliar adult
@@ -76,6 +81,7 @@ These skills are the strongest predictors of kindergarten success according to l
 
 **Domain 3 -- Self-Care Skills**
 These are the most under-prepared skills in upper-middle-class households where parents frequently over-help. A kindergarten teacher with 20--25 students cannot assist each child individually with the bathroom, lunch, or dressing. A child who cannot manage these tasks independently will experience embarrassment and anxiety:
+
 - Bathroom independence: wiping after a bowel movement, flushing, pulling up pants/fastening them, washing hands in the complete sequence
 - Opening every type of container in their lunch: zippered bags, thermos lids (often very stiff for small hands), chip clips, fruit pouches, water bottle lids (especially sport-top bottles)
 - Dressing: putting on and removing a coat, managing a zipper (not just snapping), putting on shoes -- Velcro is fine in early kindergarten but practice tying by mid-year
@@ -83,6 +89,7 @@ These are the most under-prepared skills in upper-middle-class households where 
 - Blowing their nose with a tissue and discarding it (runny noses in classrooms are constant)
 
 **Domain 4 -- Behavioral and Routine Skills**
+
 - Sustaining attention on a chosen activity for 10--15 minutes (this is a realistic kindergarten expectation; circle time is typically 15--20 minutes in length)
 - Following a predictable daily schedule with transitions
 - Sitting in a whole-group setting (on the rug or at a table) without needing to move constantly -- this is not about suppressing all movement, but about having enough body regulation to participate
@@ -92,6 +99,7 @@ These are the most under-prepared skills in upper-middle-class households where 
 ### Step 3: Assess Current Status for Each Skill
 
 For every skill, apply a 3-level status:
+
 - **Mastered:** Does it independently and consistently across settings and with unfamiliar adults
 - **Developing:** Does it sometimes, with prompting, or only with familiar adults/at home
 - **Not Yet Started:** Has not demonstrated this skill; needs direct practice
@@ -101,6 +109,7 @@ Apply a 4th marker for specific skills: **Not applicable to this child's context
 ### Step 4: Prioritize Based on Time Available and Domain Weights
 
 Research consistently identifies the highest-impact preparation targets. Rank the child's gaps using this priority order:
+
 1. Separation readiness -- if this is underdeveloped and school starts in 6 weeks, it is the single most important thing to work on
 2. Self-care gaps -- bathroom independence and lunch container management are immediately quality-of-life impacting on Day 1
 3. Social-emotional skills -- turn-taking, frustration tolerance, entering peer play
@@ -116,6 +125,7 @@ Build a realistic timeline: children can make meaningful progress on a single sk
 For each "Developing" or "Not Yet Started" skill, provide a specific playful activity. The key design principle is **embedding practice in existing daily routines rather than creating drill sessions.** Research on early childhood learning (Vygotsky's zone of proximal development, play-based learning frameworks) consistently shows that children ages 3--6 learn best through play, repetition in natural contexts, and warm adult engagement -- not flashcard drills.
 
 Use these embedding principles:
+
 - **Mealtime embedding:** Counting objects (berries, crackers), color naming, opening containers, conversation turn-taking
 - **Physical play embedding:** Letter shapes in sidewalk chalk, counting steps, rhyming games while jumping, name writing in sand
 - **Book-based embedding:** Letter spotting during read-aloud, predicting rhymes, discussing character emotions
@@ -129,6 +139,7 @@ Calibrate activity length to the child's age. For a 4.5--5 year old, 10--15 minu
 Divide into three timeframes:
 
 **1--3 Months Before School:**
+
 - Complete registration paperwork, immunization records, and any required forms
 - Buy supplies per the school's specific list and label everything (name + classroom)
 - Establish the transportation plan and physically practice it -- walk the route, ride the bus on a dry run if allowed, identify the pickup zone
@@ -136,6 +147,7 @@ Divide into three timeframes:
 - Identify if a comfort item is allowed in the backpack (a small photo of the family is typically permitted even when toys are not)
 
 **2--4 Weeks Before School:**
+
 - Schedule a school visit before the first day -- many schools offer orientation or allow families to walk the building. Locate the bathroom from the classroom, find the water fountain, identify the playground. Familiarity with physical space dramatically reduces first-day anxiety.
 - Read 3--5 books about starting school. Strong, research-supported titles include books that normalize mixed feelings (both excitement and worry are valid), show a child successfully navigating a goodbye, and depict school as a place that is safe and predictable.
 - Role-play the school day at home: circle time practice, "pretend lunch," lining up, following a teacher's direction
@@ -143,11 +155,13 @@ Divide into three timeframes:
 - Establish and practice the goodbye ritual (see below)
 
 **The Week Before School:**
+
 - Do a "dress rehearsal" morning: full morning routine, pack the backpack, drive or walk to school, identify the entry point, then come home
 - Shift sleep schedule: move bedtime 15 minutes earlier over 5 nights to land at the target bedtime 2 nights before school starts
 - Prepare the child's clothes, backpack, and lunch the night before -- the morning of should have zero logistical decisions
 
 **Morning Of:**
+
 - Execute the practiced routine with no changes or surprises
 - Arrive 5--10 minutes early so the child can enter a less-crowded space and settle before the rush
 - Do the goodbye ritual at the designated drop-off point -- not extended, not improvised
@@ -314,6 +328,7 @@ Teachers are trained to manage post-goodbye distress. Most children regulate wit
 
 **Child Has a Summer Birthday (Turns 5 in June, July, or August for a September Start)**
 This child will be among the youngest in their class and will remain so for their entire school career. The research on relative age effects in education (Gladwell popularized this from work by economists Bedard and Dhuey) is robust: the youngest children in a kindergarten cohort are statistically more likely to be referred for ADHD evaluation, less likely to be identified as gifted, and more likely to repeat a grade -- not because of real developmental differences, but because of the comparison to classmates who are up to 12 months older. This does not mean holding back is the right choice -- that decision is highly individual. What it means for this skill:
+
 - Weight social-emotional readiness more heavily than academics in the plan
 - Normalize that the child will be smaller, younger-seeming, and may have a slightly shorter attention window than classmates -- this is not a problem to fix, it is a context to prepare for
 - Focus extra attention on self-regulation skills (impulse control, frustration tolerance, waiting) because these develop with maturation as much as with practice
@@ -321,12 +336,14 @@ This child will be among the youngest in their class and will remain so for thei
 
 **Child Has Never Been in Any Group Care (Coming Directly From Home to Kindergarten)**
 This is increasingly common. The skill level and social preparation of home-raised children varies enormously -- some have exceptional one-on-one language development but zero experience with group norms. Specific adaptations:
+
 - Add "group experience" activities to the plan: story time at the public library (child sits with a group of peers and follows a librarian's instructions), gym class or sports programs, playdates structured around turn-taking games rather than parallel play
 - The self-care domain is especially important to assess -- parents who have been available at all times to help with zippers, bathroom, and lunch need to begin actively stepping back 2--3 months before school
 - Role-play "circle time" at home: sit on the floor together, the parent leads a brief 10-minute session with songs, a book, and a question-and-answer activity. This gives the child a mental model of the group instruction format
 
 **Child Is Showing Significant Separation Anxiety**
 If a parent describes current separation distress that is already functionally impairing (child cannot attend birthday parties, have a playdate without the parent, stay with grandparents), this is qualitatively different from typical first-day jitters and may benefit from professional support before school starts. However, without diagnosing, the plan should include a graduated separation protocol:
+
 - Week 1: 30-minute separation with a trusted non-parent adult (grandparent, neighbor) with parent out of sight but nearby
 - Week 2: 1-hour separation with same trusted adult, parent completely away
 - Week 3: 2-hour separation with a slightly less familiar adult
@@ -336,6 +353,7 @@ If a parent describes current separation distress that is already functionally i
 
 **Bilingual or Multilingual Child**
 A child who has been raised in a home where Spanish, Mandarin, Hindi, or any other language is the primary language will be assessed and instructed in English in most U.S. public kindergarten programs. Important considerations:
+
 - Academic skills the child has in their home language are real skills -- they transfer. Letter-sound awareness in Spanish transfers directly to English phonics. Counting in Cantonese represents real mathematical understanding. Do not tell parents their child is "behind" because they know these skills in a non-English language.
 - The school should be informed of the child's home language at registration. Federal law (Title III and IDEA) entitles families to information about their child's education in their primary language.
 - Dual-language learners often appear to have smaller vocabularies in each language individually when assessed in only one language -- this is normal bilingual development, not a deficit. Their total conceptual vocabulary (combined across both languages) is comparable to monolingual peers.
@@ -343,6 +361,7 @@ A child who has been raised in a home where Spanish, Mandarin, Hindi, or any oth
 
 **Child Is Joining an Established Classroom Mid-Year**
 This is a significantly higher-anxiety scenario than a September start. Every child in the room already knows each other, the classroom rules, the routines, and the teacher's expectations. The new child is visibly the outsider. Specific additions to the plan:
+
 - Social entry skills deserve their own section: practice the exact phrase "Can I play with you?" or "Can I sit here?" at home until it is automatic -- children who hover without speaking are often left out not because of rejection but because they never made a verbal entry bid
 - Ask the teacher in advance to assign a classroom "buddy" for the first week
 - Visit the classroom before the first day to meet the teacher and see the physical space
@@ -350,6 +369,7 @@ This is a significantly higher-anxiety scenario than a September start. Every ch
 
 **Parent Is Anxious (More Than the Child Seems to Be)**
 This is common, and parental anxiety is a primary driver of child anxiety in the school transition literature. Signs: the parent is asking many "what if" questions, describing catastrophic outcomes ("What if he has an accident and the kids laugh at him?"), or indicating they are planning to stay outside the school for the first several days.
+
 - Validate the parent's feelings briefly and specifically, then redirect to the concrete plan: "It makes complete sense to feel this way -- this is a big transition for you both. The most helpful thing you can do is practice the goodbye ritual until it feels automatic for him, and then trust the teacher to handle the rest."
 - Explicitly tell the parent: most kindergarten teachers report that children who cry at drop-off are calm and engaged within 5--10 minutes. This is a reliable pattern, not wishful thinking.
 - Suggest the parent plan something for themselves in the first hour after drop-off -- coffee with a friend, a walk, any activity that prevents them from sitting anxiously by the phone. This is a real clinical recommendation from early childhood transition counselors.
@@ -365,6 +385,7 @@ This is common, and parental anxiety is a primary driver of child anxiety in the
 ## School Readiness Plan: Daughter, Age 5 Years 1 Month -- Starting Kindergarten in 8 Weeks
 
 ### Context Summary
+
 - **Age at school start:** 5 years 1 month (July birthday -- among youngest in her cohort)
 - **Program type:** Public kindergarten
 - **Prior structured experience:** None -- home care since birth
@@ -376,58 +397,62 @@ This is common, and parental anxiety is a primary driver of child anxiety in the
 ### Readiness Checklist
 
 #### Domain 1: Academic Foundations
-| Skill | Status | Activity to Build |
-|-------|--------|-------------------|
-| Recognizes 10+ uppercase letters | **Mastered** | Already there -- she knows most of her letters |
-| Knows beginning sounds for common letters | **Developing** | During read-aloud, ask "What sound does this word start with?" |
-| Writes first name | **Developing** | Sidewalk chalk name writing, sand tray tracing, name in playdough |
-| Counts 1--30 by rote | **Mastered** | Already there |
-| Counts 10 objects with 1-to-1 correspondence | **Developing** | Count blueberries at breakfast, count steps going upstairs |
-| Recognizes written numerals 1--10 | **Developing** | Point out numbers on signs, pages, and food packaging |
-| Names 8+ colors | **Likely Mastered** | Confirm during normal conversation |
-| Names basic shapes | **Likely Mastered** | Confirm; shape-hunt on a walk if needed |
-| Holds pencil with tripod or 4-finger grip | **Unknown -- Assess** | Observe her drawing; if fisted or palm-gripping, short fat crayons naturally encourage tripod grip |
-| Recognizes rhyming word pairs | **Developing** | Rhyming games in the car: "Does dog rhyme with log? Does cat rhyme with cup?" |
+
+| Skill                                        | Status                | Activity to Build                                                                                  |
+| -------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------- |
+| Recognizes 10+ uppercase letters             | **Mastered**          | Already there -- she knows most of her letters                                                     |
+| Knows beginning sounds for common letters    | **Developing**        | During read-aloud, ask "What sound does this word start with?"                                     |
+| Writes first name                            | **Developing**        | Sidewalk chalk name writing, sand tray tracing, name in playdough                                  |
+| Counts 1--30 by rote                         | **Mastered**          | Already there                                                                                      |
+| Counts 10 objects with 1-to-1 correspondence | **Developing**        | Count blueberries at breakfast, count steps going upstairs                                         |
+| Recognizes written numerals 1--10            | **Developing**        | Point out numbers on signs, pages, and food packaging                                              |
+| Names 8+ colors                              | **Likely Mastered**   | Confirm during normal conversation                                                                 |
+| Names basic shapes                           | **Likely Mastered**   | Confirm; shape-hunt on a walk if needed                                                            |
+| Holds pencil with tripod or 4-finger grip    | **Unknown -- Assess** | Observe her drawing; if fisted or palm-gripping, short fat crayons naturally encourage tripod grip |
+| Recognizes rhyming word pairs                | **Developing**        | Rhyming games in the car: "Does dog rhyme with log? Does cat rhyme with cup?"                      |
 
 **Academic summary:** She is in excellent shape academically. She is at or above typical kindergarten entry level in most areas. Academic skills are not the focus of this plan.
 
 ---
 
 #### Domain 2: Social-Emotional Skills
-| Skill | Status | Activity to Build |
-|-------|--------|-------------------|
-| Separates from caregiver for 2+ hours | **Not Yet** | Graduated separation plan (see Priority 1 below) |
-| Takes turns in a structured game | **Developing** | Board games at home: Candy Land, Zingo, Sequence for Kids |
-| Follows 2-step direction from unfamiliar adult | **Not Yet** | Library story time, gym class -- practice with unfamiliar adults |
-| Expresses needs and frustration with words | **Developing** | Practice "I need help," "I don't understand," "Can I have a turn?" |
-| Enters peer play with a verbal bid | **Not Yet** | Practice the phrase: "Can I play with you?" -- role-play at home |
-| Tolerates transition with 5-minute warning | **Developing** | Use 5-minute warnings consistently at home starting now |
-| Plays cooperatively with peers for 10 minutes | **Developing** | Structured playdates 1--2x per week with consistent partners |
+
+| Skill                                          | Status         | Activity to Build                                                  |
+| ---------------------------------------------- | -------------- | ------------------------------------------------------------------ |
+| Separates from caregiver for 2+ hours          | **Not Yet**    | Graduated separation plan (see Priority 1 below)                   |
+| Takes turns in a structured game               | **Developing** | Board games at home: Candy Land, Zingo, Sequence for Kids          |
+| Follows 2-step direction from unfamiliar adult | **Not Yet**    | Library story time, gym class -- practice with unfamiliar adults   |
+| Expresses needs and frustration with words     | **Developing** | Practice "I need help," "I don't understand," "Can I have a turn?" |
+| Enters peer play with a verbal bid             | **Not Yet**    | Practice the phrase: "Can I play with you?" -- role-play at home   |
+| Tolerates transition with 5-minute warning     | **Developing** | Use 5-minute warnings consistently at home starting now            |
+| Plays cooperatively with peers for 10 minutes  | **Developing** | Structured playdates 1--2x per week with consistent partners       |
 
 ---
 
 #### Domain 3: Self-Care Skills
-| Skill | Status | Activity to Build |
-|-------|--------|-------------------|
-| Uses bathroom independently (wipe, flush, wash) | **Developing** | Practice the full sequence independently -- step back from helping |
-| Washes hands with soap for 20 seconds | **Developing** | Sing one verse of "Happy Birthday" twice while scrubbing |
-| Opens all lunch containers independently | **Not Yet** | Buy the exact lunch items she'll use. Practice at lunch every day. Start with easier ones (zip-close bags) and work toward thermos lids and sport water bottles |
-| Manages water bottle independently | **Not Yet** | Buy the water bottle the school allows now -- sport-top bottles with stiff valves need practice |
-| Puts on coat with zipper | **Not Yet** | Practice every day during the 8 weeks. Use the "flip trick": coat on the floor, child puts arms in from the top, flips it over the head -- eliminates the starting-the-zipper problem |
-| Puts on shoes independently | **Developing** | Velcro is fine for September. Practice independently every morning. |
-| Manages backpack (open, retrieve, repack, close) | **Not Yet** | Get the backpack this week. Daily practice: pack it, unpack it, repack it. Make it the one thing she does independently every morning. |
-| Blows nose with tissue and disposes of it | **Developing** | Practice nose-blowing independently; keep tissues accessible at home |
+
+| Skill                                            | Status         | Activity to Build                                                                                                                                                                     |
+| ------------------------------------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Uses bathroom independently (wipe, flush, wash)  | **Developing** | Practice the full sequence independently -- step back from helping                                                                                                                    |
+| Washes hands with soap for 20 seconds            | **Developing** | Sing one verse of "Happy Birthday" twice while scrubbing                                                                                                                              |
+| Opens all lunch containers independently         | **Not Yet**    | Buy the exact lunch items she'll use. Practice at lunch every day. Start with easier ones (zip-close bags) and work toward thermos lids and sport water bottles                       |
+| Manages water bottle independently               | **Not Yet**    | Buy the water bottle the school allows now -- sport-top bottles with stiff valves need practice                                                                                       |
+| Puts on coat with zipper                         | **Not Yet**    | Practice every day during the 8 weeks. Use the "flip trick": coat on the floor, child puts arms in from the top, flips it over the head -- eliminates the starting-the-zipper problem |
+| Puts on shoes independently                      | **Developing** | Velcro is fine for September. Practice independently every morning.                                                                                                                   |
+| Manages backpack (open, retrieve, repack, close) | **Not Yet**    | Get the backpack this week. Daily practice: pack it, unpack it, repack it. Make it the one thing she does independently every morning.                                                |
+| Blows nose with tissue and disposes of it        | **Developing** | Practice nose-blowing independently; keep tissues accessible at home                                                                                                                  |
 
 ---
 
 #### Domain 4: Behavioral and Routine Skills
-| Skill | Status | Activity to Build |
-|-------|--------|-------------------|
-| Sustains attention on one activity for 10--15 minutes | **Developing** | She likely does this with books. Extend to puzzles, drawing, building -- activities with a clear endpoint |
-| Follows a predictable daily schedule | **Developing** | Establish school-day rhythm now: set wake time, morning routine, activity time, lunch, quiet time, afternoon activity |
-| Sits in group setting | **Not Yet** | Library story time is the best available practice for this |
-| Waits before speaking | **Developing** | At dinner, practice "raise your hand before you add something" as a fun game |
-| Cleans up materials | **Developing** | 5-minute cleanup alarm before every transition. Make it non-negotiable. |
+
+| Skill                                                 | Status         | Activity to Build                                                                                                     |
+| ----------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Sustains attention on one activity for 10--15 minutes | **Developing** | She likely does this with books. Extend to puzzles, drawing, building -- activities with a clear endpoint             |
+| Follows a predictable daily schedule                  | **Developing** | Establish school-day rhythm now: set wake time, morning routine, activity time, lunch, quiet time, afternoon activity |
+| Sits in group setting                                 | **Not Yet**    | Library story time is the best available practice for this                                                            |
+| Waits before speaking                                 | **Developing** | At dinner, practice "raise your hand before you add something" as a fun game                                          |
+| Cleans up materials                                   | **Developing** | 5-minute cleanup alarm before every transition. Make it non-negotiable.                                               |
 
 ---
 
@@ -457,19 +482,20 @@ Sign up for library story time immediately. This is free, widely available, and 
 
 ### Skill-Building Weekly Activity Plan
 
-| Week | Focus Skills | Daily Activity (10--15 min) | Embedding Opportunity |
-|------|-------------|-----------------------------|-----------------------|
-| Weeks 1--2 | Separation (1 hr), lunch containers, backpack | Daily lunch practice with all containers; backpack pack/unpack; first 1-hr separation | Every lunch; every morning departure |
-| Weeks 3--4 | Separation (2 hr), coat zipper, library story time | Zipper practice each morning; attend library story time 1x/week; 2-hr separations 2x/week | Morning routine; weekly outing |
-| Weeks 5--6 | Separation (3 hr/playdate), turn-taking, verbal entry bid | Board games 3x/week; role-play "Can I play with you?"; playdate drop-off 1x/week | Mealtimes; playdates |
-| Weeks 7--8 | School routine simulation, goodbye ritual | Wake at school-day time; full morning routine; school visit; dry-run morning | Every morning |
-| Final 3 days | Dress rehearsal only | Full morning routine at school-day time; backpack packed night before; goodbye ritual at front door | Morning routine |
+| Week         | Focus Skills                                              | Daily Activity (10--15 min)                                                                         | Embedding Opportunity                |
+| ------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Weeks 1--2   | Separation (1 hr), lunch containers, backpack             | Daily lunch practice with all containers; backpack pack/unpack; first 1-hr separation               | Every lunch; every morning departure |
+| Weeks 3--4   | Separation (2 hr), coat zipper, library story time        | Zipper practice each morning; attend library story time 1x/week; 2-hr separations 2x/week           | Morning routine; weekly outing       |
+| Weeks 5--6   | Separation (3 hr/playdate), turn-taking, verbal entry bid | Board games 3x/week; role-play "Can I play with you?"; playdate drop-off 1x/week                    | Mealtimes; playdates                 |
+| Weeks 7--8   | School routine simulation, goodbye ritual                 | Wake at school-day time; full morning routine; school visit; dry-run morning                        | Every morning                        |
+| Final 3 days | Dress rehearsal only                                      | Full morning routine at school-day time; backpack packed night before; goodbye ritual at front door | Morning routine                      |
 
 ---
 
 ### First-Day Preparation Checklist
 
 **Logistical (Do These in the First 2 Weeks):**
+
 - [ ] Complete registration and submit immunization records
 - [ ] Buy and label all supplies from the school's list (name on every item, including individual crayons if possible)
 - [ ] Buy the water bottle and lunch containers the school system uses -- confirm if thermoses are allowed, whether water bottles go in backpacks or cubbies
@@ -478,6 +504,7 @@ Sign up for library story time immediately. This is free, widely available, and 
 - [ ] Ask the school: Is there an orientation or classroom visit day? Can you schedule a brief visit to the classroom before school starts?
 
 **Emotional and Familiarity Preparation (Weeks 4--8):**
+
 - [ ] Schedule and complete a school building visit -- walk the hallway, find the classroom, find the bathroom from the classroom door, walk the playground
 - [ ] Read together: choose 3 books that show a child successfully navigating a goodbye and enjoying school (ask your librarian for currently-available titles -- there is a large genre of first-day-of-school picture books)
 - [ ] Talk through a realistic school day together using simple language: "First you'll find your cubby and hang up your backpack. Then everyone sits on the rug for morning circle. Then there's center time where you choose an activity. Then snack..."
@@ -485,11 +512,13 @@ Sign up for library story time immediately. This is free, widely available, and 
 - [ ] Practice the morning routine at school-day times for 7 consecutive days before school starts
 
 **Sleep Schedule Adjustment (Start 2 Weeks Before School):**
+
 - [ ] Identify the required school-day wake time and work backward: school-age children (5--6) typically need 10--11 hours of sleep
 - [ ] If current bedtime is 9:30pm and she needs to wake at 6:45am, the new bedtime is 7:45--8:00pm -- that is a 60--90 minute shift. Move it 15 minutes earlier every 2 days over the 2 weeks before school.
 - [ ] Adjust wake time simultaneously -- do not just move bedtime without also changing wake time
 
 **Night Before:**
+
 - [ ] Pack backpack together (child does it; you supervise)
 - [ ] Lay out tomorrow's clothes together
 - [ ] Prepare and pack lunch together -- she opens each container once as a preview
@@ -497,6 +526,7 @@ Sign up for library story time immediately. This is free, widely available, and 
 - [ ] Maintain bedtime routine exactly as practiced -- no late-night emotional processing conversations that prime anxiety
 
 **Morning Of:**
+
 - [ ] Execute the practiced routine with no changes or surprises
 - [ ] No screens, no rushing, no raised voices -- this morning sets the emotional tone
 - [ ] Arrive 5--10 minutes before the bell -- she should enter a quieter space rather than a chaotic arrival crush
@@ -508,6 +538,7 @@ Sign up for library story time immediately. This is free, widely available, and 
 ---
 
 ### Goodbye Ritual Script
+
 Practice this exact ritual during every separation over the next 8 weeks. The repetition is the reassurance -- she will learn that this ritual means you always come back.
 
 > "Big hug. I love you. I'll pick you up right after lunch [or whatever the specific reference point is]. Have a great day -- I can't wait to hear about it."

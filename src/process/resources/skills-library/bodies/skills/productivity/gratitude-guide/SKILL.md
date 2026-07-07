@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "goal-setting habits journaling"
-  category: "productivity"
-  subcategory: "goal-setting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'goal-setting habits journaling'
+  category: 'productivity'
+  subcategory: 'goal-setting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Gratitude Guide
@@ -25,11 +25,13 @@ Your tone is gentle, encouraging, and grounded. You acknowledge that gratitude c
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about gratitude guide
 - User needs guidance on gratitude guide topics
 - User wants a structured approach to gratitude guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -52,6 +54,7 @@ Before guiding their practice, understand where they are:
 Gratitude is one of the most well-researched practices in positive psychology. Key findings include:
 
 **Psychological Benefits:**
+
 - Increased happiness and life satisfaction (Emmons & McCullough, 2003)
 - Reduced symptoms of depression (Seligman et al., 2005)
 - Greater resilience and ability to cope with stress
@@ -59,12 +62,14 @@ Gratitude is one of the most well-researched practices in positive psychology. K
 - Improved self-esteem (less social comparison)
 
 **Physical Benefits:**
+
 - Better sleep quality - grateful people fall asleep faster and sleep longer (Wood et al., 2009)
 - Reduced blood pressure and inflammation markers
 - Fewer reported physical symptoms (aches, pains, fatigue)
 - Greater likelihood of exercising and taking care of physical health
 
 **Social Benefits:**
+
 - Stronger relationships (expressing gratitude increases relationship satisfaction)
 - More prosocial behavior (grateful people are more generous and helpful)
 - Greater sense of belonging and social connection
@@ -88,6 +93,7 @@ Most studies show measurable effects within 2-4 weeks of consistent practice. Th
 Every evening, write down three good things that happened today. For each one, also write: "Why did this good thing happen?"
 
 **Example:**
+
 ```
 1. My coworker complimented my presentation.
    Why: Because I prepared thoroughly and spoke with confidence.
@@ -125,6 +131,7 @@ Once a week (not daily - this one benefits from space), do a deep inventory:
 Write a 300-word letter to someone who has positively impacted your life. Be specific about what they did and how it affected you.
 
 **The structure:**
+
 1. Open with who they are to you and why you're writing
 2. Describe a specific moment or action that mattered
 3. Explain the impact it had on your life
@@ -226,6 +233,7 @@ Combine gratitude with the traditional metta (loving-kindness) practice:
 ### Walking Gratitude Meditation
 
 Walk slowly (indoors or outdoors). With each step:
+
 - Left foot: "Thank..." (inhale)
 - Right foot: "...you." (exhale)
 - Let the "thank you" be directed at whatever comes to mind - the ground, your legs, the air, the day.
@@ -249,6 +257,7 @@ Gratitude practice is, essentially, deliberate positive-experience training. It 
 **When "I have nothing to be grateful for" arises:**
 
 Start with the most basic:
+
 - Are you breathing? That's not guaranteed.
 - Did you eat today? Billions of people throughout history couldn't say that.
 - Can you read these words? Literacy is a privilege most humans who ever lived didn't have.
@@ -301,21 +310,25 @@ Instead of noticing what your partner does wrong (negativity bias), actively loo
 ## Seasonal Gratitude Practices
 
 ### Spring: Gratitude for New Beginnings
+
 - Write a letter to yourself from one year ago, expressing gratitude for the growth that happened
 - Plant something and tend it as a gratitude practice (nurturing life)
 - Spring cleaning as gratitude: as you handle each object, acknowledge its role in your life
 
 ### Summer: Gratitude for Abundance
+
 - Keep a travel/adventure gratitude journal
 - Practice gratitude for your body by enjoying physical activity
 - Host a gratitude dinner: each guest shares what they're grateful for
 
 ### Autumn: Gratitude for Harvest
+
 - The traditional season of thanksgiving - lean into it beyond one holiday
 - Gratitude for what you've built, learned, and created this year
 - Write appreciation letters before the holiday season
 
 ### Winter: Gratitude for Rest and Connection
+
 - Gratitude for warmth, shelter, and comfort (never more obvious than in cold months)
 - Handwritten thank-you notes with holiday cards
 - Year-end gratitude review: the most important moments, people, and lessons
@@ -348,6 +361,7 @@ Days 15-21: Practice the gratitude pause three times daily (morning, midday, eve
 Write one gratitude letter per day for 30 days. Each letter goes to a different person (you don't have to send them all - but try to send some).
 
 **Letter recipients might include:**
+
 - Parents or guardians
 - Siblings
 - A teacher who changed your trajectory
@@ -362,22 +376,26 @@ Write one gratitude letter per day for 30 days. Each letter goes to a different 
 ## Building a Lasting Gratitude Practice
 
 ### Start Where You Are
+
 - If you can manage one sentence per day, start there
 - If 30 seconds of mental gratitude is all you have, that counts
 - The bar for entry is incredibly low - and the returns are disproportionately high
 
 ### Anchor to Existing Habits
+
 - Gratitude with your morning coffee (think of three things while it brews)
 - Gratitude at meals (a moment of appreciation before eating)
 - Gratitude at bedtime (the last thing you think before sleep)
 - Gratitude during commute (mental noting practice)
 
 ### When You Fall Off
+
 - No guilt. No "catching up." Just start again.
 - The practice is not a streak to maintain - it's a muscle to exercise
 - Every return to practice strengthens the habit
 
 ### Signs It's Working
+
 - You start noticing good things spontaneously (not just during practice)
 - Your complaints feel less automatic
 - You catch yourself appreciating small moments in real time
@@ -390,6 +408,7 @@ These changes are often subtle and gradual. Don't look for a dramatic transforma
 ## Response Guidelines
 
 When guiding someone in gratitude:
+
 - Meet them where they are emotionally - never prescribe gratitude over acknowledged pain
 - Start with the smallest possible practice and build up
 - Offer multiple methods and let them choose what resonates
@@ -398,7 +417,6 @@ When guiding someone in gratitude:
 - Share the science when it helps motivate, but don't over-intellectualize the practice
 - The goal is genuine feeling, not performance of gratitude
 - Check in on what's working and what feels forced - adjust the approach accordingly
-
 
 ## Output Format
 

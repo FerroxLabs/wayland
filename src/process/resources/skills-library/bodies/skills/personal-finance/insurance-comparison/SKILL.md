@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "insurance personal-finance analysis planning"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'insurance personal-finance analysis planning'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Insurance Comparison
 
 > **Disclaimer:** This skill provides educational information about insurance concepts and general guidance for policy evaluation. It does NOT constitute insurance advice, legal advice, or recommendations to purchase any specific policy or from any specific provider. Individual risk profiles, state regulations, and financial circumstances vary significantly. Always verify all policy terms against official documents. For complex situations, consult a licensed insurance agent, broker, or attorney.
@@ -30,6 +31,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has two or more actual policy quotes with specific numbers and wants a structured side-by-side comparison
 - The user asks about the financial tradeoff between paying a lower premium now versus a higher deductible later
 - The user wants to understand what specific policy terms mean and how they affect total cost exposure (e.g., coinsurance vs. copay, ACV vs. replacement cost, occurrence vs. claims-made)
@@ -40,6 +42,7 @@ metadata:
 - The user has a bundling offer (auto + home, for example) and wants to evaluate whether the discount justifies consolidating to one carrier
 
 **Do NOT use this skill when:**
+
 - The user has not yet decided what types or amounts of coverage they need -- use `insurance-needs-assessment` first, then return here once they have quotes
 - The user is making a broader buy-or-lease or major purchase decision where insurance is one cost component among many -- use `major-purchase-decision`
 - The user is navigating home buying and needs guidance on lender-required coverage, title insurance, or PMI -- use `home-buying-checklist`
@@ -70,23 +73,27 @@ Before collecting any numbers, establish the analytical frame. Different insuran
 Gather specific numbers for every policy being compared. If the user has not yet provided a term, ask for it before proceeding -- do not estimate or assume.
 
 **Dimension 1: Premium and Payment Structure**
+
 - Monthly, semi-annual, and annual premium. Note whether a payment-in-full discount applies (typically 3-8% discount for paying annually upfront).
 - Whether the premium is guaranteed for the policy term or subject to rate adjustment at renewal.
 - For life insurance: whether the premium is level (guaranteed for the full term) or graded (increases at intervals).
 - For employer-sponsored health insurance: the employee's share of premium, not the total premium. The comparison is always on the cost to the insured.
 
 **Dimension 2: Deductibles and Self-Insured Retention**
+
 - Per-occurrence deductible vs. annual aggregate deductible. Health insurance typically has an annual aggregate; auto and home are typically per-occurrence.
 - Whether the deductible resets on a calendar-year or policy-year basis.
 - Separate deductibles by peril: many homeowner's policies have a standard deductible for most claims but a separate, higher wind/hail or hurricane deductible expressed as a percentage of the dwelling coverage amount (e.g., 1% or 2% of Coverage A). A 2% wind deductible on a $400,000 home is $8,000 -- not the $1,000 standard deductible that appears on the declarations page.
 - For health insurance: whether the deductible is embedded (each family member has their own deductible that counts toward family) or aggregate (the family deductible must be met collectively before any individual's claims are paid at the coinsurance rate).
 
 **Dimension 3: Coinsurance, Copays, and Cost-Sharing Mechanics**
+
 - For health insurance: coinsurance percentage after deductible (e.g., 80/20 means insurer pays 80%, insured pays 20%), copay amounts per visit type (primary care vs. specialist vs. urgent care vs. ER), and whether the out-of-pocket maximum (OOP max) includes or excludes the deductible. Under ACA-compliant plans, OOP max includes deductible, copays, and coinsurance. Some plans have separate medical and prescription OOP maxes.
 - For property insurance (home/auto): replacement cost value (RCV) vs. actual cash value (ACV). ACV = RCV minus depreciation. A 10-year-old roof with ACV coverage that is destroyed in a hailstorm pays out replacement cost minus depreciation -- often leaving a $5,000-$15,000 gap the insured pays. RCV coverage pays full replacement cost, but premiums are higher. This single distinction can be worth more than a $500 premium difference.
 - For auto insurance: collision deductible and comprehensive deductible are often set independently. A common structure is a $500 collision / $100 comprehensive split.
 
 **Dimension 4: Coverage Limits and Sublimits**
+
 - Per-occurrence limit, per-person limit, and annual aggregate limit.
 - For auto liability: bodily injury per person / bodily injury per accident / property damage format (e.g., 100/300/100 means $100K per person, $300K per accident, $100K property damage).
 - For homeowners: Coverage A (dwelling), Coverage B (other structures -- typically 10% of A), Coverage C (personal property -- typically 50-70% of A), Coverage D (loss of use / additional living expenses -- typically 20-30% of A), Coverage E (personal liability), Coverage F (medical payments to others). Flag any sublimits within personal property coverage: jewelry, electronics, firearms, silverware, business property, and cash all have sublimits (commonly $200-$2,500) that may fall far short of actual values. Scheduled personal property endorsements can raise these limits but at additional premium.
@@ -94,6 +101,7 @@ Gather specific numbers for every policy being compared. If the user has not yet
 - For life insurance: the face value (death benefit) and whether it is level or decreasing over the term.
 
 **Dimension 5: Exclusions, Conditions, and Waiting Periods**
+
 - Named exclusions from the declarations page and policy jacket. The most common homeowner's exclusions are flood (always excluded -- requires separate NFIP or private flood policy), earthquake (usually excluded -- requires separate endorsement or policy), sewer backup/water backup (often excluded; endorsement available for $50-$150/year), and ordinance or law (the cost to bring a structure up to current code after a loss -- commonly excluded, but endorsement available).
 - For auto: exclusions for rideshare driving (if the insured drives for a TNC like Uber or Lyft, personal auto policies typically exclude coverage during app-on periods -- requires a rideshare endorsement), business use of the vehicle, and racing.
 - For health insurance: pre-existing condition exclusions (eliminated for ACA-compliant individual and group plans, but still applicable to short-term health plans), experimental treatment exclusions, and out-of-network service exclusions under HMOs and EPOs.
@@ -106,11 +114,13 @@ Gather specific numbers for every policy being compared. If the user has not yet
 Three scenarios undercount the real distribution of risk. Use four:
 
 **Scenario 1 -- Zero claims (premium cost only)**
+
 - Total cost = Annual premium
 - This is the floor -- the guaranteed minimum cost of holding the policy.
 - Policy pays out: $0
 
 **Scenario 2 -- One small/moderate claim**
+
 - Estimate a realistic small claim for the insurance type:
   - Auto: $2,500-$4,000 (minor collision, single vehicle)
   - Home: $5,000-$12,000 (roof damage from wind, water damage from burst pipe)
@@ -119,6 +129,7 @@ Three scenarios undercount the real distribution of risk. Use four:
 - For property insurance with ACV coverage: add estimated depreciation to the insured's cost
 
 **Scenario 3 -- One major claim**
+
 - Estimate a realistic major but survivable claim:
   - Auto: $30,000-$60,000 (totaled vehicle or serious collision)
   - Home: $80,000-$200,000 (major fire, significant structural damage)
@@ -128,6 +139,7 @@ Three scenarios undercount the real distribution of risk. Use four:
 - Flag if any coverage limit is insufficient for the estimated major claim -- an inadequately insured home or auto creates a coverage gap above the policy limit
 
 **Scenario 4 -- Multiple claims or chronic-use year**
+
 - Most relevant for: auto (two accidents in one year), health (ongoing condition requiring frequent care), or home (multiple separate events)
 - Auto with per-occurrence deductible: each new claim triggers the deductible again
 - Health with annual deductible: once the deductible and OOP max are met, all further covered in-network costs are paid at 100% for the remainder of the plan year -- making high-use years more predictable on high-deductible plans than they may appear
@@ -139,6 +151,7 @@ Three scenarios undercount the real distribution of risk. Use four:
 This is the core quantitative decision for most property and health insurance comparisons.
 
 **Basic break-even formula:**
+
 ```
 Annual premium savings = Premium(lower deductible) - Premium(higher deductible)
 Additional deductible exposure = Deductible(higher) - Deductible(lower)
@@ -146,15 +159,18 @@ Break-even claims per year = Additional deductible exposure / Annual premium sav
 ```
 
 **Interpretation rules:**
+
 - Break-even < 0.5 claims/year: The lower-deductible policy rarely makes financial sense unless you have very high claim frequency -- favor the higher deductible.
 - Break-even 0.5-1.0 claims/year: The decision is close and should be driven by risk tolerance and expected claim frequency. The higher-deductible plan is slightly favored for people with low recent claims history.
 - Break-even > 1.0 claims/year: The lower-deductible plan favors financially for anyone who files one or more claims per year; this is uncommon for most auto and home policyholders.
 - For health insurance: the break-even analysis must account for the HSA contribution offset on HDHPs. In 2024, an individual can contribute up to $4,150 to an HSA (tax-deductible, grows tax-free, withdrawals tax-free for qualified medical expenses). The effective cost of an HDHP is reduced by the tax savings on HSA contributions (typically 22-32% of the contributed amount for most working adults). A $1,500 HSA contribution by an individual in the 24% bracket generates $360 in immediate tax savings, which should be subtracted from the HDHP's cost disadvantage.
 
 **Multi-year break-even (the more realistic frame):**
+
 ```
 Year N break-even: N × annual premium savings vs. N × expected deductible costs
 ```
+
 Most policyholders make the deductible decision implicitly on a multi-year basis. A person who expects to file one auto claim every 4 years faces a very different calculus than one who expects one every year.
 
 ---
@@ -164,27 +180,33 @@ Most policyholders make the deductible decision implicitly on a multi-year basis
 Premium and deductible comparisons are table stakes. The most important differences are often qualitative.
 
 **Replacement cost vs. actual cash value (property insurance):**
+
 - Quantify the ACV discount: For a 15-year-old roof with a $20,000 replacement cost, ACV at 50% depreciation pays $10,000. The insured pays the $10,000 gap plus their deductible. RCV coverage eliminates this gap. The annual premium difference for RCV vs. ACV is typically $150-$400/year for a standard home -- almost always worth it for whole-house coverage.
 - Some policies offer a hybrid: they pay ACV at initial claim, then pay the recoverable depreciation once repairs are completed. This deferred RCV structure is better than pure ACV but requires the insured to fund the repair gap upfront.
 
 **Occurrence-based vs. claims-made policies (professional liability, some specialty lines):**
+
 - Occurrence: covers any incident that occurs during the policy period, regardless of when the claim is filed. Preferred for long-tail liability.
 - Claims-made: only covers claims filed while the policy is active. Changing carriers requires a tail endorsement (extended reporting period) to cover incidents that occurred during the prior policy period but are claimed later.
 
 **Network adequacy (health insurance):**
+
 - In-network directory size is less important than whether the insured's specific providers (PCP, specialists, hospital system) are in-network.
 - For employer-sponsored plans: verify that the plan is the same across carriers -- a PPO at $180/month from one carrier may have a materially narrower network than a PPO at $210/month from another.
 - Out-of-network cost exposure: HMOs and EPOs have no out-of-network benefits except emergencies. A PPO that pays 60% out-of-network on a $50,000 hospital bill still leaves a $20,000 coinsurance exposure before any out-of-network OOP max (if one even exists -- some plans have no OOP cap for out-of-network).
 
 **Uninsured/underinsured motorist coverage (auto):**
+
 - The Insurance Research Council estimates that approximately 1 in 8 U.S. drivers is uninsured. Without UM/UIM coverage, a driver hit by an uninsured motorist has no source of recovery for medical costs and lost wages beyond their own health insurance and collision coverage.
 - UM/UIM coverage is inexpensive (typically $30-$80/year) relative to the exposure it covers. Its presence or absence in a quote is a meaningful coverage quality differentiator.
 
 **Provider financial strength ratings:**
+
 - A.M. Best is the standard rating agency for insurance carriers. Ratings above A- (Excellent) indicate strong claims-paying ability. Avoid carriers rated below B+ for primary insurance. For surplus lines or specialty carriers, verify the rating explicitly.
 - A carrier with a B rating is not automatically bad, but a significant catastrophic event (hurricane, wildfire season) could strain a financially weaker carrier's ability to pay claims promptly.
 
 **Claims satisfaction:**
+
 - J.D. Power publishes annual claims satisfaction studies for auto, home, life, and health insurance by carrier. While specific carrier names are not used in this skill's outputs, users should be directed to check these independent ratings.
 - State insurance department complaint ratios (available from the NAIC consumer information portal) show complaints per $1 million of premiums for each licensed carrier by line of business. A complaint ratio above 1.0 (the median) is a yellow flag; above 2.0 is a red flag.
 
@@ -193,16 +215,19 @@ Premium and deductible comparisons are table stakes. The most important differen
 ### Step 6: Identify Coverage Gaps, Overlaps, and Coordination Issues
 
 **Coverage gaps** -- situations where neither policy would pay -- are the most financially dangerous outcome of a policy comparison:
+
 - A homeowner without flood insurance in a FEMA Zone AE (high-risk flood zone) has a coverage gap that no amount of premium reduction on the base policy can offset.
 - A renter who relies on a landlord's policy for their personal property has a coverage gap -- landlord policies cover the building structure, not tenant belongings.
 - A driver with liability-only auto coverage (no collision or comprehensive) who finances their vehicle violates the loan agreement and has no coverage for their own vehicle damage.
 
 **Coverage overlaps** can create false security or wasted premium:
+
 - Medical payments coverage on an auto policy may be redundant for someone with strong health insurance -- the auto MedPay pays first, then health insurance. This creates a duplicate benefit for covered expenses.
 - Extended warranty coverage on a credit card may overlap with a purchased product warranty endorsement.
 - Travel insurance purchased separately may duplicate coverage already included on a premium credit card.
 
 **Coordination of benefits (health insurance for dual-covered households):**
+
 - When both spouses have employer-sponsored health insurance, covering both as primary on separate plans may cost more in combined premiums than the benefit of reduced individual cost-sharing. A break-even analysis comparing combined solo premiums vs. one employee + one dependent coverage is required.
 
 ---
@@ -394,6 +419,7 @@ Premium and deductible comparisons are table stakes. The most important differen
 ### 1. Comparing Structurally Different Products (e.g., Term Life vs. Whole Life)
 
 Term and whole/universal life are not comparable on the same cost basis without adjustment. Term provides pure death benefit protection for a defined period; whole life provides permanent coverage and builds cash value. The comparison framework must:
+
 - Separate the insurance cost from the savings/investment component in whole life. The internal rate of return on whole life cash value is typically 2-4% for the first 10 years, rising to 4-5% over longer periods -- materially lower than equity market historical returns. The "buy term and invest the difference" calculation should be presented: if Term A costs $40/month and Whole Life B costs $400/month, the $360/month difference invested in a tax-advantaged account (Roth IRA, 401k) at 7% real return produces significantly more wealth over 30 years than the cash value component of the whole life policy in most scenarios.
 - Focus the direct comparison on the insurance component: death benefit per dollar of annual premium. A $500K 20-year term at $30/month provides $500K coverage for $360/year; a $500K whole life policy at $450/month provides the same coverage plus cash value for $5,400/year.
 - Note that whole life's premium is typically guaranteed level for life, while term expires and renewal at older ages is dramatically more expensive.
@@ -402,6 +428,7 @@ Term and whole/universal life are not comparable on the same cost basis without 
 ### 2. Health Insurance: Comparing an HDHP with HSA Eligibility Against a Traditional Plan
 
 This is the most common and most analytically nuanced health insurance comparison. Key adjustments:
+
 - The HDHP OOP max is the true worst-case out-of-pocket, but only for covered in-network services. If the user has providers outside the network, or the HDHP is an HMO with limited network, the true worst-case exposure is higher.
 - Calculate the HSA tax savings as a reduction in the HDHP's effective annual cost. Many employers also contribute to the employee's HSA (common contribution: $500-$1,500/year) -- this further reduces the HDHP cost.
 - HSA funds roll over indefinitely and can be invested. After age 65, HSA funds can be withdrawn for any purpose (not just medical) with ordinary income tax, functioning like a traditional IRA. This long-term optionality has value that does not appear in a one-year cost comparison.
@@ -411,14 +438,16 @@ This is the most common and most analytically nuanced health insurance compariso
 ### 3. Homeowner's Insurance with Multiple Deductible Types
 
 Many homeowner's policies in coastal, tornado-prone, or hail-prone states have two or more deductible structures:
+
 - A standard all-other-perils (AOP) deductible: typically $500-$2,500
 - A wind/hail deductible: typically 1-5% of Coverage A, activated for named storms or any wind event depending on policy wording
 - In Florida, Louisiana, and coastal Carolinas: a separate named storm or hurricane deductible (1-10% of Coverage A)
-When comparing two policies, do not treat the AOP deductible as the operative deductible for the user's highest-probability claim event. If the user lives in a hail-prone area (large parts of Texas, Colorado, Oklahoma, Kansas, Nebraska), the wind/hail deductible is the deductible that will apply to their most likely claim. Always calculate and present the percentage deductible in dollar terms relative to the user's Coverage A limit.
+  When comparing two policies, do not treat the AOP deductible as the operative deductible for the user's highest-probability claim event. If the user lives in a hail-prone area (large parts of Texas, Colorado, Oklahoma, Kansas, Nebraska), the wind/hail deductible is the deductible that will apply to their most likely claim. Always calculate and present the percentage deductible in dollar terms relative to the user's Coverage A limit.
 
 ### 4. User Only Has One Quote and Wants Guidance
 
 If a user has a single quote and no comparators, the analysis takes a different form:
+
 - Present the quote's terms against published industry benchmarks. For auto: average annual U.S. auto insurance premium is approximately $1,000-$1,400 for minimum coverage, $1,800-$2,400 for full coverage (varies significantly by state, age, driving record, vehicle). A quote materially above these ranges may indicate a rating factor the user should understand (recent claims, young driver, poor credit in states where credit-based insurance scoring is allowed).
 - Model the quote at multiple deductible levels if the insurer offers tiered deductibles. Show the premium-deductible tradeoff across the available tiers ($250 / $500 / $1,000 / $2,500 deductibles).
 - Recommend the user obtain at least two additional quotes before making a decision. For homeowner's insurance, getting 3 quotes is standard practice; auto insurance quote variance across carriers for the same risk profile can exceed 40%.
@@ -426,6 +455,7 @@ If a user has a single quote and no comparators, the analysis takes a different 
 ### 5. Bundling Discount Analysis
 
 When a user is considering bundling auto and homeowner's (or other lines) with a single carrier vs. purchasing separately from the best individual provider for each line:
+
 - Do not simply note that a discount exists. Quantify the math: "Carrier X offers 10% off both policies for bundling. At $1,800 auto and $1,200 home, the bundle saves $300/year. If Carrier Y offers the best standalone auto at $1,500 and Carrier Z offers the best standalone home at $950, the unbundled total is $2,450 vs. the bundled total of $2,700. In this example, best-of-breed standalone policies cost $250 less per year despite the bundling discount."
 - Bundling discounts are typically 5-15% on each line. They do not always produce the lowest total cost, but they do simplify billing, potentially reduce claims complications (both losses covered by one carrier means no coverage dispute between insurers), and may produce loyalty pricing advantages at renewal.
 - For auto + home bundles, a single carrier holding both policies may be more motivated to retain the customer at renewal, leading to better renewal rate increases than a single-line relationship.
@@ -433,6 +463,7 @@ When a user is considering bundling auto and homeowner's (or other lines) with a
 ### 6. User Has a Pending or Recent Claim (Mid-Policy Switch)
 
 If the user is comparing policies while a claim is open or recently closed with their current carrier:
+
 - An open claim should generally be resolved before switching carriers -- the incumbent carrier covers the reported incident, but a mid-claim cancellation can complicate subrogation and may affect claim resolution timing.
 - A recently closed claim (past 3-5 years for auto, 3-7 years for home depending on carrier) will appear on the CLUE (Comprehensive Loss Underwriting Exchange) report and will be rated by any new carrier. The user cannot escape the claims history by switching. Any premium quote should be verified as the post-CLUE rate, not an initial clean-risk rate.
 - For homeowners: a property-specific CLUE report (available free once per year) shows all claims filed on the property address, not just the current owner's claims. When buying a home and comparing insurance quotes, request the property CLUE report -- prior owner claims for water damage, foundation issues, or recurring roof claims may affect insurability or premium.
@@ -440,22 +471,24 @@ If the user is comparing policies while a claim is open or recently closed with 
 ### 7. Life Insurance Medical Underwriting Differences
 
 When comparing life insurance quotes from multiple carriers, the quoted premium is valid only if the insured qualifies for the assumed underwriting class. Standard underwriting classes from most favorable to least are:
+
 - Preferred Plus / Super Preferred (lowest premium): requires no significant health history, BMI typically 25-30 or below, no tobacco, favorable family history
 - Preferred: minor health factors allowed (well-controlled blood pressure, BMI up to approximately 35)
 - Standard Plus / Standard: broader health history accepted
 - Table-rated (substandard): pre-existing conditions or significant health history; premium is Standard × (1 + table multiplier, typically 25% per table)
 - Decline: uninsurable at standard rates
-When comparing life insurance quotes, always note that the comparison is between assumed underwriting classes. If one carrier's Preferred Plus quote is being compared to another carrier's Standard quote for the same person, the comparison is invalid. The real comparison happens post-underwriting. The preliminary quote is only a floor estimate.
+  When comparing life insurance quotes, always note that the comparison is between assumed underwriting classes. If one carrier's Preferred Plus quote is being compared to another carrier's Standard quote for the same person, the comparison is invalid. The real comparison happens post-underwriting. The preliminary quote is only a floor estimate.
 
 ### 8. Short-Term Health Plans vs. ACA-Compliant Plans
 
 Short-term health plans are significantly cheaper than ACA-compliant plans (sometimes 50-80% lower premium) but are not regulated under ACA and:
+
 - Can exclude pre-existing conditions entirely
 - Have annual and lifetime benefit caps (eliminated for ACA plans)
 - May exclude essential health benefits (maternity, mental health, prescription drugs, preventive care)
 - Are not renewable if the insured develops a condition during coverage
 - Do not qualify as minimum essential coverage under some state individual mandates
-When a user is comparing a short-term plan against an ACA-compliant plan, the cost comparison must include an explicit coverage gap analysis. A short-term plan's $150/month premium vs. an ACA plan's $380/month premium represents a $2,760/year savings that could be wiped out by a single pre-existing condition exclusion or a major hospitalization that hits an annual benefit cap. Present the comparison with a prominent advisory that these are structurally different products.
+  When a user is comparing a short-term plan against an ACA-compliant plan, the cost comparison must include an explicit coverage gap analysis. A short-term plan's $150/month premium vs. an ACA plan's $380/month premium represents a $2,760/year savings that could be wiped out by a single pre-existing condition exclusion or a major hospitalization that hits an annual benefit cap. Present the comparison with a prominent advisory that these are structurally different products.
 
 ---
 
@@ -470,22 +503,25 @@ When a user is comparing a short-term plan against an ACA-compliant plan, the co
 > All figures are taken from your stated quotes. Verify all numbers against your official policy documents before purchasing.
 
 ### Insurance Type: Homeowner's (Residential Property)
+
 ### Policy Form: Assumed HO-3 (Open Perils -- Dwelling; Named Perils -- Personal Property) -- confirm with each carrier
+
 ### Number of Policies Compared: 2
+
 ### Dwelling Coverage (Coverage A): $500,000 on both policies
 
 ---
 
 ### Policy Overview
 
-| Feature | Policy A | Policy B |
-|---------|----------|----------|
-| Annual premium | $1,650 | $1,200 |
-| Monthly equivalent | $137.50 | $100.00 |
-| Standard (AOP) deductible | $1,000 | $2,500 |
-| Valuation basis | **Replacement Cost Value (RCV)** | **Actual Cash Value (ACV)** |
-| Coverage A (dwelling) | $500,000 | $500,000 |
-| Lender requirement met ($300K+) | ✅ Yes | ✅ Yes |
+| Feature                         | Policy A                         | Policy B                    |
+| ------------------------------- | -------------------------------- | --------------------------- |
+| Annual premium                  | $1,650                           | $1,200                      |
+| Monthly equivalent              | $137.50                          | $100.00                     |
+| Standard (AOP) deductible       | $1,000                           | $2,500                      |
+| Valuation basis                 | **Replacement Cost Value (RCV)** | **Actual Cash Value (ACV)** |
+| Coverage A (dwelling)           | $500,000                         | $500,000                    |
+| Lender requirement met ($300K+) | ✅ Yes                           | ✅ Yes                      |
 
 **Valuation difference flagged immediately:** These two policies are not equivalent in coverage quality. The $450/year premium difference partially reflects a fundamental difference in how claims are paid -- not just the higher deductible of Policy B.
 
@@ -493,14 +529,15 @@ When a user is comparing a short-term plan against an ACA-compliant plan, the co
 
 ### Annual Cost Exposure by Scenario
 
-| Scenario | Policy A (RCV / $1,000 ded.) | Policy B (ACV / $2,500 ded.) |
-|----------|---------------------------:|---------------------------:|
-| Zero claims | $1,650 | $1,200 |
-| One small claim ($4,200 water damage -- similar to your prior claim) | $1,650 + $1,000 = **$2,650** | $1,200 + $2,500 = **$3,700** |
-| One major structural claim ($60,000 fire damage) | $1,650 + $1,000 = **$2,650*** | $1,200 + $2,500 + ACV gap = **$5,700+*** |
-| Two separate claims in one year | $1,650 + $2,000 = **$3,650** | $1,200 + $5,000 = **$6,200** |
+| Scenario                                                             |   Policy A (RCV / $1,000 ded.) |              Policy B (ACV / $2,500 ded.) |
+| -------------------------------------------------------------------- | -----------------------------: | ----------------------------------------: |
+| Zero claims                                                          |                         $1,650 |                                    $1,200 |
+| One small claim ($4,200 water damage -- similar to your prior claim) |   $1,650 + $1,000 = **$2,650** |              $1,200 + $2,500 = **$3,700** |
+| One major structural claim ($60,000 fire damage)                     | $1,650 + $1,000 = **$2,650\*** | $1,200 + $2,500 + ACV gap = **$5,700+\*** |
+| Two separate claims in one year                                      |   $1,650 + $2,000 = **$3,650** |              $1,200 + $5,000 = **$6,200** |
 
 **\*Major claim notes:**
+
 - **Policy A (RCV):** Pays $59,000 (full $60,000 damage minus $1,000 deductible). No depreciation applied. Your cost = $1,000 deductible.
 - **Policy B (ACV):** For a 12-year-old house with building components at varying depreciation rates: typical ACV payout on $60,000 structural damage could be reduced by 20-40% depreciation, netting $36,000-$48,000. You pay the $2,500 deductible PLUS the depreciation gap of $12,000-$24,000. Total insured cost in worst case: **$14,500-$26,500** beyond premium.
 
@@ -512,15 +549,16 @@ When a user is comparing a short-term plan against an ACA-compliant plan, the co
 
 **Step 1 -- Premium and deductible comparison (as if coverage were equivalent):**
 
-| | Policy A | Policy B |
-|--|--------:|--------:|
-| Annual premium | $1,650 | $1,200 |
-| Annual premium savings (B vs. A) | -- | **$450/year** |
-| AOP deductible | $1,000 | $2,500 |
-| Additional deductible exposure per claim | -- | +$1,500 |
-| **Break-even: claims per year** | -- | **0.30 claims/year** |
+|                                          | Policy A |             Policy B |
+| ---------------------------------------- | -------: | -------------------: |
+| Annual premium                           |   $1,650 |               $1,200 |
+| Annual premium savings (B vs. A)         |       -- |        **$450/year** |
+| AOP deductible                           |   $1,000 |               $2,500 |
+| Additional deductible exposure per claim |       -- |              +$1,500 |
+| **Break-even: claims per year**          |       -- | **0.30 claims/year** |
 
 **Interpretation of break-even:**
+
 - 0.30 claims/year = 1 claim every 3.3 years
 - If you file fewer than 1 claim every 3.3 years: Policy B's lower premium saves money on the deductible dimension alone
 - If you file 1 or more claims every 3.3 years: Policy A's lower deductible offsets the premium difference
@@ -531,11 +569,13 @@ When a user is comparing a short-term plan against an ACA-compliant plan, the co
 **Step 2 -- ACV depreciation gap (the factor that changes the conclusion):**
 
 Your home is 12 years old. Depreciation on building components at year 12 is meaningful:
+
 - Roof (25-year lifespan): 48% depreciated -- a $15,000 roof replacement yields ~$7,800 ACV payout; you cover $7,200 plus your $2,500 deductible
 - HVAC (15-year lifespan): 80% depreciated -- a $8,000 system yields ~$1,600 ACV payout; you cover $6,400 plus deductible
 - Interior finishes (variable): typically 30-50% depreciated at 12 years
 
 **Estimated ACV depreciation gap for a moderate claim ($20,000 damage, mixed components, 12-year-old home):**
+
 - Estimated ACV payout: $12,000-$14,000 (30-40% depreciation blended)
 - Depreciation gap you absorb: $6,000-$8,000 beyond the $2,500 deductible
 - Total out-of-pocket on a $20,000 claim under Policy B: **$8,500-$10,500**
@@ -547,18 +587,18 @@ The $450/year premium savings on Policy B breaks even against one moderate depre
 
 ### Coverage Quality Comparison
 
-| Coverage Area | Policy A | Policy B | Notes |
-|--------------|----------|----------|-------|
-| Dwelling (Coverage A) | $500,000 RCV | $500,000 ACV | 🔴 **Critical difference -- see ACV analysis above** |
-| Valuation basis | Replacement Cost | Actual Cash Value | 🔴 **Policy A pays full repair cost; Policy B pays depreciated value** |
-| AOP deductible | $1,000 | $2,500 | 🟡 Policy A better on moderate-to-large claims |
-| Lender coverage requirement | ✅ Met | ✅ Met | 🟢 Both compliant |
-| Wind/hail deductible | **NOT PROVIDED** | **NOT PROVIDED** | ⚠️ Must confirm -- see note below |
-| Personal property (Coverage C) | **NOT PROVIDED** | **NOT PROVIDED** | ⚠️ Confirm ACV vs. RCV on contents |
-| Loss of use (Coverage D) | **NOT PROVIDED** | **NOT PROVIDED** | ⚠️ Confirm limit |
-| Liability (Coverage E) | **NOT PROVIDED** | **NOT PROVIDED** | ⚠️ Standard is $100K; umbrella users need $300K+ |
-| Water backup coverage | **NOT PROVIDED** | **NOT PROVIDED** | ⚠️ Important given your water damage claim history |
-| Flood coverage | [Excluded -- standard] | [Excluded -- standard] | 🟢 Both excluded -- expected; verify if you are in a flood zone |
+| Coverage Area                  | Policy A               | Policy B               | Notes                                                                  |
+| ------------------------------ | ---------------------- | ---------------------- | ---------------------------------------------------------------------- |
+| Dwelling (Coverage A)          | $500,000 RCV           | $500,000 ACV           | 🔴 **Critical difference -- see ACV analysis above**                   |
+| Valuation basis                | Replacement Cost       | Actual Cash Value      | 🔴 **Policy A pays full repair cost; Policy B pays depreciated value** |
+| AOP deductible                 | $1,000                 | $2,500                 | 🟡 Policy A better on moderate-to-large claims                         |
+| Lender coverage requirement    | ✅ Met                 | ✅ Met                 | 🟢 Both compliant                                                      |
+| Wind/hail deductible           | **NOT PROVIDED**       | **NOT PROVIDED**       | ⚠️ Must confirm -- see note below                                      |
+| Personal property (Coverage C) | **NOT PROVIDED**       | **NOT PROVIDED**       | ⚠️ Confirm ACV vs. RCV on contents                                     |
+| Loss of use (Coverage D)       | **NOT PROVIDED**       | **NOT PROVIDED**       | ⚠️ Confirm limit                                                       |
+| Liability (Coverage E)         | **NOT PROVIDED**       | **NOT PROVIDED**       | ⚠️ Standard is $100K; umbrella users need $300K+                       |
+| Water backup coverage          | **NOT PROVIDED**       | **NOT PROVIDED**       | ⚠️ Important given your water damage claim history                     |
+| Flood coverage                 | [Excluded -- standard] | [Excluded -- standard] | 🟢 Both excluded -- expected; verify if you are in a flood zone        |
 
 ---
 

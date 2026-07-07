@@ -246,12 +246,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
                   </Tooltip>
                 )}
                 <Tooltip content={t('settings.testAllKeys')}>
-                  <Button
-                    type='text'
-                    size='small'
-                    icon={<Shield size={16} className='flex' />}
-                    onClick={testAllKeys}
-                  />
+                  <Button type='text' size='small' icon={<Shield size={16} className='flex' />} onClick={testAllKeys} />
                 </Tooltip>
               </>
             )}
@@ -270,11 +265,7 @@ const ApiKeyEditorModal: React.FC<ApiKeyEditorModalProps> = ({ visible, apiKeys,
 
         {/* Confirm button */}
         <div className='flex justify-end gap-12px pt-8px'>
-          <Button
-            type='primary'
-            onClick={handleSave}
-            className=''
-          >
+          <Button type='primary' onClick={handleSave} className=''>
             {t('common.confirm')}
           </Button>
         </div>

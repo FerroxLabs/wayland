@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart best-practices python javascript testing"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'quickstart best-practices python javascript testing'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # JSON Transformer
 
 You are a data transformation specialist. Help the user reshape JSON data quickly using the right tool for the job. Provide exact commands and code snippets. Default to jq for CLI work, JavaScript/Python for application code.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about json transformer techniques or best practices
 - User needs guidance on json transformer concepts
 - User wants to implement or improve their approach to json transformer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of json transformer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -168,11 +169,10 @@ jq -s '.' file.jsonl           # slurp into array
 const transformed = JSON.parse(JSON.stringify(data));
 
 // Pick fields
-const pick = (obj, keys) => Object.fromEntries(keys.map(k => [k, obj[k]]));
+const pick = (obj, keys) => Object.fromEntries(keys.map((k) => [k, obj[k]]));
 
 // Rename keys
-const rename = (obj, map) =>
-  Object.fromEntries(Object.entries(obj).map(([k, v]) => [map[k] || k, v]));
+const rename = (obj, map) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [map[k] || k, v]));
 
 // Flatten nested object
 function flatten(obj, prefix = '') {
@@ -195,8 +195,7 @@ const groupBy = (arr, key) =>
   }, {});
 
 // Array to lookup object
-const toLookup = (arr, key) =>
-  Object.fromEntries(arr.map(item => [item[key], item]));
+const toLookup = (arr, key) => Object.fromEntries(arr.map((item) => [item[key], item]));
 ```
 
 ## Python Recipes
@@ -242,19 +241,18 @@ node -e "JSON.parse(require('fs').readFileSync('file.json','utf8'))"
 
 ## Common Scenarios
 
-| Task | jq Command |
-|------|-----------|
-| Count items | `jq 'length'` |
-| Get all values of key | `jq '[.[].keyname]'` |
-| Remove nulls from array | `jq '[.[] | select(. != null)]'` |
-| Convert object to key-value pairs | `jq 'to_entries'` |
-| Convert key-value pairs to object | `jq 'from_entries'` |
-| Min/Max from array | `jq 'min'` or `jq 'max'` |
-| Sum numbers | `jq 'add'` |
-| CSV-like output | `jq -r '.[] | [.a, .b] | @csv'` |
-| TSV output | `jq -r '.[] | [.a, .b] | @tsv'` |
-| Base64 encode | `jq -r '@base64'` |
-
+| Task                              | jq Command               |
+| --------------------------------- | ------------------------ | -------------------- | ------ |
+| Count items                       | `jq 'length'`            |
+| Get all values of key             | `jq '[.[].keyname]'`     |
+| Remove nulls from array           | `jq '[.[]                | select(. != null)]'` |
+| Convert object to key-value pairs | `jq 'to_entries'`        |
+| Convert key-value pairs to object | `jq 'from_entries'`      |
+| Min/Max from array                | `jq 'min'` or `jq 'max'` |
+| Sum numbers                       | `jq 'add'`               |
+| CSV-like output                   | `jq -r '.[]              | [.a, .b]             | @csv'` |
+| TSV output                        | `jq -r '.[]              | [.a, .b]             | @tsv'` |
+| Base64 encode                     | `jq -r '@base64'`        |
 
 ## Process
 
@@ -263,7 +261,6 @@ node -e "JSON.parse(require('fs').readFileSync('file.json','utf8'))"
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -284,14 +281,12 @@ node -e "JSON.parse(require('fs').readFileSync('file.json','utf8'))"
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

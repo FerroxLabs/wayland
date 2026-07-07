@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Launch Api Product
 
 **Estimated time:** 6-12 weeks
@@ -128,7 +129,7 @@ build a developer ecosystem around your API. Create a developer blog with integr
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Iterate on design based on feedback
   - If **After Step 4**: Remediate security issues before exposing to developers
   - If **After Step 5**: Simplify onboarding until the 5-minute goal is met
@@ -181,6 +182,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

@@ -21,9 +21,9 @@ If Research has posted audience query patterns to `TEAM_MEMORY.md`, start at ste
 
 **1. Map queries to stages.** Pull the actual search queries the audience uses and tag each by See / Think / Do.
 
-- *Think queries:* informational ("how to fix X", "what is Y", comparisons, alternatives lists).
-- *Do queries:* transactional ("buy X", "X pricing", "X demo", branded terms, "near me").
-- *See queries:* category-defining or trend terms with high volume and low intent — useful for topical authority signals, not direct conversion.
+- _Think queries:_ informational ("how to fix X", "what is Y", comparisons, alternatives lists).
+- _Do queries:_ transactional ("buy X", "X pricing", "X demo", branded terms, "near me").
+- _See queries:_ category-defining or trend terms with high volume and low intent — useful for topical authority signals, not direct conversion.
 
 **2. Triage by realism.** For each query, score (a) monthly volume, (b) keyword difficulty / domain-authority gap, (c) commercial intent. Reject queries where difficulty exceeds current authority by more than one standard step. Pick clusters where you can plausibly rank within 6-12 months given current site authority.
 
@@ -55,7 +55,9 @@ If Research has posted audience query patterns to `TEAM_MEMORY.md`, start at ste
 **Brief:** "We want to rank for project management."
 
 **Before** (head-term ambition, no cluster):
-> *Write a 5,000-word guide titled "The Ultimate Guide to Project Management."*
+
+> _Write a 5,000-word guide titled "The Ultimate Guide to Project Management."_
 
 **After** (intent-mapped cluster, 2026-05-16):
-> *Pillar: "Project management for [vertical]" — target Think-stage commercial intent (KD: medium-high, plausibly rankable in 9-12 months with 30 supporting pages). Supporting cluster: 12 long-tail how-to queries (KD: low, rankable in 3-6 months) + 6 comparison queries vs. named competitors (Do-stage). Each support page links to pillar; pillar links to product. Lead every H2 with a one-sentence direct answer for AI-answer surfaces. Measure: impression growth on cluster, top-3 ranks on 8 long-tails by month 6.*
+
+> _Pillar: "Project management for [vertical]" — target Think-stage commercial intent (KD: medium-high, plausibly rankable in 9-12 months with 30 supporting pages). Supporting cluster: 12 long-tail how-to queries (KD: low, rankable in 3-6 months) + 6 comparison queries vs. named competitors (Do-stage). Each support page links to pillar; pillar links to product. Lead every H2 with a one-sentence direct answer for AI-answer surfaces. Measure: impression growth on cluster, top-3 ranks on 8 long-tails by month 6._

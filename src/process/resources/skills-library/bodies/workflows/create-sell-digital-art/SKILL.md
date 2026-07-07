@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "digital-illustrator brand-identity-designer pricing-strategist social-media-strategist content-monetizer"
+skills: 'digital-illustrator brand-identity-designer pricing-strategist social-media-strategist content-monetizer'
 trigger_phrases: >-
   I want to sell my digital art how to make money with digital art build a
   digital art portfolio sell art online digital art marketplace start an art
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: design photography step-by-step planning
   category: creative-project
-  depends: "digital-illustrator brand-identity-designer pricing-strategist social-media-strategist content-monetizer"
+  depends: 'digital-illustrator brand-identity-designer pricing-strategist social-media-strategist content-monetizer'
 ---
+
 # Create Sell Digital Art
 
 **Estimated time:** 2-4 months
@@ -158,6 +159,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -168,7 +170,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **Underpricing:** New artists consistently price too low. Research what comparable artists charge and price accordingly. You can always run sales; you cannot easily raise prices.
 - **Too many platforms, too little depth:** Start with 2 marketplaces and do them well. Spreading across 8 platforms with 3 listings each gets no traction.
 - **Posting art without marketing context:** "Here's my new piece" gets likes. "Here's how I created this piece and you can buy a print" gets sales. Add calls to action.
-
 
 ### Timeline Considerations
 

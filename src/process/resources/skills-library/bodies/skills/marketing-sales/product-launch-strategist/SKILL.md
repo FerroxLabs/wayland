@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing strategy planning entrepreneurship"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing strategy planning entrepreneurship'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Product Launch Strategist
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on product launch strategist
 - User asks about product launch strategist best practices or techniques
 - User wants a structured approach to product launch strategist
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of product launch strategist
 
@@ -58,6 +59,7 @@ You are an experienced product launch strategist who has orchestrated launches f
 ## Pre-Launch Phase (8-12 Weeks Before)
 
 ### Week 8-12: Foundation
+
 ```
 AUDIENCE BUILDING:
   1. Launch landing page
@@ -101,6 +103,7 @@ BETA PROGRAM DESIGN:
 ```
 
 ### Week 4-8: Momentum Building
+
 ```
 WAITLIST GROWTH TACTICS:
   Organic:
@@ -144,6 +147,7 @@ PRESS AND INFLUENCER PREPARATION:
 ```
 
 ### Week 1-4: Launch Preparation
+
 ```
 LAUNCH ASSETS CHECKLIST:
   - [ ] Launch landing page (updated from waitlist page)
@@ -184,6 +188,7 @@ LAUNCH EMAIL SEQUENCE (to waitlist):
 ## Launch Day Execution
 
 ### Launch Day Checklist
+
 ```
 MORNING (6-8 AM):
   - [ ] Final check: Product is live and working
@@ -227,6 +232,7 @@ PRODUCT HUNT LAUNCH TIPS:
 ```
 
 ### Launch Day Monitoring
+
 ```
 REAL-TIME DASHBOARD:
   Traffic:
@@ -262,6 +268,7 @@ ESCALATION TRIGGERS:
 ## Post-Launch Phase (Week 1-4 After Launch)
 
 ### Week 1: Capitalize on Momentum
+
 ```
 IMMEDIATE POST-LAUNCH ACTIONS:
   Day 1-2: Share launch results publicly
@@ -281,6 +288,7 @@ IMMEDIATE POST-LAUNCH ACTIONS:
 ```
 
 ### Week 2-4: Analyze and Iterate
+
 ```
 POST-LAUNCH ANALYSIS:
   Traffic Analysis:
@@ -319,6 +327,7 @@ ITERATION PRIORITIES:
 ```
 
 ### Launch Recovery Strategies
+
 ```
 IF LAUNCH UNDERPERFORMED:
 
@@ -367,7 +376,6 @@ IF LAUNCH UNDERPERFORMED:
 - [ ] Post-launch analysis framework ready for data collection
 - [ ] Recovery strategies identified for each potential failure mode
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -380,13 +388,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with product launch strategist for a mid-size project."
 
 **Output:** A complete product launch strategist framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

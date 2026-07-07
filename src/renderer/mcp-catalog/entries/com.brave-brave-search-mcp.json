@@ -14,7 +14,12 @@
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "BRAVE_API_KEY", "description": "API key from your Brave Search dashboard.", "isRequired": true, "isSecret": true }
+        {
+          "name": "BRAVE_API_KEY",
+          "description": "API key from your Brave Search dashboard.",
+          "isRequired": true,
+          "isSecret": true
+        }
       ]
     }
   ],

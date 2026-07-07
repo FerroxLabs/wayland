@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python best-practices clean-code"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'python best-practices clean-code'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Python Type System
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks about TypeVar, Generic, Protocol, ParamSpec, TypeVarTuple, or Concatenate and needs to understand how to apply them correctly in their codebase
 - The user is designing a reusable library component (container class, decorator, utility function) and needs type-safe generic abstractions that work correctly in mypy, pyright, and pyright-based IDEs like VS Code
 - The user is creating a structural interface for a plugin system, strategy pattern, or callback-based API where nominal inheritance is not desirable or practical
@@ -31,6 +33,7 @@ metadata:
 - The user is hitting mypy or pyright errors related to variance (invariant containers, covariant return types, contravariant function parameters) and cannot understand why
 
 **Do NOT use this skill when:**
+
 - The user wants basic variable, parameter, or return type annotations like `def greet(name: str) -> str` -- use `python-idioms` instead
 - The user wants to validate untrusted external data (API responses, config files, user input) at runtime -- use `python-data-modeling` for Pydantic or dataclasses-based validation
 - The user is setting up a Python project, configuring pyproject.toml, or choosing between mypy and pyright for a new project -- use `python-project-setup`
@@ -163,6 +166,7 @@ Checker implications: [Any specific mypy/pyright behavior or flag to note]
 ### 2. Annotated Solution Code
 
 Provide complete, runnable Python code that:
+
 - Has a file-level comment indicating minimum Python version
 - Imports from `typing_extensions` when supporting Python < 3.10
 - Defines TypeVars at module scope with descriptive names and comments explaining bounds/variance
@@ -173,16 +177,17 @@ Provide complete, runnable Python code that:
 ### 3. Caller Usage Examples
 
 Show how correctly-annotated callsites look, including:
+
 - What IDE autocomplete would infer for return types
 - What error messages a caller would see if they pass the wrong type
 - At least one negative example (code that correctly fails type checking)
 
 ### 4. Trade-off Notes Table
 
-| Approach | Type Safety | Runtime Cost | Complexity | Best For |
-|---|---|---|---|---|
-| [approach 1] | [high/med/low] | [ns/μs/ms] | [low/med/high] | [use case] |
-| [approach 2] | ... | ... | ... | ... |
+| Approach     | Type Safety    | Runtime Cost | Complexity     | Best For   |
+| ------------ | -------------- | ------------ | -------------- | ---------- |
+| [approach 1] | [high/med/low] | [ns/μs/ms]   | [low/med/high] | [use case] |
+| [approach 2] | ...            | ...          | ...            | ...        |
 
 ### 5. Distribution Checklist (when relevant)
 
@@ -240,6 +245,7 @@ Show how correctly-annotated callsites look, including:
 **Situation:** A dependency like an internal company library or an older OSS package has no type annotations and no stubs in typeshed. mypy reports `error: Skipping analyzing "somelib": module is installed, but missing library stubs or py.typed marker`.
 
 **Handling:** Three options in increasing order of effort:
+
 1. Add `[[tool.mypy.overrides]] module = "somelib.*"` and `ignore_missing_imports = true` to suppress the error for that package only. This restores the module to `Any` but at least localizes the suppression.
 2. Create a local `stubs/` directory (or `typeshed-fallback/`) and write minimal stub files (`.pyi`) for only the functions you use. Point mypy to it with `mypy_path = "stubs"` in config.
 3. Contribute stubs to the `typeshed` project (for popular libraries) or publish a `{package}-stubs` package on PyPI. This benefits the entire Python community.
@@ -273,6 +279,7 @@ Show how correctly-annotated callsites look, including:
 **Situation:** A large existing Python codebase has no type annotations. Adding `mypy --strict` produces thousands of errors. The team wants to adopt typing without a multi-month freeze.
 
 **Handling:** Use a phased approach:
+
 - Phase 1 (weeks 1-4): Add `mypy` with zero flags, only `ignore_missing_imports = true`. Fix all errors that appear without `--strict`. Establish CI gate at zero mypy errors in default mode.
 - Phase 2 (weeks 5-12): Enable `--disallow-untyped-defs` for specific high-value modules (public API, core domain logic). Use `[[tool.mypy.overrides]]` with `disallow_untyped_defs = true` per-module.
 - Phase 3 (ongoing): Add `--strict-equality` and `--warn-return-any` globally. Enable `--disallow-any-generics` module by module as annotations are added.
@@ -549,9 +556,9 @@ def log_if_stats(value: object) -> None:
 
 **Trade-off Summary:**
 
-| Approach | Type Safety | Runtime Cost | Complexity | Best For |
-|---|---|---|---|---|
-| Protocol for CachedCallable | High -- full signature preserved | Zero -- structural only | Medium -- requires Protocol understanding | Library APIs, plugin systems |
-| ABC for CachedCallable | High -- inheritance enforced | Low -- isinstance fast | Low -- familiar pattern | Internal codebases with controlled implementations |
-| `functools.wraps` only, no Protocol | None -- loses cache methods | Zero | None | Scripts, throwaway code |
-| `Callable[P, R]` return, ignore cache methods | Medium -- call signature OK, methods untyped | Zero | Low | Quick internal use |
+| Approach                                      | Type Safety                                  | Runtime Cost            | Complexity                                | Best For                                           |
+| --------------------------------------------- | -------------------------------------------- | ----------------------- | ----------------------------------------- | -------------------------------------------------- |
+| Protocol for CachedCallable                   | High -- full signature preserved             | Zero -- structural only | Medium -- requires Protocol understanding | Library APIs, plugin systems                       |
+| ABC for CachedCallable                        | High -- inheritance enforced                 | Low -- isinstance fast  | Low -- familiar pattern                   | Internal codebases with controlled implementations |
+| `functools.wraps` only, no Protocol           | None -- loses cache methods                  | Zero                    | None                                      | Scripts, throwaway code                            |
+| `Callable[P, R]` return, ignore cache methods | Medium -- call signature OK, methods untyped | Zero                    | Low                                       | Quick internal use                                 |

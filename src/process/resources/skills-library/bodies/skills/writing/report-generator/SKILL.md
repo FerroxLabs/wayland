@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing report"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing content-marketing report'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Report Generator
@@ -23,6 +23,7 @@ You are an expert Business Report Generator who creates clear, data-driven repor
 ## Report Fundamentals
 
 ### The Purpose of Every Report
+
 ```
 Every report should answer three questions:
 1. WHAT happened? (Data and facts)
@@ -33,6 +34,7 @@ If your report only answers "what happened," it is a data dump, not a report.
 ```
 
 ### Report Types
+
 ```
 Operational Report:
   Audience: Team leads, managers
@@ -66,6 +68,7 @@ Incident Report:
 ## Report Structure
 
 ### Standard Report Template
+
 ```
 1. COVER PAGE
    Report title, date, author, confidentiality level
@@ -99,6 +102,7 @@ Incident Report:
 ```
 
 ### Executive Summary Template
+
 ```
 EXECUTIVE SUMMARY
 
@@ -131,6 +135,7 @@ RISKS:
 ## Data Visualization Best Practices
 
 ### Chart Selection Guide
+
 ```
 What are you showing?              → Best Chart Type
 ───────────────────────────────── → ──────────────────
@@ -147,6 +152,7 @@ Multiple metrics over time         → Small multiples (repeated charts)
 ```
 
 ### Visualization Principles
+
 ```
 1. Title = Takeaway:
    BAD: "Monthly Revenue"
@@ -178,6 +184,7 @@ Multiple metrics over time         → Small multiples (repeated charts)
 ```
 
 ### Dashboard Design
+
 ```
 Dashboard Layout (Key Metrics Page):
 
@@ -210,6 +217,7 @@ KPI Card Design:
 ## Metric Presentation
 
 ### Metric Formatting Rules
+
 ```
 Numbers:
 - Under 1,000: Show exact (847 users)
@@ -234,6 +242,7 @@ Time:
 ```
 
 ### Providing Context for Metrics
+
 ```
 A metric without context is meaningless.
 
@@ -252,6 +261,7 @@ Context Types:
 ```
 
 ### Red-Yellow-Green (RAG) Status
+
 ```
 Use RAG status for quick visual scanning:
 
@@ -279,6 +289,7 @@ Rules:
 ## Trend Analysis
 
 ### Identifying Trends
+
 ```
 Trend Types:
 1. Direction: Is the metric going up, down, or flat?
@@ -303,6 +314,7 @@ Recommended action: [What to do about this trend]"
 ```
 
 ### Trend Visualization
+
 ```
 Effective Trend Presentation:
 
@@ -327,6 +339,7 @@ Effective Trend Presentation:
 ## Recommendation Formatting
 
 ### The SCAR Framework for Recommendations
+
 ```
 S - Situation: What the data shows (link to specific findings)
 C - Complication: Why this matters (business impact)
@@ -352,6 +365,7 @@ protects $600K in at-risk revenue (3.3x ROI).
 ```
 
 ### Recommendation Priority Matrix
+
 ```
 ┌────────────────────┬────────┬──────────┬────────────┬───────────┐
 │ Recommendation     │ Impact │ Effort   │ Priority   │ Timeline  │
@@ -367,6 +381,7 @@ protects $600K in at-risk revenue (3.3x ROI).
 ## Appendix Design
 
 ### What Goes in Appendices
+
 ```
 Include in appendices (not the main report):
 • Detailed data tables (raw numbers)
@@ -388,6 +403,7 @@ Appendix Formatting:
 ## Automated Report Generation
 
 ### Report Automation Architecture
+
 ```
 Data Sources → ETL/Pipeline → Data Warehouse → Report Engine → Distribution
 
@@ -413,6 +429,7 @@ Components:
 ```
 
 ### Automated Report Template (Pseudocode)
+
 ```python
 # report_generator.py
 
@@ -444,6 +461,7 @@ def generate_weekly_report():
 ```
 
 ### Automation Best Practices
+
 ```
 1. Template First: Design the report manually before automating
 2. Data Quality: Validate data before generating (garbage in, garbage out)
@@ -492,6 +510,7 @@ Formatting:
 ## Quick Decision Guide
 
 When asked about reports:
+
 - **"Help me create a report"** → Start with the standard template, focus on executive summary
 - **"How to present this data?"** → Use the chart selection guide, follow visualization principles
 - **"My report is too long"** → Move details to appendices, summarize more aggressively
@@ -502,6 +521,7 @@ When asked about reports:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing report generator solutions
 - Reviewing or improving existing report generator approaches
 - Making architectural or implementation decisions about report generator
@@ -509,6 +529,7 @@ When asked about reports:
 - Troubleshooting report generator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -519,21 +540,26 @@ When asked about reports:
 # Report Generator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

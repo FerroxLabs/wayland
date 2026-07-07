@@ -186,7 +186,11 @@ const CATEGORIES: readonly ToolCategory[] = [
     labelDefault: 'Dev & Cloud',
     tools: [
       { id: 'Git', descKey: 'settings.wcoreConfig.tools.descGit', descDefault: 'Stage, commit, branch, diff' },
-      { id: 'github_api', descKey: 'settings.wcoreConfig.tools.descGithub', descDefault: 'GitHub PRs, issues, releases' },
+      {
+        id: 'github_api',
+        descKey: 'settings.wcoreConfig.tools.descGithub',
+        descDefault: 'GitHub PRs, issues, releases',
+      },
       {
         id: 'gitlab_api',
         descKey: 'settings.wcoreConfig.tools.descGitlab',

@@ -51,9 +51,7 @@ describe('SynologyChatPlugin.sendMessage - happy paths', () => {
     expect(mockFetch).toHaveBeenCalledOnce();
     const [url, init] = mockFetch.mock.calls[0] as [string, RequestInit];
     expect(url).toBe('https://nas.example.com/webhook');
-    expect((init.headers as Record<string, string>)['content-type']).toBe(
-      'application/x-www-form-urlencoded',
-    );
+    expect((init.headers as Record<string, string>)['content-type']).toBe('application/x-www-form-urlencoded');
     expect(init.method).toBe('POST');
 
     // Body should be form-encoded with payload containing the text.
@@ -75,26 +73,20 @@ describe('SynologyChatPlugin.sendMessage - happy paths', () => {
 
   it('throws when plugin is not initialized', async () => {
     const plugin = new SynologyChatPlugin();
-    await expect(
-      plugin.sendMessage('1', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/not initialized/i);
+    await expect(plugin.sendMessage('1', { type: 'text', text: 'hello' })).rejects.toThrow(/not initialized/i);
   });
 
   it('throws when the server returns a non-200 response', async () => {
     mockFetch.mockResolvedValue(new Response('Forbidden', { status: 403 }));
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('1', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/403/);
+    await expect(plugin.sendMessage('1', { type: 'text', text: 'hello' })).rejects.toThrow(/403/);
     await plugin.stop();
   });
 
   it('throws when fetch rejects (network error)', async () => {
     mockFetch.mockRejectedValue(new Error('ECONNREFUSED'));
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('1', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/ECONNREFUSED/);
+    await expect(plugin.sendMessage('1', { type: 'text', text: 'hello' })).rejects.toThrow(/ECONNREFUSED/);
     await plugin.stop();
   }, 10_000);
 });
@@ -113,9 +105,7 @@ describe('SynologyChatPlugin.sendMessage - retry + throttle', () => {
       .mockRejectedValueOnce(new Error('boom-3'));
 
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('1', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/boom-3/);
+    await expect(plugin.sendMessage('1', { type: 'text', text: 'hello' })).rejects.toThrow(/boom-3/);
     expect(mockFetch).toHaveBeenCalledTimes(3);
     await plugin.stop();
   }, 15_000);
@@ -158,8 +148,7 @@ function makeConfigWithMethodUrl(): IChannelPluginConfig {
     enabled: true,
     status: 'created',
     credentials: {
-      incomingUrl:
-        'https://nas.example.com/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&token=abc',
+      incomingUrl: 'https://nas.example.com/webapi/entry.cgi?api=SYNO.Chat.External&method=incoming&token=abc',
       incomingToken: 'secret-token',
     },
     createdAt: 0,
@@ -177,8 +166,8 @@ describe('SynologyChatPlugin.sendMessage - webhook→Chat user_id mapping', () =
             success: true,
             data: { users: [{ user_id: 99, nickname: 'alice' }] },
           }),
-          { status: 200 },
-        ),
+          { status: 200 }
+        )
       )
       .mockResolvedValueOnce(new Response('{"success":true}', { status: 200 }));
 
@@ -193,9 +182,7 @@ describe('SynologyChatPlugin.sendMessage - webhook→Chat user_id mapping', () =
     expect(listUrl).toContain('method=user_list');
 
     const [, sendInit] = mockFetch.mock.calls[1] as [string, RequestInit];
-    const inner = JSON.parse(
-      new URLSearchParams(sendInit.body as string).get('payload')!,
-    ) as { user_ids?: number[] };
+    const inner = JSON.parse(new URLSearchParams(sendInit.body as string).get('payload')!) as { user_ids?: number[] };
     expect(inner.user_ids).toEqual([99]);
 
     await plugin.stop();
@@ -214,9 +201,7 @@ describe('SynologyChatPlugin.sendMessage - webhook→Chat user_id mapping', () =
     await plugin.sendMessage('77', { type: 'text', text: 'hello' });
 
     const [, sendInit] = mockFetch.mock.calls[1] as [string, RequestInit];
-    const inner = JSON.parse(
-      new URLSearchParams(sendInit.body as string).get('payload')!,
-    ) as { user_ids?: number[] };
+    const inner = JSON.parse(new URLSearchParams(sendInit.body as string).get('payload')!) as { user_ids?: number[] };
     expect(inner.user_ids).toEqual([77]);
 
     await plugin.stop();
@@ -239,12 +224,14 @@ describe('SynologyChatPlugin.handleWebhookPayload - inbound message emission', (
     const plugin = await startPlugin();
 
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       { user_id: '5', username: 'alice', text: 'hello bot', channel_id: '10' },
       {},
-      'synology-chat_default',
+      'synology-chat_default'
     );
 
     expect(received.length).toBe(1);
@@ -262,11 +249,7 @@ describe('SynologyChatPlugin.handleWebhookPayload - inbound message emission', (
 
     expect(plugin.getActiveUserCount()).toBe(0);
 
-    await plugin.handleWebhookPayload(
-      { user_id: '5', text: 'hi', channel_id: '1' },
-      {},
-      'synology-chat_default',
-    );
+    await plugin.handleWebhookPayload({ user_id: '5', text: 'hi', channel_id: '1' }, {}, 'synology-chat_default');
 
     expect(plugin.getActiveUserCount()).toBe(1);
     await plugin.stop();
@@ -275,11 +258,11 @@ describe('SynologyChatPlugin.handleWebhookPayload - inbound message emission', (
   it('drops payloads missing user_id without throwing', async () => {
     const plugin = await startPlugin();
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
-    await expect(
-      plugin.handleWebhookPayload({ text: 'hi' }, {}, 'synology-chat_default'),
-    ).resolves.not.toThrow();
+    await expect(plugin.handleWebhookPayload({ text: 'hi' }, {}, 'synology-chat_default')).resolves.not.toThrow();
 
     expect(received.length).toBe(0);
     await plugin.stop();
@@ -288,11 +271,11 @@ describe('SynologyChatPlugin.handleWebhookPayload - inbound message emission', (
   it('drops payloads missing text without throwing', async () => {
     const plugin = await startPlugin();
     const received: unknown[] = [];
-    plugin.onMessage(async (msg) => { received.push(msg); });
+    plugin.onMessage(async (msg) => {
+      received.push(msg);
+    });
 
-    await expect(
-      plugin.handleWebhookPayload({ user_id: '5' }, {}, 'synology-chat_default'),
-    ).resolves.not.toThrow();
+    await expect(plugin.handleWebhookPayload({ user_id: '5' }, {}, 'synology-chat_default')).resolves.not.toThrow();
 
     expect(received.length).toBe(0);
     await plugin.stop();

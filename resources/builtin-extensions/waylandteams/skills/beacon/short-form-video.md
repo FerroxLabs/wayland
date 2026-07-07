@@ -19,14 +19,14 @@ Trigger phrases:
 
 **1. Assign a stage.** Short-form video is structurally a See-stage discovery surface. It can serve Think-stage education (how-to, framework) with framing changes. It rarely serves Do-stage well as organic; push Do-stage video to paid placements.
 
-- *See-stage video:* broad hook, entertainment-first or transformation-first, no in-frame product. Goal: reach + completion rate.
-- *Think-stage video:* problem-statement hook, single useful insight, no sales CTA. Goal: saves + profile visits.
+- _See-stage video:_ broad hook, entertainment-first or transformation-first, no in-frame product. Goal: reach + completion rate.
+- _Think-stage video:_ problem-statement hook, single useful insight, no sales CTA. Goal: saves + profile visits.
 
 **2. Build the hook architecture.** As of 2026-05-16, completion rate within the first 3 seconds is the strongest distribution signal across TikTok, Reels, and Shorts. Spec:
 
-- *Visual hook:* the first frame shows the payoff or transformation, not the setup.
-- *Verbal hook:* spoken or on-screen text in the first 2 seconds states the stake ("if you ever...", "the reason X happens is...", "stop doing this with...").
-- *Pattern interrupt:* break expected video pacing — cut, zoom, or aural shift inside the first 3 seconds.
+- _Visual hook:_ the first frame shows the payoff or transformation, not the setup.
+- _Verbal hook:_ spoken or on-screen text in the first 2 seconds states the stake ("if you ever...", "the reason X happens is...", "stop doing this with...").
+- _Pattern interrupt:_ break expected video pacing — cut, zoom, or aural shift inside the first 3 seconds.
 
 **3. Length and pacing.** As of 2026-05-16, the optimal length range depends on stage: discovery-driven See content lands at 7-15 seconds; Think-stage educational content lands at 20-60 seconds. Above 60 seconds, completion rate collapses outside narrative-strong creators with established audiences.
 
@@ -57,7 +57,9 @@ Trigger phrases:
 **Brief:** "Let's do TikTok to get more sales."
 
 **Before** (Do-stage mismatch):
-> *Post 3 product-demo TikToks per week with a "Link in bio to buy" caption.*
+
+> _Post 3 product-demo TikToks per week with a "Link in bio to buy" caption._
 
 **After** (See-stage stage-fit, 2026-05-16):
-> *Stage: See (discovery), not Do. Format: 7-15s vertical videos with visual hook on frame one and verbal hook stating the stake by second two. 3 videos/week, re-exported (no watermarks) to Reels and Shorts. One idea per video. Reject product-demo framing on organic — push Do-stage conversion to paid Spark Ads on the best-performing organic videos and email to the warm pool. Measure: completion rate, follow-from-non-followers, comment-to-view ratio. Hand hook lines to Copy; visual treatment to Brand.*
+
+> _Stage: See (discovery), not Do. Format: 7-15s vertical videos with visual hook on frame one and verbal hook stating the stake by second two. 3 videos/week, re-exported (no watermarks) to Reels and Shorts. One idea per video. Reject product-demo framing on organic — push Do-stage conversion to paid Spark Ads on the best-performing organic videos and email to the warm pool. Measure: completion rate, follow-from-non-followers, comment-to-view ratio. Hand hook lines to Copy; visual treatment to Brand._

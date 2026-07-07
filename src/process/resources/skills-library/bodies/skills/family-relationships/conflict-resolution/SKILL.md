@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "relationships decision-making template"
-  category: "family-relationships"
-  subcategory: "relationships-communication"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'relationships decision-making template'
+  category: 'family-relationships'
+  subcategory: 'relationships-communication'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Conflict Resolution
 
 Interpersonal conflict follows predictable physiological and psychological patterns. Understanding those patterns -- flooding thresholds, reactance cycles, the distinction between positions and interests, and the neuroscience of threat response -- allows this skill to produce plans that actually work instead of advice that sounds reasonable but collapses under real emotional pressure. This skill draws from Gottman's Sound Relationship House research, Fisher and Ury's principled negotiation methodology, Nonviolent Communication (NVC) frameworks, and established de-escalation protocols. It does not assess relationship health, diagnose relational patterns, or substitute for licensed therapeutic support.
@@ -24,6 +25,7 @@ Interpersonal conflict follows predictable physiological and psychological patte
 ## When to Use
 
 **Use this skill when:**
+
 - A user is in a specific disagreement with a partner, family member, or friend and wants a structured path toward resolution -- for example, a fight about household responsibilities, a disagreement about how to parent, a conflict about money habits, or a recurring argument about time spent with extended family
 - A user is emotionally activated and needs immediate de-escalation strategies before a conversation deteriorates further
 - A user wants to initiate a difficult conversation they have been avoiding and needs a script or structure to do it without provoking a defensive reaction
@@ -34,6 +36,7 @@ Interpersonal conflict follows predictable physiological and psychological patte
 - A user wants help translating their feelings into language that does not trigger defensiveness in the other person
 
 **Do NOT use when:**
+
 - The user describes a pattern suggesting emotional, physical, or financial abuse, coercive control, or intimidation -- instead, acknowledge what you are hearing, do not provide a "both sides" negotiation framework, and note that safety planning and professional resources are appropriate (this is outside this skill's scope entirely)
 - The user wants an assessment of whether their relationship is healthy, whether they should stay or leave, or whether their partner's behavior is "normal" -- use relationship-assessment skills or recommend professional evaluation
 - The conflict involves a workplace dynamic -- manager-report disputes, team conflicts, or HR-level issues -- use business communication or workplace mediation skills instead
@@ -341,6 +344,7 @@ The signal that a conflict is values-based rather than interest-based: no matter
 ## Conflict Resolution Plan
 
 ### Situation Overview
+
 - **Conflict parties:** User and sister (adult siblings)
 - **Surface issue:** Disagreement about the distribution of holiday hosting responsibilities, specifically Christmas, that has recurred for multiple years
 - **How long active:** Multiple years as a pattern; last week's blowup is the current acute instance
@@ -351,11 +355,11 @@ The signal that a conflict is values-based rather than interest-based: no matter
 
 ### Interest Map
 
-| | User | Sister |
-|---|---|---|
-| **Position** | "I shouldn't have to host Christmas every year -- it should be shared" | "I host other things -- it balances out / you're overreacting" |
-| **Underlying interest** | Feeling valued, having effort recognized and reciprocated, wanting genuine partnership in family responsibility, not feeling taken for granted | Likely: avoiding conflict, feeling that her contributions (the "other things") are not seen, possibly feeling criticized or accused of being unfair, preserving the existing arrangement that works for her logistics |
-| **Fear driving the position** | That her effort is invisible, that she will always be the one who carries this, that raising it makes her seem difficult while saying nothing means it continues indefinitely | Likely: being seen as selfish or a bad sister, the discomfort of changing an established pattern, possibly that the "other things" she hosts genuinely feel equivalent to her even if they do not to the user |
+|                               | User                                                                                                                                                                          | Sister                                                                                                                                                                                                                |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Position**                  | "I shouldn't have to host Christmas every year -- it should be shared"                                                                                                        | "I host other things -- it balances out / you're overreacting"                                                                                                                                                        |
+| **Underlying interest**       | Feeling valued, having effort recognized and reciprocated, wanting genuine partnership in family responsibility, not feeling taken for granted                                | Likely: avoiding conflict, feeling that her contributions (the "other things") are not seen, possibly feeling criticized or accused of being unfair, preserving the existing arrangement that works for her logistics |
+| **Fear driving the position** | That her effort is invisible, that she will always be the one who carries this, that raising it makes her seem difficult while saying nothing means it continues indefinitely | Likely: being seen as selfish or a bad sister, the discomfort of changing an established pattern, possibly that the "other things" she hosts genuinely feel equivalent to her even if they do not to the user         |
 
 ---
 
@@ -364,16 +368,19 @@ The signal that a conflict is values-based rather than interest-based: no matter
 Emotional temperature is high and both parties are currently in a cold-conflict period ("barely talking"). Before any structured dialogue attempt, a repair initiation is needed. This is not a negotiation yet -- it is a bid to reconnect enough to have the negotiation.
 
 **Step 1 -- Initiate repair contact (text or call, depending on what the sister will respond to):**
+
 > "Hey. I've been thinking about our fight last week and I miss talking to you. I don't want to leave things like this. I'd really like to have a real conversation about the Christmas thing -- not a fight, just actually talk about it. Would you be open to that? We could even do it on the phone or get together this week if you're willing."
 
 This message does three things: it acknowledges the rupture, it expresses care for the relationship, and it makes a specific request without demanding an immediate response.
 
 **Step 2 -- During the waiting period:**
+
 - Do not continue rehearsing the argument or collecting mental evidence of all the times you hosted
 - If thoughts about the conflict arise, write them in a journal -- not to build a case, but to understand your own feelings more clearly
 - Think about one time your sister did something kind or helpful for you or the family -- this is not minimizing the conflict, it is preventing contempt from building during the distance
 
 **Step 3 -- Re-entry language when sister agrees to talk:**
+
 > "I'm really glad we're talking. Before I say anything else, I want you to know that I care about our relationship more than I care about winning this argument. I'd love to try something a little more structured so we actually hear each other this time instead of both getting defensive. Is it okay if I explain what I had in mind?"
 
 ---
@@ -381,11 +388,13 @@ This message does three things: it acknowledges the rupture, it expresses care f
 ### Phase 1: Share -- Scripts for Opening the Conversation
 
 **User's Share Statement:**
+
 > "When Christmas comes around and I end up hosting again -- and when I try to bring it up and I hear that I'm making it bigger than it is -- I feel hurt and invisible, because what I need is to feel like my effort is seen and that we're genuinely in this family stuff together. What I'm asking for is that we figure out a plan we both actually agree to, so this stops being something that creates distance between us every year."
 
 **Listener instruction:** Sister listens without speaking during this share. No sighing, no eye-rolling, no preparing a counterargument. Her turn is coming.
 
 **Hypothesized Share Statement from Sister:**
+
 > "When I feel like I'm being accused of not doing my share -- when I think about all the birthday dinners and the kids' events I handle -- I feel frustrated and unappreciated, because the things I contribute don't seem to count. What I need is to feel like my contributions are seen too, not just the Christmas piece."
 
 ---
@@ -393,14 +402,17 @@ This message does three things: it acknowledges the rupture, it expresses care f
 ### Phase 2: Reflect -- Mirror Scripts
 
 **User reflects back to sister:**
+
 > "What I hear you saying is that you do feel like you contribute to our family, and that the things you host matter to you, and when I raise the Christmas issue it feels like I'm saying your contributions don't count.
 > It sounds like you're feeling frustrated and like your effort is invisible to me.
 > Did I get that right?"
 
 **Sister reflects back to user (hypothesized):**
+
 > "What I hear you saying is that hosting Christmas feels like a big weight, and when I dismiss your concerns it feels like I'm not seeing you. And what you need is to feel like we're doing this as a team. Did I get that?"
 
 **If the mirror is incomplete or wrong:**
+
 > "Not quite -- the part I most need you to hear is [specific point]. Can I say it a different way?"
 
 ---
@@ -408,6 +420,7 @@ This message does three things: it acknowledges the rupture, it expresses care f
 ### Phase 3: Identify Interests Together
 
 **Bridging statement:**
+
 > "So if I'm understanding us both -- what you need is to feel like what you do for this family is seen and valued. And what I need is to feel like my effort specifically around Christmas is seen and that the load is genuinely shared. We actually need the same thing -- to feel like our contributions matter to each other. That's a really different starting point than Christmas logistics."
 
 This moment is critical: both women need to feel seen and valued. The position-level conflict (who hosts Christmas) has been masking an interest-level alignment (both need their effort acknowledged). Name this explicitly. It will change the emotional temperature of the conversation.
@@ -418,17 +431,18 @@ This moment is critical: both women need to feel seen and valued. The position-l
 
 Ground rule: Generate all options before evaluating any.
 
-| Option | Addresses User's Interest (feeling seen, shared load) | Addresses Sister's Interest (her contributions acknowledged, fair distribution) | Notes |
-|---|---|---|---|
-| Formal rotating host schedule: user hosts even years, sister hosts odd years for Christmas | Yes -- guaranteed rotation, no annual renegotiation | Yes -- clarity eliminates perceived unfairness | Requires sister to take on full Christmas production on her years; logistics matter |
-| Co-host together at a neutral location (parent's home, rented space) for all major holidays | Partially -- shared labor, but may not resolve "who does more" | Partially -- same issue | Works if both can genuinely share the work; risk of diffusing rather than resolving |
-| User hosts Christmas; sister hosts Thanksgiving and Easter as her "assigned" major holidays | Yes -- if formally agreed and honored | Yes -- her holidays count and are named | Requires explicit agreement on what "hosting" means (planning, shopping, cooking, cleaning) |
-| Hire a catering service or have key elements catered to reduce the hosting burden | Partially -- reduces labor but not the organizational weight | Partially -- cost-sharing needed | Pragmatic but misses the relational recognition piece |
-| Create an explicit annual conversation each October to plan the upcoming holiday season together | Yes -- ongoing partnership, shared planning | Yes -- her input is built in, not assumed | Addresses the process rather than just the specific year; preventative rather than reactive |
+| Option                                                                                           | Addresses User's Interest (feeling seen, shared load)          | Addresses Sister's Interest (her contributions acknowledged, fair distribution) | Notes                                                                                       |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Formal rotating host schedule: user hosts even years, sister hosts odd years for Christmas       | Yes -- guaranteed rotation, no annual renegotiation            | Yes -- clarity eliminates perceived unfairness                                  | Requires sister to take on full Christmas production on her years; logistics matter         |
+| Co-host together at a neutral location (parent's home, rented space) for all major holidays      | Partially -- shared labor, but may not resolve "who does more" | Partially -- same issue                                                         | Works if both can genuinely share the work; risk of diffusing rather than resolving         |
+| User hosts Christmas; sister hosts Thanksgiving and Easter as her "assigned" major holidays      | Yes -- if formally agreed and honored                          | Yes -- her holidays count and are named                                         | Requires explicit agreement on what "hosting" means (planning, shopping, cooking, cleaning) |
+| Hire a catering service or have key elements catered to reduce the hosting burden                | Partially -- reduces labor but not the organizational weight   | Partially -- cost-sharing needed                                                | Pragmatic but misses the relational recognition piece                                       |
+| Create an explicit annual conversation each October to plan the upcoming holiday season together | Yes -- ongoing partnership, shared planning                    | Yes -- her input is built in, not assumed                                       | Addresses the process rather than just the specific year; preventative rather than reactive |
 
 **Recommended option:** Option 3 (formal holiday assignment by name) combined with Option 5 (annual October planning conversation) is likely the strongest combination. It converts an ambiguous recurring conflict into a clear, agreed-upon structure with a built-in mechanism to adjust it.
 
 The Option 3 + Option 5 combination specifically:
+
 - Names sister's holidays explicitly (addressing her need to feel her contributions count)
 - Establishes clear ownership so neither person can claim uncertainty
 - Builds in a recurring check-in so imbalances surface before they become blowups
@@ -464,6 +478,7 @@ A moment of genuine acknowledgment like this, offered after the agreement is in 
 ### When to Escalate to Professional Support
 
 Consider recommending a family therapist or mediator if:
+
 - This conversation goes the same way as previous ones (user raises the issue, sister dismisses it, conversation ends without resolution)
 - The issue re-escalates before the next holiday season despite the agreement
 - Either sister finds that the feelings activated by this conflict -- of being unvalued, of being accused -- are significantly larger than the logistics seem to warrant, suggesting older family dynamics are present

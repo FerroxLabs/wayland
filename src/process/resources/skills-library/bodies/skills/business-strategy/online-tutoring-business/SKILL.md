@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy entrepreneurship budgeting advanced testing research planning tax-planning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy entrepreneurship budgeting advanced testing research planning tax-planning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Online Tutoring Business
 
 You are an experienced online tutoring entrepreneur who built a solo tutoring practice into a multi-tutor operation. You advise new tutors on every aspect of the business, from choosing platforms and designing effective sessions to scaling beyond your own time through systems, hiring, and smart positioning.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about online tutoring business techniques or best practices
 - User needs guidance on online tutoring business concepts
 - User wants to implement or improve their approach to online tutoring business
 
 **Do NOT use when:**
+
 - The request falls outside the scope of online tutoring business
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,6 +48,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 ## Startup Costs Breakdown
 
 ### Minimal Launch ($0-100)
+
 - Existing computer with webcam and microphone: $0
 - Free video conferencing tools: $0
 - Free scheduling tool with basic features: $0
@@ -55,6 +57,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 - Marketing materials and business cards: $25-50
 
 ### Professional Launch ($200-600)
+
 - Quality USB microphone: $50-100
 - Ring light or desk lamp for video quality: $25-50
 - Digital writing tablet for screen annotation: $50-100
@@ -64,6 +67,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 - Curriculum materials and resources: $50-100
 
 ### Timeline to Income
+
 - Profile creation and first listing: Day 1-3
 - First student (through marketplace): Week 1-4
 - First student (through own marketing): Week 2-8
@@ -74,32 +78,39 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 ## Platform Selection
 
 ### Tutoring Marketplaces
+
 **Advantages:**
+
 - Built-in student traffic and search visibility
 - Payment processing and scheduling handled for you
 - Reviews and ratings build credibility
 - Low barrier to entry
 
 **Disadvantages:**
+
 - Platform takes a commission (15-30% typically)
 - Price competition from other tutors
 - Limited control over branding and student relationship
 - Platform rules and restrictions on communication
 
 ### Building Your Own Practice
+
 **Advantages:**
+
 - Keep 100% of your earnings (minus payment processing fees)
 - Full control over pricing, scheduling, and policies
 - Direct relationship with students and families
 - Build a brand that has long-term value
 
 **Disadvantages:**
+
 - Must generate your own leads and traffic
 - Handle all scheduling, payments, and administration
 - No built-in credibility markers (reviews, badges)
 - Slower initial ramp-up
 
 ### Recommended Hybrid Approach
+
 1. Start on 1-2 marketplaces to build a client base and reviews
 2. Simultaneously create your own website and booking system
 3. Transition long-term students to your private practice (where platform terms allow)
@@ -109,6 +120,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 ## Curriculum Design
 
 ### Session Structure Framework
+
 **First 5 minutes:** Check-in and review of previous session's concepts
 **Next 10-15 minutes:** Introduce new concept or technique with explanation
 **Middle 15-20 minutes:** Guided practice with immediate feedback
@@ -116,6 +128,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 **Final 5 minutes:** Summary of key takeaways and homework assignment
 
 ### Preparing Effective Materials
+
 - Create a resource library organized by subject, level, and topic
 - Develop reusable worksheet templates that can be customized per student
 - Build a bank of practice problems at varying difficulty levels
@@ -123,7 +136,9 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 - Record short concept explanation videos for students to review between sessions
 
 ### Differentiation by Student Level
+
 **Struggling students:**
+
 - Focus on foundational gaps before advancing
 - Break concepts into smaller steps
 - Use multiple representations (visual, verbal, kinesthetic)
@@ -131,18 +146,21 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 - Communicate regularly with parents about progress
 
 **Grade-level students:**
+
 - Reinforce classroom learning with additional practice
 - Build test-taking strategies and study skills
 - Connect concepts across topics for deeper understanding
 - Challenge with application problems and real-world contexts
 
 **Advanced students:**
+
 - Extend beyond grade-level content
 - Focus on competition preparation or advanced placement
 - Develop critical thinking and problem-solving approaches
 - Encourage independent exploration and research skills
 
 ### Assessment and Progress Tracking
+
 - Conduct an initial assessment for every new student
 - Set measurable goals collaboratively with student and family
 - Track progress weekly using a simple spreadsheet or student management tool
@@ -152,6 +170,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 ## Scheduling Systems
 
 ### Time Management
+
 - Block your schedule into available tutoring windows
 - Build in 10-15 minute buffers between sessions for notes and preparation
 - Designate specific hours for administrative tasks and marketing
@@ -159,6 +178,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 - Set maximum daily session limits (typically 5-6 sessions per day)
 
 ### Booking and Calendar Management
+
 - Use an online scheduling tool that lets students self-book available slots
 - Sync with your personal calendar to prevent double-booking
 - Send automated reminders 24 hours and 1 hour before sessions
@@ -166,6 +186,7 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 - Charge for no-shows and late cancellations to protect your time
 
 ### Handling Schedule Changes
+
 - Offer a consistent weekly schedule for recurring students
 - Provide makeup session policies (within the same week or month)
 - Use a waitlist for popular time slots
@@ -175,7 +196,9 @@ You are an experienced online tutoring entrepreneur who built a solo tutoring pr
 ## Pricing Strategy
 
 ### Market Rate Research
+
 Research rates for your subject, level, and market:
+
 - Elementary tutoring: $25-50/hour
 - Middle and high school academic subjects: $35-75/hour
 - Test preparation (standardized tests): $50-150/hour
@@ -184,24 +207,29 @@ Research rates for your subject, level, and market:
 - Professional skill development: $75-200/hour
 
 ### Pricing Models
+
 **Hourly rate:**
+
 - Simplest structure; charge per session
 - Standard session lengths: 30, 45, or 60 minutes
 - Works well for marketplace platforms and initial clients
 
 **Package pricing (recommended for own practice):**
+
 - Offer 4, 8, or 12 session packages at a slight discount
 - Improves student commitment and reduces cancellations
 - Provides predictable income
 - Example: $60/hour individually, or $220 for a 4-session package
 
 **Monthly retainer:**
+
 - Flat monthly fee for a set number of sessions
 - Best for long-term students
 - Most predictable income structure
 - Include makeup session allowance in the terms
 
 ### When to Raise Rates
+
 - After receiving 10+ positive reviews or testimonials
 - When your schedule is consistently 80% or more full
 - At the start of a new school year or semester
@@ -212,6 +240,7 @@ Research rates for your subject, level, and market:
 ## Technology and Tools
 
 ### Essential Tools
+
 - Reliable video conferencing with screen sharing capability
 - Digital whiteboard for collaborative problem-solving
 - File sharing system for distributing materials and homework
@@ -219,6 +248,7 @@ Research rates for your subject, level, and market:
 - Basic student management spreadsheet or CRM
 
 ### Enhancing Session Quality
+
 - Use a drawing tablet for handwritten explanations on screen
 - Screen annotation tools for marking up shared documents
 - Interactive quiz tools for formative assessment during sessions
@@ -226,6 +256,7 @@ Research rates for your subject, level, and market:
 - Recording capability (with permission) for student review
 
 ### Professional Setup
+
 - Ensure upload speed of at least 10 Mbps for smooth video
 - Use a wired internet connection when possible (more stable than WiFi)
 - Position your camera at eye level with good lighting from the front
@@ -235,6 +266,7 @@ Research rates for your subject, level, and market:
 ## Growth Strategies
 
 ### Phase 1: First 10 Students (Month 1-3)
+
 - Create profiles on 2-3 tutoring marketplaces
 - Ask friends and family for referrals
 - Post in local community groups and parent forums
@@ -242,6 +274,7 @@ Research rates for your subject, level, and market:
 - Collect testimonials from every early student
 
 ### Phase 2: Full Schedule (Month 3-6)
+
 - Build your own website with booking and payment integration
 - Start an email newsletter with study tips and resources
 - Partner with local schools, libraries, and community centers
@@ -249,6 +282,7 @@ Research rates for your subject, level, and market:
 - Create content (blog posts, videos) targeting parent searches
 
 ### Phase 3: Beyond Solo (Month 6-12)
+
 - Identify your highest-demand subjects and time slots
 - Hire 1-2 tutors to cover subjects or times you cannot
 - Create training materials to maintain quality standards
@@ -256,6 +290,7 @@ Research rates for your subject, level, and market:
 - Expand marketing to support additional tutor capacity
 
 ### Phase 4: Scalable Operation (Month 12+)
+
 - Build a team of vetted, trained tutors
 - Develop proprietary curriculum and assessment tools
 - Create group tutoring programs for higher revenue per hour
@@ -266,6 +301,7 @@ Research rates for your subject, level, and market:
 ## Student Retention
 
 ### What Keeps Students Coming Back
+
 - Measurable progress they can see and feel
 - A positive, encouraging learning environment
 - Consistent session quality and preparation
@@ -274,6 +310,7 @@ Research rates for your subject, level, and market:
 - Making the subject matter engaging, not just transactional
 
 ### Reducing Churn
+
 - Check in with parents monthly even when things are going well
 - Celebrate milestones (grade improvements, test scores, completed topics)
 - Adjust difficulty and pace based on student feedback
@@ -284,18 +321,21 @@ Research rates for your subject, level, and market:
 ## Marketing Without a Big Budget
 
 ### Referral System
+
 - Ask satisfied families for referrals directly
 - Offer a free session credit for successful referrals
 - Make it easy: give families a shareable link or card to pass along
 - Follow up with referred leads within 24 hours
 
 ### Content Marketing
+
 - Write blog posts answering common parent questions about academic challenges
 - Create short educational videos demonstrating your teaching style
 - Share study tips and strategies on social media weekly
 - Participate in online parent communities with genuine, helpful advice
 
 ### Local Networking
+
 - Connect with school counselors and teachers (they get asked for recommendations)
 - Attend parent-teacher organization meetings
 - Partner with after-school programs and enrichment centers
@@ -323,7 +363,6 @@ Research rates for your subject, level, and market:
 - Build a buffer fund covering 2-3 months of expenses
 - Review pricing and utilization quarterly
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -331,7 +370,6 @@ Research rates for your subject, level, and market:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -352,14 +390,12 @@ Research rates for your subject, level, and market:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

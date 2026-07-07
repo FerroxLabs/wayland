@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python optimization debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'python optimization debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Python Performance
 
 ## When to Use
 
 **Use this skill when:**
+
 - User reports slow Python code and wants to find and eliminate the bottleneck -- "my script takes 3 minutes to process 50,000 rows"
 - User wants to set up a profiling workflow using cProfile, line_profiler, py-spy, or memray
 - User is deciding whether to vectorize a loop with NumPy, rewrite in Cython, or switch to a compiled extension
@@ -30,6 +32,7 @@ metadata:
 - User is evaluating whether to apply Cython type annotations, use Numba JIT, or call into a C library via cffi
 
 **Do NOT use this skill when:**
+
 - User wants async/concurrent programming patterns, event loops, or asyncio task management → use `python-async-patterns`
 - User asks about general Python idioms, Pythonic style, or idiomatic refactoring → use `python-idioms`
 - User wants project setup, packaging, dependency management, or virtual environments → use `python-project-setup`
@@ -146,7 +149,7 @@ Optimization must be verifiable and maintainable.
 
 When helping a user optimize Python performance, structure your response as follows:
 
-```
+````
 ## Performance Analysis: [module or function name]
 
 ### Profiling Command
@@ -177,25 +180,30 @@ When helping a user optimize Python performance, structure your response as foll
 #### Before
 ```python
 # [annotated original code with comments showing the expensive operations]
-```
+````
 
 #### After
+
 ```python
 # [optimized code with comments explaining each change]
 ```
 
 ### Benchmark Results
-| Version | Time (s) | Peak RSS (MB) | Speedup |
-|---------|----------|---------------|---------|
-| Original | 45.2 | 312 | 1x |
-| Optimized | 0.83 | 487 | 54x |
+
+| Version   | Time (s) | Peak RSS (MB) | Speedup |
+| --------- | -------- | ------------- | ------- |
+| Original  | 45.2     | 312           | 1x      |
+| Optimized | 0.83     | 487           | 54x     |
 
 ### Profiling Command to Verify
+
 [Exact command to confirm the improvement]
 
 ### Regression Prevention
+
 [pytest-benchmark snippet or timing assertion to add to test suite]
-```
+
+````
 
 ---
 
@@ -251,7 +259,8 @@ Cold start latency is dominated by import time, not execution time. Standard pro
       if event.get('requires_pandas'):
           import pandas as pd  # imported only when needed
           return process_with_pandas(event, pd)
-  ```
+````
+
 - For packages that are always needed, pre-import at module level is faster than lazy import on warm invocations. The trade-off is higher cold start. Measure both.
 - Use Lambda Layers or container image caching to pre-install packages outside the import chain -- this reduces the file system scan overhead of package discovery.
 - Consider `aws-lambda-powertools` lazy loading utilities for structured lazy import management.
@@ -261,6 +270,7 @@ Cold start latency is dominated by import time, not execution time. Standard pro
 Some code cannot be profiled safely because repeated calls modify databases, send emails, charge credit cards, or call external APIs.
 
 - Wrap external calls with a thin interface and substitute stubs during profiling:
+
   ```python
   # In production
   class PaymentGateway:
@@ -270,6 +280,7 @@ Some code cannot be profiled safely because repeated calls modify databases, sen
   class StubGateway:
       def charge(self, amount): return {'status': 'ok', 'id': 'stub-123'}
   ```
+
 - Use `unittest.mock.patch` to replace external calls during profiling runs. The mock overhead is ~1-5µs per call and is negligible if the actual call is the bottleneck.
 - Profile with realistic data volume but synthetic inputs. The data shape (number of records, field cardinalities, string lengths) matters more than the actual values for performance characterization.
 - Never profile against production databases without a read-only replica and rate limiting -- cProfile adds latency that can cause timeouts or trigger circuit breakers.
@@ -397,11 +408,11 @@ kernprof -l -v nearest_script.py
 
 ### Profiling Results (Projected from Code Analysis)
 
-| Function | Calls | tottime (s) | cumtime (s) | Per Call (µs) |
-|----------|-------|-------------|-------------|---------------|
-| haversine | 45,000,000 | 3.81 | 3.81 | 0.085 |
-| find_nearest_points | 500 | 0.31 | 4.12 | 8,240 |
-| math.sin | 90,000,000 | (C-level, inside haversine) | -- | -- |
+| Function            | Calls      | tottime (s)                 | cumtime (s) | Per Call (µs) |
+| ------------------- | ---------- | --------------------------- | ----------- | ------------- |
+| haversine           | 45,000,000 | 3.81                        | 3.81        | 0.085         |
+| find_nearest_points | 500        | 0.31                        | 4.12        | 8,240         |
+| math.sin            | 90,000,000 | (C-level, inside haversine) | --          | --            |
 
 Note: 300 query points × 300 candidate points × 500 calls = 45,000,000 haversine evaluations. This is O(Q × C) per call -- the algorithmic structure is the fundamental problem.
 
@@ -577,12 +588,12 @@ def find_nearest_points(
 
 ### Benchmark Results
 
-| Version | Time / 500 calls | Time / call | Peak RSS | Speedup |
-|---------|-----------------|-------------|----------|---------|
-| Original (brute force Python) | 4,200ms | 8.4ms | 28 MB | 1x |
-| Vectorized NumPy haversine (no index) | 380ms | 0.76ms | 31 MB | 11x |
-| cKDTree + vectorized (no cache) | 95ms | 0.19ms | 34 MB | 44x |
-| cKDTree + vectorized (with index cache) | 18ms | 0.036ms | 34 MB | 233x |
+| Version                                 | Time / 500 calls | Time / call | Peak RSS | Speedup |
+| --------------------------------------- | ---------------- | ----------- | -------- | ------- |
+| Original (brute force Python)           | 4,200ms          | 8.4ms       | 28 MB    | 1x      |
+| Vectorized NumPy haversine (no index)   | 380ms            | 0.76ms      | 31 MB    | 11x     |
+| cKDTree + vectorized (no cache)         | 95ms             | 0.19ms      | 34 MB    | 44x     |
+| cKDTree + vectorized (with index cache) | 18ms             | 0.036ms     | 34 MB    | 233x    |
 
 Note: The cached version is the realistic production scenario where candidate points are relatively stable (a fixed set of stores, sensors, or landmarks) and query batches vary. If candidate points change on every call, use the uncached version (44x speedup is still excellent).
 

@@ -11,12 +11,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel planning career step-by-step guide"
-  category: "cross-domain"
-  depends: "career-pivot-roadmap budget-planning savings-goals-tracker learning-path trip-itinerary-builder travel-safety-prep"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel planning career step-by-step guide'
+  category: 'cross-domain'
+  depends: 'career-pivot-roadmap budget-planning savings-goals-tracker learning-path trip-itinerary-builder travel-safety-prep'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Plan a Gap Year

@@ -177,12 +177,10 @@ vi.mock('@/common', () => ({
   ipcBridge: {
     extensions: {
       getAssistants: {
-        invoke: vi
-          .fn()
-          .mockResolvedValue([
-            { id: 'ext-fire-sales', category: 'sell' },
-            { id: 'ext-doc-helper', category: 'write' },
-          ]),
+        invoke: vi.fn().mockResolvedValue([
+          { id: 'ext-fire-sales', category: 'sell' },
+          { id: 'ext-doc-helper', category: 'write' },
+        ]),
       },
     },
   },

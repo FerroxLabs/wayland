@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design template planning"
-  category: "design-creative"
-  subcategory: "ui-ux-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design template planning'
+  category: 'design-creative'
+  subcategory: 'ui-ux-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Design System Foundations
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to create a design system, define design tokens, or establish a visual language for a product
 - The user wants consistent spacing, typography, color, and depth rules before building UI components
 - The user needs to establish foundational atomic variables that multiple developers and designers will reference
@@ -29,6 +31,7 @@ metadata:
 - The user asks how to enforce visual consistency across multiple screens, platforms, or teams
 
 **Do NOT use when:**
+
 - The user wants full brand identity including positioning, voice, and messaging (use `brand-identity-brief`)
 - The user wants a standalone color palette with tints, shades, and color theory (use `color-palette-design`)
 - The user wants detailed font pairing decisions, typeface selection rationale, or editorial typography (use `typography-system`)
@@ -123,6 +126,7 @@ Typography is the most impactful visual element in data-heavy products and the h
 A three-tier architecture separates raw values from meaning and prevents the most common design system failure: hardcoded hex values scattered through codebases.
 
 **Tier 1 -- Primitive Tokens (raw values):**
+
 - These are numeric values with no semantic meaning. They are the palette, not the design language.
 - Naming format: `[color-name]-[step]` where step follows a 50/100/200/.../900 scale or a 1-12 numeric scale.
 - Examples: `blue-500: #3B82F6`, `red-400: #F87171`, `green-600: #16A34A`
@@ -130,6 +134,7 @@ A three-tier architecture separates raw values from meaning and prevents the mos
 - Generate at least 10 steps for each hue used in the primary and secondary brand colors. The full scale enables hover, active, and disabled state derivation.
 
 **Tier 2 -- Semantic Tokens (purpose aliases):**
+
 - These assign meaning to primitives. Semantic tokens are what developers use in component code.
 - Examples: `color-primary: {blue-500}`, `color-error: {red-600}`, `color-surface: {neutral-50}`
 - Required semantic groups and their minimum variants:
@@ -145,11 +150,13 @@ A three-tier architecture separates raw values from meaning and prevents the mos
 - Text tokens: `color-text-primary`, `color-text-secondary`, `color-text-disabled`, `color-text-inverse` (light text on dark backgrounds).
 
 **Tier 3 -- Component Tokens (optional for large systems):**
+
 - Map semantic tokens to specific components. Only introduce this tier for enterprise systems with multiple teams.
 - Examples: `button-bg-primary: {color-primary}`, `input-border-default: {color-border}`, `badge-success-bg: {color-success-surface}`
 - Component tokens enable swapping the semantic mapping for one component without affecting others.
 
 **Neutral scale construction:**
+
 - The neutral scale must cover the full range from near-white to near-black across 10 evenly distributed perceptual steps.
 - Choose a hue-tinted neutral (cool gray uses a blue undertone at ~220deg hue, warm gray uses a brown undertone at ~30deg) or a pure gray (0 saturation).
 - Cool gray (slate family) works best with blue primaries. Warm gray works with earthy or orange primaries. Pure gray is versatile but can feel sterile.
@@ -167,6 +174,7 @@ Border radius defines the visual personality of a system more than almost any ot
 - **Pill/bubbly (16px+):** Casual, playful. Appropriate for consumer apps with younger demographics, chat interfaces.
 
 **Scale structure:**
+
 - `radius-none` (0px): Tables, code blocks, inline elements that must align flush
 - `radius-sm` (2-3px): Badges, tags, small chips, tooltip arrows
 - `radius-md` (4-6px): Buttons, inputs, selects, checkboxes (the most used token)
@@ -439,22 +447,29 @@ Motion tokens define how the interface feels in motion, not just at rest. They h
 ## Edge Cases
 
 ### Dark Mode Requirement
+
 Dark mode is not an inversion of light mode -- it is a separate resolved theme for all semantic tokens. The structural tokens (spacing, type, radius, shadows) do not change. Only the color semantic layer changes. Neutral scale inverts conceptually: `neutral-50` resolves to the darkest background in dark mode (~`#0F172A`) and `neutral-900` resolves to the lightest text (~`#F8FAFC`). State colors (success, warning, error) must shift to their lighter tints (`green-300` instead of `green-600`) to avoid overly saturated color blocks on dark surfaces. Shadows in dark mode lose their visual effect -- replace `shadow-sm` with `box-shadow: 0 0 0 1px rgba(255,255,255,0.08)` (a subtle white inner border) instead. Present the dark mode spec as a semantic token override table, not a second full token list.
 
 ### Accessibility-First Design (WCAG AAA Target)
+
 AAA compliance changes specific thresholds throughout the system. Body text contrast must reach 7:1 (not 4.5:1). This means `color-text-primary` must be neutral-800 or darker on neutral-50 backgrounds. Large text (above 18px regular or 14px bold) requires 4.5:1 minimum. Type scale body minimum stays at 16px -- do not allow compact 14px body for AAA systems. Small text minimum rises to 14px, and caption minimum rises to 13px with weight 500. Interactive element touch targets must be at minimum 44x44px per WCAG 2.5.5. Note: AAA is not a universal requirement for all UI text -- some governments (EU Public Sector) mandate AA, not AAA. Clarify with the user before locking to AAA, as it significantly restricts color palette flexibility.
 
 ### Augmenting an Existing Design System
+
 First request the full current token list. Do not regenerate tokens that already exist -- duplicate tokens create versioning conflicts. Identify only the gaps: common gaps include missing shadow scale, no semantic color aliases for success/warning/error states, missing transition tokens, and inconsistent spacing step sizes. When adding tokens, match the existing naming convention exactly (if the existing system uses camelCase like `spaceMd`, do not introduce `space-md`). Flag naming convention inconsistencies as a separate issue for the team to resolve -- do not silently mix conventions. If the existing system uses a different base unit (e.g., 5px or 10px), maintain that base rather than imposing 8px. Document the added tokens in an "Additions" section clearly separated from the existing spec.
 
 ### Multi-Brand Token System
+
 Separate the token architecture into two layers: a **Foundation Layer** (shared across all brands: spacing, border radius, shadows, transitions, and type scale structure) and a **Brand Layer** (overrides: primary color, secondary color, neutral hue tint, body typeface, and display typeface). Each brand provides its own Brand Layer values which resolve against the shared Foundation Layer. The foundation layer tokens must use abstract naming: `brand-primary`, `brand-secondary`, `brand-font-family-sans`, `brand-font-family-display`. This pattern mirrors what large design systems like Polaris (Shopify) and Primer (GitHub) use for multi-product contexts. Warn the user that managing more than 4-5 brands on this architecture requires a token management tool -- manual maintenance of parallel JSON files becomes untenable.
 
 ### Minimal System (Landing Page, Small Site, MVP)
+
 Reduce the token set to avoid over-engineering. Minimum viable token set: 5 spacing tokens (sm, md, lg, xl, 2xl), 4 type roles (h1, h2, body, small), 3 color groups (primary with 3 variants, neutral 10-step, one accent), 2 shadow levels (none, card), 3 radius tokens (none, md, full), 2 transition tokens (fast, normal). Document this explicitly as a minimal system and note which tokens to add first as the product scales (shadow scale, semantic color states, caption role, 2xl-4xl spacing). A minimal system is not a "bad" system -- it is right-sized for its context. Resist the urge to generate the full token set when the user has 8 screens.
 
 ### Token Format Export (JSON / CSS Custom Properties / SCSS)
+
 If the user requests a specific output format:
+
 - **CSS custom properties:** Prefix with `--` and place in `:root {}`. Example: `--space-md: 8px;`
 - **SCSS variables:** Prefix with `$`. Example: `$space-md: 8px;`
 - **Style Dictionary JSON:** Use nested objects with a `value` key. Example: `{ "space": { "md": { "value": "8px" } } }`. Style Dictionary resolves alias tokens using `{token.path}` syntax.
@@ -462,6 +477,7 @@ If the user requests a specific output format:
 - Include only one format per request. Producing multiple format variants in one output creates confusion about which is canonical.
 
 ### Responsive / Fluid Typography
+
 If the product spans a wide viewport range (e.g., 320px mobile to 2560px desktop), consider fluid type scaling using CSS `clamp()`. The formula: `clamp([min], [preferred], [max])` where preferred is a viewport-relative unit. Example for h1: `clamp(28px, 4vw, 48px)`. Document the min and max values in the type scale table rather than a fixed single value. Fluid type tokens should be named with a `-fluid` suffix: `font-size-h1-fluid`. Note: fluid type requires browser support for `clamp()` (all modern browsers since 2020, IE11 is excluded). If IE11 support is required, fall back to breakpoint-based overrides.
 
 ---
@@ -476,6 +492,7 @@ If the product spans a wide viewport range (e.g., 320px mobile to 2560px desktop
 **Output:**
 
 ## Design System: Analytics Dashboard Foundations
+
 **Density:** Compact (data-heavy)
 **WCAG Target:** AA (4.5:1 normal text, 3:1 large text)
 **Themes:** Light only
@@ -487,17 +504,17 @@ If the product spans a wide viewport range (e.g., 320px mobile to 2560px desktop
 
 Compact density compresses the mid-range steps: `space-lg` is 12px (not 16px) and `space-xl` is 16px (not 24px). This reduces the visual air in panel interiors to maximize data density.
 
-| Token         | Value  | Usage                                             |
-|---------------|--------|---------------------------------------------------|
-| space-none    | 0px    | Explicit no-spacing reset                         |
-| space-xs      | 2px    | Optical corrections, icon vertical offset         |
-| space-sm      | 4px    | Table cell padding, badge padding, icon gaps      |
-| space-md      | 8px    | Default component padding, between form elements  |
-| space-lg      | 12px   | Card internal padding, input groups               |
-| space-xl      | 16px   | Section padding within panels                     |
-| space-2xl     | 24px   | Between panel groups, sidebar padding             |
-| space-3xl     | 32px   | Major section separation, between dashboard rows  |
-| space-4xl     | 48px   | Page-level vertical rhythm, top/bottom margins    |
+| Token      | Value | Usage                                            |
+| ---------- | ----- | ------------------------------------------------ |
+| space-none | 0px   | Explicit no-spacing reset                        |
+| space-xs   | 2px   | Optical corrections, icon vertical offset        |
+| space-sm   | 4px   | Table cell padding, badge padding, icon gaps     |
+| space-md   | 8px   | Default component padding, between form elements |
+| space-lg   | 12px  | Card internal padding, input groups              |
+| space-xl   | 16px  | Section padding within panels                    |
+| space-2xl  | 24px  | Between panel groups, sidebar padding            |
+| space-3xl  | 32px  | Major section separation, between dashboard rows |
+| space-4xl  | 48px  | Page-level vertical rhythm, top/bottom margins   |
 
 **Deviation note:** `space-lg` and `space-xl` are compressed vs. the standard 8px base progression. Standard values are 16px and 24px respectively. This is intentional for compact density. If switching to balanced density, restore standard values.
 
@@ -507,16 +524,16 @@ Compact density compresses the mid-range steps: `space-lg` is 12px (not 16px) an
 
 Compact UIs use 14px body to recover vertical space in data tables and dense lists. WCAG AA is maintained because neutral-800 on neutral-50 exceeds 8:1 contrast ratio at 14px.
 
-| Role     | Size  | Weight | Line Height | Letter Spacing | Usage                                 |
-|----------|-------|--------|-------------|----------------|---------------------------------------|
-| display  | 40px  | 700    | 1.1         | -0.02em        | Empty states, landing splash only     |
-| h1       | 34px  | 700    | 1.2         | -0.01em        | Page titles, primary modal headers    |
-| h2       | 28px  | 600    | 1.25        | 0              | Section titles, dashboard group heads |
-| h3       | 23px  | 600    | 1.3         | 0              | Card titles, panel headers            |
-| h4       | 19px  | 600    | 1.35        | 0              | Widget titles, sub-panel labels       |
-| body     | 14px  | 400    | 1.5         | 0              | Default content, table cell content   |
-| small    | 12px  | 400    | 1.4         | 0.01em         | Helper text, secondary labels         |
-| caption  | 11px  | 500    | 1.4         | 0.02em         | Timestamps, axis labels, metadata     |
+| Role    | Size | Weight | Line Height | Letter Spacing | Usage                                 |
+| ------- | ---- | ------ | ----------- | -------------- | ------------------------------------- |
+| display | 40px | 700    | 1.1         | -0.02em        | Empty states, landing splash only     |
+| h1      | 34px | 700    | 1.2         | -0.01em        | Page titles, primary modal headers    |
+| h2      | 28px | 600    | 1.25        | 0              | Section titles, dashboard group heads |
+| h3      | 23px | 600    | 1.3         | 0              | Card titles, panel headers            |
+| h4      | 19px | 600    | 1.35        | 0              | Widget titles, sub-panel labels       |
+| body    | 14px | 400    | 1.5         | 0              | Default content, table cell content   |
+| small   | 12px | 400    | 1.4         | 0.01em         | Helper text, secondary labels         |
+| caption | 11px | 500    | 1.4         | 0.02em         | Timestamps, axis labels, metadata     |
 
 **Scale derivation:** 14 × 1.2^1 = 16.8 → 17px (rounding used), continued upward. Display was capped at 40px rather than calculated 49px to prevent over-scaling in app context.
 
@@ -527,46 +544,49 @@ Compact UIs use 14px body to recover vertical space in data tables and dense lis
 ### Color Tokens
 
 #### Primitive Colors -- Blue (Primary)
-| Token      | Value   |
-|------------|---------|
-| blue-50    | #EFF6FF |
-| blue-100   | #DBEAFE |
-| blue-200   | #BFDBFE |
-| blue-300   | #93C5FD |
-| blue-400   | #60A5FA |
-| blue-500   | #3B82F6 |
-| blue-600   | #2563EB |
-| blue-700   | #1D4ED8 |
-| blue-800   | #1E40AF |
-| blue-900   | #1E3A8A |
+
+| Token    | Value   |
+| -------- | ------- |
+| blue-50  | #EFF6FF |
+| blue-100 | #DBEAFE |
+| blue-200 | #BFDBFE |
+| blue-300 | #93C5FD |
+| blue-400 | #60A5FA |
+| blue-500 | #3B82F6 |
+| blue-600 | #2563EB |
+| blue-700 | #1D4ED8 |
+| blue-800 | #1E40AF |
+| blue-900 | #1E3A8A |
 
 **Note:** The user-supplied brand color (#2563EB) maps to `blue-600`, not blue-500. This is correct -- the brand color IS the primary, and it resolves to `color-primary`.
 
 #### Primitive Colors -- Neutral (Cool Slate, blue-tinted to harmonize with primary)
-| Token         | Value   | Approx. Contrast on White |
-|---------------|---------|---------------------------|
-| neutral-50    | #F8FAFC | -                         |
-| neutral-100   | #F1F5F9 | -                         |
-| neutral-200   | #E2E8F0 | -                         |
-| neutral-300   | #CBD5E1 | 2.0:1                     |
-| neutral-400   | #94A3B8 | 3.0:1                     |
-| neutral-500   | #64748B | 4.6:1 ✓ AA large text     |
-| neutral-600   | #475569 | 6.8:1 ✓ AA normal text    |
-| neutral-700   | #334155 | 9.5:1 ✓ AAA               |
-| neutral-800   | #1E293B | 12.6:1 ✓ AAA              |
-| neutral-900   | #0F172A | 16.1:1 ✓ AAA              |
+
+| Token       | Value   | Approx. Contrast on White |
+| ----------- | ------- | ------------------------- |
+| neutral-50  | #F8FAFC | -                         |
+| neutral-100 | #F1F5F9 | -                         |
+| neutral-200 | #E2E8F0 | -                         |
+| neutral-300 | #CBD5E1 | 2.0:1                     |
+| neutral-400 | #94A3B8 | 3.0:1                     |
+| neutral-500 | #64748B | 4.6:1 ✓ AA large text     |
+| neutral-600 | #475569 | 6.8:1 ✓ AA normal text    |
+| neutral-700 | #334155 | 9.5:1 ✓ AAA               |
+| neutral-800 | #1E293B | 12.6:1 ✓ AAA              |
+| neutral-900 | #0F172A | 16.1:1 ✓ AAA              |
 
 **Verification:** `neutral-600` (#475569) on `neutral-50` (#F8FAFC) achieves 6.8:1 -- passes WCAG AA for body text. Primary body text (`color-text-primary`) resolves to neutral-700 for additional margin.
 
 #### Semantic Colors
-| Token                   | Resolves To   | Value   | Usage                                         |
-|-------------------------|---------------|---------|-----------------------------------------------|
-| color-primary           | blue-600      | #2563EB | Primary CTAs, active nav items, links         |
-| color-primary-hover     | blue-700      | #1D4ED8 | Hover state on primary buttons and links      |
-| color-primary-active    | blue-800      | #1E40AF | Pressed/active state                          |
-| color-primary-disabled  | blue-300      | #93C5FD | Disabled primary (used at 40% opacity)        |
-| color-primary-surface   | blue-50       | #EFF6FF | Primary alert backgrounds, selected row tints |
-| color-secondary         | violet-600    | #7C3AED | Secondary badges, category labels             |
-| color-success           | green-600     | #16A34A | Positive trends, success alerts               |
-| color-success-surface   | green-50      | #F0FDF4 | Success alert backgrounds                     |
-| color-success-text      | green-800     | #166534 
+
+| Token                  | Resolves To | Value   | Usage                                         |
+| ---------------------- | ----------- | ------- | --------------------------------------------- |
+| color-primary          | blue-600    | #2563EB | Primary CTAs, active nav items, links         |
+| color-primary-hover    | blue-700    | #1D4ED8 | Hover state on primary buttons and links      |
+| color-primary-active   | blue-800    | #1E40AF | Pressed/active state                          |
+| color-primary-disabled | blue-300    | #93C5FD | Disabled primary (used at 40% opacity)        |
+| color-primary-surface  | blue-50     | #EFF6FF | Primary alert backgrounds, selected row tints |
+| color-secondary        | violet-600  | #7C3AED | Secondary badges, category labels             |
+| color-success          | green-600   | #16A34A | Positive trends, success alerts               |
+| color-success-surface  | green-50    | #F0FDF4 | Success alert backgrounds                     |
+| color-success-text     | green-800   | #166534 |

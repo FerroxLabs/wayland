@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events creative-writing"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events creative-writing'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Bedtime Storyteller
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about bedtime storyteller
 - User needs guidance on bedtime storyteller topics
 - User wants a structured approach to bedtime storyteller
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -79,14 +81,14 @@ Story Beats:
 
 ### Age-Appropriate Story Parameters
 
-| Age | Length | Vocabulary | Complexity | Themes |
-|-----|--------|-----------|------------|--------|
-| 0-2 | 2-3 min | Simple, rhythmic, repetitive | Single character, single event | Sensory (colors, sounds, textures) |
-| 2-3 | 3-5 min | Short sentences, familiar words | Simple problem-solution | Feelings, daily routines, animals |
-| 3-5 | 5-8 min | Richer vocabulary with context clues | Beginning-middle-end, 2-3 characters | Friendship, bravery, kindness, imagination |
-| 5-7 | 8-12 min | Grade-appropriate, some new words | Subplot possible, character growth | Responsibility, fairness, empathy, adventure |
-| 7-10 | 10-15 min | Chapter-book level | Multiple characters, nuanced problems | Identity, belonging, moral complexity, humor |
-| 10+ | 15-20 min | Young reader level | Layered narratives, emotional depth | Abstract themes, real-world parallels |
+| Age  | Length    | Vocabulary                           | Complexity                            | Themes                                       |
+| ---- | --------- | ------------------------------------ | ------------------------------------- | -------------------------------------------- |
+| 0-2  | 2-3 min   | Simple, rhythmic, repetitive         | Single character, single event        | Sensory (colors, sounds, textures)           |
+| 2-3  | 3-5 min   | Short sentences, familiar words      | Simple problem-solution               | Feelings, daily routines, animals            |
+| 3-5  | 5-8 min   | Richer vocabulary with context clues | Beginning-middle-end, 2-3 characters  | Friendship, bravery, kindness, imagination   |
+| 5-7  | 8-12 min  | Grade-appropriate, some new words    | Subplot possible, character growth    | Responsibility, fairness, empathy, adventure |
+| 7-10 | 10-15 min | Chapter-book level                   | Multiple characters, nuanced problems | Identity, belonging, moral complexity, humor |
+| 10+  | 15-20 min | Young reader level                   | Layered narratives, emotional depth   | Abstract themes, real-world parallels        |
 
 ## Story Generation Templates
 
@@ -302,18 +304,18 @@ That's perfect. The rain was singing the forest to sleep."
 
 ### Emotions and Social Skills
 
-| Theme | Story Seed | Moral (Shown, Not Told) |
-|-------|-----------|------------------------|
-| Kindness | A character helps a stranger who becomes a friend | Small acts of kindness ripple outward |
-| Bravery | Facing something scary with support, not alone | Courage isn't the absence of fear |
-| Patience | Waiting for a garden to grow / caterpillar to transform | Good things take time |
-| Sharing | Characters discover that sharing multiplies joy | Generosity creates abundance |
-| Honesty | A character tells the truth and feels relieved | Honesty builds trust, even when hard |
-| Dealing with anger | A dragon learns its fire can warm, not just burn | Big feelings need safe expression |
-| New experiences | Trying a new food / place / activity and finding unexpected joy | New things can be wonderful |
-| Loss / grief | A tree loses its leaves but knows spring will come | Sadness is part of love, and hope returns |
-| Inclusion | An unusual creature finds where it belongs | Everyone has a place |
-| Mistakes | A character makes a mess and learns to fix it | Mistakes are how we learn |
+| Theme              | Story Seed                                                      | Moral (Shown, Not Told)                   |
+| ------------------ | --------------------------------------------------------------- | ----------------------------------------- |
+| Kindness           | A character helps a stranger who becomes a friend               | Small acts of kindness ripple outward     |
+| Bravery            | Facing something scary with support, not alone                  | Courage isn't the absence of fear         |
+| Patience           | Waiting for a garden to grow / caterpillar to transform         | Good things take time                     |
+| Sharing            | Characters discover that sharing multiplies joy                 | Generosity creates abundance              |
+| Honesty            | A character tells the truth and feels relieved                  | Honesty builds trust, even when hard      |
+| Dealing with anger | A dragon learns its fire can warm, not just burn                | Big feelings need safe expression         |
+| New experiences    | Trying a new food / place / activity and finding unexpected joy | New things can be wonderful               |
+| Loss / grief       | A tree loses its leaves but knows spring will come              | Sadness is part of love, and hope returns |
+| Inclusion          | An unusual creature finds where it belongs                      | Everyone has a place                      |
+| Mistakes           | A character makes a mess and learns to fix it                   | Mistakes are how we learn                 |
 
 ### Adventure Themes
 

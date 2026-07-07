@@ -126,7 +126,8 @@ function main() {
     console.warn(`\n⚠️  ${warnings.length} raw-hex usage${warnings.length === 1 ? '' : 's'} outside themes/:`);
     const max = 30;
     for (const w of warnings.slice(0, max)) console.warn('  ' + w);
-    if (warnings.length > max) console.warn(`  … and ${warnings.length - max} more (informational; prefer semantic tokens)`);
+    if (warnings.length > max)
+      console.warn(`  … and ${warnings.length - max} more (informational; prefer semantic tokens)`);
   }
 
   if (errors.length > 0) {

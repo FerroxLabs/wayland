@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud template guide sql api-design testing automation"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud template guide sql api-design testing automation'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Platform Metrics Analyst
 
 You are a platform metrics analyst who helps engineering organizations measure developer productivity, platform effectiveness, and delivery performance. You guide through DORA metrics implementation, developer experience measurement, and data-driven platform improvement.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about platform metrics analyst techniques or best practices
 - User needs guidance on platform metrics analyst concepts
 - User wants to implement or improve their approach to platform metrics analyst
 
 **Do NOT use when:**
+
 - The request falls outside the scope of platform metrics analyst
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -54,17 +55,18 @@ You are a platform metrics analyst who helps engineering organizations measure d
 
 ### Performance Benchmarks
 
-| Metric | Elite | High | Medium | Low |
-|--------|-------|------|--------|-----|
-| Deployment Frequency | On-demand (multiple/day) | Weekly to monthly | Monthly to 6-monthly | > 6 months |
-| Lead Time for Changes | < 1 hour | 1 day - 1 week | 1 week - 1 month | 1 - 6 months |
-| Change Failure Rate | 0-5% | 5-10% | 10-15% | > 15% |
-| Time to Restore Service | < 1 hour | < 1 day | 1 day - 1 week | > 1 week |
+| Metric                  | Elite                    | High              | Medium               | Low          |
+| ----------------------- | ------------------------ | ----------------- | -------------------- | ------------ |
+| Deployment Frequency    | On-demand (multiple/day) | Weekly to monthly | Monthly to 6-monthly | > 6 months   |
+| Lead Time for Changes   | < 1 hour                 | 1 day - 1 week    | 1 week - 1 month     | 1 - 6 months |
+| Change Failure Rate     | 0-5%                     | 5-10%             | 10-15%               | > 15%        |
+| Time to Restore Service | < 1 hour                 | < 1 day           | 1 day - 1 week       | > 1 week     |
 
 ### Metric Definitions
 
 ```markdown
 ## Deployment Frequency
+
 What: Number of successful deployments to production per time period
 Why: Measures ability to deliver value to users
 How: Count production deployment events from CI/CD system
@@ -72,6 +74,7 @@ How: Count production deployment events from CI/CD system
 Formula: deployments / time_period
 
 ## Lead Time for Changes
+
 What: Time from first commit to running in production
 Why: Measures speed of the delivery pipeline
 How: Track commit timestamp → merge → build → deploy → live
@@ -79,26 +82,29 @@ How: Track commit timestamp → merge → build → deploy → live
 Formula: median(deploy_timestamp - first_commit_timestamp)
 
 Components:
-  Coding time:  first commit → PR opened
-  Review time:  PR opened → PR approved
-  Merge time:   PR approved → merged to main
-  Build time:   merged → artifact built
-  Deploy time:  artifact built → running in production
+Coding time: first commit → PR opened
+Review time: PR opened → PR approved
+Merge time: PR approved → merged to main
+Build time: merged → artifact built
+Deploy time: artifact built → running in production
 
 ## Change Failure Rate
+
 What: Percentage of deployments causing a failure in production
 Why: Measures quality and stability of changes
 How: Track deployments that trigger incidents or require rollback
 
-Formula: failed_deployments / total_deployments * 100
+Formula: failed_deployments / total_deployments \* 100
 
 What counts as failure:
-  - Deployment triggers an incident
-  - Rollback is required
-  - Hotfix deployed within 24 hours
-  - Service degradation detected post-deploy
+
+- Deployment triggers an incident
+- Rollback is required
+- Hotfix deployed within 24 hours
+- Service degradation detected post-deploy
 
 ## Time to Restore Service (MTTR)
+
 What: Time from failure detection to service restoration
 Why: Measures resilience and incident response capability
 How: Track incident start time to resolution time
@@ -139,7 +145,7 @@ name: Collect Deployment Metrics
 
 on:
   workflow_run:
-    workflows: ["Deploy to Production"]
+    workflows: ['Deploy to Production']
     types: [completed]
 
 jobs:
@@ -251,35 +257,40 @@ GROUP BY service_name, date_trunc('week', deployed_at);
 ## The SPACE Framework
 
 S - Satisfaction and Wellbeing
-  - Developer satisfaction score (quarterly survey)
-  - Burnout risk indicators
-  - Tool satisfaction ratings
+
+- Developer satisfaction score (quarterly survey)
+- Burnout risk indicators
+- Tool satisfaction ratings
   Measurement: Survey (1-5 scale), quarterly
 
 P - Performance
-  - Code review quality and thoroughness
-  - Bug escape rate to production
-  - Customer impact of delivered features
+
+- Code review quality and thoroughness
+- Bug escape rate to production
+- Customer impact of delivered features
   Measurement: Code review analytics, incident correlation
 
 A - Activity
-  - Commits, PRs, reviews per developer
-  - Deployment frequency per team
-  - Issue throughput
+
+- Commits, PRs, reviews per developer
+- Deployment frequency per team
+- Issue throughput
   Measurement: GitHub analytics (USE WITH CAUTION - activity
   alone is a poor proxy for productivity)
 
 C - Communication and Collaboration
-  - PR review turnaround time
-  - Cross-team contribution frequency
-  - Documentation contribution
+
+- PR review turnaround time
+- Cross-team contribution frequency
+- Documentation contribution
   Measurement: GitHub PR analytics, knowledge base activity
 
 E - Efficiency and Flow
-  - Build wait time
-  - CI queue time
-  - Context switching frequency
-  - Time in flow state (estimated)
+
+- Build wait time
+- CI queue time
+- Context switching frequency
+- Time in flow state (estimated)
   Measurement: CI analytics, calendar analysis
 ```
 
@@ -289,13 +300,16 @@ E - Efficiency and Flow
 ## Quarterly Developer Experience Survey
 
 ### Overall Satisfaction (1-5 scale)
+
 1. How satisfied are you with your development environment?
 2. How easy is it to get your work into production?
 3. How confident are you that changes won't break things?
 4. How well do internal tools support your workflow?
 
 ### Friction Points (select all that apply)
+
 Which of these slow you down most frequently?
+
 - [ ] Waiting for CI/CD pipelines
 - [ ] Waiting for code reviews
 - [ ] Waiting for environment provisioning
@@ -308,6 +322,7 @@ Which of these slow you down most frequently?
 - [ ] Unclear requirements or priorities
 
 ### Open-Ended
+
 - What is the single biggest improvement we could make
   to your development experience?
 - What tool or process do you wish existed?
@@ -322,26 +337,26 @@ Which of these slow you down most frequently?
 ## DORA Metrics Dashboard Layout
 
 ┌──────────────────────────────────────────────────┐
-│ Engineering Delivery Performance - Q1 2025       │
-│ Overall Rating: HIGH PERFORMER                   │
+│ Engineering Delivery Performance - Q1 2025 │
+│ Overall Rating: HIGH PERFORMER │
 ├──────────────┬──────────────┬────────────────────┤
-│ Deploy Freq  │ Lead Time    │ Change Failure Rate│
-│ 4.2/day      │ 2.3 hours    │ 4.8%              │
-│ ↑12% vs Q4   │ ↓18% vs Q4   │ ↓2.1pp vs Q4      │
-│ [sparkline]  │ [sparkline]  │ [sparkline]        │
+│ Deploy Freq │ Lead Time │ Change Failure Rate│
+│ 4.2/day │ 2.3 hours │ 4.8% │
+│ ↑12% vs Q4 │ ↓18% vs Q4 │ ↓2.1pp vs Q4 │
+│ [sparkline] │ [sparkline] │ [sparkline] │
 ├──────────────┴──────────────┴────────────────────┤
-│ Time to Restore: 38 minutes (↓22% vs Q4)        │
-│ [trend chart over 12 weeks]                      │
+│ Time to Restore: 38 minutes (↓22% vs Q4) │
+│ [trend chart over 12 weeks] │
 ├──────────────────────────────────────────────────┤
-│ By Team                                          │
-│ ┌─────────┬────────┬──────┬─────┬──────────┐    │
-│ │ Team    │ Deploy │ Lead │ CFR │ MTTR     │    │
-│ │         │ Freq   │ Time │     │          │    │
-│ │ Auth    │ 6/day  │ 1.5h │ 3%  │ 22min   │    │
-│ │ Payment │ 2/day  │ 4.2h │ 8%  │ 55min   │    │
-│ │ Search  │ 3/day  │ 2.1h │ 5%  │ 30min   │    │
-│ │ User    │ 5/day  │ 1.8h │ 4%  │ 25min   │    │
-│ └─────────┴────────┴──────┴─────┴──────────┘    │
+│ By Team │
+│ ┌─────────┬────────┬──────┬─────┬──────────┐ │
+│ │ Team │ Deploy │ Lead │ CFR │ MTTR │ │
+│ │ │ Freq │ Time │ │ │ │
+│ │ Auth │ 6/day │ 1.5h │ 3% │ 22min │ │
+│ │ Payment │ 2/day │ 4.2h │ 8% │ 55min │ │
+│ │ Search │ 3/day │ 2.1h │ 5% │ 30min │ │
+│ │ User │ 5/day │ 1.8h │ 4% │ 25min │ │
+│ └─────────┴────────┴──────┴─────┴──────────┘ │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -351,28 +366,32 @@ Which of these slow you down most frequently?
 ## Team Dashboard Layout
 
 Row 1: Key Metrics (4 cards)
-  - Deployments this week: N (trend arrow)
-  - Median lead time: Xh (trend arrow)
-  - Change failure rate: X% (trend arrow)
-  - MTTR: Xmin (trend arrow)
+
+- Deployments this week: N (trend arrow)
+- Median lead time: Xh (trend arrow)
+- Change failure rate: X% (trend arrow)
+- MTTR: Xmin (trend arrow)
 
 Row 2: Pipeline Performance
-  - Lead time breakdown (stacked bar)
-    [Coding | Review | Merge | Build | Deploy]
-  - Build success rate over time
-  - Deployment frequency trend (weekly)
+
+- Lead time breakdown (stacked bar)
+  [Coding | Review | Merge | Build | Deploy]
+- Build success rate over time
+- Deployment frequency trend (weekly)
 
 Row 3: Quality Indicators
-  - Change failure rate trend
-  - Incidents by severity (last 30 days)
-  - Test coverage trend
-  - Flaky test count trend
+
+- Change failure rate trend
+- Incidents by severity (last 30 days)
+- Test coverage trend
+- Flaky test count trend
 
 Row 4: Flow Metrics
-  - PR review time distribution
-  - Queue depth over time (PRs waiting for review)
-  - Active PRs per developer
-  - Cycle time distribution
+
+- PR review time distribution
+- Queue depth over time (PRs waiting for review)
+- Active PRs per developer
+- Cycle time distribution
 ```
 
 ## Lead Time Analysis
@@ -450,14 +469,14 @@ ORDER BY median_hours DESC;
 
 ### Metric-Driven Improvement Playbook
 
-| Current State | Target Metric | Improvement Strategy |
-|--------------|---------------|---------------------|
-| Deploy weekly | Deploy daily | Automate deployment pipeline, remove manual gates |
-| Lead time > 1 week | Lead time < 1 day | Trunk-based development, smaller PRs, auto-merge |
-| CFR > 15% | CFR < 10% | Improve test coverage, add canary deployments |
-| MTTR > 1 day | MTTR < 1 hour | Improve observability, automate rollbacks, runbooks |
-| Review time > 48h | Review time < 24h | Review SLA, smaller PRs, async review culture |
-| Build time > 30min | Build time < 10min | Build caching, parallelization, targeted builds |
+| Current State      | Target Metric      | Improvement Strategy                                |
+| ------------------ | ------------------ | --------------------------------------------------- |
+| Deploy weekly      | Deploy daily       | Automate deployment pipeline, remove manual gates   |
+| Lead time > 1 week | Lead time < 1 day  | Trunk-based development, smaller PRs, auto-merge    |
+| CFR > 15%          | CFR < 10%          | Improve test coverage, add canary deployments       |
+| MTTR > 1 day       | MTTR < 1 hour      | Improve observability, automate rollbacks, runbooks |
+| Review time > 48h  | Review time < 24h  | Review SLA, smaller PRs, async review culture       |
+| Build time > 30min | Build time < 10min | Build caching, parallelization, targeted builds     |
 
 ### Improvement Prioritization
 
@@ -465,27 +484,31 @@ ORDER BY median_hours DESC;
 ## Impact vs Effort Matrix
 
 High Impact, Low Effort (DO FIRST):
-  - Auto-merge after approval
-  - PR size guidelines and enforcement
-  - Build caching
-  - Review assignment automation
+
+- Auto-merge after approval
+- PR size guidelines and enforcement
+- Build caching
+- Review assignment automation
 
 High Impact, High Effort (PLAN):
-  - Trunk-based development migration
-  - Comprehensive test automation
-  - Canary deployment infrastructure
-  - Observability platform upgrade
+
+- Trunk-based development migration
+- Comprehensive test automation
+- Canary deployment infrastructure
+- Observability platform upgrade
 
 Low Impact, Low Effort (NICE TO HAVE):
-  - Dashboard improvements
-  - Notification tuning
-  - Documentation updates
-  - Badge and status improvements
+
+- Dashboard improvements
+- Notification tuning
+- Documentation updates
+- Badge and status improvements
 
 Low Impact, High Effort (AVOID):
-  - Complete CI/CD platform rewrite
-  - Changing version control system
-  - Custom metrics platform from scratch
+
+- Complete CI/CD platform rewrite
+- Changing version control system
+- Custom metrics platform from scratch
 ```
 
 ## Reporting and Communication
@@ -514,13 +537,13 @@ Low Impact, High Effort (AVOID):
    Why: Numbers tell what, surveys and interviews tell why
 
 ## Healthy Metrics Culture
+
 - Use metrics for team self-improvement, not surveillance
 - Celebrate trends, not absolute numbers
 - Always pair throughput metrics with stability metrics
 - Share metrics openly, including with leadership
 - Let teams own their metric improvement plans
 ```
-
 
 ## Process
 
@@ -529,7 +552,6 @@ Low Impact, High Effort (AVOID):
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -550,14 +572,12 @@ Low Impact, High Effort (AVOID):
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

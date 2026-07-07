@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices javascript design"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices javascript design'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # React Native Builder
@@ -100,21 +100,21 @@ const linking = {
 // In App.tsx
 <NavigationContainer linking={linking} fallback={<LoadingScreen />}>
   <RootNavigator />
-</NavigationContainer>
+</NavigationContainer>;
 ```
 
 ## State Management Strategy
 
 ### Decision Matrix
 
-| Criteria | Zustand | Redux Toolkit | Jotai | React Query |
-|----------|---------|---------------|-------|-------------|
-| Learning curve | Low | Medium | Low | Medium |
-| Boilerplate | Minimal | Moderate | Minimal | Low |
-| DevTools | Basic | Excellent | Basic | Excellent |
-| Server state | Manual | RTK Query | Manual | Built-in |
-| Bundle size | ~1KB | ~11KB | ~3KB | ~13KB |
-| Best for | Simple-medium apps | Large enterprise | Atomic state | Server-heavy apps |
+| Criteria       | Zustand            | Redux Toolkit    | Jotai        | React Query       |
+| -------------- | ------------------ | ---------------- | ------------ | ----------------- |
+| Learning curve | Low                | Medium           | Low          | Medium            |
+| Boilerplate    | Minimal            | Moderate         | Minimal      | Low               |
+| DevTools       | Basic              | Excellent        | Basic        | Excellent         |
+| Server state   | Manual             | RTK Query        | Manual       | Built-in          |
+| Bundle size    | ~1KB               | ~11KB            | ~3KB         | ~13KB             |
+| Best for       | Simple-medium apps | Large enterprise | Atomic state | Server-heavy apps |
 
 ### Recommended Architecture: Zustand + React Query
 
@@ -175,7 +175,7 @@ export default TurboModuleRegistry.getEnforcing<Spec>('DeviceInfo');
 ```tsx
 // components/DatePicker/index.ios.tsx
 export function DatePicker({ value, onChange }: Props) {
-  return <DateTimePicker display="spinner" value={value} onChange={onChange} />;
+  return <DateTimePicker display='spinner' value={value} onChange={onChange} />;
 }
 
 // components/DatePicker/index.android.tsx
@@ -187,10 +187,14 @@ export function DatePicker({ value, onChange }: Props) {
         <Text>{format(value, 'PP')}</Text>
       </Pressable>
       {show && (
-        <DateTimePicker display="default" value={value} onChange={(e, d) => {
-          setShow(false);
-          if (d) onChange(d);
-        }} />
+        <DateTimePicker
+          display='default'
+          value={value}
+          onChange={(e, d) => {
+            setShow(false);
+            if (d) onChange(d);
+          }}
+        />
       )}
     </>
   );
@@ -216,9 +220,7 @@ export function DatePicker({ value, onChange }: Props) {
 import { FlashList } from '@shopify/flash-list';
 
 function ProductList({ products }: { products: Product[] }) {
-  const renderItem = useCallback(({ item }: { item: Product }) => (
-    <ProductCard product={item} />
-  ), []);
+  const renderItem = useCallback(({ item }: { item: Product }) => <ProductCard product={item} />, []);
 
   const keyExtractor = useCallback((item: Product) => item.id, []);
 
@@ -248,7 +250,8 @@ import { PerformanceObserver } from 'react-native-performance';
 
 const observer = new PerformanceObserver((list) => {
   list.getEntries().forEach((entry) => {
-    if (entry.duration > 16) { // Dropped frame threshold
+    if (entry.duration > 16) {
+      // Dropped frame threshold
       analytics.track('slow_render', {
         name: entry.name,
         duration: entry.duration,
@@ -349,9 +352,7 @@ describe('ProductCard', () => {
 
   it('calls onPress with product id', () => {
     const onPress = jest.fn();
-    const { getByTestId } = render(
-      <ProductCard product={mockProduct} onPress={onPress} />
-    );
+    const { getByTestId } = render(<ProductCard product={mockProduct} onPress={onPress} />);
     fireEvent.press(getByTestId('product-card'));
     expect(onPress).toHaveBeenCalledWith('1');
   });
@@ -380,14 +381,14 @@ describe('Login Flow', () => {
 
 ## Debugging Techniques
 
-| Tool | Purpose | When to Use |
-|------|---------|-------------|
-| Flipper | Network, layout, DB inspection | General debugging |
-| React DevTools | Component tree, props, state | UI debugging |
-| Hermes debugger | JS breakpoints, profiling | Logic debugging |
-| Xcode Instruments | Memory leaks, CPU profiling | iOS performance |
-| Android Profiler | Memory, CPU, network | Android performance |
-| `console.warn` + LogBox | Quick debug logging | Rapid iteration |
+| Tool                    | Purpose                        | When to Use         |
+| ----------------------- | ------------------------------ | ------------------- |
+| Flipper                 | Network, layout, DB inspection | General debugging   |
+| React DevTools          | Component tree, props, state   | UI debugging        |
+| Hermes debugger         | JS breakpoints, profiling      | Logic debugging     |
+| Xcode Instruments       | Memory leaks, CPU profiling    | iOS performance     |
+| Android Profiler        | Memory, CPU, network           | Android performance |
+| `console.warn` + LogBox | Quick debug logging            | Rapid iteration     |
 
 ## OTA Updates
 
@@ -438,14 +439,14 @@ OTA Update Strategy:
 
 ## Expo vs Bare Workflow Comparison
 
-| Feature | Expo Managed | Bare / Prebuild |
-|---------|-------------|-----------------|
-| Native module access | Via expo-dev-client | Full access |
-| Build service | EAS Build (cloud) | Local or CI |
-| OTA updates | EAS Update | CodePush or custom |
-| Push notifications | expo-notifications | Direct APNs/FCM |
-| Config management | app.json / app.config.js | Native project files |
-| Upgrade path | `expo upgrade` | Manual or `rn-upgrade-helper` |
+| Feature              | Expo Managed             | Bare / Prebuild               |
+| -------------------- | ------------------------ | ----------------------------- |
+| Native module access | Via expo-dev-client      | Full access                   |
+| Build service        | EAS Build (cloud)        | Local or CI                   |
+| OTA updates          | EAS Update               | CodePush or custom            |
+| Push notifications   | expo-notifications       | Direct APNs/FCM               |
+| Config management    | app.json / app.config.js | Native project files          |
+| Upgrade path         | `expo upgrade`           | Manual or `rn-upgrade-helper` |
 
 ## Production Checklist
 
@@ -467,6 +468,7 @@ OTA Update Strategy:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing react native builder solutions
 - Reviewing or improving existing react native builder approaches
 - Making architectural or implementation decisions about react native builder
@@ -474,6 +476,7 @@ OTA Update Strategy:
 - Troubleshooting react native builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -484,21 +487,26 @@ OTA Update Strategy:
 # React Native Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

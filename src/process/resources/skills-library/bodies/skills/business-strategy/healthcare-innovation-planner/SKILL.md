@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare strategy budgeting checklist template guide step-by-step analysis"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare strategy budgeting checklist template guide step-by-step analysis'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Healthcare Innovation Planner
@@ -22,15 +22,16 @@ You are a healthcare innovation planning specialist who helps clinicians, admini
 
 > **DISCLAIMER**: This skill provides general guidance on healthcare innovation and implementation processes for educational and planning purposes only. It does not constitute medical advice, clinical recommendations, or regulatory guidance. Any clinical innovation must be reviewed and approved through your organization's appropriate governance structures (institutional review boards, quality committees, patient safety committees, etc.). Always follow your organization's policies for implementing changes to clinical practice.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about healthcare innovation planner techniques or best practices
 - User needs guidance on healthcare innovation planner concepts
 - User wants to implement or improve their approach to healthcare innovation planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of healthcare innovation planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,15 +54,15 @@ Before planning an innovation:
 
 ### From Idea to Implementation
 
-| Phase | Activities | Key Deliverables |
-|-------|-----------|-----------------|
-| 1. Problem Definition | Define the problem with data; identify root causes; understand the current state | Problem statement, current state map, stakeholder analysis |
-| 2. Solution Design | Research existing solutions; design or adapt an approach; engage stakeholders | Solution proposal, logic model, feasibility assessment |
-| 3. Planning | Develop pilot plan; secure resources; establish governance | Pilot protocol, budget, timeline, approval documentation |
-| 4. Pilot Execution | Implement at small scale; collect data; monitor closely | Implementation log, preliminary data, real-time adjustments |
-| 5. Evaluation | Analyze results; compare to targets; assess feasibility and sustainability | Evaluation report, lessons learned, recommendations |
-| 6. Decision | Decide to scale, modify, or discontinue based on evidence | Decision documentation, scaling plan or discontinuation rationale |
-| 7. Scaling | Expand to additional settings; standardize; embed in operations | Spread plan, training materials, sustainability measures |
+| Phase                 | Activities                                                                       | Key Deliverables                                                  |
+| --------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| 1. Problem Definition | Define the problem with data; identify root causes; understand the current state | Problem statement, current state map, stakeholder analysis        |
+| 2. Solution Design    | Research existing solutions; design or adapt an approach; engage stakeholders    | Solution proposal, logic model, feasibility assessment            |
+| 3. Planning           | Develop pilot plan; secure resources; establish governance                       | Pilot protocol, budget, timeline, approval documentation          |
+| 4. Pilot Execution    | Implement at small scale; collect data; monitor closely                          | Implementation log, preliminary data, real-time adjustments       |
+| 5. Evaluation         | Analyze results; compare to targets; assess feasibility and sustainability       | Evaluation report, lessons learned, recommendations               |
+| 6. Decision           | Decide to scale, modify, or discontinue based on evidence                        | Decision documentation, scaling plan or discontinuation rationale |
+| 7. Scaling            | Expand to additional settings; standardize; embed in operations                  | Spread plan, training materials, sustainability measures          |
 
 ### Problem Definition
 
@@ -90,9 +91,9 @@ What has been tried before?
 
 **Stakeholder Analysis Template**
 
-| Stakeholder | Role in the Innovation | Level of Influence | Level of Interest | Current Position (Support/Neutral/Oppose) | Engagement Strategy |
-|-------------|----------------------|-------------------|-------------------|------------------------------------------|-------------------|
-| [Name/Group] | [How they are involved] | High/Med/Low | High/Med/Low | [Position] | [Specific approach] |
+| Stakeholder  | Role in the Innovation  | Level of Influence | Level of Interest | Current Position (Support/Neutral/Oppose) | Engagement Strategy |
+| ------------ | ----------------------- | ------------------ | ----------------- | ----------------------------------------- | ------------------- |
+| [Name/Group] | [How they are involved] | High/Med/Low       | High/Med/Low      | [Position]                                | [Specific approach] |
 
 ### Solution Design
 
@@ -109,23 +110,23 @@ Before designing your innovation, review what is already known:
 
 **Logic Model Template**
 
-| Inputs | Activities | Outputs | Short-term Outcomes | Long-term Outcomes |
-|--------|-----------|---------|--------------------|--------------------|
-| What you invest | What you do | What you produce | What changes in 3-6 months | What changes in 1-3 years |
+| Inputs                                  | Activities                                 | Outputs                                                  | Short-term Outcomes                                      | Long-term Outcomes                                    |
+| --------------------------------------- | ------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------- |
+| What you invest                         | What you do                                | What you produce                                         | What changes in 3-6 months                               | What changes in 1-3 years                             |
 | [Staff, funding, technology, materials] | [Training, process changes, new workflows] | [Number trained, procedures performed, patients reached] | [Knowledge change, behavior change, process improvement] | [Outcome improvement, cost reduction, sustainability] |
 
 ### Feasibility Assessment
 
-| Factor | Assessment Questions | Status |
-|--------|---------------------|--------|
-| Clinical | Is the innovation clinically sound and evidence-supported? | |
-| Technical | Is the required technology available and functional? | |
-| Operational | Can existing workflows accommodate this change? | |
-| Financial | Is funding available for pilot and potential scale? | |
-| Regulatory | Are there regulatory or compliance considerations? | |
-| Cultural | Will the organizational culture support this change? | |
-| Workforce | Do staff have the skills and capacity for this change? | |
-| Patient impact | Will patients accept and benefit from this change? | |
+| Factor         | Assessment Questions                                       | Status |
+| -------------- | ---------------------------------------------------------- | ------ |
+| Clinical       | Is the innovation clinically sound and evidence-supported? |        |
+| Technical      | Is the required technology available and functional?       |        |
+| Operational    | Can existing workflows accommodate this change?            |        |
+| Financial      | Is funding available for pilot and potential scale?        |        |
+| Regulatory     | Are there regulatory or compliance considerations?         |        |
+| Cultural       | Will the organizational culture support this change?       |        |
+| Workforce      | Do staff have the skills and capacity for this change?     |        |
+| Patient impact | Will patients accept and benefit from this change?         |        |
 
 ## Pilot Program Design
 
@@ -189,12 +190,12 @@ Success Criteria:
 
 ### Pilot Metrics Framework
 
-| Metric Type | Purpose | Examples |
-|-------------|---------|---------|
-| **Outcome metrics** | Did the innovation achieve its goal? | Patient outcomes, satisfaction scores, error rates, cost per case |
-| **Process metrics** | Was the innovation implemented as designed? | Compliance rate with new workflow, percentage of eligible patients reached |
-| **Balancing metrics** | Did the innovation cause unintended consequences? | Staff workload, wait times, other quality measures, patient complaints |
-| **Sustainability metrics** | Can this be maintained long-term? | Staff adoption rate, cost trajectory, ongoing resource requirements |
+| Metric Type                | Purpose                                           | Examples                                                                   |
+| -------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Outcome metrics**        | Did the innovation achieve its goal?              | Patient outcomes, satisfaction scores, error rates, cost per case          |
+| **Process metrics**        | Was the innovation implemented as designed?       | Compliance rate with new workflow, percentage of eligible patients reached |
+| **Balancing metrics**      | Did the innovation cause unintended consequences? | Staff workload, wait times, other quality measures, patient complaints     |
+| **Sustainability metrics** | Can this be maintained long-term?                 | Staff adoption rate, cost trajectory, ongoing resource requirements        |
 
 ### Data Collection Best Practices
 
@@ -212,50 +213,50 @@ Success Criteria:
 
 **Consolidated Framework for Implementation Research (CFIR) Domains**
 
-| Domain | Key Questions |
-|--------|--------------|
-| Innovation characteristics | Is the innovation evidence-based? Is it adaptable? Is it complex? |
-| Outer setting | What external policies, regulations, or pressures affect adoption? |
-| Inner setting | What is the organizational culture, leadership, and readiness for change? |
-| Individuals involved | What are the knowledge, beliefs, and self-efficacy of the people who will implement? |
-| Implementation process | How will you plan, execute, evaluate, and sustain the implementation? |
+| Domain                     | Key Questions                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------------ |
+| Innovation characteristics | Is the innovation evidence-based? Is it adaptable? Is it complex?                    |
+| Outer setting              | What external policies, regulations, or pressures affect adoption?                   |
+| Inner setting              | What is the organizational culture, leadership, and readiness for change?            |
+| Individuals involved       | What are the knowledge, beliefs, and self-efficacy of the people who will implement? |
+| Implementation process     | How will you plan, execute, evaluate, and sustain the implementation?                |
 
 ### Implementation Strategies
 
-| Strategy | Description | When to Use |
-|----------|-------------|-------------|
-| Education and training | Build knowledge and skills | When the barrier is awareness or competence |
-| Audit and feedback | Provide data on current performance | When the barrier is awareness of the gap |
-| Facilitation | Provide hands-on support to guide implementation | When the process is complex or the team needs coaching |
-| Champions | Identify influential individuals to promote the change | When peer influence is important for adoption |
-| Adapting workflows | Modify processes to make the new way easier | When the barrier is operational friction |
-| Incentives | Align rewards with desired behavior | When motivation is the barrier (use carefully) |
-| Mandate | Require adherence through policy | When safety or compliance demands it (least preferred for engagement) |
-| Patient engagement | Involve patients in driving the change | When patient demand can accelerate adoption |
+| Strategy               | Description                                            | When to Use                                                           |
+| ---------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- |
+| Education and training | Build knowledge and skills                             | When the barrier is awareness or competence                           |
+| Audit and feedback     | Provide data on current performance                    | When the barrier is awareness of the gap                              |
+| Facilitation           | Provide hands-on support to guide implementation       | When the process is complex or the team needs coaching                |
+| Champions              | Identify influential individuals to promote the change | When peer influence is important for adoption                         |
+| Adapting workflows     | Modify processes to make the new way easier            | When the barrier is operational friction                              |
+| Incentives             | Align rewards with desired behavior                    | When motivation is the barrier (use carefully)                        |
+| Mandate                | Require adherence through policy                       | When safety or compliance demands it (least preferred for engagement) |
+| Patient engagement     | Involve patients in driving the change                 | When patient demand can accelerate adoption                           |
 
 ### Common Implementation Barriers
 
-| Barrier | Signs | Response |
-|---------|-------|----------|
-| Lack of leadership support | No visible sponsorship, competing priorities supersede | Engage a senior champion; present the business case |
-| Staff resistance | Low adoption, workarounds, complaints | Listen to concerns; involve staff in design; demonstrate benefit |
-| Workflow disruption | Process breakdowns, inefficiency, errors | Redesign the workflow with frontline input; simplify |
-| Technology failures | System downtime, usability issues, integration gaps | Involve IT early; pilot the technology specifically; build backup plans |
-| Insufficient training | Staff uncertain about new process | Provide just-in-time training; offer practice opportunities; create reference materials |
-| Data infrastructure gaps | Cannot measure outcomes, no baseline | Invest in measurement before starting; use proxies if needed |
-| Sustainability concerns | Innovation works during pilot but fades after | Plan for sustainability from the start; embed in standard operations |
+| Barrier                    | Signs                                                  | Response                                                                                |
+| -------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Lack of leadership support | No visible sponsorship, competing priorities supersede | Engage a senior champion; present the business case                                     |
+| Staff resistance           | Low adoption, workarounds, complaints                  | Listen to concerns; involve staff in design; demonstrate benefit                        |
+| Workflow disruption        | Process breakdowns, inefficiency, errors               | Redesign the workflow with frontline input; simplify                                    |
+| Technology failures        | System downtime, usability issues, integration gaps    | Involve IT early; pilot the technology specifically; build backup plans                 |
+| Insufficient training      | Staff uncertain about new process                      | Provide just-in-time training; offer practice opportunities; create reference materials |
+| Data infrastructure gaps   | Cannot measure outcomes, no baseline                   | Invest in measurement before starting; use proxies if needed                            |
+| Sustainability concerns    | Innovation works during pilot but fades after          | Plan for sustainability from the start; embed in standard operations                    |
 
 ## Evidence Gathering
 
 ### Building the Evidence Base for Your Innovation
 
-| Evidence Level | Description | How to Gather |
-|---------------|-------------|--------------|
-| Published literature | What does the research say? | Systematic search, critical appraisal |
-| Other organizations | Who has done something similar? | Site visits, conferences, professional networks |
-| Internal data | What does your own data show? | Quality dashboards, chart review, staff surveys |
-| Pilot results | What happened when you tested it? | Pilot metrics analysis |
-| Staff and patient feedback | What do the people involved think? | Interviews, surveys, focus groups |
+| Evidence Level             | Description                        | How to Gather                                   |
+| -------------------------- | ---------------------------------- | ----------------------------------------------- |
+| Published literature       | What does the research say?        | Systematic search, critical appraisal           |
+| Other organizations        | Who has done something similar?    | Site visits, conferences, professional networks |
+| Internal data              | What does your own data show?      | Quality dashboards, chart review, staff surveys |
+| Pilot results              | What happened when you tested it?  | Pilot metrics analysis                          |
+| Staff and patient feedback | What do the people involved think? | Interviews, surveys, focus groups               |
 
 ### Presenting Your Evidence
 
@@ -308,27 +309,27 @@ Risks and Mitigation:
 
 ### Sustainability Planning
 
-| Element | Questions to Answer |
-|---------|-------------------|
-| Ownership | Who owns this process after the innovation team moves on? |
-| Integration | Is the innovation embedded in standard workflows and policies? |
-| Training | How will new staff be trained on the innovation? |
-| Monitoring | How will ongoing performance be tracked? |
-| Resources | Is funding and staffing sustainable without special project support? |
-| Adaptation | How will the innovation be updated as conditions change? |
-| Accountability | Who is responsible for performance and continuous improvement? |
+| Element        | Questions to Answer                                                  |
+| -------------- | -------------------------------------------------------------------- |
+| Ownership      | Who owns this process after the innovation team moves on?            |
+| Integration    | Is the innovation embedded in standard workflows and policies?       |
+| Training       | How will new staff be trained on the innovation?                     |
+| Monitoring     | How will ongoing performance be tracked?                             |
+| Resources      | Is funding and staffing sustainable without special project support? |
+| Adaptation     | How will the innovation be updated as conditions change?             |
+| Accountability | Who is responsible for performance and continuous improvement?       |
 
 ## Change Management Essentials
 
 ### Communication Plan for Innovation
 
-| Phase | Message | Audience | Channel |
-|-------|---------|----------|---------|
-| Pre-pilot | Why we are doing this; what to expect | All affected staff, patients | Meeting, email, signage |
-| During pilot | How it is going; what we are learning | Pilot team, leadership | Huddles, dashboards |
-| Post-pilot | What we found; what happens next | All stakeholders | Presentation, report |
-| Scaling | How expansion will work; timeline; support | New sites and teams | Meetings, training sessions |
-| Sustaining | Ongoing performance; recognition; updates | All participants | Dashboards, newsletters |
+| Phase        | Message                                    | Audience                     | Channel                     |
+| ------------ | ------------------------------------------ | ---------------------------- | --------------------------- |
+| Pre-pilot    | Why we are doing this; what to expect      | All affected staff, patients | Meeting, email, signage     |
+| During pilot | How it is going; what we are learning      | Pilot team, leadership       | Huddles, dashboards         |
+| Post-pilot   | What we found; what happens next           | All stakeholders             | Presentation, report        |
+| Scaling      | How expansion will work; timeline; support | New sites and teams          | Meetings, training sessions |
+| Sustaining   | Ongoing performance; recognition; updates  | All participants             | Dashboards, newsletters     |
 
 ### Celebrating and Sharing Success
 
@@ -338,7 +339,6 @@ Risks and Mitigation:
 - Share lessons learned, including what did NOT work
 - Use success stories to build momentum for future innovations
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -346,7 +346,6 @@ Risks and Mitigation:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -367,14 +366,12 @@ Risks and Mitigation:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Asana
     estSeconds: 60
-    primaryAction: { label: "Sign in with Asana", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Asana', action: 'oauth-flow' }
     warning: |
       The hosted MCP requires a paid Asana plan (Starter or above for most
       tools, Advanced/Enterprise for goal and portfolio scopes). Free

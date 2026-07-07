@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning strategy guide"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning strategy guide'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Volunteer Coordinator
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs to recruit, train, schedule, or manage volunteers for an organization or event
 - The user wants help with volunteer recognition programs, retention strategies, or impact tracking
 - The user needs guidance on volunteer application processes, liability considerations, or onboarding workflows
 - The user is building a volunteer management system or improving an existing volunteer program
 
 **Do NOT use this skill when:**
+
 - The user is organizing a community around an advocacy cause (use community-organizer instead)
 - The user wants to manage paid staff rather than volunteers
 - The user needs nonprofit formation or fundraising strategy (use nonprofit-starter or fundraising-strategist instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on volunteer coordinator
 - User asks about volunteer coordinator best practices or techniques
 - User wants a structured approach to volunteer coordinator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of volunteer coordinator
 
@@ -70,6 +74,7 @@ Before designing or improving a volunteer program:
 ### Where to Find Volunteers
 
 **Online Platforms**
+
 - **VolunteerMatch** (volunteermatch.org) - Largest volunteer matching site
 - **JustServe** (justserve.org) - Faith-community connected
 - **Idealist** (idealist.org) - Nonprofit career and volunteer listings
@@ -77,6 +82,7 @@ Before designing or improving a volunteer program:
 - **Catchafire** - Skills-based volunteering (professionals donating expertise)
 
 **Community Sources**
+
 - Local colleges and universities (service-learning, clubs, fraternities/sororities)
 - High schools (community service requirements)
 - Faith communities (churches, mosques, temples, synagogues)
@@ -86,6 +92,7 @@ Before designing or improving a volunteer program:
 - Library bulletin boards and community calendars
 
 **Targeted Recruitment**
+
 - LinkedIn for skills-based volunteers (marketing, IT, finance, legal)
 - Professional associations for pro bono support
 - Military veteran organizations (strong teamwork, reliability)
@@ -93,7 +100,9 @@ Before designing or improving a volunteer program:
 - Hobby groups aligned with your mission (garden clubs for community gardens)
 
 ### Recruitment Messaging
+
 Effective volunteer recruitment messages include:
+
 - **Clear role description**: What will they actually do?
 - **Time commitment**: How many hours, what schedule?
 - **Impact statement**: What difference will they make?
@@ -102,6 +111,7 @@ Effective volunteer recruitment messages include:
 - **Call to action**: Specific next step (apply, attend orientation, contact us)
 
 ### Recruitment Events
+
 - Open houses with current volunteers sharing experiences
 - "Volunteer for a Day" trial experiences
 - Information tables at community events
@@ -113,11 +123,13 @@ Effective volunteer recruitment messages include:
 ### Application Components by Risk Level
 
 **Low-Risk Roles** (event setup, office tasks, one-time projects):
+
 - Simple interest form (name, contact, availability, interests)
 - Brief orientation
 - Signed volunteer agreement
 
 **Medium-Risk Roles** (ongoing programs, public-facing):
+
 - Full application form
 - Reference check (1-2 references)
 - Interview
@@ -126,6 +138,7 @@ Effective volunteer recruitment messages include:
 - Signed volunteer agreement and confidentiality form
 
 **High-Risk Roles** (working with minors, vulnerable adults, handling finances):
+
 - Full application with detailed history
 - Criminal background check (required)
 - Reference checks (2-3 professional/personal)
@@ -135,6 +148,7 @@ Effective volunteer recruitment messages include:
 - Signed agreements: Volunteer, confidentiality, code of conduct, mandatory reporting
 
 ### Background Checks
+
 - Required by law in many states for volunteers working with children
 - Use a reputable screening service (Sterling Volunteers, GoodHire, Checkr)
 - Costs: $15-50 per check (budget for this)
@@ -144,6 +158,7 @@ Effective volunteer recruitment messages include:
 - Recheck periodically for ongoing volunteers (annually or every 2-3 years)
 
 ### Volunteer Agreement Template Elements
+
 - Organization name and volunteer's name
 - Role description and time commitment
 - Expectations for behavior and conduct
@@ -157,7 +172,9 @@ Effective volunteer recruitment messages include:
 ## Training Programs
 
 ### Orientation (All Volunteers)
+
 Deliver within the first week, before they begin duties:
+
 1. Organization mission, history, and programs
 2. Tour of facilities
 3. Introduction to staff and other volunteers
@@ -168,7 +185,9 @@ Deliver within the first week, before they begin duties:
 8. Dress code and conduct expectations
 
 ### Role-Specific Training
+
 Develop for each volunteer position:
+
 1. Detailed task instructions with demonstrations
 2. Shadow period with experienced volunteer or staff member
 3. Hands-on practice with feedback
@@ -177,6 +196,7 @@ Develop for each volunteer position:
 6. Ongoing coaching during first month
 
 ### Specialized Training Requirements
+
 - **Mandatory reporting**: If working with minors or vulnerable adults
 - **CPR/First Aid**: If supervising activities or remote locations
 - **Cultural competency**: If serving diverse communities
@@ -185,6 +205,7 @@ Develop for each volunteer position:
 - **Confidentiality**: If accessing personal information (HIPAA if applicable)
 
 ### Training Delivery Methods
+
 - In-person workshops (best for hands-on skills)
 - Online modules (good for policy/procedure content)
 - Video tutorials (reusable, consistent)
@@ -195,6 +216,7 @@ Develop for each volunteer position:
 ## Scheduling
 
 ### Scheduling Systems
+
 - **Google Calendar** (shared): Simple, free, works for small programs
 - **SignUpGenius**: Free tier for basic scheduling, popular for events
 - **When2Help**: Designed for recurring volunteer scheduling
@@ -202,6 +224,7 @@ Develop for each volunteer position:
 - **Galaxy Digital**: Comprehensive volunteer management platform
 
 ### Scheduling Best Practices
+
 - Post schedules at least 2 weeks in advance
 - Allow volunteers to indicate ongoing availability preferences
 - Send automated reminders 48 hours and 24 hours before shifts
@@ -212,6 +235,7 @@ Develop for each volunteer position:
 - Group friends together when possible (social bonds improve retention)
 
 ### Managing Unreliability
+
 - Set clear expectations upfront about attendance and notice for cancellations
 - 24-hour cancellation notice policy (reasonable minimum)
 - After 3 no-shows without notice, have a direct conversation
@@ -221,6 +245,7 @@ Develop for each volunteer position:
 ## Recognition and Appreciation
 
 ### Daily Recognition (Free)
+
 - Say "thank you" sincerely and specifically: "Thank you for sorting 200 food boxes today"
 - Learn and use volunteers' names
 - Ask about their lives beyond volunteering
@@ -228,12 +253,14 @@ Develop for each volunteer position:
 - Send brief thank-you texts or emails after shifts
 
 ### Periodic Recognition
+
 - **Monthly**: Volunteer spotlight in newsletter or social media
 - **Quarterly**: Group appreciation event (pizza party, coffee morning)
 - **Annual**: Formal volunteer appreciation event or ceremony
 - **Milestone-based**: Certificates for 50, 100, 500 hours; anniversary pins; years of service awards
 
 ### Meaningful Recognition Principles
+
 - **Timely**: Close to the contribution being recognized
 - **Specific**: Not just "great job" but what specifically they did and its impact
 - **Appropriate**: Match the recognition to the person (some love public praise, others prefer private thanks)
@@ -241,6 +268,7 @@ Develop for each volunteer position:
 - **Inclusive**: Recognize all volunteers, not just the most visible ones
 
 ### Recognition Ideas by Budget
+
 **Free**: Handwritten notes, social media features, verbal praise, flexible scheduling
 **Low cost ($1-10/person)**: Coffee gift cards, organization swag, potluck meals
 **Moderate ($10-50/person)**: Annual dinner, gift baskets, experience tickets
@@ -249,6 +277,7 @@ Develop for each volunteer position:
 ## Retention Strategies
 
 ### Why Volunteers Leave
+
 1. They feel their time is wasted (not given meaningful work)
 2. They feel unappreciated
 3. Poor communication from staff
@@ -259,6 +288,7 @@ Develop for each volunteer position:
 8. Lack of growth opportunities
 
 ### Retention Best Practices
+
 - Give meaningful work that matches their skills and interests
 - Provide regular feedback on their impact
 - Create community among volunteers (social events, team structure)
@@ -269,6 +299,7 @@ Develop for each volunteer position:
 - Respect their time: Start and end on time, be prepared for them
 
 ### Measuring Retention
+
 - **Retention rate**: (Volunteers who continued / Total volunteers at start of period) x 100
 - Track by: Year, role, recruitment source, demographics
 - Industry benchmark: 65% annual retention is considered strong
@@ -277,6 +308,7 @@ Develop for each volunteer position:
 ## Impact Tracking
 
 ### What to Track
+
 - **Hours**: Total volunteer hours contributed (per person, per program, overall)
 - **Economic value**: Hours x estimated hourly value (Independent Sector publishes annual rate, approximately $31-33/hour)
 - **Output**: Measurable results (meals served, students tutored, acres cleaned)
@@ -284,12 +316,14 @@ Develop for each volunteer position:
 - **Satisfaction**: Volunteer satisfaction surveys (annually)
 
 ### Tracking Methods
+
 - **Sign-in sheets**: Simple, manual, error-prone (adequate for small programs)
 - **Spreadsheet**: Step up from paper, requires manual entry
 - **Volunteer management software**: Automated tracking, reporting, self-service hour logging
 - **Mobile apps**: Volunteers log hours from phone (Track it Forward, Helper Helper)
 
 ### Reporting Impact
+
 - Annual volunteer impact report (share with board, donors, community)
 - Include: Total volunteers, total hours, economic value, program outcomes, stories
 - Use infographics and visuals for maximum impact
@@ -300,21 +334,25 @@ Develop for each volunteer position:
 ### Recommended Platforms
 
 **Small Programs (under 50 volunteers)**:
+
 - **Track it Forward** (free tier available): Simple hour tracking
 - **SignUpGenius** (free tier): Event and shift scheduling
 - **Google Suite**: Calendar, Forms, Sheets combination
 
 **Medium Programs (50-500 volunteers)**:
+
 - **Better Impact** ($300-600/year): Comprehensive management
 - **Galaxy Digital** (pricing varies): Full platform with opportunity matching
 - **InitLive** ($500+/year): Event-focused volunteer management
 
 **Large Programs (500+ volunteers)**:
+
 - **Salesforce Volunteers for Salesforce**: Free if using Salesforce NPSP
 - **Cervis**: Enterprise-level volunteer management
 - **Volgistics** ($300-600/year): Established platform, comprehensive features
 
 ### Key Software Features
+
 - Online application and onboarding
 - Self-service hour logging
 - Automated shift reminders
@@ -327,6 +365,7 @@ Develop for each volunteer position:
 ## Liability Considerations
 
 ### Insurance
+
 - **General liability**: Covers injuries to volunteers and third parties
 - Verify your policy covers volunteer activities (not all do by default)
 - **Volunteer accident/medical insurance**: Covers medical costs if volunteer is injured
@@ -334,11 +373,13 @@ Develop for each volunteer position:
 - **Auto insurance**: If volunteers drive for the organization, verify coverage
 
 ### Volunteer Protection Act (Federal)
+
 - Provides some protection to volunteers from liability for acts performed within scope of duties
 - Does NOT protect against: Willful/criminal misconduct, gross negligence, vehicle operation
 - State laws may provide additional protections
 
 ### Risk Management Best Practices
+
 - Written volunteer policies and procedures
 - Adequate training and supervision
 - Background checks for appropriate roles
@@ -349,6 +390,7 @@ Develop for each volunteer position:
 - Consult with insurance agent about volunteer coverage annually
 
 ### Minor Volunteers
+
 - Require parental/guardian consent form
 - Age-appropriate tasks only
 - Increased supervision ratios
@@ -374,7 +416,6 @@ Develop for each volunteer position:
 - **Certification**: CCVA (Certified in Volunteer Administration) through AL!VE
 - **VolunteerPro** (volpro.net): Online training and resources for volunteer managers
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -387,13 +428,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with volunteer coordinator for a mid-size project."
 
 **Output:** A complete volunteer coordinator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

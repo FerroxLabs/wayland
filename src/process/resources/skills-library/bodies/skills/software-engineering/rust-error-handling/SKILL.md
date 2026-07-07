@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "rust best-practices debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'rust best-practices debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Rust Error Handling
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to choose between `thiserror` and `anyhow` for a Rust project
 - The user is designing a custom error type for a library crate and needs to understand `std::error::Error` trait implementation
 - The user has a function returning `Result<T, E>` and wants to propagate or transform errors using `?`, `.map_err()`, `.and_then()`, or combinators
@@ -31,6 +33,7 @@ metadata:
 - The user is working with `Box<dyn Error>` and wants to migrate to a more structured approach
 
 **Do NOT use this skill when:**
+
 - The user asks about Rust ownership, lifetimes, or borrow checker issues -- use `rust-ownership-patterns`
 - The user is setting up a new Rust project structure, workspace layout, or Cargo.toml dependencies -- use `rust-project-setup`
 - The user asks about writing unit tests, integration tests, or property-based tests in Rust -- use `rust-testing-patterns`
@@ -198,6 +201,7 @@ When responding to a Rust error handling question, structure the response as fol
 ## Edge Cases
 
 ### The `#[from]` Collision Problem
+
 When two variants in the same enum both need to wrap `std::io::Error`, `#[from]` cannot be used because Rust does not allow two `impl From<io::Error> for MyError` blocks. The solution: use `#[source]` on both variants (which preserves the error chain) and write explicit `.map_err()` at each call site to specify which variant to produce.
 
 ```rust
@@ -213,6 +217,7 @@ fs::read_to_string(&path).map_err(|e| ConfigError::ReadFailed { path: path.clone
 ```
 
 ### Async Tasks and `JoinError`
+
 `tokio::task::spawn` returns `JoinHandle<Result<T, E>>`. Awaiting it gives `Result<Result<T, E>, JoinError>`. Callers must handle both layers. Panics inside tasks become `JoinError` with `is_panic() == true`. The standard pattern is:
 
 ```rust
@@ -223,18 +228,23 @@ let result = task_handle.await
         AppError::TaskCancelled
     })??;  // The second ? unwraps the inner Result<T, E>
 ```
+
 Never flatten this with `.unwrap()` -- a panicking task will propagate the panic to the caller's thread.
 
 ### Error Types in Trait Objects (`dyn Trait`)
+
 When defining a trait that returns errors, the error type must be part of the trait signature or use `Box<dyn Error + Send + Sync>`. Using an associated type (`type Error: std::error::Error`) is the ergonomic approach for libraries. Using `Box<dyn Error + Send + Sync>` trades type safety for object safety. If a trait needs to be object-safe AND return meaningful errors, the associated type approach breaks object safety -- use `Box<dyn Error + Send + Sync>` and document the trade-off explicitly.
 
 ### Error Conversion in Large Dependency Trees
+
 When a crate depends on many sub-crates, each with their own error types, the top-level error enum can explode in variant count. Signs of this problem: your `AppError` enum has 40+ variants, each wrapping a single foreign error type. The solution is **error aggregation layers**: create `DatabaseError`, `NetworkError`, `StorageError` mid-level enums that each consolidate a domain's errors, then have `AppError` wrap these mid-level enums. This limits `AppError` to 6-10 variants representing business domains, not implementation details.
 
 ### The `anyhow` / `thiserror` Mix in a Workspace
+
 In a Cargo workspace with multiple crates, the pattern is: all `lib` crates use `thiserror`; the application binary crate uses `anyhow`. The binary's `main.rs` imports library errors as `use my_lib::LibError` and they convert to `anyhow::Error` transparently via `?` because `anyhow` implements `From<E: std::error::Error>`. This is seamless -- you do not need to write any conversion glue. The only mistake is accidentally publishing an internal `anyhow` dependency in a library's public API.
 
 ### `serde` Deserialization Errors with Custom Context
+
 `serde_json::Error` exposes line/column information via `.line()` and `.column()` methods. When wrapping serde errors in your own type, preserve this structured data as fields rather than stringifying it:
 
 ```rust
@@ -248,12 +258,15 @@ pub struct ParseError {
     pub source: serde_json::Error,
 }
 ```
+
 This allows callers to programmatically access position data, which is essential for editors and language servers.
 
 ### `miette` for User-Facing CLI Errors
+
 When the end user is a developer (e.g., a CLI tool, build system, or compiler plugin), `miette` provides diagnostics with source code snippets, labels, and help text -- similar to Rust compiler errors. Use `miette::Diagnostic` derive alongside `thiserror::Error`. This is most valuable when your tool processes source files or configuration formats where pointing to the exact problematic line/column is critical. `miette` is NOT needed for server applications where errors go to log aggregators.
 
 ### Recoverable vs. Fatal Error Distinction
+
 Some errors indicate unrecoverable state corruption (e.g., a corrupted database page, an impossible enum variant from deserialization). These should NOT be modeled as error variants to be matched and recovered. Use `panic!` with a clear message, or define a separate `Fatal` type that your top-level handler converts to process exit with a diagnostic. Mixing recoverable and fatal errors in the same enum forces callers to handle cases that can never succeed.
 
 ---
@@ -267,6 +280,7 @@ Some errors indicate unrecoverable state corruption (e.g., a corrupted database 
 ## Error Handling Strategy for a TOML Configuration Library
 
 ### Crate Type Assessment
+
 **Library crate** -- error types must be strongly typed and matchable by downstream application code. `anyhow` is excluded from the public API.
 
 ### Recommended Dependencies
@@ -282,13 +296,13 @@ serde = { version = "1", features = ["derive"] }
 
 ### Decision Matrix
 
-| Scenario                              | Approach                        | Rationale                                                  |
-|---------------------------------------|---------------------------------|------------------------------------------------------------|
-| Public `ConfigError` type             | `thiserror` enum                | Callers must match `NotFound` vs `ParseError` vs `IoError` |
-| Wrapping `std::io::Error`             | `#[source]` + `PathBuf` field   | Two IO variants prevent `#[from]` use                      |
-| Wrapping `toml::de::Error`            | `#[from]` if single variant     | Only one TOML parse error variant -- `#[from]` is safe     |
-| Async tokio FS operations             | Same `?` propagation            | No special async error handling needed                     |
-| Application using this library        | `.context()` with `anyhow`      | App layer adds runtime context, library type is preserved  |
+| Scenario                       | Approach                      | Rationale                                                  |
+| ------------------------------ | ----------------------------- | ---------------------------------------------------------- |
+| Public `ConfigError` type      | `thiserror` enum              | Callers must match `NotFound` vs `ParseError` vs `IoError` |
+| Wrapping `std::io::Error`      | `#[source]` + `PathBuf` field | Two IO variants prevent `#[from]` use                      |
+| Wrapping `toml::de::Error`     | `#[from]` if single variant   | Only one TOML parse error variant -- `#[from]` is safe     |
+| Async tokio FS operations      | Same `?` propagation          | No special async error handling needed                     |
+| Application using this library | `.context()` with `anyhow`    | App layer adds runtime context, library type is preserved  |
 
 ### Error Type Definition
 

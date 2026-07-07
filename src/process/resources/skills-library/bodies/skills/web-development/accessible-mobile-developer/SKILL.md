@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "accessibility checklist testing automation parenting fashion"
-  category: "web-development"
-  subcategory: "accessibility-performance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'accessibility checklist testing automation parenting fashion'
+  category: 'web-development'
+  subcategory: 'accessibility-performance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Accessible Mobile Developer
 
 You are an expert mobile developer specializing in building accessible iOS and Android applications. You understand platform-specific accessibility APIs, screen reader behavior, motor accessibility considerations, and how to create inclusive mobile experiences that work for everyone.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about accessible mobile developer techniques or best practices
 - User needs guidance on accessible mobile developer concepts
 - User wants to implement or improve their approach to accessible mobile developer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of accessible mobile developer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -318,30 +319,30 @@ MergeSemantics(
 
 ### Touch and Gesture
 
-| Requirement | WCAG Criterion | Implementation |
-|------------|---------------|----------------|
-| Touch target >= 44x44pt (iOS) / 48x48dp (Android) | 2.5.8 Target Size | Use platform minimum sizes |
-| No complex gestures required | 2.5.1 Pointer Gestures | Provide single-tap alternatives |
-| No motion-activated features without alternative | 2.5.4 Motion Actuation | Offer button alternative to shake/tilt |
-| No time-dependent gestures | 2.1.1 Keyboard | Allow users their own pace |
+| Requirement                                       | WCAG Criterion         | Implementation                         |
+| ------------------------------------------------- | ---------------------- | -------------------------------------- |
+| Touch target >= 44x44pt (iOS) / 48x48dp (Android) | 2.5.8 Target Size      | Use platform minimum sizes             |
+| No complex gestures required                      | 2.5.1 Pointer Gestures | Provide single-tap alternatives        |
+| No motion-activated features without alternative  | 2.5.4 Motion Actuation | Offer button alternative to shake/tilt |
+| No time-dependent gestures                        | 2.1.1 Keyboard         | Allow users their own pace             |
 
 ### Visual
 
-| Requirement | WCAG Criterion | Ratio |
-|------------|---------------|-------|
-| Text contrast (normal) | 1.4.3 | >= 4.5:1 |
-| Text contrast (large, >=18pt) | 1.4.3 | >= 3:1 |
-| UI component contrast | 1.4.11 | >= 3:1 |
-| Focus indicator visible | 2.4.7 | Clearly visible |
+| Requirement                   | WCAG Criterion | Ratio           |
+| ----------------------------- | -------------- | --------------- |
+| Text contrast (normal)        | 1.4.3          | >= 4.5:1        |
+| Text contrast (large, >=18pt) | 1.4.3          | >= 3:1          |
+| UI component contrast         | 1.4.11         | >= 3:1          |
+| Focus indicator visible       | 2.4.7          | Clearly visible |
 
 ### Content
 
-| Requirement | WCAG Criterion | Implementation |
-|------------|---------------|----------------|
-| Screen orientation not locked | 1.3.4 | Support both portrait and landscape |
-| Text resizable to 200% | 1.4.4 | Support Dynamic Type / font scaling |
-| Content reflows (no horizontal scroll) | 1.4.10 | Responsive layouts at all text sizes |
-| Images of text avoided | 1.4.5 | Use real text, not images |
+| Requirement                            | WCAG Criterion | Implementation                       |
+| -------------------------------------- | -------------- | ------------------------------------ |
+| Screen orientation not locked          | 1.3.4          | Support both portrait and landscape  |
+| Text resizable to 200%                 | 1.4.4          | Support Dynamic Type / font scaling  |
+| Content reflows (no horizontal scroll) | 1.4.10         | Responsive layouts at all text sizes |
+| Images of text avoided                 | 1.4.5          | Use real text, not images            |
 
 ---
 
@@ -435,7 +436,6 @@ func testProfileScreenAccessibility() throws {
 }
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -443,7 +443,6 @@ func testProfileScreenAccessibility() throws {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -464,14 +463,12 @@ func testProfileScreenAccessibility() throws {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

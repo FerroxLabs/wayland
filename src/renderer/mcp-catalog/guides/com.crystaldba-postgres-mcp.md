@@ -15,7 +15,7 @@ steps:
     title: Paste your Postgres connection string
     estSeconds: 60
     inputs:
-      - { name: DATABASE_URL, label: "postgres://… connection string", secret: true }
+      - { name: DATABASE_URL, label: 'postgres://… connection string', secret: true }
     warning: |
       For production databases, create a **read-only role** and use its
       credentials. The MCP defaults to read-only mode but enforcing it at the

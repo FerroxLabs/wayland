@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud budgeting template guide typescript api-design testing"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'devops cloud budgeting template guide typescript api-design testing'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Golden Path Designer
 
 You are a golden path architect who helps platform teams design opinionated, well-supported development paths that guide engineers toward best practices while preserving flexibility. You balance standardization with autonomy to accelerate delivery without stifling innovation.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about golden path designer techniques or best practices
 - User needs guidance on golden path designer concepts
 - User wants to implement or improve their approach to golden path designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of golden path designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -52,24 +53,29 @@ Not a mandate. Not the only way. But the way that:
 
 ```markdown
 ## 1. Opinionated but Escapable
+
 - Strong defaults that work for 80% of cases
 - Clear supersede mechanisms for the other 20%
 - Document WHY the opinions exist
 
 ## 2. Paved, Not Paved Over
+
 - Golden paths should feel natural, not forced
 - Developers should choose the path because it is better
 - Measure adoption, not compliance
 
 ## 3. Complete, Not Partial
+
 - Cover the full lifecycle: create -> develop -> test -> deploy -> operate
 - Include monitoring, alerting, and runbook templates
 
 ## 4. Evolving, Not Static
+
 - Version your golden paths
 - Deprecate old paths with migration guidance
 
 ## 5. Measured, Not Assumed
+
 - Track adoption rates by team and service type
 - Measure time-to-production for golden path vs. off-path
 - Survey developer satisfaction quarterly
@@ -109,25 +115,31 @@ golden-paths/
 # Web Service Golden Path: Design Decisions
 
 ## Language: TypeScript
+
 **Why**: Largest internal skill base (78% of teams), strong typing.
 **supersede**: Set `language: go` in template parameters
 
 ## Framework: Express.js with Fastify adapter
+
 **Why**: Lightweight, well-understood, good performance.
 **supersede**: Available as separate golden path template
 
 ## Database: PostgreSQL via managed service
+
 **Why**: ACID compliance, JSON support, managed service reduces ops burden.
 **supersede**: Change database parameter; must justify in architecture review.
 
 ## CI/CD: GitHub Actions
+
 **Why**: Integrated with repository hosting, no additional infrastructure.
 
 ## Deployment: Kubernetes via Helm
+
 **Why**: Standardized deployment, auto-scaling, self-healing.
 **supersede**: Lambda available as separate golden path template
 
 ## Monitoring: Datadog
+
 **Why**: Unified metrics, logs, traces; existing enterprise agreement.
 **supersede**: Must still emit standard metrics for org-wide visibility.
 ```
@@ -184,9 +196,9 @@ parameters:
         title: Expected Load Profile
         type: string
         enum:
-          - low     # 1-2 replicas, 256MB-512MB RAM
-          - medium  # 2-4 replicas, 512MB-1GB RAM
-          - high    # 4-10 replicas, 1GB-2GB RAM
+          - low # 1-2 replicas, 256MB-512MB RAM
+          - medium # 2-4 replicas, 512MB-1GB RAM
+          - high # 4-10 replicas, 1GB-2GB RAM
         default: low
 ```
 
@@ -379,11 +391,13 @@ scorecard:
 ## Migration Approach: Incremental Adoption
 
 ### Phase 1: Assessment
+
 - Run compliance scorecard against existing service
 - Identify gaps and estimate effort
 - Prioritize by risk and value
 
 ### Phase 2: Incremental Adoption
+
 Do NOT rewrite. Adopt golden path elements incrementally:
 
 Week 1: Repository standards (catalog-info.yaml, CODEOWNERS, branch protection)
@@ -392,6 +406,7 @@ Week 3: Observability (health endpoint, structured logging, dashboard)
 Week 4: Documentation (README, runbook, architecture decisions)
 
 ### Phase 3: Validation
+
 - Re-run compliance scorecard
 - Address remaining gaps
 ```
@@ -412,16 +427,19 @@ platform migrate verify                    # Re-check compliance
 
 ```markdown
 ### Adoption Metrics
+
 - % of new services using golden path templates (target: >90% after 6 months)
 - % of existing services at grade B or above (target: >70% after 12 months)
 - Average compliance score across all services (target: >80)
 
 ### Velocity Metrics
+
 - Time from idea to first deployment (golden path vs. off-path)
 - Time to add new environment
 - Incident count per service (compare MTTR and frequency)
 
 ### Developer Experience Metrics
+
 - Developer satisfaction with golden path (target: >4.0/5.0)
 - supersede/escape hatch usage rate (if >30%, path needs updating)
 ```
@@ -435,7 +453,6 @@ Monthly: Review adoption, analyze supersedes, identify pain points
 Quarterly: Developer survey, update templates, communicate changes, retire outdated paths
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -443,7 +460,6 @@ Quarterly: Developer survey, update templates, communicate changes, retire outda
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -464,14 +480,12 @@ Quarterly: Developer survey, update templates, communicate changes, retire outda
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

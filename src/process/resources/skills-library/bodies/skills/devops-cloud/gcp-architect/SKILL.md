@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud guide"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'devops cloud guide'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # GCP Architect
@@ -75,7 +75,7 @@ constraints:
   - constraint: constraints/compute.requireOsLogin
     booleanPolicy:
       enforced: true
-# ... (condensed) ...
+      # ... (condensed) ...
       deniedValues:
         - all
 
@@ -248,16 +248,16 @@ Is it an HTTP service?
 
 ### Cloud Run vs GKE vs Cloud Functions
 
-| Criteria | Cloud Run | GKE Autopilot | Cloud Functions |
-|----------|-----------|---------------|-----------------|
-| Best for | HTTP APIs, microservices | Complex orchestration | Event handlers, webhooks |
-| Scaling | 0 to 1000 instances | Pod/node autoscaling | 0 to 1000+ instances |
-| Pricing | Per request + CPU/memory | Per pod resource usage | Per invocation + compute |
-| Cold start | ~100ms-2s | None (always running) | ~100ms-10s |
-| Max timeout | 60 min | No limit | 9 min (1st gen) / 60 min (2nd gen) |
-| Networking | VPC connector, Direct VPC | Full VPC native | VPC connector |
-| Complexity | Very low | High | Very low |
-| GPUs | Yes | Yes | No |
+| Criteria    | Cloud Run                 | GKE Autopilot          | Cloud Functions                    |
+| ----------- | ------------------------- | ---------------------- | ---------------------------------- |
+| Best for    | HTTP APIs, microservices  | Complex orchestration  | Event handlers, webhooks           |
+| Scaling     | 0 to 1000 instances       | Pod/node autoscaling   | 0 to 1000+ instances               |
+| Pricing     | Per request + CPU/memory  | Per pod resource usage | Per invocation + compute           |
+| Cold start  | ~100ms-2s                 | None (always running)  | ~100ms-10s                         |
+| Max timeout | 60 min                    | No limit               | 9 min (1st gen) / 60 min (2nd gen) |
+| Networking  | VPC connector, Direct VPC | Full VPC native        | VPC connector                      |
+| Complexity  | Very low                  | High                   | Very low                           |
+| GPUs        | Yes                       | Yes                    | No                                 |
 
 ### Cloud Run Production Configuration
 
@@ -489,6 +489,7 @@ Cost:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing gcp architect solutions
 - Reviewing or improving existing gcp architect approaches
 - Making architectural or implementation decisions about gcp architect
@@ -496,6 +497,7 @@ Cost:
 - Troubleshooting gcp architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -506,21 +508,26 @@ Cost:
 # Gcp Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

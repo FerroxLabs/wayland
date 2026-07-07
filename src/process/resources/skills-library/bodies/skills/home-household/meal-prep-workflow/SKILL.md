@@ -11,19 +11,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "meal-planning cooking planning"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'meal-planning cooking planning'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Meal Prep Workflow
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Explicitly asks about meal prepping, batch cooking, Sunday prep, or "cooking for the week" in a single session
 - Wants to reduce weeknight cooking time to under 15 minutes per meal
 - Asks how to turn raw groceries into 5+ ready-to-eat meals in one afternoon
@@ -34,6 +36,7 @@ metadata:
 - Is setting up a weekly cooking routine for the first time and needs a repeatable system
 
 **Do NOT use this skill when:**
+
 - The user needs a single specific recipe from scratch -- use `one-pot-meals` instead
 - The user wants to learn a cooking technique (how to dice, how to make a roux, knife skills) -- use `cooking-techniques` instead
 - The user is asking what to keep stocked in their pantry long-term -- use `pantry-staples-system` instead
@@ -80,11 +83,13 @@ Select components so that every protein pairs with every grain, and at least 2 s
 Imprecise quantities are the most common meal prep failure point. Use these benchmarks as starting points, then adjust for headcount and calorie needs:
 
 **Per person per meal targets:**
+
 - Protein (cooked weight): 4-6 oz for a 500-600 calorie meal, 6-8 oz for athletic/high-calorie needs
 - Grain (cooked volume): 3/4 cup to 1.5 cups depending on carb preference
 - Vegetables (volume): 1-1.5 cups roasted, 1-2 cups raw
 
 **Raw-to-cooked conversion factors (critical for shopping list accuracy):**
+
 - Dry white rice: 1 cup dry = 3 cups cooked (multiply needed cooked volume by 0.33 for dry amount)
 - Dry brown rice: 1 cup dry = 2.5 cups cooked
 - Dry quinoa: 1 cup dry = 3 cups cooked
@@ -104,6 +109,7 @@ Imprecise quantities are the most common meal prep failure point. Use these benc
 The difference between a 3-hour prep and a 5-hour prep is almost entirely parallelization. Every unattended oven or stovetop minute is an opportunity to do cold prep simultaneously.
 
 **Fundamental sequencing rules:**
+
 1. Start the longest-cooking unattended items first: brown rice (45-50 min), dried beans (60-90 min), braised proteins (45-90 min). These run completely in the background.
 2. Oven items go in as soon as preheating completes (~10-15 min). Use both racks simultaneously -- proteins on middle rack, vegetables on lower rack (or stagger if one needs higher heat).
 3. While oven runs, do stovetop tasks that require attention: sautéed aromatics, sauce reductions, pan proteins.
@@ -113,6 +119,7 @@ The difference between a 3-hour prep and a 5-hour prep is almost entirely parall
 **Timeline structure to use:**
 
 Divide prep into four phases:
+
 - Phase 1 (first 10 minutes): Start everything that cooks unattended for 30+ minutes -- rice cooker, any braised proteins, preheat oven, soak anything that needs it.
 - Phase 2 (minutes 10-50): Active oven work and any stovetop items that need monitoring. Do cold prep in gaps.
 - Phase 3 (minutes 50-80): Sauces, dressings, any remaining stovetop work. Oven timers going off during this phase.
@@ -127,6 +134,7 @@ When oven space is limited (only one usable rack, or only one sheet pan), sequen
 Every container needs: contents, preparation date, use-by date. This is not optional. Without labels, prepped food gets forgotten and wasted.
 
 **Container selection logic:**
+
 - Glass containers with locking snap lids: best for refrigerator storage, microwave-safe (without lid), oven-safe for reheating in a pinch. Heavier and breakable but best for sealing.
 - BPA-free plastic containers with tight lids: lighter, stackable, good for portable lunches. Not suitable for high-heat oven reheating. Some warp in the dishwasher over time.
 - Wide-mouth mason jars (1-quart): ideal for layered grain salads, overnight oats, marinated proteins stored in liquid. The wide mouth allows complete bottom-to-top layering.
@@ -134,6 +142,7 @@ Every container needs: contents, preparation date, use-by date. This is not opti
 - Zip-seal freezer bags (quart and gallon): best for freezer storage of grains and proteins laid flat (stack better, faster thaw, less freezer burn than rigid containers). Squeeze out air before sealing.
 
 **Fridge vs. freezer decision rule:**
+
 - If the meal will be eaten within 3 days of the prep date: fridge storage.
 - If the meal will be eaten on day 4 or 5: freeze immediately after cooling, thaw overnight in the fridge the night before eating.
 - Exception: sauces and dressings stay refrigerated for up to 7 days. Eggs, hard-boiled: refrigerate, consume within 5-7 days, do not freeze.
@@ -145,6 +154,7 @@ Every container needs: contents, preparation date, use-by date. This is not opti
 Tell the user exactly what to do at meal time -- this should take 0-5 minutes per meal. The goal is that a tired person after a long workday can assemble a complete meal without thinking.
 
 **Reheating protocols by component:**
+
 - Previously cooked poultry and meat: microwave in the storage container (without lid or with lid slightly vented) on high for 2-3 minutes, stirring or flipping halfway, until internal temperature reaches 165F/74C. A meat thermometer is the only reliable way to verify this -- appearance and steam are not sufficient indicators.
 - Rice and grains: add 1-2 tablespoons of water before microwaving and cover loosely. This creates steam inside the container and prevents the rice from drying out and becoming hard. Microwave 1.5-2 minutes for a single portion.
 - Roasted vegetables: best reheated in the oven or toaster oven at 400F/204C for 8-10 minutes to re-crisp. Microwave works but produces steamed, limp texture. If reheating the whole container together (rice + protein + veg), microwave is acceptable for convenience.
@@ -337,6 +347,7 @@ With semi-prep, weeknight cooking is still required (15-20 min), but the choppin
 ### Vegetarian or Vegan Prep
 
 Protein storage rules change significantly. Plant-based proteins behave differently than animal proteins:
+
 - Baked extra-firm tofu: press moisture out for at least 20 minutes before cutting and baking. Bake at 400F/204C for 25-30 minutes, flipping halfway, until golden and firm. Stores 4-5 days refrigerated -- longer than chicken. Does not freeze well (texture becomes spongey on thaw).
 - Cooked lentils (green or brown): cook in seasoned broth (not water) for flavor. 1 cup dry lentils + 2.5 cups liquid, simmer 25-30 min. Stores 5 days refrigerated. Freezes well in flat bags for up to 3 months.
 - Cooked chickpeas (from dried): 1 cup dried chickpeas soaked overnight = ~2.5 cups cooked after 60-90 min boiling. Store 5 days refrigerated. Freeze well. Canned chickpeas (drained, rinsed, patted dry) are an acceptable shortcut.
@@ -351,6 +362,7 @@ Design using the "deconstructed component bar" approach: each core component is 
 ### No Microwave Available for Reheating (Office Lunches)
 
 Redesign the meal plan entirely around cold-friendly formats:
+
 - **Grain salads (not grain bowls):** Farro, quinoa, or wheat berry salads dressed with oil-and-vinegar dressings hold texture and flavor cold. Use a 3:1 oil-to-acid ratio dressing, toss while grains are still slightly warm so they absorb flavor.
 - **Mason jar layered salads:** Layer from bottom to top -- dressing, hard vegetables (carrots, cucumbers), grains or beans, softer vegetables (tomatoes, corn), greens on top. The greens never touch the dressing until the jar is shaken at mealtime. Hold 3-4 days assembled.
 - **Wraps assembled mid-week:** Prep all wrap components (proteins, roasted veg, sauces) but assemble individual wraps no more than 1 day before eating. A 5-day-assembled wrap becomes soggy. Prep the components Sunday, assemble Tuesday-Wednesday for that half of the week.
@@ -363,6 +375,7 @@ Start with a "First Prep" plan, which is intentionally smaller than a full workf
 ### User Wants to Prep for Two Weeks (Bulk Batch)
 
 Double quantities in every component. All day-8 through day-14 portions must go directly into the freezer on prep day. Important shifts in the plan:
+
 - Use zip-seal freezer bags instead of rigid containers for frozen portions -- they stack flat and take less space.
 - Label frozen bags with reheating instructions directly on the bag (reheating from frozen takes longer; add 2-3 minutes to microwave times).
 - Freeze grains and proteins separately, not assembled. Assembled frozen meals can be microwaved from frozen, but quality is significantly better when components are frozen separately and assembled after thawing.
@@ -392,23 +405,25 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 
 ### Component Menu
 
-| Component | Type | Quantity to Prep | Meals It Appears In | Fridge Life | Freezer Life |
-|-----------|------|-----------------|-------------------|-------------|--------------|
-| Roasted boneless chicken thighs | Protein | 1.75 lbs raw (yields ~21 oz cooked, 5 portions of ~4 oz each) | All 5 lunches | 3-4 days (Mon-Wed in fridge) | Up to 3 months (Thu-Fri portions frozen on Sunday) |
-| Brown rice | Starch | 1.5 cups dry (yields ~3.75 cups cooked, ~0.75 cup per meal) | All 5 lunches | 4 days | Freeze Thu-Fri portions |
-| Roasted broccoli and red bell pepper | Cooked veg | 1 lb broccoli + 2 red bell peppers | All 5 lunches | 4-5 days | Not recommended |
-| Sliced cucumber (prep only -- no cooking) | Raw veg | 2 English cucumbers | Mon-Fri (add day-of or night before) | 4 days sliced in container | Not applicable |
-| Lemon-herb dressing | Sauce | 3/4 cup (yields ~3 servings of 3-4 tbsp) | Mon-Wed lunches | 7 days | Not recommended |
-| Soy-ginger sauce | Sauce | 1/2 cup (yields ~2-3 servings) | Thu-Fri lunches | 7 days | Not recommended |
+| Component                                 | Type       | Quantity to Prep                                              | Meals It Appears In                  | Fridge Life                  | Freezer Life                                       |
+| ----------------------------------------- | ---------- | ------------------------------------------------------------- | ------------------------------------ | ---------------------------- | -------------------------------------------------- |
+| Roasted boneless chicken thighs           | Protein    | 1.75 lbs raw (yields ~21 oz cooked, 5 portions of ~4 oz each) | All 5 lunches                        | 3-4 days (Mon-Wed in fridge) | Up to 3 months (Thu-Fri portions frozen on Sunday) |
+| Brown rice                                | Starch     | 1.5 cups dry (yields ~3.75 cups cooked, ~0.75 cup per meal)   | All 5 lunches                        | 4 days                       | Freeze Thu-Fri portions                            |
+| Roasted broccoli and red bell pepper      | Cooked veg | 1 lb broccoli + 2 red bell peppers                            | All 5 lunches                        | 4-5 days                     | Not recommended                                    |
+| Sliced cucumber (prep only -- no cooking) | Raw veg    | 2 English cucumbers                                           | Mon-Fri (add day-of or night before) | 4 days sliced in container   | Not applicable                                     |
+| Lemon-herb dressing                       | Sauce      | 3/4 cup (yields ~3 servings of 3-4 tbsp)                      | Mon-Wed lunches                      | 7 days                       | Not recommended                                    |
+| Soy-ginger sauce                          | Sauce      | 1/2 cup (yields ~2-3 servings)                                | Thu-Fri lunches                      | 7 days                       | Not recommended                                    |
 
 ---
 
 ### Shopping List
 
 **Proteins:**
+
 - Boneless, skinless chicken thighs: 1.75 lbs
 
 **Produce:**
+
 - Broccoli (1 large head or pre-cut bag): 1 lb florets
 - Red bell peppers: 2
 - English cucumbers: 2
@@ -418,6 +433,7 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 - Fresh ginger: small knob (~2 inch piece)
 
 **Pantry / Dry Goods:**
+
 - Brown rice: 1.5 cups (from a bag; most bags are 2 lbs = plenty)
 - Olive oil: at least 6 tablespoons needed
 - Sesame oil: 1 tablespoon
@@ -438,44 +454,44 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 
 **PHASE 1 -- Launch Unattended Cooking (1:00 PM - 1:10 PM)**
 
-| Clock Time | Task | Method | Active Minutes |
-|-----------|------|--------|---------------|
-| 1:00 PM | Combine 1.5 cups brown rice + 3 cups water in a medium saucepan. Add a pinch of salt. Bring to a boil over high heat, then reduce to low, cover tightly, and set a timer for 45 minutes. Do not lift the lid. | Stovetop | 3 min |
-| 1:03 PM | Preheat oven to 425F/218C. Both racks in middle and lower positions. Set a timer for 12 minutes for preheat. | Oven | 1 min |
-| 1:04 PM | Pat chicken thighs dry with paper towels (critical -- wet chicken steams instead of roasting). Toss with 2 tbsp olive oil, 1 tsp kosher salt, 1/2 tsp black pepper, 1 tsp smoked paprika, 1 tsp garlic powder. Spread in a single layer on a sheet pan. No overlapping. | Cold prep | 6 min |
+| Clock Time | Task                                                                                                                                                                                                                                                                    | Method    | Active Minutes |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | -------------- |
+| 1:00 PM    | Combine 1.5 cups brown rice + 3 cups water in a medium saucepan. Add a pinch of salt. Bring to a boil over high heat, then reduce to low, cover tightly, and set a timer for 45 minutes. Do not lift the lid.                                                           | Stovetop  | 3 min          |
+| 1:03 PM    | Preheat oven to 425F/218C. Both racks in middle and lower positions. Set a timer for 12 minutes for preheat.                                                                                                                                                            | Oven      | 1 min          |
+| 1:04 PM    | Pat chicken thighs dry with paper towels (critical -- wet chicken steams instead of roasting). Toss with 2 tbsp olive oil, 1 tsp kosher salt, 1/2 tsp black pepper, 1 tsp smoked paprika, 1 tsp garlic powder. Spread in a single layer on a sheet pan. No overlapping. | Cold prep | 6 min          |
 
 **PHASE 2 -- Active Oven and Stovetop Work (1:10 PM - 1:50 PM)**
 
-| Clock Time | Task | Method | Active Minutes |
-|-----------|------|--------|---------------|
-| 1:15 PM | Oven preheated. Put chicken on middle rack. Set timer for 25 minutes. | Oven | 1 min |
-| 1:16 PM | Cut broccoli into 1.5-inch florets. Slice bell peppers into 1-inch strips. Toss on a second sheet pan with 1.5 tbsp olive oil, 1/2 tsp salt, few grinds of pepper. Spread in single layer. | Cold prep | 10 min |
-| 1:26 PM | Vegetables into oven on lower rack. Set timer for 20 minutes. | Oven | 1 min |
-| 1:27 PM | Make lemon-herb dressing: Combine 5 tbsp olive oil + 2.5 tbsp fresh lemon juice + 1 tbsp red wine vinegar + 1 clove garlic (finely minced or grated) + 1 tsp dried oregano + 1/4 tsp salt + pinch black pepper. Whisk vigorously in a small bowl, then pour into a clean jar with a lid. Shake before using. | Cold prep | 6 min |
-| 1:33 PM | Make soy-ginger sauce: Combine 3 tbsp soy sauce + 1.5 tbsp rice vinegar + 1 tbsp sesame oil + 1 tbsp honey + 1 tsp fresh ginger (grated on a microplane or fine grater) + 1 clove garlic (grated) + pinch of red pepper flakes (optional). Whisk and pour into a second small jar. | Cold prep | 5 min |
-| 1:38 PM | Slice cucumbers into 1/4-inch rounds. Place in an airtight container with a paper towel on the bottom to absorb excess moisture. Seal. Refrigerate now -- these are done. | Cold prep | 5 min |
-| 1:43 PM | Check chicken at 25-minute mark (timer goes off). Insert an instant-read thermometer into the thickest piece -- target is 165F/74C. Thighs typically hit 170-175F/77-79C, which is fine and actually improves texture. If not yet at temp, return to oven for 5 minutes. Remove when done. Leave on sheet pan on stovetop -- do NOT cover. Let rest 10 minutes. | Oven | 2 min |
-| 1:46 PM | Check vegetables at 20-minute mark (timer goes off). Edges should be golden brown with slight char. Broccoli tips will be dark brown -- this is ideal, not burnt. If not golden, return for 5 more minutes. Remove when done. Leave on sheet pan to cool. | Oven | 1 min |
+| Clock Time | Task                                                                                                                                                                                                                                                                                                                                                            | Method    | Active Minutes |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | -------------- |
+| 1:15 PM    | Oven preheated. Put chicken on middle rack. Set timer for 25 minutes.                                                                                                                                                                                                                                                                                           | Oven      | 1 min          |
+| 1:16 PM    | Cut broccoli into 1.5-inch florets. Slice bell peppers into 1-inch strips. Toss on a second sheet pan with 1.5 tbsp olive oil, 1/2 tsp salt, few grinds of pepper. Spread in single layer.                                                                                                                                                                      | Cold prep | 10 min         |
+| 1:26 PM    | Vegetables into oven on lower rack. Set timer for 20 minutes.                                                                                                                                                                                                                                                                                                   | Oven      | 1 min          |
+| 1:27 PM    | Make lemon-herb dressing: Combine 5 tbsp olive oil + 2.5 tbsp fresh lemon juice + 1 tbsp red wine vinegar + 1 clove garlic (finely minced or grated) + 1 tsp dried oregano + 1/4 tsp salt + pinch black pepper. Whisk vigorously in a small bowl, then pour into a clean jar with a lid. Shake before using.                                                    | Cold prep | 6 min          |
+| 1:33 PM    | Make soy-ginger sauce: Combine 3 tbsp soy sauce + 1.5 tbsp rice vinegar + 1 tbsp sesame oil + 1 tbsp honey + 1 tsp fresh ginger (grated on a microplane or fine grater) + 1 clove garlic (grated) + pinch of red pepper flakes (optional). Whisk and pour into a second small jar.                                                                              | Cold prep | 5 min          |
+| 1:38 PM    | Slice cucumbers into 1/4-inch rounds. Place in an airtight container with a paper towel on the bottom to absorb excess moisture. Seal. Refrigerate now -- these are done.                                                                                                                                                                                       | Cold prep | 5 min          |
+| 1:43 PM    | Check chicken at 25-minute mark (timer goes off). Insert an instant-read thermometer into the thickest piece -- target is 165F/74C. Thighs typically hit 170-175F/77-79C, which is fine and actually improves texture. If not yet at temp, return to oven for 5 minutes. Remove when done. Leave on sheet pan on stovetop -- do NOT cover. Let rest 10 minutes. | Oven      | 2 min          |
+| 1:46 PM    | Check vegetables at 20-minute mark (timer goes off). Edges should be golden brown with slight char. Broccoli tips will be dark brown -- this is ideal, not burnt. If not golden, return for 5 more minutes. Remove when done. Leave on sheet pan to cool.                                                                                                       | Oven      | 1 min          |
 
 **PHASE 3 -- Rice Check and Cleanup Prep (1:50 PM - 2:00 PM)**
 
-| Clock Time | Task | Method | Active Minutes |
-|-----------|------|--------|---------------|
-| 1:50 PM | Rice timer went off at ~1:48 PM. Check: lift lid to see if water is absorbed (no standing liquid) and rice is tender. Fluff with fork. Leave lid off for 5 minutes to allow surface moisture to steam off -- this prevents gummy rice. | Stovetop | 2 min |
-| 1:52 PM | Set out 5 medium containers, 3 small sauce containers, labels or masking tape, and a marker. Lay everything out before portioning -- assembly is faster with containers pre-staged. | Setup | 3 min |
+| Clock Time | Task                                                                                                                                                                                                                                   | Method   | Active Minutes |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------- |
+| 1:50 PM    | Rice timer went off at ~1:48 PM. Check: lift lid to see if water is absorbed (no standing liquid) and rice is tender. Fluff with fork. Leave lid off for 5 minutes to allow surface moisture to steam off -- this prevents gummy rice. | Stovetop | 2 min          |
+| 1:52 PM    | Set out 5 medium containers, 3 small sauce containers, labels or masking tape, and a marker. Lay everything out before portioning -- assembly is faster with containers pre-staged.                                                    | Setup    | 3 min          |
 
 **PHASE 4 -- Cool, Portion, Label, Store (2:00 PM - 2:30 PM)**
 
-| Clock Time | Task | Method | Active Minutes |
-|-----------|------|--------|---------------|
-| 2:00 PM | Allow chicken, rice, and vegetables to sit uncovered and cool for 10 minutes before portioning. Putting hot food directly into sealed containers traps steam, creates condensation, and makes food soggy by the next day. Use this time to wash the rice pot and prep bowls. | Cooling | 0 min active |
-| 2:10 PM | Slice or cube rested chicken. Approximately 3/4 inch cubes or thick strips. Each portion is ~4 oz -- eyeball as roughly equal fifths of the total cooked amount. | Portioning | 5 min |
-| 2:15 PM | Portion rice: approximately 3/4 cup cooked rice into the bottom of each of the 5 containers. | Portioning | 4 min |
-| 2:19 PM | Portion chicken: place one portion on top of rice in each container. | Portioning | 3 min |
-| 2:22 PM | Divide roasted broccoli and peppers equally among all 5 containers, alongside the chicken and rice. | Portioning | 3 min |
-| 2:25 PM | Pour lemon-herb dressing into 3 small sauce containers (for Mon, Tue, Wed). Pour soy-ginger sauce into 2 small sauce containers (for Thu, Fri). Seal all sauce containers. | Portioning | 2 min |
-| 2:27 PM | Label everything using masking tape and marker: MON (use by Wed), TUE (use by Wed), WED (use by Wed), THU -- FREEZE (move to fridge Wed night), FRI -- FREEZE (move to fridge Thu night). Label sauce containers with corresponding days. | Labeling | 3 min |
-| 2:30 PM | Store Mon/Tue/Wed containers in fridge. Store Thu/Fri containers in freezer. Store sauce jars in fridge door. Store cucumber container in fridge. | Storage | 2 min |
+| Clock Time | Task                                                                                                                                                                                                                                                                         | Method     | Active Minutes |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | -------------- |
+| 2:00 PM    | Allow chicken, rice, and vegetables to sit uncovered and cool for 10 minutes before portioning. Putting hot food directly into sealed containers traps steam, creates condensation, and makes food soggy by the next day. Use this time to wash the rice pot and prep bowls. | Cooling    | 0 min active   |
+| 2:10 PM    | Slice or cube rested chicken. Approximately 3/4 inch cubes or thick strips. Each portion is ~4 oz -- eyeball as roughly equal fifths of the total cooked amount.                                                                                                             | Portioning | 5 min          |
+| 2:15 PM    | Portion rice: approximately 3/4 cup cooked rice into the bottom of each of the 5 containers.                                                                                                                                                                                 | Portioning | 4 min          |
+| 2:19 PM    | Portion chicken: place one portion on top of rice in each container.                                                                                                                                                                                                         | Portioning | 3 min          |
+| 2:22 PM    | Divide roasted broccoli and peppers equally among all 5 containers, alongside the chicken and rice.                                                                                                                                                                          | Portioning | 3 min          |
+| 2:25 PM    | Pour lemon-herb dressing into 3 small sauce containers (for Mon, Tue, Wed). Pour soy-ginger sauce into 2 small sauce containers (for Thu, Fri). Seal all sauce containers.                                                                                                   | Portioning | 2 min          |
+| 2:27 PM    | Label everything using masking tape and marker: MON (use by Wed), TUE (use by Wed), WED (use by Wed), THU -- FREEZE (move to fridge Wed night), FRI -- FREEZE (move to fridge Thu night). Label sauce containers with corresponding days.                                    | Labeling   | 3 min          |
+| 2:30 PM    | Store Mon/Tue/Wed containers in fridge. Store Thu/Fri containers in freezer. Store sauce jars in fridge door. Store cucumber container in fridge.                                                                                                                            | Storage    | 2 min          |
 
 **Total active time: approximately 68 minutes**
 **Total elapsed time (1:00 PM start to storage complete): ~1 hour 30 minutes**
@@ -486,18 +502,19 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 
 ### Storage Plan
 
-| Container | Label | Contents | Location | Action Required |
-|-----------|-------|----------|----------|----------------|
-| #1 | MON -- Chicken Bowl | Rice + chicken + broccoli/peppers | Fridge | Eat by Monday |
-| #2 | TUE -- Chicken Bowl | Rice + chicken + broccoli/peppers | Fridge | Eat by Tuesday |
-| #3 | WED -- Chicken Bowl | Rice + chicken + broccoli/peppers | Fridge | Eat by Wednesday |
-| #4 | THU -- FREEZE | Rice + chicken + broccoli/peppers | **Freezer** | Move to fridge Wednesday night; eat Thursday |
-| #5 | FRI -- FREEZE | Rice + chicken + broccoli/peppers | **Freezer** | Move to fridge Thursday night; eat Friday |
-| Sauce Jar A | Lemon-herb (MON-WED) | Oil, lemon, garlic, oregano | Fridge door | Shake before use; good through Sunday |
-| Sauce Jar B | Soy-ginger (THU-FRI) | Soy, ginger, sesame, honey | Fridge door | Good through following Sunday |
-| Cucumber container | Cucumbers -- use Mon-Thu | Sliced cucumbers on paper towel | Fridge | Replace paper towel if it gets soaked by day 3 |
+| Container          | Label                    | Contents                          | Location    | Action Required                                |
+| ------------------ | ------------------------ | --------------------------------- | ----------- | ---------------------------------------------- |
+| #1                 | MON -- Chicken Bowl      | Rice + chicken + broccoli/peppers | Fridge      | Eat by Monday                                  |
+| #2                 | TUE -- Chicken Bowl      | Rice + chicken + broccoli/peppers | Fridge      | Eat by Tuesday                                 |
+| #3                 | WED -- Chicken Bowl      | Rice + chicken + broccoli/peppers | Fridge      | Eat by Wednesday                               |
+| #4                 | THU -- FREEZE            | Rice + chicken + broccoli/peppers | **Freezer** | Move to fridge Wednesday night; eat Thursday   |
+| #5                 | FRI -- FREEZE            | Rice + chicken + broccoli/peppers | **Freezer** | Move to fridge Thursday night; eat Friday      |
+| Sauce Jar A        | Lemon-herb (MON-WED)     | Oil, lemon, garlic, oregano       | Fridge door | Shake before use; good through Sunday          |
+| Sauce Jar B        | Soy-ginger (THU-FRI)     | Soy, ginger, sesame, honey        | Fridge door | Good through following Sunday                  |
+| Cucumber container | Cucumbers -- use Mon-Thu | Sliced cucumbers on paper towel   | Fridge      | Replace paper towel if it gets soaked by day 3 |
 
 **Container types needed:**
+
 - 5 medium containers (~32-36 oz / 900-1000 mL) with locking lids, microwave-safe
 - 5 small containers or jars (2-4 oz) for sauces
 - 1 medium container (~24 oz) for cucumber slices
@@ -506,15 +523,16 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 
 ### Daily Meal Assembly Guide
 
-| Day | Meal Name | Sauce | Fresh Addition | Reheat Instructions | Total Assembly Time |
-|-----|-----------|-------|---------------|-------------------|-------------------|
-| Mon | Lemon-herb chicken grain bowl | Lemon-herb (shake jar, pour over) | Sliced cucumbers + cherry tomatoes | Microwave container (lid vented) 2.5 min, stir at 1:15, verify steaming hot. Add sauce and cucumber after. | 3 min |
-| Tue | Lemon-herb chicken grain bowl | Lemon-herb | Cucumbers + handful of baby spinach if available | Same as Monday | 3 min |
-| Wed | Lemon-herb chicken grain bowl -- wrap variation | Lemon-herb | Sliced cucumbers + any greens | Optional: microwave chicken only 1.5 min, wrap in a large flour tortilla with rice, veg, and sauce for a different format | 4 min |
-| Thu | Soy-ginger chicken grain bowl | Soy-ginger | Sliced scallions and/or sesame seeds if available (these are game-changers here) | Container came from fridge (moved Wed night). Microwave 2.5 min, stir at 1:15. Add sauce after heating. | 3 min |
-| Fri | Soy-ginger chicken grain bowl | Soy-ginger | Scallions, sesame seeds, squeeze of lime if available | Same as Thursday | 3 min |
+| Day | Meal Name                                       | Sauce                             | Fresh Addition                                                                   | Reheat Instructions                                                                                                       | Total Assembly Time |
+| --- | ----------------------------------------------- | --------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| Mon | Lemon-herb chicken grain bowl                   | Lemon-herb (shake jar, pour over) | Sliced cucumbers + cherry tomatoes                                               | Microwave container (lid vented) 2.5 min, stir at 1:15, verify steaming hot. Add sauce and cucumber after.                | 3 min               |
+| Tue | Lemon-herb chicken grain bowl                   | Lemon-herb                        | Cucumbers + handful of baby spinach if available                                 | Same as Monday                                                                                                            | 3 min               |
+| Wed | Lemon-herb chicken grain bowl -- wrap variation | Lemon-herb                        | Sliced cucumbers + any greens                                                    | Optional: microwave chicken only 1.5 min, wrap in a large flour tortilla with rice, veg, and sauce for a different format | 4 min               |
+| Thu | Soy-ginger chicken grain bowl                   | Soy-ginger                        | Sliced scallions and/or sesame seeds if available (these are game-changers here) | Container came from fridge (moved Wed night). Microwave 2.5 min, stir at 1:15. Add sauce after heating.                   | 3 min               |
+| Fri | Soy-ginger chicken grain bowl                   | Soy-ginger                        | Scallions, sesame seeds, squeeze of lime if available                            | Same as Thursday                                                                                                          | 3 min               |
 
 **Universal reheating reminder:**
+
 1. Remove sauce container before microwaving -- do not heat sauce.
 2. Vent lid or remove lid before microwaving to prevent pressure buildup.
 3. Microwave on high 2.5 minutes for this portion size. Stir or rearrange contents at the halfway mark.
@@ -526,6 +544,7 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 ### Sauce Recipes (Full Instructions)
 
 **Lemon-herb dressing (makes ~3/4 cup)**
+
 - 5 tablespoons olive oil
 - 2.5 tablespoons fresh lemon juice (about 1 medium lemon)
 - 1 tablespoon red wine vinegar
@@ -537,6 +556,7 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 - Method: Combine all in a jar, seal, and shake vigorously for 30 seconds until emulsified. Shake again before each use.
 
 **Soy-ginger sauce (makes ~1/2 cup)**
+
 - 3 tablespoons soy sauce (or tamari for gluten-free)
 - 1.5 tablespoons rice vinegar
 - 1 tablespoon toasted sesame oil
@@ -549,5 +569,6 @@ When the same sauce is used across 5 meals, fatigue typically sets in by day 3. 
 ---
 
 **Want to go further?** Two follow-up options you might want:
+
 1. A different flavor profile for next week (e.g., Mexican-inspired or Indian-spiced) using the exact same prep workflow.
 2. A guide to scaling this plan up to 2 people or to include weeknight dinners alongside the lunches.

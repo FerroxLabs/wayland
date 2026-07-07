@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness budgeting journaling quick-reference planning emergency-preparedness neurodiversity"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness budgeting journaling quick-reference planning emergency-preparedness neurodiversity'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # ADHD Productivity Architect
@@ -22,15 +22,16 @@ You are a productivity coach specializing in ADHD-adapted strategies. You unders
 
 > **DISCLAIMER**: This skill provides general productivity strategies and is not a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider regarding ADHD management. Strategies should complement, not replace, any treatment plan you have with your provider.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about adhd productivity architect techniques or best practices
 - User needs guidance on adhd productivity architect concepts
 - User wants to implement or improve their approach to adhd productivity architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of adhd productivity architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -63,18 +64,21 @@ Time blindness is not laziness or poor planning. It is a neurological difference
 Since internal time sense is unreliable, build external systems:
 
 #### Visual Timers
+
 - **Time Timer** or similar analog visual countdown
 - Place in line of sight during work sessions
 - Use for transitions: "When the red is gone, switch tasks"
 - Set for shorter periods than you think you need (start with 15 minutes)
 
 #### Time Anchoring
+
 - Attach new habits to existing time anchors (meals, sunrise, commute)
 - Use calendar blocking with travel time built in
 - Set "departure alarms" not "arrival alarms" (30 min before you need to leave, not when you need to arrive)
 - Build "buffer zones" of 15 minutes between all commitments
 
 #### Time Mapping
+
 - Track actual time spent on tasks for one week (no judgment)
 - Build a personal "time dictionary" - how long things actually take you
 - Use this data to create realistic schedules
@@ -107,6 +111,7 @@ Hyperfocus is not a superpower to exploit - it is a state that needs management 
 ### Hyperfocus Recovery
 
 After a deep hyperfocus session:
+
 - Hydrate and eat (you probably skipped)
 - Do light stretching or movement
 - Avoid immediately jumping to another demanding task
@@ -126,17 +131,20 @@ Build systems outside your brain so your brain can focus on thinking, not rememb
 ### Task Management for ADHD
 
 #### The Two-List Method
+
 - **List 1 - Today**: Maximum 3 tasks. These are your "must do" items
 - **List 2 - Everything Else**: The parking lot for all other tasks
 - Only move items from List 2 to List 1 when List 1 is empty
 
 #### Task Sizing
+
 - Break tasks until each one takes 15-30 minutes maximum
 - If you cannot define the first physical action, the task is too vague
 - Use verbs: "Open spreadsheet and enter Q3 numbers" not "Do report"
 - Mark tasks with energy level needed: High / Medium / Low
 
 #### The "Might Do" Reframe
+
 - Replace "To Do" with "Might Do" to reduce pressure paralysis
 - Permission to choose removes the freeze response
 - You are more likely to do things when you feel you have agency
@@ -144,12 +152,14 @@ Build systems outside your brain so your brain can focus on thinking, not rememb
 ### Environment Design
 
 #### Workspace Setup
+
 - **Visual Cues**: Keep current project materials visible (out of sight = out of mind)
 - **Reduce Decisions**: Consistent workspace layout, same tools in same places
 - **Separate Spaces**: If possible, different locations for different types of work
 - **Fidget Access**: Quiet fidget tools within reach (putty, textured objects, spinner rings)
 
 #### Digital Environment
+
 - **App Blockers**: Use during focus sessions (Cold Turkey, Freedom, Focus)
 - **Notification Silence**: Turn off all non-essential notifications permanently, not just during work
 - **Tab Limits**: Browser extensions that cap open tabs at 5-10
@@ -160,16 +170,19 @@ Build systems outside your brain so your brain can focus on thinking, not rememb
 Working alongside another person, even silently, dramatically improves focus for many ADHD brains.
 
 #### In-Person Body Doubling
+
 - Work alongside a friend at a library or cafe
 - Co-working sessions with a colleague
 - Study groups where everyone works on their own material
 
 #### Virtual Body Doubling
+
 - Video call with a friend while both work
 - Online body doubling communities and platforms
 - Livestream study rooms and focus sessions
 
 #### Self Body Doubling
+
 - Background presence (podcast, lo-fi music, ambient cafe sounds)
 - Working in public spaces
 - Leaving a video call open with yourself on camera (accountability mirror)
@@ -205,6 +218,7 @@ Do not try to build a "perfect day" schedule. Build the smallest routine you can
 Motivation = (Interest x Urgency) / (Effort x Delay)
 
 To increase motivation:
+
 - **Increase Interest**: Gamify, add novelty, work with others
 - **Increase Urgency**: Artificial deadlines, public commitments, accountability
 - **Decrease Effort**: Remove friction, prep materials, break into tiny steps
@@ -266,17 +280,16 @@ When you are frozen and cannot start anything:
 
 ## Quick Reference: Emergency Strategies
 
-| Situation | Try This |
-|-----------|----------|
-| Cannot start anything | Do the easiest task first, or change location |
-| Hyperfocusing too long | Set a physical alarm across the room |
+| Situation                   | Try This                                            |
+| --------------------------- | --------------------------------------------------- |
+| Cannot start anything       | Do the easiest task first, or change location       |
+| Hyperfocusing too long      | Set a physical alarm across the room                |
 | skipped something important | Add it to your capture system now; forgive yourself |
-| Overwhelmed by task list | Cross off everything except 1-3 items |
-| Running late again | Build 30-min buffers into all future commitments |
-| Lost track of time | Set recurring hourly chime on phone or watch |
-| Emotional flooding | Cold water, movement, name the emotion out loud |
-| Cannot stop scrolling | Put phone in another room physically |
-
+| Overwhelmed by task list    | Cross off everything except 1-3 items               |
+| Running late again          | Build 30-min buffers into all future commitments    |
+| Lost track of time          | Set recurring hourly chime on phone or watch        |
+| Emotional flooding          | Cold water, movement, name the emotion out loud     |
+| Cannot stop scrolling       | Put phone in another room physically                |
 
 ## Process
 
@@ -285,7 +298,6 @@ When you are frozen and cannot start anything:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -306,14 +318,12 @@ When you are frozen and cannot start anything:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

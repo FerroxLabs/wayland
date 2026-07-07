@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "running fitness workout-planning"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'running fitness workout-planning'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Running Training Plan
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. Always consult a qualified healthcare professional before beginning a new exercise program, especially if you have a history of cardiovascular disease, musculoskeletal injury, or other medical conditions. If you experience chest pain, dizziness, or severe shortness of breath during exercise, stop immediately and contact emergency services.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when the user:**
+
 - Is a complete non-runner (zero recent running history) and wants to begin running for fitness or to complete a first 5K event
 - Currently runs occasionally or has a base of 1-3 miles and wants to target a 5K race with a structured build
 - Has a 5K base and wants a structured 10K training plan with tempo work and mileage progression
@@ -33,6 +35,7 @@ metadata:
 - Asks about run/walk intervals, long run pacing strategies, or recovery week protocols
 
 **Do NOT use this skill when:**
+
 - The user is training for a full marathon (26.2 miles) -- the long run volumes, back-to-back long run strategies, and carbohydrate periodization required exceed this skill's scope; use a marathon-specific periodization skill instead
 - The user is training for an ultra-marathon (any distance beyond 26.2 miles) -- terrain-specific training, multi-hour fueling strategies, and vertical gain programming require a dedicated ultra skill
 - The user wants sprint-specific training for track events (100m, 200m, 400m) -- these require neuromuscular power development, block starts, and speed mechanics coaching outside this skill's scope
@@ -64,6 +67,7 @@ Interpret vague self-assessments carefully. "I'm pretty fit" does not mean runni
 Map the user's intake data to one of four program tiers. Then cross-check their timeline to determine if the goal is achievable.
 
 **Tier 1 -- Beginner / Couch to 5K:**
+
 - Profile: Has not run consistently in the past 3+ months, or cannot run 10 minutes continuously
 - Duration: 8-10 weeks
 - Frequency: 3 days per week running, 1-2 optional cross-training days
@@ -71,6 +75,7 @@ Map the user's intake data to one of four program tiers. Then cross-check their 
 - Minimum timeline requirement: 8 weeks
 
 **Tier 2 -- Intermediate 5K:**
+
 - Profile: Can run 1-2 miles continuously, has been running 1-3x per week casually
 - Duration: 6-8 weeks
 - Frequency: 3-4 days per week
@@ -78,6 +83,7 @@ Map the user's intake data to one of four program tiers. Then cross-check their 
 - Minimum timeline requirement: 6 weeks
 
 **Tier 3 -- 10K Training:**
+
 - Profile: Can run 3 miles continuously, has a base of 10-15 miles per week, completed a 5K
 - Duration: 10-12 weeks
 - Frequency: 4 days per week
@@ -85,6 +91,7 @@ Map the user's intake data to one of four program tiers. Then cross-check their 
 - Minimum timeline requirement: 10 weeks
 
 **Tier 4 -- Half-Marathon Training:**
+
 - Profile: Runs 15-20+ miles per week consistently, long run of 6-8 miles already in regular rotation
 - Duration: 12-16 weeks
 - Frequency: 4-5 days per week
@@ -106,6 +113,7 @@ Pace zones must be anchored to the individual's physiology, not arbitrary pace n
 - **Zone 5 -- VO2max Intervals:** Cannot speak, maximum sustainable effort for 2-5 minutes. 93-100% MHR. Used sparingly in peak training weeks for advanced segments of Tier 3 and Tier 4.
 
 **Calibration options (in order of accuracy):**
+
 1. **Talk test:** The gold standard for everyday runners -- have the user describe how many words they can say mid-run. This maps directly to zones above.
 2. **Heart rate monitor:** Use the formula 220 minus age as a rough MHR estimate. Note this formula has a standard deviation of ±10-12 bpm and is least accurate for very fit athletes and individuals over 50. If the user has had a maximal exercise test or knows their true MHR, use that number instead.
 3. **Recent race performance:** If the user completed a 5K race recently, their average pace in that race approximates Zone 4. Tempo pace (Zone 3) is approximately 30-45 seconds per mile slower than recent 5K race pace. Easy runs (Zone 1-2) are 60-90 seconds per mile slower than 5K race pace.
@@ -119,14 +127,14 @@ The core training week is built around four run types. Not all run types appear 
 
 **Run type assignments by tier:**
 
-| Run Type | Tier 1 | Tier 2 | Tier 3 | Tier 4 |
-|---|---|---|---|---|
-| Easy Run (Z1-2) | Yes | Yes | Yes | Yes |
-| Long Run (Z1-2) | Yes (short) | Yes | Yes | Yes |
-| Tempo Run (Z3) | No | Weeks 4-6 only | Yes | Yes |
-| Interval Work (Z4-5) | No | No | Weeks 7-10 | Yes |
-| Cross-Training | Optional | Optional | Recommended | Required |
-| Rest Day | 2-3 days | 2-3 days | 2 days | 1-2 days |
+| Run Type             | Tier 1      | Tier 2         | Tier 3      | Tier 4   |
+| -------------------- | ----------- | -------------- | ----------- | -------- |
+| Easy Run (Z1-2)      | Yes         | Yes            | Yes         | Yes      |
+| Long Run (Z1-2)      | Yes (short) | Yes            | Yes         | Yes      |
+| Tempo Run (Z3)       | No          | Weeks 4-6 only | Yes         | Yes      |
+| Interval Work (Z4-5) | No          | No             | Weeks 7-10  | Yes      |
+| Cross-Training       | Optional    | Optional       | Recommended | Required |
+| Rest Day             | 2-3 days    | 2-3 days       | 2 days      | 1-2 days |
 
 **Day assignment logic:**
 
@@ -137,6 +145,7 @@ The core training week is built around four run types. Not all run types appear 
 - Cross-training days (cycling, swimming, elliptical, yoga, rowing) should be placed between running days. They contribute aerobic fitness without the impact load of running, which is important for injury prevention in runners accumulating mileage.
 
 **Run/walk intervals for Tier 1:**
+
 - Week 1: Walk 2 minutes, run 1 minute, repeat for 20-25 minutes total
 - Week 2: Walk 90 seconds, run 90 seconds, repeat for 25 minutes
 - Week 3: Walk 90 seconds, run 3 minutes, repeat for 25 minutes
@@ -160,6 +169,7 @@ Mileage progression is the most critical and most frequently violated element of
 **Step-back weeks:** Every 3rd or 4th week, reduce total mileage by 20-30% from the previous build week. During step-back weeks, reduce ALL runs proportionally -- do not maintain long run distance and cut only easy runs. The quality session (tempo or interval) is maintained in step-back weeks but volume is reduced (e.g., 3x800m instead of 5x800m).
 
 **Long run progression for each tier:**
+
 - Tier 1: Long run grows from 1.5 miles (walk/run) to 3.1 miles over 9 weeks
 - Tier 2: Long run grows from 2 miles to 4-5 miles over 8 weeks
 - Tier 3: Long run grows from 4 miles to 6.5 miles over 12 weeks (race is 6.2 miles; the longest long run can slightly exceed race distance in the peak week)
@@ -172,6 +182,7 @@ Mileage progression is the most critical and most frequently violated element of
 Quality sessions differentiate an intermediate training plan from simply running more. They create the physiological adaptations -- lactate threshold improvement, VO2max gains, neuromuscular efficiency -- that produce race fitness.
 
 **Tempo runs (Zone 3):**
+
 - Structure: 10-15 minutes easy warm-up jog, sustained tempo effort block, 5-10 minutes easy cool-down
 - Starting tempo block duration: 15-20 minutes for Tier 2 and Tier 3
 - Progression: Increase tempo block by 3-5 minutes every 1-2 weeks up to a maximum of 40 minutes for half-marathon plans
@@ -179,6 +190,7 @@ Quality sessions differentiate an intermediate training plan from simply running
 - Common error to avoid: Starting the tempo block too fast. If the runner can't sustain the pace for the full tempo block, they are in Zone 4, not Zone 3. True tempo is "comfortably uncomfortable" and should feel sustainable for 40-60 minutes in theory.
 
 **Interval workouts (Zone 4, Tier 3 and Tier 4 only):**
+
 - Tier 3 interval prescription: 4-6 x 800 meters (half mile) with 90-second to 2-minute recovery jogs between each repeat. The effort during each 800m is Zone 4 -- hard but controlled.
 - Tier 4 interval prescription: 5-8 x 1,000 meters or 3-5 x 1-mile repeats with 2-3 minute recovery jogs. Alternatively, 8-12 x 400 meters in early plan phases to establish leg speed before progressing to longer repeats.
 - Recovery jog between intervals: 60-75% of the interval duration (e.g., a 4-minute 800m repeat pairs with roughly 2.5-3 minutes of recovery jog)
@@ -193,12 +205,14 @@ Strides are 15-20 second accelerations done at the end of an easy run, reaching 
 The taper is not optional and is not a luxury -- it is where fitness converts to race performance. Under-tapered runners leave 5-10% of their potential on the course.
 
 **Taper lengths by tier:**
+
 - Tier 1 (Couch to 5K): 1-week gentle taper -- maintain frequency but reduce total running by 30%, no new workout types
 - Tier 2 (5K): 1-2 week taper
 - Tier 3 (10K): 2-week taper
 - Tier 4 (Half-marathon): 3-week taper
 
 **Taper mileage reduction protocol:**
+
 - Taper week 1 (T-3 for half): Reduce total mileage by 20%. Maintain quality session but reduce volume (e.g., 3x1000m instead of 5x1000m). Long run at 80% of previous week's long run.
 - Taper week 2 (T-2 for half): Reduce total mileage by 40% from peak. Quality session: 2-3 short tempo efforts of 10-12 minutes each. Long run: 60-70% of peak long run.
 - Taper week 3 / race week (T-1 for half): Reduce total mileage by 60% from peak. Include one 20-25 minute easy run with 4-6 strides 2 days before the race. 1-2 days complete rest before race day.
@@ -206,6 +220,7 @@ The taper is not optional and is not a luxury -- it is where fitness converts to
 **Taper anxiety is real:** Warn the user that reduced mileage during taper often produces phantom fatigue, sore legs, and doubt. This is a documented psychological response to mileage reduction, not a sign of fitness loss. Fitness is maintained with mileage reductions of up to 60% for up to 3 weeks. Remind the user that the hay is in the barn -- the work is done.
 
 **Race week specifics:**
+
 - 3 days before: 30-40 minute easy run with strides
 - 2 days before: Complete rest or 15-20 minute very easy jog
 - 1 day before: Complete rest; focus on hydration and familiar pre-race meal
@@ -214,6 +229,7 @@ The taper is not optional and is not a luxury -- it is where fitness converts to
 ### Step 8: Deliver the Plan and Set Expectations
 
 Present the plan in the output format below. After delivering the plan, include a brief "How to use this plan" section covering:
+
 - How to adjust if a week feels too easy (add 0.5-1 mile to easy runs, never to the long run)
 - How to adjust if a week feels too hard (repeat the previous week rather than pushing forward)
 - Hydration guidance: 16-20 oz of water in the 2 hours before running; sip during runs over 60 minutes; replace with electrolytes during runs over 75 minutes
@@ -439,26 +455,26 @@ This user needs a performance-oriented plan rather than a completion plan. The k
 
 ### Pace Zone Reference
 
-| Zone | Name | Talk Test Cue | RPE (1-10) | Heart Rate (Est.) |
-|------|------|---------------|------------|-------------------|
-| 1 | Easy / Recovery | Full sentences, could sing | 3-4 | 112-130 bpm |
-| 2 | Aerobic Base | Short sentences, comfortable | 5 | 130-149 bpm |
-| 3 | Tempo | 3-5 words only, uncomfortable | 6-7 | 149-162 bpm |
-| 4 | Threshold | Single words, hard | 8-9 | 162-173 bpm |
-| 5 | VO2max Interval | Cannot speak, maximum | 10 | 173-186 bpm |
+| Zone | Name            | Talk Test Cue                 | RPE (1-10) | Heart Rate (Est.) |
+| ---- | --------------- | ----------------------------- | ---------- | ----------------- |
+| 1    | Easy / Recovery | Full sentences, could sing    | 3-4        | 112-130 bpm       |
+| 2    | Aerobic Base    | Short sentences, comfortable  | 5          | 130-149 bpm       |
+| 3    | Tempo           | 3-5 words only, uncomfortable | 6-7        | 149-162 bpm       |
+| 4    | Threshold       | Single words, hard            | 8-9        | 162-173 bpm       |
+| 5    | VO2max Interval | Cannot speak, maximum         | 10         | 173-186 bpm       |
 
-*Primary calibration: Use the talk test. Heart rate ranges above are estimates based on 220 minus 34 = 186 bpm MHR and will vary individually.*
+_Primary calibration: Use the talk test. Heart rate ranges above are estimates based on 220 minus 34 = 186 bpm MHR and will vary individually._
 
 ---
 
 ### Weekly Structure Template
 
-| Day | Session Type | Zone | Workout Detail | Purpose |
-|-----|-------------|------|----------------|---------|
-| Tuesday | Easy Run | 1-2 | 2-4 miles, fully conversational pace | Aerobic base, recovery |
-| Thursday | Quality Session | 3 (later 4) | Tempo run or interval session (see progression) | Lactate threshold stimulus |
-| Saturday | Long Run | 1-2 | Slowest pace of the week, see progression table | Aerobic endurance |
-| Sunday | Short Easy Run | 1 | 2-3 miles, recovery pace -- even slower than Tuesday | Active recovery, mileage accumulation |
+| Day      | Session Type    | Zone        | Workout Detail                                       | Purpose                               |
+| -------- | --------------- | ----------- | ---------------------------------------------------- | ------------------------------------- |
+| Tuesday  | Easy Run        | 1-2         | 2-4 miles, fully conversational pace                 | Aerobic base, recovery                |
+| Thursday | Quality Session | 3 (later 4) | Tempo run or interval session (see progression)      | Lactate threshold stimulus            |
+| Saturday | Long Run        | 1-2         | Slowest pace of the week, see progression table      | Aerobic endurance                     |
+| Sunday   | Short Easy Run  | 1           | 2-3 miles, recovery pace -- even slower than Tuesday | Active recovery, mileage accumulation |
 
 **Cross-training note:** On Monday and Wednesday, 30-45 minutes of easy cycling, swimming, or yoga is optional and will support aerobic fitness and injury prevention without adding impact load. These days are not counted in mileage totals.
 
@@ -482,25 +498,25 @@ Mileage drops while one quality session per week is maintained to preserve sharp
 
 ### Full Mileage Progression Table
 
-| Week | Phase | Tue (Easy) | Thu (Quality) | Sat (Long) | Sun (Easy) | Total Miles | Notes |
-|------|-------|------------|---------------|------------|------------|-------------|-------|
-| 1 | Base | 2 mi | 2 mi easy | 3 mi | 2 mi | 9 mi | Establish routine, all easy |
-| 2 | Base | 2.5 mi | 2.5 mi easy | 3.5 mi | 2 mi | 10.5 mi | Build volume |
-| 3 | Base | 3 mi | 10 min WU + 15 min tempo + 10 min CD | 4 mi | 2 mi | ~12 mi | First tempo |
-| 4 | Step-Back | 2 mi | 10 min WU + 10 min tempo + 10 min CD | 3 mi | 2 mi | ~9 mi | Recovery week |
-| 5 | Build | 3 mi + 6 strides | 10 min WU + 20 min tempo + 10 min CD | 4.5 mi | 2.5 mi | ~13.5 mi | Strides added |
-| 6 | Build | 3.5 mi + 6 strides | 10 min WU + 23 min tempo + 10 min CD | 5 mi | 2.5 mi | ~15 mi | Build |
-| 7 | Build | 3.5 mi + 6 strides | 10 min WU + 26 min tempo + 10 min CD | 5.5 mi | 2.5 mi | ~16 mi | Build |
-| 8 | Step-Back | 2.5 mi | 10 min WU + 15 min tempo + 10 min CD | 4 mi | 2 mi | ~12 mi | Recovery week |
-| 9 | Peak | 3.5 mi + 6 strides | 10 min WU + 4 x 800m (Z4) + 10 min CD | 6.5 mi | 3 mi | ~18 mi | Peak long run |
-| 10 | Peak | 3.5 mi + 6 strides | 10 min WU + 4 x 800m (Z4) + 10 min CD | 6 mi | 3 mi | ~18 mi | Peak week |
-| 11 | Taper | 3 mi | 10 min WU + 20 min tempo + 10 min CD | 5 mi | 2 mi | ~14 mi | Taper week 1 (-22%) |
-| 12 | Taper | 2.5 mi | 10 min WU + 2 x 10 min tempo + 10 min CD | 4 mi | -- | ~11 mi | Taper week 2 (-39%) |
-| Race | Race | Easy 2 mi (Fri or Sat shakeout) | -- | 10K Race (Sun) | -- | -- | Trust the training |
+| Week | Phase     | Tue (Easy)                      | Thu (Quality)                            | Sat (Long)     | Sun (Easy) | Total Miles | Notes                       |
+| ---- | --------- | ------------------------------- | ---------------------------------------- | -------------- | ---------- | ----------- | --------------------------- |
+| 1    | Base      | 2 mi                            | 2 mi easy                                | 3 mi           | 2 mi       | 9 mi        | Establish routine, all easy |
+| 2    | Base      | 2.5 mi                          | 2.5 mi easy                              | 3.5 mi         | 2 mi       | 10.5 mi     | Build volume                |
+| 3    | Base      | 3 mi                            | 10 min WU + 15 min tempo + 10 min CD     | 4 mi           | 2 mi       | ~12 mi      | First tempo                 |
+| 4    | Step-Back | 2 mi                            | 10 min WU + 10 min tempo + 10 min CD     | 3 mi           | 2 mi       | ~9 mi       | Recovery week               |
+| 5    | Build     | 3 mi + 6 strides                | 10 min WU + 20 min tempo + 10 min CD     | 4.5 mi         | 2.5 mi     | ~13.5 mi    | Strides added               |
+| 6    | Build     | 3.5 mi + 6 strides              | 10 min WU + 23 min tempo + 10 min CD     | 5 mi           | 2.5 mi     | ~15 mi      | Build                       |
+| 7    | Build     | 3.5 mi + 6 strides              | 10 min WU + 26 min tempo + 10 min CD     | 5.5 mi         | 2.5 mi     | ~16 mi      | Build                       |
+| 8    | Step-Back | 2.5 mi                          | 10 min WU + 15 min tempo + 10 min CD     | 4 mi           | 2 mi       | ~12 mi      | Recovery week               |
+| 9    | Peak      | 3.5 mi + 6 strides              | 10 min WU + 4 x 800m (Z4) + 10 min CD    | 6.5 mi         | 3 mi       | ~18 mi      | Peak long run               |
+| 10   | Peak      | 3.5 mi + 6 strides              | 10 min WU + 4 x 800m (Z4) + 10 min CD    | 6 mi           | 3 mi       | ~18 mi      | Peak week                   |
+| 11   | Taper     | 3 mi                            | 10 min WU + 20 min tempo + 10 min CD     | 5 mi           | 2 mi       | ~14 mi      | Taper week 1 (-22%)         |
+| 12   | Taper     | 2.5 mi                          | 10 min WU + 2 x 10 min tempo + 10 min CD | 4 mi           | --         | ~11 mi      | Taper week 2 (-39%)         |
+| Race | Race      | Easy 2 mi (Fri or Sat shakeout) | --                                       | 10K Race (Sun) | --         | --          | Trust the training          |
 
-*WU = warm-up jog at Zone 1. CD = cool-down jog at Zone 1. Tempo = Zone 3 sustained effort. 800m intervals = Zone 4 hard effort with 90-second recovery jog between each.*
+_WU = warm-up jog at Zone 1. CD = cool-down jog at Zone 1. Tempo = Zone 3 sustained effort. 800m intervals = Zone 4 hard effort with 90-second recovery jog between each._
 
-*Long run cap check: Week 10 long run (6 mi) is 33% of total weekly mileage (18 mi) -- within the 35% peak-week allowance.*
+_Long run cap check: Week 10 long run (6 mi) is 33% of total weekly mileage (18 mi) -- within the 35% peak-week allowance._
 
 ---
 
@@ -509,17 +525,20 @@ Mileage drops while one quality session per week is maintained to preserve sharp
 **Weeks 1-2:** Easy Zone 1-2 run -- same as other days. No quality session yet.
 
 **Weeks 3-4 (Intro Tempo):**
+
 - 10 minutes easy Zone 1 jog (warm-up)
 - 15 minutes (week 3) / 10 minutes (week 4, step-back) at Zone 3 effort -- 3-5 word phrase threshold, uncomfortable but sustainable
 - 10 minutes easy Zone 1 jog (cool-down)
 - If you cannot hold the Zone 3 effort without gasping or dropping to single words, you are in Zone 4 -- slow down slightly
 
 **Weeks 5-8 (Building Tempo):**
+
 - Same warm-up / cool-down structure
 - Tempo block grows: 20 min (wk 5) → 23 min (wk 6) → 26 min (wk 7) → 15 min (wk 8 step-back)
 - By week 7, a 26-minute sustained Zone 3 block is a meaningful lactate threshold session
 
 **Weeks 9-10 (Intervals):**
+
 - 10 minutes easy Zone 1 warm-up jog
 - 4 repetitions of 800 meters (half mile) at Zone 4 effort -- this should feel genuinely hard but controlled, not panicked
 - 90-second easy jog recovery between each 800m repeat

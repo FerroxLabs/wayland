@@ -70,10 +70,7 @@ describe('validateMarker', () => {
   });
 
   it('parses a basic ask marker (text)', () => {
-    const r = validateMarker(
-      '<ask type="text" placeholder="hint">Question?</ask>',
-      TOTAL_STEPS,
-    );
+    const r = validateMarker('<ask type="text" placeholder="hint">Question?</ask>', TOTAL_STEPS);
     expect(r).toMatchObject({ kind: 'ask' });
     if ('kind' in r && r.kind === 'ask') {
       expect(r.ask.type).toBe('text');
@@ -83,10 +80,7 @@ describe('validateMarker', () => {
   });
 
   it('parses an ask marker with choice options', () => {
-    const r = validateMarker(
-      '<ask type="choice" options="A,B,C">Pick one.</ask>',
-      TOTAL_STEPS,
-    );
+    const r = validateMarker('<ask type="choice" options="A,B,C">Pick one.</ask>', TOTAL_STEPS);
     expect(r).toMatchObject({ kind: 'ask' });
     if ('kind' in r && r.kind === 'ask') {
       expect(r.ask.type).toBe('choice');
@@ -140,7 +134,7 @@ describe('processChunk + finalize - SPEC §8.2 matrix', () => {
     // Telemetry flag for html-escape detection
     expect(
       r.state.invalidMarkers.some((im) => /html.escaped/i.test(im.reason)) ||
-        r.state.emittedMarkers.some((m) => m.kind === 'step' && m.n === 2),
+        r.state.emittedMarkers.some((m) => m.kind === 'step' && m.n === 2)
     ).toBe(true);
     // The decoded marker should be stripped from the final output
     expect(r.finalOutput).not.toMatch(/&lt;step n="2"/);

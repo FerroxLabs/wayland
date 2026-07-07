@@ -67,7 +67,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
 
   const kebab = (
     <button
-      type="button"
+      type='button'
       className={styles.cardKebab}
       aria-label={t('mcpLibrary.card.moreActions', 'More actions')}
       onClick={(e) => e.stopPropagation()}
@@ -92,17 +92,17 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
     >
       {server
         ? [
-            <Menu.Item key="reconnect">{t('mcpLibrary.card.reconnect', 'Reconnect')}</Menu.Item>,
-            <Menu.Item key="configure">{t('mcpLibrary.card.configure', 'Configure')}</Menu.Item>,
+            <Menu.Item key='reconnect'>{t('mcpLibrary.card.reconnect', 'Reconnect')}</Menu.Item>,
+            <Menu.Item key='configure'>{t('mcpLibrary.card.configure', 'Configure')}</Menu.Item>,
             // No Arco Menu.Divider in this version - the danger Remove item carries
             // a top border (.cardMenuDanger) to read as a separated destructive action.
-            <Menu.Item key="remove" className={styles.cardMenuDanger}>
+            <Menu.Item key='remove' className={styles.cardMenuDanger}>
               {t('mcpLibrary.card.remove', 'Remove')}
             </Menu.Item>,
           ]
         : [
-            <Menu.Item key="install">{t('mcpLibrary.card.install', 'Install')}</Menu.Item>,
-            <Menu.Item key="details">{t('mcpLibrary.card.viewDetails', 'View details')}</Menu.Item>,
+            <Menu.Item key='install'>{t('mcpLibrary.card.install', 'Install')}</Menu.Item>,
+            <Menu.Item key='details'>{t('mcpLibrary.card.viewDetails', 'View details')}</Menu.Item>,
           ]}
     </Menu>
   );
@@ -111,7 +111,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
   if (!installed) {
     footerRight = (
       <button
-        type="button"
+        type='button'
         className={styles.cardInstall}
         onClick={(e) => {
           e.stopPropagation();
@@ -126,7 +126,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
     footerRight = (
       <>
         <button
-          type="button"
+          type='button'
           className={classNames(styles.cardFix, styles.cardFixWarn)}
           onClick={(e) => {
             e.stopPropagation();
@@ -143,7 +143,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
     footerRight = (
       <>
         <button
-          type="button"
+          type='button'
           className={classNames(styles.cardFix, styles.cardFixErr)}
           onClick={(e) => {
             e.stopPropagation();
@@ -167,7 +167,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
           onKeyDown={(e) => e.stopPropagation()}
         >
           <Switch
-            size="small"
+            size='small'
             checked={server.enabled}
             onChange={(v) => actions?.onToggle(server.id, v)}
             aria-label={t('mcpLibrary.card.toggleAria', 'Enable or disable {{name}}', {
@@ -186,13 +186,9 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
 
   const card = (
     <div
-      className={classNames(
-        styles.card,
-        featured && styles.cardFeatured,
-        connected && styles.cardConnected,
-      )}
+      className={classNames(styles.card, featured && styles.cardFeatured, connected && styles.cardConnected)}
       onClick={onClick}
-      role="button"
+      role='button'
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -206,7 +202,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
           {iconBroken ? (
             <span className={styles.cardLogoLetter}>{entry.name[0]}</span>
           ) : (
-            <img src={entry.iconUrl} alt="" onError={() => setIconBroken(true)} />
+            <img src={entry.iconUrl} alt='' onError={() => setIconBroken(true)} />
           )}
         </span>
         <div className={styles.cardMeta}>
@@ -229,7 +225,7 @@ export function McpCard({ entry, installed, status, featured = false, onClick }:
   if (!actions) return card;
 
   return (
-    <Dropdown droplist={contextMenu} trigger="contextMenu" position="bl">
+    <Dropdown droplist={contextMenu} trigger='contextMenu' position='bl'>
       {card}
     </Dropdown>
   );

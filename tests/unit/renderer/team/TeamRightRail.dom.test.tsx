@@ -133,15 +133,7 @@ describe('TeamRightRail', () => {
       ['s2', { status: 'idle' }],
     ]);
 
-    render(
-      <TeamRightRail
-        agents={agents}
-        statusMap={statusMap}
-        launcher={null}
-        workspacePath=''
-        teamId='team-1'
-      />
-    );
+    render(<TeamRightRail agents={agents} statusMap={statusMap} launcher={null} workspacePath='' teamId='team-1' />);
 
     // Teammates section heading + both rows
     expect(screen.getByText('Teammates')).toBeTruthy();
@@ -167,13 +159,7 @@ describe('TeamRightRail', () => {
     const agents: TeamAgent[] = [makeAgent()];
     const statusMap = new Map();
     const { rerender } = render(
-      <TeamRightRail
-        agents={agents}
-        statusMap={statusMap}
-        launcher={null}
-        workspacePath=''
-        teamId='team-1'
-      />
+      <TeamRightRail agents={agents} statusMap={statusMap} launcher={null} workspacePath='' teamId='team-1' />
     );
     // Empty state
     expect(screen.getByText('No workspace bound to this team yet.')).toBeTruthy();
@@ -193,15 +179,7 @@ describe('TeamRightRail', () => {
 
   it('renders empty rituals section when the launcher carries no _rituals', () => {
     const agents: TeamAgent[] = [makeAgent()];
-    render(
-      <TeamRightRail
-        agents={agents}
-        statusMap={new Map()}
-        launcher={null}
-        workspacePath=''
-        teamId='team-1'
-      />
-    );
+    render(<TeamRightRail agents={agents} statusMap={new Map()} launcher={null} workspacePath='' teamId='team-1' />);
     expect(screen.getByText('Rituals')).toBeTruthy();
     expect(screen.getByText('No rituals - not a Standing Company.')).toBeTruthy();
   });
@@ -219,13 +197,7 @@ describe('TeamRightRail', () => {
     } as unknown as AssistantListItem;
 
     render(
-      <TeamRightRail
-        agents={agents}
-        statusMap={new Map()}
-        launcher={launcher}
-        workspacePath=''
-        teamId='team-1'
-      />
+      <TeamRightRail agents={agents} statusMap={new Map()} launcher={launcher} workspacePath='' teamId='team-1' />
     );
     expect(screen.getByText('Editorial standup')).toBeTruthy();
     expect(screen.getByText('- Mon 9am')).toBeTruthy();
@@ -236,29 +208,13 @@ describe('TeamRightRail', () => {
   describe('W3a - + Add teammate', () => {
     it('renders the + Add teammate button', () => {
       const agents: TeamAgent[] = [makeAgent()];
-      render(
-        <TeamRightRail
-          agents={agents}
-          statusMap={new Map()}
-          launcher={null}
-          workspacePath=''
-          teamId='team-1'
-        />
-      );
+      render(<TeamRightRail agents={agents} statusMap={new Map()} launcher={null} workspacePath='' teamId='team-1' />);
       expect(screen.getByTestId('team-right-rail-add-teammate')).toBeTruthy();
     });
 
     it('opens the picker on click', () => {
       const agents: TeamAgent[] = [makeAgent()];
-      render(
-        <TeamRightRail
-          agents={agents}
-          statusMap={new Map()}
-          launcher={null}
-          workspacePath=''
-          teamId='team-1'
-        />
-      );
+      render(<TeamRightRail agents={agents} statusMap={new Map()} launcher={null} workspacePath='' teamId='team-1' />);
       fireEvent.click(screen.getByTestId('team-right-rail-add-teammate'));
       expect(screen.getByTestId('teams-launcher-picker')).toBeTruthy();
     });
@@ -291,30 +247,14 @@ describe('TeamRightRail', () => {
     it('renders the Restart icon when status === failed', () => {
       const agents: TeamAgent[] = [makeAgent({ slotId: 's2', status: 'failed' })];
       const statusMap = new Map<string, { status: TeamAgent['status'] }>([['s2', { status: 'failed' }]]);
-      render(
-        <TeamRightRail
-          agents={agents}
-          statusMap={statusMap}
-          launcher={null}
-          workspacePath=''
-          teamId='team-1'
-        />
-      );
+      render(<TeamRightRail agents={agents} statusMap={statusMap} launcher={null} workspacePath='' teamId='team-1' />);
       expect(screen.getByTestId('team-right-rail-restart')).toBeTruthy();
     });
 
     it('does NOT render the Restart icon for non-failed agents', () => {
       const agents: TeamAgent[] = [makeAgent({ slotId: 's2', status: 'idle' })];
       const statusMap = new Map<string, { status: TeamAgent['status'] }>([['s2', { status: 'idle' }]]);
-      render(
-        <TeamRightRail
-          agents={agents}
-          statusMap={statusMap}
-          launcher={null}
-          workspacePath=''
-          teamId='team-1'
-        />
-      );
+      render(<TeamRightRail agents={agents} statusMap={statusMap} launcher={null} workspacePath='' teamId='team-1' />);
       expect(screen.queryByTestId('team-right-rail-restart')).toBeNull();
     });
 
@@ -322,15 +262,7 @@ describe('TeamRightRail', () => {
       restartAgentInvoke.mockClear();
       const agents: TeamAgent[] = [makeAgent({ slotId: 's2', status: 'failed' })];
       const statusMap = new Map<string, { status: TeamAgent['status'] }>([['s2', { status: 'failed' }]]);
-      render(
-        <TeamRightRail
-          agents={agents}
-          statusMap={statusMap}
-          launcher={null}
-          workspacePath=''
-          teamId='team-99'
-        />
-      );
+      render(<TeamRightRail agents={agents} statusMap={statusMap} launcher={null} workspacePath='' teamId='team-99' />);
       fireEvent.click(screen.getByTestId('team-right-rail-restart'));
       await waitFor(() => {
         expect(restartAgentInvoke).toHaveBeenCalledWith({ teamId: 'team-99', slotId: 's2' });

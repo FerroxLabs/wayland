@@ -54,13 +54,15 @@ function attachmentTypeFromMime(mime: string | null | undefined): IUnifiedAttach
 }
 
 function toUnifiedAttachments(attachments: readonly Attachment[]): IUnifiedAttachment[] {
-  return attachments.map((att): IUnifiedAttachment => ({
-    type: attachmentTypeFromMime(att.contentType),
-    fileId: att.id,
-    fileName: att.name ?? undefined,
-    mimeType: att.contentType ?? undefined,
-    size: att.size,
-  }));
+  return attachments.map(
+    (att): IUnifiedAttachment => ({
+      type: attachmentTypeFromMime(att.contentType),
+      fileId: att.id,
+      fileName: att.name ?? undefined,
+      mimeType: att.contentType ?? undefined,
+      size: att.size,
+    })
+  );
 }
 
 function extractContent(msg: DiscordMessage): IUnifiedMessageContent {

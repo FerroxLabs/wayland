@@ -55,6 +55,6 @@ You'll get an 8 from everyone. Useless.
 
 > "Take me back to the week you signed up. What was happening in your evenings before that?"
 
-> *"My wife was on call three nights that week and I was reheating frozen stuff at 9pm after the kids went down. I caught myself eating standing up over the sink and thought, this is grim. The next morning I saw an ad for HelloFresh on my phone."*
+> _"My wife was on call three nights that week and I was reheating frozen stuff at 9pm after the kids went down. I caught myself eating standing up over the sink and thought, this is grim. The next morning I saw an ad for HelloFresh on my phone."_
 
 Now you have a trigger (eating standing up), a Push (grim, late, alone), and the moment passive looking started (the ad). Five more interviews like that and you have a segment.

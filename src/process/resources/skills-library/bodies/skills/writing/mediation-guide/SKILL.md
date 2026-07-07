@@ -5,14 +5,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing relationships guide"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing relationships guide'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Mediation Guide
 
 ## When to Use
@@ -20,6 +21,7 @@ metadata:
 Use this skill when a user needs substantive, expert guidance on facilitating mediation -- whether they are a first-time mediator, a professional practitioner, an HR manager handling a workplace dispute, a family member attempting to help relatives in conflict, or a community leader navigating a neighborhood dispute.
 
 **Use this skill when:**
+
 - A user asks how to structure or facilitate a mediation session from start to finish, including opening statements, ground rules, and agreement drafting
 - A user is preparing to mediate a specific dispute and needs a session plan, talking points, or phase-by-phase guidance tailored to the context (workplace, family, commercial, community)
 - A user is experiencing a conflict themselves and wants to propose or prepare for a mediated process, or needs to understand what mediation involves before agreeing to participate
@@ -29,6 +31,7 @@ Use this skill when a user needs substantive, expert guidance on facilitating me
 - A user wants to train or practice mediation skills through worked examples, role scripts, or technique drills
 
 **Do NOT use this skill when:**
+
 - The user is asking about arbitration, where a neutral third party renders a binding decision -- arbitration has a distinct legal structure and process (use a legal dispute resolution skill instead)
 - The user's dispute involves active domestic violence, credible threats of harm, or a documented power imbalance rooted in abuse -- these require safety planning and trained trauma-informed specialists, not standard mediation facilitation
 - The user needs actual legal advice about their rights, the enforceability of a potential agreement, or how a court would view the dispute -- refer to legal counsel and note that mediation agreements have varying legal status depending on jurisdiction and formality
@@ -350,15 +353,15 @@ determine before the session whether it needs to be handled separately from this
 
 For each party, conduct a 20-30 minute private intake. Below are the key questions with rationale:
 
-| Question | Purpose |
-|----------|---------|
-| "Tell me what's been happening from your perspective." | Surface their frame without leading |
+| Question                                                                               | Purpose                                       |
+| -------------------------------------------------------------------------------------- | --------------------------------------------- |
+| "Tell me what's been happening from your perspective."                                 | Surface their frame without leading           |
 | "How long has this been difficult, and was there a specific incident that started it?" | Identify origin events vs. pattern complaints |
-| "What have you already tried to improve the situation?" | Identify what's failed and why |
-| "What would a good working relationship with [Marcus/Priya] look like for you?" | Surface interest under position |
-| "What are you most concerned about in this mediation?" | Surface fears and resistance |
-| "Is there anything about this situation that you haven't felt safe saying directly?" | Screen for coercion or harassment |
-| "Are you comfortable participating in a joint session?" | Confirm genuine voluntariness |
+| "What have you already tried to improve the situation?"                                | Identify what's failed and why                |
+| "What would a good working relationship with [Marcus/Priya] look like for you?"        | Surface interest under position               |
+| "What are you most concerned about in this mediation?"                                 | Surface fears and resistance                  |
+| "Is there anything about this situation that you haven't felt safe saying directly?"   | Screen for coercion or harassment             |
+| "Are you comfortable participating in a joint session?"                                | Confirm genuine voluntariness                 |
 
 **Predicted interests based on stated positions:**
 
@@ -418,11 +421,11 @@ Great. Let's start. Marcus, I'd like to invite you to share your perspective fir
 
 While each party speaks, track in three columns:
 
-| Facts (What happened) | Feelings (Emotion expressed) | Interests (What matters underneath) |
-|-----------------------|------------------------------|--------------------------------------|
-| Note specific incidents | Note emotional language | Note what's driving the position |
-| Look for timeline | Note what they emphasize | Look for values, needs, fears |
-| Note what is disputed | Note what activates the most heat | Look for overlap with other party |
+| Facts (What happened)   | Feelings (Emotion expressed)      | Interests (What matters underneath) |
+| ----------------------- | --------------------------------- | ----------------------------------- |
+| Note specific incidents | Note emotional language           | Note what's driving the position    |
+| Look for timeline       | Note what they emphasize          | Look for values, needs, fears       |
+| Note what is disputed   | Note what activates the most heat | Look for overlap with other party   |
 
 **Post-storytelling reflection for Marcus (example):**
 "Let me make sure I understand you. You're saying that when Priya weighs in on technical decisions in front of the team, it feels like your expertise isn't being trusted, and that when deadlines come with very specific step-by-step check-in requirements, it feels like micromanagement rather than collaboration. You've found that frustrating and it's affecting how you feel about the project. Is that accurate?"
@@ -466,6 +469,7 @@ After identifying the priority issue (likely communication frequency and format)
 "What would need to be true for Priya to feel confident that she had enough information to manage the timeline without having to ask?"
 
 **Caucus trigger conditions for this dispute:**
+
 - If Marcus appears to shut down or give short, closed answers in joint session (possible if he experiences the room as a performance review)
 - If Priya becomes tearful or defensive about her PM role being questioned
 - If either party says something that sounds like they've already decided this won't work
@@ -556,12 +560,12 @@ Facilitated by:     _______________________ Date: ___________
 
 **FOLLOW-UP PLAN**
 
-| Timing | Action | Method |
-|--------|--------|--------|
-| Day 3 post-session | Brief individual check-in with each party | Informal hallway conversation or brief email: "How are things?" |
-| Week 2 | Individual check-in | 10-minute scheduled conversation with each: "How is the agreement working in practice?" |
-| Week 4 | Joint review (as per agreement) | Marcus and Priya meet alone per agreement terms; you are available if needed |
-| Week 6 | HR check-in | Brief individual conversations: "Any issues since the review?" |
-| If agreement breaks down | Either party contacts HR | HR schedules a modification session or escalates to director if agreement has materially failed |
+| Timing                   | Action                                    | Method                                                                                          |
+| ------------------------ | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Day 3 post-session       | Brief individual check-in with each party | Informal hallway conversation or brief email: "How are things?"                                 |
+| Week 2                   | Individual check-in                       | 10-minute scheduled conversation with each: "How is the agreement working in practice?"         |
+| Week 4                   | Joint review (as per agreement)           | Marcus and Priya meet alone per agreement terms; you are available if needed                    |
+| Week 6                   | HR check-in                               | Brief individual conversations: "Any issues since the review?"                                  |
+| If agreement breaks down | Either party contacts HR                  | HR schedules a modification session or escalates to director if agreement has materially failed |
 
 **What success looks like at 6 weeks:** No further team meeting disruptions; both parties report the communication structure is working or have modified it with consent; neither party has filed a formal complaint about the other. The goal is not a perfect relationship -- it is a functional professional one.

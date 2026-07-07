@@ -14,14 +14,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "interview-prep career template"
-  category: "career-development"
-  subcategory: "interview-preparation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'interview-prep career template'
+  category: 'career-development'
+  subcategory: 'interview-preparation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Interview Questions To Ask
 
 ## When to Use
@@ -66,6 +67,7 @@ The standard four-category model misses one critical area. Use five categories t
 
 **Category 1: Role Reality (5-6 questions)**
 The gap between the job description and the actual job is almost always larger than candidates expect. These questions close that gap.
+
 - Focus on what the role is NOT -- the constraints, the friction, the unsolved problems
 - Ask about what the previous person in the role did, why they left, and what was learned
 - Ask about the ratio of new work vs. maintenance and legacy work
@@ -73,6 +75,7 @@ The gap between the job description and the actual job is almost always larger t
 - Ask about success metrics in specific, measurable terms: not "what does success look like" but "what would make you confident in 6 months that hiring me was the right decision?"
 
 **Category 2: Team Dynamics (4-5 questions)**
+
 - Ask about how the team makes decisions when there is disagreement -- this reveals power structures
 - Ask about the team's recent history: who left, why, what the team looked like 18 months ago vs. today
 - Ask about how the team handles failure, missed deadlines, or poor outcomes -- not just wins
@@ -80,18 +83,21 @@ The gap between the job description and the actual job is almost always larger t
 
 **Category 3: Manager Relationship (3-4 questions)**
 Most candidates skip this category entirely. It is the single highest-impact category for job satisfaction.
+
 - Ask the manager directly how they prefer to give feedback: written, verbal, scheduled, in-the-moment
 - Ask what their best direct report in the past year did that made them proud
 - Ask how they handle situations where they disagree with their own manager's decisions and need to carry them out
 - Ask what the manager considers their biggest weakness as a manager (rare question; signals self-awareness in both parties)
 
 **Category 4: Growth Trajectory (3-4 questions)**
+
 - Ask for concrete, named examples of people who were promoted -- not hypotheticals
 - Ask what skills are rewarded for advancement vs. just required for the current role
 - Ask what the company does when a high performer outgrows their role faster than a new position is available
 - Ask about the 18-month roadmap for the team's scope and headcount -- growth trajectory of the team predicts opportunity
 
 **Category 5: Company Health and Direction (3-4 questions)**
+
 - For startups: ask about runway and path to profitability explicitly -- these are not rude questions for senior roles
 - For public companies: ask about what is driving the investment in this team or function right now
 - Ask where the company is strongest relative to its competitors and what gap it is most actively trying to close
@@ -102,26 +108,31 @@ Most candidates skip this category entirely. It is the single highest-impact cat
 This is the most commonly botched part of question preparation. A wrong question asked to the wrong person wastes the entire exchange.
 
 **HR / Recruiter (phone screen or process-focused first contact)**
+
 - Best questions: hiring timeline and process, what the company's culture looks like from the inside, what makes candidates succeed or fail in this role, what onboarding looks like
 - Acceptable: high-level team composition, remote or hybrid policy, benefits overview (but not salary in early rounds)
 - Avoid: technical architecture, team-level dynamics, detailed performance criteria, strategic company direction (recruiters often cannot answer credibly and the exchange loses value)
 
 **Hiring Manager**
+
 - Best questions: everything in Categories 1, 2, and 3 -- role reality, team dynamics, and the manager relationship itself
 - Acceptable: growth trajectory, company investment in the team, how success is defined
 - Avoid: company-wide financial questions (unless they are in the C-suite), highly technical questions if the manager is non-technical
 
 **Peer / Team Member**
+
 - Best questions: day-to-day experience, what they wish they had known before joining, how the team actually works vs. how it is described in the JD, what collaboration with the hiring manager looks like from below
 - Accepted: tools and processes, onboarding experience, team communication patterns
 - Avoid: performance reviews, compensation philosophy, strategic direction, questions that put the peer in a politically difficult position ("Do you think management makes good decisions?")
 
 **Skip-Level Executive (VP, C-level)**
+
 - Best questions: company strategy, where this function fits in the 3-year plan, how the executive thinks about building vs. buying in this domain, what the company's biggest organizational challenge is
 - Acceptable: what they personally look for in the leaders and ICs below them, what has surprised them most about the company since joining
 - Avoid: tactical role-level questions (deeply wrong signal), compensation, day-to-day process questions (waste of the access)
 
 **Cross-Functional Partner (e.g., Product Manager interviewing a Designer, Legal interviewing a Finance candidate)**
+
 - Best questions: how decisions get made when your team and their team have conflicting priorities, what a good working relationship looks like to them, past examples of cross-functional friction and how it was resolved
 - Avoid: role-specific technical questions unrelated to the cross-functional dynamic
 
@@ -131,17 +142,20 @@ Do not rank questions vaguely by "quality." Score each question explicitly on th
 
 **Axis 1 -- Information Yield (1-5)**
 How much high-quality, decision-relevant information does the answer provide? A question that yields a concrete, specific answer scores 5. A question that yields a polished corporate non-answer scores 1.
+
 - "What does success look like?" = 2 (generic, coached answer likely)
 - "If I am outperforming expectations in 90 days, what would the evidence of that look like to you?" = 5 (forces specificity)
 
 **Axis 2 -- Signal Sent (1-5)**
 How does asking this question affect how the interviewer perceives the candidate?
+
 - Shows research, systems thinking, and preparation = 5
 - Neutral, standard question = 3
 - Signals wrong priorities or lack of preparation = 1
 
 **Axis 3 -- Uniqueness (1-5)**
 How often does the interviewer hear this exact question?
+
 - "What is the company culture like?" = 1 (heard 200 times this year)
 - "What is the last decision the team made that you would make differently?" = 5 (rare and memorable)
 
@@ -317,6 +331,7 @@ Produce this exact structured output:
 ### User Does Not Know Who They Are Interviewing With
 
 This happens frequently when a recruiter sends a calendar invite without names or titles. Do not let it block question generation.
+
 - Generate a complete bank across all five categories with full annotation
 - In the "Questions by Interviewer Type" table, map every question to the appropriate interviewer type
 - Add a practical note: "If you do not know who you will be speaking with, ask the recruiter before the call: 'Could you tell me the name and role of who I will be speaking with so I can prepare?' This is completely appropriate and signals preparation."
@@ -325,6 +340,7 @@ This happens frequently when a recruiter sends a calendar invite without names o
 ### User Is in the Final Round and Has Already Asked Many Questions
 
 By round 3 or 4, the basic questions are exhausted. Shift the output composition:
+
 - 40% of the bank should be "build on what you've heard" questions: frame templates like "In an earlier conversation, I heard that [X]. I wanted to understand more about how [Y] intersects with that -- can you give me a concrete example?"
 - 40% should be decision-quality questions from Step 5 -- the user is now evaluating whether to accept, not whether to advance
 - 20% should be questions that reveal the interviewer's personal relationship with the company: "What has kept you here?" or "What would have to change to make you leave?" These yield the most honest company intelligence available
@@ -333,6 +349,7 @@ By round 3 or 4, the basic questions are exhausted. Shift the output composition
 ### User Is Interviewing at an Early-Stage Startup (Seed Through Series B)
 
 Startup context requires a fundamentally different question category -- company health -- that most career guides skip because it feels aggressive. It is not.
+
 - Runway and burn rate questions are appropriate and expected for any role above individual contributor: "What is the company's current runway, and what milestones would trigger the next fundraise?"
 - Ask about the founding team's relationship: "How do the founders divide decision-making authority, and has that evolved since the company started?"
 - Ask about the biggest existential risk from the team's perspective: "What is the scenario that keeps leadership up at night, and how is the company addressing it?"
@@ -342,6 +359,7 @@ Startup context requires a fundamentally different question category -- company 
 ### User Is Interviewing for a Fully Remote Role
 
 Remote roles have a distinct category of operational questions that on-site candidates never need:
+
 - "How does the company build social connection and prevent isolation for remote employees specifically -- not just for hybrid workers?"
 - "How are remote employees evaluated relative to in-office employees in terms of visibility and promotion opportunity?"
 - "What does the team do to maintain psychological safety when everything is text-based and tone is hard to read?"
@@ -352,6 +370,7 @@ Remote roles have a distinct category of operational questions that on-site cand
 ### User Is a Senior or Executive Candidate (Staff / Principal / Director / VP+)
 
 Senior candidates are evaluated on judgment and strategic scope, not just curiosity. Their questions must reflect this.
+
 - Generic questions about "day-to-day" work signal a mismatch with seniority expectations
 - Include questions about organizational influence: "How does engineering leadership interface with the board or investors on technical strategy?"
 - Include questions about team-building authority: "What would my scope of hiring authority look like in the first six months?"
@@ -362,6 +381,7 @@ Senior candidates are evaluated on judgment and strategic scope, not just curios
 ### User Has a Specific Concern or Red Flag They Want to Probe
 
 Sometimes the user has seen something -- a Glassdoor pattern, a LinkedIn showing high turnover, a news item about layoffs, a JD that has been posted for 6 months -- and wants to probe it without sounding accusatory.
+
 - Teach the user the "soft probe" technique: turn the concern into a curiosity question that gets the same information without the confrontational framing
   - Concern: "This role has been open for 6 months" → Question: "What has your search process looked like for this role, and what has made it a unique search?"
   - Concern: "Glassdoor reviews mention micromanagement" → Question: "How would your current team describe your management style? What do they say you do well and where do they push you to grow?"
@@ -371,6 +391,7 @@ Sometimes the user has seen something -- a Glassdoor pattern, a LinkedIn showing
 ### User Is Interviewing for a Role That Is a Significant Stretch (Promotion-Level)
 
 When the user is reaching up a level, their questions need to signal readiness for that level without overreaching.
+
 - Ask questions that demonstrate awareness of scope increase: "What aspects of this role would represent the largest growth edge for someone coming from [current level]?"
 - Ask about the support structure for someone coming in at this level: "What does the first 90-day ramp look like, and what resources are available if I identify a gap in my experience?"
 - Avoid asking questions that implicitly acknowledge unreadiness: "Is it okay if I take some time to learn X?" -- this undermines the stretch narrative
@@ -397,15 +418,16 @@ When the user is reaching up a level, their questions need to signal readiness f
 ---
 
 ### Top 5 Priority Questions
-*(Ranked by Information Yield + Signal Sent + Uniqueness, max 15)*
 
-| Rank | Score | Question | Category | Why It's Strong | Best Asked To |
-|------|-------|----------|----------|-----------------|---------------|
-| 1 | 14/15 | "When you think about the best PM you've managed in the past three years -- not necessarily the most experienced, but the one who grew the most -- what made them exceptional, and what did you do to enable that?" | Manager Relationship | Directly tests management quality, the user's top priority. Forces the VP to reveal their actual approach to developing talent rather than giving a rehearsed answer. The question is rare enough that a strong answer is meaningfully predictive. | VP of Product |
-| 2 | 13/15 | "The JD mentions the Senior PM will own the OKR process for the product team. Can you walk me through what that looked like last quarter -- who set the OKRs, how they were graded, and what changed as a result?" | Role Reality | Anchors to specific JD language. Distinguishes whether "owning the OKR process" means running a meaningful strategic exercise or filling out a spreadsheet. Reveals how empowered vs. ceremonial the role actually is. | VP of Product |
-| 3 | 13/15 | "What does the path from Senior PM to Director of Product look like here concretely -- are there people who have made that transition in the past two years, and what did it take?" | Growth Trajectory | Addresses user's top priority of director-level growth. Forces a specific, named-example answer rather than a generic "we promote from within" response. Time-bounds it to two years so the VP cannot point to ancient history. | VP of Product |
-| 4 | 12/15 | "How does the product team navigate roadmap prioritization when enterprise sales brings in a deal that requires features the roadmap does not currently include?" | Role Reality | Directly targets the tension between sales-driven feature requests and product strategy -- the single most common friction point for PMs in sales-led SaaS companies. Signals that the user understands this dynamic. The answer reveals whether PMs have real authority or are order-takers. | VP of Product |
-| 5 | 12/15 | "What is the one thing about working with you as a manager that I would only know after working with you for six months -- something that is not visible in an interview?" | Manager Relationship | Unusual enough to be memorable. Signals emotional intelligence and genuine interest in the management relationship. Forces the VP to demonstrate self-awareness, which is itself a data point about their quality as a manager. | VP of Product |
+_(Ranked by Information Yield + Signal Sent + Uniqueness, max 15)_
+
+| Rank | Score | Question                                                                                                                                                                                                            | Category             | Why It's Strong                                                                                                                                                                                                                                                                               | Best Asked To |
+| ---- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| 1    | 14/15 | "When you think about the best PM you've managed in the past three years -- not necessarily the most experienced, but the one who grew the most -- what made them exceptional, and what did you do to enable that?" | Manager Relationship | Directly tests management quality, the user's top priority. Forces the VP to reveal their actual approach to developing talent rather than giving a rehearsed answer. The question is rare enough that a strong answer is meaningfully predictive.                                            | VP of Product |
+| 2    | 13/15 | "The JD mentions the Senior PM will own the OKR process for the product team. Can you walk me through what that looked like last quarter -- who set the OKRs, how they were graded, and what changed as a result?"  | Role Reality         | Anchors to specific JD language. Distinguishes whether "owning the OKR process" means running a meaningful strategic exercise or filling out a spreadsheet. Reveals how empowered vs. ceremonial the role actually is.                                                                        | VP of Product |
+| 3    | 13/15 | "What does the path from Senior PM to Director of Product look like here concretely -- are there people who have made that transition in the past two years, and what did it take?"                                 | Growth Trajectory    | Addresses user's top priority of director-level growth. Forces a specific, named-example answer rather than a generic "we promote from within" response. Time-bounds it to two years so the VP cannot point to ancient history.                                                               | VP of Product |
+| 4    | 12/15 | "How does the product team navigate roadmap prioritization when enterprise sales brings in a deal that requires features the roadmap does not currently include?"                                                   | Role Reality         | Directly targets the tension between sales-driven feature requests and product strategy -- the single most common friction point for PMs in sales-led SaaS companies. Signals that the user understands this dynamic. The answer reveals whether PMs have real authority or are order-takers. | VP of Product |
+| 5    | 12/15 | "What is the one thing about working with you as a manager that I would only know after working with you for six months -- something that is not visible in an interview?"                                          | Manager Relationship | Unusual enough to be memorable. Signals emotional intelligence and genuine interest in the management relationship. Forces the VP to demonstrate self-awareness, which is itself a data point about their quality as a manager.                                                               | VP of Product |
 
 ---
 
@@ -519,7 +541,8 @@ When the user is reaching up a level, their questions need to signal readiness f
 ---
 
 ### Decision-Quality Questions
-*(Use in final round or when evaluating whether to accept an offer)*
+
+_(Use in final round or when evaluating whether to accept an offer)_
 
 - "If I were to speak with someone who left the product team in the past year, what do you think they would say was the hardest part of working here?" -- What it helps you decide: Whether leadership has honest self-awareness about the team's weaknesses; the answer reveals more in the VP's hesitation than in the words themselves
 - "What would have to change at this company for you personally to consider leaving?" -- What it helps you decide: How committed senior leadership is and what their breaking points are; signals whether the culture is stable or fragile
@@ -530,25 +553,25 @@ When the user is reaching up a level, their questions need to signal readiness f
 
 ### Questions by Interviewer Type
 
-| Interviewer Type | Ask These Numbers | Avoid These |
-|-----------------|-------------------|-------------|
-| HR / Recruiter (already completed) | N/A -- round complete | N/A |
-| VP of Product (this round) | Q1-Q19, prioritize Q1, Q2, Q3, Q4, Q5 | Benefits/logistics (already covered with recruiter), technical architecture detail |
-| Peer PM (if applicable in later round) | Q7, Q8, Q9, Q10, Q13 (reframed from their perspective) | Q18 (financial strategy), Q14 (VP loyalty question), promotion criteria they may not know |
-| Engineering Lead (if cross-functional round) | Q4, Q7 (engineering version), Q9 | Q11-Q14 (manager relationship questions for their manager), Q18 |
-| C-level Executive | Q18, Q19, decision-quality questions | Q1-Q6 (too tactical for this audience), Q11-Q14 (not their scope) |
+| Interviewer Type                             | Ask These Numbers                                      | Avoid These                                                                               |
+| -------------------------------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| HR / Recruiter (already completed)           | N/A -- round complete                                  | N/A                                                                                       |
+| VP of Product (this round)                   | Q1-Q19, prioritize Q1, Q2, Q3, Q4, Q5                  | Benefits/logistics (already covered with recruiter), technical architecture detail        |
+| Peer PM (if applicable in later round)       | Q7, Q8, Q9, Q10, Q13 (reframed from their perspective) | Q18 (financial strategy), Q14 (VP loyalty question), promotion criteria they may not know |
+| Engineering Lead (if cross-functional round) | Q4, Q7 (engineering version), Q9                       | Q11-Q14 (manager relationship questions for their manager), Q18                           |
+| C-level Executive                            | Q18, Q19, decision-quality questions                   | Q1-Q6 (too tactical for this audience), Q11-Q14 (not their scope)                         |
 
 ---
 
 ### Questions to Avoid in This Interview
 
-| Question to Avoid | Why It Hurts | Better Alternative |
-|-------------------|--------------|-------------------|
-| "What is the company culture like?" | The most generic PM interview question asked; signals no preparation and yields a rehearsed, non-informative answer | "What is the one aspect of how this team works that is genuinely different from how most product teams operate?" |
-| "Is there work-life balance here?" | Signals apprehension and invites a PR answer; also already answered by recruiter in phone screen | "What does the team do when a product launch creates an extended crunch period -- and how frequently does that happen?" |
-| "What does the company's tech stack look like?" | You are a PM, not an engineer; this question signals role confusion at the Senior level unless the JD specifically requires technical depth | "What is the level of technical depth the PM team is expected to have, and how does that interface with the engineering team's autonomy?" |
-| "Do you have a learning and development budget?" | Low-information question that signals you are asking about perks rather than growth | "Can you give me an example of someone on the team who pursued a specific development goal in the past year -- what did that look like in practice?" |
-| "What does the product roadmap look like for the next year?" | Often confidential; puts the VP in an awkward position; reveals nothing about whether this is a good environment for you | "What is the biggest unsolved strategic question on the roadmap right now -- the one the team is most actively debating?" |
+| Question to Avoid                                            | Why It Hurts                                                                                                                                | Better Alternative                                                                                                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "What is the company culture like?"                          | The most generic PM interview question asked; signals no preparation and yields a rehearsed, non-informative answer                         | "What is the one aspect of how this team works that is genuinely different from how most product teams operate?"                                     |
+| "Is there work-life balance here?"                           | Signals apprehension and invites a PR answer; also already answered by recruiter in phone screen                                            | "What does the team do when a product launch creates an extended crunch period -- and how frequently does that happen?"                              |
+| "What does the company's tech stack look like?"              | You are a PM, not an engineer; this question signals role confusion at the Senior level unless the JD specifically requires technical depth | "What is the level of technical depth the PM team is expected to have, and how does that interface with the engineering team's autonomy?"            |
+| "Do you have a learning and development budget?"             | Low-information question that signals you are asking about perks rather than growth                                                         | "Can you give me an example of someone on the team who pursued a specific development goal in the past year -- what did that look like in practice?" |
+| "What does the product roadmap look like for the next year?" | Often confidential; puts the VP in an awkward position; reveals nothing about whether this is a good environment for you                    | "What is the biggest unsolved strategic question on the roadmap right now -- the one the team is most actively debating?"                            |
 
 ---
 

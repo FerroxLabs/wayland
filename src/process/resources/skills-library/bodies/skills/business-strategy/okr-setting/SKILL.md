@@ -11,19 +11,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning goal-setting"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning goal-setting'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # OKR Setting
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to write, set, or draft OKRs for a team, department, business unit, or company for any planning period
 - A user wants to translate a strategy document, board directive, or exec vision into structured measurable outcomes
 - A user needs to cascade company-level OKRs to team or individual-contributor levels and wants the alignment mapped explicitly
@@ -33,6 +35,7 @@ metadata:
 - A user needs to run an OKR retrospective and frame learnings for the next cycle
 
 **Do NOT use this skill when:**
+
 - The user wants personal productivity goals or life goals -- use the `goal-setting` skill in the productivity category instead
 - The user wants to break down a project into tasks and milestones -- use `project-management` skills; OKRs define what success looks like, not how to execute
 - The user wants standalone KPI dashboards or metric tracking infrastructure without the OKR strategic layer -- use `ops-metrics-dashboard`
@@ -280,30 +283,37 @@ The following priorities were raised but not included in this cycle's OKRs due t
 ## Edge Cases
 
 ### First OKR Cycle -- Organization Has Never Done OKRs Before
+
 Set a lower bar on ambition for cycle one -- the goal is to build the habit, not achieve maximum stretch simultaneously. Limit to 2-3 objectives with 2 KRs each. Include a meta-objective for the OKR practice itself with KRs such as: "Complete 8 of 13 weekly check-ins on schedule," "Score all KRs within 5 business days of quarter end," and "Conduct end-of-cycle retrospective with 80% of objective owners present." Explain to the user that the first cycle's primary output is learning what good OKRs look like for their specific context -- not transformational business results. Targets will be off; baselines will be discovered to be wrong; that is expected and acceptable.
 
 ### Cascading Company OKRs to Team Level
+
 Start by documenting the company-level OKRs (which must exist before team OKRs are written). Then for each team, identify which company objectives their work influences most directly. Team objectives should be written to contribute to at least one company objective, with the company objective explicitly referenced. Show the cascade mapping in a table:
 
 | Team Objective | Contributes to Company Objective |
-|---------------|----------------------------------|
-| [Team O1] | Company O2, Company O3 |
+| -------------- | -------------------------------- |
+| [Team O1]      | Company O2, Company O3           |
 
 Not every company objective needs a team-level counterpart -- some company objectives are owned entirely at the exec level. Not every team objective needs to map to a company objective -- some team objectives address team-specific foundation work (hiring, technical debt, process) that enables future company objectives without directly moving current ones. The cascade should be explicit but need not be rigid.
 
 ### Annual OKRs Instead of Quarterly
+
 Annual OKRs require quarterly milestone checkpoints embedded within each key result -- otherwise there is no mechanism for mid-year course correction. Structure each annual KR with four quarterly milestones: "Increase ARR from $4.2M to $7.0M, with quarterly checkpoints of $4.8M (Q1), $5.5M (Q2), $6.2M (Q3), $7.0M (Q4)." Review at each quarterly milestone exactly as you would a quarterly OKR end-of-cycle. Annual OKRs work best for objectives that genuinely require a full year to show results (building a new product line, entering a new market, achieving a compliance certification). For anything measurable in 90 days, quarterly is strongly preferred.
 
 ### OKRs for a Team in Crisis or Turnaround
+
 In a turnaround context (significant revenue decline, recent layoff, near-miss compliance failure, product outage impacting customers), objectives shift from growth to defense and stabilization. Key results should include explicitly defensive targets: "Maintain customer retention above 78%" rather than "Increase retention to 85%." Confidence scores will be lower -- 55-65% is acceptable and should be acknowledged rather than hidden. Reduce the total number of objectives to 2-3 -- crisis response requires focused effort, not a full-spectrum strategic program. Consider including a Crisis Metrics section beneath the standard OKR set listing the handful of metrics the team will track weekly regardless of OKR structure (cash runway, daily active users, support escalation volume, employee attrition signals).
 
 ### OKRs for an Individual Contributor
+
 Individual-level OKRs follow the same structure but with two additional constraints. First, key results must be within the IC's sphere of direct control -- an IC cannot own a KR that depends on a full-team behavior change they cannot enforce. Second, IC objectives should explicitly map to at least one team-level objective to ensure alignment. A common error is IC OKRs that are purely personal development goals -- "get better at SQL," "improve presentation skills." These are personal development items that belong in a growth plan, not OKRs. IC OKRs should describe the business impact the IC will create in their role this quarter.
 
 ### OKRs With Missing Baseline Data
+
 If a user cannot provide a baseline for a key result because the metric has never been tracked, handle it explicitly. For the current cycle, create a "measurement establishment" KR: "Instrument and baseline [metric] by week 3 and achieve [target] by end of quarter." This KR acknowledges the measurement gap and makes closing it the first deliverable. Alternatively, set the first cycle's KR as purely measurement-focused: "Establish baseline measurement for customer health score covering 100% of enterprise accounts by week 4." The following cycle can then set a directional target from that baseline. Never invent a baseline number to make the format work.
 
 ### OKRs That Are Actually Project Plans in Disguise
+
 Some users will present a set of initiatives or features they plan to ship and ask to convert them into OKRs. The output format will look like OKRs but will be structured as an activity list. Recognize this pattern: "Objective: Launch the new dashboard. KR1: Complete UI design by week 3. KR2: Ship backend API by week 6. KR3: Release to all users by week 10." These are project milestones, not OKRs. Push back and reframe: ask "What business outcome would a successful dashboard launch create?" Then write the OKR around that outcome: "Objective: Make product data effortlessly accessible for every user. KR1: Increase daily active dashboard usage from 18% to 45% of licensed users. KR2: Reduce time spent by users generating standard reports from 25 minutes to under 5 minutes." Point the user to the project management skill for the execution tracking they also need.
 
 ---
@@ -326,25 +336,27 @@ Some users will present a set of initiatives or features they plan to ship and a
 ---
 
 ### Priority Stack (ranked)
+
 1. **Stop customer churn** -- Defense (lost 11 customers in Q2; this is the existential priority)
 2. **Rebuild customer health** -- Defense/Foundation (38% Red accounts is a leading indicator of continued churn)
 3. **Prove CS team ROI to the CFO** -- Foundation (team budget is at risk without demonstrated impact)
 4. **Establish expansion revenue baseline** -- Foundation (currently unmeasured; cannot manage what we cannot see)
 
-*Note: Priority 4 was added because the inability to report expansion revenue is itself a risk to Priority 3. It requires only measurement work, not a full strategic push, so it is embedded into Objective 3 rather than receiving its own standalone objective.*
+_Note: Priority 4 was added because the inability to report expansion revenue is itself a risk to Priority 3. It requires only measurement work, not a full strategic push, so it is embedded into Objective 3 rather than receiving its own standalone objective._
 
 ---
 
 ### Objective 1: Halt the churn crisis and make our enterprise base stable
+
 **Owner:** Director of Customer Success
 **Type:** Defense
 **Confidence at Setting:** 65% -- Q2 churn had multiple root causes, not all of which are within CS control; pricing and product gaps may continue to influence outcomes
 
-| KR# | Key Result | Type | Baseline | Target | Owner | Score |
-|-----|-----------|------|----------|--------|-------|-------|
-| 1.1 | Reduce monthly gross customer churn rate from 1.1% to 0.4% (trailing 3-month average at Q3 end) | Lagging | 1.1%/mo | 0.4%/mo | Director of CS | /1.0 |
-| 1.2 | Reduce percentage of enterprise accounts with a Red health score from 38% to 20% | Leading | 38% | 20% | CS Ops Lead | /1.0 |
-| 1.3 | Complete documented save plays for all 43 currently Red-flagged accounts by week 6 | Leading | 0 of 43 | 43 of 43 | All CSMs | /1.0 |
+| KR# | Key Result                                                                                      | Type    | Baseline | Target   | Owner          | Score |
+| --- | ----------------------------------------------------------------------------------------------- | ------- | -------- | -------- | -------------- | ----- |
+| 1.1 | Reduce monthly gross customer churn rate from 1.1% to 0.4% (trailing 3-month average at Q3 end) | Lagging | 1.1%/mo  | 0.4%/mo  | Director of CS | /1.0  |
+| 1.2 | Reduce percentage of enterprise accounts with a Red health score from 38% to 20%                | Leading | 38%      | 20%      | CS Ops Lead    | /1.0  |
+| 1.3 | Complete documented save plays for all 43 currently Red-flagged accounts by week 6              | Leading | 0 of 43  | 43 of 43 | All CSMs       | /1.0  |
 
 **Why these KRs:** KR 1.1 is the lagging outcome the objective is designed to move. KR 1.2 is the leading indicator -- Red health score is the strongest predictor of churn in our model, and moving it gives a mid-quarter signal on whether the intervention is working before it shows up in the churn rate. KR 1.3 ensures structured action on every at-risk account rather than ad hoc firefighting; without it, teams tend to focus only on the loudest accounts, not the highest-risk ones.
 
@@ -355,15 +367,16 @@ Some users will present a set of initiatives or features they plan to ship and a
 ---
 
 ### Objective 2: Transform CS from a reactive support function into a proactive value driver
+
 **Owner:** CS Operations Lead
 **Type:** Foundation
 **Confidence at Setting:** 70% -- team has the skills; this is a process change, which is within our control
 
-| KR# | Key Result | Type | Baseline | Target | Owner | Score |
-|-----|-----------|------|----------|--------|-------|-------|
-| 2.1 | Increase NPS from 31 to 42 (measured via quarterly pulse survey sent week 12) | Lagging | 31 | 42 | Director of CS | /1.0 |
-| 2.2 | Increase the percentage of customers receiving a proactive business review (QBR or EBR) before their renewal date from 22% to 70% | Leading | 22% | 70% | CS Ops Lead | /1.0 |
-| 2.3 | Increase average CSAT score on post-interaction surveys from 3.8/5 to 4.4/5 | Leading | 3.8 | 4.4 | All CSMs | /1.0 |
+| KR# | Key Result                                                                                                                        | Type    | Baseline | Target | Owner          | Score |
+| --- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | -------- | ------ | -------------- | ----- |
+| 2.1 | Increase NPS from 31 to 42 (measured via quarterly pulse survey sent week 12)                                                     | Lagging | 31       | 42     | Director of CS | /1.0  |
+| 2.2 | Increase the percentage of customers receiving a proactive business review (QBR or EBR) before their renewal date from 22% to 70% | Leading | 22%      | 70%    | CS Ops Lead    | /1.0  |
+| 2.3 | Increase average CSAT score on post-interaction surveys from 3.8/5 to 4.4/5                                                       | Leading | 3.8      | 4.4    | All CSMs       | /1.0  |
 
 **Why these KRs:** NPS (KR 2.1) is the headline outcome metric and tracks overall sentiment trajectory. QBR/EBR coverage (KR 2.2) is the specific behavioral change we believe drives NPS -- customers who receive proactive reviews are 3x more likely to renew and expand in our historical data. CSAT (KR 2.3) tracks quality of individual interactions and catches regressions in team execution before they show up in NPS.
 
@@ -374,15 +387,16 @@ Some users will present a set of initiatives or features they plan to ship and a
 ---
 
 ### Objective 3: Prove the business impact of Customer Success to secure the team's future investment
+
 **Owner:** Director of Customer Success
 **Type:** Foundation
 **Confidence at Setting:** 75% -- the data is measurable; this is an execution and communication challenge, not a discovery problem
 
-| KR# | Key Result | Type | Baseline | Target | Owner | Score |
-|-----|-----------|------|----------|--------|-------|-------|
-| 3.1 | Establish and baseline CS-influenced expansion revenue metric by week 4, with Q3 actuals reported to CFO by week 13 | Leading | Unmeasured | Baseline + actuals documented | CS Ops Lead | /1.0 |
-| 3.2 | Increase CS-influenced net revenue retention rate from 94% to 102% (baseline to be confirmed in week 2 audit) | Lagging | ~94% (estimated) | 102% | Director of CS | /1.0 |
-| 3.3 | Deliver a CS Impact Report to the CFO by week 12 covering: churn prevention value ($), expansion revenue influenced ($), and cost-per-retained-customer | Lagging | No report exists | Report delivered and reviewed | Director of CS | /1.0 |
+| KR# | Key Result                                                                                                                                              | Type    | Baseline         | Target                        | Owner          | Score |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ---------------- | ----------------------------- | -------------- | ----- |
+| 3.1 | Establish and baseline CS-influenced expansion revenue metric by week 4, with Q3 actuals reported to CFO by week 13                                     | Leading | Unmeasured       | Baseline + actuals documented | CS Ops Lead    | /1.0  |
+| 3.2 | Increase CS-influenced net revenue retention rate from 94% to 102% (baseline to be confirmed in week 2 audit)                                           | Lagging | ~94% (estimated) | 102%                          | Director of CS | /1.0  |
+| 3.3 | Deliver a CS Impact Report to the CFO by week 12 covering: churn prevention value ($), expansion revenue influenced ($), and cost-per-retained-customer | Lagging | No report exists | Report delivered and reviewed | Director of CS | /1.0  |
 
 **Why these KRs:** KR 3.1 closes the measurement gap immediately -- we cannot manage or report expansion revenue without a definition and baseline, and it must be established early in the quarter to have actuals by week 13. KR 3.2 is the single most important financial metric for CS team ROI -- net revenue retention above 100% means the CS team is generating more revenue from the existing base than is leaving, a compelling CFO argument. KR 3.3 is the explicit deliverable that ties the other two together and ensures the work is communicated, not just done.
 
@@ -394,39 +408,43 @@ Some users will present a set of initiatives or features they plan to ship and a
 
 ### OKR Set Health Check
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| Objective count (3-5) | ✓ | 3 objectives |
-| KR count per objective (2-4) | ✓ | All objectives have exactly 3 KRs |
-| All KRs are outcome metrics | ✓ | KR 1.3 and KR 3.3 have discrete delivery components -- acceptable given they represent structural changes with clear completion states |
-| All owners named | ✓ | All objective and KR owners specified by role |
-| Leading indicators present | ✓ | KR 1.2, 1.3, 2.2, 2.3, 3.1 are leading indicators |
-| Dependencies confirmed | ⚠ | 3 dependencies Pending -- must be resolved in week 1 |
-| Confidence range (50-85%) | ✓ | Range is 65-75%; all within acceptable band |
-| Baseline data complete | ⚠ | KR 3.2 baseline is estimated -- audit required by week 2 |
+| Criterion                    | Status | Notes                                                                                                                                  |
+| ---------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Objective count (3-5)        | ✓      | 3 objectives                                                                                                                           |
+| KR count per objective (2-4) | ✓      | All objectives have exactly 3 KRs                                                                                                      |
+| All KRs are outcome metrics  | ✓      | KR 1.3 and KR 3.3 have discrete delivery components -- acceptable given they represent structural changes with clear completion states |
+| All owners named             | ✓      | All objective and KR owners specified by role                                                                                          |
+| Leading indicators present   | ✓      | KR 1.2, 1.3, 2.2, 2.3, 3.1 are leading indicators                                                                                      |
+| Dependencies confirmed       | ⚠      | 3 dependencies Pending -- must be resolved in week 1                                                                                   |
+| Confidence range (50-85%)    | ✓      | Range is 65-75%; all within acceptable band                                                                                            |
+| Baseline data complete       | ⚠      | KR 3.2 baseline is estimated -- audit required by week 2                                                                               |
 
 ---
 
 ### Scoring Reference
-| Score | Meaning | Action |
-|-------|---------|--------|
-| 0.0--0.3 | No meaningful progress | Root cause review -- was the target wrong or did execution fail? |
-| 0.4--0.6 | Progress made, target missed | Identify specific blockers; carry forward or retire |
-| 0.7 | Stretch target met | This is success -- celebrate and set next target from this new baseline |
-| 0.8--0.9 | Exceeded target | Ask if baseline was understated or target was insufficiently ambitious |
-| 1.0 | Massively exceeded | Target was too conservative -- recalibrate next cycle |
+
+| Score    | Meaning                      | Action                                                                  |
+| -------- | ---------------------------- | ----------------------------------------------------------------------- |
+| 0.0--0.3 | No meaningful progress       | Root cause review -- was the target wrong or did execution fail?        |
+| 0.4--0.6 | Progress made, target missed | Identify specific blockers; carry forward or retire                     |
+| 0.7      | Stretch target met           | This is success -- celebrate and set next target from this new baseline |
+| 0.8--0.9 | Exceeded target              | Ask if baseline was understated or target was insufficiently ambitious  |
+| 1.0      | Massively exceeded           | Target was too conservative -- recalibrate next cycle                   |
 
 ### Review Schedule
-| Touchpoint | Cadence | Format | Owner |
-|------------|---------|--------|-------|
-| Weekly CS standup | Every Monday, 9am | 20-min RAG check per KR + confidence delta | Director of CS |
-| Week 1 action | Week 1 only | Resolve 3 pending dependencies; confirm KR 3.2 baseline | CS Ops Lead |
-| Mid-cycle deep review | Week 7 | 60-min session; confidence rescore; baseline correction for KR 3.2 if needed | Director of CS |
-| CFO Impact Report draft review | Week 10 | Internal CS review of draft before CFO submission | Director of CS |
-| End-of-cycle scoring | 5 days after Q3 end | Async KR scoring + 45-min retrospective: what do we carry into Q4? | All owners |
-| Q4 OKR kickoff | 2 weeks before Q4 start | Draft Q4 OKRs using Q3 actuals as new baselines | Director of CS |
+
+| Touchpoint                     | Cadence                 | Format                                                                       | Owner          |
+| ------------------------------ | ----------------------- | ---------------------------------------------------------------------------- | -------------- |
+| Weekly CS standup              | Every Monday, 9am       | 20-min RAG check per KR + confidence delta                                   | Director of CS |
+| Week 1 action                  | Week 1 only             | Resolve 3 pending dependencies; confirm KR 3.2 baseline                      | CS Ops Lead    |
+| Mid-cycle deep review          | Week 7                  | 60-min session; confidence rescore; baseline correction for KR 3.2 if needed | Director of CS |
+| CFO Impact Report draft review | Week 10                 | Internal CS review of draft before CFO submission                            | Director of CS |
+| End-of-cycle scoring           | 5 days after Q3 end     | Async KR scoring + 45-min retrospective: what do we carry into Q4?           | All owners     |
+| Q4 OKR kickoff                 | 2 weeks before Q4 start | Draft Q4 OKRs using Q3 actuals as new baselines                              | Director of CS |
 
 ### Deprioritized Items This Cycle
+
 The following priorities were discussed but not included in Q3 OKRs due to capacity constraints. They are Q4 candidates:
+
 - **Build a CS certification/training program for customer admins** -- valuable for retention but requires marketing and product collaboration not available this quarter; revisit in Q4 planning
 - **Launch a customer community platform** -- a Q2 proposal that requires 2 dedicated CSMs for 6 weeks; not viable until churn crisis is addressed and team has bandwidth

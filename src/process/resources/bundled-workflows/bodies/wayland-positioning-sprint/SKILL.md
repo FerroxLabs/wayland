@@ -14,14 +14,15 @@ description: >-
   atomic skill can answer without running the full sprint.
 license: Apache-2.0
 type: workflow
-skills: "market-competitors market-brand market-audit market-copy"
+skills: 'market-competitors market-brand market-audit market-copy'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing positioning messaging competitors brand step-by-step
   category: marketing
-  depends: "market-competitors market-brand market-audit market-copy"
+  depends: 'market-competitors market-brand market-audit market-copy'
 ---
+
 # Positioning Sprint
 
 **Estimated time:** 45-60 minutes

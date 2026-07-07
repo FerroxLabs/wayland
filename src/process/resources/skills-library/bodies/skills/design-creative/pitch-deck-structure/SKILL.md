@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "presentation planning template"
-  category: "design-creative"
-  subcategory: "presentation-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'presentation planning template'
+  category: 'design-creative'
+  subcategory: 'presentation-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Pitch Deck Structure
 
 ## When to Use
@@ -34,6 +35,7 @@ Use this skill when the user's request maps to any of these specific scenarios:
 - User asks to evaluate whether their deck follows the standard 10-12 slide investor sequence or identify which slides are missing, weak, or out of order
 
 **Do NOT use when:**
+
 - User wants a general business presentation or internal strategy presentation -- use `slide-deck-structure` instead
 - User wants a single executive summary slide for distribution to investors before a meeting -- use `executive-summary-slide` instead
 - User wants a full business plan document (narrative, 20-40 pages) -- use `business-plan` instead
@@ -73,12 +75,14 @@ Match the format precisely to the time slot and audience. Using the wrong format
 Each slide has a single job. If a slide is trying to do two jobs, split it. The sequence must flow as a single logical argument: the world has a problem, we have the solution, the solution addresses a large market, we monetize it this way, we have already proven it, here is who we are, here is where we are going financially, and here is what we need from you.
 
 **Slide 1: Title / Cover**
+
 - Company name, logo (if exists), and one-sentence positioning statement -- not a tagline, a positioning statement. Example: "AI-powered contract review for mid-market law firms" is better than "Legal tech for the modern era."
 - Presenter name and title, date, and contact email. The date matters -- investors want to know if they are seeing a fresh deck or a deck that has been circulating for 18 months without a close.
 - Do NOT put financial information, bullet points, or slide numbers on the title slide.
 - The one sentence on this slide will be the first thing investors remember. It must encode the category, customer, and outcome.
 
 **Slide 2: Problem**
+
 - Define the specific customer experiencing the pain -- not "businesses" or "people" -- the job title, company size, or demographic that feels this pain most acutely.
 - Quantify the cost of the problem in dollars, hours, or risk. The number must be sourced. "$4,100 per new hire" (SHRM) is credible. "Millions of dollars" is not.
 - Use the "status quo" framing: describe exactly how the problem is being handled today (manually, with spreadsheets, with legacy software) and why that approach is inadequate.
@@ -86,6 +90,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Emotional resonance matters: investors must viscerally understand the pain before they will value the solution. A customer quote works better than an industry statistic here.
 
 **Slide 3: Solution**
+
 - One sentence describing what the product does. Then a second sentence explaining how it solves the specific problem on slide 2. The logical link must be explicit.
 - Show the product -- do not describe it abstractly. A screenshot, a 10-second screen recording, or a before/after workflow diagram. Investors who have not seen the product cannot evaluate it.
 - "Before / After" framing is the most effective structure: what was the customer doing before, and what do they do now with your product.
@@ -93,6 +98,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Avoid the word "platform" as the primary noun. Say what the product actually does.
 
 **Slide 4: Product / Demo**
+
 - This slide goes deeper into the product experience than slide 3. If slide 3 is the 10-second answer, slide 4 is the 60-second explanation.
 - For a live demo: prepare three screens maximum. Walk the user journey, not the admin journey. Investors want to see what value looks like to the end user.
 - For a recorded demo: a 90-second maximum video with narration. Never rely on audio working in a VC conference room. Add captions.
@@ -100,6 +106,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Deep tech companies: include a single-slide technical architecture diagram that explains the core proprietary mechanism without requiring a PhD. The goal is to demonstrate that the technical moat is real and defensible.
 
 **Slide 5: Market Size**
+
 - Always present TAM (Total Addressable Market), SAM (Serviceable Addressable Market), and SOM (Serviceable Obtainable Market) -- in that order, each as a distinct number.
 - TAM must be calculated bottom-up, not top-down. Top-down ("the HR software market is $XX billion") tells investors nothing about how you calculated your share. Bottom-up ("there are 350,000 mid-market US companies with 100-1,000 employees, each spending approximately $10,000/year on HR software, yielding a $3.5B TAM") shows the logic.
 - SAM is the portion of the TAM you can realistically reach given your product's current geography, language, and segment focus. SAM is always smaller than TAM.
@@ -108,6 +115,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Avoid the "1% of a $1 trillion market" fallacy -- it signals you do not have a real market penetration strategy.
 
 **Slide 6: Business Model**
+
 - State the primary revenue mechanism: subscription (monthly/annual), usage-based, transaction fee, licensing, services, marketplace take rate, or hybrid.
 - Show the pricing tier structure if it exists. Three tiers (Starter/Growth/Enterprise) is standard SaaS. Show the price points.
 - The four essential unit economics metrics: Average Revenue Per User (ARPU) or Average Contract Value (ACV), Customer Acquisition Cost (CAC), Customer Lifetime Value (LTV), and LTV:CAC ratio. A healthy SaaS LTV:CAC is 3x or higher. If it is below 3x, address it proactively.
@@ -116,6 +124,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Gross margin matters. Software should be 70-85%+. Hardware will be lower (30-60%) and needs explanation of path to improvement at scale.
 
 **Slide 7: Traction**
+
 - This is the single most important slide in the deck for investor decision-making. Lead with the strongest metric.
 - Show a growth chart -- not a table, a visual chart -- with time on the x-axis. MRR, ARR, DAU, WAU, or revenue are all acceptable. The shape of the curve matters more than the absolute number.
 - Include the rate of growth, not just the level: "20% month-over-month" tells a better story than "$15K MRR" alone.
@@ -124,6 +133,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Milestones timeline: show 4-6 milestones from founding to today that demonstrate continuous progress and evidence of product-market fit signal.
 
 **Slide 8: Competition**
+
 - Use a 2x2 positioning matrix, never a feature comparison table. Feature tables invite investors to ask "but can't [large competitor] just add this feature?" A 2x2 shows where you uniquely live in the competitive landscape.
 - Choose the two axes carefully: they must represent dimensions that customers genuinely care about AND on which you hold a distinctive position. Typical meaningful axes: automation level vs. ease of implementation, specialization depth vs. breadth of coverage, real-time vs. batch processing, self-serve vs. enterprise-grade.
 - Place 4-8 competitors on the matrix. Include both direct competitors (same category) and substitutes (how the problem is solved today, including "do it manually" and "build it internally").
@@ -132,6 +142,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Address the "why can't Google/Salesforce/[big incumbent] just do this?" question directly on the slide or in the speaker notes.
 
 **Slide 9: Team**
+
 - Include only decision-relevant credentials. Each team member gets one credential -- the most relevant one to the role they play in this company.
 - The three questions investors are answering from this slide: Does this team have the domain expertise to understand the problem? Do they have the execution track record to build the company? Do they have the relationships to acquire customers and talent?
 - For each founder: photo, name, title, one credential (prior company outcome, relevant domain tenure in years, specific technical expertise). Format: "Sarah Chen, CTO -- former principal engineer at Stripe, led payments infrastructure team of 22."
@@ -140,6 +151,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - "Serial entrepreneur" and "visionary" are empty phrases. Replace them with outcomes: "founded and sold [company] to [acquirer] in [year]" or "led [company] from $0 to $50M ARR."
 
 **Slide 10: Financials**
+
 - Three-year forward projection (not five -- five-year SaaS projections are not credible and signal inexperience). Show revenue, gross margin, operating expenses (split between R&D, S&M, and G&A), and EBITDA by year.
 - Current run rate prominently displayed: "Current ARR: $180K, growing 20% MoM."
 - The J-curve is expected at seed: spending more than you earn for 12-18 months before reaching profitability. Show when the company reaches operating breakeven.
@@ -148,6 +160,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - Do not show five different scenarios (bear/base/bull). Pick one base case and state your assumptions. Showing multiple scenarios signals you do not believe your own numbers.
 
 **Slide 11: The Ask**
+
 - State the exact amount being raised. "We are raising $2M" -- not "up to $3M" or "between $1.5M and $2.5M." Ranges signal negotiation uncertainty and erode confidence.
 - State the instrument: SAFE (Simple Agreement for Future Equity), convertible note, or priced equity round. For seed rounds, SAFEs with MFN (Most Favored Nation) protection are standard. State the valuation cap if using a SAFE or convertible note only if it is already set.
 - Use of funds: three to four categories with percentages that add to 100%. Standard template: Engineering/Product (X%), Sales and Marketing (X%), Operations/Infrastructure (X%), Working Capital (X%). Round numbers are fine: 50/30/20.
@@ -156,6 +169,7 @@ Each slide has a single job. If a slide is trying to do two jobs, split it. The 
 - If not fundraising: replace this slide with a "Partnership Proposal" that states what you are asking the partner to do, what you bring to the partnership, and what success looks like for both parties.
 
 **Slide 12: Closing**
+
 - One sentence restating the company's ultimate vision -- not what you do today, but where you are going. This should be ambitious and memorable.
 - Contact information: website, email, LinkedIn. Make it easy to reach you.
 - Never end with "Thank You" or "Questions?" These are the two weakest possible endings. End with a forward-looking statement that leaves the audience wanting to be part of the story.

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting guide research"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting guide research'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Parenting Styles Overview
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user directly asks about parenting styles, including questions like "what is authoritative parenting?" or "what's the difference between authoritarian and authoritative?"
 - A user wants to understand the research basis for different parenting philosophies and what outcomes have been associated with each
 - A user is trying to understand their own tendencies as a parent and wants a reflective framework -- not an evaluation
@@ -31,6 +33,7 @@ metadata:
 - A user has read conflicting parenting advice and wants a conceptual map to organize what they've encountered
 
 **Do NOT use when:**
+
 - The user is asking for specific discipline techniques or consequence structures -- use `discipline-strategies` instead
 - The user describes specific behavior problems in their child and wants guidance on how to respond -- use `child-behavior-management`
 - The user is describing a situation that involves potential abuse, neglect, or a child in danger -- immediately provide crisis resource language and do not proceed with educational content
@@ -46,6 +49,7 @@ metadata:
 ### Step 1: Identify What the User Actually Wants to Know
 
 Before presenting any content, read the user's question carefully to determine whether they want:
+
 - A conceptual overview of all four styles (most common)
 - A deep dive into one specific style
 - A comparison between two styles (usually authoritative vs. authoritarian)
@@ -56,6 +60,7 @@ Before presenting any content, read the user's question carefully to determine w
 Tailor the response accordingly. A user who asks "what's the difference between strict and authoritative parenting?" needs a focused comparison, not a full four-style breakdown. A user who asks "can you explain all the parenting styles?" needs the complete framework.
 
 **Sub-guidance for reading the question:**
+
 - If the user mentions their own children or says "I think I might be..." -- include the self-reflection questions
 - If the user is a student, researcher, or asks "according to research" -- lean into the methodology and longitudinal study context
 - If the user mentions culture, community, or family background -- prioritize the cultural context section
@@ -66,10 +71,12 @@ Tailor the response accordingly. A user who asks "what's the difference between 
 Diana Baumrind's typology (1966, expanded 1967, 1971) and the later Maccoby and Martin extension (1983) are the foundational source material. Present the two-dimensional model clearly before describing individual styles.
 
 **The two axes are:**
+
 - **Demandingness (behavioral control):** The degree to which the parent sets expectations, enforces compliance, monitors behavior, and maintains consistent standards. This includes maturity demands, discipline structure, and follow-through.
 - **Responsiveness (emotional availability):** The degree to which the parent is warm, attuned, communicative, and supportive of the child's individuality and autonomy. This includes emotional coaching, active listening, and validation.
 
 **Critical framing points:**
+
 - These are dimensions on continuums, not binary categories -- most real-world parenting falls somewhere along each axis rather than at extreme poles
 - Baumrind's original 1966 research was based on direct observation of 32 preschool children and their parents across 14 visits -- it was rigorous but small and non-representative
 - Maccoby and Martin (1983) added the fourth quadrant (uninvolved) and formalized the two-axis grid
@@ -78,9 +85,9 @@ Diana Baumrind's typology (1966, expanded 1967, 1971) and the later Maccoby and 
 **Present the grid early and clearly:**
 
 |                        | High Responsiveness | Low Responsiveness |
-|------------------------|--------------------|--------------------|
-| **High Demandingness** | Authoritative      | Authoritarian      |
-| **Low Demandingness**  | Permissive         | Uninvolved         |
+| ---------------------- | ------------------- | ------------------ |
+| **High Demandingness** | Authoritative       | Authoritarian      |
+| **Low Demandingness**  | Permissive          | Uninvolved         |
 
 ### Step 3: Present Each of the Four Styles with Full Detail
 
@@ -89,6 +96,7 @@ For each style, cover: defining characteristics, communication pattern, discipli
 #### Authoritative (High Demandingness + High Responsiveness)
 
 **Characteristics:**
+
 - Clear, consistent expectations communicated in advance, not arbitrarily imposed
 - Rules are explained with reasoning ("We don't hit because it hurts people and we care about people in this family")
 - The parent is warm, engaged, and actively interested in the child's internal world
@@ -97,11 +105,13 @@ For each style, cover: defining characteristics, communication pattern, discipli
 - The parent uses reasoning, problem-solving, and natural/logical consequences rather than punishment for its own sake
 
 **Communication pattern:**
+
 - Bidirectional -- the parent explains, the child can respond, and the parent genuinely considers the child's perspective without necessarily capitulating
 - Emotional coaching is present -- the parent names feelings, validates them, and then guides behavior ("I can see you're angry that you can't go. That's understandable. And we still need to follow through on the plan.")
 - Repair after conflict is normalized -- the parent models accountability
 
 **Discipline approach:**
+
 - Consistent enforcement with proportionate consequences
 - Natural consequences used where developmentally appropriate and safe
 - Logical consequences (connected to the behavior) preferred over punitive ones (designed to hurt or shame)
@@ -109,6 +119,7 @@ For each style, cover: defining characteristics, communication pattern, discipli
 - Physical punishment is not characteristic of this style
 
 **Research context:**
+
 - Baumrind's longitudinal studies tracked children from preschool through adolescence and found authoritative parenting most consistently associated with: higher academic achievement, stronger self-regulation, greater social competence, lower rates of delinquency, and lower rates of substance use
 - Steinberg et al. (1994) studied 10,000 adolescents and found that the three components of authoritative parenting -- acceptance/involvement, behavioral supervision, and psychological autonomy granting -- each independently predicted positive adolescent outcomes
 - Meta-analyses consistently find authoritative parenting has the strongest and most replicated positive association with child outcomes in Western samples
@@ -117,6 +128,7 @@ For each style, cover: defining characteristics, communication pattern, discipli
 #### Authoritarian (High Demandingness + Low Responsiveness)
 
 **Characteristics:**
+
 - High expectations with strict enforcement, but without warmth, explanation, or emotional attunement
 - Obedience is valued as an end in itself ("Because I said so" is a complete explanation)
 - Rules are non-negotiable and often apply uniformly regardless of context
@@ -124,18 +136,21 @@ For each style, cover: defining characteristics, communication pattern, discipli
 - Physical punishment has historically been more common in this style, though not universal
 
 **Communication pattern:**
+
 - Primarily unidirectional -- the parent directs, the child complies
 - Emotional expression by the child is not typically met with curiosity or validation
 - Dissent is interpreted as disrespect rather than developmental autonomy-seeking
 - Little transparency about the reasoning behind family rules
 
 **Discipline approach:**
+
 - Punitive consequences -- designed to deter through unpleasantness
 - Spanking or physical discipline more prevalent in research samples associated with this style
 - Shame, withdrawal of approval, and comparison to other children are sometimes used as motivators
 - Rules are enforced with high consistency but without flexibility for context
 
 **Research context:**
+
 - In Western, middle-class samples, associated with lower self-esteem, higher anxiety, weaker social skills, and greater external locus of control (children who comply to avoid punishment rather than from internalized values)
 - Baumrind found authoritarian-raised children were more obedient and orderly but less happy, lower in self-reliance
 - Steinberg et al. (1992) found authoritarian parenting associated with lower grades and psychosocial maturity in adolescents, compared to authoritative
@@ -145,6 +160,7 @@ For each style, cover: defining characteristics, communication pattern, discipli
 #### Permissive (Low Demandingness + High Responsiveness)
 
 **Characteristics:**
+
 - High warmth and emotional availability, but few rules, inconsistent enforcement, and reluctance to assert authority
 - The parent struggles to tolerate the child's distress and may withdraw rules or consequences to restore harmony
 - Decision-making is child-driven more than situation calls for
@@ -152,18 +168,21 @@ For each style, cover: defining characteristics, communication pattern, discipli
 - Limits are set but eroded when challenged -- "Well, just this once..."
 
 **Communication pattern:**
+
 - Open, warm, and emotionally validating
 - The parent explains and negotiates extensively, but the child's preferences typically win
 - The parent often seeks the child's approval
 - Emotional expression is highly supported; behavioral limits on that expression are weak
 
 **Discipline approach:**
+
 - Few rules, inconsistently enforced
 - Consequences are rare, negotiated away, or not followed through
 - The parent may apologize for enforcing a limit, or over-explain to the point of undermining authority
 - Natural consequences may be short-circuited by parental intervention
 
 **Research context:**
+
 - Baumrind found permissively-raised children to be less self-reliant, more demanding, and less able to delay gratification
 - Associated with higher self-esteem but weaker impulse control, lower academic achievement, and more conduct problems in some samples
 - Adolescents from permissive homes showed higher rates of substance experimentation in Steinberg's longitudinal work
@@ -173,22 +192,26 @@ For each style, cover: defining characteristics, communication pattern, discipli
 #### Uninvolved (Low Demandingness + Low Responsiveness)
 
 **Characteristics:**
+
 - Neither structure nor warmth is consistently present
 - The parent meets basic physical needs but is largely absent -- emotionally, psychologically, or literally
 - May range from mild neglect (a parent overwhelmed by single parenting three jobs) to severe neglect
 - The child largely self-parents or seeks structure from outside the home
 
 **Communication pattern:**
+
 - Minimal -- the child does not reliably experience a parent as interested in their inner life
 - When interaction occurs, it may be irritable, distracted, or perfunctory
 - The child learns not to bring needs to the parent
 
 **Discipline approach:**
+
 - Negligible -- rules exist in name only or not at all
 - The parent is often unaware of the child's behavior, friendships, or struggles
 - Consequences are rare or unrelated to behavior
 
 **Research context:**
+
 - Consistently associated with the worst outcomes across all measured dimensions: attachment insecurity, lower academic achievement, more behavioral problems, greater substance use, poorer mental health outcomes
 - Maccoby and Martin (1983) added this quadrant specifically to capture the pattern Baumrind had not fully characterized
 - Critically: uninvolved parenting is most commonly circumstantial -- depression, addiction, domestic violence exposure, economic crisis, immigration stress, and extreme work demands can create uninvolved patterns in parents who would otherwise be engaged
@@ -199,20 +222,24 @@ For each style, cover: defining characteristics, communication pattern, discipli
 Do not present the research as more settled than it is. Key limitations to communicate:
 
 **Sample issues:**
+
 - Baumrind's original work: small, non-representative (mostly white, educated, Northern California families)
 - Subsequent large-scale work (Steinberg's 10,000-adolescent study) more representative but still majority Western, with underrepresentation of indigenous and immigrant communities
 
 **Causality cannot be established:**
+
 - Children's temperament affects parental behavior -- an easy-to-manage child may elicit more warmth and patience; a high-intensity child may elicit more control
 - Bidirectional effects are well-documented: this is a transactional relationship, not a one-way influence
 
 **Cultural relativism is not optional:**
+
 - Ruth Chao (1994, 2001) showed Chinese-American "authoritarian" parenting produced outcomes closer to Western authoritative parenting
 - Nancy Hill (2001) found high behavioral control in African-American families in high-risk neighborhoods functioned protectively rather than harmfully
 - Jose and Huntsinger (2005) found Korean-American and Chinese-American parenting classified as authoritarian correlated with higher academic achievement, not lower
 - The research applies most cleanly to white, Western, middle-class samples
 
 **Most parents are not pure types:**
+
 - Parents blend styles across contexts (firm about safety, flexible about preferences)
 - The same parent may be authoritative with one child and more authoritarian with another based on temperament fit
 - Parenting style is not a stable personality trait -- it responds to stress, support, history, and circumstances
@@ -222,18 +249,21 @@ Do not present the research as more settled than it is. Key limitations to commu
 Provide structured, open-ended questions that map to the two axes. Frame these explicitly as reflection tools, not a quiz or scoring instrument. Never tell the user which style they are.
 
 **Demandingness questions (structure axis):**
+
 - What expectations do you hold for your child's behavior, and how do you communicate them?
 - How do you respond when your child breaks a clear rule?
 - Do you follow through with consequences you've stated, even when it's inconvenient?
 - How much of your family's structure is predictable to your child -- do they know what to expect?
 
 **Responsiveness questions (warmth/communication axis):**
+
 - When your child is upset, what happens? Do you address the emotion, redirect immediately, or step away?
 - Do you explain the reasons behind your rules, and does your child feel heard when they push back?
 - How often do you initiate connection with your child on their terms (their interests, their pace)?
 - When there is conflict, does your child feel comfortable coming to you afterward?
 
 **Integration questions:**
+
 - Do you notice a gap between the parent you want to be and the parent you are under stress?
 - Are there specific situations where your approach shifts significantly -- and why?
 - If you asked your child what happens when they make a mistake, what do you think they would say?
@@ -243,6 +273,7 @@ Provide structured, open-ended questions that map to the two axes. Frame these e
 Never omit this. Present it as a genuine limitation of the research framework, not a footnote.
 
 **Key contextual factors that shape how any parenting approach functions:**
+
 - **Community safety:** In neighborhoods with genuine threats (violence, gang recruitment, dangerous traffic, food insecurity), higher behavioral control serves a protective function. Curfews are not authoritarian -- they may be evidence-based safety management.
 - **Economic stress:** Poverty creates time scarcity, emotional depletion, and decision fatigue that make authoritative parenting harder to sustain. This is a systems problem, not an individual failure.
 - **Cultural meaning-making:** What counts as warmth, respect, and structure varies significantly by cultural context. Indirect communication, deference to parents, and communal over-individual decision-making are not deficits -- they are values.
@@ -252,6 +283,7 @@ Never omit this. Present it as a genuine limitation of the research framework, n
 ### Step 7: Close with a Practical Frame and Next Steps
 
 Summarize what the research points toward without being prescriptive. Offer the user clear directions for where to go next depending on their interest:
+
 - For specific discipline techniques: `discipline-strategies`
 - For addressing a specific behavior: `child-behavior-management`
 - For understanding adolescent development context: `adolescent-development-overview`
@@ -390,6 +422,7 @@ Do not validate or invalidate the identification. Provide the research context f
 ### User was raised by a different parenting style and wants to break the pattern
 
 Acknowledge first: "Recognizing a pattern that came from how you were raised, and deciding you want something different for your own children, is one of the harder things a parent can do -- and one of the most important." Then note that intergenerational transmission of parenting patterns is a documented phenomenon (the "chain of adversity" literature, van IJzendoorn, 1992), and that awareness does not automatically translate to behavior change. Suggest:
+
 - Identifying one or two specific behaviors to shift rather than wholesale style transformation
 - The self-reflection questions as a starting point
 - That stress reactivates learned patterns -- the moments when a parent reverts to their own upbringing are usually high-stress moments, not calm ones
@@ -405,6 +438,7 @@ Explain the research on parenting consistency (Lindahl, 1998; Harold et al., 201
 ### Single parent managing without support
 
 Acknowledge explicitly: "The research on authoritative parenting implicitly assumes a two-parent household with adequate time and emotional resources. Single parenting one or more children is a fundamentally different resource context." The most robust finding across economic and family-structure contexts is the importance of warmth and connection -- the single factor that consistently predicts better outcomes even when structure is limited by exhaustion or time. Suggest:
+
 - Prioritizing predictable routines over comprehensive rule systems (structure that runs on autopilot reduces cognitive load)
 - The value of consistent "special time" (10-20 minutes of uninterrupted child-directed play or conversation, daily or near-daily) as the most high-leverage warmth intervention in the developmental literature (Greenspan and Wieder, 1998; Reid, 1993)
 - Not framing the situation as "I'm doing it wrong" but as "I'm doing what I can with what I have"
@@ -440,16 +474,17 @@ Parenting style research, originating with developmental psychologist Diana Baum
 
 These two dimensions are independent. You can have high amounts of both, low amounts of both, or high on one and low on the other. That produces four recognizable patterns:
 
-|                        | High Responsiveness  | Low Responsiveness  |
-|------------------------|---------------------|---------------------|
-| **High Demandingness** | Authoritative        | Authoritarian       |
-| **Low Demandingness**  | Permissive           | Uninvolved          |
+|                        | High Responsiveness | Low Responsiveness |
+| ---------------------- | ------------------- | ------------------ |
+| **High Demandingness** | Authoritative       | Authoritarian      |
+| **Low Demandingness**  | Permissive          | Uninvolved         |
 
 ---
 
 ### Style 1: Authoritative (High Structure + High Warmth)
 
 **Defining characteristics:**
+
 - Clear, consistent expectations that are explained to the child -- "We have this rule because..."
 - Warmth, genuine interest in the child's perspective, and emotional availability
 - Flexibility within structure -- rules can be revisited as children mature and demonstrate responsibility
@@ -473,6 +508,7 @@ Authoritative parenting has the most consistent research support of any style in
 ### Style 2: Authoritarian (High Structure + Low Warmth)
 
 **Defining characteristics:**
+
 - High expectations and strict rules, but without warm explanation or emotional attunement
 - Obedience is treated as an end in itself -- the reasoning behind rules is not offered
 - The parent's authority is not questioned -- challenges are met with increased control
@@ -499,6 +535,7 @@ Ruth Chao (1994) showed that in Chinese-American families, parenting that Wester
 ### Style 3: Permissive (Low Structure + High Warmth)
 
 **Defining characteristics:**
+
 - High warmth, genuine affection, and emotional availability
 - Few rules, inconsistent enforcement, and reluctance to assert authority when it creates conflict
 - The parent finds it difficult to tolerate the child's distress and often backs down to restore harmony
@@ -525,6 +562,7 @@ Permissive parenting is sometimes a reactive overcorrection by parents who exper
 ### Style 4: Uninvolved (Low Structure + Low Warmth)
 
 **Defining characteristics:**
+
 - Neither structure nor warmth is consistently present
 - The parent meets basic physical needs but is largely emotionally absent
 - The child has little experience of being known, celebrated, or guided by a parent
@@ -556,29 +594,29 @@ These are not a quiz and do not produce a score or label. They are prompts for y
 
 **On structure and expectations:**
 
-| Question | What It Surfaces |
-|----------|-----------------|
-| What expectations do you hold for your child's behavior, and how do you communicate them before they are broken? | Clarity and proactivity of demandingness |
-| When your child breaks a rule, what typically happens? | Enforcement consistency and discipline approach |
-| Can your child predict what the consequences of a specific behavior will be? | Predictability and fairness of structure |
-| Do your rules ever change based on the situation, or are they uniformly applied regardless of context? | Flexibility within structure |
+| Question                                                                                                         | What It Surfaces                                |
+| ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| What expectations do you hold for your child's behavior, and how do you communicate them before they are broken? | Clarity and proactivity of demandingness        |
+| When your child breaks a rule, what typically happens?                                                           | Enforcement consistency and discipline approach |
+| Can your child predict what the consequences of a specific behavior will be?                                     | Predictability and fairness of structure        |
+| Do your rules ever change based on the situation, or are they uniformly applied regardless of context?           | Flexibility within structure                    |
 
 **On warmth and communication:**
 
-| Question | What It Surfaces |
-|----------|-----------------|
-| When your child comes to you upset, what happens first -- the emotion gets addressed, or the behavior does? | Responsiveness and emotional availability |
-| Do you explain the reasoning behind your family's rules? Does your child know why the rules exist? | Communication pattern and two-way engagement |
-| How does your child respond when they disagree with a decision? Do they feel safe raising it? | Psychological safety and autonomy |
-| When was the last time you spent uninterrupted time with your child doing something they chose? | Warmth and engagement baseline |
+| Question                                                                                                    | What It Surfaces                             |
+| ----------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| When your child comes to you upset, what happens first -- the emotion gets addressed, or the behavior does? | Responsiveness and emotional availability    |
+| Do you explain the reasoning behind your family's rules? Does your child know why the rules exist?          | Communication pattern and two-way engagement |
+| How does your child respond when they disagree with a decision? Do they feel safe raising it?               | Psychological safety and autonomy            |
+| When was the last time you spent uninterrupted time with your child doing something they chose?             | Warmth and engagement baseline               |
 
 **On integration:**
 
-| Question | What It Surfaces |
-|----------|-----------------|
-| Is there a gap between the parent you want to be and the parent you are under stress? | Stress reactivity and pattern awareness |
-| If your child were asked "what happens when you make a mistake?" -- what do you think they would say? | Child's experience of your discipline approach |
-| Do you notice patterns in your parenting that came from how you were raised -- ones you want to keep and ones you want to change? | Intergenerational transmission awareness |
+| Question                                                                                                                          | What It Surfaces                               |
+| --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| Is there a gap between the parent you want to be and the parent you are under stress?                                             | Stress reactivity and pattern awareness        |
+| If your child were asked "what happens when you make a mistake?" -- what do you think they would say?                             | Child's experience of your discipline approach |
+| Do you notice patterns in your parenting that came from how you were raised -- ones you want to keep and ones you want to change? | Intergenerational transmission awareness       |
 
 ---
 

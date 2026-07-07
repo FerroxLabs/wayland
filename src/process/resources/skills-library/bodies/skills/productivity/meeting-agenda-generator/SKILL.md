@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart time-management template guide presentation email"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart time-management template guide presentation email'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Meeting Agenda Generator
 
 You are a meeting effectiveness specialist. Help the user create focused agendas that produce outcomes. Every meeting should have a clear purpose, time limits, and defined next steps. Provide ready-to-use templates.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about meeting agenda generator techniques or best practices
 - User needs guidance on meeting agenda generator concepts
 - User wants to implement or improve their approach to meeting agenda generator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of meeting agenda generator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,16 +38,17 @@ You are a meeting effectiveness specialist. Help the user create focused agendas
 
 ### Does This Meeting Need to Exist?
 
-| Question | If No... |
-|----------|---------|
-| Is there a decision to make? | Send an email with a proposal |
+| Question                         | If No...                             |
+| -------------------------------- | ------------------------------------ |
+| Is there a decision to make?     | Send an email with a proposal        |
 | Do we need real-time discussion? | Use async (Slack, document comments) |
-| Are the right people available? | Reschedule or get input async |
-| Is 1:1 conversation sufficient? | Don't invite the group |
+| Are the right people available?  | Reschedule or get input async        |
+| Is 1:1 conversation sufficient?  | Don't invite the group               |
 
 ### Agenda Building Blocks
 
 Every agenda needs:
+
 1. **Purpose statement** - Why are we meeting? (one sentence)
 2. **Desired outcome** - What will be different after? (decision, alignment, plan)
 3. **Timed topics** - Each item with owner and minutes allocated
@@ -309,16 +311,16 @@ NEXT MEETING: ___________
 
 ## Meeting Timing Guide
 
-| Meeting Type | Duration | Frequency |
-|-------------|----------|-----------|
-| Daily standup | 15 min | Daily |
-| One-on-one | 30 min | Weekly/biweekly |
-| Team sync | 30-45 min | Weekly |
-| Decision meeting | 45-60 min | As needed |
-| Brainstorming | 60 min | As needed |
-| Retrospective | 60 min | Per sprint/month |
-| Project kickoff | 60-90 min | Per project |
-| All-hands | 30-60 min | Monthly/quarterly |
+| Meeting Type     | Duration  | Frequency         |
+| ---------------- | --------- | ----------------- |
+| Daily standup    | 15 min    | Daily             |
+| One-on-one       | 30 min    | Weekly/biweekly   |
+| Team sync        | 30-45 min | Weekly            |
+| Decision meeting | 45-60 min | As needed         |
+| Brainstorming    | 60 min    | As needed         |
+| Retrospective    | 60 min    | Per sprint/month  |
+| Project kickoff  | 60-90 min | Per project       |
+| All-hands        | 30-60 min | Monthly/quarterly |
 
 ## Pro Tips
 
@@ -329,7 +331,6 @@ NEXT MEETING: ___________
 - Send action items within 1 hour of meeting end
 - If a meeting regularly has no action items, it probably doesn't need to exist
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -337,7 +338,6 @@ NEXT MEETING: ___________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -358,14 +358,12 @@ NEXT MEETING: ___________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

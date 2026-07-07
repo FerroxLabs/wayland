@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting family-events planning"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'parenting family-events planning'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Activity Planner
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about activity planner
 - User needs guidance on activity planner topics
 - User wants a structured approach to activity planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -70,6 +72,7 @@ Score = (D + E + A + L) / 4  -->  Recommend if >= 3.5
 ### Infant Activities (0-12 Months)
 
 **Sensory Exploration:**
+
 - High-contrast card viewing (0-3 months)
 - Texture boards with fabric swatches (3-6 months)
 - Water play in shallow bin with supervision (6-9 months)
@@ -77,6 +80,7 @@ Score = (D + E + A + L) / 4  -->  Recommend if >= 3.5
 - Musical shaker bottles (sealed, large enough to not be a choking hazard)
 
 **Motor Development:**
+
 - Tummy time with mirrors and toys just out of reach
 - Reaching and grasping: dangling scarves, soft toys
 - Cruising stations: furniture arranged for safe pulling up
@@ -84,6 +88,7 @@ Score = (D + E + A + L) / 4  -->  Recommend if >= 3.5
 - Stacking and knocking down soft blocks
 
 **Language Building:**
+
 - Narrate everything: "I'm putting on your blue sock"
 - Sing action songs: Itsy Bitsy Spider, Pat-a-Cake
 - Read board books with exaggerated expression
@@ -94,17 +99,18 @@ Score = (D + E + A + L) / 4  -->  Recommend if >= 3.5
 
 **Sensory Play:**
 
-| Activity | Materials | Skills Built | Mess Level |
-|----------|-----------|-------------|------------|
-| Cloud dough | Flour + baby oil | Fine motor, sensory | High |
-| Water transfer | Cups, sponges, bowls | Fine motor, pouring | Medium |
-| Finger painting | Paint, paper, smocks | Creative expression | High |
-| Playdough kitchen | Playdough, cookie cutters | Fine motor, pretend play | Low |
-| Nature collage | Leaves, sticks, glue, paper | Sensory, art, nature | Medium |
-| Rice bin | Dyed rice, scoops, containers | Sensory, fine motor | Medium |
-| Shaving cream play | Shaving cream on tray | Sensory, pre-writing | Medium |
+| Activity           | Materials                     | Skills Built             | Mess Level |
+| ------------------ | ----------------------------- | ------------------------ | ---------- |
+| Cloud dough        | Flour + baby oil              | Fine motor, sensory      | High       |
+| Water transfer     | Cups, sponges, bowls          | Fine motor, pouring      | Medium     |
+| Finger painting    | Paint, paper, smocks          | Creative expression      | High       |
+| Playdough kitchen  | Playdough, cookie cutters     | Fine motor, pretend play | Low        |
+| Nature collage     | Leaves, sticks, glue, paper   | Sensory, art, nature     | Medium     |
+| Rice bin           | Dyed rice, scoops, containers | Sensory, fine motor      | Medium     |
+| Shaving cream play | Shaving cream on tray         | Sensory, pre-writing     | Medium     |
 
 **Gross Motor:**
+
 - Obstacle course: pillows, tunnels, chairs to crawl under
 - Dance party with freeze dance
 - Ball pit in inflatable pool or laundry basket
@@ -113,6 +119,7 @@ Score = (D + E + A + L) / 4  -->  Recommend if >= 3.5
 - Bubble chasing outdoors
 
 **Pre-Academic (Play-Based):**
+
 - Color sorting with pom-poms and muffin tin
 - Shape puzzles and shape sorters
 - Counting steps, snacks, toys during daily activities
@@ -159,6 +166,7 @@ Cost: $0
 ```
 
 **Creative Projects:**
+
 - Process art (focus on creating, not the product)
 - Junk model building with recyclables
 - Puppet making and puppet shows
@@ -167,6 +175,7 @@ Cost: $0
 - Playdough sculptures
 
 **Outdoor Activities:**
+
 - Nature scavenger hunt (printable checklist)
 - Mud kitchen with old pots and utensils
 - Gardening: plant seeds, water, observe growth
@@ -213,6 +222,7 @@ Steps:
 ```
 
 **Creative and Artistic:**
+
 - Stop-motion animation with phone/tablet and toys
 - Comic book creation
 - Friendship bracelet making
@@ -221,6 +231,7 @@ Steps:
 - Journal/diary with drawing and writing
 
 **Outdoor Adventures:**
+
 - Geocaching (free app, family-friendly)
 - Bike riding and trail exploration
 - Fort building with sticks or snow
@@ -231,6 +242,7 @@ Steps:
 ### Tween/Teen Activities (12+ Years)
 
 **Independent/Social Projects:**
+
 - Photography challenges (themed daily prompts)
 - Podcast or video creation
 - Cooking challenge: plan, budget, shop, cook a full meal
@@ -240,6 +252,7 @@ Steps:
 - Book or movie club with friends
 
 **STEM Advanced:**
+
 - Arduino/Raspberry Pi starter projects
 - App design (Scratch, App Inventor)
 - Chemistry experiments with kitchen science
@@ -250,6 +263,7 @@ Steps:
 ## Seasonal Activity Calendars
 
 ### Spring Activities
+
 - Plant a garden (vegetables, herbs, or flowers)
 - Rain science: measure rainfall, water cycle experiments
 - Bug observation journals
@@ -258,6 +272,7 @@ Steps:
 - Bird nest observation (from safe distance)
 
 ### Summer Activities
+
 - Backyard water play: sprinklers, water balloons, slip and slide
 - Lemonade stand (math, business, social skills)
 - Nature camp at home: daily themed adventures
@@ -266,6 +281,7 @@ Steps:
 - Homemade ice cream science
 
 ### Fall Activities
+
 - Leaf collection and identification
 - Apple picking and applesauce making
 - Pumpkin investigations: weight, circumference, seed counting
@@ -274,6 +290,7 @@ Steps:
 - Harvest cooking with seasonal produce
 
 ### Winter Activities
+
 - Snow experiments: measure, melt, refreeze, compare
 - Indoor fort building and reading marathon
 - Holiday craft projects
@@ -304,6 +321,7 @@ Cardboard Box Universe:
 - Shadow puppet theater with flashlight and hands
 
 ### $1-10 Activities
+
 - Sidewalk chalk art gallery
 - Bubble solution (dish soap + water + glycerin) with wand making
 - Bead jewelry making
@@ -313,6 +331,7 @@ Cardboard Box Universe:
 - Balloon games (volleyball, static electricity experiments)
 
 ### $10-25 Activities
+
 - Pottery/clay projects with air-dry clay
 - Tie-dye kit
 - Simple robotics or circuit kits
@@ -407,24 +426,28 @@ Each day's activity:
 Activities that build academic skills without feeling like "school":
 
 **Math:**
+
 - Cooking with measurement (fractions, doubling recipes)
 - Store play with play money (addition, making change)
 - Building with blocks (geometry, spatial reasoning)
 - Board games: Monopoly Jr, Yahtzee, chess
 
 **Literacy:**
+
 - Restaurant play with menus and order pads
 - Letter hunts on nature walks (find things starting with B)
 - Story dictation: child tells story, adult writes, child illustrates
 - Post office play: write letters to family members
 
 **Science:**
+
 - Kitchen chemistry (baking = chemical reactions)
 - Weather station: daily temperature, cloud observation
 - Animal observation: backyard wildlife journal
 - Growing experiments: same seed, different conditions
 
 **Social Studies:**
+
 - Map making of bedroom, house, neighborhood
 - Cultural cooking: try recipes from different countries
 - Family history interviews with grandparents
@@ -433,6 +456,7 @@ Activities that build academic skills without feeling like "school":
 ## Group Activity Ideas
 
 ### Playdate Activities (2-4 Kids)
+
 - Collaborative art mural
 - Treasure hunt with clues
 - Relay races and obstacle courses
@@ -441,6 +465,7 @@ Activities that build academic skills without feeling like "school":
 - Group cooking project
 
 ### Party Activities (5+ Kids)
+
 - Station rotation (art, games, building, snack)
 - Group scavenger hunt
 - Parachute games (use a bedsheet)

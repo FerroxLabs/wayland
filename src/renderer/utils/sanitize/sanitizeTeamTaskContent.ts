@@ -65,7 +65,17 @@ export const sanitizeTeamTaskDescription = (rawHtml: string): string => {
       'base',
       'img',
     ],
-    FORBID_ATTR: ['style', 'onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onmouseenter', 'onmouseleave'],
+    FORBID_ATTR: [
+      'style',
+      'onerror',
+      'onload',
+      'onclick',
+      'onmouseover',
+      'onfocus',
+      'onblur',
+      'onmouseenter',
+      'onmouseleave',
+    ],
   });
 
   // Anchor post-pass: reject unsafe schemes, force rel + target.

@@ -12,13 +12,13 @@ description: >-
   wayland-bullshit-clean).
 license: Apache-2.0
 type: workflow
-skills: "convert-four-questions convert-temperature convert-audit convert-bullshit-filter convert-voice"
+skills: 'convert-four-questions convert-temperature convert-audit convert-bullshit-filter convert-voice'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing conversion copywriting audit donahoe-method step-by-step
   category: marketing
-  depends: "convert-four-questions convert-temperature convert-audit convert-bullshit-filter convert-voice"
+  depends: 'convert-four-questions convert-temperature convert-audit convert-bullshit-filter convert-voice'
 ---
 
 Interactive audit of existing copy against The Donahoe Method. Score it 0-100,

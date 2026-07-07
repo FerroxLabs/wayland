@@ -13,7 +13,7 @@ steps:
   - id: authorize
     title: Sign in with Figma
     estSeconds: 30
-    primaryAction: { label: "Sign in with Figma", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Figma', action: 'oauth-flow' }
     warning: |
       The hosted Dev Mode MCP requires a **Dev seat** or **Full seat** on a
       paid Figma plan. Free / Starter accounts cannot connect - you'll see an

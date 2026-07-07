@@ -12,11 +12,11 @@ The Command Queue is a user-controlled command buffering mechanism. When the AI 
 
 ### 1.2 Core Files
 
-| File                                                                       | Responsibility                                                        |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `src/renderer/pages/conversation/platforms/useConversationCommandQueue.ts` | Core hook, 726 lines, contains all queue logic                        |
-| `src/renderer/components/chat/CommandQueuePanel.tsx`                       | Queue UI panel - supports editing, drag-and-drop, and deletion        |
-| `src/renderer/hooks/mcp/messageQueue.ts`                                   | MCP toast message queue (separate mechanism, not the Command Queue)   |
+| File                                                                       | Responsibility                                                      |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `src/renderer/pages/conversation/platforms/useConversationCommandQueue.ts` | Core hook, 726 lines, contains all queue logic                      |
+| `src/renderer/components/chat/CommandQueuePanel.tsx`                       | Queue UI panel - supports editing, drag-and-drop, and deletion      |
+| `src/renderer/hooks/mcp/messageQueue.ts`                                   | MCP toast message queue (separate mechanism, not the Command Queue) |
 
 ### 1.3 Data Structures and Constraints
 
@@ -34,13 +34,13 @@ type ConversationCommandQueueState = {
 };
 ```
 
-| Constraint              | Value                               |
-| ----------------------- | ----------------------------------- |
-| Max queue length        | 20 items                            |
-| Max chars per item      | 20,000                              |
-| Max attachments per item| 50                                  |
-| Max queue storage       | 256 KB                              |
-| Persistence             | sessionStorage (per conversation)   |
+| Constraint               | Value                             |
+| ------------------------ | --------------------------------- |
+| Max queue length         | 20 items                          |
+| Max chars per item       | 20,000                            |
+| Max attachments per item | 50                                |
+| Max queue storage        | 256 KB                            |
+| Persistence              | sessionStorage (per conversation) |
 
 ### 1.4 Enqueue Conditions
 
@@ -129,25 +129,25 @@ The Queue mechanism is integrated via SendBox and is supported on all of the fol
 
 ### 2.1 Core Files
 
-| File                                        | Responsibility                        |
-| ------------------------------------------- | ------------------------------------- |
-| `src/process/agent/acp/AcpConnection.ts`    | Core state machine, 1192 lines        |
-| `src/process/agent/acp/index.ts` (AcpAgent) | Higher-level Agent wrapper            |
-| `src/process/agent/acp/acpConnectors.ts`    | Backend-specific spawn logic          |
-| `src/common/types/acpTypes.ts`              | Type definitions                      |
+| File                                        | Responsibility                 |
+| ------------------------------------------- | ------------------------------ |
+| `src/process/agent/acp/AcpConnection.ts`    | Core state machine, 1192 lines |
+| `src/process/agent/acp/index.ts` (AcpAgent) | Higher-level Agent wrapper     |
+| `src/process/agent/acp/acpConnectors.ts`    | Backend-specific spawn logic   |
+| `src/common/types/acpTypes.ts`              | Type definitions               |
 
 ### 2.2 State Variables
 
 ACP does not use a single enum to represent state. Instead, state is determined implicitly through a **combination of multiple independent flags**:
 
-| Variable          | Type                   | Meaning                         |
-| ----------------- | ---------------------- | ------------------------------- |
-| `child`           | `ChildProcess \| null` | Reference to the child process  |
-| `sessionId`       | `string \| null`       | Active session ID               |
+| Variable          | Type                   | Meaning                                    |
+| ----------------- | ---------------------- | ------------------------------------------ |
+| `child`           | `ChildProcess \| null` | Reference to the child process             |
+| `sessionId`       | `string \| null`       | Active session ID                          |
 | `isInitialized`   | `boolean`              | Whether the protocol handshake is complete |
-| `isSetupComplete` | `boolean`              | Whether the startup phase is complete |
-| `backend`         | `AcpBackend \| null`   | Backend type                    |
-| `pendingRequests` | `Map`                  | In-progress RPC requests        |
+| `isSetupComplete` | `boolean`              | Whether the startup phase is complete      |
+| `backend`         | `AcpBackend \| null`   | Backend type                               |
+| `pendingRequests` | `Map`                  | In-progress RPC requests                   |
 
 Derived properties:
 
@@ -162,16 +162,16 @@ get hasActiveSession(): boolean {
 
 ### 2.3 Logical States
 
-| State             | Condition combination                                      | Meaning                                       |
-| ----------------- | ---------------------------------------------------------- | --------------------------------------------- |
-| **DISCONNECTED**  | child=null, sessionId=null, isInitialized=false            | No process, no session                        |
-| **CONNECTING**    | child≠null, isInitialized=false                            | Process is starting up                        |
-| **INITIALIZING**  | child running, initialize request in flight                | Protocol handshake in progress (60s timeout)  |
-| **CONNECTED**     | isConnected=true, isInitialized=true, isSetupComplete=true | Ready, waiting for a session to be created    |
-| **HAS_SESSION**   | CONNECTED + sessionId≠null                                 | Can send messages                             |
-| **STREAMING**     | HAS_SESSION + pendingRequests.size>0                       | Turn in progress                              |
-| **ERROR_STARTUP** | child exited, isSetupComplete=false                        | Crashed during startup phase                  |
-| **ERROR_RUNTIME** | child exited, isSetupComplete=true                         | Crashed at runtime                            |
+| State             | Condition combination                                      | Meaning                                      |
+| ----------------- | ---------------------------------------------------------- | -------------------------------------------- |
+| **DISCONNECTED**  | child=null, sessionId=null, isInitialized=false            | No process, no session                       |
+| **CONNECTING**    | child≠null, isInitialized=false                            | Process is starting up                       |
+| **INITIALIZING**  | child running, initialize request in flight                | Protocol handshake in progress (60s timeout) |
+| **CONNECTED**     | isConnected=true, isInitialized=true, isSetupComplete=true | Ready, waiting for a session to be created   |
+| **HAS_SESSION**   | CONNECTED + sessionId≠null                                 | Can send messages                            |
+| **STREAMING**     | HAS_SESSION + pendingRequests.size>0                       | Turn in progress                             |
+| **ERROR_STARTUP** | child exited, isSetupComplete=false                        | Crashed during startup phase                 |
+| **ERROR_RUNTIME** | child exited, isSetupComplete=true                         | Crashed at runtime                           |
 
 ### 2.4 State Transition Diagram
 
@@ -204,19 +204,19 @@ stateDiagram-v2
 
 ### 2.5 Key Methods and Line Numbers
 
-| Method                        | Lines     | Responsibility                        |
-| ----------------------------- | --------- | ------------------------------------- |
-| `connect()`                   | 204-265   | Initiate connection                   |
-| `doConnect()`                 | 267-336   | Dispatch spawn by backend             |
-| `setupChildProcessHandlers()` | 338-483   | Set up protocol handlers              |
-| `initialize()`                | 852-867   | Send initialize RPC                   |
-| `newSession()`                | 885-929   | Create a new session                  |
-| `loadSession()`               | 939-956   | Restore an existing session           |
-| `sendPrompt()`                | 1006-1024 | Send user message                     |
-| `handleMessage()`             | 705-745   | Receive response                      |
-| `handleProcessExit()`         | 489-513   | Process exit cleanup                  |
-| `disconnect()`                | 1126-1139 | User-initiated disconnect             |
-| `cancelPrompt()`              | 1031-1051 | Cancel the current turn               |
+| Method                        | Lines     | Responsibility              |
+| ----------------------------- | --------- | --------------------------- |
+| `connect()`                   | 204-265   | Initiate connection         |
+| `doConnect()`                 | 267-336   | Dispatch spawn by backend   |
+| `setupChildProcessHandlers()` | 338-483   | Set up protocol handlers    |
+| `initialize()`                | 852-867   | Send initialize RPC         |
+| `newSession()`                | 885-929   | Create a new session        |
+| `loadSession()`               | 939-956   | Restore an existing session |
+| `sendPrompt()`                | 1006-1024 | Send user message           |
+| `handleMessage()`             | 705-745   | Receive response            |
+| `handleProcessExit()`         | 489-513   | Process exit cleanup        |
+| `disconnect()`                | 1126-1139 | User-initiated disconnect   |
+| `cancelPrompt()`              | 1031-1051 | Cancel the current turn     |
 
 ### 2.6 Stability Issue Analysis
 

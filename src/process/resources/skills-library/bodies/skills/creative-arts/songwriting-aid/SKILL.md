@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing guide step-by-step"
-  category: "creative-arts"
-  subcategory: "music-composition"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing guide step-by-step'
+  category: 'creative-arts'
+  subcategory: 'music-composition'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Songwriting Aid
@@ -25,11 +25,13 @@ Your approach is collaborative, not prescriptive. You offer options and alternat
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about songwriting aid
 - User needs guidance on songwriting aid topics
 - User wants a structured approach to songwriting aid
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -51,6 +53,7 @@ Before co-writing or advising, establish context:
 
 **Verse-Chorus (ABABCB or similar):**
 The most common pop and rock structure.
+
 ```
 Verse 1
 Chorus
@@ -62,6 +65,7 @@ Chorus (often with variation or double)
 
 **Verse-Chorus-Verse (AABA):**
 Classic Tin Pan Alley form, still used in jazz and some pop.
+
 ```
 Verse (A)
 Verse (A)
@@ -71,6 +75,7 @@ Verse (A)
 
 **Verse-Pre-Chorus-Chorus:**
 Adds a pre-chorus to build tension before the payoff.
+
 ```
 Verse 1
 Pre-Chorus
@@ -90,15 +95,15 @@ No repeated sections; the song develops continuously. Rare in pop, common in art
 
 ### Section Functions
 
-| Section | Purpose | Characteristics |
-|---------|---------|-----------------|
-| **Intro** | Set the mood, grab attention | Instrumental hook or vocal tease; 4-8 bars |
-| **Verse** | Tell the story, set up the chorus | Conversational melody, lower energy, detail-rich lyrics |
-| **Pre-Chorus** | Build tension and anticipation | Rising melody or rhythm change, transitional lyrics |
-| **Chorus** | Deliver the emotional core and hook | Highest energy, most memorable melody, title usually here |
-| **Bridge** | Provide contrast and new perspective | Different chord progression, melody, and lyrical angle |
-| **Outro** | Close the song | Fade out, final hook repetition, or definitive ending |
-| **Post-Chorus** | Extend the high after the chorus | Often instrumental or a simple vocal hook |
+| Section         | Purpose                              | Characteristics                                           |
+| --------------- | ------------------------------------ | --------------------------------------------------------- |
+| **Intro**       | Set the mood, grab attention         | Instrumental hook or vocal tease; 4-8 bars                |
+| **Verse**       | Tell the story, set up the chorus    | Conversational melody, lower energy, detail-rich lyrics   |
+| **Pre-Chorus**  | Build tension and anticipation       | Rising melody or rhythm change, transitional lyrics       |
+| **Chorus**      | Deliver the emotional core and hook  | Highest energy, most memorable melody, title usually here |
+| **Bridge**      | Provide contrast and new perspective | Different chord progression, melody, and lyrical angle    |
+| **Outro**       | Close the song                       | Fade out, final hook repetition, or definitive ending     |
+| **Post-Chorus** | Extend the high after the chorus     | Often instrumental or a simple vocal hook                 |
 
 ### Song Length Guidelines
 
@@ -121,6 +126,7 @@ Specific, concrete details hit harder than abstract emotions. Give the listener 
 ### The Title as Anchor
 
 Most successful songs have a strong, memorable title that:
+
 - Appears in the chorus (usually the hook line)
 - Summarizes the song's emotional core in a few words
 - Is easy to remember and search for
@@ -132,18 +138,22 @@ Most successful songs have a strong, memorable title that:
 
 **Conversational Style:**
 Write as if talking to someone. Uses natural speech patterns. Common in country, folk, singer-songwriter.
+
 - "I was walking home from Jimmy's bar / It was a quarter past the moon"
 
 **Poetic/Imagistic Style:**
 Dense with metaphor and imagery. More literary. Common in indie, art-pop.
+
 - "I am a landfill / Truck that you piled high" - Radiohead
 
 **Narrative Style:**
 Tells a story with characters, plot, and setting. Common in country, folk, hip-hop.
+
 - "Tom's Diner" - Suzanne Vega; "Stan" - Eminem
 
 **Confessional Style:**
 Raw, personal, emotionally direct. Common across genres.
+
 - "I'm so tired of being here / Suppressed by all my childish fears" - Evanescence
 
 ### The Power of Specificity
@@ -215,6 +225,7 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 ## Genre-Specific Conventions
 
 ### Pop
+
 - Chorus within the first 60 seconds (ideally 30)
 - Strong, singable hooks
 - Tight, economical lyrics
@@ -222,6 +233,7 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 - Topline melodies that sit on top of the track
 
 ### Country
+
 - Story-driven lyrics with vivid imagery
 - Conversational, relatable language
 - Strong verse-chorus contrast
@@ -229,6 +241,7 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 - The bridge often delivers the emotional turn
 
 ### Rock
+
 - Riff-driven songwriting
 - Dynamic contrast between sections (quiet verse, loud chorus)
 - Lyrics can be more abstract or poetic
@@ -236,6 +249,7 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 - Guitar hooks often define the song
 
 ### Hip-Hop/Rap
+
 - Flow (rhythmic delivery) is paramount
 - Complex rhyme schemes: internal rhyme, multisyllabic, compound
 - Verses carry the weight; hooks provide the anchor
@@ -243,6 +257,7 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 - Beat selection shapes the entire feel
 
 ### Folk
+
 - Lyrics are king - the song must work acoustically with just voice and guitar
 - Storytelling, narrative, and character development
 - Longer songs are more accepted
@@ -250,6 +265,7 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 - Finger-picking patterns and open tunings
 
 ### R&B
+
 - Vocal melody and delivery are primary
 - Groove and feel matter more than lyric complexity
 - Emotional vulnerability and sensuality
@@ -270,22 +286,27 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 ### Common Chord Progressions
 
 **The "Pop Progression" (I-V-vi-IV):**
+
 - C-G-Am-F (in the key of C)
 - Used in countless hits: "Let It Be," "No Woman No Cry," "Someone Like You"
 
 **The "50s Progression" (I-vi-IV-V):**
+
 - C-Am-F-G
 - Classic, nostalgic feel
 
 **The Minor Progression (vi-IV-I-V):**
+
 - Am-F-C-G
 - Moody, emotional, dramatic
 
 **The "Andalusian Cadence" (vi-V-IV-III):**
+
 - Am-G-F-E
 - Dramatic, dark, flamenco-influenced
 
 **12-Bar Blues (I-I-I-I-IV-IV-I-I-V-IV-I-V):**
+
 - Foundation of rock, blues, and early pop
 
 ### Matching Chords to Emotion
@@ -309,6 +330,7 @@ Hum your hook without lyrics. If the melody alone is distinctive and memorable, 
 7. **Set a deadline.** Aim to finish a rough draft in a single session if possible.
 
 ### Nashville Co-Writing Etiquette
+
 - Be punctual and prepared
 - Bring ideas (titles, concepts, melody fragments)
 - Splits are typically equal regardless of who wrote more
@@ -366,6 +388,7 @@ When a songwriter is stuck:
 ## Response Guidelines
 
 When helping a songwriter:
+
 - Ask what they have so far before suggesting new directions
 - Offer multiple lyric options for any given line - let them choose
 - Explain the craft principle behind your suggestions
@@ -373,7 +396,6 @@ When helping a songwriter:
 - Respect their genre and artistic vision
 - Encourage finishing songs over perfecting them - done is better than perfect
 - Celebrate their unique voice and perspective
-
 
 ## Output Format
 

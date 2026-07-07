@@ -48,16 +48,16 @@ Result:  [state after the feature completes]
 
 ### 2.2 Naming Conventions
 
-| Type             | Convention                  | Example                                         |
-| ---------------- | --------------------------- | ----------------------------------------------- |
-| React components | PascalCase                  | `MessageList.tsx`, `FilePreview.tsx`            |
-| Hooks            | `use` prefix + PascalCase   | `useAutoScroll.ts`, `useColorScheme.ts`         |
-| Bridge files     | FeatureName + Bridge        | `conversationBridge.ts`, `databaseBridge.ts`    |
-| Service files    | FeatureName + Service       | `WebuiService.ts`                               |
-| Interface types  | `I` prefix                  | `ICreateConversationParams`, `IResponseMessage` |
-| Type aliases     | `T` prefix or direct name   | `TChatConversation`, `PresetAgentType`          |
-| Constants        | UPPER_SNAKE_CASE            | `MAX_RETRY_COUNT`                               |
-| Utility functions| camelCase                   | `formatMessage`, `parseResponse`                |
+| Type              | Convention                | Example                                         |
+| ----------------- | ------------------------- | ----------------------------------------------- |
+| React components  | PascalCase                | `MessageList.tsx`, `FilePreview.tsx`            |
+| Hooks             | `use` prefix + PascalCase | `useAutoScroll.ts`, `useColorScheme.ts`         |
+| Bridge files      | FeatureName + Bridge      | `conversationBridge.ts`, `databaseBridge.ts`    |
+| Service files     | FeatureName + Service     | `WebuiService.ts`                               |
+| Interface types   | `I` prefix                | `ICreateConversationParams`, `IResponseMessage` |
+| Type aliases      | `T` prefix or direct name | `TChatConversation`, `PresetAgentType`          |
+| Constants         | UPPER_SNAKE_CASE          | `MAX_RETRY_COUNT`                               |
+| Utility functions | camelCase                 | `formatMessage`, `parseResponse`                |
 
 ### 2.3 File Location Conventions
 
@@ -110,15 +110,15 @@ src/
 
 ```json
 {
-  "semi": true,            // use semicolons
-  "singleQuote": true,     // use single quotes
-  "jsxSingleQuote": true,  // use single quotes in JSX
-  "trailingComma": "es5",  // trailing commas where valid in ES5
-  "tabWidth": 2,           // 2-space indentation
-  "useTabs": false,        // no tabs
-  "bracketSpacing": true,  // spaces inside object braces
+  "semi": true, // use semicolons
+  "singleQuote": true, // use single quotes
+  "jsxSingleQuote": true, // use single quotes in JSX
+  "trailingComma": "es5", // trailing commas where valid in ES5
+  "tabWidth": 2, // 2-space indentation
+  "useTabs": false, // no tabs
+  "bracketSpacing": true, // spaces inside object braces
   "arrowParens": "always", // always wrap arrow function parameters
-  "endOfLine": "lf"        // Unix line endings
+  "endOfLine": "lf" // Unix line endings
 }
 ```
 
@@ -167,27 +167,27 @@ src/
 
 **Main process (src/process/)**
 
-| File path | Action              | Notes |
-| --------- | ------------------- | ----- |
-|           | [ ] Add / [ ] Modify |      |
+| File path | Action               | Notes |
+| --------- | -------------------- | ----- |
+|           | [ ] Add / [ ] Modify |       |
 
 **Renderer process (src/renderer/)**
 
-| File path | Action              | Notes |
-| --------- | ------------------- | ----- |
-|           | [ ] Add / [ ] Modify |      |
+| File path | Action               | Notes |
+| --------- | -------------------- | ----- |
+|           | [ ] Add / [ ] Modify |       |
 
 **Shared modules (src/common/)**
 
-| File path | Action              | Notes |
-| --------- | ------------------- | ----- |
-|           | [ ] Add / [ ] Modify |      |
+| File path | Action               | Notes |
+| --------- | -------------------- | ----- |
+|           | [ ] Add / [ ] Modify |       |
 
 **Type definitions (src/types/)**
 
-| File path | Action              | Notes |
-| --------- | ------------------- | ----- |
-|           | [ ] Add / [ ] Modify |      |
+| File path | Action               | Notes |
+| --------- | -------------------- | ----- |
+|           | [ ] Add / [ ] Modify |       |
 
 ### 3.3 IPC Communication Design
 
@@ -322,8 +322,8 @@ Allows users to export the current conversation as a PDF file, preserving messag
 ### 1.3 User Scenario
 
 Trigger: User clicks the "Export" button in the top-right corner of the conversation page and selects "Export as PDF"
-Flow:    System collects conversation content, renders it as HTML, and converts it to PDF
-Result:  A save dialog appears; after the user selects a location, the PDF file is generated
+Flow: System collects conversation content, renders it as HTML, and converts it to PDF
+Result: A save dialog appears; after the user selects a location, the PDF file is generated
 
 ### 3.2 Files to Modify / Add
 
@@ -349,10 +349,10 @@ Result:  A save dialog appears; after the user selects a location, the PDF file 
 
 ### 5.1 Similar Feature References
 
-| Feature         | File path                                                     | Notes                      |
-| --------------- | ------------------------------------------------------------- | -------------------------- |
-| Markdown export | src/renderer/hooks/useExportMarkdown.ts                       | Reference for export flow  |
-| PDF preview     | src/renderer/pages/conversation/preview/PdfViewer.tsx         | Reference for PDF handling |
+| Feature         | File path                                             | Notes                      |
+| --------------- | ----------------------------------------------------- | -------------------------- |
+| Markdown export | src/renderer/hooks/useExportMarkdown.ts               | Reference for export flow  |
+| PDF preview     | src/renderer/pages/conversation/preview/PdfViewer.tsx | Reference for PDF handling |
 ```
 
 ---

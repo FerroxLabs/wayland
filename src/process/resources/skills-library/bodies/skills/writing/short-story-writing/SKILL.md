@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing planning"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing planning'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Short Story Writing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to write a short story, short fiction, or a prose narrative of any genre between 1,000 and 10,000 words
 - The user has a premise, image, character, or scenario and wants it turned into a complete short story draft
 - The user wants to develop a story idea from concept through finished draft, including structural planning and revision
@@ -29,6 +31,7 @@ metadata:
 - The user wants to experiment with a narrative technique they have encountered in their reading (e.g., second-person, frame narrative, braided structure)
 
 **Do NOT use this skill when:**
+
 - The user wants fiction under 1,000 words -- use `flash-fiction`, which handles the specific compression techniques flash requires (sudden fiction, six-word stories, 100-word drabbles)
 - The user wants to plan a novel, series, or multi-chapter work -- use `plot-outline`, which handles act structure, subplot threading, and chapter-level scene sequencing
 - The user wants a poem, prose poem, or lyric essay -- use `poetry-writing`, which handles line breaks, meter, sonic patterning, and the non-narrative lyric arc
@@ -89,31 +92,37 @@ Present the full plan as a structured document. Ask for confirmation or adjustme
 Write the complete story in one pass, then review by layer. Do not try to perfect each sentence before moving to the next -- draft for momentum, then revise for precision. The following craft principles govern every layer of the draft:
 
 **Prose rhythm and sentence architecture:**
+
 - Vary sentence length deliberately. Long sentences create accumulation, intimacy, and immersion. Short sentences create impact, finality, and threat. The ratio should shift with the story's emotional temperature -- more short sentences during high-tension moments, longer more complex syntax during interiority and reflection.
 - Avoid three-adjective constructions. One precise adjective beats three approximate ones. "The rotting pier" is stronger than "the old, broken-down, weathered pier."
 - Paragraphing is punctuation at the scene level. A one-sentence paragraph says: stop. Pay attention here. Use it as such.
 
 **Scene construction:**
+
 - Every scene needs an entry point (where are we and what is immediately happening), a pressure point (the moment of highest tension in the scene), and an exit point (what has changed -- in situation, relationship, or understanding -- by the end of it). Scenes without an exit point are non-scenes; they are description masquerading as narrative.
 - Enter scenes late and leave them early. Cut the first paragraph of most scenes (the setup that explains why characters are in a room) and cut the last paragraph (the transition out). Drop in at the moment something is already in motion.
 - Show the scene -- don't explain it. Characters move, speak, act, notice things. The reader builds understanding from behavior, not from the narrator's summary of emotional states.
 
 **Dialogue:**
+
 - Dialogue does four jobs: advances plot, reveals character, creates subtext, and varies prose rhythm. Every line of dialogue should do at least two of these simultaneously.
 - Subtext is the gap between what a character says and what they mean. A character who says "I'm fine" when they are not fine is interesting. A character who says "I'm devastated" when they are devastated is not.
 - Attribution: use "said" and "asked" as invisible defaults. Action tags (She set down the glass. "I don't think so.") are more vivid than adverb-modified speech tags ("she said coldly"). Never use "ejaculated," "expostulated," or any attribution that draws attention to itself.
 - Read all dialogue aloud mentally. If it sounds like written language rather than spoken language, it needs revision.
 
 **POV discipline:**
+
 - First person: the narrator has a voice, a history, and blind spots. The most important thing about a first-person narrator is what they cannot or will not see about themselves. The reader should understand more than the narrator does.
 - Third-person limited: the narrative camera stays inside one character's head. Never access another character's thoughts. Render other characters entirely through observable behavior: what they say, do, wear, how they move.
 - Third-person omniscient: choose a primary character to track closely and only dip into other perspectives with clear narrative purpose. Head-hopping (shifting perspective mid-scene without a break) creates reader disorientation and emotional distance. Use scene breaks (marked ---) when shifting perspective.
 - Unreliable narrators: establish the unreliability in the opening third through small, observable contradictions between what the narrator claims and what the narrated events reveal. The reader should feel the ground shift before it actually does.
 
 **The constraint in action:**
+
 - Honor the formal constraint established in Step 1 throughout the entire draft. The constraint is not a gimmick bolted on -- it should be generating the story's specific possibilities. An epistolary story about grief should have letters that tell us about the letter-writer's relationship with the recipient through what is said and not said. A story told in second person should use the "you" to create intimacy with an experience that "I" would distance.
 
 **Pacing by genre:**
+
 - Literary fiction: slower interiority, longer scenes, more descriptive density, meaning embedded in texture. Acceptable pace is 400--500 words per scene beat.
 - Thriller and horror: lean syntax, shorter paragraphs, high event-to-word ratio, tension maintained through withholding information. Scene beats run 150--250 words.
 - Science fiction and fantasy: world-building must be delivered through scene, action, and dialogue -- not in exposition blocks. The "iceberg rule" applies: 90% of the world-building knowledge stays off the page; 10% appears, and it implies the rest.
@@ -127,6 +136,7 @@ Write the complete story in one pass, then review by layer. Do not try to perfec
 Review the completed draft against the following checklist. Fix failures before presenting the story to the user:
 
 **Universal checks (all genres):**
+
 - Does the opening sentence earn the next sentence? Does the first paragraph earn the second? The reader should be unable to stop reading the opening.
 - Is there a single central tension that runs through every scene? If you can remove a scene without losing that tension, the scene is not load-bearing -- revise it or cut it.
 - Is the turning point clearly identifiable? Does it occur in the second half of the story, not at the midpoint?
@@ -135,6 +145,7 @@ Review the completed draft against the following checklist. Fix failures before 
 - Is every named character doing work that a named character needs to do? If a character exists only to deliver one line of information, eliminate them or give that information to a character already in the scene.
 
 **Genre-specific checks:**
+
 - Horror: is there genuine dread in the setup, or only gore in the resolution? The most effective horror stories create fear through anticipation, not event. The thing not-yet-seen is almost always scarier than the thing revealed.
 - Mystery: are all clues discoverable in re-read, planted before they become relevant? Is the solution a logical consequence of established facts, or a revelation of new information?
 - Science fiction/fantasy: is the world-building earning its word count? Every paragraph of exposition that does not also advance plot or character is a paragraph the reader will skim.
@@ -268,6 +279,7 @@ Dark subject matter -- grief, trauma, addiction, violence, abuse, mental illness
 **Step 1 Output (Constraint Confirmation):**
 
 All five constraints confirmed:
+
 - **Genre:** Magical realism
 - **POV:** Third-person limited (protagonist: the daughter)
 - **Target length:** ~3,500 words
@@ -289,6 +301,7 @@ This is a **character-driven story** with an **atmosphere-driven secondary engin
 **Central tension:** The daughter (Ruth) wants to grieve efficiently -- to sort, donate, discard, and leave before dark. The house will not cooperate. Each clock she encounters draws her toward a memory of her mother she did not know she did not have -- moments from her mother's life before Ruth existed, or moments Ruth was present for but never understood. Ruth must decide whether to open these memories or leave them sealed.
 
 **Scene sequence (reverse chronological, room by room):**
+
 1. **Attic (1990s -- Ruth's late childhood):** The grandfather clock, 11:47 PM. Ruth finds her mother's journals and does not open them. She lifts the pendulum and a memory surfaces: her mother standing alone at the kitchen window at midnight, not sad exactly, but not present. Ruth had been eight, watching from the stairs. She had assumed her mother was happy.
 2. **Guest bedroom (1980s -- Ruth's early childhood):** An alarm clock, 6:14 AM, its cord neatly coiled. The memory: her mother waking before everyone else, not because she had to, but because the early morning was the only hour that belonged entirely to her. Ruth had never known this. She had thought her mother was a natural early riser, easy and uncomplicated.
 3. **Bathroom (late 1970s -- before Ruth's birth):** A small travel clock on the edge of the tub, 3:30 AM. The memory this one contains is not Ruth's -- it belongs to the house, or to her mother alone. Ruth can feel it sealed behind the clock face but cannot open it. This is the first time she encounters the limitation: some memories are not hers to have.
@@ -304,7 +317,7 @@ This is a **character-driven story** with an **atmosphere-driven secondary engin
 
 **Emotional arc for the reader:** Opens in the mild unease of entering a dead person's house, moves through the specific tenderness of learning something posthumously true about a parent, arrives at the bittersweet -- the recognition that the people we love most are never fully available to us, and that this is not a failure of love but a condition of it.
 
-*Do you want me to proceed with this plan, or adjust any element before I draft?*
+_Do you want me to proceed with this plan, or adjust any element before I draft?_
 
 ---
 
@@ -314,7 +327,7 @@ This is a **character-driven story** with an **atmosphere-driven secondary engin
 
 ## The Hours She Kept
 
-*Magical realism | Third-person limited | Elegiac | ~3,500 words*
+_Magical realism | Third-person limited | Elegiac | ~3,500 words_
 
 ---
 
@@ -334,22 +347,22 @@ The memory did not announce itself. It arrived the way the warmth had arrived, t
 
 ---
 
-*[Story continues through all six rooms, approximately 550--600 words per section, maintaining the reverse chronological structure, the magical realism register, and the third-person limited POV until the final image at the front door.]*
+_[Story continues through all six rooms, approximately 550--600 words per section, maintaining the reverse chronological structure, the magical realism register, and the third-person limited POV until the final image at the front door.]_
 
 ---
 
 ### Story Notes
 
-| Element | Detail |
-|---|---|
-| **Premise** | A woman cleaning out her dead mother's house discovers the stopped clocks each contain sealed memories of her mother's life |
-| **Core engine** | Character-driven with atmosphere-driven secondary engine |
-| **Key constraint** | Reverse chronological order, moving backward through the house room by room |
-| **POV** | Third-person limited (Ruth); zero access to other characters' interiority |
-| **Tonal register** | Primary: elegiac. Secondary: quietly strange (magical realism matter-of-factness) |
-| **Structural pattern** | Six-section reverse arc, one room per section, each section one decade earlier |
-| **Ending type** | Open resolution -- Ruth takes the handless clock; we do not see what she does with it |
-| **Word count** | ~3,500 |
+| Element                | Detail                                                                                                                      |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Premise**            | A woman cleaning out her dead mother's house discovers the stopped clocks each contain sealed memories of her mother's life |
+| **Core engine**        | Character-driven with atmosphere-driven secondary engine                                                                    |
+| **Key constraint**     | Reverse chronological order, moving backward through the house room by room                                                 |
+| **POV**                | Third-person limited (Ruth); zero access to other characters' interiority                                                   |
+| **Tonal register**     | Primary: elegiac. Secondary: quietly strange (magical realism matter-of-factness)                                           |
+| **Structural pattern** | Six-section reverse arc, one room per section, each section one decade earlier                                              |
+| **Ending type**        | Open resolution -- Ruth takes the handless clock; we do not see what she does with it                                       |
+| **Word count**         | ~3,500                                                                                                                      |
 
 ### If You Want Changes
 

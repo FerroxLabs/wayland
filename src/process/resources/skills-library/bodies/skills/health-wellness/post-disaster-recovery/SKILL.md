@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness self-care checklist guide research planning safety emergency-preparedness"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness self-care checklist guide research planning safety emergency-preparedness'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Post-Disaster Recovery
@@ -22,15 +22,16 @@ You are a disaster recovery advisor who helps individuals and families navigate 
 
 > **DISCLAIMER**: This skill provides general guidance about post-disaster recovery processes. It is not a substitute for legal, financial, insurance, or mental health professional advice. Insurance policies, government programs, and regulations vary by location and change over time. Always consult qualified professionals for decisions about insurance claims, legal matters, financial planning, and mental health treatment.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about post disaster recovery techniques or best practices
 - User needs guidance on post disaster recovery concepts
 - User wants to implement or improve their approach to post disaster recovery
 
 **Do NOT use when:**
+
 - The request falls outside the scope of post disaster recovery
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -77,6 +78,7 @@ You are a disaster recovery advisor who helps individuals and families navigate 
 - [ ] Get contact information of witnesses if relevant
 
 **Create a damage inventory:**
+
 ```
 ROOM: ________________
 
@@ -98,6 +100,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 ### Filing Your Claim
 
 **Step 1: Report immediately**
+
 - Call your insurance company's claims hotline
 - Have your policy number ready
 - Describe the damage and provide your current contact information
@@ -107,6 +110,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 - Ask about the timeline for adjuster visit and payment
 
 **Step 2: Understand your policy**
+
 - [ ] Review your policy declarations page
 - [ ] Know your deductible amount(s) - may be different for wind vs. flood
 - [ ] Understand your coverage limits (dwelling, contents, other structures)
@@ -116,6 +120,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 - [ ] Check for ordinance or law coverage (code upgrade requirements)
 
 **Step 3: Work with the adjuster**
+
 - Be present for the adjuster's inspection
 - Walk through all damage with them
 - Point out damage they may miss (hidden areas, attic, crawlspace)
@@ -127,6 +132,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 ### Claim Tips
 
 **Do:**
+
 - Keep detailed records of ALL communication with your insurer
 - Save every receipt related to the disaster (emergency expenses, temporary housing, repairs)
 - Make temporary repairs to prevent further damage (this is usually required by your policy)
@@ -136,6 +142,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 - Ask about additional payments if you discover hidden damage later
 
 **Do not:**
+
 - Do not accept the first settlement offer without reviewing it carefully
 - Do not discard damaged items before the adjuster documents them
 - Do not sign a final release until you are sure all damage has been assessed
@@ -145,6 +152,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 ### If You Disagree with Your Claim
 
 **Escalation options (in order):**
+
 1. Discuss concerns with your adjuster and provide additional documentation
 2. Request a re-inspection or second adjuster
 3. Hire a public adjuster (works for you, not the insurance company, typically takes 10-15% of settlement)
@@ -167,12 +175,14 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 ### How to Apply
 
 **Registration methods:**
+
 - Online: DisasterAssistance.gov
 - Phone: 1-800-621-3362 (FEMA helpline)
 - In person: Disaster Recovery Centers (locations announced after declarations)
 - Mobile app: FEMA app
 
 **Information you will need:**
+
 - Social Security number
 - Address of damaged property
 - Current contact information
@@ -182,15 +192,15 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 
 ### Types of FEMA Assistance
 
-| Program | What It Covers | Notes |
-|---------|---------------|-------|
-| Housing Assistance | Temporary housing, home repair, replacement | Based on need, not replacement value |
-| Other Needs Assistance (ONA) | Medical, dental, funeral, personal property, transportation, other | Receipts and documentation required |
-| Temporary housing | Rental assistance or temporary housing unit | Time-limited, renewable |
-| SBA Disaster Loans | Home repair, business recovery, personal property | Low-interest loans, requires application |
-| Crisis Counseling | Free mental health support | Available in declared disaster areas |
-| Disaster Unemployment | Temporary unemployment benefits | For those who lost work due to disaster |
-| Legal Services | Free legal help for disaster-related issues | Through disaster legal services programs |
+| Program                      | What It Covers                                                     | Notes                                    |
+| ---------------------------- | ------------------------------------------------------------------ | ---------------------------------------- |
+| Housing Assistance           | Temporary housing, home repair, replacement                        | Based on need, not replacement value     |
+| Other Needs Assistance (ONA) | Medical, dental, funeral, personal property, transportation, other | Receipts and documentation required      |
+| Temporary housing            | Rental assistance or temporary housing unit                        | Time-limited, renewable                  |
+| SBA Disaster Loans           | Home repair, business recovery, personal property                  | Low-interest loans, requires application |
+| Crisis Counseling            | Free mental health support                                         | Available in declared disaster areas     |
+| Disaster Unemployment        | Temporary unemployment benefits                                    | For those who lost work due to disaster  |
+| Legal Services               | Free legal help for disaster-related issues                        | Through disaster legal services programs |
 
 ### FEMA Process Timeline
 
@@ -253,6 +263,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 ### Hiring Contractors
 
 **Vetting contractors:**
+
 - [ ] Verify state and local licensing
 - [ ] Confirm insurance (general liability and workers' compensation)
 - [ ] Check references (call them)
@@ -262,6 +273,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 - [ ] Check for complaints or disciplinary actions
 
 **Contract essentials:**
+
 - [ ] Detailed scope of work in writing
 - [ ] Itemized cost breakdown
 - [ ] Payment schedule tied to milestones (not just dates)
@@ -272,6 +284,7 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 - [ ] Lien waiver provisions
 
 **Red flags for fraud:**
+
 - Demands full payment upfront
 - Only accepts cash
 - No written contract
@@ -305,21 +318,22 @@ PHOTOS TAKEN: Y/N  Photo file numbers: _____________
 
 ### Financial Recovery Resources
 
-| Resource | What It Offers |
-|----------|---------------|
-| FEMA assistance | Grants for housing and other needs (not repaid) |
-| SBA disaster loans | Low-interest loans for repair and replacement |
-| Red Cross | Emergency financial assistance |
-| Salvation Army | Emergency financial assistance |
-| United Way 211 | Referrals to local assistance programs |
-| State disaster relief funds | Varies by state |
-| Community foundations | Local disaster relief grants |
-| Faith-based organizations | Financial and material assistance |
-| Employer assistance programs | Company disaster relief funds |
+| Resource                     | What It Offers                                  |
+| ---------------------------- | ----------------------------------------------- |
+| FEMA assistance              | Grants for housing and other needs (not repaid) |
+| SBA disaster loans           | Low-interest loans for repair and replacement   |
+| Red Cross                    | Emergency financial assistance                  |
+| Salvation Army               | Emergency financial assistance                  |
+| United Way 211               | Referrals to local assistance programs          |
+| State disaster relief funds  | Varies by state                                 |
+| Community foundations        | Local disaster relief grants                    |
+| Faith-based organizations    | Financial and material assistance               |
+| Employer assistance programs | Company disaster relief funds                   |
 
 ### Organizing Recovery Paperwork
 
 Create a recovery file with these sections:
+
 1. **Insurance**: Policy, claim number, correspondence, adjuster reports, settlement documents
 2. **FEMA**: Registration number, decision letters, appeal documents
 3. **SBA**: Application, correspondence, loan documents
@@ -334,6 +348,7 @@ Create a recovery file with these sections:
 ### Normal Reactions to Disaster
 
 Common reactions that typically improve with time:
+
 - Shock, disbelief, numbness
 - Anxiety, fear, worry about the future
 - Anger, irritability, frustration
@@ -363,6 +378,7 @@ Common reactions that typically improve with time:
 ### When to Seek Professional Help
 
 **Seek help if, after several weeks:**
+
 - Symptoms are not improving or are getting worse
 - You cannot function in daily activities
 - You are having thoughts of self-harm
@@ -443,7 +459,6 @@ FINANCIAL:
 [ ] Tax deduction documented Date: _______
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -451,7 +466,6 @@ FINANCIAL:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -472,14 +486,12 @@ FINANCIAL:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

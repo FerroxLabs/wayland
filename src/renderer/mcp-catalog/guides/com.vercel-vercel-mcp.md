@@ -14,7 +14,7 @@ steps:
   - id: authorize
     title: Sign in with Vercel
     estSeconds: 60
-    primaryAction: { label: "Sign in with Vercel", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Vercel', action: 'oauth-flow' }
     warning: |
       Connecting Vercel MCP grants Wayland **the same access as your Vercel
       user account** for the team you select - including read access to

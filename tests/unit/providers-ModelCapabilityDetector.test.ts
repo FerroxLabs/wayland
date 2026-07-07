@@ -4,7 +4,10 @@ import type { ProviderModel } from '../../src/process/providers/types';
 
 const detector = new ModelCapabilityDetector();
 
-function stub(id: string, provider: Parameters<typeof detector['detect']>[0]['provider']): ProviderModel & { provider: typeof provider } {
+function stub(
+  id: string,
+  provider: Parameters<(typeof detector)['detect']>[0]['provider']
+): ProviderModel & { provider: typeof provider } {
   return { id, displayName: id, tier: 'everyday', capabilities: [], enabled: true, provider };
 }
 

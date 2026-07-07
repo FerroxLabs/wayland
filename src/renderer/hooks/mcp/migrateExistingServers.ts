@@ -27,7 +27,5 @@ export interface McpServerRecord {
 }
 
 export function migrateExistingServers<T extends McpServerRecord>(servers: readonly T[]): T[] {
-  return servers.map((server) =>
-    server.source ? server : ({ ...server, source: 'custom' as const })
-  );
+  return servers.map((server) => (server.source ? server : { ...server, source: 'custom' as const }));
 }

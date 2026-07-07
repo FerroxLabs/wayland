@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel planning photography itinerary"
-  category: "travel-experiences"
-  subcategory: "experiences-activities"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel planning photography itinerary'
+  category: 'travel-experiences'
+  subcategory: 'experiences-activities'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Travel Photography Planner
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks to plan photography-focused days or sessions during an upcoming trip, including how to balance shooting time with other travel activities
 - Wants a shot list for a specific destination -- whether an iconic city, national park, coastal region, or cultural festival -- organized by subject type and light window
 - Needs accurate sunrise, sunset, golden hour, and blue hour timing for a specific destination and date range, and wants to know how those light windows map to specific locations
@@ -35,6 +37,7 @@ metadata:
 - Wants to plan around special light conditions: golden hour, blue hour, magic hour in mountain terrain, foggy mornings, rainy season diffused light, or nocturnal city photography
 
 **Do NOT use this skill when:**
+
 - The user wants general travel itinerary planning without a photography focus -- use `trip-itinerary-builder` instead, which handles logistics, accommodation, and activity sequencing
 - The user asks about camera settings, exposure, depth of field, aperture, shutter speed, or technical photography technique -- use design-creative photography skills instead
 - The user wants to edit, retouch, color grade, or post-process photos -- this is a separate domain requiring different tools and guidance
@@ -307,7 +310,9 @@ This is not optional content -- cultural missteps can damage the user's experien
 ## Edge Cases
 
 ### Smartphone-Only Photographer
+
 Smartphones (current flagship models) have fixed-focal-length equivalent sensors, limited manual exposure control, and excellent computational photography that compensates for physical lens limitations. Adjust the plan as follows:
+
 - Remove all shots requiring focal lengths beyond approximately 65mm equivalent (current phone optical zoom limits range from 3x to 10x depending on model -- verify the user's specific model)
 - Recommend the user use the native camera app in "Pro" or "Manual" mode for golden hour and blue hour shots to prevent the automatic HDR from washing out warm tones
 - Add composition-focused reminders: rule of thirds, leading lines, and foreground-background layering matter even more on a phone because technical variation is limited
@@ -316,7 +321,9 @@ Smartphones (current flagship models) have fixed-focal-length equivalent sensors
 - Golden hour light benefits smartphones exactly as much as dedicated cameras -- the light quality, not the camera, is the variable
 
 ### Rainy Season or Persistently Overcast Destination
+
 Overcast light eliminates harsh shadows and creates even illumination across subjects -- it is actively superior for markets, portraits, and any scene with significant contrast. Do not treat overcast as a failure mode.
+
 - Shift Tier 1 shots away from panorama and landscape (which require dramatic sky) toward street level and interior subjects (which benefit from diffused light)
 - Add: shooting through a rain-wet window (reflections and bokeh), puddle reflections of landmarks, umbrellas as compositional color elements, and empty streets during light rain (people shelter, streets clear)
 - For wet conditions: add a waterproof camera cover to the gear list (the $15-25 slip-over covers work for showers; only weather-sealed bodies should be used in sustained rain without additional protection)
@@ -324,7 +331,9 @@ Overcast light eliminates harsh shadows and creates even illumination across sub
 - Note that fog, which often accompanies wet weather, creates atmospheric perspective -- a foggy version of a panorama shot can be more compelling than the clear version
 
 ### Destination with Significant Photography Restrictions
+
 Some of the world's most photographed destinations have serious restrictions that require upfront research rather than on-arrival discovery.
+
 - **Legal restrictions:** Never recommend photographing military infrastructure, border facilities, or designated government buildings in any country. Consequences range from camera confiscation to detention. In some countries (Ethiopia, North Korea, certain restricted zones), unauthorized photography of specific subjects is a criminal offense.
 - **Religious site restrictions:** Establish the rule for each site -- ban all photography, allow exterior only, allow interior without flash, allow photography outside of prayer times only. This is site-specific and must be researched for the destination.
 - **Covert photography recommendation is never appropriate:** If a location prohibits photography, the plan must state this and exclude it. Do not suggest angles or techniques for photographing restricted areas covertly.
@@ -332,14 +341,18 @@ Some of the world's most photographed destinations have serious restrictions tha
 - **Model releases:** If any of the user's intended photos include identifiable people's faces and the output goal is commercial or publication (not personal/blog), note that model releases may be required -- this crosses into professional photography territory and should be flagged.
 
 ### Traveling with Non-Photographers (Partners, Family, Groups)
+
 The photography plan must not colonize the entire trip -- this is the most common complaint non-photographers have about traveling with photographers.
+
 - Apply the "photographer's breakfast" pattern: the solo golden hour session from sunrise to 8:30 AM happens while the non-photographer sleeps. The photographer returns, and shared days start at a reasonable hour. This captures the two most valuable light windows of the day (golden hour AM and blue hour AM) without impacting shared time.
 - Identify 3-4 locations where the non-photographer has genuine reasons to be present: scenic viewpoints with seating and a view they will also enjoy, markets with food and shopping, waterfront areas, or cafes within 100 meters of a priority shooting location.
 - Establish a "photography limit" per shared session: the photographer gets 15-20 minutes per location during shared time before the group moves on. This is a real social contract that prevents trip-ruining tension.
 - Plan the most photography-intensive day (typically Day 2 or Day 3) as a solo or mixed day -- not Day 1 (when the shared excitement of arrival matters) and not the final day (when shared experiences close the trip).
 
 ### Short Trip (1-2 Days Only)
+
 A 2-day trip cannot attempt a comprehensive shot list. Ruthless prioritization is required.
+
 - Select maximum 2 Tier 1 anchor shots for the entire trip -- these are the only shots that matter
 - Assign one golden hour session per day entirely to one anchor shot (one for AM, one for PM), with no inter-location transitions during light windows
 - Skip formal scouting -- go direct to the primary position using pre-researched positioning notes and arrive 20 minutes early to assess
@@ -348,13 +361,17 @@ A 2-day trip cannot attempt a comprehensive shot list. Ruthless prioritization i
 - The gear checklist compresses to: primary lens only (leave the secondary lens in the hotel to reduce carry weight), camera body, 2 batteries, 1 large memory card, no tripod unless the one Tier 1 shot is a blue-hour composition
 
 ### Ultra-Wide or Special Equipment Scenarios (Drone, ND Filters, Wide-Angle Primes)
+
 When the user's gear list includes specialized equipment, the plan must address that equipment's specific opportunities and constraints.
+
 - **Drone photography:** Before including any drone shot in the plan, verify the destination's drone regulations in detail. In the European Union, drone operation requires registration and may require a remote pilot certificate depending on the drone's weight class. Many US national parks prohibit drone launch. In many Asian cities, drone flight within 5km of any airport (and many urban areas fall within this radius) is prohibited. If the drone is legally operable: golden hour drone shots of coastal cliffs, agricultural patterns, and urban geometry are achievable in 15-20 minute battery windows; plan drone sessions as their own scheduled blocks accounting for battery swap and FAA/CAA pre-flight checks.
 - **Long exposure with ND filters:** A 10-stop ND filter requires a tripod, a remote shutter release or 2-second timer to prevent vibration, and a scene with a moving element (water, clouds, pedestrians). The exposure time at ISO 100 f/8 with a 10-stop ND in bright midday sun is approximately 30-60 seconds -- plan 5-10 minutes per long exposure composition including setup, test exposures, and the exposure itself.
 - **Ultra-wide prime (14-20mm full-frame):** Excellent for interior architecture, dramatic foreground-background landscapes, and night sky photography. Creates significant distortion in vertical lines -- foreground elements need to be deliberately placed. At golden hour, an ultra-wide at f/1.8 captures star fields or city lights against the last sky color in 15-30 second exposures.
 
 ### Travel Photography at Festivals, Markets, and Crowded Events
+
 Events introduce timing dependencies, high crowd density, and high contrast lighting that require specific planning.
+
 - Identify the specific event timing within the broader festival: the quiet preparation period (often 60-90 minutes before official opening) provides the best photography conditions -- vendors arranging goods, performers in costume without performance energy, and low crowd density
 - Crowds themselves are compositional tools -- plan for crowd shots at peak density as well as empty-venue shots at off-hours; both tell different stories of the same event
 - High contrast lighting is the dominant challenge at night markets and illuminated festival venues -- expose for the highlights (lit stalls, illuminated decorations) and allow shadows to fall, rather than exposing for the shadows and blowing out the light sources
@@ -382,16 +399,17 @@ Events introduce timing dependencies, high crowd density, and high contrast ligh
 
 ### Light Schedule
 
-| Date | Civil Twilight | Sunrise | Golden Hour AM | Solar Noon | Golden Hour PM | Sunset | Blue Hour PM |
-|------|----------------|---------|----------------|------------|----------------|--------|--------------|
-| Nov 13 | 6:02 AM | 6:30 AM | 6:30-7:15 AM | 11:50 AM | 4:15-4:55 PM | 4:55 PM | 4:55-5:20 PM |
-| Nov 14 | 6:03 AM | 6:31 AM | 6:31-7:16 AM | 11:50 AM | 4:14-4:54 PM | 4:54 PM | 4:54-5:19 PM |
-| Nov 15 | 6:04 AM | 6:32 AM | 6:32-7:17 AM | 11:50 AM | 4:13-4:53 PM | 4:53 PM | 4:53-5:18 PM |
-| Nov 16 | 6:05 AM | 6:33 AM | 6:33-7:18 AM | 11:50 AM | 4:12-4:52 PM | 4:52 PM | 4:52-5:17 PM |
-| Nov 17 | 6:06 AM | 6:34 AM | 6:34-7:19 AM | 11:50 AM | 4:11-4:51 PM | 4:51 PM | 4:51-5:16 PM |
-| Nov 18 | 6:07 AM | 6:35 AM | 6:35-7:20 AM | 11:50 AM | 4:10-4:50 PM | 4:50 PM | 4:50-5:15 PM |
+| Date   | Civil Twilight | Sunrise | Golden Hour AM | Solar Noon | Golden Hour PM | Sunset  | Blue Hour PM |
+| ------ | -------------- | ------- | -------------- | ---------- | -------------- | ------- | ------------ |
+| Nov 13 | 6:02 AM        | 6:30 AM | 6:30-7:15 AM   | 11:50 AM   | 4:15-4:55 PM   | 4:55 PM | 4:55-5:20 PM |
+| Nov 14 | 6:03 AM        | 6:31 AM | 6:31-7:16 AM   | 11:50 AM   | 4:14-4:54 PM   | 4:54 PM | 4:54-5:19 PM |
+| Nov 15 | 6:04 AM        | 6:32 AM | 6:32-7:17 AM   | 11:50 AM   | 4:13-4:53 PM   | 4:53 PM | 4:53-5:18 PM |
+| Nov 16 | 6:05 AM        | 6:33 AM | 6:33-7:18 AM   | 11:50 AM   | 4:12-4:52 PM   | 4:52 PM | 4:52-5:17 PM |
+| Nov 17 | 6:06 AM        | 6:34 AM | 6:34-7:19 AM   | 11:50 AM   | 4:11-4:51 PM   | 4:51 PM | 4:51-5:16 PM |
+| Nov 18 | 6:07 AM        | 6:35 AM | 6:35-7:20 AM   | 11:50 AM   | 4:10-4:50 PM   | 4:50 PM | 4:50-5:15 PM |
 
 **Sun Direction Notes:**
+
 - Golden hour AM: Sun azimuth approximately 115-120° (south-southeast), east-facing temple gates and garden ponds receive direct warm light; south-facing structures are front-lit
 - Golden hour PM: Sun azimuth approximately 235-240° (west-southwest), western-facing pagoda facades and pond surfaces light up with warm orange tones
 - November mid-Kyoto sunset is extremely compressed -- golden hour is only 40-45 minutes (the sun drops at a relatively steep angle at latitude 35°N). Arrive early, do not adjust tripod position during this window.
@@ -404,24 +422,27 @@ Events introduce timing dependencies, high crowd density, and high contrast ligh
 ### Shot List
 
 #### Tier 1 -- Anchor Shots (Schedule around these)
-| # | Shot | Location | Time Window | Focal Length | Composition | Challenge | Fallback |
-|---|------|----------|-------------|--------------|-------------|-----------|---------|
-| A1 | Bamboo grove vertical columns with fog or directional morning light | Arashiyama bamboo path, northern section past the entrance gate | 6:30-7:30 AM | 35-50mm (compressed vertical) | Vertical, low horizon, converging lines of bamboo | Crowds arrive by 8:00 AM -- arriving at 6:30 AM is essential | If fogged out: return at dusk for low-light version with single visitor silhouette |
-| A2 | Fushimi Inari torii gates tunnel: lone figure silhouette, warm backlight | Fushimi Inari upper mountain trail, past the third station (Yotsutsuji), approximately 40-minute climb | 4:00-4:50 PM | 35mm | Single figure (partner or stranger) silhouetted walking away through receding red gates | Upper trail is significantly less crowded than entrance; managing a cooperative silhouette requires a patient stranger or your partner walking ahead | If partner unwilling: reshoot at 6:30 AM on Day 5 with 24mm for a wider, architecturally focused version without figure |
-| A3 | Kinkakuji (Golden Pavilion) morning reflection with autumn foliage framing | Kinkakuji-cho, reflection pond east bank, northeast corner of pond for diagonal framing | 6:30-7:15 AM | 70mm (compressed reflection, reduces visual noise from other visitors) | Horizontal, reflection at base of frame, foliage in upper right corner | Kinkakuji opens at 9:00 AM -- this shot requires the exterior view from the east-facing street before opening, or scouting the pond reflection shot from the public approach path before gates | Alternate: Ryoanji garden (5-minute walk) opens at 8:00 AM -- rock garden in morning light is a quieter, equally strong shot |
+
+| #   | Shot                                                                       | Location                                                                                               | Time Window  | Focal Length                                                           | Composition                                                                             | Challenge                                                                                                                                                                                      | Fallback                                                                                                                     |
+| --- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------ | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| A1  | Bamboo grove vertical columns with fog or directional morning light        | Arashiyama bamboo path, northern section past the entrance gate                                        | 6:30-7:30 AM | 35-50mm (compressed vertical)                                          | Vertical, low horizon, converging lines of bamboo                                       | Crowds arrive by 8:00 AM -- arriving at 6:30 AM is essential                                                                                                                                   | If fogged out: return at dusk for low-light version with single visitor silhouette                                           |
+| A2  | Fushimi Inari torii gates tunnel: lone figure silhouette, warm backlight   | Fushimi Inari upper mountain trail, past the third station (Yotsutsuji), approximately 40-minute climb | 4:00-4:50 PM | 35mm                                                                   | Single figure (partner or stranger) silhouetted walking away through receding red gates | Upper trail is significantly less crowded than entrance; managing a cooperative silhouette requires a patient stranger or your partner walking ahead                                           | If partner unwilling: reshoot at 6:30 AM on Day 5 with 24mm for a wider, architecturally focused version without figure      |
+| A3  | Kinkakuji (Golden Pavilion) morning reflection with autumn foliage framing | Kinkakuji-cho, reflection pond east bank, northeast corner of pond for diagonal framing                | 6:30-7:15 AM | 70mm (compressed reflection, reduces visual noise from other visitors) | Horizontal, reflection at base of frame, foliage in upper right corner                  | Kinkakuji opens at 9:00 AM -- this shot requires the exterior view from the east-facing street before opening, or scouting the pond reflection shot from the public approach path before gates | Alternate: Ryoanji garden (5-minute walk) opens at 8:00 AM -- rock garden in morning light is a quieter, equally strong shot |
 
 #### Tier 2 -- Supporting Shots
-| # | Shot | Location | Optimal Time | Focal Length | Composition | Notes |
-|---|------|----------|--------------|--------------|-------------|-------|
-| S1 | Geisha or maiko figure walking lantern-lit street | Gion Hanamikoji-dori, evening | 6:00-8:00 PM | 85mm f/1.8 | Medium portrait with bokeh street lights in background, available light only | Never follow, block, or photograph up-close -- use 85mm to capture from a respectful distance. Evening weekday better than weekend |
-| S2 | Autumn maples over stone garden path with vermillion lanterns | Eikan-do Zenrinji, east garden path | 10:00-11:30 AM (soft light, no harsh shadows in enclosed garden) | 35mm | Horizontal, path as leading line, lantern as foreground anchor | ¥1,000 entry fee. Peak foliage late November -- may be early on Nov 13-15. Return Nov 16-18 for peak color if applicable |
-| S3 | Torii gate forest abstract: geometric repetition detail | Fushimi Inari lower section, dense gate corridors | 6:30-8:30 AM | 70mm (compressed), 85mm | Tight horizontal, gates filling entire frame, exposure on the lit base columns | This is a pattern shot, not a people shot -- shoot before crowds arrive for clean geometry |
-| S4 | Temple monk in raked gravel garden | Daitokuji sub-temple (Daisen-in), garden view from covered walkway | 9:00-10:00 AM | 70mm | Medium environmental, monk centered or off-center with gravel raked pattern in foreground | Not all sub-temples are open; Daisen-in and Koto-in are reliably open. Do not photograph if monk appears to be in prayer -- wait |
-| S5 | Kamo River at dusk with stone bridge and autumn trees reflecting | Sanjo-bashi or Gojo-bashi, river bank | 4:10-5:10 PM | 24-35mm | Wide horizontal, bridge diagonal, autumn trees upper frame, water reflection lower | Tripod recommended; accessible from city center, no entry fee |
-| S6 | Street-level market life in Nishiki Market | Nishiki Ichiba, central corridor | 10:00-11:00 AM | 35mm f/2.8 | Medium, working-from-above vendors or street-level food close-up | Ask before photographing vendors directly. Wider early morning before crowds; market opens 9:00 AM. Do not use flash |
-| S7 | Interior temple architecture: wooden beam ceiling with hanging lanterns | Higashi Honganji or Nishi Honganji, main hall | 9:00-11:00 AM | 24mm | Vertical looking up, symmetrical ceiling composition | Tripod may not be allowed inside -- handheld at ISO 3200-6400 with IBIS (A7IV has 5.5-stop IBIS, fully viable at 1/60s with 24mm) |
+
+| #   | Shot                                                                    | Location                                                           | Optimal Time                                                     | Focal Length            | Composition                                                                               | Notes                                                                                                                              |
+| --- | ----------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| S1  | Geisha or maiko figure walking lantern-lit street                       | Gion Hanamikoji-dori, evening                                      | 6:00-8:00 PM                                                     | 85mm f/1.8              | Medium portrait with bokeh street lights in background, available light only              | Never follow, block, or photograph up-close -- use 85mm to capture from a respectful distance. Evening weekday better than weekend |
+| S2  | Autumn maples over stone garden path with vermillion lanterns           | Eikan-do Zenrinji, east garden path                                | 10:00-11:30 AM (soft light, no harsh shadows in enclosed garden) | 35mm                    | Horizontal, path as leading line, lantern as foreground anchor                            | ¥1,000 entry fee. Peak foliage late November -- may be early on Nov 13-15. Return Nov 16-18 for peak color if applicable           |
+| S3  | Torii gate forest abstract: geometric repetition detail                 | Fushimi Inari lower section, dense gate corridors                  | 6:30-8:30 AM                                                     | 70mm (compressed), 85mm | Tight horizontal, gates filling entire frame, exposure on the lit base columns            | This is a pattern shot, not a people shot -- shoot before crowds arrive for clean geometry                                         |
+| S4  | Temple monk in raked gravel garden                                      | Daitokuji sub-temple (Daisen-in), garden view from covered walkway | 9:00-10:00 AM                                                    | 70mm                    | Medium environmental, monk centered or off-center with gravel raked pattern in foreground | Not all sub-temples are open; Daisen-in and Koto-in are reliably open. Do not photograph if monk appears to be in prayer -- wait   |
+| S5  | Kamo River at dusk with stone bridge and autumn trees reflecting        | Sanjo-bashi or Gojo-bashi, river bank                              | 4:10-5:10 PM                                                     | 24-35mm                 | Wide horizontal, bridge diagonal, autumn trees upper frame, water reflection lower        | Tripod recommended; accessible from city center, no entry fee                                                                      |
+| S6  | Street-level market life in Nishiki Market                              | Nishiki Ichiba, central corridor                                   | 10:00-11:00 AM                                                   | 35mm f/2.8              | Medium, working-from-above vendors or street-level food close-up                          | Ask before photographing vendors directly. Wider early morning before crowds; market opens 9:00 AM. Do not use flash               |
+| S7  | Interior temple architecture: wooden beam ceiling with hanging lanterns | Higashi Honganji or Nishi Honganji, main hall                      | 9:00-11:00 AM                                                    | 24mm                    | Vertical looking up, symmetrical ceiling composition                                      | Tripod may not be allowed inside -- handheld at ISO 3200-6400 with IBIS (A7IV has 5.5-stop IBIS, fully viable at 1/60s with 24mm)  |
 
 #### Tier 3 -- Opportunistic Shots (Stay primed for these)
+
 - Temple entrance details: weathered wood textures, engravings on stone lanterns, moss on stone steps -- 70-85mm, close framing, morning sidelight
 - Incense smoke rising in temple courtyards: backlit, silhouetted smoke against a dark tree or gate background, 70mm, tight framing
 - Autumn leaf single close-up on stone or wood surface after rain or morning dew: 85mm macro range, extreme close, single leaf with water droplets
@@ -433,6 +454,7 @@ Events introduce timing dependencies, high crowd density, and high contrast ligh
 ### Location Scouting Notes
 
 #### Arashiyama Bamboo Grove (Sagano Bamboo Forest)
+
 - **GPS reference:** North of Tenryu-ji garden, between Nonomiya Shrine and Okochi Sanso villa entrance
 - **Best shooting position:** Enter at the main Kimono-Hanamichi street entrance and walk approximately 100 meters to where the path curves left -- here the bamboo creates a near-perfect converging line composition. Turn 180° for the reverse angle with the path curving away. The northern section (past the halfway point) is less visited in the early morning.
 - **Optimal focal length:** 35-50mm captures the scale of the bamboo and allows the path to disappear into distance; 85mm compresses and abstracts the vertical stalks into a pattern

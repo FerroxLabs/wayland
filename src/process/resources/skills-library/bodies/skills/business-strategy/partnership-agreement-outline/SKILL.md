@@ -6,13 +6,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship planning strategy decision-making template"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'entrepreneurship planning strategy decision-making template'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Partnership Agreement Outline
@@ -22,6 +22,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User is starting a business with a co-founder and needs to discuss partnership terms
 - User wants to structure an equity split with a business partner
 - User asks about co-founder agreements, partnership terms, or equity allocation
@@ -29,6 +30,7 @@ metadata:
 - User wants to prepare for a conversation with a co-founder about business terms
 
 **Do NOT use this skill when:**
+
 - User needs a legally binding contract (recommend an attorney)
 - User is deciding which business entity to form (use `incorporation-comparison`)
 - User needs investor terms or fundraising structure (use `fundraising-narrative`)
@@ -63,14 +65,12 @@ metadata:
    **The hard conversation:** If partners cannot agree on equity after an honest discussion, that disagreement is a signal about alignment. Better to discover it now than after the company is worth something.
 
 3. **Define vesting.** Vesting protects all partners from a co-founder who leaves early:
-
    - **Standard vesting:** 4-year vesting with 1-year cliff. Each partner "earns" their equity over 4 years. If a partner leaves before 1 year, they receive nothing. After the cliff, equity vests monthly or quarterly.
    - **Why vesting matters:** Without vesting, a partner who leaves after 3 months keeps their full equity stake. The remaining partners do all the work but share ownership with someone who is no longer contributing.
    - **Acceleration clauses:** What happens to unvested equity if the company is acquired? Single-trigger (accelerates on acquisition) or double-trigger (accelerates only if the partner is terminated after acquisition).
    - **Vesting is not about trust.** It is about protecting all partners, including the one who leaves, by ensuring a fair outcome regardless of what happens.
 
 4. **Define roles and decision rights.** Ambiguity about who decides what causes most co-founder conflicts:
-
    - **CEO/final decision maker:** One person must have final say on day-to-day operational decisions. Shared leadership works in theory but creates paralysis in practice.
    - **Decision categories:**
      - Day-to-day operations (one person decides)
@@ -81,7 +81,6 @@ metadata:
    - **Deadlock resolution:** What happens when partners cannot agree? Options: mediator, advisory board vote, coin flip on minor issues, predetermined tiebreaker
 
 5. **Define compensation and expenses.** Money issues addressed early prevent resentment:
-
    - **Salary:** Will partners take a salary? When does salary start? (often deferred until revenue or funding)
    - **Expense reimbursement:** What business expenses are reimbursable? What is the approval process?
    - **Profit distribution:** How are profits distributed? Pro-rata to equity, or a different formula?
@@ -89,14 +88,12 @@ metadata:
    - **Sweat equity accounting:** If one partner works without pay longer than others, is that additional equity, a loan, or a salary deferral?
 
 6. **Define intellectual property ownership.** IP clarity prevents lawsuits:
-
    - All IP created for the business belongs to the business entity, not individual partners
    - Pre-existing IP that a partner brings to the business: is it assigned, licensed, or retained personally?
    - What happens to IP if a partner leaves? (it stays with the company)
    - Non-compete and non-solicitation terms: scope, duration, geographic limits
 
 7. **Define exit provisions.** Every partnership ends eventually. Plan for it:
-
    - **Voluntary departure:** What happens when a partner wants to leave?
    - **Buyout mechanism:** How is the departing partner's share valued? (formula, independent valuation, or predetermined method)
    - **Right of first refusal:** Can remaining partners buy the departing partner's shares before outside parties?
@@ -105,7 +102,6 @@ metadata:
    - **Drag-along and tag-along rights:** If majority partners sell, can they compel minority to sell (drag-along)? If majority sells, can minority participate at the same price (tag-along)?
 
 8. **Define dispute resolution.** Lawsuits between partners destroy companies:
-
    - **Mediation first:** Agree to attempt mediation before any legal action
    - **Arbitration:** Binding arbitration is faster and cheaper than litigation
    - **Governing law:** Which state's laws govern the agreement?
@@ -275,46 +271,46 @@ Before meeting with an attorney, partners should align on:
 
 ### Partners
 
-| Partner | Role | Commitment | Key Contribution |
-|---------|------|-----------|-----------------|
-| [You] | CTO / Co-founder | Full-time | Product development, technical architecture |
-| [Friend] | CEO / Co-founder | Full-time | Domain expertise, sales, business development |
+| Partner  | Role             | Commitment | Key Contribution                              |
+| -------- | ---------------- | ---------- | --------------------------------------------- |
+| [You]    | CTO / Co-founder | Full-time  | Product development, technical architecture   |
+| [Friend] | CEO / Co-founder | Full-time  | Domain expertise, sales, business development |
 
 ### Equity Split Options
 
-| Approach | You | Friend | Option Pool | Rationale |
-|----------|-----|--------|-------------|-----------|
-| **Option A: Equal** | 45% | 45% | 10% | Both full-time, complementary skills, equal commitment |
-| **Option B: Weighted** | 40% | 50% | 10% | Domain expertise + sales drives early revenue; technical skills are more replaceable |
-| **Option C: Weighted** | 50% | 40% | 10% | Product is the core asset; technology is the differentiator |
+| Approach               | You | Friend | Option Pool | Rationale                                                                            |
+| ---------------------- | --- | ------ | ----------- | ------------------------------------------------------------------------------------ |
+| **Option A: Equal**    | 45% | 45%    | 10%         | Both full-time, complementary skills, equal commitment                               |
+| **Option B: Weighted** | 40% | 50%    | 10%         | Domain expertise + sales drives early revenue; technical skills are more replaceable |
+| **Option C: Weighted** | 50% | 40%    | 10%         | Product is the core asset; technology is the differentiator                          |
 
 **Recommended approach:** Start with Option A (equal) if both partners are truly equal in commitment, risk, and opportunity cost. Adjust if one partner has significantly more relevant experience, is contributing capital, or is taking on more risk.
 
 ### Vesting
 
-| Term | Value |
-|------|-------|
-| **Period** | 4 years |
-| **Cliff** | 1 year |
-| **Vesting** | Monthly after cliff |
+| Term             | Value                                                                              |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| **Period**       | 4 years                                                                            |
+| **Cliff**        | 1 year                                                                             |
+| **Vesting**      | Monthly after cliff                                                                |
 | **Acceleration** | Double-trigger (accelerates only if terminated within 12 months after acquisition) |
 
 ### Decision Rights
 
-| Decision | Who Decides |
-|----------|-------------|
-| Product features and technical architecture | CTO (you) |
-| Sales strategy, pricing, partnerships | CEO (friend) |
+| Decision                                          | Who Decides     |
+| ------------------------------------------------- | --------------- |
+| Product features and technical architecture       | CTO (you)       |
+| Sales strategy, pricing, partnerships             | CEO (friend)    |
 | Hiring, major spending (over $5,000), fundraising | Both, unanimous |
-| Company sale or dissolution | Both, unanimous |
+| Company sale or dissolution                       | Both, unanimous |
 
 ### Compensation
 
-| Term | Value |
-|------|-------|
-| **Starting salary** | Deferred until $10K MRR or seed funding |
+| Term                      | Value                                    |
+| ------------------------- | ---------------------------------------- |
+| **Starting salary**       | Deferred until $10K MRR or seed funding  |
 | **Post-milestone salary** | Market rate minus 20% (startup discount) |
-| **Equity** | Compensates for deferred salary period |
+| **Equity**                | Compensates for deferred salary period   |
 
 ### Key Discussion Points Before Seeing Attorney
 

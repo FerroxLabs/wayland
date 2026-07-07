@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy checklist template"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy checklist template'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
 
 # Estate Document Organizer
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about organizing their important documents for estate planning
 - User wants to create a master list of where all their critical documents are located
 - User asks what documents their family would need if something happened to them
@@ -37,6 +38,7 @@ metadata:
 - User wants a system for keeping estate-critical records current and accessible
 
 **Do NOT use when:**
+
 - User asks about creating or drafting legal documents (refer to an estate attorney)
 - User asks about digital assets specifically (use `digital-estate-planner`)
 - User asks about financial planning or investment decisions (refer to a financial advisor)
@@ -259,8 +261,11 @@ metadata:
 ## Estate Document Master Inventory
 
 ### Document Owner: [Your Full Legal Name]
+
 ### Last Updated: [Today's Date]
+
 ### Inventory Location: [You will decide this -- see storage notes below]
+
 ### Emergency Contacts Who Know About This Inventory: [Executor and one trusted family member]
 
 Based on your experience with your father's estate, you know firsthand why this matters. Let us build the inventory category by category. For each item, note what you have, where the original is stored, and whether a copy exists elsewhere.
@@ -268,65 +273,75 @@ Based on your experience with your father's estate, you know firsthand why this 
 ---
 
 ### Category 1: Legal Documents
-| Document                | Status    | Original Location     | Copy Location    | Last Updated |
-|------------------------|-----------|-----------------------|------------------|-------------|
-| Will                   | [have/need] | [where is it?]     | [copy where?]   | [date]      |
-| Financial POA          | [have/need] | [where is it?]     | [copy where?]   | [date]      |
-| Healthcare POA         | [have/need] | [where is it?]     | [copy where?]   | [date]      |
-| Healthcare directive   | [have/need] | [where is it?]     | [copy where?]   | [date]      |
+
+| Document             | Status      | Original Location | Copy Location | Last Updated |
+| -------------------- | ----------- | ----------------- | ------------- | ------------ |
+| Will                 | [have/need] | [where is it?]    | [copy where?] | [date]       |
+| Financial POA        | [have/need] | [where is it?]    | [copy where?] | [date]       |
+| Healthcare POA       | [have/need] | [where is it?]    | [copy where?] | [date]       |
+| Healthcare directive | [have/need] | [where is it?]    | [copy where?] | [date]       |
 
 If you do not have any of these documents, note "NEED" and discuss priorities with an estate attorney. Given your experience, you likely want to start here.
 
 ### Category 2: Identity Documents
-| Document                | Location           | Expiration Date | Notes           |
-|------------------------|--------------------|-----------------|-----------------|
-| Birth certificate      | [where?]           | N/A             |                 |
-| Social Security card   | [where?]           | N/A             |                 |
-| Passport               | [where?]           | [when?]         |                 |
-| Marriage certificate   | [where? or N/A]    | N/A             |                 |
+
+| Document             | Location        | Expiration Date | Notes |
+| -------------------- | --------------- | --------------- | ----- |
+| Birth certificate    | [where?]        | N/A             |       |
+| Social Security card | [where?]        | N/A             |       |
+| Passport             | [where?]        | [when?]         |       |
+| Marriage certificate | [where? or N/A] | N/A             |       |
 
 ### Category 3: Financial Accounts
-| Account Type   | Institution | Account # (last 4) | Primary Contact | Beneficiary On File |
-|---------------|-------------|---------------------|-----------------|---------------------|
-| [list every account] | | | | [verify each one] |
+
+| Account Type         | Institution | Account # (last 4) | Primary Contact | Beneficiary On File |
+| -------------------- | ----------- | ------------------ | --------------- | ------------------- |
+| [list every account] |             |                    |                 | [verify each one]   |
 
 **Lesson from your experience:** Your family had to search for your father's accounts. Make sure every account is listed here with the institution's contact information so your family never has to guess.
 
 ### Category 4: Insurance Policies
-| Policy Type    | Company      | Policy #     | Face Value   | Beneficiary    | Agent Contact |
-|---------------|-------------|-------------|-------------|----------------|---------------|
-| [list all policies] | | | | [verify] | |
+
+| Policy Type         | Company | Policy # | Face Value | Beneficiary | Agent Contact |
+| ------------------- | ------- | -------- | ---------- | ----------- | ------------- |
+| [list all policies] |         |          |            | [verify]    |               |
 
 ### Category 5: Property Records
-| Property/Asset  | Location/Description | Title Held As | Document Location | Value (approx.) |
-|----------------|---------------------|---------------|-------------------|-----------------|
-| [list all] | | | | |
+
+| Property/Asset | Location/Description | Title Held As | Document Location | Value (approx.) |
+| -------------- | -------------------- | ------------- | ----------------- | --------------- |
+| [list all]     |                      |               |                   |                 |
 
 ### Category 6: Estate Planning Specifics
-| Item                          | Status         | Location           |
-|------------------------------|----------------|--------------------|
-| Beneficiary designation copies | [gathered?]   | [where?]           |
-| Letter of intent              | [consider writing one] | [location]  |
-| Funeral preferences           | [documented?]  | [where?]           |
-| Safe deposit box              | [have one?]    | [bank, box number, who has key?] |
+
+| Item                           | Status                 | Location                         |
+| ------------------------------ | ---------------------- | -------------------------------- |
+| Beneficiary designation copies | [gathered?]            | [where?]                         |
+| Letter of intent               | [consider writing one] | [location]                       |
+| Funeral preferences            | [documented?]          | [where?]                         |
+| Safe deposit box               | [have one?]            | [bank, box number, who has key?] |
 
 ---
 
 ### Access Plan
-| Person              | Role              | Has Access To           | Contact          |
-|--------------------|-------------------|-------------------------|------------------|
-| [name your executor] | Executor        | Full inventory, legal docs | [phone/email]  |
-| [name your healthcare agent] | Healthcare agent | Healthcare directive, insurance | [phone/email] |
-| [trusted family member] | Backup contact | Knows inventory exists and location | [phone/email] |
+
+| Person                       | Role             | Has Access To                       | Contact       |
+| ---------------------------- | ---------------- | ----------------------------------- | ------------- |
+| [name your executor]         | Executor         | Full inventory, legal docs          | [phone/email] |
+| [name your healthcare agent] | Healthcare agent | Healthcare directive, insurance     | [phone/email] |
+| [trusted family member]      | Backup contact   | Knows inventory exists and location | [phone/email] |
 
 ### Storage Recommendations
+
 Based on what your family experienced:
+
 1. Store this inventory in two locations (home fireproof safe + secure digital backup)
 2. Tell your executor where both copies are -- do not make them search
 3. Store original will where it can be accessed promptly (discuss with attorney -- safe deposit boxes can cause delays in some jurisdictions)
 4. Keep digital copies of all documents as backup, but preserve originals
 
 ### Review Schedule
+
 - [ ] Set an annual review date: [pick a month you will remember -- many people use their birthday or the new year]
 - [ ] Review immediately after: marriage, divorce, birth, death, home purchase or sale, retirement, major financial change
 - [ ] Verify beneficiary designations annually (the most commonly overlooked update)

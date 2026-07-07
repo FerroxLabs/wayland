@@ -14,14 +14,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "investing personal-finance planning analysis"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'investing personal-finance planning analysis'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
+
 # Rebalancing Framework
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -29,6 +30,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user knows their target allocation and wants to calculate how far their actual portfolio has drifted from it -- measured in both percentage points and dollars
 - The user wants to understand the mechanical difference between time-based, threshold-based, hybrid, and cash-flow rebalancing and needs to choose an approach that fits their situation
 - The user holds assets across multiple account types (taxable brokerage, traditional IRA, Roth IRA, 401k) and needs to sequence rebalancing trades to minimize tax drag
@@ -39,6 +41,7 @@ metadata:
 - The user wants to understand the actual cost of NOT rebalancing -- specifically, how risk profile and volatility change as drift compounds over time
 
 **Do NOT use this skill when:**
+
 - The user has not yet set target allocations -- redirect to `portfolio-allocation-framework` first; running drift math against undefined targets is meaningless
 - The user is asking which target allocation is right for them based on age, income, or risk preference -- that is the function of `risk-tolerance-assessment` and `portfolio-allocation-framework`
 - The user wants to understand the difference between a Roth IRA, traditional IRA, and 401k -- use `investment-account-types` for account structure education before bringing them back here for rebalancing sequencing
@@ -99,6 +102,7 @@ Not every drift warrants a trade. Before generating action items, evaluate each 
 Do not simply name the four approaches. Explain the mechanics, the real tradeoffs, and the research context for each.
 
 **Time-Based Rebalancing:**
+
 - Rebalance on a fixed calendar schedule regardless of drift magnitude
 - Annual rebalancing is the most common and has been shown in multiple academic studies (Vanguard 2015, Morningstar 2010) to capture most of the risk-reduction benefit with minimal transaction costs
 - Quarterly rebalancing captures slightly more drift control but roughly quadruples trading activity -- the incremental risk reduction is small relative to the cost increase
@@ -106,6 +110,7 @@ Do not simply name the four approaches. Explain the mechanics, the real tradeoff
 - Best fit: investors who do not want to monitor their portfolio between scheduled reviews
 
 **Threshold-Based Rebalancing:**
+
 - Rebalance whenever any single asset class drifts beyond a defined absolute threshold (commonly 5 percentage points) or a relative threshold (commonly 20-25% of target weight)
 - A 5 percentage point absolute threshold on a 60% equity target means rebalancing triggers when equity reaches 65% or falls to 55%
 - A 20% relative threshold on a 60% equity target means rebalancing triggers when equity reaches 72% (60 × 1.20) or falls to 48% (60 × 0.80) -- a wider band, appropriate for volatile asset classes
@@ -113,12 +118,14 @@ Do not simply name the four approaches. Explain the mechanics, the real tradeoff
 - Best fit: investors with monitoring tools or brokerage alerts who prefer to act only when drift is economically meaningful
 
 **Hybrid Approach:**
+
 - Check on a fixed calendar schedule, but only execute trades if drift exceeds the threshold at time of review
 - The most commonly cited implementation: quarterly check, rebalance if any class has drifted more than 5 percentage points
 - This approach prevents both under-monitoring (missing a large drift between annual check-ins during a volatile year) and over-trading (rebalancing a 1% drift because the calendar says so)
 - Best fit: most individual investors -- provides discipline without excessive trading
 
 **Cash Flow Rebalancing:**
+
 - Direct all new contributions (401k contributions, IRA contributions, dividend reinvestment, cash transfers) entirely to underweight asset classes
 - Mathematically effective only when contribution size is material relative to portfolio size. On a $50,000 portfolio receiving $6,000/year in contributions, cash flow rebalancing can correct a ~12% annual drift without selling -- meaningful
 - On a $500,000 portfolio receiving the same $6,000 contribution, cash flow rebalancing corrects only ~1.2% of drift -- insufficient as the sole mechanism if drift is larger
@@ -131,6 +138,7 @@ Do not simply name the four approaches. Explain the mechanics, the real tradeoff
 This step is where significant real-world value is added. The sequence in which rebalancing trades are executed determines the tax cost.
 
 **The tax-location sequencing hierarchy (always follow this order):**
+
 1. Execute ALL trades needed within tax-advantaged accounts first (401k, traditional IRA, Roth IRA). No capital gains, no tax forms, no holding period considerations
 2. Within tax-advantaged accounts, confirm there is no fund-level restriction (some 401k stable value funds have 90-day equity transfer restrictions; some target-date funds cannot hold partial proceeds without automatic drift back)
 3. If rebalancing cannot be completed within tax-advantaged accounts alone, turn to taxable accounts next
@@ -187,9 +195,11 @@ The single analysis is only valuable if it becomes a repeatable procedure. Produ
 
 **Drift Calculations (visible math):**
 ```
+
 [Class 1]: $[X] / $[Total] = [X]% current | Target: [X]% | Drift: [+/-][X]pp | Dollar drift: [+/-]$[X]
 [Class 2]: $[X] / $[Total] = [X]% current | Target: [X]% | Drift: [+/-][X]pp | Dollar drift: [+/-]$[X]
 [Class 3]: $[X] / $[Total] = [X]% current | Target: [X]% | Drift: [+/-][X]pp | Dollar drift: [+/-]$[X]
+
 ```
 
 ---
@@ -214,11 +224,13 @@ The single analysis is only valuable if it becomes a repeatable procedure. Produ
 
 **Contribution Ratio Check (if applicable):**
 ```
+
 Annual contributions: $[X]
 Total portfolio value: $[X]
 Contribution ratio: [X]%
 Largest single-class drift: [X]%
 Cash flow rebalancing [can / cannot] fully correct drift without selling
+
 ```
 
 ---
@@ -241,13 +253,15 @@ Cash flow rebalancing [can / cannot] fully correct drift without selling
 
 **Trade Verification:**
 ```
-Sum of all buys:  $[X]
+
+Sum of all buys: $[X]
 Sum of all sells: $[X]
-Net cash used:    $[X] (should equal $0 for pure rebalancing, or = new contribution amount)
+Net cash used: $[X] (should equal $0 for pure rebalancing, or = new contribution amount)
 
 Post-trade allocation check:
 [Class 1]: $[X] / $[Total] = [X]% (Target: [X]%) ✓ within tolerance
 [Class 2]: $[X] / $[Total] = [X]% (Target: [X]%) ✓ within tolerance
+
 ```
 
 ---
@@ -337,39 +351,50 @@ Post-trade allocation check:
 ## Edge Cases
 
 ### User Has No Defined Target Allocation
+
 Stop before running any drift math. Without a target, "drift" is undefined -- you are calculating the distance to an unknown destination. Explain the distinction between setting a target (strategic allocation decision, handled by `portfolio-allocation-framework`) and measuring drift from a target (mechanical calculation, handled here). Provide a general explanation of how drift works conceptually -- using illustrative numbers like a hypothetical 60/40 portfolio -- so the user understands the framework while they go establish their actual targets.
 
 ### Drift Is Very Small (Under 1pp for All Asset Classes)
+
 Calculate and display all drift numbers with full precision. Then explicitly note that the portfolio is well-aligned with its targets. Explain that rebalancing decisions must weigh the benefit of restoring a ~0.5pp drift against the costs: any trading commissions, any bid-ask spread, and any potential taxable gains from selling. For most portfolios, sub-1pp drift does not clear that bar. Label all positions "On Target" in the Materiality column. Set the "Next Steps" to scheduling a future review rather than executing trades. This outcome -- showing the analysis and concluding no action is needed -- is a complete and valuable output, not a non-answer.
 
 ### Portfolio Is Highly Concentrated in a Single Illiquid or Restricted Position
+
 This commonly arises with employer stock (unvested or subject to a blackout period), real estate (a rental property included in net worth calculations), or private company equity. Three adjustments are required:
+
 1. Include the holding in total portfolio value for drift calculation -- excluding it would understate concentration risk
 2. Mark the holding explicitly as "Non-Tradeable" in the trade plan with its constraint (vesting schedule, surrender period, property ownership)
 3. Calculate a "tradeable portfolio rebalancing target" -- the allocation targets re-weighted across only the liquid holdings -- so the user can rebalance what they can actually trade without attempting to correct for the full drift (which is impossible)
-Always note that a large illiquid position may mean the stated target allocation is structurally unachievable until the restriction lifts, and that this represents a risk management consideration to discuss with a financial advisor.
+   Always note that a large illiquid position may mean the stated target allocation is structurally unachievable until the restriction lifts, and that this represents a risk management consideration to discuss with a financial advisor.
 
 ### Market Has Dropped Sharply and the User Is Hesitant to Rebalance Into the Declining Asset
+
 This is one of the most psychologically difficult rebalancing scenarios. A 20-30% equity drawdown will push a 60/40 portfolio to roughly 50/50 or 48/52, mechanically requiring the user to sell bonds (the thing that held value) and buy equities (the thing that just fell). This is correct behavior per the rebalancing framework and represents buying equities at lower prices -- but it feels deeply counterintuitive. Address this directly: explain that rebalancing is a systematic, rules-based process and that the discomfort of buying into a drawdown is precisely the behavioral bias that systematic rules are designed to override. Do NOT express an opinion on whether the market will recover. Present the math, present the mechanical logic, note the behavioral difficulty, and make clear the decision is entirely the user's. If the user expresses paralysis or wants to wait for confirmation of a bottom, that is a market timing decision -- explain that market timing is outside the scope of this framework.
 
 ### User Wants to Rebalance During a Tax Year With Large Realized Gains Already on Record
+
 If the user has already realized substantial capital gains earlier in the tax year (from selling a house, exercising options, or other events), additional realized gains from rebalancing taxable accounts will stack on top of those gains and may push them into a higher capital gains bracket or trigger net investment income tax [JURISDICTION: verify thresholds]. In this scenario:
+
 1. Strongly prioritize cash flow rebalancing and tax-advantaged account rebalancing to avoid any additional taxable events
 2. Calculate the dollar threshold at which additional long-term gains would change their estimated tax bracket and present it as a constraint
 3. Recommend deferring taxable account rebalancing to the next tax year if the drift can be tolerated without a material change in risk profile
 4. Note this specifically requires consultation with a tax professional who knows the full tax picture
 
 ### User Has Multiple Accounts With the Same Asset Class Held in Different Proportions
+
 For example, bonds held in a Roth IRA (tax-free growth) and also in a taxable brokerage (taxable interest income). This is an asset location question layered onto the rebalancing question. For the purpose of drift calculation, aggregate all holdings in the same asset class across all accounts. For the purpose of trade sequencing, note that this portfolio may benefit from a tax location optimization step (generally: bonds belong in tax-advantaged accounts to shelter taxable interest; equities with long-term growth potential belong in Roth accounts; dividend-producing equities belong in traditional tax-advantaged accounts). Flag this for review but do not redesign the user's asset location as part of the rebalancing analysis -- that is a separate exercise. Focus on drift correction, sequence trades to minimize tax impact, and note the asset location opportunity as a follow-up item.
 
 ### User Contributes Regularly and Wants to Know How to Incorporate Contributions Into Rebalancing
+
 Calculate the contribution ratio (annual contributions / total portfolio value). Present the following scenarios:
+
 - If the contribution ratio is greater than the maximum single-class drift percentage, cash flow rebalancing alone can restore balance within the contribution period without any selling
 - If the contribution ratio is between 50-100% of the maximum drift, cash flow rebalancing partially corrects the drift and a smaller trade is needed to complete the correction
 - If the contribution ratio is under 25% of the maximum drift, cash flow rebalancing has minimal impact and a full rebalancing trade plan is still needed
-For dollar-cost averaging investors who contribute monthly, suggest directing each contribution entirely to the most underweight asset class at time of contribution -- this is a rolling, continuous form of cash flow rebalancing that approximates the mathematical optimum without requiring explicit sell trades.
+  For dollar-cost averaging investors who contribute monthly, suggest directing each contribution entirely to the most underweight asset class at time of contribution -- this is a rolling, continuous form of cash flow rebalancing that approximates the mathematical optimum without requiring explicit sell trades.
 
 ### User Is in the Decumulation Phase (Taking Withdrawals, Not Making Contributions)
+
 Cash flow rebalancing in reverse -- directing withdrawals from overweight asset classes -- is the most tax-efficient rebalancing tool available in retirement. Withdrawals from an overweight equity position in a taxable account (potentially at long-term rates) may be more favorable than a separate rebalancing sale, because the withdrawal serves a dual purpose. Note this scenario, flag that decumulation sequencing involves additional complexity (Social Security timing, required minimum distributions, Roth conversion windows) [JURISDICTION: verify RMD rules], and recommend `portfolio-allocation-framework` and a financial advisor for the full retirement income picture. Do not design a full withdrawal strategy within this skill.
 
 ---
@@ -391,14 +416,15 @@ Cash flow rebalancing in reverse -- directing withdrawals from overweight asset 
 
 ### Step 1: Target vs. Current Allocation (Drift Table)
 
-| Asset Class | Target % | Target $ | Current Value | Current % | Drift (pp) | Dollar Drift | Materiality |
-|-------------|----------|----------:|-------------:|----------:|----------:|------------:|-------------|
-| US Stocks | 70% | $175,000 | $195,000 | 78.0% | +8.0pp | +$20,000 | **Action Needed** |
-| Bonds | 20% | $50,000 | $38,000 | 15.2% | -4.8pp | -$12,000 | **Action Needed** |
-| Intl Equity | 10% | $25,000 | $17,000 | 6.8% | -3.2pp | -$8,000 | **Action Needed** |
-| **Total** | **100%** | **$250,000** | **$250,000** | **100%** | | | |
+| Asset Class | Target % |     Target $ | Current Value | Current % | Drift (pp) | Dollar Drift | Materiality       |
+| ----------- | -------- | -----------: | ------------: | --------: | ---------: | -----------: | ----------------- |
+| US Stocks   | 70%      |     $175,000 |      $195,000 |     78.0% |     +8.0pp |     +$20,000 | **Action Needed** |
+| Bonds       | 20%      |      $50,000 |       $38,000 |     15.2% |     -4.8pp |     -$12,000 | **Action Needed** |
+| Intl Equity | 10%      |      $25,000 |       $17,000 |      6.8% |     -3.2pp |      -$8,000 | **Action Needed** |
+| **Total**   | **100%** | **$250,000** |  **$250,000** |  **100%** |            |              |                   |
 
 **Drift Calculations (visible math):**
+
 ```
 US Stocks:  $195,000 / $250,000 = 78.0% current | Target: 70.0% | Drift: +8.0pp | Dollar drift: +$20,000
 Bonds:       $38,000 / $250,000 = 15.2% current | Target: 20.0% | Drift: -4.8pp | Dollar drift: -$12,000
@@ -416,11 +442,11 @@ Net cash check: -$20,000 (sells) + $12,000 (buys) + $8,000 (buys) = $0 ✓ Balan
 
 ### Step 2: Materiality Assessment
 
-| Asset Class | Absolute Drift | Relative Drift (% of target) | Material? | Reason |
-|-------------|---------------|-----------------------------:|-----------|--------|
-| US Stocks | 8.0pp | +11.4% overweight | **Yes** | Exceeds 5pp absolute threshold; over 10% relative |
-| Bonds | 4.8pp | -24.0% underweight | **Yes** | Below 5pp absolute but 24% relative underweight -- significant |
-| Intl Equity | 3.2pp | -32.0% underweight | **Yes** | 32% relative underweight -- severe despite modest absolute number |
+| Asset Class | Absolute Drift | Relative Drift (% of target) | Material? | Reason                                                            |
+| ----------- | -------------- | ---------------------------: | --------- | ----------------------------------------------------------------- |
+| US Stocks   | 8.0pp          |            +11.4% overweight | **Yes**   | Exceeds 5pp absolute threshold; over 10% relative                 |
+| Bonds       | 4.8pp          |           -24.0% underweight | **Yes**   | Below 5pp absolute but 24% relative underweight -- significant    |
+| Intl Equity | 3.2pp          |           -32.0% underweight | **Yes**   | 32% relative underweight -- severe despite modest absolute number |
 
 **Key interpretation:** International equity is only 3.2pp adrift in absolute terms, but it is 32% below its target weight. This matters because a 10% target class that has shrunk to 6.8% has lost nearly a third of its intended portfolio presence. Relative drift is the more meaningful measure for smaller target-weight asset classes.
 
@@ -430,15 +456,15 @@ Net cash check: -$20,000 (sells) + $12,000 (buys) + $8,000 (buys) = $0 ✓ Balan
 
 Before sequencing trades, map the current holdings to accounts:
 
-| Account | Asset Class | Current Value |
-|---------|-------------|-------------:|
-| 401k | US Stocks | $105,000 |
-| 401k | Bonds | $45,000 |
-| 401k | Subtotal | $150,000 |
-| Taxable brokerage | US Stocks | $90,000 ($195k -- $105k) |
-| Taxable brokerage | Bonds | $0 ($38k -- $45k... wait -- see note) |
-| Taxable brokerage | Intl Equity | $17,000 |
-| Taxable brokerage | Subtotal | $100,000 |
+| Account           | Asset Class |                         Current Value |
+| ----------------- | ----------- | ------------------------------------: |
+| 401k              | US Stocks   |                              $105,000 |
+| 401k              | Bonds       |                               $45,000 |
+| 401k              | Subtotal    |                              $150,000 |
+| Taxable brokerage | US Stocks   |              $90,000 ($195k -- $105k) |
+| Taxable brokerage | Bonds       | $0 ($38k -- $45k... wait -- see note) |
+| Taxable brokerage | Intl Equity |                               $17,000 |
+| Taxable brokerage | Subtotal    |                              $100,000 |
 
 **Note on bonds:** The 401k holds $45,000 in bonds but the total bond allocation is only $38,000. This means the 401k actually holds more bonds than exist in the total allocation -- this is a data inconsistency. Before proceeding, verify: does the total $38,000 bond figure represent ALL bonds including the 401k? If so, the taxable brokerage holds zero bonds and all $38,000 bonds are in the 401k. **In this example, we proceed with that interpretation: 401k has $105,000 stocks + $45,000 bonds = $150,000; taxable brokerage has $90,000 stocks + $17,000 intl equity = $107,000. Wait -- $90k + $17k = $107k, but the stated taxable balance should be $250k -- $150k = $100k.**
 
@@ -447,10 +473,10 @@ A rebalancing analysis requires consistent data. The user's numbers produce: 401
 
 **Working with total portfolio numbers (which are internally consistent):**
 
-| Account | Total Value | Tradeable Without Tax? |
-|---------|------------:|----------------------|
-| 401k | $150,000 | Yes -- no capital gains |
-| Taxable brokerage | $100,000 | Sells may trigger capital gains |
+| Account           | Total Value | Tradeable Without Tax?          |
+| ----------------- | ----------: | ------------------------------- |
+| 401k              |    $150,000 | Yes -- no capital gains         |
+| Taxable brokerage |    $100,000 | Sells may trigger capital gains |
 
 ---
 
@@ -462,11 +488,11 @@ Total rebalancing needed: Sell $20,000 of US stocks; buy $12,000 bonds; buy $8,0
 
 The 401k can execute all three components of this rebalance internally without any tax event:
 
-| Action | Asset Class | Amount | 401k Account |
-|--------|-------------|-------:|-------------|
-| Sell | US Stocks | $20,000 | Reduce stock allocation within 401k |
-| Buy | Bonds | $12,000 | Increase bond allocation within 401k |
-| Buy | Intl Equity | $8,000 | Add international equity fund within 401k (if available) |
+| Action | Asset Class |  Amount | 401k Account                                             |
+| ------ | ----------- | ------: | -------------------------------------------------------- |
+| Sell   | US Stocks   | $20,000 | Reduce stock allocation within 401k                      |
+| Buy    | Bonds       | $12,000 | Increase bond allocation within 401k                     |
+| Buy    | Intl Equity |  $8,000 | Add international equity fund within 401k (if available) |
 
 **Important check:** Does the 401k offer an international equity fund option? Many 401k plans have limited fund menus. If no international equity option exists in the 401k, the $8,000 international equity purchase must occur in the taxable brokerage using cash or proceeds from a Phase 1 sale. This is a zero-tax event if funded from the taxable brokerage cash position or from new contributions.
 
@@ -476,9 +502,9 @@ If Phase 1 fully executes within the 401k, the taxable account requires zero tra
 
 **If Phase 2 is needed (e.g., no international equity fund in 401k):**
 
-| Action | Asset Class | Amount | Tax Consideration |
-|--------|-------------|-------:|-------------------|
-| Buy | Intl Equity | $8,000 | Purchase only -- no taxable event. Fund from cash if available, or from new contribution |
+| Action | Asset Class | Amount | Tax Consideration                                                                        |
+| ------ | ----------- | -----: | ---------------------------------------------------------------------------------------- |
+| Buy    | Intl Equity | $8,000 | Purchase only -- no taxable event. Fund from cash if available, or from new contribution |
 
 No selling in the taxable account is required to complete this rebalance. The US stock overweight is corrected entirely within the 401k.
 
@@ -501,10 +527,10 @@ All three asset classes return to exact target weights. No rounding residual. No
 
 ### Step 6: Tax Considerations Summary
 
-| Account | Tax Impact | Notes |
-|---------|------------|-------|
-| 401k | **Zero** | All trades are internal to the account; no reportable events |
-| Taxable brokerage | **Zero** | No sells required; international equity purchase (if needed) uses cash |
+| Account           | Tax Impact | Notes                                                                  |
+| ----------------- | ---------- | ---------------------------------------------------------------------- |
+| 401k              | **Zero**   | All trades are internal to the account; no reportable events           |
+| Taxable brokerage | **Zero**   | No sells required; international equity purchase (if needed) uses cash |
 
 **This rebalancing is fully executable without triggering any capital gains.** That is the direct result of sequencing trades through the tax-advantaged account first.
 
@@ -516,14 +542,15 @@ If in a future year the 401k does not have capacity to absorb the full rebalanci
 
 ### Step 7: Rebalancing Approach Recommendation (Options Only)
 
-| Approach | How It Applies to This Portfolio | Trade-Off |
-|----------|----------------------------------|-----------|
-| **Annual time-based** | Review once per year; execute 401k trades if drift exceeds targets | Simple; two years between reviews allowed 8pp of stock drift -- borderline tolerable but worth addressing |
-| **Hybrid (quarterly check, 5pp trigger)** | Check quarterly; rebalance in 401k if any class exceeds 5pp drift | Would have caught this drift earlier (~6-12 months ago) with low effort |
-| **Threshold-only (5pp trigger)** | Rebalance whenever stocks exceed 75% or fall below 65% | Requires a monitoring tool or quarterly manual check to catch the trigger |
-| **Cash flow** | Direct 401k contributions entirely to bonds and international equity | Annual contribution ratio check needed; likely partially effective given portfolio size |
+| Approach                                  | How It Applies to This Portfolio                                     | Trade-Off                                                                                                 |
+| ----------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Annual time-based**                     | Review once per year; execute 401k trades if drift exceeds targets   | Simple; two years between reviews allowed 8pp of stock drift -- borderline tolerable but worth addressing |
+| **Hybrid (quarterly check, 5pp trigger)** | Check quarterly; rebalance in 401k if any class exceeds 5pp drift    | Would have caught this drift earlier (~6-12 months ago) with low effort                                   |
+| **Threshold-only (5pp trigger)**          | Rebalance whenever stocks exceed 75% or fall below 65%               | Requires a monitoring tool or quarterly manual check to catch the trigger                                 |
+| **Cash flow**                             | Direct 401k contributions entirely to bonds and international equity | Annual contribution ratio check needed; likely partially effective given portfolio size                   |
 
 **Contribution ratio check:**
+
 ```
 If annual 401k contributions = $20,500 (approximate IRS limit for 2024):
 Contribution ratio = $20,500 / $250,000 = 8.2%
@@ -541,6 +568,7 @@ This eliminates the need for ANY selling -- even within the 401k.
 **Your situation:** 401k + taxable brokerage, currently all rebalancing executable in 401k without tax impact. Priority is maintaining this advantage.
 
 **Rebalancing Checklist:**
+
 - [ ] Pull total portfolio value across both accounts (401k statement + brokerage statement)
 - [ ] Calculate current weights: (each asset class value / total) × 100
 - [ ] Calculate drift: current weight -- target weight for each class
@@ -555,14 +583,15 @@ This eliminates the need for ANY selling -- even within the 401k.
 
 **Rebalancing History Log:**
 
-| Date | US Stocks % | Bonds % | Intl Equity % | Trades Executed | Account Used |
-|------|------------|---------|--------------|-----------------|--------------|
-| [Today] | 70.0% | 20.0% | 10.0% | Sell $20k stocks, buy $12k bonds, $8k intl | 401k |
-| [Next review] | | | | TBD | TBD |
+| Date          | US Stocks % | Bonds % | Intl Equity % | Trades Executed                            | Account Used |
+| ------------- | ----------- | ------- | ------------- | ------------------------------------------ | ------------ |
+| [Today]       | 70.0%       | 20.0%   | 10.0%         | Sell $20k stocks, buy $12k bonds, $8k intl | 401k         |
+| [Next review] |             |         |               | TBD                                        | TBD          |
 
 ---
 
 ### Next Steps
+
 - [ ] Verify exact per-account balances (the account-level data had a minor inconsistency -- confirm before executing trades)
 - [ ] Check your 401k fund menu for an international equity option -- this determines whether Phase 1 fully completes the rebalance
 - [ ] Execute 401k internal transfers: sell ~$20,000 in US stock funds, purchase ~$12,000 in bond funds and ~$8,000 in international equity fund

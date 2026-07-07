@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-buying personal-finance investing"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-buying personal-finance investing'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # House Flipper
@@ -19,7 +19,6 @@ metadata:
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
 
 ## When to Use
-
 
 ## Process
 
@@ -34,14 +33,15 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on house flipper
 - User asks about house flipper best practices or techniques
 - User wants a structured approach to house flipper
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of house flipper
-
 
 ## Questions to Ask First
 
@@ -75,6 +75,7 @@ Example:
 ```
 
 **The 30% margin covers:**
+
 - Buying closing costs (1-3%)
 - Holding costs (mortgage, taxes, insurance, utilities during renovation)
 - Selling costs (agent commissions 5-6%, seller closing costs 1-2%)
@@ -86,6 +87,7 @@ Example:
 **Step 1:** Find 3-5 comparable renovated properties that have sold within the last 3-6 months.
 
 **Comparable criteria:**
+
 - Within 0.5-1 mile of subject property
 - Similar square footage (within 10%)
 - Same bedroom/bathroom count (or close)
@@ -156,18 +158,19 @@ SUMMARY:
 
 ### Finding Deals: Source Comparison
 
-| Source | Discount Potential | Competition | Effort Required | Best For |
-|--------|-------------------|-------------|-----------------|----------|
-| MLS (listed properties) | 5-15% below market | High | Low | Beginning flippers |
-| Wholesalers | 15-30% below market | Medium | Medium | Consistent deal flow |
-| Auctions (foreclosure) | 20-40% below market | Medium-High | High | Experienced flippers |
-| Direct mail/marketing | 20-40% below market | Low | Very High | Serious full-time flippers |
-| Driving for dollars | 15-30% below market | Low | High | Local market knowledge |
-| Probate/estate sales | 10-25% below market | Low-Medium | Medium | Patient investors |
-| Bank REOs | 10-25% below market | Medium | Medium | All experience levels |
-| Tax lien sales | Varies widely | Medium | High | Experienced investors |
+| Source                  | Discount Potential  | Competition | Effort Required | Best For                   |
+| ----------------------- | ------------------- | ----------- | --------------- | -------------------------- |
+| MLS (listed properties) | 5-15% below market  | High        | Low             | Beginning flippers         |
+| Wholesalers             | 15-30% below market | Medium      | Medium          | Consistent deal flow       |
+| Auctions (foreclosure)  | 20-40% below market | Medium-High | High            | Experienced flippers       |
+| Direct mail/marketing   | 20-40% below market | Low         | Very High       | Serious full-time flippers |
+| Driving for dollars     | 15-30% below market | Low         | High            | Local market knowledge     |
+| Probate/estate sales    | 10-25% below market | Low-Medium  | Medium          | Patient investors          |
+| Bank REOs               | 10-25% below market | Medium      | Medium          | All experience levels      |
+| Tax lien sales          | Varies widely       | Medium      | High            | Experienced investors      |
 
 ### MLS Deal Finding Strategy
+
 - Set alerts for keywords: "investor special," "as-is," "estate sale," "needs TLC," "handyman special"
 - Filter for properties with 30+ days on market
 - Look for price reductions
@@ -175,6 +178,7 @@ SUMMARY:
 - Properties with expired listings may have motivated sellers
 
 ### Auction Buying Checklist
+
 - [ ] Research auction type (foreclosure, tax sale, estate)
 - [ ] Inspect exterior thoroughly (interior access may be limited)
 - [ ] Research title (liens, judgments, back taxes)
@@ -185,6 +189,7 @@ SUMMARY:
 - [ ] Understand "as-is" terms and eviction requirements
 
 ### Working with Wholesalers
+
 - Build relationships with 3-5 active wholesalers in your market
 - Verify their ARV and repair estimates independently
 - Always inspect the property yourself before committing
@@ -199,18 +204,21 @@ SUMMARY:
 ### Property Walkthrough Evaluation
 
 **Structural Assessment (Major Cost Items):**
+
 - [ ] Foundation: Cracks, settling, water intrusion, bowing walls
 - [ ] Roof: Age, missing shingles, sagging, leaks, remaining life
 - [ ] Framing: Load-bearing wall identification, structural integrity
 - [ ] Grading and drainage: Water flow away from foundation
 
 **Systems Assessment:**
+
 - [ ] Electrical: Panel amperage (100A minimum for modern), wiring type (copper vs aluminum vs knob-and-tube), outlet count
 - [ ] Plumbing: Pipe material (copper, PEX, galvanized, polybutylene), water pressure, drain condition
 - [ ] HVAC: Age, condition, efficiency, ductwork condition
 - [ ] Water heater: Age, capacity, type
 
 **Cosmetic Assessment:**
+
 - [ ] Flooring: Condition under carpet, hardwood salvageable?
 - [ ] Walls: Drywall condition, texture, damage
 - [ ] Kitchen: Layout, cabinets (reface vs replace), countertops, appliances
@@ -221,22 +229,22 @@ SUMMARY:
 
 ### Renovation Cost Estimating Guide
 
-| Project | Budget Range | Timeline |
-|---------|-------------|----------|
-| Full kitchen renovation | $15,000-$50,000 | 3-6 weeks |
-| Kitchen cosmetic update | $5,000-$15,000 | 1-2 weeks |
-| Full bathroom renovation | $8,000-$25,000 | 2-4 weeks |
-| Bathroom cosmetic update | $2,000-$8,000 | 1-2 weeks |
-| Roof replacement | $5,000-$15,000 | 2-5 days |
-| HVAC replacement | $3,000-$10,000 | 1-3 days |
-| Electrical panel upgrade | $1,500-$4,000 | 1-2 days |
-| Full house paint (interior) | $3,000-$8,000 | 3-7 days |
-| Flooring (whole house) | $5,000-$20,000 | 3-7 days |
-| New windows (whole house) | $5,000-$20,000 | 1-3 days |
-| Landscaping refresh | $1,000-$5,000 | 1-3 days |
-| Siding replacement | $5,000-$15,000 | 1-2 weeks |
-| Foundation repair | $5,000-$30,000+ | 1-4 weeks |
-| Driveway replacement | $3,000-$8,000 | 2-5 days |
+| Project                     | Budget Range    | Timeline  |
+| --------------------------- | --------------- | --------- |
+| Full kitchen renovation     | $15,000-$50,000 | 3-6 weeks |
+| Kitchen cosmetic update     | $5,000-$15,000  | 1-2 weeks |
+| Full bathroom renovation    | $8,000-$25,000  | 2-4 weeks |
+| Bathroom cosmetic update    | $2,000-$8,000   | 1-2 weeks |
+| Roof replacement            | $5,000-$15,000  | 2-5 days  |
+| HVAC replacement            | $3,000-$10,000  | 1-3 days  |
+| Electrical panel upgrade    | $1,500-$4,000   | 1-2 days  |
+| Full house paint (interior) | $3,000-$8,000   | 3-7 days  |
+| Flooring (whole house)      | $5,000-$20,000  | 3-7 days  |
+| New windows (whole house)   | $5,000-$20,000  | 1-3 days  |
+| Landscaping refresh         | $1,000-$5,000   | 1-3 days  |
+| Siding replacement          | $5,000-$15,000  | 1-2 weeks |
+| Foundation repair           | $5,000-$30,000+ | 1-4 weeks |
+| Driveway replacement        | $3,000-$8,000   | 2-5 days  |
 
 ### Renovation Tiers: What Level of Finish?
 
@@ -258,12 +266,14 @@ Everything in Tier 2 plus layout changes, new kitchen/bathrooms, new systems (HV
 ### Finding and Vetting Contractors
 
 **Finding contractors:**
+
 - Referrals from other investors (best source)
 - Local real estate investor meetups and groups
 - Licensed contractor directories (state licensing boards)
 - Supplier referrals (lumber yards, plumbing supply houses)
 
 **Vetting checklist for each contractor:**
+
 - [ ] Verify active license (check state licensing board)
 - [ ] Verify insurance (general liability + workers' comp)
 - [ ] Check references (call 3+ recent clients)
@@ -290,6 +300,7 @@ References Checked: Y / N         Y / N         Y / N
 ```
 
 ### Payment Structure Best Practices
+
 - **Never pay more than 10-20% upfront** (for materials)
 - Structure payments based on milestones, not time
 - Hold 10% retainage until final punch list is complete
@@ -297,13 +308,14 @@ References Checked: Y / N         Y / N         Y / N
 - Use a written contract specifying scope, timeline, materials, and payment schedule
 
 ### Common Contractor Issues and Solutions
-| Issue | Prevention | Response |
-|-------|-----------|----------|
-| Going over budget | Detailed scope and fixed-price contract | Change order process with written approval |
-| Missing deadlines | Penalty clause in contract | Weekly check-ins, escalation process |
-| Poor quality work | Clear specifications, reference photos | Do not pay until corrected, get independent opinion |
-| No-shows | Multiple contractor relationships | Backup contractors identified in advance |
-| Scope creep | Detailed contract, change order process | Written approval required for any additions |
+
+| Issue             | Prevention                              | Response                                            |
+| ----------------- | --------------------------------------- | --------------------------------------------------- |
+| Going over budget | Detailed scope and fixed-price contract | Change order process with written approval          |
+| Missing deadlines | Penalty clause in contract              | Weekly check-ins, escalation process                |
+| Poor quality work | Clear specifications, reference photos  | Do not pay until corrected, get independent opinion |
+| No-shows          | Multiple contractor relationships       | Backup contractors identified in advance            |
+| Scope creep       | Detailed contract, change order process | Written approval required for any additions         |
 
 ---
 
@@ -350,19 +362,20 @@ Remaining Budget  | $________ |
 
 ### Typical Flip Timeline
 
-| Phase | Duration | Activities |
-|-------|----------|-----------|
-| Acquisition | 2-4 weeks | Due diligence, closing |
-| Planning | 1-2 weeks | Design, permits, ordering materials, contractor scheduling |
-| Demolition | 3-7 days | Tear-out, debris removal |
-| Rough work | 2-4 weeks | Framing, electrical, plumbing, HVAC, inspections |
-| Insulation/Drywall | 1-2 weeks | Install, tape, mud, sand, prime |
-| Finish work | 3-6 weeks | Flooring, tile, cabinets, counters, trim, paint, fixtures |
-| Final details | 1-2 weeks | Punch list, cleaning, staging, photography |
-| Sale | 2-8 weeks | Listing, showings, offer, closing |
-| **Total** | **3-6 months** | Varies significantly by scope |
+| Phase              | Duration       | Activities                                                 |
+| ------------------ | -------------- | ---------------------------------------------------------- |
+| Acquisition        | 2-4 weeks      | Due diligence, closing                                     |
+| Planning           | 1-2 weeks      | Design, permits, ordering materials, contractor scheduling |
+| Demolition         | 3-7 days       | Tear-out, debris removal                                   |
+| Rough work         | 2-4 weeks      | Framing, electrical, plumbing, HVAC, inspections           |
+| Insulation/Drywall | 1-2 weeks      | Install, tape, mud, sand, prime                            |
+| Finish work        | 3-6 weeks      | Flooring, tile, cabinets, counters, trim, paint, fixtures  |
+| Final details      | 1-2 weeks      | Punch list, cleaning, staging, photography                 |
+| Sale               | 2-8 weeks      | Listing, showings, offer, closing                          |
+| **Total**          | **3-6 months** | Varies significantly by scope                              |
 
 ### Timeline Management Tips
+
 - Build in 2-week buffer between phases
 - Order materials early (lead times can be 2-8 weeks for some items)
 - Schedule inspections immediately when ready (can have multi-day waits)
@@ -375,6 +388,7 @@ Remaining Budget  | $________ |
 ## Phase 7: Selling Strategy
 
 ### Pre-Listing Preparation
+
 - [ ] Professional staging (budget $1,500-$5,000; or virtual staging $200-$500)
 - [ ] Professional photography and videography
 - [ ] 3D virtual tour (Matterport or similar)
@@ -385,6 +399,7 @@ Remaining Budget  | $________ |
 - [ ] Compile renovation documentation for buyers
 
 ### Pricing a Flip
+
 - Price at or slightly below ARV to generate immediate interest
 - Create a "just completed" urgency
 - Highlight all new/updated systems and finishes in listing
@@ -393,14 +408,14 @@ Remaining Budget  | $________ |
 
 ### If It Is Not Selling
 
-| Days on Market | Action |
-|---------------|--------|
-| 0-14 | Monitor showing traffic and feedback |
-| 14-21 | Adjust marketing, add virtual tour if missing |
-| 21-30 | Consider 3-5% price reduction |
-| 30-45 | Evaluate staging changes, second price reduction |
-| 45-60 | Consider renting until market improves |
-| 60+ | Aggressive price reduction or pivot to rental |
+| Days on Market | Action                                           |
+| -------------- | ------------------------------------------------ |
+| 0-14           | Monitor showing traffic and feedback             |
+| 14-21          | Adjust marketing, add virtual tour if missing    |
+| 21-30          | Consider 3-5% price reduction                    |
+| 30-45          | Evaluate staging changes, second price reduction |
+| 45-60          | Consider renting until market improves           |
+| 60+            | Aggressive price reduction or pivot to rental    |
 
 ---
 
@@ -431,7 +446,6 @@ Always have a backup plan:
 
 Run numbers for each exit strategy before purchasing. If the property only works under Plan A, the deal may be too risky.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -444,13 +458,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with house flipper for a mid-size project."
 
 **Output:** A complete house flipper framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

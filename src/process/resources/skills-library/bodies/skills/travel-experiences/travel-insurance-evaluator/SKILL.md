@@ -15,19 +15,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel checklist insurance research"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel checklist insurance research'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Travel Insurance Evaluator
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is planning an international or domestic trip and wants to understand what travel insurance to purchase, what coverage amounts are appropriate, or how to compare policies
 - A user asks what travel insurance actually covers and wants jargon-free explanations of clause types like "covered reasons," "pre-existing condition waiver," "look-back period," or "medical necessity"
 - A user has received quotes from multiple insurance aggregators and wants a structured framework to compare them side by side
@@ -39,6 +41,7 @@ metadata:
 - A user is traveling to a destination with a high healthcare cost (United States, Switzerland, Japan, UAE) or a destination with extremely limited medical infrastructure (remote Africa, Central Asia, Pacific islands)
 
 **Do NOT use when:**
+
 - The user needs ongoing domestic health insurance for themselves or family members -- use a health-wellness or personal-finance skill focused on health plan selection
 - The user wants to compare auto insurance, homeowner's insurance, renter's insurance, or liability coverage -- these are separate skill domains
 - The user wants life insurance or disability insurance evaluated -- entirely different risk and actuarial frameworks
@@ -66,24 +69,28 @@ Before generating any comparison or recommendation, collect the following inform
 After gathering the profile, categorize the trip across four dimensions before generating any coverage recommendations. This prevents generic advice and produces trip-specific output.
 
 **Medical risk level:**
+
 - Low: Domestic trip, traveler has domestic health insurance, no adventure activities
 - Medium: International trip to a country with reciprocal health agreements or quality public hospitals; traveler is under 60 and healthy
 - High: Remote destination, country with poor or expensive healthcare, traveler over 60 or with pre-existing conditions
 - Critical: Expedition-level adventure, extreme altitude, destination with no evacuation infrastructure within 6 hours, traveler with serious cardiac or respiratory history
 
 **Financial cancellation risk:**
+
 - Low: Trip cost under $1,500, most components refundable, flexible traveler
 - Medium: Trip cost $1,500--$5,000, some non-refundable components
 - High: Trip cost over $5,000 per person, or significant non-refundable deposits (safari, expedition, cruise)
 - Critical: Trip cost over $10,000 per person, or deposits that are 100% non-refundable on any cancellation
 
 **Activity risk level:**
+
 - Standard: Walking tours, beach, city travel, museums, mild hiking on marked trails below 2,500m
 - Elevated: Snorkeling, kayaking, horseback riding, cycling, moderate hiking at altitude
 - High: Scuba diving, skiing, snowboarding, whitewater rafting, trekking above 3,500m, motorcycle rental
 - Extreme: Rock climbing, mountaineering above 5,000m, skydiving, bungee jumping, off-piste skiing, moto-cross
 
 **Duration risk:**
+
 - Short: 1--7 days
 - Standard: 8--30 days
 - Extended: 31--90 days (changes policy type needed)
@@ -94,6 +101,7 @@ After gathering the profile, categorize the trip across four dimensions before g
 Map the risk classification to specific coverage priorities and dollar minimums. These thresholds are based on real-world claims data and healthcare cost benchmarks:
 
 **Medical emergency coverage minimums by destination:**
+
 - United States (as destination): $500,000 minimum -- a 3-day ICU stay in a US hospital averages $30,000--$100,000. Many serious cases exceed $250,000.
 - Western Europe: $100,000 minimum -- costs are lower but still significant for non-EU travelers without EHIC
 - Japan, UAE, Singapore, Switzerland: $200,000 minimum -- among the highest healthcare costs outside the US
@@ -102,25 +110,30 @@ Map the risk classification to specific coverage priorities and dollar minimums.
 - Caribbean and Mexico resort areas: $50,000--$100,000 -- private hospitals in tourist areas are expensive; public hospitals are limited
 
 **Medical evacuation coverage minimums:**
+
 - Any international destination: $250,000 absolute minimum. This is non-negotiable.
 - Remote or adventure destination: $500,000 recommended. A helicopter evacuation from a mountain in Nepal costs $5,000--$15,000 for the helicopter alone, plus ground transport and accompanying medical personnel.
 - US as destination: $100,000 may be sufficient for in-country transport if medical coverage is high
 - Note: Many low-cost policies cap evacuation at $50,000 or $100,000 -- this is a critical red flag for any trip outside a major city
 
 **Trip cancellation coverage:**
+
 - Must equal 100% of total non-refundable pre-paid trip costs. Not 80%, not "close to" -- 100%.
 - If the total non-refundable cost is $6,400, the cancellation limit must be at least $6,400.
 - Policies that cap cancellation at a flat $5,000 are inadequate for more expensive trips regardless of other features.
 
 **Trip interruption coverage:**
+
 - Should be 150% of trip cost -- the extra 50% covers last-minute one-way economy airfare home, which can be $1,000--$3,000, plus unused accommodation and missed pre-paid components.
 
 **Travel delay:**
+
 - Look for a daily benefit of $150--$250 per person and a total cap of $500--$1,000 per person
 - The trigger threshold matters: policies that pay after 3 hours of delay are more useful than those requiring 12 hours
 - Look for per-incident caps -- some policies cap a single delay event at $200, which is inadequate for an overnight delay
 
 **Baggage loss:**
+
 - A limit of $1,500--$2,500 per person is standard. If the traveler is carrying camera equipment, laptops, or jewelry, this is often insufficient -- those items require separate travel floater coverage or a homeowner's rider.
 - Per-item limits are common: even a policy with a $2,500 total limit may cap any single item at $500. Electronics are frequently capped at $500--$750 per item.
 
@@ -131,6 +144,7 @@ This step applies whenever any traveler has a medical history. It has the highes
 **The look-back period** is the window of time before the policy purchase date during which the insurer reviews whether a condition existed. Standard look-back periods are 60, 90, 180, or 365 days depending on the policy. A condition "exists" if during that window: a doctor prescribed or changed medication, a test was ordered or resulted, a hospitalization occurred, or symptoms prompted a medical visit.
 
 **Pre-existing condition waiver** (also called a "pre-existing condition exclusion waiver" or PCEW): Many policies offer to waive the exclusion for pre-existing conditions if certain conditions are met:
+
 - The policy must be purchased within 14--21 days of the first trip payment (the most common window is 14 days; some providers extend to 21 days)
 - The traveler must be medically able to travel at the time of purchase
 - The full non-refundable trip cost must be insured (partial insurance of the trip voids the waiver)
@@ -147,6 +161,7 @@ Adventure activities are the most commonly misunderstood exclusion in travel ins
 **Step 5a:** List every planned activity explicitly -- not categories, specific activities. "Hiking" and "trekking at altitude" are different. "Swimming" and "scuba diving" are different. Specificity matters because exclusion schedules use specific language.
 
 **Step 5b:** Cross-reference activities against the policy's exclusion schedule. Standard exclusions in most mid-tier travel policies include:
+
 - Scuba diving below 30m (100 feet) -- recreational diving is usually covered to 30m; technical or deep diving requires a rider
 - Mountaineering or climbing with ropes or fixed equipment
 - Trekking above 4,000m or 5,000m (varies by policy -- always check altitude limit)
@@ -165,12 +180,14 @@ Adventure activities are the most commonly misunderstood exclusion in travel ins
 Many travelers overpay for redundant coverage. Conduct a systematic audit before recommending additional purchase:
 
 **Credit card travel benefits -- common by card tier:**
+
 - Basic Visa/Mastercard (no annual fee): Typically no travel insurance benefits or minimal trip delay ($0--$300)
 - Mid-tier cards ($95--$150 annual fee): Trip delay $500/person, lost/delayed baggage $1,000--$3,000, rental car CDW, possibly some cancellation coverage ($1,500--$5,000)
 - Premium cards (Visa Infinite, World Elite Mastercard, $250--$695 annual fee): Trip cancellation $5,000--$10,000, trip interruption up to $10,000, medical emergency sometimes $1,000--$5,000 (usually inadequate), evacuation sometimes included
 - Key gaps on ALL credit cards: Medical emergency above $5,000 is almost never covered adequately; evacuation is rarely covered; adventure activity coverage is almost always excluded
 
 **National health system coverage abroad:**
+
 - EU/EEA residents with EHIC/GHIC card: Emergency treatment at public facilities in EU/EEA countries at local resident rates -- this is NOT full coverage and does NOT cover medical evacuation or private hospitals
 - UK travelers post-Brexit GHIC: Equivalent to EHIC for EU countries only
 - Canadian provincial health: Extremely limited abroad -- typically $200--$400 CAD per day, which covers a fraction of international healthcare costs; NOT a substitute for travel medical coverage
@@ -184,6 +201,7 @@ Many travelers overpay for redundant coverage. Conduct a systematic audit before
 Cancel for Any Reason (CFAR) coverage is the most expensive optional add-on and requires a specific decision framework:
 
 **CFAR triggers automatic consideration when:**
+
 - Total trip cost exceeds $3,000 per person
 - The traveler explicitly mentions concern about canceling (health anxiety, family obligations, political situation, weather)
 - The destination has elevated political risk or natural disaster history
@@ -191,12 +209,14 @@ Cancel for Any Reason (CFAR) coverage is the most expensive optional add-on and 
 - The traveler has a health condition that is currently stable but could deteriorate
 
 **CFAR economics:**
+
 - CFAR typically adds 40--60% to the base policy premium
 - Reimbursement is typically 50--75% of insured trip cost, NOT 100%
 - CFAR must be purchased within 14--21 days of first trip payment (same window as pre-existing condition waiver)
 - The trip must be canceled at least 48 hours before departure -- CFAR does not cover last-minute cancellations under 48 hours
 
 **CFAR cost-benefit calculation:**
+
 - Break-even point: If the probability of cancellation × trip cost × 75% reimbursement rate > CFAR premium cost, the expected value favors purchasing CFAR
 - Example: $8,000 trip, 20% cancellation probability, 75% reimbursement = $1,200 expected value from CFAR. If CFAR costs $320 (40% of base $800 premium), it is clearly worthwhile.
 - Practical guidance: CFAR is almost always worth considering for trips over $5,000 per person when cancellation risk is anything above minimal.
@@ -434,6 +454,7 @@ Recommend that the user still obtain quotes -- the medical and evacuation covera
 ### Traveler Going to a Destination Under a Government Travel Advisory
 
 This is one of the most common sources of claim denial surprise. When a government travel advisory (US State Department Level 3 or 4, UK FCDO "advise against all travel," or equivalent) is in place before the policy is purchased, most policies exclude:
+
 - Trip cancellation due to the advisory itself (it was a known risk at purchase)
 - Claims arising from the specific circumstances that generated the advisory (civil unrest, terrorism)
 - Any claims in a region under a "do not travel" designation
@@ -471,14 +492,14 @@ When recommending an annual policy, always verify the per-trip duration limit an
 
 ### Priority Coverage Profile
 
-| Priority | Coverage Type                  | Recommended Minimum              | Trip-Specific Justification                                                                                          |
-|----------|--------------------------------|----------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| 1        | Medical emergency              | $200,000 per person              | Japan has no universal access for foreign visitors; a 3-day cardiac ICU admission in Tokyo can exceed $50,000 USD    |
-| 2        | Medical evacuation             | $500,000 per person              | Medical repatriation from Japan to the US or Canada is a 13-14 hour flight; air ambulance costs $150,000--$350,000  |
-| 3        | Trip cancellation              | $9,800 (full trip cost)          | Business class flights and ryokan reservations are typically non-refundable or carry 90-100% cancellation penalties  |
-| 4        | Trip interruption              | $14,700 (150% of trip cost)      | If your husband requires hospitalization mid-trip, interruption covers last-minute one-way business class home        |
-| 5        | Pre-existing condition waiver  | CRITICAL -- see section below    | Without waiver, any cardiac-related claim will be denied; this is the single most important purchase decision         |
-| Optional | Cancel for any reason (CFAR)   | 75% of $9,800 = up to $7,350 back | At $9,800 trip cost and a traveler with cardiac history, CFAR is strongly worth considering; see CFAR analysis below |
+| Priority | Coverage Type                 | Recommended Minimum               | Trip-Specific Justification                                                                                          |
+| -------- | ----------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 1        | Medical emergency             | $200,000 per person               | Japan has no universal access for foreign visitors; a 3-day cardiac ICU admission in Tokyo can exceed $50,000 USD    |
+| 2        | Medical evacuation            | $500,000 per person               | Medical repatriation from Japan to the US or Canada is a 13-14 hour flight; air ambulance costs $150,000--$350,000   |
+| 3        | Trip cancellation             | $9,800 (full trip cost)           | Business class flights and ryokan reservations are typically non-refundable or carry 90-100% cancellation penalties  |
+| 4        | Trip interruption             | $14,700 (150% of trip cost)       | If your husband requires hospitalization mid-trip, interruption covers last-minute one-way business class home       |
+| 5        | Pre-existing condition waiver | CRITICAL -- see section below     | Without waiver, any cardiac-related claim will be denied; this is the single most important purchase decision        |
+| Optional | Cancel for any reason (CFAR)  | 75% of $9,800 = up to $7,350 back | At $9,800 trip cost and a traveler with cardiac history, CFAR is strongly worth considering; see CFAR analysis below |
 
 ---
 
@@ -486,23 +507,23 @@ When recommending an annual policy, always verify the per-trip duration limit an
 
 Fill in the columns below with figures from each policy quote. Use "N/A" if not offered and "Rider" if available only as an add-on.
 
-| Coverage Category          | Your Minimum          | Policy A     | Policy B     | Policy C     |
-|----------------------------|-----------------------|--------------|--------------|--------------|
-| Trip cancellation          | $9,800                | ______       | ______       | ______       |
-| Trip interruption          | $14,700               | ______       | ______       | ______       |
-| Medical emergency          | $200,000/person       | ______       | ______       | ______       |
-| Medical evacuation         | $500,000/person       | ______       | ______       | ______       |
-| Emergency reunion          | $25,000               | ______       | ______       | ______       |
-| Accidental death (travel)  | $50,000               | ______       | ______       | ______       |
-| Baggage loss               | $2,000/person         | ______       | ______       | ______       |
-| Baggage delay              | $200/day              | ______       | ______       | ______       |
-| Travel delay trigger       | 3--6 hours            | ______       | ______       | ______       |
-| Travel delay benefit       | $200/day per person   | ______       | ______       | ______       |
-| Pre-existing condition wvr | YES -- required       | ______       | ______       | ______       |
-| Cancel for any reason      | Recommended           | ______       | ______       | ______       |
-| Deductible (medical)       | Under $250            | ______       | ______       | ______       |
-| **Total Premium**          | --                    | ______       | ______       | ______       |
-| **Premium as % of trip**   | 8--12% = $784--$1,176 | ______       | ______       | ______       |
+| Coverage Category          | Your Minimum          | Policy A | Policy B | Policy C |
+| -------------------------- | --------------------- | -------- | -------- | -------- |
+| Trip cancellation          | $9,800                | **\_\_** | **\_\_** | **\_\_** |
+| Trip interruption          | $14,700               | **\_\_** | **\_\_** | **\_\_** |
+| Medical emergency          | $200,000/person       | **\_\_** | **\_\_** | **\_\_** |
+| Medical evacuation         | $500,000/person       | **\_\_** | **\_\_** | **\_\_** |
+| Emergency reunion          | $25,000               | **\_\_** | **\_\_** | **\_\_** |
+| Accidental death (travel)  | $50,000               | **\_\_** | **\_\_** | **\_\_** |
+| Baggage loss               | $2,000/person         | **\_\_** | **\_\_** | **\_\_** |
+| Baggage delay              | $200/day              | **\_\_** | **\_\_** | **\_\_** |
+| Travel delay trigger       | 3--6 hours            | **\_\_** | **\_\_** | **\_\_** |
+| Travel delay benefit       | $200/day per person   | **\_\_** | **\_\_** | **\_\_** |
+| Pre-existing condition wvr | YES -- required       | **\_\_** | **\_\_** | **\_\_** |
+| Cancel for any reason      | Recommended           | **\_\_** | **\_\_** | **\_\_** |
+| Deductible (medical)       | Under $250            | **\_\_** | **\_\_** | **\_\_** |
+| **Total Premium**          | --                    | **\_\_** | **\_\_** | **\_\_** |
+| **Premium as % of trip**   | 8--12% = $784--$1,176 | **\_\_** | **\_\_** | **\_\_** |
 
 **Premium benchmark:** Expect 8--12% of trip cost for this profile (two travelers, one over 60 with cardiac history, Japan destination, CFAR included). Total premium should fall between $784 and $1,176 for a competitive comprehensive policy. Quotes significantly below $700 should be reviewed carefully for coverage limits.
 
@@ -511,6 +532,7 @@ Fill in the columns below with figures from each policy quote. Use "N/A" if not 
 ### Key Policy Clauses Decoded
 
 **1. Pre-Existing Condition Exclusion and Waiver**
+
 - **Plain-language meaning:** Without a waiver, if your husband has any medical claim that an adjuster determines is related to his cardiac history -- including a new cardiac event, a medication interaction, or even a chest-pain ER visit that turns out to be unrelated -- the insurer will review his medical records, identify the prior cardiac event, and may deny the claim on the grounds that the condition was "pre-existing."
 - **What triggers a valid claim (with waiver):** The waiver must be purchased within 14--21 days of your first trip payment. Since you presumably paid for flights and hotel some time ago, determine your first payment date immediately -- the waiver window may still be open, but it closes fast.
 - **Common exclusions under this clause:** Even with a waiver, coverage applies only to sudden, unexpected medical events. Routine prescription refills abroad, elective procedures, and treatment the traveler knew they would likely need before departure are excluded. The waiver also requires that the full trip cost ($9,800) is insured -- partial coverage of only the hotels or only the flights voids it.
@@ -518,6 +540,7 @@ Fill in the columns below with figures from each policy quote. Use "N/A" if not 
 - **Red flag:** Look-back periods vary dramatically: 60 days, 90 days, 180 days, or 365 days. Your husband's cardiac event was 8 months ago. A policy with a 180-day look-back would NOT consider it pre-existing (8 months = ~240 days, outside the window). A policy with a 365-day look-back WOULD consider it pre-existing. Read this carefully in every policy -- it may be the determining factor in which policy you choose.
 
 **2. Medical Emergency Coverage -- What Happens Abroad**
+
 - **Plain-language meaning:** This covers the cost of emergency medical treatment received at hospitals, clinics, and urgent care facilities while abroad -- doctor fees, surgery, hospitalization, diagnostic tests, and prescription medications required for the emergency. In Japan, this must be paid at the time of service or arranged through the insurer's direct-pay program.
 - **What triggers a valid claim:** An unexpected illness or injury that requires medical treatment while traveling. "Emergency" is typically defined as a condition that would cause permanent harm or death without immediate treatment -- not routine care for a stable condition.
 - **Common exclusions:** Treatment for a pre-existing condition (without waiver), dental care beyond emergency pain relief, treatment the traveler sought for elective or cosmetic purposes, care received after the policy expiration date.
@@ -525,6 +548,7 @@ Fill in the columns below with figures from each policy quote. Use "N/A" if not 
 - **Red flag:** Some policies require the insurer's pre-authorization for any treatment above a threshold ($1,000--$5,000). In a true emergency, call the insurer's 24-hour line before or as soon as possible after treatment begins -- failure to notify may result in reduced benefits.
 
 **3. Trip Cancellation -- Covered Reasons**
+
 - **Plain-language meaning:** If you cannot take the trip and cancel before departure, this reimburses your non-refundable pre-paid costs. The critical detail: it only covers cancellation for reasons specifically listed in the policy -- the covered reasons list is usually 10--20 specific scenarios.
 - **What triggers a valid claim:** For this trip profile, the most relevant covered reasons are: a treating physician certifies that your husband (or you) is medically unfit to travel, a family member at home suffers a serious illness or death requiring your presence, or a natural disaster renders your destination uninhabitable.
 - **Common exclusions:** Work obligations, change of mind, fear of flying, financial hardship (unless covered separately), government travel advisories issued before policy purchase, pre-existing conditions (without waiver).
@@ -532,6 +556,7 @@ Fill in the columns below with figures from each policy quote. Use "N/A" if not 
 - **Red flag:** Some policies require that the cancellation reason is the direct cause -- if your husband's doctor recommends cancellation as a "precaution" rather than declaring him medically unfit to travel, the claim may be disputed. Confirm what documentation is required for a physician-recommended cancellation.
 
 **4. Medical Evacuation and Repatriation**
+
 - **Plain-language meaning:** If your husband suffers a serious cardiac event in Japan and requires transport to a hospital with higher-level cardiac care, or needs to be flown home for treatment, this benefit covers the cost of that transport -- including an air ambulance, medical escort, and any required equipment.
 - **What triggers a valid claim:** A physician at the treating hospital must declare that adequate care is not available locally and that transport is medically necessary. The insurer's assistance team typically coordinates the evacuation -- you should NOT arrange evacuation independently without contacting the insurer first, as self-arranged evacuations may not be reimbursed.
 - **Common exclusions:** Evacuations arranged without insurer authorization, transport for non-emergency "convenience" (wanting to recover at home when local care is adequate), repatriation of remains (sometimes a separate coverage line -- verify this is included).
@@ -542,14 +567,14 @@ Fill in the columns below with figures from each policy quote. Use "N/A" if not 
 
 ### Existing Coverage Gap Analysis
 
-| Coverage Type          | Existing Coverage Source       | Existing Limit               | Gap                              | Recommended Action                     |
-|------------------------|--------------------------------|------------------------------|----------------------------------|----------------------------------------|
-| Trip cancellation      | Visa Infinite card             | $2,000--$5,000 typical       | $4,800--$7,800 gap on $9,800 trip | Purchase supplemental; credit card alone is insufficient |
-| Medical emergency      | Visa Infinite card             | $1,000--$5,000 (typically)   | $195,000--$199,000 gap           | Full purchase required; credit card medical is negligible |
-| Medical evacuation     | Visa Infinite card             | Not typically included        | Full gap: $500,000 needed        | Full purchase required                 |
-| Baggage loss           | Visa Infinite card             | $1,500--$3,000                | Likely adequate for standard bags | Verify card limit; adequate if not carrying valuables |
-| Travel delay           | Visa Infinite card             | $500/person typical          | Likely adequate for short delays | Verify per-incident cap                |
-| Pre-existing condition | Visa Infinite card             | Not covered                  | Full gap                        | Requires dedicated travel policy with waiver |
-| Trip interruption      | Visa Infinite card             | $2,000--$5,000 typical       | Significant gap on $14,700 target | Purchase supplemental                  |
+| Coverage Type          | Existing Coverage Source | Existing Limit             | Gap                               | Recommended Action                                        |
+| ---------------------- | ------------------------ | -------------------------- | --------------------------------- | --------------------------------------------------------- |
+| Trip cancellation      | Visa Infinite card       | $2,000--$5,000 typical     | $4,800--$7,800 gap on $9,800 trip | Purchase supplemental; credit card alone is insufficient  |
+| Medical emergency      | Visa Infinite card       | $1,000--$5,000 (typically) | $195,000--$199,000 gap            | Full purchase required; credit card medical is negligible |
+| Medical evacuation     | Visa Infinite card       | Not typically included     | Full gap: $500,000 needed         | Full purchase required                                    |
+| Baggage loss           | Visa Infinite card       | $1,500--$3,000             | Likely adequate for standard bags | Verify card limit; adequate if not carrying valuables     |
+| Travel delay           | Visa Infinite card       | $500/person typical        | Likely adequate for short delays  | Verify per-incident cap                                   |
+| Pre-existing condition | Visa Infinite card       | Not covered                | Full gap                          | Requires dedicated travel policy with waiver              |
+| Trip interruption      | Visa Infinite card       | $2,000--$5,000 typical     | Significant gap on $14,700 target | Purchase supplemental                                     |
 
 **Important note on Visa Infinite medical coverage:** Premium credit card medical benefits are frequently misunderstood. While Visa Infinite cards often include trip-interruption and delay coverage at meaningful levels, the medical emergency limit is typically $1,000--$5,000 -- designed for a minor clinic visit, not

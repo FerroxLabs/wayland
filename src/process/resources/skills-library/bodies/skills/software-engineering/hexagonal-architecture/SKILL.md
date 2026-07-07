@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns clean-code"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture design-patterns clean-code'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Hexagonal Architecture
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to implement Ports and Adapters (Hexagonal) architecture in a new or existing application and needs concrete structural guidance
 - A user is struggling with tight coupling between their domain logic and infrastructure concerns (databases, message queues, HTTP frameworks) and needs an architectural pattern to separate them
 - A user wants to make their application testable without spinning up external dependencies like PostgreSQL, Redis, or third-party APIs
@@ -30,6 +32,7 @@ metadata:
 - A user is onboarding a team to hexagonal architecture and needs explanatory material, naming conventions, or internal guidelines
 
 **Do NOT use this skill when:**
+
 - The user needs guidance on microservices decomposition strategy -- use a microservices design skill instead; hexagonal architecture applies within a single service, not across service boundaries
 - The user is building a simple CRUD application with minimal business logic where the overhead of ports and adapters adds no value -- recommend a simpler layered architecture
 - The user asks about event-driven architecture patterns like sagas, event sourcing, or CQRS as primary topics -- those are distinct patterns that can complement hexagonal architecture but require dedicated skills
@@ -308,6 +311,7 @@ Ports are interfaces, but interfaces evolve. Changing a port interface without b
 ## Hexagonal Architecture Design: Order Management Service
 
 ### Context Assessment
+
 - Application type: Domain-rich service with external integrations
 - Team size and experience: 4 engineers -- hexagonal adds moderate upfront investment, high long-term return
 - Key infrastructure concerns: PostgreSQL persistence, Kafka event publishing, Stripe HTTP integration, REST API exposure
@@ -318,46 +322,51 @@ Ports are interfaces, but interfaces evolve. Changing a port interface without b
 ### Domain Core Design
 
 #### Aggregates and Entities
-| Aggregate Root | Key Invariants | Domain Events Emitted |
-|----------------|---------------|----------------------|
-| Order | Items cannot be added after submission; total must be > $0; status transitions are one-directional | OrderPlaced, OrderCancelled, PaymentFailed |
-| OrderItem | Quantity must be >= 1; unit price must be >= $0.01 | (none -- managed by Order aggregate) |
+
+| Aggregate Root | Key Invariants                                                                                     | Domain Events Emitted                      |
+| -------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Order          | Items cannot be added after submission; total must be > $0; status transitions are one-directional | OrderPlaced, OrderCancelled, PaymentFailed |
+| OrderItem      | Quantity must be >= 1; unit price must be >= $0.01                                                 | (none -- managed by Order aggregate)       |
 
 #### Value Objects
-| Value Object | Validation Rules | Why Not a Primitive |
-|--------------|-----------------|---------------------|
-| OrderId | UUID v4 format, immutable | Prevents passing a CustomerId where an OrderId is expected |
-| Money | Amount >= 0, currency is ISO 4217 3-letter code, stored as integer cents | Prevents floating point arithmetic errors on financial amounts |
-| PaymentToken | Non-empty string, max 255 chars | Represents a Stripe payment method ID with domain meaning |
-| OrderStatus | Enum: PENDING, CONFIRMED, CANCELLED, REFUNDED | Encodes valid state transitions, prevents invalid string values |
+
+| Value Object | Validation Rules                                                         | Why Not a Primitive                                             |
+| ------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| OrderId      | UUID v4 format, immutable                                                | Prevents passing a CustomerId where an OrderId is expected      |
+| Money        | Amount >= 0, currency is ISO 4217 3-letter code, stored as integer cents | Prevents floating point arithmetic errors on financial amounts  |
+| PaymentToken | Non-empty string, max 255 chars                                          | Represents a Stripe payment method ID with domain meaning       |
+| OrderStatus  | Enum: PENDING, CONFIRMED, CANCELLED, REFUNDED                            | Encodes valid state transitions, prevents invalid string values |
 
 ---
 
 ### Port Definitions
 
 #### Inbound Ports (Use Cases)
-| Port Interface | Command Input | Result Output |
-|----------------|--------------|---------------|
-| `PlaceOrderUseCase` | `PlaceOrderCommand(customer_id, items: list[OrderItemData], payment_token)` | `PlaceOrderResult` -- union of `OrderPlaced(order_id)` or `PlacementFailed(reason)` |
-| `CancelOrderUseCase` | `CancelOrderCommand(order_id, requested_by_customer_id)` | `CancelOrderResult` -- union of `OrderCancelled(order_id)` or `CancellationFailed(reason)` |
-| `GetOrderUseCase` | `GetOrderQuery(order_id, requesting_customer_id)` | `OrderSummary` DTO or `OrderNotFound` |
+
+| Port Interface       | Command Input                                                               | Result Output                                                                              |
+| -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `PlaceOrderUseCase`  | `PlaceOrderCommand(customer_id, items: list[OrderItemData], payment_token)` | `PlaceOrderResult` -- union of `OrderPlaced(order_id)` or `PlacementFailed(reason)`        |
+| `CancelOrderUseCase` | `CancelOrderCommand(order_id, requested_by_customer_id)`                    | `CancelOrderResult` -- union of `OrderCancelled(order_id)` or `CancellationFailed(reason)` |
+| `GetOrderUseCase`    | `GetOrderQuery(order_id, requesting_customer_id)`                           | `OrderSummary` DTO or `OrderNotFound`                                                      |
 
 #### Outbound Ports (Dependencies)
-| Port Interface | Responsibility | Implementations Planned |
-|----------------|---------------|------------------------|
-| `OrderRepository` | Persist and retrieve Order aggregates | `PostgresOrderRepository`, `InMemoryOrderRepository` |
-| `PaymentGateway` | Charge and refund payment tokens | `StripePaymentGateway`, `StubPaymentGateway` |
-| `OrderEventPublisher` | Publish domain events to message bus | `KafkaOrderEventPublisher`, `InMemoryOrderEventPublisher` |
+
+| Port Interface        | Responsibility                        | Implementations Planned                                   |
+| --------------------- | ------------------------------------- | --------------------------------------------------------- |
+| `OrderRepository`     | Persist and retrieve Order aggregates | `PostgresOrderRepository`, `InMemoryOrderRepository`      |
+| `PaymentGateway`      | Charge and refund payment tokens      | `StripePaymentGateway`, `StubPaymentGateway`              |
+| `OrderEventPublisher` | Publish domain events to message bus  | `KafkaOrderEventPublisher`, `InMemoryOrderEventPublisher` |
 
 ---
 
 ### Adapter Plan
-| Adapter Name | Type | Port Implemented | Technology |
-|---|---|---|---|
-| `HttpOrderController` | Inbound | `PlaceOrderUseCase`, `CancelOrderUseCase`, `GetOrderUseCase` | FastAPI |
-| `PostgresOrderRepository` | Outbound | `OrderRepository` | SQLAlchemy Core (not ORM) |
-| `StripePaymentGateway` | Outbound | `PaymentGateway` | stripe-python SDK |
-| `KafkaOrderEventPublisher` | Outbound | `OrderEventPublisher` | confluent-kafka-python |
+
+| Adapter Name               | Type     | Port Implemented                                             | Technology                |
+| -------------------------- | -------- | ------------------------------------------------------------ | ------------------------- |
+| `HttpOrderController`      | Inbound  | `PlaceOrderUseCase`, `CancelOrderUseCase`, `GetOrderUseCase` | FastAPI                   |
+| `PostgresOrderRepository`  | Outbound | `OrderRepository`                                            | SQLAlchemy Core (not ORM) |
+| `StripePaymentGateway`     | Outbound | `PaymentGateway`                                             | stripe-python SDK         |
+| `KafkaOrderEventPublisher` | Outbound | `OrderEventPublisher`                                        | confluent-kafka-python    |
 
 ---
 
@@ -417,7 +426,9 @@ tests/
 ---
 
 ### Architecture Enforcement Strategy
+
 - Import linting tool: `import-linter` with the following `.importlinter` configuration:
+
   ```ini
   [importlinter]
   root_package = src
@@ -434,6 +445,7 @@ tests/
   source_modules = src.application
   forbidden_modules = src.infrastructure
   ```
+
 - Run `lint-imports` in CI as a required check. Block merge if it fails.
 - Key forbidden dependency directions: `domain` -> `application`, `domain` -> `infrastructure`, `application` -> `infrastructure`
 
@@ -721,10 +733,10 @@ def test_payment_declined_returns_failure_result():
 
 ### Trade-off Notes
 
-| Decision | Alternative Considered | Reason for Choice |
-|---|---|---|
-| Separate persistence models from domain entities | Use SQLAlchemy ORM directly on domain classes | ORM annotations on domain classes create framework coupling that prevents testing domain logic without a DB session |
-| One use case interface per operation | Single `OrderService` interface with all order methods | ISP compliance -- HTTP controller only needs `PlaceOrderUseCase`, not access to cancel/refund methods |
-| Results as union types instead of exceptions for business failures | Raise `PaymentDeclinedException` from service | Forces callers to handle expected failures explicitly; exceptions are reserved for unexpected infrastructure failures |
-| Publish events after save, not inside transaction | Use DB transaction + event publish as atomic unit | Simplest approach without requiring transactional outbox infrastructure; acceptable for eventual consistency requirement |
-| Plain Python `Protocol` for ports | `ABC` abstract base classes | `Protocol` enables structural typing -- adapters do not need to inherit from port classes, reducing coupling |
+| Decision                                                           | Alternative Considered                                 | Reason for Choice                                                                                                        |
+| ------------------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Separate persistence models from domain entities                   | Use SQLAlchemy ORM directly on domain classes          | ORM annotations on domain classes create framework coupling that prevents testing domain logic without a DB session      |
+| One use case interface per operation                               | Single `OrderService` interface with all order methods | ISP compliance -- HTTP controller only needs `PlaceOrderUseCase`, not access to cancel/refund methods                    |
+| Results as union types instead of exceptions for business failures | Raise `PaymentDeclinedException` from service          | Forces callers to handle expected failures explicitly; exceptions are reserved for unexpected infrastructure failures    |
+| Publish events after save, not inside transaction                  | Use DB transaction + event publish as atomic unit      | Simplest approach without requiring transactional outbox infrastructure; acceptable for eventual consistency requirement |
+| Plain Python `Protocol` for ports                                  | `ABC` abstract base classes                            | `Protocol` enables structural typing -- adapters do not need to inherit from port classes, reducing coupling             |

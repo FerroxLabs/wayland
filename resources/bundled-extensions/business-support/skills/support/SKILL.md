@@ -1,9 +1,9 @@
 ---
 name: support
 description: Customer support orchestrator. Routes to the right sub-skill based on your verb - reply, kb-article, faq, escalation, refund-script, sla-review, nps-analysis, churn-investigate, or report.
-argument-hint: "<verb> [context]"
+argument-hint: '<verb> [context]'
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [orchestrator, customer-support, smb, business]
@@ -23,17 +23,17 @@ Central entry point for all customer support work. Parse the user's verb and dis
 
 ## Verb → Sub-skill Routing Table
 
-| Verb(s) | Dispatches to | What it does |
-|---|---|---|
-| `reply`, `draft`, `respond`, `response` | `support-reply` | Draft a professional customer-facing response |
-| `kb-article`, `kb`, `article`, `knowledge-base` | `support-kb-article` | Create a publish-ready KB article from a resolved issue |
-| `faq`, `faqs`, `faq-entry` | `support-faq` | Generate FAQ entries from common questions or ticket patterns |
-| `escalation`, `escalate`, `escalate-to-eng`, `escalate-to-leadership` | `support-escalation` | Package a structured escalation brief for engineering, product, or leadership |
-| `refund`, `refund-script`, `compensation`, `credit` | `support-refund-script` | Generate a refund or compensation response script |
-| `sla`, `sla-review`, `sla-audit` | `support-sla-review` | Audit open tickets and queue against SLA targets |
-| `nps`, `nps-analysis`, `survey`, `feedback-analysis` | `support-nps-analysis` | Analyze NPS or CSAT feedback for themes and action items |
-| `churn`, `churn-investigate`, `at-risk`, `retention` | `support-churn-investigate` | Investigate churn signals for an account and recommend interventions |
-| `report`, `summary`, `metrics` | `support-report` | Generate a support health summary with key metrics |
+| Verb(s)                                                               | Dispatches to               | What it does                                                                  |
+| --------------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------- |
+| `reply`, `draft`, `respond`, `response`                               | `support-reply`             | Draft a professional customer-facing response                                 |
+| `kb-article`, `kb`, `article`, `knowledge-base`                       | `support-kb-article`        | Create a publish-ready KB article from a resolved issue                       |
+| `faq`, `faqs`, `faq-entry`                                            | `support-faq`               | Generate FAQ entries from common questions or ticket patterns                 |
+| `escalation`, `escalate`, `escalate-to-eng`, `escalate-to-leadership` | `support-escalation`        | Package a structured escalation brief for engineering, product, or leadership |
+| `refund`, `refund-script`, `compensation`, `credit`                   | `support-refund-script`     | Generate a refund or compensation response script                             |
+| `sla`, `sla-review`, `sla-audit`                                      | `support-sla-review`        | Audit open tickets and queue against SLA targets                              |
+| `nps`, `nps-analysis`, `survey`, `feedback-analysis`                  | `support-nps-analysis`      | Analyze NPS or CSAT feedback for themes and action items                      |
+| `churn`, `churn-investigate`, `at-risk`, `retention`                  | `support-churn-investigate` | Investigate churn signals for an account and recommend interventions          |
+| `report`, `summary`, `metrics`                                        | `support-report`            | Generate a support health summary with key metrics                            |
 
 ## Dispatch Logic
 

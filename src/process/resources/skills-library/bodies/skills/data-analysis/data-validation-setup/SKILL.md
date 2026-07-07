@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "spreadsheets data-science checklist"
-  category: "data-analysis"
-  subcategory: "spreadsheets"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'spreadsheets data-science checklist'
+  category: 'data-analysis'
+  subcategory: 'spreadsheets'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Data Validation Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is building a shared data entry spreadsheet and wants to prevent garbage-in-garbage-out problems before they occur -- for example, a team time tracker, an inventory log, a CRM input sheet, a budget request form, or a project status register
 - A user asks questions like "how do I add a dropdown?", "how do I stop people from entering letters in a number column?", "how do I make sure dates are in the right range?", or "how do I restrict what can be typed into a cell?"
 - A user is creating a data collection template that will be filled in by multiple people with varying technical skill levels -- the wider the audience, the more important validation becomes
@@ -29,6 +31,7 @@ metadata:
 - A user is designing a self-service data entry form in Google Sheets or Excel that replaces a paper form or email submission process
 
 **Do NOT use when:**
+
 - The problem is dirty data that already exists in the spreadsheet -- validation rules do not retroactively fix existing entries; use `spreadsheet-data-cleaning` instead
 - The user wants to visually highlight cells based on their value (red for overdue, green for complete) -- that is conditional formatting, not validation; use `conditional-formatting-rules`
 - The user wants to build VLOOKUP, INDEX/MATCH, or XLOOKUP formulas to retrieve values -- use `excel-lookup-formulas`
@@ -57,17 +60,17 @@ Before writing a single validation rule, understand the full data model. Ask the
 
 Map each input field to one of six validation types. Do not guess -- apply the classification framework systematically:
 
-| Field Characteristic | Correct Validation Type | When to Use It |
-|---|---|---|
-| Fixed set of allowed values (<=50 options) | **List** | Department names, status codes, yes/no flags, categories |
-| Fixed set but values change frequently or exceed 50 | **List via named range** | Employee names, product SKUs, project codes |
-| Whole number within a range | **Whole Number** | Quantities, counts, ID numbers, survey scores 1--10 |
-| Number with decimals within a range | **Decimal** | Hours, currency amounts, percentages, measurements |
-| Date within a range | **Date** | Entry dates, deadlines, billing periods |
-| Time values | **Time** | Clock-in/clock-out, duration in HH:MM format |
-| Text with a length constraint | **Text Length** | Reference codes, descriptions with character limits |
-| Format, pattern, or cross-column logic | **Custom Formula** | Email format, phone format, conditional requirements, uniqueness |
-| No constraint needed | **None** | Free-text notes, comments, calculated columns |
+| Field Characteristic                                | Correct Validation Type  | When to Use It                                                   |
+| --------------------------------------------------- | ------------------------ | ---------------------------------------------------------------- |
+| Fixed set of allowed values (<=50 options)          | **List**                 | Department names, status codes, yes/no flags, categories         |
+| Fixed set but values change frequently or exceed 50 | **List via named range** | Employee names, product SKUs, project codes                      |
+| Whole number within a range                         | **Whole Number**         | Quantities, counts, ID numbers, survey scores 1--10              |
+| Number with decimals within a range                 | **Decimal**              | Hours, currency amounts, percentages, measurements               |
+| Date within a range                                 | **Date**                 | Entry dates, deadlines, billing periods                          |
+| Time values                                         | **Time**                 | Clock-in/clock-out, duration in HH:MM format                     |
+| Text with a length constraint                       | **Text Length**          | Reference codes, descriptions with character limits              |
+| Format, pattern, or cross-column logic              | **Custom Formula**       | Email format, phone format, conditional requirements, uniqueness |
+| No constraint needed                                | **None**                 | Free-text notes, comments, calculated columns                    |
 
 - **List validation vs. named range:** Hardcoded comma-separated lists (e.g., `Low,Medium,High`) are acceptable for static lists of 5 or fewer values that never change. For anything longer or likely to be maintained, always use a named range on a Config or Lookup sheet.
 - **Custom Formula is the escape hatch:** Any rule that cannot be expressed with the built-in types can be expressed as a custom formula that returns TRUE (valid) or FALSE (invalid). Master this type and it covers every case.
@@ -97,16 +100,19 @@ For every field, define all five components before touching the spreadsheet. Des
 Error alert style is the most consequential decision in validation design. The wrong choice either makes the sheet unusable (Stop used where exceptions are needed) or makes validation toothless (Information used where data integrity is critical).
 
 **Stop:** Rejects the entry entirely. The user cannot proceed until they enter valid data or press Escape.
+
 - Use for: fields where invalid data would break a downstream formula (e.g., a VLOOKUP key), violate a compliance requirement, or corrupt a database import.
 - Use for: primary keys, required foreign keys, numeric fields used in calculations, date fields used in sorting or filtering.
 - Do NOT use for: lists where unlisted values are occasionally legitimate (new employees, new projects).
 
 **Warning:** Shows the message but allows the user to click "Yes" to accept the invalid entry anyway.
+
 - Use for: dropdown lists where exceptions are plausible but should be flagged (new project codes, vendor not yet in master list).
 - Use for: situations where enforcement is preferred but not mandatory, and where an audit trail of exceptions is acceptable.
 - The Warning dialog shows Yes/No/Cancel. "Yes" accepts the entry. This means Warning style does not prevent bad data -- it slows it down and makes it deliberate.
 
 **Information:** Shows a message but automatically accepts whatever was entered.
+
 - Use for: advisory guidance only, such as a reminder about formatting conventions when you cannot enforce the format technically.
 - Rarely justified for data quality purposes. If you find yourself reaching for Information, ask whether the validation is providing any real value.
 
@@ -127,6 +133,7 @@ Before configuring validation in the spreadsheet, build the infrastructure that 
 With the design document and Config sheet in place, implement each rule:
 
 **In Excel:**
+
 1. Select the target range (e.g., B2:B1000)
 2. Data tab > Data Validation (in the Data Tools group)
 3. Settings tab: Set Allow, Data, and criteria values
@@ -136,6 +143,7 @@ With the design document and Config sheet in place, implement each rule:
 7. Repeat for each field -- do not copy validation from one column to another using paste unless the criteria are identical, because the formula references may shift incorrectly.
 
 **In Google Sheets:**
+
 1. Select the target range
 2. Data menu > Data validation > Add rule (in the new interface)
 3. Set Criteria type and values
@@ -147,6 +155,7 @@ With the design document and Config sheet in place, implement each rule:
 **Implementation order:** Always implement Stop rules before Warning rules. Test Stop rules first because they block entry and will reveal formula errors immediately.
 
 **Testing protocol after implementation:**
+
 - Enter a known-valid value and confirm it is accepted
 - Enter a known-invalid value and confirm it is rejected with the correct error message
 - Leave the field blank and confirm the correct behavior (accepted if Allow blank = Yes, rejected if Allow blank = No)
@@ -155,6 +164,7 @@ With the design document and Config sheet in place, implement each rule:
 ### Step 7: Document the Validation Specification
 
 Produce the deliverable: a complete written specification of all validation rules. This serves as:
+
 - A handoff document so the spreadsheet owner can maintain the rules without reverse-engineering them
 - A review artifact for stakeholders to confirm the rules match business requirements
 - An audit record proving that controls existed at the time of data collection
@@ -368,6 +378,7 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 ## Data Validation Specification
 
 ### Overview
+
 - **Spreadsheet name:** Employee Expense Report
 - **Platform:** Excel (compatible with Google Sheets with noted adjustments)
 - **Validated fields:** 7 of 8 input columns
@@ -382,24 +393,27 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 
 #### Field 1: Date (Column A, Range A2:A5000)
 
-| Component | Specification |
-|-----------|---------------|
-| Applies to | A2:A5000 |
-| Validation type | Date |
-| Criteria | Between `=DATE(YEAR(TODAY()),1,1)` and `=DATE(YEAR(TODAY()),12,31)` |
-| Allow blank | No -- Date is required for every expense line |
-| Error style | Stop -- an invalid date prevents correct period reporting |
+| Component       | Specification                                                       |
+| --------------- | ------------------------------------------------------------------- |
+| Applies to      | A2:A5000                                                            |
+| Validation type | Date                                                                |
+| Criteria        | Between `=DATE(YEAR(TODAY()),1,1)` and `=DATE(YEAR(TODAY()),12,31)` |
+| Allow blank     | No -- Date is required for every expense line                       |
+| Error style     | Stop -- an invalid date prevents correct period reporting           |
 
 **Input message (shown when cell is selected):**
+
 - Title: "Expense Date"
 - Message: "Enter the date the expense was incurred. Must be within the current calendar year. Use MM/DD/YYYY format."
 
 **Error alert:**
+
 - Style: Stop
 - Title: "Date Out of Range"
 - Message: "Please enter a date within the current calendar year. Expenses from prior years must be submitted to Finance directly. Future dates are not accepted."
 
 **Implementation:**
+
 - Excel: Data > Data Validation > Allow: Date > Data: between > Start date: `=DATE(YEAR(TODAY()),1,1)` > End date: `=DATE(YEAR(TODAY()),12,31)` > Input Message tab > Title: "Expense Date" > Message: [above] > Error Alert tab > Style: Stop > Title: "Date Out of Range" > Message: [above]
 - Google Sheets: Data > Data validation > Add rule > Criteria: Date is between > `=DATE(YEAR(TODAY()),1,1)` and `=DATE(YEAR(TODAY()),12,31)` > If invalid: Reject input > Help text: [combined input and error message]
 
@@ -409,105 +423,117 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 
 #### Field 2: Employee ID (Column B, Range B2:B5000)
 
-| Component | Specification |
-|-----------|---------------|
-| Applies to | B2:B5000 |
-| Validation type | Custom Formula |
-| Criteria | `=AND(LEN(B2)=6, ISNUMBER(VALUE(B2)))` |
-| Allow blank | No -- Employee ID is required for payroll matching |
-| Error style | Stop -- an invalid ID cannot be matched to an employee record |
+| Component       | Specification                                                 |
+| --------------- | ------------------------------------------------------------- |
+| Applies to      | B2:B5000                                                      |
+| Validation type | Custom Formula                                                |
+| Criteria        | `=AND(LEN(B2)=6, ISNUMBER(VALUE(B2)))`                        |
+| Allow blank     | No -- Employee ID is required for payroll matching            |
+| Error style     | Stop -- an invalid ID cannot be matched to an employee record |
 
 **Input message:**
+
 - Title: "Employee ID"
 - Message: "Enter your 6-digit Employee ID (numbers only). Find your ID on your pay stub or HR portal profile. Example: 104872."
 
 **Error alert:**
+
 - Style: Stop
 - Title: "Invalid Employee ID"
 - Message: "Employee ID must be exactly 6 digits (numbers only). Do not include letters, spaces, or hyphens. Check your pay stub or contact HR if you do not know your ID."
 
 **Implementation:**
+
 - Excel: Data > Data Validation > Allow: Custom > Formula: `=AND(LEN(B2)=6, ISNUMBER(VALUE(B2)))` > Input Message and Error Alert tabs as above
 - Google Sheets: Same formula in Custom formula field
 
-**Notes:** This validates format (6 digits) but not existence. A companion MATCH check against an EmployeeID named range on _Config is recommended if the employee master list is available: replace formula with `=AND(LEN(B2)=6, ISNUMBER(VALUE(B2)), ISNUMBER(MATCH(VALUE(B2),EmployeeIDList,0)))`.
+**Notes:** This validates format (6 digits) but not existence. A companion MATCH check against an EmployeeID named range on \_Config is recommended if the employee master list is available: replace formula with `=AND(LEN(B2)=6, ISNUMBER(VALUE(B2)), ISNUMBER(MATCH(VALUE(B2),EmployeeIDList,0)))`.
 
 ---
 
 #### Field 3: Department (Column C, Range C2:C5000)
 
-| Component | Specification |
-|-----------|---------------|
-| Applies to | C2:C5000 |
-| Validation type | List |
-| Criteria | `=DepartmentList` (named range on _Config sheet, column A) |
-| Allow blank | No -- Department is required for cost allocation |
-| Error style | Stop -- expenses cannot be allocated without a valid department code |
+| Component       | Specification                                                        |
+| --------------- | -------------------------------------------------------------------- |
+| Applies to      | C2:C5000                                                             |
+| Validation type | List                                                                 |
+| Criteria        | `=DepartmentList` (named range on \_Config sheet, column A)          |
+| Allow blank     | No -- Department is required for cost allocation                     |
+| Error style     | Stop -- expenses cannot be allocated without a valid department code |
 
 **Input message:**
+
 - Title: "Department"
 - Message: "Select your department from the dropdown. If your department is not listed, contact Finance to add it before submitting."
 
 **Error alert:**
+
 - Style: Stop
 - Title: "Invalid Department"
 - Message: "Please select your department from the dropdown list. Do not type a department name manually -- it must match the approved list exactly. Contact Finance if your department is missing."
 
 **Implementation:**
-- Excel: Data > Data Validation > Allow: List > Source: `=DepartmentList` > tabs as above
-- Google Sheets: Criteria: Dropdown (from a range) > select _Config!A2:A9
 
-**Notes:** DepartmentList contains 8 values on _Config!A2:A9. The named range is dynamic (uses OFFSET formula) so new departments can be added by appending to the list without editing the validation rule.
+- Excel: Data > Data Validation > Allow: List > Source: `=DepartmentList` > tabs as above
+- Google Sheets: Criteria: Dropdown (from a range) > select \_Config!A2:A9
+
+**Notes:** DepartmentList contains 8 values on \_Config!A2:A9. The named range is dynamic (uses OFFSET formula) so new departments can be added by appending to the list without editing the validation rule.
 
 ---
 
 #### Field 4: Expense Category (Column D, Range D2:D5000)
 
-| Component | Specification |
-|-----------|---------------|
-| Applies to | D2:D5000 |
-| Validation type | List |
-| Criteria | `=ExpenseCategoryList` (named range on _Config sheet, column B) |
-| Allow blank | No -- Category is required for expense policy enforcement |
-| Error style | Warning -- a new vendor category may occasionally be legitimately unlisted; Finance approver must confirm |
+| Component       | Specification                                                                                             |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| Applies to      | D2:D5000                                                                                                  |
+| Validation type | List                                                                                                      |
+| Criteria        | `=ExpenseCategoryList` (named range on \_Config sheet, column B)                                          |
+| Allow blank     | No -- Category is required for expense policy enforcement                                                 |
+| Error style     | Warning -- a new vendor category may occasionally be legitimately unlisted; Finance approver must confirm |
 
 **Input message:**
+
 - Title: "Expense Category"
 - Message: "Select the expense category from the dropdown. For multi-category receipts, split into separate rows. See the Expense Policy for category definitions."
 
 **Error alert:**
+
 - Style: Warning
 - Title: "Category Not in Approved List"
 - Message: "This category is not in the approved list. If this is a valid new category, click Yes to submit and add a note in the Notes column. Your manager and Finance will review. If you made a typo, click No and select from the dropdown."
 
 **Implementation:**
-- Excel: Data > Data Validation > Allow: List > Source: `=ExpenseCategoryList` > Error Alert tab > Style: Warning > tabs as above
-- Google Sheets: Criteria: Dropdown (from a range) > _Config!B2:B13 > If invalid: Show warning
 
-**Notes:** Warning style is intentional. Expense policy is updated quarterly and the list may lag new categories by weeks. Finance reviews all exceptions. ExpenseCategoryList is on _Config!B2:B13 (12 categories).
+- Excel: Data > Data Validation > Allow: List > Source: `=ExpenseCategoryList` > Error Alert tab > Style: Warning > tabs as above
+- Google Sheets: Criteria: Dropdown (from a range) > \_Config!B2:B13 > If invalid: Show warning
+
+**Notes:** Warning style is intentional. Expense policy is updated quarterly and the list may lag new categories by weeks. Finance reviews all exceptions. ExpenseCategoryList is on \_Config!B2:B13 (12 categories).
 
 ---
 
 #### Field 5: Vendor Name (Column E, Range E2:E5000)
 
-| Component | Specification |
-|-----------|---------------|
-| Applies to | E2:E5000 |
-| Validation type | Text Length |
-| Criteria | Between 2 and 100 characters |
-| Allow blank | No -- Vendor name is required for audit compliance |
-| Error style | Stop |
+| Component       | Specification                                      |
+| --------------- | -------------------------------------------------- |
+| Applies to      | E2:E5000                                           |
+| Validation type | Text Length                                        |
+| Criteria        | Between 2 and 100 characters                       |
+| Allow blank     | No -- Vendor name is required for audit compliance |
+| Error style     | Stop                                               |
 
 **Input message:**
+
 - Title: "Vendor Name"
 - Message: "Type the vendor or merchant name as it appears on the receipt. Maximum 100 characters. Example: Delta Air Lines, Marriott Chicago Downtown, Office Depot."
 
 **Error alert:**
+
 - Style: Stop
 - Title: "Vendor Name Required"
 - Message: "Please enter the vendor name (2--100 characters). This field cannot be blank. Enter the name exactly as it appears on the receipt."
 
 **Implementation:**
+
 - Excel: Data > Data Validation > Allow: Text length > Data: between > Minimum: 2 > Maximum: 100
 - Google Sheets: Criteria: Text > Text length > between 2 and 100
 
@@ -517,24 +543,27 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 
 #### Field 6: Amount (USD) (Column F, Range F2:F5000)
 
-| Component | Specification |
-|-----------|---------------|
-| Applies to | F2:F5000 |
-| Validation type | Decimal |
-| Criteria | Between 0.01 and 9999.99 |
-| Allow blank | No -- Amount is required |
-| Error style | Stop -- amounts outside this range cannot be processed via this form |
+| Component       | Specification                                                        |
+| --------------- | -------------------------------------------------------------------- |
+| Applies to      | F2:F5000                                                             |
+| Validation type | Decimal                                                              |
+| Criteria        | Between 0.01 and 9999.99                                             |
+| Allow blank     | No -- Amount is required                                             |
+| Error style     | Stop -- amounts outside this range cannot be processed via this form |
 
 **Input message:**
+
 - Title: "Amount (USD)"
 - Message: "Enter the expense amount in US dollars. Use decimal format: 45.00 for $45, 1250.75 for $1,250.75. Minimum: $0.01. Maximum per line: $9,999.99. Amounts of $10,000 or more require a Purchase Order -- contact Finance."
 
 **Error alert:**
+
 - Style: Stop
 - Title: "Invalid Amount"
 - Message: "Amount must be between $0.01 and $9,999.99. For expenses of $10,000 or more, a Purchase Order is required -- do not submit via this form. Contact Finance at ext. 4400. For zero-dollar corrections, use the Adjustment Request form."
 
 **Implementation:**
+
 - Excel: Data > Data Validation > Allow: Decimal > Data: between > Minimum: 0.01 > Maximum: 9999.99
 - Google Sheets: Criteria: Number > is between > 0.01 and 9999.99
 
@@ -544,24 +573,27 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 
 #### Field 7: Receipt Attached (Column G, Range G2:G5000)
 
-| Component | Specification |
-|-----------|---------------|
-| Applies to | G2:G5000 |
-| Validation type | List |
-| Criteria | `Yes,No` (direct list -- 2 static values, will never change) |
-| Allow blank | No -- This field must be answered for every line |
-| Error style | Stop |
+| Component       | Specification                                                |
+| --------------- | ------------------------------------------------------------ |
+| Applies to      | G2:G5000                                                     |
+| Validation type | List                                                         |
+| Criteria        | `Yes,No` (direct list -- 2 static values, will never change) |
+| Allow blank     | No -- This field must be answered for every line             |
+| Error style     | Stop                                                         |
 
 **Input message:**
+
 - Title: "Receipt Attached?"
 - Message: "Select Yes if a receipt image or PDF is attached to this submission. Select No if no receipt is available. Note: receipts are required for all amounts over $75 per company policy."
 
 **Error alert:**
+
 - Style: Stop
 - Title: "Selection Required"
 - Message: "Please select Yes or No from the dropdown to confirm whether a receipt is attached. Do not leave this field blank."
 
 **Implementation:**
+
 - Excel: Data > Data Validation > Allow: List > Source: `Yes,No` (typed directly -- no named range needed for a 2-item static list)
 - Google Sheets: Criteria: Dropdown > add items Yes and No
 
@@ -574,12 +606,13 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 **Sheet name:** `_Config`
 **Protection:** Restrict editing to Finance admins only
 
-| Column | Named Range | List Values | Row Range | Dynamic? |
-|--------|-------------|-------------|-----------|----------|
-| A | DepartmentList | Engineering, Finance, Human Resources, Legal, Marketing, Operations, Product, Sales | A2:A9 | Yes (OFFSET) |
-| B | ExpenseCategoryList | Airfare, Car Rental, Client Entertainment, Conference & Training, Ground Transportation, Hotel & Lodging, Meals -- Individual, Meals -- Team, Office Supplies, Professional Services, Software & Subscriptions, Telecommunications | B2:B13 | Yes (OFFSET) |
+| Column | Named Range         | List Values                                                                                                                                                                                                                        | Row Range | Dynamic?     |
+| ------ | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------------ |
+| A      | DepartmentList      | Engineering, Finance, Human Resources, Legal, Marketing, Operations, Product, Sales                                                                                                                                                | A2:A9     | Yes (OFFSET) |
+| B      | ExpenseCategoryList | Airfare, Car Rental, Client Entertainment, Conference & Training, Ground Transportation, Hotel & Lodging, Meals -- Individual, Meals -- Team, Office Supplies, Professional Services, Software & Subscriptions, Telecommunications | B2:B13    | Yes (OFFSET) |
 
 **Named range formulas (Excel Name Manager):**
+
 - `DepartmentList`: `=OFFSET(_Config!$A$2,0,0,COUNTA(_Config!$A:$A)-1,1)`
 - `ExpenseCategoryList`: `=OFFSET(_Config!$B$2,0,0,COUNTA(_Config!$B:$B)-1,1)`
 
@@ -587,23 +620,23 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 
 ### Validation Summary Table
 
-| Col | Field Name | Type | Criteria Summary | Blank OK | Error Style | Named Range |
-|-----|------------|------|-----------------|----------|-------------|-------------|
-| A | Date | Date | Within current calendar year | No | Stop | -- |
-| B | Employee ID | Custom | 6 digits, numeric | No | Stop | -- |
-| C | Department | List | 8 approved departments | No | Stop | DepartmentList |
-| D | Expense Category | List | 12 approved categories | No | Warning | ExpenseCategoryList |
-| E | Vendor Name | Text Length | 2--100 characters | No | Stop | -- |
-| F | Amount (USD) | Decimal | $0.01 -- $9,999.99 | No | Stop | -- |
-| G | Receipt Attached | List | Yes, No | No | Stop | -- |
-| H | Notes | None | Free text, no constraint | Yes | -- | -- |
+| Col | Field Name       | Type        | Criteria Summary             | Blank OK | Error Style | Named Range         |
+| --- | ---------------- | ----------- | ---------------------------- | -------- | ----------- | ------------------- |
+| A   | Date             | Date        | Within current calendar year | No       | Stop        | --                  |
+| B   | Employee ID      | Custom      | 6 digits, numeric            | No       | Stop        | --                  |
+| C   | Department       | List        | 8 approved departments       | No       | Stop        | DepartmentList      |
+| D   | Expense Category | List        | 12 approved categories       | No       | Warning     | ExpenseCategoryList |
+| E   | Vendor Name      | Text Length | 2--100 characters            | No       | Stop        | --                  |
+| F   | Amount (USD)     | Decimal     | $0.01 -- $9,999.99           | No       | Stop        | --                  |
+| G   | Receipt Attached | List        | Yes, No                      | No       | Stop        | --                  |
+| H   | Notes            | None        | Free text, no constraint     | Yes      | --          | --                  |
 
 ---
 
 ### Cross-Field Rules (Recommended Future Enhancement)
 
-| Rule | Fields Involved | Formula | Trigger Condition |
-|------|----------------|---------|-------------------|
+| Rule                                  | Fields Involved                  | Formula                      | Trigger Condition                                                                                           |
+| ------------------------------------- | -------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Receipt required for amounts over $75 | F (Amount), G (Receipt Attached) | `=IF(F2>75, G2="Yes", TRUE)` | Apply as Custom Formula validation on Column G -- returns FALSE (invalid) when Amount > 75 and Receipt = No |
 
 **Implementation note for the cross-field receipt rule:** Apply `=IF(F2>75, G2="Yes", TRUE)` as a Custom Formula validation on G2:G5000. Set Error Style to Stop with message: "A receipt is required for expenses over $75. Please attach your receipt before submitting. If the receipt is lost, select No and explain in the Notes column."
@@ -612,8 +645,8 @@ Dropdown validation with very large lists (500+ items) degrades performance in b
 
 ### Maintenance Notes
 
-- **To add a new department:** Open _Config sheet > Column A > Add the department name in the next empty row after A9 > Keep the list in alphabetical order > The DepartmentList named range will automatically include it.
-- **To add a new expense category:** Open _Config sheet > Column B > Add in the next empty row after B13 > Keep alphabetical order > No other changes needed.
+- **To add a new department:** Open \_Config sheet > Column A > Add the department name in the next empty row after A9 > Keep the list in alphabetical order > The DepartmentList named range will automatically include it.
+- **To add a new expense category:** Open \_Config sheet > Column B > Add in the next empty row after B13 > Keep alphabetical order > No other changes needed.
 - **To change the maximum amount per line:** Data > Data Validation on any cell in F2:F5000 > Edit the Maximum value > Click "Apply to all cells with this setting."
 - **Annual maintenance required:** The date validation rule uses `DATE(YEAR(TODAY()),1,1)` and requires no manual update. Review the DepartmentList and ExpenseCategoryList against the current Finance master lists at the start of each fiscal year.
 - **Paste bypass warning:** Users who paste values into validated cells can bypass these rules in Excel. To prevent this, protect the sheet (Review > Protect Sheet) and allow only "Edit unlocked cells." Lock all cells first (Ctrl+A > Format Cells > Protection > Locked), then unlock only input cells B2:H5000 before protecting. This forces data entry through normal typing, which triggers validation.

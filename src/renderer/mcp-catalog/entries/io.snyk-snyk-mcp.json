@@ -36,17 +36,8 @@
   ],
   "x-wayland": {
     "tier": "builder",
-    "categories": [
-      "security",
-      "developer"
-    ],
-    "tags": [
-      "snyk",
-      "security",
-      "vulnerabilities",
-      "sca",
-      "sast"
-    ],
+    "categories": ["security", "developer"],
+    "tags": ["snyk", "security", "vulnerabilities", "sca", "sast"],
     "maintainerType": "official",
     "license": "Apache-2.0",
     "verifiedAt": "2026-05-27",
@@ -85,11 +76,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management planning automation"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'time-management planning automation'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Task Capture System
 
 ## When to Use
 
 **Use this skill when:**
+
 - User says they keep forgetting tasks, losing track of commitments, or feeling like things are falling through the cracks
 - User describes scattered capture behavior -- sticky notes on a monitor, multiple apps, a mental to-do list, or random text messages to themselves
 - User wants to build a dedicated inbox or collection system for incoming work, ideas, and obligations
@@ -30,6 +32,7 @@ metadata:
 - User describes a specific failure mode: "I write things down but never look at them," "I have three apps and none of them is complete," or "I forget things people asked me to do"
 
 **Do NOT use when:**
+
 - User already has a functioning capture system and wants to prioritize the items inside it -- use `task-prioritization` instead
 - User wants to schedule captured tasks into specific time slots on a calendar -- use `time-blocking`
 - User asks for a full GTD implementation including contexts, projects, weekly review, and someday/maybe -- use `gtd-workflow`
@@ -322,23 +325,26 @@ Design a physical-first capture system with a digital processing step. The prima
 ### User receives more than 50 task-generating inputs per day
 
 At this volume, the standard inbox model breaks down -- processing sessions would exceed 30 minutes each and the inbox would never reach zero. Add a pre-capture triage layer before items enter the inbox:
+
 - **Delegate immediately** if the item can be reassigned to someone else at point of contact (reply to the email with a delegation, forward to the team member in Slack)
 - **Decline or defer** items that are outside the user's scope and require no response
 - **Batch similar items** -- if 15 items from the same source require the same type of action (15 invoices to approve), capture as one batched item ("Approve Q3 invoices batch -- 15 items")
-After triage, only items that pass these filters enter the inbox. Increase processing sessions to three per day and cap each at 20 minutes. If inbox still doesn't clear, the input volume exceeds what a single-person capture system can handle -- the user likely needs delegation infrastructure, not a better capture system.
+  After triage, only items that pass these filters enter the inbox. Increase processing sessions to three per day and cap each at 20 minutes. If inbox still doesn't clear, the input volume exceeds what a single-person capture system can handle -- the user likely needs delegation infrastructure, not a better capture system.
 
 ### User has multiple pre-existing systems and wants to consolidate
 
 Do not attempt to migrate all systems simultaneously. Use a phased consolidation approach:
+
 - Week 1: Designate the new single inbox and begin all new captures there. Do not migrate old items yet. Map all sources to the new consolidation rules. Identify which old systems are still actively generating new tasks.
 - Week 2: Extract active, unfinished items from each old system one at a time and import them into the new inbox for processing. Process them using the standard processing sequence -- do not bulk-move them into action lists, because many will be outdated.
 - Week 3: Put old systems into read-only mode. Remove them from view (archive the list, close the app, put the notebook in a drawer). Do not delete yet.
 - Day 60: Delete or archive the old systems permanently after confirming no active items remain.
-The most common mistake is trying to run the old and new systems in parallel "just in case" -- this always results in the old system winning because it has more accumulated items and feels more "real."
+  The most common mistake is trying to run the old and new systems in parallel "just in case" -- this always results in the old system winning because it has more accumulated items and feels more "real."
 
 ### User works across personal and professional contexts with incompatible tools
 
 The ideal is one inbox for both contexts. The practical constraint is that many workplaces mandate specific tools (Jira, Asana, ServiceNow) that cannot be used for personal tasks. In this case:
+
 - Use exactly two inboxes: the work-mandated tool and a personal tool
 - Process both inboxes in the same physical session at the same time -- open both on screen simultaneously
 - Never let one inbox accumulate while processing the other
@@ -349,6 +355,7 @@ The ideal is one inbox for both contexts. The practical constraint is that many 
 ### User has tried and abandoned multiple capture systems before
 
 This is a motivation and habit problem as much as a system design problem. Acknowledge it directly.
+
 - The failure pattern is almost always one of three things: (1) the capture tool was too high-friction (required too many taps or steps to add an item), (2) the processing cadence was too ambitious (aiming for three daily sessions when one is sustainable), or (3) the inbox became a guilt pile (too many items, never reaching zero, avoided because it felt overwhelming).
 - For this user, design a deliberately minimal starting system: one inbox, one processing session per day, no more than 5 minutes of capture configuration. The goal for the first two weeks is habit formation, not perfect system design. A perfect system that is abandoned is worse than an imperfect system that is used.
 - Explicitly lower the bar: inbox zero is the goal, but if the user processes 80% of the inbox each session, that is success in week 1. Progress, not perfection, builds the habit.
@@ -357,6 +364,7 @@ This is a motivation and habit problem as much as a system design problem. Ackno
 ### User wants to use the capture system for personal and household tasks shared with a partner or family member
 
 Define clear ownership rules before configuring the system:
+
 - The user's personal inbox captures only items the user personally owns. Shared household tasks (grocery runs, appointment scheduling, home repairs) belong in a shared system (a shared Reminders list, Todoist shared project, or a physical household whiteboard).
 - When a shared-ownership task arises, the user captures it in their inbox, then during processing, routes it to the shared system with an assignee designation.
 - Items the user is "waiting for" a partner to complete should be tracked in the waiting-for list with the partner's name and a reminder date.
@@ -365,6 +373,7 @@ Define clear ownership rules before configuring the system:
 ### User's primary source of task generation is real-time verbal communication (customer-facing role, manager with many direct reports)
 
 When tasks are generated faster than they can be written down -- in rapid-fire meetings, customer calls, or walk-up requests -- the capture tool must be optimized for speed over organization:
+
 - Use a running capture note (a single open text file or note titled "Today's Inbox") that functions as a scratch pad during the day. Write anything that comes up in any format -- fragments, abbreviations, shorthand.
 - At the end of the interaction or at scheduled processing breaks, transfer the scratch pad items to the formal inbox with enough detail to process them.
 - The scratch pad is not the inbox -- it is a buffer. It should be cleared at every processing session.
@@ -381,6 +390,7 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 ---
 
 ## Task Capture System Specification
+
 **Generated for:** Freelance designer
 **Date:** [Today's date]
 **Daily task volume:** 20-30 items per day
@@ -390,15 +400,16 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 
 ### 1. The Single Inbox
 
-| Field | Value |
-|-------|-------|
-| **Tool** | Todoist (free tier sufficient) -- Inbox list |
-| **Location** | Phone home screen widget (4-tile quick-add widget) + web app bookmark in browser toolbar |
-| **Access path** | iPhone: Tap Todoist widget on home screen, type task, tap return. No navigation required. Total time: 4 seconds. |
-| **Target access time** | Under 5 seconds from any context |
-| **Inbox name** | "Inbox" (Todoist's default inbox -- do not rename) |
+| Field                  | Value                                                                                                            |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Tool**               | Todoist (free tier sufficient) -- Inbox list                                                                     |
+| **Location**           | Phone home screen widget (4-tile quick-add widget) + web app bookmark in browser toolbar                         |
+| **Access path**        | iPhone: Tap Todoist widget on home screen, type task, tap return. No navigation required. Total time: 4 seconds. |
+| **Target access time** | Under 5 seconds from any context                                                                                 |
+| **Inbox name**         | "Inbox" (Todoist's default inbox -- do not rename)                                                               |
 
 **Quick-capture configuration:**
+
 - Phone: Todoist home screen widget configured. Siri shortcut enabled: "Hey Siri, add [task] to Todoist" routes directly to Inbox.
 - Desktop: Todoist browser extension installed (adds task from any webpage). Keyboard shortcut: Cmd+Shift+A opens quick-add from anywhere.
 - Physical backup: One pocket Field Notes notebook (3.5" x 5.5") in bag at all times -- used when phone is not accessible. Transfer to Todoist at next processing session.
@@ -407,16 +418,17 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 
 ### 2. Source Consolidation Rules
 
-| Source | Volume/Day | Capture Method | Max Consolidation Window |
-|--------|-----------|----------------|--------------------------|
-| Email (client requests, project briefs) | ~8 items | Forward actionable emails to your Todoist email address (Settings > Integrations > Email); task auto-creates in Inbox | Within same-day processing session |
-| Instagram DMs | ~5 items | Copy message text, paste into Todoist quick-add with note "[IG] from @username" | Within 15 min of reading DM |
-| Client text messages (SMS/iMessage) | ~5 items | Tap and hold message, share to Todoist via Share Sheet extension; adds to Inbox with message text | Within 15 min of reading text |
-| Voicemail | ~3 items | Listen to voicemail, add task to Todoist Inbox describing the requested action (not a transcription) | Within 30 min of listening |
-| Own project ideas / creative thoughts | ~8 items | Voice: "Hey Siri, add [idea + action] to Todoist" while hands are busy. Widget tap when at rest. | Within 30 seconds of thought |
-| Physical / paper requests (contracts, briefs) | ~2 items | Write on Field Notes page, transfer at next processing session | Within same-day session |
+| Source                                        | Volume/Day | Capture Method                                                                                                        | Max Consolidation Window           |
+| --------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Email (client requests, project briefs)       | ~8 items   | Forward actionable emails to your Todoist email address (Settings > Integrations > Email); task auto-creates in Inbox | Within same-day processing session |
+| Instagram DMs                                 | ~5 items   | Copy message text, paste into Todoist quick-add with note "[IG] from @username"                                       | Within 15 min of reading DM        |
+| Client text messages (SMS/iMessage)           | ~5 items   | Tap and hold message, share to Todoist via Share Sheet extension; adds to Inbox with message text                     | Within 15 min of reading text      |
+| Voicemail                                     | ~3 items   | Listen to voicemail, add task to Todoist Inbox describing the requested action (not a transcription)                  | Within 30 min of listening         |
+| Own project ideas / creative thoughts         | ~8 items   | Voice: "Hey Siri, add [idea + action] to Todoist" while hands are busy. Widget tap when at rest.                      | Within 30 seconds of thought       |
+| Physical / paper requests (contracts, briefs) | ~2 items   | Write on Field Notes page, transfer at next processing session                                                        | Within same-day session            |
 
 **System leaks to close:**
+
 - [ ] "Starred emails not being processed" -- Resolution: Configure Todoist email integration; stop using stars as a to-do system by end of week 1
 - [ ] "Other notes apps (Notes, Keep, etc.) containing tasks" -- Resolution: Audit all notes apps in week 1, transfer active items to Todoist Inbox, then use those apps for reference only
 - [ ] "Instagram DM 'mark as unread' as a reminder system" -- Resolution: Process DMs at each session using the consolidation rule above; unread DMs are not a task system
@@ -426,6 +438,7 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 ### 3. Capture Criteria
 
 **CAPTURE THESE (route to Inbox):**
+
 - [ ] Client requests and project deliverables promised in any channel
 - [ ] Follow-up calls, replies, or documents triggered by any communication
 - [ ] Payment-related actions (send invoice, follow up on unpaid invoice, confirm payment received)
@@ -435,13 +448,13 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 
 **DO NOT CAPTURE (route elsewhere):**
 
-| Item Type | Instead, Do This | Where It Goes |
-|-----------|-----------------|---------------|
-| Inspiration images, swipe file, design references | Save to dedicated reference | Adobe Behance collections / Pinterest board / Apple Photos album "Reference" |
-| Completed project files | Archive | Cloud storage (Google Drive / Dropbox) project folder |
-| "Someday" business ideas with no committed action | Route to Someday list | Todoist project named "Someday/Maybe" |
-| Calendar appointments already scheduled | Put on calendar, not in Inbox | Google Calendar |
-| Recurring invoicing (monthly retainer clients) | Set as recurring task | Todoist recurring task, not re-captured each time |
+| Item Type                                         | Instead, Do This              | Where It Goes                                                                |
+| ------------------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------- |
+| Inspiration images, swipe file, design references | Save to dedicated reference   | Adobe Behance collections / Pinterest board / Apple Photos album "Reference" |
+| Completed project files                           | Archive                       | Cloud storage (Google Drive / Dropbox) project folder                        |
+| "Someday" business ideas with no committed action | Route to Someday list         | Todoist project named "Someday/Maybe"                                        |
+| Calendar appointments already scheduled           | Put on calendar, not in Inbox | Google Calendar                                                              |
+| Recurring invoicing (monthly retainer clients)    | Set as recurring task         | Todoist recurring task, not re-captured each time                            |
 
 ---
 
@@ -458,14 +471,15 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 
 ### 5. Processing Schedule
 
-| Session | Time | Days | Duration | Expected Volume |
-|---------|------|------|----------|-----------------|
-| Morning | 9:00 AM | Mon-Fri + Sat | 20 min | 8-12 items (overnight DMs, emails, morning thoughts) |
-| Afternoon | 2:00 PM | Mon-Fri | 15 min | 10-15 items (morning client communication, in-progress work tasks) |
+| Session   | Time    | Days          | Duration | Expected Volume                                                    |
+| --------- | ------- | ------------- | -------- | ------------------------------------------------------------------ |
+| Morning   | 9:00 AM | Mon-Fri + Sat | 20 min   | 8-12 items (overnight DMs, emails, morning thoughts)               |
+| Afternoon | 2:00 PM | Mon-Fri       | 15 min   | 10-15 items (morning client communication, in-progress work tasks) |
 
 **Target:** Inbox reaches zero after every session. If a session ends with items remaining, they must have a scheduled next-processing time assigned.
 
 **Processing sequence (apply to each item in Todoist Inbox):**
+
 1. Read fully -- do I understand what this item means? If unclear, add a clarifying note before deciding.
 2. Is it still relevant? If no -- DELETE (tap left to swipe-delete in Todoist).
 3. Is it actionable? If no -- DELETE / move to Notes as REFERENCE / move to Todoist "Someday/Maybe" project.
@@ -480,22 +494,23 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 
 ### 6. Supporting Lists
 
-| List Name | Purpose | Location |
-|-----------|---------|----------|
-| Inbox | All unprocessed captures | Todoist Inbox (default) |
-| Next Actions -- Client Work | Processed client tasks with no specific date | Todoist project per client |
-| Next Actions -- Admin | Billing, contracts, tools, business admin | Todoist project "Admin" |
-| Waiting For | Delegated/expected items tracked by person | Todoist project "Waiting For" |
-| Someday/Maybe | Business ideas, future services, dream projects | Todoist project "Someday/Maybe" |
-| Reference | Non-actionable information | Apple Notes (business) + Google Drive (files) |
+| List Name                   | Purpose                                         | Location                                      |
+| --------------------------- | ----------------------------------------------- | --------------------------------------------- |
+| Inbox                       | All unprocessed captures                        | Todoist Inbox (default)                       |
+| Next Actions -- Client Work | Processed client tasks with no specific date    | Todoist project per client                    |
+| Next Actions -- Admin       | Billing, contracts, tools, business admin       | Todoist project "Admin"                       |
+| Waiting For                 | Delegated/expected items tracked by person      | Todoist project "Waiting For"                 |
+| Someday/Maybe               | Business ideas, future services, dream projects | Todoist project "Someday/Maybe"               |
+| Reference                   | Non-actionable information                      | Apple Notes (business) + Google Drive (files) |
 
 ---
 
 ### 7. Weekly Maintenance Checklist (10-15 min)
 
 **Run every Sunday at 11:00 AM:**
+
 - [ ] Are email, IG DMs, texts, and voicemails still consolidating to Inbox? Any new communication channel added this week?
-- [ ] Total items captured this week: ______ (Week 1 baseline: ______; target: within ±20%)
+- [ ] Total items captured this week: **\_\_** (Week 1 baseline: **\_\_**; target: within ±20%)
 - [ ] Inbox reaching zero after both sessions? If not, which types of items are getting stuck?
 - [ ] Review "Someday/Maybe" project -- any ideas now ready to become active projects?
 - [ ] Review "Waiting For" list -- any overdue expected items to follow up on?
@@ -506,11 +521,11 @@ When tasks are generated faster than they can be written down -- in rapid-fire m
 
 ### 8. System Health Indicators
 
-| Metric | Healthy | Warning | Action Required |
-|--------|---------|---------|-----------------|
-| Inbox zero frequency | After every session | Once daily | Less than once daily |
-| Items captured/week | Stable within ±20% of baseline | Drop of 30% from baseline | Drop of 50%+ (system abandoned -- restart week 1 protocol) |
-| Two-minute items as % of inbox | Under 30% | 30-50% | Over 50% (criteria too broad -- re-review capture criteria) |
-| Items older than 48 hours in Inbox | 0 | 1-3 | More than 3 (processing sessions being skipped) |
-| Processing session duration | Under 20 min | 20-30 min | Over 30 min (add afternoon pre-filter or increase to 3 sessions) |
-| Waiting For items overdue | 0 | 1-2 | More than 2 (follow-up discipline breaking down) |
+| Metric                             | Healthy                        | Warning                   | Action Required                                                  |
+| ---------------------------------- | ------------------------------ | ------------------------- | ---------------------------------------------------------------- |
+| Inbox zero frequency               | After every session            | Once daily                | Less than once daily                                             |
+| Items captured/week                | Stable within ±20% of baseline | Drop of 30% from baseline | Drop of 50%+ (system abandoned -- restart week 1 protocol)       |
+| Two-minute items as % of inbox     | Under 30%                      | 30-50%                    | Over 50% (criteria too broad -- re-review capture criteria)      |
+| Items older than 48 hours in Inbox | 0                              | 1-3                       | More than 3 (processing sessions being skipped)                  |
+| Processing session duration        | Under 20 min                   | 20-30 min                 | Over 30 min (add afternoon pre-filter or increase to 3 sessions) |
+| Waiting For items overdue          | 0                              | 1-2                       | More than 2 (follow-up discipline breaking down)                 |

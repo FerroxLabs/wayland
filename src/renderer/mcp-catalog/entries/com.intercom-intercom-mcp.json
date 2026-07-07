@@ -18,16 +18,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "support",
-      "communication"
-    ],
-    "tags": [
-      "intercom",
-      "support",
-      "conversations",
-      "crm"
-    ],
+    "categories": ["support", "communication"],
+    "tags": ["intercom", "support", "conversations", "crm"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-05-27",
@@ -72,11 +64,7 @@
       "estimatedMinutes": 1,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.8.0"
   }
 }

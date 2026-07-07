@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing api-design automation"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing api-design automation'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Contract Testing
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is building or maintaining a microservices architecture and wants to verify that service-to-service API compatibility is enforced without full end-to-end integration tests
 - A user asks how to implement consumer-driven contract tests using Pact, Spring Cloud Contract, or similar frameworks
 - A user wants to know the difference between provider-driven and consumer-driven contracts and which model fits their architecture
@@ -30,6 +32,7 @@ metadata:
 - A user is working on a multi-team, multi-repo environment and needs a shared contract compatibility workflow
 
 **Do NOT use this skill when:**
+
 - The user needs guidance on unit testing individual functions or classes -- use the unit testing skill instead
 - The user is asking about API design or OpenAPI/JSON Schema specification authoring -- use the API design skill
 - The user needs end-to-end test automation (Playwright, Cypress, Selenium) -- use the E2E testing skill
@@ -46,6 +49,7 @@ metadata:
 ### 1. Identify Service Boundaries and Relationship Direction
 
 Before writing any test code, map the interaction graph:
+
 - Identify every consumer-provider pair where a runtime HTTP, gRPC, or messaging dependency exists
 - Determine the integration style: synchronous REST, synchronous gRPC, asynchronous messaging (Kafka, RabbitMQ, SNS/SQS), or GraphQL
 - Determine who owns each side of the contract -- consumer team, provider team, or a shared platform team
@@ -58,6 +62,7 @@ Before writing any test code, map the interaction graph:
 Match tool to stack -- do not force an ecosystem mismatch:
 
 **Pact** (best for REST/JSON and async messaging):
+
 - Pact JS / Pact JVM / Pact Python / Pact Go / Pact .NET are the primary implementations
 - The Pact Broker (open source) or PactFlow (SaaS) stores published contracts and verification results
 - Pact uses a DSL to define interactions: a request shape and an expected response, bound to a consumer state
@@ -65,17 +70,20 @@ Match tool to stack -- do not force an ecosystem mismatch:
 - Pact supports message contracts (Kafka/SQS/SNS) through the Pact Message DSL -- the consumer defines the message body it expects; the provider verifies it can produce that body
 
 **Spring Cloud Contract** (best for JVM monorepo or Spring Boot ecosystems):
+
 - Contracts are written in Groovy DSL, YAML, or Kotlin DSL and live in the provider repo
 - The framework auto-generates WireMock stubs for consumers and JUnit/Spock tests for the provider
 - Best when the provider team controls the contract -- less suited to cross-team consumer-driven workflows
 - Works natively with Spring Boot Test, eliminating custom wiring
 
 **Bi-directional contracts via PactFlow**:
+
 - Consumer publishes an OpenAPI spec or a Pact contract; provider publishes its OpenAPI spec
 - PactFlow performs automated compatibility checking (cross-contract verification) without running any tests against the provider
 - Use this when the provider cannot run Pact verification (third-party, legacy, or very slow service)
 
 **gRPC contract testing**:
+
 - Use proto file diffing tools like `buf breaking` to catch breaking changes in Protobuf schemas
 - Pact supports gRPC via the Pact protobuf plugin (pact-protobuf-plugin) for interaction-level testing
 - For pure compatibility checking (no interaction semantics), `buf breaking --against` is faster and sufficient
@@ -87,6 +95,7 @@ Choose based on three factors: team language/framework, whether the consumer or 
 Write contracts that are narrow, focused, and stable:
 
 **For Pact REST contracts:**
+
 - Each contract file represents one consumer-provider pair and contains one or more interactions
 - Each interaction has: a description (human-readable), a provider state (the server-side precondition), a request (method, path, headers, body), and a response (status, headers, body)
 - Use type matchers (`like`, `eachLike`) instead of exact value matchers for IDs, timestamps, and generated strings. Exact matching creates brittle contracts that break on data changes
@@ -95,11 +104,13 @@ Write contracts that are narrow, focused, and stable:
 - Avoid testing business logic in contracts. A contract verifies that the provider can produce a structurally valid response the consumer can parse -- it does not test that billing logic is correct
 
 **For Pact message contracts:**
+
 - The consumer defines the message body shape it can handle
 - Provider state maps to the event/condition that causes the message to be produced
 - Use `eachLike` for repeated elements, `like` for scalar fields the consumer does not care about exactly
 
 **Naming and versioning conventions:**
+
 - Consumer name and provider name must be consistent across all environments. Use service registry names or Kubernetes service names
 - Tag contracts with the consumer branch name and environment (`main`, `staging`, `production`) to enable can-i-deploy checks
 
@@ -148,6 +159,7 @@ describe('Order Service -- Inventory Service contract', () => {
 ```
 
 Key implementation rules:
+
 - The consumer test runs against a mock provider (Pact mock server spun up locally at a random port)
 - The test must call the real consumer client code -- do not write the HTTP call inside the test itself
 - After the test suite runs, Pact writes a `.json` contract file to the `pacts/` output directory
@@ -200,6 +212,7 @@ public class InventoryServiceContractVerificationTest {
 ```
 
 Key implementation rules:
+
 - Fetch contracts from the broker using `consumerVersionSelectors` -- always include `mainBranch = true` and `deployedOrReleased = true`. This ensures you verify against what is currently in production and what is about to be deployed
 - Each `@State` method is responsible for setting up exactly the precondition described -- use an in-memory or test database, never a shared staging database
 - After verification, publish results to the broker with `PACT_PUBLISH_VERIFICATION_RESULTS=true` and tag with the provider branch
@@ -210,6 +223,7 @@ Key implementation rules:
 The broker is the backbone of the contract testing workflow:
 
 **Self-hosted Pact Broker setup (Docker Compose minimum):**
+
 ```yaml
 services:
   postgres:
@@ -225,15 +239,16 @@ services:
     image: pact-foundation/pact-broker:2
     depends_on: [postgres]
     ports:
-      - "9292:9292"
+      - '9292:9292'
     environment:
-      PACT_BROKER_DATABASE_URL: "postgres://pact:pact@postgres/pact"
+      PACT_BROKER_DATABASE_URL: 'postgres://pact:pact@postgres/pact'
       PACT_BROKER_BASIC_AUTH_USERNAME: admin
       PACT_BROKER_BASIC_AUTH_PASSWORD: changeme
-      PACT_BROKER_PUBLIC_HEARTBEAT: "true"
+      PACT_BROKER_PUBLIC_HEARTBEAT: 'true'
 ```
 
 **CI pipeline steps -- consumer service:**
+
 ```
 1. Run consumer contract tests (generates pacts/*.json)
 2. Publish contracts: pact-broker publish ./pacts --consumer-app-version=$GIT_SHA --branch=$BRANCH_NAME
@@ -243,6 +258,7 @@ services:
 ```
 
 **CI pipeline steps -- provider service:**
+
 ```
 1. Run provider contract verification tests (fetches contracts from broker, verifies, publishes results)
 2. Run can-i-deploy check: pact-broker can-i-deploy --pacticipant inventory-service --version $GIT_SHA --to-environment production
@@ -354,27 +370,35 @@ When helping a user with contract testing, structure your response around the fo
 ## Edge Cases
 
 ### Legacy Provider With No Test Harness
+
 When the provider is a legacy service with no automated test suite, running Pact verification directly against it is impractical. Use the bi-directional contract approach: have the provider team publish an OpenAPI 3.x spec describing their current API (generate it from code with Swagger annotations or write it manually), then configure PactFlow to perform cross-contract verification between the consumer's Pact contract and the provider's OpenAPI spec. This does not require any changes to the provider codebase and still catches structural incompatibilities. The trade-off is that you lose provider state semantics -- you cannot verify that the provider behaves correctly in different states, only that the schema is compatible.
 
 ### Multiple Consumers of the Same Provider Endpoint
+
 When five consumer services all depend on `GET /orders/{id}`, each consumer publishes a separate contract. The provider must verify all five contracts. This is correct behavior -- it means the provider cannot remove any field that any consumer depends on. The practical risk is that one consumer's contract is overly broad and blocks a legitimate provider simplification. Handle this by auditing each consumer contract: if a consumer lists fields in the contract body that it does not actually use in its parsing code, remove those fields from the contract. Run `pact-broker list-latest-pact-versions` to see all consumer-provider pairs and audit each one for over-specification.
 
 ### Asynchronous Messaging Contracts (Kafka/SQS)
+
 Message contracts have no HTTP request/response cycle. The consumer defines the message body shape it expects to receive from a topic. The provider test must verify it can produce a message matching that shape. A common mistake is testing the Kafka producer client itself rather than the message payload. Use Pact's message DSL to define only the message body and relevant metadata (event type header). The provider test calls the internal method that creates the message object, passes the resulting object to Pact's message producer verifier, and Pact checks it against the consumer contract. Do not spin up a real Kafka broker for this test -- the Pact message verifier operates entirely in-memory.
 
 ### GraphQL APIs
+
 GraphQL's single-endpoint, query-driven model does not map cleanly to Pact's request/response interaction model. Two pragmatic options exist. Option one: use Pact with POST body matching against specific query strings -- works but brittle since query reformatting breaks the match. Option two: use schema-level contract testing -- publish the GraphQL schema as the provider contract, and write consumer tests that validate the queries the consumer sends against the published schema using a tool like `graphql-inspector`. Schema-level checking catches field removals and type changes. For most teams, option two is the right trade-off unless interaction-level semantics are essential.
 
 ### Schema Evolution and Backwards Compatibility
+
 When a provider wants to evolve a response (add a field, deprecate a field, change a type), the contract testing workflow governs what is safe. Adding a new optional field to the response is always safe -- no consumer contract will break because consumers only match fields they listed. Renaming a field is never safe without a migration period -- publish both old and new field names simultaneously, update consumers to use the new name (each consumer re-publishes its contract after the update), then remove the old field once `can-i-deploy` confirms no deployed consumer depends on the old name. Changing a field's type (string to integer) is a breaking change. The migration path is: add a new field with the new type, migrate consumers, deprecate and remove the old field following the same pattern as a rename.
 
 ### Pact Broker Unavailability During CI
+
 If the Pact Broker is down during a CI run, the consumer cannot publish contracts and the provider cannot fetch them. Configure a fallback behavior explicitly rather than silently skipping verification. For consumer CI, allow the publish step to fail without blocking the build (contracts will be published on the next run), but never skip verification on the provider side. For provider CI, configure the verification step to fail the build if the broker is unreachable -- a missing verification is a safety gap. Use the Pact CLI's `--broker-base-url` health check before the verification step and gate accordingly. Consider running the Pact Broker as a high-availability service (multiple replicas behind a load balancer with a managed PostgreSQL instance) if your deployment velocity is high.
 
 ### Microservices With Shared Client Libraries
+
 When a company maintains a shared internal SDK that wraps HTTP calls to a provider (e.g., `inventory-sdk`), consumer-side Pact tests should be written in the SDK repo, not in every consumer service repo. The SDK publishes one contract on behalf of all its consumers. The trade-off is that all consumers of the SDK are coupled to one contract -- a consumer that needs a slightly different field cannot express that need independently. If consumers have diverging needs, consider using the SDK contract as a base and having individual consumers publish additive contracts for their specific interactions.
 
 ### Contract Testing Across Organization Boundaries (External APIs)
+
 When consuming a third-party API (payment gateway, shipping provider), you cannot run Pact provider verification against the external service. Use bi-directional contracts: write consumer Pact tests against a WireMock stub that represents your understanding of the external API. Separately, maintain a manually curated OpenAPI spec for the external API. Register both in PactFlow. The compatibility check runs against the spec, not the live API. Add a separate integration smoke test that runs against the live API in a sandbox environment once per day to detect spec drift. Do not rely solely on contract tests for third-party API compatibility.
 
 ---
@@ -431,9 +455,7 @@ const provider = new PactV3({
 });
 
 describe('checkout-service → pricing-service contract', () => {
-
   describe('cart pricing interactions', () => {
-
     it('returns a price breakdown for a valid cart with one item', async () => {
       await provider
         .given('cart with id cart-001 exists with one item at price 29.99')
@@ -496,9 +518,7 @@ describe('checkout-service → pricing-service contract', () => {
         })
         .executeTest(async (mockServer) => {
           const client = new PricingClient({ baseUrl: mockServer.url });
-          await expect(
-            client.getCartPricing('cart-999', 'Bearer test-token')
-          ).rejects.toThrow('Cart not found');
+          await expect(client.getCartPricing('cart-999', 'Bearer test-token')).rejects.toThrow('Cart not found');
         });
     });
 
@@ -521,7 +541,7 @@ describe('checkout-service → pricing-service contract', () => {
           body: {
             cartId: like('cart-002'),
             totalAmount: like(44.99),
-            discountApplied: like(5.00),
+            discountApplied: like(5.0),
             lineItems: eachLike({
               productId: like('PROD-55'),
               quantity: like(2),
@@ -535,17 +555,15 @@ describe('checkout-service → pricing-service contract', () => {
           const result = await client.getCartPricing('cart-002', 'Bearer test-token');
 
           expect(result.discountApplied).toBeGreaterThan(0);
-          expect(result.totalAmount).toBeLessThan(
-            result.lineItems.reduce((sum, item) => sum + item.lineTotal, 0)
-          );
+          expect(result.totalAmount).toBeLessThan(result.lineItems.reduce((sum, item) => sum + item.lineTotal, 0));
         });
     });
-
   });
 });
 ```
 
 **What this test does:**
+
 - Uses `like()` for all value fields because exact values are irrelevant to the consumer -- only types and structure matter
 - Uses `eachLike()` for `lineItems` to assert the array contains at least one element matching the given shape
 - Only includes `totalAmount`, `discountApplied`, and `lineItems[].unitPrice` in the response body -- `taxBreakdown` and `currencyCode` are intentionally omitted because `checkout-service` does not use them
@@ -627,10 +645,7 @@ describe('pricing-service Pact provider verification', () => {
       // Fetch contracts from broker
       pactBrokerUrl: process.env.PACT_BROKER_BASE_URL,
       pactBrokerToken: process.env.PACT_BROKER_TOKEN,
-      consumerVersionSelectors: [
-        { mainBranch: true },
-        { deployedOrReleased: true },
-      ],
+      consumerVersionSelectors: [{ mainBranch: true }, { deployedOrReleased: true }],
 
       // Publish results back to broker
       publishVerificationResult: true,
@@ -652,11 +667,13 @@ describe('pricing-service Pact provider verification', () => {
         'cart with id cart-002 has promo code SAVE10 applied': async () => {
           await clearDatabase();
           await seedDatabase({
-            carts: [{
-              id: 'cart-002',
-              promoCode: 'SAVE10',
-              items: [{ productId: 'PROD-55', quantity: 2, unitPrice: 24.99 }],
-            }],
+            carts: [
+              {
+                id: 'cart-002',
+                promoCode: 'SAVE10',
+                items: [{ productId: 'PROD-55', quantity: 2, unitPrice: 24.99 }],
+              },
+            ],
             promoCodes: [{ code: 'SAVE10', discountPercent: 10 }],
           });
         },
@@ -731,9 +748,7 @@ After the consumer tests run, Pact writes `pacts/checkout-service-pricing-servic
   "interactions": [
     {
       "description": "a request for pricing of cart cart-001",
-      "providerStates": [
-        { "name": "cart with id cart-001 exists with one item at price 29.99" }
-      ],
+      "providerStates": [{ "name": "cart with id cart-001 exists with one item at price 29.99" }],
       "request": {
         "method": "GET",
         "path": "/pricing/cart",
@@ -781,15 +796,15 @@ After the consumer tests run, Pact writes `pacts/checkout-service-pricing-servic
 
 #### Summary: What Was Built
 
-| Component | Location | Purpose |
-|---|---|---|
-| Consumer Pact tests | `checkout-service/src/__tests__/pact/` | Generate contract JSON, run against mock server |
-| Contract JSON files | `checkout-service/pacts/` | Machine-readable contract artifacts, version controlled |
-| Pact Broker | `https://pact-broker.internal` | Stores contracts and verification results |
-| Provider verification tests | `pricing-service/src/__tests__/pact/` | Verify contracts against real provider |
-| Consumer CI publish step | GitHub Actions | Publishes contract on every push |
-| Provider CI verification step | GitHub Actions | Verifies all consumer contracts on every push |
-| can-i-deploy gate | Both CI pipelines | Blocks deployment if compatibility is not confirmed |
-| record-deployment step | Both CI pipelines | Tracks what version is in each environment |
+| Component                     | Location                               | Purpose                                                 |
+| ----------------------------- | -------------------------------------- | ------------------------------------------------------- |
+| Consumer Pact tests           | `checkout-service/src/__tests__/pact/` | Generate contract JSON, run against mock server         |
+| Contract JSON files           | `checkout-service/pacts/`              | Machine-readable contract artifacts, version controlled |
+| Pact Broker                   | `https://pact-broker.internal`         | Stores contracts and verification results               |
+| Provider verification tests   | `pricing-service/src/__tests__/pact/`  | Verify contracts against real provider                  |
+| Consumer CI publish step      | GitHub Actions                         | Publishes contract on every push                        |
+| Provider CI verification step | GitHub Actions                         | Verifies all consumer contracts on every push           |
+| can-i-deploy gate             | Both CI pipelines                      | Blocks deployment if compatibility is not confirmed     |
+| record-deployment step        | Both CI pipelines                      | Tracks what version is in each environment              |
 
 **What this workflow prevents:** If the `pricing-service` team removes `discountApplied` from the response body, the provider verification test fails immediately on their PR. The PR is blocked. The `checkout-service` team is notified. No incompatible code reaches production. This is the core value proposition of contract testing -- compatibility guarantees that scale across teams without requiring coordinated end-to-end test environments.

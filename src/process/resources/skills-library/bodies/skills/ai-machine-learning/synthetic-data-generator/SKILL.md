@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml data-science guide"
-  category: "ai-machine-learning"
-  subcategory: "applied-ai"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml data-science guide'
+  category: 'ai-machine-learning'
+  subcategory: 'applied-ai'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Synthetic Data Generator
@@ -24,14 +24,14 @@ Synthetic data generation creates artificial datasets that preserve the statisti
 
 ## When to Use Synthetic Data
 
-| Use Case | Why Synthetic | Risk Level |
-|----------|--------------|------------|
-| ML training augmentation | Insufficient labeled data | Low |
-| Software testing | Need realistic test fixtures | Low |
-| Data sharing across teams | Privacy regulations (GDPR, HIPAA) | Medium |
-| Bias correction | Underrepresented groups | Medium |
-| Rare event simulation | Insufficient edge case examples | Low |
-| Public datasets / demos | Cannot expose real customer data | High |
+| Use Case                  | Why Synthetic                     | Risk Level |
+| ------------------------- | --------------------------------- | ---------- |
+| ML training augmentation  | Insufficient labeled data         | Low        |
+| Software testing          | Need realistic test fixtures      | Low        |
+| Data sharing across teams | Privacy regulations (GDPR, HIPAA) | Medium     |
+| Bias correction           | Underrepresented groups           | Medium     |
+| Rare event simulation     | Insufficient edge case examples   | Low        |
+| Public datasets / demos   | Cannot expose real customer data  | High       |
 
 ### Decision Tree
 
@@ -86,12 +86,12 @@ class TabularSynthesizer:
 
 ### Method Comparison
 
-| Method | Speed | Quality | Privacy | Best For |
-|--------|-------|---------|---------|----------|
-| Gaussian Copula | Fast | Good | Medium | Continuous data, prototyping |
-| CTGAN | Slow | Very Good | Medium | Mixed types, complex distributions |
-| TVAE | Medium | Good | Medium | Continuous-heavy datasets |
-| Faker (rule-based) | Very Fast | Low-Medium | High | Testing, structure only |
+| Method             | Speed     | Quality    | Privacy | Best For                           |
+| ------------------ | --------- | ---------- | ------- | ---------------------------------- |
+| Gaussian Copula    | Fast      | Good       | Medium  | Continuous data, prototyping       |
+| CTGAN              | Slow      | Very Good  | Medium  | Mixed types, complex distributions |
+| TVAE               | Medium    | Good       | Medium  | Continuous-heavy datasets          |
+| Faker (rule-based) | Very Fast | Low-Medium | High    | Testing, structure only            |
 
 ### Rule-Based with Faker
 
@@ -123,7 +123,7 @@ def generate_customer_data(n: int = 1000) -> pd.DataFrame:
 
 ## LLM-Based Text Generation
 
-```python
+````python
 from openai import OpenAI
 import json
 
@@ -163,17 +163,17 @@ class LLMDataGenerator:
             batch = json.loads(response.choices[0].message.content)
             all_samples.extend(batch.get("samples", []))
         return all_samples[:n_samples]
-```
+````
 
 ## Text Augmentation
 
-| Technique | Quality | Speed | Best For |
-|-----------|---------|-------|----------|
-| Synonym replacement | Medium | Fast | Simple vocabulary variation |
-| Random deletion | Low-Medium | Fast | Robustness training |
-| Back-translation | High | Slow | Natural paraphrasing |
-| LLM paraphrase | Very High | Slow | High-quality augmentation |
-| Entity swapping | Medium | Fast | Named entity variation |
+| Technique           | Quality    | Speed | Best For                    |
+| ------------------- | ---------- | ----- | --------------------------- |
+| Synonym replacement | Medium     | Fast  | Simple vocabulary variation |
+| Random deletion     | Low-Medium | Fast  | Robustness training         |
+| Back-translation    | High       | Slow  | Natural paraphrasing        |
+| LLM paraphrase      | Very High  | Slow  | High-quality augmentation   |
+| Entity swapping     | Medium     | Fast  | Named entity variation      |
 
 ```python
 class TextAugmenter:
@@ -322,12 +322,12 @@ class SyntheticDataValidator:
 
 ## Cost and Performance
 
-| Method | Speed | Setup Cost | Quality | Privacy |
-|--------|-------|------------|---------|---------|
-| Faker | 100K+ rows/sec | Low | Low | High |
-| Gaussian Copula | 10K rows/sec | Low | Good | Medium |
-| CTGAN | 100 rows/sec | Medium (GPU) | Very Good | Medium |
-| LLM generation | 10-50 rows/min | Low (API cost) | Excellent | High |
+| Method          | Speed          | Setup Cost     | Quality   | Privacy |
+| --------------- | -------------- | -------------- | --------- | ------- |
+| Faker           | 100K+ rows/sec | Low            | Low       | High    |
+| Gaussian Copula | 10K rows/sec   | Low            | Good      | Medium  |
+| CTGAN           | 100 rows/sec   | Medium (GPU)   | Very Good | Medium  |
+| LLM generation  | 10-50 rows/min | Low (API cost) | Excellent | High    |
 
 ## Checklist
 
@@ -348,21 +348,26 @@ class SyntheticDataValidator:
 # Synthetic Data Generator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -25,11 +25,10 @@ const matchesGrok = (name?: string, platform?: string): boolean => {
   return n.includes('grok') || n.includes('xai') || p === 'xai' || p === 'grok';
 };
 
-const hasUsableKey = (predicate: (name?: string, platform?: string) => boolean) =>
+const hasUsableKey =
+  (predicate: (name?: string, platform?: string) => boolean) =>
   (provider: { name?: string; platform?: string; apiKey?: string; enabled?: boolean }): boolean =>
-    predicate(provider.name, provider.platform) &&
-    Boolean(provider.apiKey?.trim()) &&
-    provider.enabled !== false;
+    predicate(provider.name, provider.platform) && Boolean(provider.apiKey?.trim()) && provider.enabled !== false;
 
 /**
  * Banner shown above Voice settings when the user has an OpenAI or xAI/Grok
@@ -102,12 +101,7 @@ const ProviderHintBanner: React.FC<{
         <div className='text-13px font-medium text-t-primary mb-4px'>{title}</div>
         <div className='text-12px text-t-secondary'>{body}</div>
       </div>
-      <Button
-        type='primary'
-        size='small'
-        className=''
-        onClick={handleSwitch}
-      >
+      <Button type='primary' size='small' className='' onClick={handleSwitch}>
         {cta}
       </Button>
     </div>

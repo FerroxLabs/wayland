@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "go optimization debugging"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'go optimization debugging'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Go Performance
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - Profiling a Go application with `pprof` -- CPU profiles, heap profiles, goroutine profiles, mutex profiles, or block profiles
 - Escape analysis output from `go build -gcflags="-m"` and how to interpret or fix allocation decisions
 - Reducing heap allocations in hot paths -- `sync.Pool`, value semantics, pre-allocated slices, avoiding interface boxing
@@ -30,6 +32,7 @@ metadata:
 - Compiler optimizations -- inlining decisions, bounds check elimination, dead code elimination
 
 **Do NOT use this skill when:**
+
 - The user asks about Go idioms, naming, or code style -- use `go-idioms`
 - The user asks about goroutines, channels, select, or concurrency patterns -- use `go-concurrency-patterns`
 - The user asks about general load testing, k6, wrk, or HTTP benchmarking -- use `performance-testing`
@@ -180,8 +183,10 @@ When analyzing a Go performance problem, structure the response as:
 
 ### Benchmark Results
 ```
-BenchmarkFoo/before   1000000   1245 ns/op   512 B/op   8 allocs/op
-BenchmarkFoo/after    1000000    312 ns/op    64 B/op   1 allocs/op
+
+BenchmarkFoo/before 1000000 1245 ns/op 512 B/op 8 allocs/op
+BenchmarkFoo/after 1000000 312 ns/op 64 B/op 1 allocs/op
+
 ```
 benchstat: -75% ns/op (p=0.001), -87.5% B/op
 
@@ -233,24 +238,31 @@ benchstat: -75% ns/op (p=0.001), -87.5% B/op
 ## Edge Cases
 
 ### Container CPU Quota Misconfiguration
+
 In Kubernetes or Docker, a pod with `resources.limits.cpu: "2"` has a cgroup CPU quota, but the Go runtime by default reads the host's logical CPU count (e.g., 64 cores on a large node) and sets `GOMAXPROCS=64`. This causes 64 OS threads competing for 2 CPU shares, resulting in severe scheduler thrashing, elevated p99 latency, and CPU throttling visible in container metrics as `container_cpu_cfs_throttled_seconds_total`. Fix: add `uber-go/automaxprocs` as the first import in `main.go` (`import _ "go.uber.org/automaxprocs"`). It reads cgroup CPU quota and sets `GOMAXPROCS` correctly at startup. Verify with `GOMAXPROCS` logged at startup.
 
 ### GC Pauses Spiking Under Bursty Load
+
 When a service receives a burst of requests, it allocates a large amount of memory quickly. The GC triggers when heap doubles, causing a concurrent mark phase that competes with the request-handling goroutines for CPU. The symptom is p99/p999 latency spikes that correlate with `NumGC` spikes in metrics. The fix is not to tune `GOGC` lower (that makes it worse). Instead: (1) reduce allocation volume in the hot path using the techniques in Step 3; (2) set `GOMEMLIMIT` to trigger GC based on absolute memory pressure rather than heap doubling; (3) pre-warm the pool before serving traffic by calling `runtime.GC()` after startup initialization to return the heap to steady state.
 
 ### `sync.Pool` Causing Latency Jitter
+
 `sync.Pool` objects are cleared at every GC cycle. In services with frequent GC, this means pooled objects are frequently evicted, and pool `Get()` calls frequently allocate new objects -- eliminating the pool's benefit. Diagnosis: add a counter to the pool `New` function and monitor it. If `New` is called at the same rate as `Get`, the pool is not helping. Fix: reduce GC frequency first (via allocation reduction or `GOGC` tuning). Alternatively, for objects that survive across GC cycles, consider a hand-rolled free list protected by a mutex, or a channel-based pool with a fixed capacity.
 
 ### Interface Pollution in Hot Paths (Accidental Boxing)
+
 A common pattern that causes hidden allocations: a function accepts `interface{}` or `any` parameters (e.g., a logging function, a metrics recorder, a middleware handler). Every call to that function boxes the concrete argument onto the heap. Diagnosis: escape analysis shows "argument escapes to heap" at the call site, and the heap profile shows the logging/metrics call as a top allocator. Fixes in order of preference: (1) use typed parameters where the interface is not necessary; (2) use generics (Go 1.18+) to specialize the function for common types; (3) use `zap`-style structured logging with typed fields (`zap.Int("count", n)`) instead of `fmt.Sprintf`-style; (4) add a fast path that skips the expensive operation when a condition is false (e.g., `if !logger.Enabled(level) { return }`).
 
 ### False Sharing in Concurrent Data Structures
+
 When two goroutines on different cores concurrently access different fields of the same struct, and those fields land in the same 64-byte cache line, every write by one goroutine invalidates the cache line for the other. This causes cache coherence traffic that does not show up as lock contention in pprof -- it appears as mysterious CPU overhead in atomic operations. Diagnosis: use `perf c2c` on Linux to detect cache-to-cache transfers. Fix: pad hot fields to 64-byte boundaries using a `[64]byte` padding field, or separate per-goroutine state into independent cache-line-aligned structs. Example: `type padded struct { value int64; _ [56]byte }` ensures `value` occupies its own cache line.
 
 ### String/[]byte Conversion Overhead in Serialization
+
 JSON encoding and HTTP header handling frequently convert between `string` and `[]byte`. Each conversion in the safe model allocates a new backing array. In a high-throughput HTTP service, this can account for 20--40% of all allocations. Diagnosis: heap profile shows `[]byte` allocations in serialization code. Fixes: (1) use `json.Marshal` into a pre-allocated `bytes.Buffer` obtained from `sync.Pool`; (2) use a faster JSON library that avoids intermediate allocations (e.g., one that uses code generation to serialize directly to a writer); (3) where correctness can be guaranteed (the `[]byte` is not mutated and does not outlive the `string`), use the unsafe conversion pattern: `s := *(*string)(unsafe.Pointer(&b))` -- but document the safety invariant explicitly in a comment.
 
 ### Benchmark Results Not Reflecting Production Performance
+
 A benchmark shows 5x improvement, but production p99 latency improves by only 10%. Common causes: (1) the benchmark is CPU-isolated and does not model GC interruptions -- add `runtime.GC()` calls within the benchmark loop to simulate GC pressure; (2) the benchmark uses small, cache-hot data while production uses large, cache-cold data -- increase input size to exceed L3 cache; (3) the optimized path is not the actual bottleneck in the production request -- re-profile production under real load to confirm the optimized function is still in the top 5 of the CPU profile; (4) the optimization introduced lock contention under concurrent load -- benchmark with `b.RunParallel` to expose concurrency behavior.
 
 ---
@@ -264,6 +276,7 @@ A benchmark shows 5x improvement, but production p99 latency improves by only 10
 ## Go Performance Analysis: HTTP Request JSON Decoding
 
 ### Symptom Summary
+
 - Observed behavior: p99 latency 180ms (9x above 20ms target); heap 800MB on 1GB pod limit
 - Environment: Go 1.21, linux/amd64, Kubernetes pod (2 CPU limit, 32-core node)
 - Workload: ~5,000 RPS, JSON decode on every request, average payload 4KB
@@ -288,22 +301,22 @@ curl http://localhost:6060/debug/vars | jq '.memstats'
 
 **CPU Profile (30-second sample):**
 
-| Rank | Function | Flat% | Cum% | Profile Type |
-|------|----------|-------|------|--------------|
-| 1    | `runtime.gcBgMarkWorker` | 28% | 28% | CPU |
-| 2    | `encoding/json.(*decodeState).object` | 18% | 31% | CPU |
-| 3    | `runtime.mallocgc` | 14% | 42% | CPU |
-| 4    | `encoding/json.indirect` | 9%  | 51% | CPU |
-| 5    | `runtime.memmove` | 7%  | 58% | CPU |
+| Rank | Function                              | Flat% | Cum% | Profile Type |
+| ---- | ------------------------------------- | ----- | ---- | ------------ |
+| 1    | `runtime.gcBgMarkWorker`              | 28%   | 28%  | CPU          |
+| 2    | `encoding/json.(*decodeState).object` | 18%   | 31%  | CPU          |
+| 3    | `runtime.mallocgc`                    | 14%   | 42%  | CPU          |
+| 4    | `encoding/json.indirect`              | 9%    | 51%  | CPU          |
+| 5    | `runtime.memmove`                     | 7%    | 58%  | CPU          |
 
 **Heap Profile (alloc_space -- cumulative allocations):**
 
-| Rank | Function | alloc_space% | Profile Type |
-|------|----------|--------------|--------------|
-| 1    | `encoding/json.(*decodeState).object` | 44% | Heap |
-| 2    | `bytes.(*Buffer).WriteString` | 12% | Heap |
-| 3    | `fmt.Sprintf` (in request logger) | 11% | Heap |
-| 4    | `http.Header.Set` (string conversion) | 8%  | Heap |
+| Rank | Function                              | alloc_space% | Profile Type |
+| ---- | ------------------------------------- | ------------ | ------------ |
+| 1    | `encoding/json.(*decodeState).object` | 44%          | Heap         |
+| 2    | `bytes.(*Buffer).WriteString`         | 12%          | Heap         |
+| 3    | `fmt.Sprintf` (in request logger)     | 11%          | Heap         |
+| 4    | `http.Header.Set` (string conversion) | 8%           | Heap         |
 
 **MemStats at time of capture:**
 
@@ -316,6 +329,7 @@ GOMAXPROCS:     32     ← reading host CPUs, not cgroup limit
 ```
 
 ### Bottleneck Classification
+
 - **Primary type:** Allocation-bound (GC pressure)
 - **Secondary type:** GOMAXPROCS misconfiguration causing scheduler thrashing
 - **Root cause:** `encoding/json` decoder allocates a new `map[string]interface{}` and a new `string` for every JSON key and value. With 5,000 RPS at 4KB average payload, this produces ~500 MB/s of allocation throughput. GC cannot keep up, using 28% of CPU. Simultaneously, `GOMAXPROCS=32` causes 32 OS threads competing for 2 CPU shares, inflating all latencies.
@@ -323,13 +337,13 @@ GOMAXPROCS:     32     ← reading host CPUs, not cgroup limit
 
 ### Optimization Plan
 
-| Step | Technique | Expected Gain | Risk |
-|------|-----------|---------------|------|
-| 1 | Fix `GOMAXPROCS` via `automaxprocs` | 20--40% latency reduction | Low |
-| 2 | Set `GOMEMLIMIT=900MiB` + `GOGC=off` | Eliminate periodic GC, prevent OOM | Low |
-| 3 | Decode JSON into typed structs, not `map[string]interface{}` | 60--80% alloc reduction in decoder | Low |
-| 4 | Pool `json.Decoder` via `sync.Pool` | 10--20% alloc reduction | Low |
-| 5 | Replace `fmt.Sprintf` in logger hot path | 11% heap reduction | Low |
+| Step | Technique                                                    | Expected Gain                      | Risk |
+| ---- | ------------------------------------------------------------ | ---------------------------------- | ---- |
+| 1    | Fix `GOMAXPROCS` via `automaxprocs`                          | 20--40% latency reduction          | Low  |
+| 2    | Set `GOMEMLIMIT=900MiB` + `GOGC=off`                         | Eliminate periodic GC, prevent OOM | Low  |
+| 3    | Decode JSON into typed structs, not `map[string]interface{}` | 60--80% alloc reduction in decoder | Low  |
+| 4    | Pool `json.Decoder` via `sync.Pool`                          | 10--20% alloc reduction            | Low  |
+| 5    | Replace `fmt.Sprintf` in logger hot path                     | 11% heap reduction                 | Low  |
 
 ### Code Changes
 
@@ -451,24 +465,26 @@ benchstat: typed_struct vs map_interface:
 
 ### Memory Stats Comparison (production, same load)
 
-| Metric          | Before    | After     | Change |
-|-----------------|-----------|-----------|--------|
-| HeapAlloc       | 780 MB    | 95 MB     | -88%   |
-| NumGC (per min) | 61        | 0*        | -100%  |
-| GCCPUFraction   | 0.28      | 0.02*     | -93%   |
-| PauseTotalNs    | 420ms/30s | 12ms/30s  | -97%   |
-| GOMAXPROCS      | 32        | 2         | fixed  |
-| p99 latency     | 180ms     | 14ms      | -92%   |
+| Metric          | Before    | After    | Change |
+| --------------- | --------- | -------- | ------ |
+| HeapAlloc       | 780 MB    | 95 MB    | -88%   |
+| NumGC (per min) | 61        | 0\*      | -100%  |
+| GCCPUFraction   | 0.28      | 0.02\*   | -93%   |
+| PauseTotalNs    | 420ms/30s | 12ms/30s | -97%   |
+| GOMAXPROCS      | 32        | 2        | fixed  |
+| p99 latency     | 180ms     | 14ms     | -92%   |
 
-*GC now triggered only by GOMEMLIMIT pressure, not periodically. Occasional GC runs
+\*GC now triggered only by GOMEMLIMIT pressure, not periodically. Occasional GC runs
 when heap approaches 900MiB limit; this occurs ~2 times per minute at peak load.
 
 ### Configuration Changes
+
 - `GOMAXPROCS`: 32 → 2 via `automaxprocs` (matches cgroup cpu quota of 2.0)
 - `GOMEMLIMIT`: unset → 900 MiB (90% of 1GiB pod limit, prevents OOM kill)
 - `GOGC`: 100 → -1 (disabled, memory pressure from GOMEMLIMIT drives GC instead)
 
 ### Regression Prevention
+
 - Benchmarks added: `BenchmarkDecode/typed_struct`, `BenchmarkDecode/typed_pool`
 - Baseline stored: `testdata/benchmarks/decode_baseline.txt`
 - Test suite: `go test ./... -race` -- PASS (0 races detected)

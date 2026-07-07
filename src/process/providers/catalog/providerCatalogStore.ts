@@ -85,7 +85,7 @@ function normalizeGeneratedEntry(raw: CatalogProviderEntry): CatalogProviderEntr
 
 /** Sort a catalog view in place by `displayName` (locale-aware, stable contract). */
 function sortByDisplayName<T extends { displayName: string }>(entries: T[]): T[] {
-  return entries.sort((a, b) => a.displayName.localeCompare(b.displayName));
+  return entries.toSorted((a, b) => a.displayName.localeCompare(b.displayName));
 }
 
 /**

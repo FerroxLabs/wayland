@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis data-science planning"
-  category: "data-analysis"
-  subcategory: "business-intelligence"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis data-science planning'
+  category: 'data-analysis'
+  subcategory: 'business-intelligence'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Metric Framework
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to build or redesign a metric tree that connects team-level operational metrics to a company-wide outcome -- including cases where they have a pile of existing KPIs and no coherent structure
 - The user needs to select a north star metric and understand which of their current measures should be primary drivers versus diagnostic indicators versus input metrics
 - The user is asking how their different KPIs "relate to each other" or why their metrics seem to contradict each other (e.g., engagement is up but revenue is flat)
@@ -30,6 +32,7 @@ metadata:
 - A company has recently pivoted and needs to rebuild their measurement architecture to match the new business model
 
 **Do NOT use when:**
+
 - The user wants detailed KPI definitions with formulas, data sources, calculation logic, owners, and targets -- that is per-metric work handled by `kpi-definition`
 - The user wants a dashboard layout with panel arrangement, refresh cadence, chart types, and filter logic -- that is `bi-dashboard-spec`
 - The user wants personal OKRs, individual goal-setting, or 1:1 performance review metrics -- that is `okr-builder` in the productivity category
@@ -160,9 +163,9 @@ A framework without a review process is documentation, not a management system.
 **Formula:** [Exact formula or pseudocode]
 **Measurement Unit:** [Users / Teams / Transactions / etc.]
 **Current Benchmark:** [Current value if known, or industry benchmark, or TBD]
-**Why This NSM:** [2-3 sentences: why this captures value delivery, why not revenue, 
+**Why This NSM:** [2-3 sentences: why this captures value delivery, why not revenue,
                     why it can be influenced by multiple teams]
-**Exclusions:** [What does NOT count -- e.g., "Excludes internal test accounts, 
+**Exclusions:** [What does NOT count -- e.g., "Excludes internal test accounts,
                   bot traffic, and accounts marked as churned"]
 
 ---
@@ -357,6 +360,7 @@ The NSM for a non-profit is a mission outcome proxy, not a revenue metric. Examp
 **Metric Name:** Weekly Completed Projects
 **Definition:** The count of distinct projects where a freelancer delivered a final artifact (code, model, analysis, or report) AND the client marked the project as complete or auto-closed after 7 days without dispute, in the past 7 calendar days.
 **Formula:**
+
 ```
 Weekly Completed Projects =
   COUNT(projects)
@@ -364,6 +368,7 @@ Weekly Completed Projects =
   AND (client_confirmed = TRUE OR auto_close_date BETWEEN [today-7] AND [today])
   AND dispute_flag = FALSE
 ```
+
 **Measurement Unit:** Projects per week
 **Current Benchmark:** ~18 completed projects/week (at current scale); target 50/week at 6 months
 **Why This NSM:** A completed project is the unit of value delivered simultaneously to both sides of the marketplace -- the freelancer earns income, the client receives a data deliverable. It is directly tied to commission revenue (NSM × avg. project value × 15% = weekly gross revenue) but is not revenue itself, making it influenceable by product, matching, and trust improvements, not just pricing. It requires both supply (an available freelancer) and demand (a funded project scope), making it a true two-sided health indicator.
@@ -411,30 +416,30 @@ Level 1 (North Star): Weekly Completed Projects
 
 ### Metric Definitions Table
 
-| Level | Metric Name | Type | Definition | Drives | Formula / Calculation | Owner |
-|-------|-------------|------|------------|--------|-----------------------|-------|
-| L1 | Weekly Completed Projects | North Star | Projects delivered and confirmed by client in past 7 days | Revenue | COUNT(projects WHERE complete AND not disputed, 7d window) | Executive |
-| L2 | Active Client Demand Rate | Primary | Number of client companies with at least 1 open project posted this week | NSM | COUNT(clients WHERE projects_posted_7d >= 1) | Demand Growth |
-| L2 | Match-to-Hire Rate | Primary | % of posted projects where a freelancer is hired within 5 business days of posting | NSM | Hired Projects / Total Posted Projects (5-day window) | Product - Matching |
-| L2 | Project Completion Rate | Primary | % of hired projects that reach completed status (vs. cancelled or stalled) | NSM | Completed Projects / Hired Projects (rolling 30d) | Product - Trust |
-| L2 | Active Freelancer Supply Rate | Primary | Number of freelancers who submitted at least 1 bid this week | NSM | COUNT(freelancers WHERE bids_submitted_7d >= 1) | Supply Growth |
-| L3 | Client Signup to First Project Post Rate | Diagnostic | % of newly registered client accounts that post their first project within 14 days | Active Client Demand | First-post clients (14d) / New signups cohort | Demand Growth |
-| L3 | Projects Posted per Active Client per Month | Diagnostic | Average number of projects posted by clients who posted at least once in the month | Active Client Demand | Total projects posted / Active clients (monthly) | Demand Growth |
-| L3 | Project Scope Completion Rate | Diagnostic | % of posted projects that include all 5 required brief fields (timeline, budget, skills, description, data access plan) | Active Client Demand | Complete briefs / Total posted projects | Demand Growth |
-| L3 | Client Repeat Project Rate | Diagnostic | % of active clients who post a second or subsequent project within 90 days of their first | Active Client Demand | Repeat-posting clients / All clients with first post 90d ago | Demand Growth |
-| L3 | Median Time to First Proposal | Diagnostic | Median hours between project posting and first freelancer bid received | Match-to-Hire Rate | MEDIAN(first_bid_time - posting_time) in hours | Product / Supply Ops |
-| L3 | Proposal Acceptance Rate | Diagnostic | % of freelancer proposals that result in a client interview or hire | Match-to-Hire Rate | Interviews + Hires / Total proposals submitted | Product - Matching |
-| L3 | Freelancer Response Rate within 24h | Diagnostic | % of invited-to-bid freelancers who respond within 24 hours | Match-to-Hire Rate | Responses within 24h / Total invitations sent | Supply Operations |
-| L3 | Client Interview-to-Hire Conversion | Diagnostic | % of projects where at least one interview was held that subsequently resulted in a hire | Match-to-Hire Rate | Hired projects / Interviewed projects | Product |
-| L3 | On-Time Delivery Rate | Diagnostic | % of milestones delivered on or before agreed deadline | Project Completion Rate | On-time milestones / Total milestones | Operations |
-| L3 | Milestone Completion Rate | Diagnostic | % of agreed milestones that are completed (vs. skipped or renegotiated down) | Project Completion Rate | Completed milestones / Agreed milestones | Operations |
-| L3 | Dispute Rate per Completed Project | Diagnostic | % of completed projects that generate a formal dispute within 7 days of completion | Project Completion Rate | Disputed projects / Completed projects (30d) | Trust & Safety |
-| L3 | Client Satisfaction Score | Diagnostic | Average post-project rating given by clients on a 1-5 scale | Project Completion Rate | AVG(client_rating) on completed projects | Operations |
-| L3 | Freelancer Signup to First Bid Rate | Diagnostic | % of newly approved freelancers who submit at least 1 bid within 7 days of approval | Active Freelancer Supply | First-bid freelancers (7d post-approval) / Approved freelancers | Supply Growth |
-| L3 | Bids per Active Freelancer per Week | Diagnostic | Average bids submitted per freelancer who bid at least once this week | Active Freelancer Supply | Total bids / Bidding freelancers (7d window) | Supply Growth |
-| L3 | Freelancer Weekly Retention Rate | Diagnostic | % of freelancers active (bidding) last week who are also active this week | Active Freelancer Supply | Freelancers active both weeks / Freelancers active last week | Supply Growth |
-| L4 | Freelancer onboarding calls/week | Input | Count of onboarding video calls completed with newly approved freelancers per week | Freelancer First Bid Rate | COUNT(onboarding_calls_completed, 7d) | Supply Ops |
-| L4 | Skill verifications completed/week | Input | Count of freelancer skill assessments reviewed and scored per week | Freelancer First Bid Rate | COUNT(skill_reviews_completed, 7d) | Supply Ops |
+| Level | Metric Name                                 | Type       | Definition                                                                                                              | Drives                    | Formula / Calculation                                           | Owner                |
+| ----- | ------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------- | -------------------- |
+| L1    | Weekly Completed Projects                   | North Star | Projects delivered and confirmed by client in past 7 days                                                               | Revenue                   | COUNT(projects WHERE complete AND not disputed, 7d window)      | Executive            |
+| L2    | Active Client Demand Rate                   | Primary    | Number of client companies with at least 1 open project posted this week                                                | NSM                       | COUNT(clients WHERE projects_posted_7d >= 1)                    | Demand Growth        |
+| L2    | Match-to-Hire Rate                          | Primary    | % of posted projects where a freelancer is hired within 5 business days of posting                                      | NSM                       | Hired Projects / Total Posted Projects (5-day window)           | Product - Matching   |
+| L2    | Project Completion Rate                     | Primary    | % of hired projects that reach completed status (vs. cancelled or stalled)                                              | NSM                       | Completed Projects / Hired Projects (rolling 30d)               | Product - Trust      |
+| L2    | Active Freelancer Supply Rate               | Primary    | Number of freelancers who submitted at least 1 bid this week                                                            | NSM                       | COUNT(freelancers WHERE bids_submitted_7d >= 1)                 | Supply Growth        |
+| L3    | Client Signup to First Project Post Rate    | Diagnostic | % of newly registered client accounts that post their first project within 14 days                                      | Active Client Demand      | First-post clients (14d) / New signups cohort                   | Demand Growth        |
+| L3    | Projects Posted per Active Client per Month | Diagnostic | Average number of projects posted by clients who posted at least once in the month                                      | Active Client Demand      | Total projects posted / Active clients (monthly)                | Demand Growth        |
+| L3    | Project Scope Completion Rate               | Diagnostic | % of posted projects that include all 5 required brief fields (timeline, budget, skills, description, data access plan) | Active Client Demand      | Complete briefs / Total posted projects                         | Demand Growth        |
+| L3    | Client Repeat Project Rate                  | Diagnostic | % of active clients who post a second or subsequent project within 90 days of their first                               | Active Client Demand      | Repeat-posting clients / All clients with first post 90d ago    | Demand Growth        |
+| L3    | Median Time to First Proposal               | Diagnostic | Median hours between project posting and first freelancer bid received                                                  | Match-to-Hire Rate        | MEDIAN(first_bid_time - posting_time) in hours                  | Product / Supply Ops |
+| L3    | Proposal Acceptance Rate                    | Diagnostic | % of freelancer proposals that result in a client interview or hire                                                     | Match-to-Hire Rate        | Interviews + Hires / Total proposals submitted                  | Product - Matching   |
+| L3    | Freelancer Response Rate within 24h         | Diagnostic | % of invited-to-bid freelancers who respond within 24 hours                                                             | Match-to-Hire Rate        | Responses within 24h / Total invitations sent                   | Supply Operations    |
+| L3    | Client Interview-to-Hire Conversion         | Diagnostic | % of projects where at least one interview was held that subsequently resulted in a hire                                | Match-to-Hire Rate        | Hired projects / Interviewed projects                           | Product              |
+| L3    | On-Time Delivery Rate                       | Diagnostic | % of milestones delivered on or before agreed deadline                                                                  | Project Completion Rate   | On-time milestones / Total milestones                           | Operations           |
+| L3    | Milestone Completion Rate                   | Diagnostic | % of agreed milestones that are completed (vs. skipped or renegotiated down)                                            | Project Completion Rate   | Completed milestones / Agreed milestones                        | Operations           |
+| L3    | Dispute Rate per Completed Project          | Diagnostic | % of completed projects that generate a formal dispute within 7 days of completion                                      | Project Completion Rate   | Disputed projects / Completed projects (30d)                    | Trust & Safety       |
+| L3    | Client Satisfaction Score                   | Diagnostic | Average post-project rating given by clients on a 1-5 scale                                                             | Project Completion Rate   | AVG(client_rating) on completed projects                        | Operations           |
+| L3    | Freelancer Signup to First Bid Rate         | Diagnostic | % of newly approved freelancers who submit at least 1 bid within 7 days of approval                                     | Active Freelancer Supply  | First-bid freelancers (7d post-approval) / Approved freelancers | Supply Growth        |
+| L3    | Bids per Active Freelancer per Week         | Diagnostic | Average bids submitted per freelancer who bid at least once this week                                                   | Active Freelancer Supply  | Total bids / Bidding freelancers (7d window)                    | Supply Growth        |
+| L3    | Freelancer Weekly Retention Rate            | Diagnostic | % of freelancers active (bidding) last week who are also active this week                                               | Active Freelancer Supply  | Freelancers active both weeks / Freelancers active last week    | Supply Growth        |
+| L4    | Freelancer onboarding calls/week            | Input      | Count of onboarding video calls completed with newly approved freelancers per week                                      | Freelancer First Bid Rate | COUNT(onboarding_calls_completed, 7d)                           | Supply Ops           |
+| L4    | Skill verifications completed/week          | Input      | Count of freelancer skill assessments reviewed and scored per week                                                      | Freelancer First Bid Rate | COUNT(skill_reviews_completed, 7d)                              | Supply Ops           |
 
 ---
 
@@ -462,44 +467,44 @@ Approximate contribution at current stage:
 
 ### Guardrail Metrics (Do Not Degrade)
 
-| Guardrail Metric | Floor / Ceiling | What It Protects Against |
-|-----------------|-----------------|--------------------------|
-| Dispute Rate per Completed Project | Must stay below 5% | Protects marketplace trust and prevents revenue clawbacks |
-| Client Satisfaction Score | Must stay above 3.8 / 5.0 average | Protects client repeat purchase rate and word-of-mouth |
-| Freelancer Platform Rating (avg. satisfaction with platform experience) | Must stay above 3.5 / 5.0 | Protects supply-side retention; freelancers leave for direct sourcing if platform feels adversarial |
-| Fraud-flagged project rate | Must stay below 1% | Protects commission revenue integrity and legal exposure |
+| Guardrail Metric                                                        | Floor / Ceiling                   | What It Protects Against                                                                            |
+| ----------------------------------------------------------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Dispute Rate per Completed Project                                      | Must stay below 5%                | Protects marketplace trust and prevents revenue clawbacks                                           |
+| Client Satisfaction Score                                               | Must stay above 3.8 / 5.0 average | Protects client repeat purchase rate and word-of-mouth                                              |
+| Freelancer Platform Rating (avg. satisfaction with platform experience) | Must stay above 3.5 / 5.0         | Protects supply-side retention; freelancers leave for direct sourcing if platform feels adversarial |
+| Fraud-flagged project rate                                              | Must stay below 1%                | Protects commission revenue integrity and legal exposure                                            |
 
 ---
 
 ### Relationship Map
 
-| Parent Metric | Child Metric | Direction | Mechanism | Approx. Lag |
-|---------------|-------------|-----------|-----------|-------------|
-| Weekly Completed Projects | Active Client Demand Rate | Positive | More open projects in the pipeline means more opportunities to complete; demand is the binding constraint at current stage | 1-2 weeks |
-| Weekly Completed Projects | Match-to-Hire Rate | Positive | A project that doesn't get a freelancer hired never completes; every point of improvement in hire rate directly adds completions to the pipeline | 1-3 weeks |
-| Weekly Completed Projects | Project Completion Rate | Positive | Of projects that get hired, a higher share reaching completion directly multiplies the NSM | 2-4 weeks |
-| Weekly Completed Projects | Active Freelancer Supply Rate | Positive (indirect) | More active freelancers reduces time-to-first-proposal and increases proposal diversity, improving Match-to-Hire Rate; supply is not the binding constraint today but becomes one above ~80 active clients | 2-4 weeks (via Match-to-Hire) |
-| Active Client Demand Rate | Client Signup to First Project Post Rate | Positive | Clients who post quickly have higher lifetime project volume; poor activation means paid or organic acquisition spend is wasted | 1-2 weeks |
-| Active Client Demand Rate | Projects per Active Client per Month | Positive | Increasing project frequency per client grows total demand without new acquisition cost | 2-4 weeks |
-| Active Client Demand Rate | Project Scope Completion Rate | Positive | Well-specified project briefs attract more freelancer bids and better-matched proposals, increasing the chance the client posts again after a successful first hire | 1-2 weeks |
-| Match-to-Hire Rate | Median Time to First Proposal | Negative (lower is better) | Clients who wait over 48 hours for first proposal have significantly higher abandonment rates (estimated 35% abandonment if no proposal in 48h vs. 8% if proposal within 6h) | Same week |
-| Match-to-Hire Rate | Proposal Acceptance Rate | Positive | Higher quality proposals (better-matched skills, clear relevance to brief) reduce client decision friction and increase hire probability | 1 week |
-| Match-to-Hire Rate | Client Interview-to-Hire Rate | Positive | Reducing friction between interview and hire decision (e.g., simplified contract flow) directly improves the rate at which interested clients convert | 1-2 weeks |
-| Project Completion Rate | On-Time Delivery Rate | Positive | Late delivery is the leading predictor of project cancellation; 65% of projects that miss a first milestone never complete | 2-3 weeks |
-| Project Completion Rate | Dispute Rate | Negative (lower is better) | Disputes halt payment, freeze project status, and count against completion; high dispute rate reflects scope clarity failures at project-start | 1-3 weeks |
-| Active Freelancer Supply | Freelancer First Bid Rate | Positive | Freelancers who bid quickly after approval establish the bidding habit; those who don't bid in the first 7 days have less than 20% chance of ever becoming active | 1 week |
-| Active Freelancer Supply | Freelancer Weekly Retention | Positive | Retention of active supply is 4-6x cheaper than reacquisition; losing experienced freelancers hurts proposal quality faster than raw supply numbers suggest | Ongoing |
+| Parent Metric             | Child Metric                             | Direction                  | Mechanism                                                                                                                                                                                                  | Approx. Lag                   |
+| ------------------------- | ---------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| Weekly Completed Projects | Active Client Demand Rate                | Positive                   | More open projects in the pipeline means more opportunities to complete; demand is the binding constraint at current stage                                                                                 | 1-2 weeks                     |
+| Weekly Completed Projects | Match-to-Hire Rate                       | Positive                   | A project that doesn't get a freelancer hired never completes; every point of improvement in hire rate directly adds completions to the pipeline                                                           | 1-3 weeks                     |
+| Weekly Completed Projects | Project Completion Rate                  | Positive                   | Of projects that get hired, a higher share reaching completion directly multiplies the NSM                                                                                                                 | 2-4 weeks                     |
+| Weekly Completed Projects | Active Freelancer Supply Rate            | Positive (indirect)        | More active freelancers reduces time-to-first-proposal and increases proposal diversity, improving Match-to-Hire Rate; supply is not the binding constraint today but becomes one above ~80 active clients | 2-4 weeks (via Match-to-Hire) |
+| Active Client Demand Rate | Client Signup to First Project Post Rate | Positive                   | Clients who post quickly have higher lifetime project volume; poor activation means paid or organic acquisition spend is wasted                                                                            | 1-2 weeks                     |
+| Active Client Demand Rate | Projects per Active Client per Month     | Positive                   | Increasing project frequency per client grows total demand without new acquisition cost                                                                                                                    | 2-4 weeks                     |
+| Active Client Demand Rate | Project Scope Completion Rate            | Positive                   | Well-specified project briefs attract more freelancer bids and better-matched proposals, increasing the chance the client posts again after a successful first hire                                        | 1-2 weeks                     |
+| Match-to-Hire Rate        | Median Time to First Proposal            | Negative (lower is better) | Clients who wait over 48 hours for first proposal have significantly higher abandonment rates (estimated 35% abandonment if no proposal in 48h vs. 8% if proposal within 6h)                               | Same week                     |
+| Match-to-Hire Rate        | Proposal Acceptance Rate                 | Positive                   | Higher quality proposals (better-matched skills, clear relevance to brief) reduce client decision friction and increase hire probability                                                                   | 1 week                        |
+| Match-to-Hire Rate        | Client Interview-to-Hire Rate            | Positive                   | Reducing friction between interview and hire decision (e.g., simplified contract flow) directly improves the rate at which interested clients convert                                                      | 1-2 weeks                     |
+| Project Completion Rate   | On-Time Delivery Rate                    | Positive                   | Late delivery is the leading predictor of project cancellation; 65% of projects that miss a first milestone never complete                                                                                 | 2-3 weeks                     |
+| Project Completion Rate   | Dispute Rate                             | Negative (lower is better) | Disputes halt payment, freeze project status, and count against completion; high dispute rate reflects scope clarity failures at project-start                                                             | 1-3 weeks                     |
+| Active Freelancer Supply  | Freelancer First Bid Rate                | Positive                   | Freelancers who bid quickly after approval establish the bidding habit; those who don't bid in the first 7 days have less than 20% chance of ever becoming active                                          | 1 week                        |
+| Active Freelancer Supply  | Freelancer Weekly Retention              | Positive                   | Retention of active supply is 4-6x cheaper than reacquisition; losing experienced freelancers hurts proposal quality faster than raw supply numbers suggest                                                | Ongoing                       |
 
 ---
 
 ### Trade-offs and Inverse Relationships
 
-| Metric A | Metric B | Nature of Tension | Management Approach |
-|----------|----------|-------------------|---------------------|
-| Proposal Acceptance Rate | Bids per Active Freelancer per Week | Encouraging higher bid volume per freelancer can flood clients with low-quality proposals, reducing acceptance rate | Set a minimum proposal quality score threshold (requires NLP or manual review) before surfacing bids to clients; track acceptance rate segmented by bid volume tier |
-| Match-to-Hire Rate (speed) | Project Completion Rate (quality) | Aggressively reducing time-to-hire may result in worse freelancer-project fit, increasing dispute rate and incomplete projects | Monitor completion rate by hire-speed cohort; flag projects hired in under 12 hours as a watch cohort for the first 4 weeks |
-| Client Repeat Project Rate | Dispute Rate per Project | Pressuring clients to post again quickly (re-engagement sequences) before a dispute is resolved creates a poisoned second project experience | Gate re-engagement sequences on: no active dispute, client satisfaction score >= 4, project marked fully complete |
-| Freelancer First Bid Rate | Freelancer Weekly Retention | Optimizing onboarding to get fast first bids can front-load activity before freelancers are fully profile-complete, resulting in lower proposal acceptance and faster burnout | Require skill verification completion before enabling bidding, even if this delays first bid by 2-3 days |
+| Metric A                   | Metric B                            | Nature of Tension                                                                                                                                                             | Management Approach                                                                                                                                                 |
+| -------------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Proposal Acceptance Rate   | Bids per Active Freelancer per Week | Encouraging higher bid volume per freelancer can flood clients with low-quality proposals, reducing acceptance rate                                                           | Set a minimum proposal quality score threshold (requires NLP or manual review) before surfacing bids to clients; track acceptance rate segmented by bid volume tier |
+| Match-to-Hire Rate (speed) | Project Completion Rate (quality)   | Aggressively reducing time-to-hire may result in worse freelancer-project fit, increasing dispute rate and incomplete projects                                                | Monitor completion rate by hire-speed cohort; flag projects hired in under 12 hours as a watch cohort for the first 4 weeks                                         |
+| Client Repeat Project Rate | Dispute Rate per Project            | Pressuring clients to post again quickly (re-engagement sequences) before a dispute is resolved creates a poisoned second project experience                                  | Gate re-engagement sequences on: no active dispute, client satisfaction score >= 4, project marked fully complete                                                   |
+| Freelancer First Bid Rate  | Freelancer Weekly Retention         | Optimizing onboarding to get fast first bids can front-load activity before freelancers are fully profile-complete, resulting in lower proposal acceptance and faster burnout | Require skill verification completion before enabling bidding, even if this delays first bid by 2-3 days                                                            |
 
 ---
 

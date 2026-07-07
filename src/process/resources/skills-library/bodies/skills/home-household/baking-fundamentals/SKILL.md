@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking step-by-step teaching"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking step-by-step teaching'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Baking Fundamentals
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks why a specific baked good failed -- dense cake, flat cookies, gummy bread crumb, sunken muffins, soggy pie bottom, cracked cheesecake
 - Wants to understand the mechanics of a specific mixing method (creaming, folding, muffin method, cutting in, reverse creaming, sponge method)
 - Asks about leavening agents -- which to use, how much, why their baked good tastes metallic or soapy, or what the difference is between baking soda and baking powder
@@ -35,6 +37,7 @@ metadata:
 - Asks about gluten development -- when to encourage it (bread), when to minimize it (cakes, muffins, pie crust, biscuits)
 
 **Do NOT use this skill when:**
+
 - The user needs to scale a recipe up or down -- use `recipe-scaling` instead
 - The user needs to substitute one ingredient for another (vegan egg replacement, buttermilk substitute, gluten-free flour swap) -- use `ingredient-substitution` instead
 - The user is asking about stovetop cooking, grilling, roasting vegetables, or braising -- use `cooking-techniques` instead
@@ -95,6 +98,7 @@ Measurement errors are the single most common root cause of baking failures and 
 The mixing method determines gluten development, air incorporation, and final texture. Match the method to the baking category precisely.
 
 **Creaming Method (butter cakes, most cookies, pound cakes):**
+
 - Beat room-temperature butter (65--68°F / 18--20°C) and sugar together for 3--5 minutes on medium-high speed
 - The goal is to force sugar crystals through the butter, creating millions of microscopic air pockets -- this is called mechanical leavening, and it contributes roughly 20--30% of the total rise in a butter cake
 - Correctly creamed butter and sugar will be pale ivory (not yellow), fluffy, increased in volume by roughly 50%, and will feel light and airy if you rub a small amount between your fingers
@@ -103,6 +107,7 @@ The mixing method determines gluten development, air incorporation, and final te
 - Critical: once flour is added, switch to the lowest mixer speed and mix only until just combined (20--30 seconds maximum after the last flour addition)
 
 **Muffin Method (muffins, quick breads, pancakes, waffles):**
+
 - Mix all dry ingredients in one bowl; mix all wet ingredients (including melted butter or oil) in a separate bowl
 - Create a well in the center of the dry ingredients and pour the wet ingredients in all at once
 - Stir with a fork or spatula using J-stroke motions, folding from the bottom up, 10--15 strokes maximum
@@ -110,6 +115,7 @@ The mixing method determines gluten development, air incorporation, and final te
 - The standard test: if you can still see small islands of dry flour, add 2--3 more strokes. If all flour is incorporated, stop immediately
 
 **Folding Method (chiffon cakes, genoise, angel food, souffles, incorporating whipped cream):**
+
 - Used when you must combine a light aerated mixture (whipped egg whites or cream) with a heavier base without deflating the air bubbles
 - Use a large, wide, flexible rubber spatula -- the width matters because it moves more material per stroke with less effort
 - Technique: insert the spatula vertically into the center of the bowl, draw it down and across the bottom, and rotate it up the far side while simultaneously rotating the bowl with your other hand 45°. Repeat.
@@ -118,6 +124,7 @@ The mixing method determines gluten development, air incorporation, and final te
 - Streaks of egg white in the final batter are acceptable and preferable to a deflated batter. They will bake out.
 
 **Cutting-In Method (pie crust, biscuits, scones, crumble toppings):**
+
 - Start with cold fat -- butter straight from the refrigerator (or even briefly in the freezer for 15 minutes for very flaky pastry). Fat must be between 35--40°F / 2--4°C throughout the process.
 - Cut the cold butter into the flour until the mixture contains irregular pieces -- some pea-sized, some almond-sized, some still visible flat shards for pie crust (these create layers); for biscuits, more uniformly pea-sized
 - Tools: pastry blender (most control), two table knives (works well), fingertips (effective but fast -- body heat melts butter; use only the fingertips, work in under 90 seconds, and chill the mixture if it gets warm)
@@ -126,6 +133,7 @@ The mixing method determines gluten development, air incorporation, and final te
 - Rest pie dough 30--60 minutes in the refrigerator before rolling -- this relaxes the gluten and re-chills the butter; it makes rolling easier and prevents shrinkage
 
 **Reverse Creaming Method (produces fine, tender, velvety crumb in butter cakes):**
+
 - Add room-temperature butter directly to the combined dry ingredients and beat until the mixture resembles damp sand (about 2 minutes)
 - Add half the liquid, beat until smooth (about 1 minute)
 - Add remaining liquid and eggs, beat briefly to combine
@@ -139,6 +147,7 @@ The mixing method determines gluten development, air incorporation, and final te
 Leavening is the system that creates gas bubbles, expands existing bubbles, and sets them in place. Misunderstanding leavening is responsible for a significant proportion of baking failures.
 
 **Baking Soda (sodium bicarbonate):**
+
 - Pure base. Requires an acidic ingredient in the recipe to produce CO2. Common acids in baking: buttermilk (pH 4.5--4.8), yogurt (pH 4.0--4.4), sour cream, vinegar, lemon juice, brown sugar (molasses has acidic pH), natural (non-alkalized) cocoa powder (pH 5.0--5.5), honey, maple syrup, cream of tartar
 - The reaction begins immediately on contact with acid and liquid -- do not let batters containing baking soda sit before baking
 - Standard ratio: 1/4 teaspoon baking soda per cup of flour (when sufficient acid is present)
@@ -146,6 +155,7 @@ Leavening is the system that creates gas bubbles, expands existing bubbles, and 
 - Alkalized (Dutch-process) cocoa powder has had its acid neutralized -- if a recipe calls for Dutch-process cocoa and baking soda, the acid must come from another ingredient. Natural cocoa powder is acidic and works with baking soda.
 
 **Baking Powder:**
+
 - Pre-formulated mixture of baking soda, an acid salt (typically cream of tartar or sodium aluminum sulfate), and cornstarch (to absorb moisture and prevent premature reaction in the container)
 - Double-acting means it reacts twice: first when dissolved in liquid at room temperature (produces CO2 bubbles), second when heated in the oven above 170°F / 77°C (produces additional CO2). This is why double-acting baking powder is more forgiving -- it provides a second burst of leavening even if some CO2 escaped before the oven
 - Standard ratio: 1 to 1.5 teaspoons per cup of flour
@@ -154,12 +164,14 @@ Leavening is the system that creates gas bubbles, expands existing bubbles, and 
 - Freshness test: dissolve 1 teaspoon in 1/3 cup hot water. Vigorous immediate bubbling = active. Weak fizz or no reaction = replace. Shelf life: 6--12 months after opening.
 
 **Baking Soda vs. Baking Powder -- When to Use Each:**
+
 - Use baking soda when the recipe contains sufficient acid: approximately 1/2 cup or more of an acidic liquid per cup of flour
 - Use baking powder when the recipe has no acidic ingredients (milk, not buttermilk; regular cocoa replaced by natural cocoa; no vinegar or citrus)
 - Many recipes use both: baking soda neutralizes acid and adds tenderness and browning, while baking powder provides additional lift independent of the acid level
 - If you substitute 1 tsp baking powder for 1/4 tsp baking soda, you also lose the acid neutralization effect -- the result may be slightly more acidic-tasting
 
 **Yeast Leavening:**
+
 - Saccharomyces cerevisiae consumes simple sugars (glucose, fructose) and produces CO2 and ethanol as byproducts -- the CO2 inflates the gluten network and the ethanol contributes to bread flavor
 - Instant (rapid-rise) yeast: can be added directly to dry ingredients without proofing; tolerates a slightly wider temperature range; typical usage 1.5--2 teaspoons per 3 cups of bread flour
 - Active dry yeast: must be proofed in warm water (105--115°F / 40--46°C) with a pinch of sugar for 5--10 minutes before use; if no foam forms, the yeast is dead
@@ -169,6 +181,7 @@ Leavening is the system that creates gas bubbles, expands existing bubbles, and 
 - Underproofed dough: insufficient gas development; dense, fine crumb; may burst unexpectedly in the oven (oven spring cannot be controlled)
 
 **Mechanical and Steam Leavening:**
+
 - Creaming method: air bubbles trapped in fat expand during baking, contributing real lift
 - Egg foam: whipped whole eggs, yolks, or whites trap air that expands during baking (genoise, angel food, chiffon, souffles rely primarily on this)
 - Steam: water in batter converts to steam at 212°F / 100°C, expanding to 1,600 times its liquid volume. Critical in cream puffs (choux), croissants, and puff pastry, which use almost no chemical or biological leavening -- all structure comes from steam and fat layers.
@@ -201,21 +214,25 @@ The oven is not a passive background element -- it is an active variable in the 
 The timer is not a reliable doneness indicator -- it is a reminder to start checking. Actual doneness depends on specific sensory tests.
 
 **For cakes:**
+
 - Visual: the top should be set (not wet or jiggly when the pan is gently shaken), the edges should have pulled slightly away from the pan sides (about 2--3mm), and the surface color should be uniformly golden
 - Toothpick test: insert a wooden toothpick or thin cake tester into the thickest part of the center. For most cakes: a few moist crumbs attached is correct. Wet batter coating means underdone. Completely clean and dry means overdone.
 - Touch test: press the top of the cake gently with one finger. It should spring back completely within 2 seconds. If your fingerprint remains depressed, the cake needs more time.
 - Internal temperature: butter cake is done at 200--210°F / 93--99°C in the center. Cheesecake is done at 150--155°F / 65--68°C (slightly wobbly in the center when shaken -- it firms as it cools).
 
 **For cookies:**
+
 - Cookies continue cooking on the hot pan after removal from the oven (carryover cooking). Remove cookies when they look 70--80% done -- slightly underdone in the center, set on the edges.
 - A cookie that looks perfectly done in the oven will be dry and hard when cooled. Remove when the center still looks soft and underset.
 
 **For bread:**
+
 - Visual: deep golden to dark brown crust. A pale crust usually indicates underdone interior.
 - Tap test: remove the loaf from the pan and tap the bottom sharply with your knuckles. A hollow, drum-like sound indicates doneness. A dull thud means more time is needed.
 - Internal temperature: lean breads (baguette, sourdough, focaccia) are done at 200--210°F / 93--99°C. Enriched breads (brioche, challah, milk bread) are done at 190--195°F / 88--91°C.
 
 **For muffins and quick breads:**
+
 - Toothpick test in the center. Moist crumbs are acceptable; wet batter means underdone.
 - The top cracks are normal and intentional -- not a failure indicator.
 
@@ -386,6 +403,7 @@ the mechanism, not just the rule.]
 Lower barometric pressure at altitude affects baking through two distinct mechanisms: gas bubbles expand more readily (lower atmospheric pressure containment) and water boils and evaporates at a lower temperature (194°F / 90°C at 6,000 feet instead of 212°F / 100°C at sea level).
 
 Practical adjustments -- implement incrementally and test one change at a time:
+
 - Reduce baking powder by 15--25% (at 3,500 feet: 15%; at 5,000 feet: 20%; at 7,000+ feet: 25%). Gases expand more readily, so less leavening agent is needed to achieve the same expansion.
 - Increase liquid by 2--4 tablespoons per cup of liquid in the recipe (water evaporates faster at altitude during baking, drying the interior before it sets).
 - Increase oven temperature by 15--25°F (higher temperature causes faster protein and starch setting, which captures the expanded gas before the structure collapses).
@@ -423,6 +441,7 @@ Gluten is the elastic protein network formed by glutenin and gliadin proteins in
 These two failure modes look similar during baking (both may occur without the timer having expired) but require opposite interventions. Correct diagnosis is critical.
 
 **Overbaked:**
+
 - Appearance: excessively dark edges, crust pulling significantly away from pan sides (more than 4--5mm), dry surface
 - Texture: dry and crumbly, lacks moisture, cookies snap rather than bend
 - Taste: slight bitterness from Maillard products and caramelization reaching the burning threshold
@@ -430,6 +449,7 @@ These two failure modes look similar during baking (both may occur without the t
 - Prevention: oven thermometer, light-colored pans, check 5--10 minutes before recipe minimum time
 
 **Underbaked:**
+
 - Appearance: pale color, center depressed or wet-looking, batter visible at toothpick
 - Texture: gummy, dense, wet interior; cookies that seem done in the oven but are raw-feeling when cooled
 - Taste: doughy, raw flour taste in the center
@@ -486,6 +506,7 @@ This situation arises constantly and is handled incorrectly by most home bakers,
 ## Baking Guide: Chocolate Chip Cookie Spread Troubleshooting
 
 ### TL;DR
+
 Flat, greasy chocolate chip cookies are caused by one or more of three problems: butter too warm, too little flour, or baking on a hot pan. The single highest-impact fix is to chill the portioned dough for 30 minutes before baking. Here is the complete breakdown.
 
 ---
@@ -497,6 +518,7 @@ Cookie spread is a race between two processes happening simultaneously in the ov
 Greasiness is a separate but related symptom -- it occurs when fat that was emulsified in the dough (bound to the egg proteins and flour) separates out because the emulsion was improperly formed (usually due to too-warm butter) or because there is too little flour to absorb the fat.
 
 Three variables control this race:
+
 1. **Butter temperature at time of mixing** -- warmer butter melts faster and earlier in the oven
 2. **Flour quantity** -- more flour means more structure, more absorption of fat, slower spread
 3. **Dough temperature at the time of baking** -- colder dough stays stiffer longer, giving proteins and starches time to set before the butter fully melts

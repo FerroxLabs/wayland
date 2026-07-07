@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns backend"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'architecture design-patterns backend'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Search System Architect
@@ -195,12 +195,7 @@ TUNING:
   "query": {
     "multi_match": {
       "query": "wireless headphones",
-      "fields": [
-        "title^3",
-        "brand^2",
-        "description^1",
-        "tags^1.5"
-      ],
+      "fields": ["title^3", "brand^2", "description^1", "tags^1.5"],
       "type": "best_fields",
       "tie_breaker": 0.3
     }
@@ -268,13 +263,8 @@ TUNING:
 {
   "query": {
     "bool": {
-      "must": [
-        { "match": { "title": "headphones" } }
-      ],
-      "filter": [
-        { "term": { "category": "electronics" } },
-        { "range": { "price": { "gte": 50, "lte": 200 } } }
-      ]
+      "must": [{ "match": { "title": "headphones" } }],
+      "filter": [{ "term": { "category": "electronics" } }, { "range": { "price": { "gte": 50, "lte": 200 } } }]
     }
   },
   "aggs": {
@@ -493,6 +483,7 @@ INFRA: 3 master + N data + 2 coordinating nodes, Kafka-based indexing pipeline
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing search system architect solutions
 - Reviewing or improving existing search system architect approaches
 - Making architectural or implementation decisions about search system architect
@@ -500,6 +491,7 @@ INFRA: 3 master + N data + 2 coordinating nodes, Kafka-based indexing pipeline
 - Troubleshooting search system architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -510,21 +502,26 @@ INFRA: 3 master + N data + 2 coordinating nodes, Kafka-based indexing pipeline
 # Search System Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

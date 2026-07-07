@@ -95,7 +95,9 @@ function makeLibrary(n: number): Array<{ name: string; security: { verdict: stri
 }
 
 describe('setupAssistantWorkspace - bounded symlinks regression gate', () => {
-  let setupAssistantWorkspace: Awaited<ReturnType<typeof import('@process/utils/initAgent')>>['setupAssistantWorkspace'];
+  let setupAssistantWorkspace: Awaited<
+    ReturnType<typeof import('@process/utils/initAgent')>
+  >['setupAssistantWorkspace'];
 
   beforeEach(async () => {
     vi.clearAllMocks();

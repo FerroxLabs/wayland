@@ -24,11 +24,7 @@ const MessagePlan: React.FC<{ message: IMessagePlan }> = ({ message }) => {
             return (
               <div className='flex flex-row items-center color-[var(--color-text-3)] gap-8px'>
                 {item.status === 'completed' ? (
-                  <CheckCircle2
-                    fontSize={22}
-                    strokeWidth={4}
-                    className='flex color-[rgb(var(--success-6))]'
-                  />
+                  <CheckCircle2 fontSize={22} strokeWidth={4} className='flex color-[rgb(var(--success-6))]' />
                 ) : (
                   <div className='size-22px flex items-center justify-center'>
                     <div className='size-14px  rd-10px b-2px b-solid b-[rgba(201,205,212,1)]'></div>

@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "entrepreneurship planning strategy checklist project-management"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'entrepreneurship planning strategy checklist project-management'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Scaling Checklist
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user's business has demonstrated product-market fit and is preparing to scale operations -- typically evidenced by consistent month-over-month growth of 15%+ for 3+ consecutive months, a Net Promoter Score above 40, or an unsolicited inbound demand that the team cannot service fast enough
 - The user asks about what needs to be in place to grow from early traction (10-50 customers, $10K-$50K MRR) to meaningful scale (200-1,000 customers, $500K-$5M ARR) within a 12-24 month window
 - The user wants to assess operational readiness before deploying new capital -- this is one of the highest-leverage moments for a scaling checklist because capital amplifies both strengths and weaknesses
@@ -28,6 +30,7 @@ metadata:
 - The user explicitly asks about growing pains, scaling challenges, organizational design, or operational bottlenecks at the startup-to-growth-stage transition
 
 **Do NOT use this skill when:**
+
 - The user needs a product launch plan for a new feature or product line -- use `product-launch-checklist` instead
 - The user is still defining or refining their MVP and has not yet found product-market fit -- use `mvp-definition` instead, because building scaling infrastructure before PMF is premature optimization that wastes capital
 - The user needs a financial model with growth projections, scenario analysis, or unit economics modeling -- use `financial-model-structure` instead, though the scaling checklist will reference unit economics thresholds
@@ -135,44 +138,44 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### Current State Snapshot
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Monthly Recurring Revenue | $[X]K MRR | $[Y]K ARR |
-| MoM Revenue Growth Rate | [X]% (avg, last 6 mo) | Trend: [accelerating / stable / decelerating] |
-| Active Customers | [X] | Logo count |
-| Average Contract Value | $[X] | ACV |
-| Net Revenue Retention | [X]% | [Above / Below 100%] |
-| Monthly Logo Churn | [X]% | [Acceptable / Needs intervention] |
-| Team Size | [X] people | [List functional areas] |
-| Current Runway | [X] months | Based on current burn |
-| Infrastructure Cost per Customer | $[X]/mo | [Gross margin implication] |
+| Metric                           | Value                 | Notes                                         |
+| -------------------------------- | --------------------- | --------------------------------------------- |
+| Monthly Recurring Revenue        | $[X]K MRR             | $[Y]K ARR                                     |
+| MoM Revenue Growth Rate          | [X]% (avg, last 6 mo) | Trend: [accelerating / stable / decelerating] |
+| Active Customers                 | [X]                   | Logo count                                    |
+| Average Contract Value           | $[X]                  | ACV                                           |
+| Net Revenue Retention            | [X]%                  | [Above / Below 100%]                          |
+| Monthly Logo Churn               | [X]%                  | [Acceptable / Needs intervention]             |
+| Team Size                        | [X] people            | [List functional areas]                       |
+| Current Runway                   | [X] months            | Based on current burn                         |
+| Infrastructure Cost per Customer | $[X]/mo               | [Gross margin implication]                    |
 
 ### Target State (12-18 Month Horizon)
 
-| Metric | Target | Implied Change |
-|--------|--------|----------------|
-| Monthly Recurring Revenue | $[X]K MRR | [X]x current |
-| Active Customers | [X] | [X]x current |
-| Team Size | [X] people | [X] net new hires |
-| Key Milestone | [e.g., Series A / Profitability / Enterprise motion launched] | |
-| Infrastructure Load | [X] concurrent users | Load test target: [2x this number] |
+| Metric                    | Target                                                        | Implied Change                     |
+| ------------------------- | ------------------------------------------------------------- | ---------------------------------- |
+| Monthly Recurring Revenue | $[X]K MRR                                                     | [X]x current                       |
+| Active Customers          | [X]                                                           | [X]x current                       |
+| Team Size                 | [X] people                                                    | [X] net new hires                  |
+| Key Milestone             | [e.g., Series A / Profitability / Enterprise motion launched] |                                    |
+| Infrastructure Load       | [X] concurrent users                                          | Load test target: [2x this number] |
 
 ---
 
 ### DIMENSION 1: Team, Hiring, and Organization
 
-| # | Item | Current Status | Priority | Specific Action Required | Owner | Target Date |
-|---|------|---------------|----------|--------------------------|-------|-------------|
-| 1.1 | Single points of failure identified and mitigated | [Exists / Partial / Missing] | [Must Have Before / Build During / Build After] | [Action] | [Name] | [Date] |
-| 1.2 | Org chart documented for target scale | | | | | |
-| 1.3 | Critical hire pipeline active (roles defined) | | | | | |
-| 1.4 | Structured interview process per role | | | | | |
-| 1.5 | 30-day onboarding checklist for each role | | | | | |
-| 1.6 | Management layer in place or planned | | | | | |
-| 1.7 | Compensation bands and equity plan documented | | | | | |
-| 1.8 | Culture values written and used in hiring | | | | | |
-| 1.9 | Founder's time allocation mapped; delegation list created | | | | | |
-| 1.10 | Employment agreements for all team members signed | | | | | |
+| #    | Item                                                      | Current Status               | Priority                                        | Specific Action Required | Owner  | Target Date |
+| ---- | --------------------------------------------------------- | ---------------------------- | ----------------------------------------------- | ------------------------ | ------ | ----------- |
+| 1.1  | Single points of failure identified and mitigated         | [Exists / Partial / Missing] | [Must Have Before / Build During / Build After] | [Action]                 | [Name] | [Date]      |
+| 1.2  | Org chart documented for target scale                     |                              |                                                 |                          |        |             |
+| 1.3  | Critical hire pipeline active (roles defined)             |                              |                                                 |                          |        |             |
+| 1.4  | Structured interview process per role                     |                              |                                                 |                          |        |             |
+| 1.5  | 30-day onboarding checklist for each role                 |                              |                                                 |                          |        |             |
+| 1.6  | Management layer in place or planned                      |                              |                                                 |                          |        |             |
+| 1.7  | Compensation bands and equity plan documented             |                              |                                                 |                          |        |             |
+| 1.8  | Culture values written and used in hiring                 |                              |                                                 |                          |        |             |
+| 1.9  | Founder's time allocation mapped; delegation list created |                              |                                                 |                          |        |             |
+| 1.10 | Employment agreements for all team members signed         |                              |                                                 |                          |        |             |
 
 **Dimension 1 Blocking Issues:**
 [List any items scored "Must Have Before" that are currently Missing -- these must be resolved before scaling begins]
@@ -181,20 +184,20 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### DIMENSION 2: Systems and Technical Infrastructure
 
-| # | Item | Current Status | Priority | Specific Action Required | Owner | Target Date |
-|---|------|---------------|----------|--------------------------|-------|-------------|
-| 2.1 | Load test completed at 2x 12-month target user count | | | | | |
-| 2.2 | Uptime monitoring and alerting active (target: 99.9%) | | | | | |
-| 2.3 | Automated backups with tested restore process | | | | | |
-| 2.4 | Disaster recovery runbook documented | | | | | |
-| 2.5 | CRM implemented with defined pipeline stages | | | | | |
-| 2.6 | Support ticketing system with SLA enforcement | | | | | |
-| 2.7 | Metrics dashboard (MRR, churn, CAC, NPS) -- daily update | | | | | |
-| 2.8 | Role-based access controls and offboarding process | | | | | |
-| 2.9 | External penetration test within last 12 months | | | | | |
-| 2.10 | Vendor contracts reviewed for scale (cloud, payments, email) | | | | | |
-| 2.11 | Data backup and encryption (in transit and at rest) confirmed | | | | | |
-| 2.12 | Infrastructure cost projection at target scale calculated | | | | | |
+| #    | Item                                                          | Current Status | Priority | Specific Action Required | Owner | Target Date |
+| ---- | ------------------------------------------------------------- | -------------- | -------- | ------------------------ | ----- | ----------- |
+| 2.1  | Load test completed at 2x 12-month target user count          |                |          |                          |       |             |
+| 2.2  | Uptime monitoring and alerting active (target: 99.9%)         |                |          |                          |       |             |
+| 2.3  | Automated backups with tested restore process                 |                |          |                          |       |             |
+| 2.4  | Disaster recovery runbook documented                          |                |          |                          |       |             |
+| 2.5  | CRM implemented with defined pipeline stages                  |                |          |                          |       |             |
+| 2.6  | Support ticketing system with SLA enforcement                 |                |          |                          |       |             |
+| 2.7  | Metrics dashboard (MRR, churn, CAC, NPS) -- daily update      |                |          |                          |       |             |
+| 2.8  | Role-based access controls and offboarding process            |                |          |                          |       |             |
+| 2.9  | External penetration test within last 12 months               |                |          |                          |       |             |
+| 2.10 | Vendor contracts reviewed for scale (cloud, payments, email)  |                |          |                          |       |             |
+| 2.11 | Data backup and encryption (in transit and at rest) confirmed |                |          |                          |       |             |
+| 2.12 | Infrastructure cost projection at target scale calculated     |                |          |                          |       |             |
 
 **Dimension 2 Blocking Issues:**
 [List blocking items]
@@ -203,18 +206,18 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### DIMENSION 3: Processes and Documentation
 
-| # | Item | Current Status | Priority | Specific Action Required | Owner | Target Date |
-|---|------|---------------|----------|--------------------------|-------|-------------|
-| 3.1 | Customer onboarding process documented (target: TTV < 7 days) | | | | | |
-| 3.2 | Support tiers and SLAs defined (P1/P2/P3 response times) | | | | | |
-| 3.3 | Sales playbook documented (ICP, discovery, objections, demo) | | | | | |
-| 3.4 | Product release process with defined quality gates | | | | | |
-| 3.5 | Decision rights matrix (who approves what at what threshold) | | | | | |
-| 3.6 | Incident response runbook (severity levels, escalation, comms) | | | | | |
-| 3.7 | Internal knowledge base or wiki started | | | | | |
-| 3.8 | Company-wide communication rhythm defined (standups, all-hands) | | | | | |
-| 3.9 | Bus test completed -- all critical processes documented | | | | | |
-| 3.10 | Post-mortem process for incidents and sales losses | | | | | |
+| #    | Item                                                            | Current Status | Priority | Specific Action Required | Owner | Target Date |
+| ---- | --------------------------------------------------------------- | -------------- | -------- | ------------------------ | ----- | ----------- |
+| 3.1  | Customer onboarding process documented (target: TTV < 7 days)   |                |          |                          |       |             |
+| 3.2  | Support tiers and SLAs defined (P1/P2/P3 response times)        |                |          |                          |       |             |
+| 3.3  | Sales playbook documented (ICP, discovery, objections, demo)    |                |          |                          |       |             |
+| 3.4  | Product release process with defined quality gates              |                |          |                          |       |             |
+| 3.5  | Decision rights matrix (who approves what at what threshold)    |                |          |                          |       |             |
+| 3.6  | Incident response runbook (severity levels, escalation, comms)  |                |          |                          |       |             |
+| 3.7  | Internal knowledge base or wiki started                         |                |          |                          |       |             |
+| 3.8  | Company-wide communication rhythm defined (standups, all-hands) |                |          |                          |       |             |
+| 3.9  | Bus test completed -- all critical processes documented         |                |          |                          |       |             |
+| 3.10 | Post-mortem process for incidents and sales losses              |                |          |                          |       |             |
 
 **Dimension 3 Blocking Issues:**
 [List blocking items]
@@ -223,19 +226,19 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### DIMENSION 4: Finance, Unit Economics, and Cash Management
 
-| # | Item | Current Status | Priority | Specific Action Required | Owner | Target Date |
-|---|------|---------------|----------|--------------------------|-------|-------------|
-| 4.1 | Gross margin calculated and above threshold ([70%+ SaaS]) | | | | | |
-| 4.2 | CAC calculated by channel (not blended total) | | | | | |
-| 4.3 | LTV:CAC ratio above 3:1 | | | | | |
-| 4.4 | CAC payback period under 18 months | | | | | |
-| 4.5 | 18-month cash flow forecast (3 scenarios) | | | | | |
-| 4.6 | Monthly close process under 5 business days | | | | | |
-| 4.7 | Budget by department with budget-vs-actual reporting | | | | | |
-| 4.8 | Deferred revenue accounting correct (ASC 606) | | | | | |
-| 4.9 | Headcount plan with loaded cost and productivity ramp | | | | | |
-| 4.10 | Tax filings current; entity structure reviewed | | | | | |
-| 4.11 | Revenue concentration risk assessed (no customer >20% of ARR) | | | | | |
+| #    | Item                                                          | Current Status | Priority | Specific Action Required | Owner | Target Date |
+| ---- | ------------------------------------------------------------- | -------------- | -------- | ------------------------ | ----- | ----------- |
+| 4.1  | Gross margin calculated and above threshold ([70%+ SaaS])     |                |          |                          |       |             |
+| 4.2  | CAC calculated by channel (not blended total)                 |                |          |                          |       |             |
+| 4.3  | LTV:CAC ratio above 3:1                                       |                |          |                          |       |             |
+| 4.4  | CAC payback period under 18 months                            |                |          |                          |       |             |
+| 4.5  | 18-month cash flow forecast (3 scenarios)                     |                |          |                          |       |             |
+| 4.6  | Monthly close process under 5 business days                   |                |          |                          |       |             |
+| 4.7  | Budget by department with budget-vs-actual reporting          |                |          |                          |       |             |
+| 4.8  | Deferred revenue accounting correct (ASC 606)                 |                |          |                          |       |             |
+| 4.9  | Headcount plan with loaded cost and productivity ramp         |                |          |                          |       |             |
+| 4.10 | Tax filings current; entity structure reviewed                |                |          |                          |       |             |
+| 4.11 | Revenue concentration risk assessed (no customer >20% of ARR) |                |          |                          |       |             |
 
 **Dimension 4 Blocking Issues:**
 [List blocking items]
@@ -244,18 +247,18 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### DIMENSION 5: Legal and Compliance
 
-| # | Item | Current Status | Priority | Specific Action Required | Owner | Target Date |
-|---|------|---------------|----------|--------------------------|-------|-------------|
-| 5.1 | Entity structure appropriate for target scale and investors | | | | | |
-| 5.2 | IP assignment agreements (PIIA) signed by all founders, employees, contractors | | | | | |
-| 5.3 | Trademarks filed for brand and product name | | | | | |
-| 5.4 | Customer contracts reviewed -- liability caps, SLAs, MFN clauses | | | | | |
-| 5.5 | Data processing agreements (DPA) executed with enterprise customers | | | | | |
-| 5.6 | Privacy policy current and compliant (GDPR / CCPA as applicable) | | | | | |
-| 5.7 | Employment law compliance plan for next headcount threshold | | | | | |
-| 5.8 | Business insurance: GL, E&O, Cyber, D&O in place | | | | | |
-| 5.9 | Vendor agreements for critical vendors reviewed by counsel | | | | | |
-| 5.10 | Employee handbook updated to current team size and regulations | | | | | |
+| #    | Item                                                                           | Current Status | Priority | Specific Action Required | Owner | Target Date |
+| ---- | ------------------------------------------------------------------------------ | -------------- | -------- | ------------------------ | ----- | ----------- |
+| 5.1  | Entity structure appropriate for target scale and investors                    |                |          |                          |       |             |
+| 5.2  | IP assignment agreements (PIIA) signed by all founders, employees, contractors |                |          |                          |       |             |
+| 5.3  | Trademarks filed for brand and product name                                    |                |          |                          |       |             |
+| 5.4  | Customer contracts reviewed -- liability caps, SLAs, MFN clauses               |                |          |                          |       |             |
+| 5.5  | Data processing agreements (DPA) executed with enterprise customers            |                |          |                          |       |             |
+| 5.6  | Privacy policy current and compliant (GDPR / CCPA as applicable)               |                |          |                          |       |             |
+| 5.7  | Employment law compliance plan for next headcount threshold                    |                |          |                          |       |             |
+| 5.8  | Business insurance: GL, E&O, Cyber, D&O in place                               |                |          |                          |       |             |
+| 5.9  | Vendor agreements for critical vendors reviewed by counsel                     |                |          |                          |       |             |
+| 5.10 | Employee handbook updated to current team size and regulations                 |                |          |                          |       |             |
 
 **Dimension 5 Blocking Issues:**
 [List blocking items]
@@ -264,18 +267,18 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### DIMENSION 6: Customer Success, Retention, and Expansion
 
-| # | Item | Current Status | Priority | Specific Action Required | Owner | Target Date |
-|---|------|---------------|----------|--------------------------|-------|-------------|
-| 6.1 | Monthly logo churn calculated and benchmarked | | | | | |
-| 6.2 | Net revenue retention calculated (target: >110% for B2B SaaS) | | | | | |
-| 6.3 | Customer health scoring model in place | | | | | |
-| 6.4 | At-risk customer list current and assigned | | | | | |
-| 6.5 | Customer feedback loop with closed-loop action process | | | | | |
-| 6.6 | Expansion revenue motion defined (triggers, process, owner) | | | | | |
-| 6.7 | Customer reference program (5+ reference-ready customers) | | | | | |
-| 6.8 | Case studies or testimonials published | | | | | |
-| 6.9 | QBR (quarterly business review) process for key accounts | | | | | |
-| 6.10 | CS team capacity assessed against 12-month customer target | | | | | |
+| #    | Item                                                          | Current Status | Priority | Specific Action Required | Owner | Target Date |
+| ---- | ------------------------------------------------------------- | -------------- | -------- | ------------------------ | ----- | ----------- |
+| 6.1  | Monthly logo churn calculated and benchmarked                 |                |          |                          |       |             |
+| 6.2  | Net revenue retention calculated (target: >110% for B2B SaaS) |                |          |                          |       |             |
+| 6.3  | Customer health scoring model in place                        |                |          |                          |       |             |
+| 6.4  | At-risk customer list current and assigned                    |                |          |                          |       |             |
+| 6.5  | Customer feedback loop with closed-loop action process        |                |          |                          |       |             |
+| 6.6  | Expansion revenue motion defined (triggers, process, owner)   |                |          |                          |       |             |
+| 6.7  | Customer reference program (5+ reference-ready customers)     |                |          |                          |       |             |
+| 6.8  | Case studies or testimonials published                        |                |          |                          |       |             |
+| 6.9  | QBR (quarterly business review) process for key accounts      |                |          |                          |       |             |
+| 6.10 | CS team capacity assessed against 12-month customer target    |                |          |                          |       |             |
 
 **Dimension 6 Blocking Issues:**
 [List blocking items]
@@ -284,17 +287,18 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### Scaling Readiness Score
 
-| Dimension | Must-Have Items | Must-Have Complete | Build-During Items | Build-After Items | Blocking Issues |
-|-----------|----------------|-------------------|--------------------|--------------------|-----------------|
-| 1. Team and Hiring | [X] | [Y] ([Z]%) | [X] | [X] | [Count] |
-| 2. Systems / Infrastructure | [X] | [Y] ([Z]%) | [X] | [X] | [Count] |
-| 3. Processes / Docs | [X] | [Y] ([Z]%) | [X] | [X] | [Count] |
-| 4. Finance / Unit Economics | [X] | [Y] ([Z]%) | [X] | [X] | [Count] |
-| 5. Legal / Compliance | [X] | [Y] ([Z]%) | [X] | [X] | [Count] |
-| 6. Customer Success | [X] | [Y] ([Z]%) | [X] | [X] | [Count] |
-| **OVERALL** | **[X]** | **[Y] ([Z]%)** | | | **[Total blockers]** |
+| Dimension                   | Must-Have Items | Must-Have Complete | Build-During Items | Build-After Items | Blocking Issues      |
+| --------------------------- | --------------- | ------------------ | ------------------ | ----------------- | -------------------- |
+| 1. Team and Hiring          | [X]             | [Y] ([Z]%)         | [X]                | [X]               | [Count]              |
+| 2. Systems / Infrastructure | [X]             | [Y] ([Z]%)         | [X]                | [X]               | [Count]              |
+| 3. Processes / Docs         | [X]             | [Y] ([Z]%)         | [X]                | [X]               | [Count]              |
+| 4. Finance / Unit Economics | [X]             | [Y] ([Z]%)         | [X]                | [X]               | [Count]              |
+| 5. Legal / Compliance       | [X]             | [Y] ([Z]%)         | [X]                | [X]               | [Count]              |
+| 6. Customer Success         | [X]             | [Y] ([Z]%)         | [X]                | [X]               | [Count]              |
+| **OVERALL**                 | **[X]**         | **[Y] ([Z]%)**     |                    |                   | **[Total blockers]** |
 
 **Scaling Readiness Verdict:**
+
 - [Green]: 90%+ of Must-Have items complete, 0 blocking issues -- ready to scale
 - [Yellow]: 70-89% of Must-Have items complete, or 1-3 blocking issues -- scale with caution, resolve blockers within 30 days
 - [Red]: Below 70% of Must-Have items complete, or 4+ blocking issues -- do not accelerate scaling until blockers are resolved
@@ -303,11 +307,11 @@ Retention is the foundation of the scaling math. A SaaS business with 5% monthly
 
 ### 90-Day Scaling Readiness Roadmap
 
-| Phase | Days | Objective | Top 5 Actions | Success Criteria |
-|-------|------|-----------|---------------|-----------------|
-| Phase 1: Stabilize and Unblock | 1-30 | Resolve all blocking issues; start critical hires | [Action 1-5] | All blocking issues resolved; offers extended for critical hires |
-| Phase 2: Build and Document | 31-60 | Complete process documentation; implement core systems | [Action 1-5] | Sales playbook complete; onboarding documented; CRM live |
-| Phase 3: Test and Launch | 61-90 | Validate at target load; train team; launch scaled motion | [Action 1-5] | Infrastructure load tested; new hires onboarded; first scaled sales sprint complete |
+| Phase                          | Days  | Objective                                                 | Top 5 Actions | Success Criteria                                                                    |
+| ------------------------------ | ----- | --------------------------------------------------------- | ------------- | ----------------------------------------------------------------------------------- |
+| Phase 1: Stabilize and Unblock | 1-30  | Resolve all blocking issues; start critical hires         | [Action 1-5]  | All blocking issues resolved; offers extended for critical hires                    |
+| Phase 2: Build and Document    | 31-60 | Complete process documentation; implement core systems    | [Action 1-5]  | Sales playbook complete; onboarding documented; CRM live                            |
+| Phase 3: Test and Launch       | 61-90 | Validate at target load; train team; launch scaled motion | [Action 1-5]  | Infrastructure load tested; new hires onboarded; first scaled sales sprint complete |
 
 **Go/No-Go Checkpoint (Day 90):**
 Proceed with full scaled operations when: (1) all Must-Have items are complete, (2) no Blocking Issues remain open, and (3) the team has been trained on the new processes and systems. If any blocker remains open at Day 90, extend the readiness phase by 30 days and reassign ownership with daily tracking.
@@ -344,7 +348,9 @@ Proceed with full scaled operations when: (1) all Must-Have items are complete, 
 ## Edge Cases
 
 ### Services or Agency Business Scaling
+
 Services businesses (consulting, agencies, managed services) scale on people, not technology. The primary constraint is delivery capacity, and the primary risk is quality dilution as the team grows beyond the founder's direct supervision.
+
 - The revenue-per-employee ratio is the key efficiency metric -- for professional services, a healthy target is $150K-$250K in revenue per full-time employee; below $100K suggests either pricing is too low or utilization is too low
 - Documented delivery methodology is non-negotiable before scaling: every service delivered must follow a written process that a trained new hire can execute at the same quality level as the founder
 - The checklist should include a utilization rate target (typically 65-75% billable hours for a consulting firm) and a tracking mechanism for each billable staff member
@@ -352,34 +358,44 @@ Services businesses (consulting, agencies, managed services) scale on people, no
 - Hiring infrastructure for a services business includes: a skill-based competency framework for each role, a formal training program for new consultants, a peer review or QA process for client deliverables, and a shadowing or mentorship program to transmit tacit knowledge from senior to junior staff
 
 ### Marketplace Business Scaling (Two-Sided Network)
+
 Marketplaces have two separate scaling problems -- supply side and demand side -- and scaling them out of balance destroys liquidity and user experience.
+
 - Before scaling, calculate the liquidity rate (percentage of listings or supply units that successfully transact within a given period); a liquidity rate below 20-30% indicates a supply glut and the priority should be demand, not more supply
 - The checklist must separately assess supply-side and demand-side readiness because they have different bottlenecks, different unit economics, and different team requirements
 - Trust and safety infrastructure becomes critical at scale: fraud detection, identity verification, dispute resolution processes, and review integrity systems must be designed before the marketplace reaches the scale where bad actors find it worth attacking
 - Include network density by geography or category in the checklist -- a marketplace that is barely liquid at the national level is deeply illiquid at the local level; geographic or vertical expansion strategy must be decided before scaling marketing spend
 
 ### Hardware or Physical Product Business Scaling
+
 Physical product businesses face irreversible scaling decisions: manufacturing commitments, inventory purchases, and supply chain investments must be made months before the product reaches customers.
+
 - The checklist must include a manufacturing lead time analysis -- if the lead time from order to delivery is 12 weeks, the inventory purchase decision for Q4 must be made in Q1; this creates a fundamentally different planning cadence than software
 - Supplier concentration is an existential risk: a business whose entire product depends on a single supplier is one supply disruption away from being unable to fulfill orders; the checklist should require either dual-sourcing or a documented contingency plan for each single-source component
 - Quality control at volume is different from quality control in limited runs: document the inspection and testing process for each product before scaling manufacturing volumes, and define the acceptable defect rate and return rate thresholds that will trigger a production halt
 - Cash flow management is more complex for hardware because of the large working capital requirement: inventory must be purchased before it can be sold; model the working capital cycle explicitly and ensure the business has access to inventory financing or has raised capital sufficient to fund the inventory build
 
 ### Heavily Regulated Industry (Fintech, Healthtech, Legaltech, Edtech)
+
 In regulated industries, compliance is not a parallel track -- it is the main track. Scaling without regulatory infrastructure creates existential risk that cannot be remediated retroactively.
+
 - Identify every applicable regulatory framework before building the checklist: a fintech processing payments may face PCI DSS, FinCEN/AML requirements, state money transmission licenses, and federal banking regulations simultaneously; each has specific operational requirements that must be implemented, not planned
 - Compliance gaps are not "build after" items in regulated industries -- they are "must have before" items even if they are expensive and slow; a fintech that scales its transaction volume before completing its AML program is creating regulatory liability that can result in forced shutdown
 - The checklist must include a compliance officer or compliance function: at scale, regulatory compliance cannot be managed part-time by a non-specialist; budget for a Head of Compliance as an early hire in regulated industries, not a later one
 - Audit readiness is a continuous state: the business must maintain documentation, logging, and controls that would withstand a regulatory examination at any point -- not just when an examination is scheduled
 
 ### Solo Founder Scaling Past Personal Bandwidth Limit
+
 Solo founders often reach a moment where they are simultaneously the bottleneck for every function and unable to delegate because nothing is documented. This is a specific scaling failure mode that requires a specific intervention sequence.
+
 - The first action is a time audit, not a hiring plan: the founder should track how they spend every hour for two weeks and categorize each activity as (1) only I can do this now, (2) this should be delegated but is not documented, or (3) this should already not be mine; Categories 2 and 3 become the documentation and delegation priority list
 - The first two hires must be sequenced to create the maximum delegation: typically this means hiring an operations generalist or executive assistant first (to take over Category 3 tasks immediately) and then a senior individual contributor in the highest-revenue-impact function second
 - The founder must explicitly define which decisions require their involvement versus which can be delegated with defined parameters: pricing exceptions above $X require founder approval; engineering architecture decisions require CTO (or senior engineer) approval; all other product decisions are delegated -- without this framework, a growing team will escalate everything to the founder, recreating the bottleneck even after hiring
 
 ### Business with Revenue Concentration Risk
+
 A business where one or two customers represent more than 30% of ARR has a structural risk that must be addressed before scaling.
+
 - Scaling a business with 40% customer concentration does not reduce concentration risk -- it may temporarily reduce the percentage, but the underlying dependency on a small number of customers creates fragility that investors and acquirers penalize heavily
 - The checklist for a concentrated business must include: a retention program specifically for the top 2-3 customers (executive relationships, dedicated success resources, custom roadmap input), a deliberate diversification timeline (target reducing top-3 concentration to below 20% of ARR within 12 months), and a financial contingency plan if the largest customer churns
 - Revenue concentration also affects product roadmap decisions in ways that harm scalability: a business that builds too many features for its largest customer at the expense of the broader market creates a product that is hard to sell to new customers; the checklist should include a product roadmap review to ensure custom work for large customers is not cannibalizing the scalable product
@@ -400,27 +416,27 @@ A business where one or two customers represent more than 30% of ARR has a struc
 
 ### Current State Snapshot
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Monthly Recurring Revenue | $42K MRR | $504K ARR |
-| MoM Revenue Growth Rate | 12% | Strong -- but founder-dependent sales motion is the ceiling |
-| Active Customers | 65 | Logo count |
-| Average Contract Value | ~$646/customer/mo | Estimated; verify actual ACV distribution |
-| Net Revenue Retention | Unknown -- must calculate immediately | This is Priority 1 data |
-| Team Size | 6 (3 eng, 1 CEO/sales, 1 CS, 1 PT marketing) | Founder is only salesperson -- single point of failure |
-| Runway (post-seed) | ~20 months at current burn | Assumes $75K/mo burn with planned hires |
-| Infrastructure Cost per Customer | Unknown -- must calculate | Gross margin implication |
+| Metric                           | Value                                        | Notes                                                       |
+| -------------------------------- | -------------------------------------------- | ----------------------------------------------------------- |
+| Monthly Recurring Revenue        | $42K MRR                                     | $504K ARR                                                   |
+| MoM Revenue Growth Rate          | 12%                                          | Strong -- but founder-dependent sales motion is the ceiling |
+| Active Customers                 | 65                                           | Logo count                                                  |
+| Average Contract Value           | ~$646/customer/mo                            | Estimated; verify actual ACV distribution                   |
+| Net Revenue Retention            | Unknown -- must calculate immediately        | This is Priority 1 data                                     |
+| Team Size                        | 6 (3 eng, 1 CEO/sales, 1 CS, 1 PT marketing) | Founder is only salesperson -- single point of failure      |
+| Runway (post-seed)               | ~20 months at current burn                   | Assumes $75K/mo burn with planned hires                     |
+| Infrastructure Cost per Customer | Unknown -- must calculate                    | Gross margin implication                                    |
 
 ### Target State (14-Month Horizon)
 
-| Metric | Target | Implied Change |
-|--------|--------|----------------|
-| MRR | $180K MRR | 4.3x current |
-| ARR | $2.16M ARR | Series A benchmark zone |
-| Active Customers | 250 | 3.8x current |
-| Team | 14-16 people | 8-10 net new hires |
-| Implied Org | CEO, VP Sales, 2-3 AEs, CS Lead + 2 CSMs, 5 Engineers, Head of Ops/Finance | |
-| Infrastructure Load | 250 customers at full usage | Load test target: 500 concurrent accounts |
+| Metric              | Target                                                                     | Implied Change                            |
+| ------------------- | -------------------------------------------------------------------------- | ----------------------------------------- |
+| MRR                 | $180K MRR                                                                  | 4.3x current                              |
+| ARR                 | $2.16M ARR                                                                 | Series A benchmark zone                   |
+| Active Customers    | 250                                                                        | 3.8x current                              |
+| Team                | 14-16 people                                                               | 8-10 net new hires                        |
+| Implied Org         | CEO, VP Sales, 2-3 AEs, CS Lead + 2 CSMs, 5 Engineers, Head of Ops/Finance |                                           |
+| Infrastructure Load | 250 customers at full usage                                                | Load test target: 500 concurrent accounts |
 
 **Critical Math Check:** Growing from $42K to $180K MRR in 14 months at 12% MoM growth actually gets you to approximately $200K MRR -- the organic growth trajectory is on track, but only if the sales bottleneck (founder as only salesperson) is resolved immediately. If growth decelerates to 8% per month because the founder's sales capacity is exhausted, the business reaches only $120K MRR -- $60K short of target. **Hiring a second salesperson is the highest-leverage action in the entire checklist.**
 
@@ -428,25 +444,25 @@ A business where one or two customers represent more than 30% of ARR has a struc
 
 ### TOP PRIORITY ITEMS -- Blocking Issues to Resolve in 30 Days
 
-| # | Dimension | Item | Why It Blocks Scaling | Immediate Action |
-|---|-----------|------|----------------------|-----------------|
-| B1 | Team | Founder is sole salesperson | Sales capacity is capped at founder's personal bandwidth; already limiting 12% growth rate | Post VP Sales or AE job description this week; target hire in 45 days |
-| B2 | Finance | NRR not calculated | Cannot validate scaling economics without knowing if you are retaining and expanding revenue | Pull data from billing system; calculate cohort retention by month; do this before anything else |
-| B3 | Process | Sales process not documented | A second salesperson cannot be effective without a written ICP, discovery framework, demo script, and objection handling guide | 2-week project to document the current founder sales motion end to end |
-| B4 | Systems | No metrics dashboard | At 4x customers, decisions cannot be made on intuition; MRR, churn, CAC, and NPS must be visible in a dashboard updated daily | Implement Metabase or Looker Studio pulling from billing system within 30 days |
-| B5 | Legal | IP assignment status unknown | If any engineer or contractor created product code without a signed PIIA, the company may not own its own IP -- a fatal Series A diligence defect | Audit all employment agreements and contractor agreements this week; have counsel cure any gaps immediately |
+| #   | Dimension | Item                         | Why It Blocks Scaling                                                                                                                             | Immediate Action                                                                                            |
+| --- | --------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| B1  | Team      | Founder is sole salesperson  | Sales capacity is capped at founder's personal bandwidth; already limiting 12% growth rate                                                        | Post VP Sales or AE job description this week; target hire in 45 days                                       |
+| B2  | Finance   | NRR not calculated           | Cannot validate scaling economics without knowing if you are retaining and expanding revenue                                                      | Pull data from billing system; calculate cohort retention by month; do this before anything else            |
+| B3  | Process   | Sales process not documented | A second salesperson cannot be effective without a written ICP, discovery framework, demo script, and objection handling guide                    | 2-week project to document the current founder sales motion end to end                                      |
+| B4  | Systems   | No metrics dashboard         | At 4x customers, decisions cannot be made on intuition; MRR, churn, CAC, and NPS must be visible in a dashboard updated daily                     | Implement Metabase or Looker Studio pulling from billing system within 30 days                              |
+| B5  | Legal     | IP assignment status unknown | If any engineer or contractor created product code without a signed PIIA, the company may not own its own IP -- a fatal Series A diligence defect | Audit all employment agreements and contractor agreements this week; have counsel cure any gaps immediately |
 
 ---
 
 ### DIMENSION 1: Team, Hiring, and Organization
 
-| # | Item | Current Status | Priority | Specific Action Required | Target Date |
-|---|------|---------------|----------|--------------------------|-------------|
-| 1.1 | Founder's sales role delegated to a dedicated salesperson | Missing -- BLOCKING | Must Have Before | Hire AE or VP Sales within 45 days; document current sales process first | Day 45 |
-| 1.2 | Customer Success capacity assessed for 250-customer load | Partial -- 1 CSM for 65 customers; ratio will break at 150+ | Must Have Before | Plan CS hire #2 by Month 3; current CSM can support up to ~120 customers | Month 3 |
-| 1.3 | Engineering capacity for product and infrastructure at 4x load | Partial -- 3 engineers; no dedicated infrastructure owner | Build During | Hire senior engineer or DevOps engineer by Month 2 to own infrastructure | Month 2 |
-| 1.4 | Org chart documented for 12-month target state | Missing | Must Have Before | Draw the 14-month org chart this week; use it to sequence hires | Day 14 |
-| 1.5 | Structured interview process per role | Missing | Must Have Before | Build interview scorecard for first 3 hires before sourcing begins | Day 7 |
-| 1.6 | Onboarding checklist for each new hire role | Missing | Must Have Before | Build 30-60-90 day plan template; customize for first hire before they start | Day 30 |
-| 1.7 | Compensation bands defined for all planned roles | Missing | Must Have Before | Benchmark market salaries using public SaaS comp data; define ranges for each role | Day 14 |
-| 1.8 | Equity plan and remaining option pool documented | Unknown | Must Have Before | Confirm option pool size from cap table; document vesting schedule; have
+| #   | Item                                                           | Current Status                                              | Priority         | Specific Action Required                                                           | Target Date |
+| --- | -------------------------------------------------------------- | ----------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------- | ----------- |
+| 1.1 | Founder's sales role delegated to a dedicated salesperson      | Missing -- BLOCKING                                         | Must Have Before | Hire AE or VP Sales within 45 days; document current sales process first           | Day 45      |
+| 1.2 | Customer Success capacity assessed for 250-customer load       | Partial -- 1 CSM for 65 customers; ratio will break at 150+ | Must Have Before | Plan CS hire #2 by Month 3; current CSM can support up to ~120 customers           | Month 3     |
+| 1.3 | Engineering capacity for product and infrastructure at 4x load | Partial -- 3 engineers; no dedicated infrastructure owner   | Build During     | Hire senior engineer or DevOps engineer by Month 2 to own infrastructure           | Month 2     |
+| 1.4 | Org chart documented for 12-month target state                 | Missing                                                     | Must Have Before | Draw the 14-month org chart this week; use it to sequence hires                    | Day 14      |
+| 1.5 | Structured interview process per role                          | Missing                                                     | Must Have Before | Build interview scorecard for first 3 hires before sourcing begins                 | Day 7       |
+| 1.6 | Onboarding checklist for each new hire role                    | Missing                                                     | Must Have Before | Build 30-60-90 day plan template; customize for first hire before they start       | Day 30      |
+| 1.7 | Compensation bands defined for all planned roles               | Missing                                                     | Must Have Before | Benchmark market salaries using public SaaS comp data; define ranges for each role | Day 14      |
+| 1.8 | Equity plan and remaining option pool documented               | Unknown                                                     | Must Have Before | Confirm option pool size from cap table; document vesting schedule; have           |

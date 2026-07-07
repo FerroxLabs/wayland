@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing entrepreneurship strategy"
-  category: "marketing-sales"
-  subcategory: "seo-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing entrepreneurship strategy'
+  category: 'marketing-sales'
+  subcategory: 'seo-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Patreon Strategist
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on patreon strategist
 - User asks about patreon strategist best practices or techniques
 - User wants a structured approach to patreon strategist
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of patreon strategist
 
@@ -99,6 +100,7 @@ TIER 3: The Superfan ($25-50/month)
 ### Tier Design by Creator Type
 
 **Podcasters:**
+
 ```
 $5:  Ad-free episodes + bonus mini-episodes
 $10: Extended interviews + monthly patron hangout
@@ -106,6 +108,7 @@ $25: Choose a topic + name in credits + annual merch
 ```
 
 **Visual Artists/Illustrators:**
+
 ```
 $3:  WIP posts + process videos
 $10: High-res downloads + monthly wallpaper pack
@@ -114,6 +117,7 @@ $50: Monthly custom illustration (limit 10 patrons)
 ```
 
 **Writers:**
+
 ```
 $5:  Early access + draft previews
 $10: Exclusive essays/stories + writing process posts
@@ -122,6 +126,7 @@ $50: 30-minute monthly call + personalized feedback
 ```
 
 **Video Creators:**
+
 ```
 $3:  Behind-the-scenes + bloopers
 $10: Extended cuts + patron-only vlogs
@@ -130,6 +135,7 @@ $50: Submit video ideas + quarterly 1-on-1
 ```
 
 **Musicians:**
+
 ```
 $3:  Early access to releases + studio updates
 $10: Unreleased tracks + stems/instrumentals
@@ -141,16 +147,16 @@ $50: Personalized song/performance (limit 5)
 
 ### The Fulfillment Matrix
 
-| Reward Type | Effort Level | Scalability | Patron Satisfaction |
-|-------------|-------------|-------------|-------------------|
-| Digital content (posts, files) | Low | High | Medium |
-| Early access | Very Low | Very High | Medium-High |
-| Behind-the-scenes | Low | High | Medium |
-| Community access | Low (setup) | High | High |
-| Live events/calls | Medium | Medium | Very High |
-| Physical merchandise | Very High | Low | High |
-| Personalized content | Very High | Very Low | Very High |
-| 1-on-1 time | Very High | Very Low | Very High |
+| Reward Type                    | Effort Level | Scalability | Patron Satisfaction |
+| ------------------------------ | ------------ | ----------- | ------------------- |
+| Digital content (posts, files) | Low          | High        | Medium              |
+| Early access                   | Very Low     | Very High   | Medium-High         |
+| Behind-the-scenes              | Low          | High        | Medium              |
+| Community access               | Low (setup)  | High        | High                |
+| Live events/calls              | Medium       | Medium      | Very High           |
+| Physical merchandise           | Very High    | Low         | High                |
+| Personalized content           | Very High    | Very Low    | Very High           |
+| 1-on-1 time                    | Very High    | Very Low    | Very High           |
 
 ### Fulfillment Calendar Template
 
@@ -200,6 +206,7 @@ content  access    versions    content     content       access
 ### Exclusive Content Ideas by Format
 
 **Written:**
+
 - Extended essays that go deeper than public posts
 - First drafts with annotations
 - Reading lists and resource compilations
@@ -207,6 +214,7 @@ content  access    versions    content     content       access
 - Exclusive serialized fiction or non-fiction
 
 **Audio/Video:**
+
 - Commentary tracks over public content
 - Unedited "director's cut" episodes
 - Q&A recordings
@@ -214,6 +222,7 @@ content  access    versions    content     content       access
 - Creator journal vlogs
 
 **Visual:**
+
 - High-resolution files for printing
 - Process timelapses
 - Template and resource packs
@@ -221,6 +230,7 @@ content  access    versions    content     content       access
 - Patron-suggested pieces
 
 **Interactive:**
+
 - Polls deciding upcoming projects
 - Live creation sessions
 - Co-working streams
@@ -255,14 +265,14 @@ Server Structure for Patrons:
 
 ### Community Event Ideas
 
-| Event | Frequency | Tier Access | Effort |
-|-------|-----------|-------------|--------|
-| Patron-only live stream | Monthly | Tier 1+ | Medium |
-| Q&A session | Monthly | Tier 2+ | Low |
-| Watch/listen party | Monthly | Tier 1+ | Low |
-| Collaborative project | Quarterly | Tier 2+ | High |
-| Patron meetup (virtual) | Quarterly | All tiers | Medium |
-| Annual celebration | Yearly | All tiers | High |
+| Event                   | Frequency | Tier Access | Effort |
+| ----------------------- | --------- | ----------- | ------ |
+| Patron-only live stream | Monthly   | Tier 1+     | Medium |
+| Q&A session             | Monthly   | Tier 2+     | Low    |
+| Watch/listen party      | Monthly   | Tier 1+     | Low    |
+| Collaborative project   | Quarterly | Tier 2+     | High   |
+| Patron meetup (virtual) | Quarterly | All tiers   | Medium |
+| Annual celebration      | Yearly    | All tiers   | High   |
 
 ## Pricing Psychology
 
@@ -270,14 +280,14 @@ Server Structure for Patrons:
 
 The most popular Patreon tiers globally are $3, $5, and $10. Price points matter:
 
-| Price | Perception | Best For |
-|-------|-----------|----------|
-| $1-2 | "Tip jar" | Symbolic support, minimal expectations |
-| $3-5 | "Coffee money" | Easy decision, most common tier |
-| $10 | "Meaningful support" | Engaged fans who expect real value |
-| $15-25 | "Premium" | Dedicated supporters, significant value expected |
-| $50+ | "VIP" | Must deliver substantial personalized value |
-| $100+ | "Superfan/Patron" | Strictly limited, highly personal |
+| Price  | Perception           | Best For                                         |
+| ------ | -------------------- | ------------------------------------------------ |
+| $1-2   | "Tip jar"            | Symbolic support, minimal expectations           |
+| $3-5   | "Coffee money"       | Easy decision, most common tier                  |
+| $10    | "Meaningful support" | Engaged fans who expect real value               |
+| $15-25 | "Premium"            | Dedicated supporters, significant value expected |
+| $50+   | "VIP"                | Must deliver substantial personalized value      |
+| $100+  | "Superfan/Patron"    | Strictly limited, highly personal                |
 
 ### Pricing Strategies
 
@@ -313,6 +323,7 @@ Effective rate: ~85-92% of gross to you
 ### Setting Community Milestones
 
 Milestones create shared purpose and momentum. They should be:
+
 - **Specific**: Clear deliverable, not vague
 - **Achievable**: Next milestone should be 20-40% above current
 - **Exciting**: Something the community genuinely wants
@@ -354,6 +365,7 @@ Milestones create shared purpose and momentum. They should be:
 ### Burnout Prevention Framework
 
 **Design for Sustainability from Day 1:**
+
 ```
 Before adding any tier reward, ask:
   1. Can I deliver this every month for 2 years?
@@ -364,6 +376,7 @@ Before adding any tier reward, ask:
 ```
 
 **The Minimum Viable Patreon:**
+
 - Start with fewer rewards than you think necessary
 - It's easier to add perks than to remove them
 - Underpromise and overdeliver beats the reverse every time
@@ -394,22 +407,23 @@ This means Patreon-specific work = ~2 days per month, not daily obligation.
 
 ### Platform Comparison
 
-| Platform | Best For | Fee Structure | Key Differentiator |
-|----------|---------|--------------|-------------------|
-| Patreon | All creators | 5-12% + processing | Largest creator audience, established |
-| Ko-fi | Simple memberships | 0% (Gold: $6/mo) | No platform fee on free plan |
-| Buy Me a Coffee | One-time + memberships | 5% | Simple, friendly branding |
-| Memberful | WordPress integration | 10% or $25-100/mo | Embeds in your own site |
-| Substack | Writers | 10% | Newsletter-first approach |
-| YouTube Memberships | Video creators | 30% | Built into YouTube |
-| Twitch Subs | Streamers | 50% (Affiliate) / varies (Partner) | Built into Twitch |
-| Circle | Community-first creators | $89-399/mo flat | Full community platform |
-| Ghost | Writers/publishers | $9-199/mo flat | Newsletter + membership |
-| Gumroad Memberships | Product creators | 10% | Combine products + membership |
+| Platform            | Best For                 | Fee Structure                      | Key Differentiator                    |
+| ------------------- | ------------------------ | ---------------------------------- | ------------------------------------- |
+| Patreon             | All creators             | 5-12% + processing                 | Largest creator audience, established |
+| Ko-fi               | Simple memberships       | 0% (Gold: $6/mo)                   | No platform fee on free plan          |
+| Buy Me a Coffee     | One-time + memberships   | 5%                                 | Simple, friendly branding             |
+| Memberful           | WordPress integration    | 10% or $25-100/mo                  | Embeds in your own site               |
+| Substack            | Writers                  | 10%                                | Newsletter-first approach             |
+| YouTube Memberships | Video creators           | 30%                                | Built into YouTube                    |
+| Twitch Subs         | Streamers                | 50% (Affiliate) / varies (Partner) | Built into Twitch                     |
+| Circle              | Community-first creators | $89-399/mo flat                    | Full community platform               |
+| Ghost               | Writers/publishers       | $9-199/mo flat                     | Newsletter + membership               |
+| Gumroad Memberships | Product creators         | 10%                                | Combine products + membership         |
 
 ### When to Leave Patreon
 
 Consider alternatives if:
+
 - Patreon's fee structure significantly impacts your revenue
 - You need more community features than Patreon provides
 - Your audience is primarily on one platform that has native membership
@@ -419,6 +433,7 @@ Consider alternatives if:
 ### Migration Strategy
 
 If moving platforms:
+
 1. Communicate the move 60 days in advance
 2. Explain the benefit to patrons (better experience, more features)
 3. Offer migration incentive (bonus content, locked-in price)
@@ -463,6 +478,7 @@ Audience (social media, YouTube, podcast, blog)
 ### Understanding Churn
 
 **Average monthly churn rates:**
+
 - Healthy: 3-5%
 - Concerning: 6-10%
 - Critical: 10%+
@@ -503,7 +519,6 @@ Lifetime value:         Average months a patron stays x average pledge
 6. Next month: What will I do the same? What will I change?
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -516,13 +531,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with patreon strategist for a mid-size project."
 
 **Output:** A complete patreon strategist framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

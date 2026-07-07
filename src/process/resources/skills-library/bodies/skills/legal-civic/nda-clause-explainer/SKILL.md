@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts guide checklist"
-  category: "legal-civic"
-  subcategory: "business-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts guide checklist'
+  category: 'legal-civic'
+  subcategory: 'business-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # NDA Clause Explainer
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has received a complete or partial NDA text and wants a plain-language explanation of what each clause means and what obligations it creates
 - The user wants to understand the structural difference between a mutual NDA (both parties disclose and protect) and a unilateral NDA (one party discloses, the other protects) and what that difference means for their leverage and risk
 - The user wants to identify red flags, aggressive provisions, or missing standard carve-outs before handing the document to an attorney for negotiation
@@ -33,6 +35,7 @@ metadata:
 - The user has received an NDA in a specific business context (pre-acquisition due diligence, vendor onboarding, investor pitch, employment pre-hire, accelerator application, joint venture discussion, freelance engagement) and wants to know whether the NDA's terms are standard for that context
 
 **Do NOT use when:**
+
 - The user wants to draft NDA language or generate a new NDA from scratch -- this requires a licensed attorney and falls outside educational explanation (use a legal drafting professional)
 - The user wants a direct recommendation on whether to sign a specific NDA -- this skill explains what clauses mean and flags concerns, but the signing decision is legal advice requiring an attorney
 - The user is reviewing a general commercial contract that includes a confidentiality section but is primarily about something else (services, licensing, employment) -- use `contract-basics-explainer` for multi-topic contracts
@@ -333,6 +336,7 @@ Recommend confirming all of the above with an attorney licensed in [State].
 Pre-interview NDAs are increasingly common in technology, finance, and executive recruitment. They are appropriate when the candidate will hear genuinely confidential information during the interview process (unannounced product plans, M&A targets, financial results). They become problematic when they are so broad that the candidate is restricted from discussing their own pre-existing knowledge or career trajectory.
 
 **What to look for:**
+
 - Scope should be limited to information disclosed during the interview process, not the candidate's pre-existing knowledge about the industry
 - Duration of 1-2 years is reasonable; 5-year pre-interview NDAs are disproportionate
 - No non-compete provisions -- the candidate has not been hired and should not be restricted from employment elsewhere based on an interview
@@ -346,6 +350,7 @@ Flag any pre-interview NDA that includes non-compete provisions regardless of th
 Many venture capital firms and sophisticated angel investors decline to sign NDAs before hearing pitches. This is a market norm, not bad faith -- investors hear hundreds of pitches in similar categories and signing NDAs creates legal complexity. When a startup is asked to sign an NDA before presenting to an investor or accelerator, the concern reverses: the investor may be trying to restrict the startup from discussing its own ideas.
 
 **What to look for:**
+
 - The purpose clause must be specific to the pitch/evaluation process, not broadly stated
 - The startup is often the disclosing party -- verify that the NDA actually protects the startup's information, not only the investor's
 - Watch for unilateral NDAs where the startup is the receiver -- this is unusual in pitch contexts and may be an attempt to restrict the startup's use of information it independently developed
@@ -357,6 +362,7 @@ Many venture capital firms and sophisticated angel investors decline to sign NDA
 A one-paragraph or one-page NDA is not inherently weaker than a long one -- brevity can actually create broader obligations because the standard carve-outs that protect receiving parties are absent.
 
 **What to look for:**
+
 - Verify all five standard exclusions. One-page NDAs frequently omit the prior knowledge, independent development, and third-party source exclusions
 - Check whether there is any term limit. NDAs without an explicit term may create obligations that are indefinite by default
 - Check whether there is a compelled disclosure provision. Without it, the receiving party may be unable to comply with a subpoena without breaching the NDA
@@ -366,6 +372,7 @@ A one-paragraph or one-page NDA is not inherently weaker than a long one -- brev
 ### Mutual NDA with Asymmetric Obligations
 
 Some NDAs are titled "Mutual Confidentiality Agreement" but impose meaningfully different obligations on each party. This asymmetry can arise from:
+
 - Different definitions of confidential information for each party (Party A's CI is defined broadly; Party B's is defined by a marked-designation requirement)
 - Different survival periods (Party A's obligations survive for 5 years; Party B's survive for 2 years)
 - Different standards of care (Party A must use "best efforts"; Party B must use "reasonable efforts")
@@ -379,12 +386,14 @@ When analyzing a mutual NDA, explicitly compare the obligations of both parties 
 NDAs for pre-acquisition due diligence have specific market-standard features that differ from general business NDAs. Understanding these norms prevents treating standard M&A provisions as red flags or vice versa.
 
 **Standard in M&A NDAs that may appear aggressive in other contexts:**
+
 - Standstill provisions (12-18 months) preventing the acquirer from making unsolicited offers or acquiring shares -- completely standard
 - Non-solicitation of employees for 18-24 months -- completely standard because the acquirer gains deep visibility into key personnel
 - "Big boy" letters excluding personal injury claims from the limitation of liability -- common in sophisticated transactions
 - Specific carve-outs allowing the target to provide information to potential acquisition financing sources under separate confidentiality agreements
 
 **What is still unusual even in M&A NDAs:**
+
 - Indefinite confidentiality obligations on ALL information (not just trade secrets)
 - Non-compete provisions against the acquiring company's entire business (beyond the target's specific area)
 - Liquidated damages provisions -- M&A NDAs rarely specify pre-set damage amounts because actual harm from breach is highly fact-specific
@@ -436,19 +445,19 @@ I haven't even had a first interview yet. This seems like a lot."
 
 ### NDA Overview
 
-| Field                   | Detail                                                                                          |
-|-------------------------|-------------------------------------------------------------------------------------------------|
+| Field                   | Detail                                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------------------------- |
 | NDA Type                | Unilateral -- Company discloses; Candidate (you) protects                                      |
 | Disclosing Party        | Company (definition of "affiliates" not reported -- verify whether parent/subsidiary included) |
 | Receiving Party         | Candidate (you) -- permitted recipients not defined                                            |
-| Stated Purpose          | Interview process evaluation                                                                    |
+| Stated Purpose          | Interview process evaluation                                                                   |
 | Agreement Term          | Not a fixed term -- obligations run 5 years from date of each individual disclosure            |
 | Survival Period         | Not separately stated -- the 5-year obligation IS the duration                                 |
 | Total Obligation Window | Up to 5 years from the last disclosure made during interviews                                  |
 | Trade Secret Treatment  | Not separately addressed -- all CI treated the same                                            |
-| Governing Law           | Texas (Harris County)                                                                           |
+| Governing Law           | Texas (Harris County)                                                                          |
 | Dispute Resolution      | Harris County courts (state court jurisdiction)                                                |
-| Automatic Renewal       | Not reported                                                                                    |
+| Automatic Renewal       | Not reported                                                                                   |
 | Termination Rights      | Not reported -- unclear how agreement ends if you withdraw from process                        |
 
 ---
@@ -468,14 +477,14 @@ I haven't even had a first interview yet. This seems like a lot."
 
 #### 2. Exclusions from Confidential Information
 
-| Exclusion                          | Present? | Risk Created by Absence                                                                               |
-|------------------------------------|----------|-------------------------------------------------------------------------------------------------------|
-| Already publicly available         | No       | If Company mentions its publicly available roadmap items or open-source architecture in your call, that information is technically covered by this NDA |
-| Becomes public through no fault    | No       | If Company later has a data breach or public disclosure, you may remain bound by this NDA even though the information is now public |
+| Exclusion                          | Present? | Risk Created by Absence                                                                                                                                                        |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Already publicly available         | No       | If Company mentions its publicly available roadmap items or open-source architecture in your call, that information is technically covered by this NDA                         |
+| Becomes public through no fault    | No       | If Company later has a data breach or public disclosure, you may remain bound by this NDA even though the information is now public                                            |
 | Prior knowledge of receiving party | No       | If you already know about the Company's tech stack from public sources (GitHub repos, conference talks, tech press), using that knowledge could theoretically violate this NDA |
-| Received from third party          | No       | If a recruiter or another employee later tells you the same information outside this NDA, you may still be bound |
-| Independently developed            | No       | If you independently build or think of something similar to what you heard in the interview, you could face an accusation that you derived it from the Company's disclosure |
-| Compelled by law / court order     | No       | If you receive a subpoena or are required by law to testify, you have no contractual right to disclose without violating the NDA |
+| Received from third party          | No       | If a recruiter or another employee later tells you the same information outside this NDA, you may still be bound                                                               |
+| Independently developed            | No       | If you independently build or think of something similar to what you heard in the interview, you could face an accusation that you derived it from the Company's disclosure    |
+| Compelled by law / court order     | No       | If you receive a subpoena or are required by law to testify, you have no contractual right to disclose without violating the NDA                                               |
 
 - **Burden of proof:** Not addressed -- if disputed, you would likely bear the burden of proving an exclusion applies in litigation, without any contractual safe harbor language to rely on.
 - **Overall Exclusions Concern Level:** Critical -- all five standard exclusions are absent. This is the most significant structural problem with this NDA.
@@ -548,13 +557,13 @@ I haven't even had a first interview yet. This seems like a lot."
 
 ### Red Flags Summary
 
-| Priority | Clause                         | Issue                                                               | Practical Impact on You                                                                                               |
-|----------|--------------------------------|---------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| Critical | Exclusions                     | All five standard exclusions are absent                             | Your pre-existing knowledge, independently developed work, and publicly available information may all be treated as covered by this NDA |
-| High     | Non-solicitation rider         | 3-year non-solicitation of employees starting after interview ends  | Even if you are rejected, you cannot recruit or refer Company employees for 3 years -- this restricts your professional networking unrelated to confidentiality |
-| High     | Standard of care               | "Best efforts" rather than "reasonable efforts"                     | You are held to a near-maximum standard of protection, not the typical market standard, for information shared during an interview |
-| High     | No compelled disclosure clause | You cannot comply with a subpoena without contractually breaching   | If you were ever legally required to disclose information discussed in interviews, this NDA provides no pathway to do so |
-| High     | No permitted recipients        | You cannot share interview information with your own attorney       | Seeking legal advice about this NDA or the interview process could technically violate the NDA's confidentiality obligation |
-| Medium   | Broad confidential info definition | "Any and all information" plus Company-indicated confidentiality  | Near-unlimited scope of what is covered; you cannot confidently know what you are and are not restricted from discussing |
-| Medium   | Bond waiver                    | You pre-waive the Company's obligation to post security bond        | Lowers the barrier for the Company to obtain emergency court orders against you                                        |
-| Low      | 5-year duration per
+| Priority | Clause                             | Issue                                                              | Practical Impact on You                                                                                                                                         |
+| -------- | ---------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Critical | Exclusions                         | All five standard exclusions are absent                            | Your pre-existing knowledge, independently developed work, and publicly available information may all be treated as covered by this NDA                         |
+| High     | Non-solicitation rider             | 3-year non-solicitation of employees starting after interview ends | Even if you are rejected, you cannot recruit or refer Company employees for 3 years -- this restricts your professional networking unrelated to confidentiality |
+| High     | Standard of care                   | "Best efforts" rather than "reasonable efforts"                    | You are held to a near-maximum standard of protection, not the typical market standard, for information shared during an interview                              |
+| High     | No compelled disclosure clause     | You cannot comply with a subpoena without contractually breaching  | If you were ever legally required to disclose information discussed in interviews, this NDA provides no pathway to do so                                        |
+| High     | No permitted recipients            | You cannot share interview information with your own attorney      | Seeking legal advice about this NDA or the interview process could technically violate the NDA's confidentiality obligation                                     |
+| Medium   | Broad confidential info definition | "Any and all information" plus Company-indicated confidentiality   | Near-unlimited scope of what is covered; you cannot confidently know what you are and are not restricted from discussing                                        |
+| Medium   | Bond waiver                        | You pre-waive the Company's obligation to post security bond       | Lowers the barrier for the Company to obtain emergency court orders against you                                                                                 |
+| Low      | 5-year duration per                |

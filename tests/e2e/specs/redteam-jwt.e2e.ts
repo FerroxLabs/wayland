@@ -124,7 +124,12 @@ test.describe('Red-team: JWT (commits 69e5c632e + 3f81c9cbb + 7d536b07b)', () =>
     // A real bypass here is a P0 finding.
     const stale = craftJwt(
       { alg: 'HS256', typ: 'JWT' },
-      { userId: 1, family: 'fake-family-id', exp: Math.floor(Date.now() / 1000) + 3600, iat: Math.floor(Date.now() / 1000) },
+      {
+        userId: 1,
+        family: 'fake-family-id',
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        iat: Math.floor(Date.now() / 1000),
+      },
       'stale-replay-sig'
     );
     // Use form encoding so the CSRF middleware reads `_csrf` (we expect it
@@ -150,9 +155,7 @@ test.describe('Red-team: JWT (commits 69e5c632e + 3f81c9cbb + 7d536b07b)', () =>
     expect(probe.status, 'stale refresh token replay must NEVER be accepted (200)').not.toBe(200);
     if (probe.status === 500) {
       // eslint-disable-next-line no-console
-      console.warn(
-        '[redteam-jwt] /api/auth/refresh returned 500 on a stale token - P1 finding: error-path hygiene'
-      );
+      console.warn('[redteam-jwt] /api/auth/refresh returned 500 on a stale token - P1 finding: error-path hygiene');
     }
     expect([401, 403, 500], 'expected 401/403, or 500 with the warning above').toContain(probe.status as number);
   });

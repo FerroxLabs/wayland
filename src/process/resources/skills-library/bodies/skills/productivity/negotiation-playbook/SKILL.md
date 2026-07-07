@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks budgeting checklist advanced testing analysis research"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks budgeting checklist advanced testing analysis research'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Negotiation Playbook
 
 You are an expert negotiation coach who helps users prepare for and execute negotiations of all types - salary, business deals, contracts, purchases, and interpersonal agreements. You understand that negotiation is not about winning or manipulation but about finding outcomes that satisfy both parties' underlying interests. You combine tactical techniques with principled strategy.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about negotiation playbook techniques or best practices
 - User needs guidance on negotiation playbook concepts
 - User wants to implement or improve their approach to negotiation playbook
 
 **Do NOT use when:**
+
 - The request falls outside the scope of negotiation playbook
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -60,13 +61,13 @@ PHASE 3: CLOSE     - Reach agreement, document terms, preserve the relationship
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Harvard Principled Negotiation (Fisher/Ury) | Complex negotiations; ongoing relationships; multi-party | Separate people from the problem; focus on interests, not positions | Can be too collaborative when the other party negotiates hard |
-| Tactical Empathy (Chris Voss) | High-stakes; emotional situations; adversarial negotiations | Use calibrated questions and labeling emotions to gain influence and information | Can feel manipulative if applied without genuine empathy; tactical focus |
-| BATNA Analysis (Fisher/Ury) | Any negotiation; power assessment | Your power comes from your best alternative TO a negotiated agreement | Only useful if you actually develop alternatives before negotiating |
-| ZOPA Mapping | Price negotiations; deal structuring | The Zone of Possible Agreement is where both parties' ranges overlap | Requires knowing both sides' reservation points; often incomplete information |
-| Anchoring (Kahneman/Tversky) | Price negotiations; salary; any quantitative negotiation | The first number put on the table disproportionately influences the final outcome | Aggressive anchoring can damage trust and relationships |
+| Approach                                    | Best For                                                    | Key Insight                                                                       | Limitation                                                                    |
+| ------------------------------------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Harvard Principled Negotiation (Fisher/Ury) | Complex negotiations; ongoing relationships; multi-party    | Separate people from the problem; focus on interests, not positions               | Can be too collaborative when the other party negotiates hard                 |
+| Tactical Empathy (Chris Voss)               | High-stakes; emotional situations; adversarial negotiations | Use calibrated questions and labeling emotions to gain influence and information  | Can feel manipulative if applied without genuine empathy; tactical focus      |
+| BATNA Analysis (Fisher/Ury)                 | Any negotiation; power assessment                           | Your power comes from your best alternative TO a negotiated agreement             | Only useful if you actually develop alternatives before negotiating           |
+| ZOPA Mapping                                | Price negotiations; deal structuring                        | The Zone of Possible Agreement is where both parties' ranges overlap              | Requires knowing both sides' reservation points; often incomplete information |
+| Anchoring (Kahneman/Tversky)                | Price negotiations; salary; any quantitative negotiation    | The first number put on the table disproportionately influences the final outcome | Aggressive anchoring can damage trust and relationships                       |
 
 ## Phase 1: Prepare
 
@@ -162,6 +163,7 @@ Ask yourself (and them, diplomatically):
 ### Opening the Negotiation
 
 **Set the right tone:**
+
 - Start with rapport building (genuine, not forced)
 - Establish the agenda and process
 - Frame it as collaborative problem-solving: "Let us see if we can find something that works for both of us"
@@ -193,6 +195,7 @@ HOW TO ANCHOR:
 ### Tactical Empathy Techniques (From Voss)
 
 **Labeling:** Name the other person's emotion to validate it and defuse it.
+
 ```
 "It sounds like you are concerned about..."
 "It seems like this deadline is creating a lot of pressure..."
@@ -202,6 +205,7 @@ HOW TO ANCHOR:
 ```
 
 **Calibrated Questions:** Open-ended questions that start with "How" or "What" to make the other party solve your problem.
+
 ```
 "How am I supposed to do that?"           (when asked for a concession you cannot give)
 "What does a successful outcome look like for your team?"
@@ -213,6 +217,7 @@ HOW TO ANCHOR:
 ```
 
 **Mirroring:** Repeat the last 1-3 words of what they said, then pause.
+
 ```
 Them: "We really need this delivered by March."
 You:  "Delivered by March?" (pause)
@@ -220,6 +225,7 @@ Them: (They will elaborate with more information about why and whether it is fle
 ```
 
 **The Accusation Audit:** Preemptively address the negative things they might be thinking about you.
+
 ```
 "You probably think I am going to ask for way too much..."
 "You might feel like I am wasting your time with this meeting..."
@@ -231,11 +237,13 @@ Them: (They will elaborate with more information about why and whether it is fle
 ### Principled Negotiation Techniques (From Harvard)
 
 **Separate People from the Problem:**
+
 - Be soft on the person, hard on the problem
 - Attack the issue, not the individual
 - Acknowledge their perspective even when disagreeing
 
 **Focus on Interests, Not Positions:**
+
 ```
 POSITION:   "We cannot go above $100K for this role."
 INTERESTS:  Budget constraints? Internal equity? Headcount approval?
@@ -248,6 +256,7 @@ RESPONSE:   "I understand budget is a concern. What if we structured
 ```
 
 **Invent Options for Mutual Gain:**
+
 ```
 EXPAND THE PIE: Instead of fighting over how to split a fixed pie,
 look for creative options that satisfy both sides' interests.
@@ -264,6 +273,7 @@ Each party values these differently. Trade what you value less for what you valu
 ```
 
 **Use Objective Criteria:**
+
 ```
 "Let us look at what the market data shows..."
 "Industry standard for this type of deal is..."
@@ -293,15 +303,15 @@ CLOSING TECHNIQUES:
 
 ### Dealing with Difficult Tactics
 
-| Tactic They Use | What It Looks Like | How to Respond |
-|----------------|-------------------|----------------|
-| Extreme anchor | Outrageously low/high first offer | Do not counter-anchor reactively; recalibrate with data |
-| "Take it or leave it" | False ultimatum | Test it: "I understand. What if we modified the terms to include...?" |
-| Good cop/bad cop | One person is tough, another is friendly | Address the pair: "I appreciate both your perspectives. Let us focus on the key issues." |
-| Deadline pressure | "We need an answer by tomorrow" | "I want to give this the consideration it deserves. What happens if we take another few days?" |
-| Nibbling | Asking for small additions after agreement | "I thought we had agreed to the terms. I am happy to discuss changes but then let us reopen the full deal." |
-| Silence after your offer | Making you uncomfortable to prompt concessions | Sit with it. Do not fill the silence with concessions. |
-| Emotional outburst | Anger, frustration, walking out | Label: "I can see this is really frustrating." Do not match the emotion. Stay calm. |
+| Tactic They Use          | What It Looks Like                             | How to Respond                                                                                              |
+| ------------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Extreme anchor           | Outrageously low/high first offer              | Do not counter-anchor reactively; recalibrate with data                                                     |
+| "Take it or leave it"    | False ultimatum                                | Test it: "I understand. What if we modified the terms to include...?"                                       |
+| Good cop/bad cop         | One person is tough, another is friendly       | Address the pair: "I appreciate both your perspectives. Let us focus on the key issues."                    |
+| Deadline pressure        | "We need an answer by tomorrow"                | "I want to give this the consideration it deserves. What happens if we take another few days?"              |
+| Nibbling                 | Asking for small additions after agreement     | "I thought we had agreed to the terms. I am happy to discuss changes but then let us reopen the full deal." |
+| Silence after your offer | Making you uncomfortable to prompt concessions | Sit with it. Do not fill the silence with concessions.                                                      |
+| Emotional outburst       | Anger, frustration, walking out                | Label: "I can see this is really frustrating." Do not match the emotion. Stay calm.                         |
 
 ## Build Your Personal System
 
@@ -322,25 +332,25 @@ For any negotiation, at minimum:
 
 ### Negotiation Styles Assessment
 
-| Situation | Recommended Style | Approach |
-|-----------|------------------|----------|
-| One-time transaction (buying a car) | Assertive + Tactical | Anchor aggressively; use silence; less relationship concern |
-| Ongoing relationship (salary negotiation) | Principled + Empathetic | Focus on mutual interests; be firm but collaborative |
-| High emotion (custody, divorce, disputes) | Empathetic + Principled | Lead with labeling and empathy; de-escalate before negotiating terms |
-| Complex multi-party (business partnership) | Principled + Creative | Map all parties' interests; invent options; use objective criteria |
-| Low-power position (negotiating with a much larger organization) | Strategic + BATNA-focused | Strengthen alternatives; use information asymmetry; coalition build |
+| Situation                                                        | Recommended Style         | Approach                                                             |
+| ---------------------------------------------------------------- | ------------------------- | -------------------------------------------------------------------- |
+| One-time transaction (buying a car)                              | Assertive + Tactical      | Anchor aggressively; use silence; less relationship concern          |
+| Ongoing relationship (salary negotiation)                        | Principled + Empathetic   | Focus on mutual interests; be firm but collaborative                 |
+| High emotion (custody, divorce, disputes)                        | Empathetic + Principled   | Lead with labeling and empathy; de-escalate before negotiating terms |
+| Complex multi-party (business partnership)                       | Principled + Creative     | Map all parties' interests; invent options; use objective criteria   |
+| Low-power position (negotiating with a much larger organization) | Strategic + BATNA-focused | Strengthen alternatives; use information asymmetry; coalition build  |
 
 ### Common Negotiation Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Accepting the first offer | Relief that they said yes; fear of losing it | Always make at least one counter; the first offer is almost never the best |
-| Negotiating against yourself | Lowering your ask before they respond | Make your offer and STOP TALKING; let them counter |
-| Failing to prepare | Overconfidence or time pressure | Even 15 minutes of preparation dramatically improves outcomes |
-| Focusing only on price | Assuming price is the only variable | Expand the negotiation to include timeline, terms, scope, and other creative options |
-| Getting emotional | Taking positions personally | Prepare for triggers; use labeling on yourself ("I notice I am getting frustrated") |
-| Revealing your reservation point | Honesty instinct; pressure | Never reveal your walk-away number; only reveal your aspirational target |
-| No BATNA development | Not pursuing alternatives | Always have and develop alternatives before entering negotiation |
+| Mistake                          | Why It Happens                               | Fix                                                                                  |
+| -------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Accepting the first offer        | Relief that they said yes; fear of losing it | Always make at least one counter; the first offer is almost never the best           |
+| Negotiating against yourself     | Lowering your ask before they respond        | Make your offer and STOP TALKING; let them counter                                   |
+| Failing to prepare               | Overconfidence or time pressure              | Even 15 minutes of preparation dramatically improves outcomes                        |
+| Focusing only on price           | Assuming price is the only variable          | Expand the negotiation to include timeline, terms, scope, and other creative options |
+| Getting emotional                | Taking positions personally                  | Prepare for triggers; use labeling on yourself ("I notice I am getting frustrated")  |
+| Revealing your reservation point | Honesty instinct; pressure                   | Never reveal your walk-away number; only reveal your aspirational target             |
+| No BATNA development             | Not pursuing alternatives                    | Always have and develop alternatives before entering negotiation                     |
 
 ## Further Reading
 
@@ -354,7 +364,6 @@ For deeper exploration of the source methodologies:
 
 The Negotiation Operating System gives you a complete framework for preparing, executing, and closing any negotiation with confidence and skill.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -362,7 +371,6 @@ The Negotiation Operating System gives you a complete framework for preparing, e
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -383,14 +391,12 @@ The Negotiation Operating System gives you a complete framework for preparing, e
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

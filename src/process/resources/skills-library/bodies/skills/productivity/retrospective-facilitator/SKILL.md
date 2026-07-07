@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management planning checklist"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'project-management planning checklist'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Retrospective Facilitator
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has completed a discrete project (a side project, client deliverable, product launch, creative work, or learning sprint) and wants to extract lessons before moving on
 - The user asks about running a retrospective, post-mortem, after-action review, or lessons-learned session for a project with 1-8 participants
 - The user wants a structured facilitation guide with timed agenda, specific discussion prompts, and a documented action item output
@@ -29,6 +31,7 @@ metadata:
 - The user wants to build a personal or team practice of continuous improvement across projects and needs a repeatable retrospective process
 
 **Do NOT use when:**
+
 - The user wants a recurring weekly review of ongoing work -- use `weekly-review`, which is optimized for cadence rather than project closure
 - The user wants a project status report or progress update for a project still in flight -- use `project-status-report`
 - The user wants to plan a new project rather than reflect on a completed one -- use `project-kickoff`
@@ -60,6 +63,7 @@ If the user has already provided most of this context in their request, proceed 
 Match the format to the project's nature, team experience level, and available time. Choose one primary format -- do not blend formats, which produces confusion.
 
 **Start / Stop / Continue (SSC)**
+
 - Best for: General improvement, first-time retrospectives, teams under time pressure, projects with clear process patterns
 - Structure: Three buckets -- what to start doing, what to stop doing, what to continue doing
 - Time requirement: Works in 30-60 minutes
@@ -67,6 +71,7 @@ Match the format to the project's nature, team experience level, and available t
 - Default choice for users who have not specified a format preference
 
 **4Ls: Liked, Learned, Lacked, Longed For**
+
 - Best for: Creative projects, learning-oriented work, projects where emotional experience matters alongside process
 - Structure: Liked = positive experiences; Learned = new knowledge or skills gained; Lacked = what was missing that hurt progress; Longed For = what you wished existed
 - Time requirement: 45-75 minutes
@@ -74,6 +79,7 @@ Match the format to the project's nature, team experience level, and available t
 - Best fit when the user mentions learning, skill development, or creative work
 
 **DAKI: Drop, Add, Keep, Improve**
+
 - Best for: Process-heavy projects, teams that use explicit workflows or tools, repeat projects where processes are codified
 - Structure: Drop = eliminate entirely; Add = introduce new practices; Keep = preserve what works; Improve = refine what exists but is imperfect
 - Time requirement: 45-60 minutes
@@ -81,6 +87,7 @@ Match the format to the project's nature, team experience level, and available t
 - Best fit for software teams, operations projects, or any project with documented processes
 
 **Timeline / Emotional Curve**
+
 - Best for: Projects longer than 3 months, complex projects with many phases, situations where the user lacks specific observations and needs structure to surface memories
 - Structure: Draw the project timeline; mark key events, milestones, and emotional highs/lows chronologically; analyze patterns across the timeline
 - Time requirement: 60-90 minutes minimum; not suitable for 30-minute sessions
@@ -88,6 +95,7 @@ Match the format to the project's nature, team experience level, and available t
 - Use when the user says things like "I don't even know where to start" or "a lot happened"
 
 **Sailboat / Speedboat**
+
 - Best for: Teams that are continuing to work together after the project; forward-looking emphasis
 - Structure: Wind = forces helping the project; Anchors = forces slowing it down; Rocks = risks ahead; Sun = the goal
 - Time requirement: 45-60 minutes
@@ -99,26 +107,31 @@ Match the format to the project's nature, team experience level, and available t
 Apply the five-phase retrospective structure from Esther Derby and Diana Larsen's framework, calibrated to available time:
 
 **Phase 1 -- Set the Stage (always 5-10% of total time)**
+
 - Minimum 3 minutes, maximum 10 minutes
 - Activity: Read the project summary aloud. Establish one ground rule: observations, not accusations. For group sessions, use a check-in question to get everyone speaking before the real work begins ("In one word, how are you feeling about this project being over?").
 - Output: Shared context and psychological safety for honest discussion
 
 **Phase 2 -- Gather Data (always 35-40% of total time)**
+
 - This is the longest phase -- do not compress it
 - Activity: Use the selected format's prompts. For solo: write responses to prompts before analyzing them (writing surfaces more than thinking). For groups: silent individual writing for 5-7 minutes FIRST, then share -- this prevents anchoring where the loudest voice shapes everyone's responses.
 - Output: An unfiltered list of observations, good and bad, from all participants
 
 **Phase 3 -- Generate Insights (always 25-30% of total time)**
+
 - Activity: Cluster observations into themes. Apply the "5 Whys" technique to the most significant negative observations to find root causes rather than symptoms. For group sessions: dot voting (each participant gets votes equal to 20-25% of the total observation count) to prioritize which insights deserve action item attention.
 - Critical rule: Distinguish between one-time events (bad luck, unique circumstances) and systemic patterns (recurring problems that will reappear on the next project). Only patterns should become action items.
 - Output: Prioritized list of insights with identified root causes
 
 **Phase 4 -- Decide What to Do (always 20-25% of total time)**
+
 - Activity: Convert each high-priority insight into a specific action item. Apply the SMART filter: the action must be Specific (says exactly what to do), Measurable (has a success condition), Achievable (within the owner's control), Relevant (addresses the root cause, not the symptom), and Time-bound (has a trigger or deadline).
 - Quantity cap: Maximum 5 action items from any retrospective. More than 5 means none will be done. If you have more candidate actions, rank them and take only the top 5.
 - Output: Action item table with owner, trigger, and success measure
 
 **Phase 5 -- Close (always 5-10% of total time)**
+
 - Activity: Read back the action items. Ask for one-word reactions ("How do you feel about these action items?"). For groups: appreciation round where each participant names one thing a colleague did well during the project. For solo: write a one-sentence summary for future self.
 - Output: Documented retrospective, clear next steps
 
@@ -127,14 +140,17 @@ Apply the five-phase retrospective structure from Esther Derby and Diana Larsen'
 Generic prompts produce generic answers. Every prompt in the output must be specific to the project type, duration, and format. Apply these principles:
 
 **Make prompts concrete and anchored:**
+
 - Weak: "What went well?"
 - Strong: "What was the single decision during this project that saved the most time or prevented the most problems?"
 
 **Use timeframe anchors for longer projects:**
+
 - "Think back to the first two weeks -- what felt uncertain or unclear that later caused problems?"
 - "At what point did you feel the project shift from feeling under control to feeling risky?"
 
 **Include often-overlooked categories explicitly:**
+
 - Communication: "Where did a miscommunication or assumed understanding cause rework or delay?"
 - Estimation: "Which tasks took 2x or more longer than your original estimate? Why was the estimate wrong?"
 - Tooling: "Did any tool, software, or platform slow you down more than it helped?"
@@ -142,11 +158,13 @@ Generic prompts produce generic answers. Every prompt in the output must be spec
 - Energy and motivation: "Was there a period when motivation dropped significantly? What caused it?"
 
 **Balance prompts 60/40 in favor of learning:**
+
 - 60% of prompts should address what to change or improve (where the actionable learning lives)
 - 40% should address what worked (to preserve strengths and provide psychological balance)
 - This ratio prevents retrospectives from becoming complaint sessions while still driving change
 
 **Write exactly as many prompts as will fit in the data-gathering phase:**
+
 - At 30-second average per prompt response, a 12-minute phase supports roughly 20-24 prompts total
 - For solo sessions, reduce to 12-15 prompts (writing takes longer than speaking)
 
@@ -169,11 +187,13 @@ Each action item must clear all five bars:
 For the 2-3 most impactful negative observations, apply structured root cause analysis before generating action items. Use one of two techniques depending on available time:
 
 **5 Whys (preferred for focused problems):**
+
 - Ask "why did this happen?" and answer it. Then ask "why did that happen?" and answer again. Repeat 3-5 times until the answer is either a controllable process failure or an external constraint beyond control.
 - Stop when you reach a root cause that is within the team's power to change.
 - Example: "The project ran 2 weeks late" → Why? "Content writing took much longer than planned" → Why? "We hadn't written content drafts before starting design" → Why? "We had no checklist that required content before design" → Root cause: Missing pre-design content checkpoint. Action: Add content completion gate to project kickoff checklist.
 
 **Fishbone / Ishikawa (for complex problems with multiple causes):**
+
 - Draw a fishbone with the problem as the "head." Identify causes across 4-6 categories: Process, People, Tools, Communication, Planning, External Factors.
 - Use when a single Why chain doesn't capture the full picture -- typically for project failures or major scope issues.
 - Appropriate for sessions of 60+ minutes only.
@@ -456,7 +476,9 @@ Group related observations together. Common clusters: Planning & Estimation, Com
 ## Edge Cases
 
 ### Self-Retrospective (Solo User)
+
 The default retrospective format assumes some degree of externalization -- writing observations on a board, reading them back, voting. For solo retrospectives, adapt:
+
 - Replace all group activities with structured writing. The user should write responses to prompts before reading them back to themselves -- this deliberate delay between writing and reviewing creates useful distance.
 - Reduce session time to 20-35 minutes. Solo retrospectives move faster because there is no coordination or discussion overhead.
 - Replace the appreciation round with a brief written acknowledgment: "What did I handle well during this project that I want to remember?"
@@ -464,7 +486,9 @@ The default retrospective format assumes some degree of externalization -- writi
 - Dot voting is replaced by simple ranking: number the observations 1 through n by perceived impact.
 
 ### Failed or Cancelled Project
+
 When the project significantly missed its goals, was cancelled, or produced a genuinely bad outcome, the facilitation approach must change:
+
 - Increase Phase 2 time by 10-15 minutes to give enough space for complete data gathering -- failed projects have more to unpack.
 - Add specific failure-mode prompts: "At what specific point did you know the project was in trouble? What was the first warning sign?" and "What decision, made in hindsight, most changed the trajectory?" and "What would have needed to be true at week [X] for the project to succeed?"
 - Do not rush to solutions. In failed projects, there is often pressure to "move on" that compresses Phase 3 too much. Spend real time on root cause analysis -- the pattern that caused failure is the most valuable learning the team has.
@@ -473,7 +497,9 @@ When the project significantly missed its goals, was cancelled, or produced a ge
 - Emotional acknowledgment is required before technical analysis. If the team is demoralized, the check-in in Phase 1 matters more than usual. Allow space for people to name how they feel before diving into the data.
 
 ### Mid-Project Check-In (Not a Project Closure)
+
 If the user wants to run a retrospective while the project is still ongoing -- typically at a significant milestone, at the halfway point, or when the project is clearly in distress:
+
 - Rename the session a "mid-project check-in" or "course correction session" to set the right expectation. This is not a closure retrospective; it is a steering intervention.
 - Eliminate the project summary section's "goal met?" field. Replace with "current trajectory: on track / at risk / off track."
 - Phase 4 action items become immediate changes to make now, not lessons for future projects. The trigger column changes from "next project" to a specific date within the current project.
@@ -482,21 +508,27 @@ If the user wants to run a retrospective while the project is still ongoing -- t
 - Recommend scheduling a closure retrospective at project end even if this mid-point session happens.
 
 ### Team With Conflicting Perspectives on What Happened
+
 In multi-participant retrospectives, it is common for team members to have fundamentally different memories or interpretations of the same events. This is data, not a problem:
+
 - Use dot voting after Phase 2 to let prioritization happen through voting rather than debate. If one person's observation gets zero votes from colleagues, that is useful signal.
 - If two participants have directly contradictory accounts of an event, record both observations separately. "Designer: the brief was clear from day one. Developer: the brief changed three times." Both are valid experiences. Do not force consensus on facts.
 - When conflict is significant, use the "ELMO rule" (Enough, Let's Move On): the facilitator names when a debate is consuming disproportionate time and redirects to the next observation.
 - If two or more participants are in visible interpersonal conflict, this retrospective is not the appropriate venue for that conflict. Surface the issue in Phase 1, acknowledge it explicitly, and agree to address it separately. Running a retrospective on top of unresolved conflict produces a performative session, not genuine learning.
 
 ### Very Short Project (Under 2 Weeks)
+
 For projects lasting 1-2 weeks, a full 60-minute retrospective is disproportionate:
+
 - Use a condensed 20-minute format: 3 minutes set the stage, 10 minutes gather data (3-4 prompts per category maximum), 5 minutes generate 1-2 insights, 5 minutes produce 1-3 action items.
 - Use only Start/Stop/Continue -- other formats require more context than short projects generate.
 - The output document should be one page maximum. The action item table dominates; the rest is compressed.
 - Still write the one-sentence future self summary -- this is the highest-value output per minute invested.
 
 ### User Has Never Run a Retrospective Before
+
 First-time retrospective facilitators need more scaffolding in the facilitation guide:
+
 - Add explicit facilitator notes in italics throughout the guide: what to say, what to watch for, how to handle common derailments.
 - Simplify the format to Start/Stop/Continue only.
 - Reduce the number of prompts to 3-4 per section rather than 6-8.
@@ -504,7 +536,9 @@ First-time retrospective facilitators need more scaffolding in the facilitation 
 - Recommend recording or taking notes on the session itself, not just the output -- first-time facilitators learn as much from how the session went as from what it produced.
 
 ### Recurring Project (Same Project Type Runs Repeatedly)
+
 For users who run the same type of project repeatedly -- quarterly campaigns, client onboarding projects, event productions -- the retrospective has an additional layer:
+
 - Compare action items from the previous retrospective of this project type: were they implemented? Did they work?
 - Add a "trend" column to the insight table: is this the same problem that appeared in the last retrospective of this type? If so, the root cause analysis was probably incorrect or the action item was insufficient.
 - The one-sentence future self summary should be added to a project template or standard operating procedure document so it carries forward automatically, not just into the user's memory.
@@ -523,6 +557,7 @@ For users who run the same type of project repeatedly -- quarterly campaigns, cl
 ## Project Retrospective: Client Brand Identity Project
 
 ### Session Setup
+
 - **Project:** Client Brand Identity -- complete brand identity system delivered (logo, color palette, typography, brand guidelines document, and social media templates)
 - **Project duration:** Planned: 4 months | Actual: 4 months 3 weeks
 - **Variance:** 3 weeks late (19% schedule overrun) | ~15% budget overrun
@@ -535,13 +570,13 @@ For users who run the same type of project repeatedly -- quarterly campaigns, cl
 
 ### Project Summary (Read Before Starting)
 
-| Field | Planned | Actual |
-|-------|---------|--------|
-| Goal | Deliver complete brand identity system in 4 months | Complete brand identity system delivered |
-| Timeline | 16 weeks | 19 weeks |
-| Scope | Logo, palette, typography, brand guidelines | Logo, palette, typography, brand guidelines, social media templates (added mid-project) |
-| Success criteria | Client approval, on time, on budget | Client approved -- timeline and budget overrun |
-| Key milestones | Discovery: wk 2, Concepts: wk 5, Refinement: wk 10, Final delivery: wk 16 | Discovery: wk 3, Concepts: wk 7, Refinement: wk 14, Final delivery: wk 19 |
+| Field            | Planned                                                                   | Actual                                                                                  |
+| ---------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Goal             | Deliver complete brand identity system in 4 months                        | Complete brand identity system delivered                                                |
+| Timeline         | 16 weeks                                                                  | 19 weeks                                                                                |
+| Scope            | Logo, palette, typography, brand guidelines                               | Logo, palette, typography, brand guidelines, social media templates (added mid-project) |
+| Success criteria | Client approval, on time, on budget                                       | Client approved -- timeline and budget overrun                                          |
+| Key milestones   | Discovery: wk 2, Concepts: wk 5, Refinement: wk 10, Final delivery: wk 16 | Discovery: wk 3, Concepts: wk 7, Refinement: wk 14, Final delivery: wk 19               |
 
 **Goal met?** Partially -- delivered approved work but 3 weeks late and 15% over budget.
 **Overall assessment in one sentence:** We produced excellent work that the client loves, but our process ran loose from mid-project onward and the scope grew without corresponding timeline or budget adjustment.
@@ -550,16 +585,17 @@ For users who run the same type of project repeatedly -- quarterly campaigns, cl
 
 ### Session Agenda
 
-| # | Phase | Activity | Duration | Output |
-|---|-------|----------|----------|--------|
-| 1 | Set the Stage | Read project summary; ground rules; check-in question | 5 min | Shared context |
-| 2 | Gather Data | Silent write (7 min) + share observations round-robin | 22 min | DAKI observation list |
-| 3 | Generate Insights | Cluster; 5 Whys on top 2 issues; dot voting (4 votes each) | 18 min | 4-6 prioritized insights with root causes |
-| 4 | Decide What to Do | Convert top insights to SMART action items | 12 min | 3-5 action items |
-| 5 | Close | Read back actions; appreciation round; one-sentence summary | 3 min | Documented retrospective |
-| | | **Total** | **60 min** | |
+| #   | Phase             | Activity                                                    | Duration   | Output                                    |
+| --- | ----------------- | ----------------------------------------------------------- | ---------- | ----------------------------------------- |
+| 1   | Set the Stage     | Read project summary; ground rules; check-in question       | 5 min      | Shared context                            |
+| 2   | Gather Data       | Silent write (7 min) + share observations round-robin       | 22 min     | DAKI observation list                     |
+| 3   | Generate Insights | Cluster; 5 Whys on top 2 issues; dot voting (4 votes each)  | 18 min     | 4-6 prioritized insights with root causes |
+| 4   | Decide What to Do | Convert top insights to SMART action items                  | 12 min     | 3-5 action items                          |
+| 5   | Close             | Read back actions; appreciation round; one-sentence summary | 3 min      | Documented retrospective                  |
+|     |                   | **Total**                                                   | **60 min** |                                           |
 
 **Ground rules (facilitator reads aloud):**
+
 - We discuss process and systems, not individual mistakes or personal blame
 - Every observation is recorded as stated -- we debate meaning in Phase 3, not Phase 2
 - What is said here stays here -- this is a candid internal review
@@ -576,12 +612,14 @@ For users who run the same type of project repeatedly -- quarterly campaigns, cl
 ---
 
 **DROP -- What should we eliminate from our process entirely?**
+
 - What meeting, check-in, artifact, or step consumed time during this project that produced no output you'd miss?
 - What communication channel or tool created noise without clarity? (Think: Slack threads that became confusing, email chains that should have been decisions, status updates no one used)
 - What approval step or review loop was redundant or unnecessary given how the client actually engaged?
 - What planning artifact did we create that went stale and was never updated -- meaning we put time into it and then ignored it?
 
 **ADD -- What should we introduce to our process for future brand projects?**
+
 - What checkpoint, gate, or review should exist that didn't on this project?
 - What client communication practice -- a weekly update format, a decision log, a formal scope review -- should we add from day one?
 - What contract or agreement language would have protected us when scope expanded?
@@ -589,6 +627,7 @@ For users who run the same type of project repeatedly -- quarterly campaigns, cl
 - What should our kickoff checklist include that it currently doesn't?
 
 **KEEP -- What worked well enough to protect from any change?**
+
 - What creative process step produced the best work and should be repeated exactly?
 - What client communication practice kept them informed and aligned?
 - What team coordination habit prevented problems or kept us moving?
@@ -596,6 +635,7 @@ For users who run the same type of project repeatedly -- quarterly campaigns, cl
 - What tool, file format, or naming convention should become a permanent studio standard?
 
 **IMPROVE -- What exists in our process but needs refinement?**
+
 - What did we do directionally right but execute imperfectly? (Think: we had status updates, but they were too infrequent; we had a timeline, but it wasn't tracked against reality weekly)
 - How should the discovery phase be different in scope, duration, or deliverables?
 - How should the concept presentation be structured differently?
@@ -608,6 +648,7 @@ For users who run the same type of project repeatedly -- quarterly campaigns, cl
 
 **Step 1 -- Cluster observations**
 As observations are shared, group them under these expected categories (adjust if actual observations don't fit):
+
 - Scope management
 - Client communication and approval process
 - Internal workflow and handoffs between designer, copywriter, and PM
@@ -625,27 +666,28 @@ As observations are shared, group them under these expected categories (adjust i
 
 **Step 3 -- 5 Whys on top 2 insights**
 
-| Why Chain | Observation 1: Social media templates added in week 10 with no adjustment |
-|-----------|---------------------------------------------------------------------------|
-| Why 1 | The client asked for social templates and we said yes without discussing scope impact |
-| Why 2 | We didn't have a documented scope change process to refer to in the moment |
-| Why 3 | Our project agreement didn't include explicit language about what happens when new deliverables are requested |
-| Why 4 | We've always handled scope changes informally because client relationships feel awkward to formalize |
-| **Root cause** | No scope change protocol exists; informal client relationships make boundary-setting feel risky |
+| Why Chain           | Observation 1: Social media templates added in week 10 with no adjustment                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Why 1               | The client asked for social templates and we said yes without discussing scope impact                                                             |
+| Why 2               | We didn't have a documented scope change process to refer to in the moment                                                                        |
+| Why 3               | Our project agreement didn't include explicit language about what happens when new deliverables are requested                                     |
+| Why 4               | We've always handled scope changes informally because client relationships feel awkward to formalize                                              |
+| **Root cause**      | No scope change protocol exists; informal client relationships make boundary-setting feel risky                                                   |
 | **Proposed action** | Add a scope change clause to the project agreement template and a one-page "how we handle change requests" document to give to clients at kickoff |
 
-| Why Chain | Observation 2: Timeline not reviewed after week 6 |
-|-----------|---------------------------------------------------|
-| Why 1 | The PM stopped updating the timeline document when the project fell behind |
-| Why 2 | When the timeline became inaccurate, updating it felt like admitting a problem rather than managing one |
-| Why 3 | There was no standing weekly timeline review on the calendar -- it happened informally and then stopped |
-| **Root cause** | Weekly timeline review was not a scheduled ritual; it was ad hoc and the first thing to disappear under pressure |
-| **Proposed action** | Add a 15-minute weekly timeline review to every brand project calendar from day one -- mandatory, not optional |
+| Why Chain           | Observation 2: Timeline not reviewed after week 6                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Why 1               | The PM stopped updating the timeline document when the project fell behind                                       |
+| Why 2               | When the timeline became inaccurate, updating it felt like admitting a problem rather than managing one          |
+| Why 3               | There was no standing weekly timeline review on the calendar -- it happened informally and then stopped          |
+| **Root cause**      | Weekly timeline review was not a scheduled ritual; it was ad hoc and the first thing to disappear under pressure |
+| **Proposed action** | Add a 15-minute weekly timeline review to every brand project calendar from day one -- mandatory, not optional   |
 
 **Step 4 -- Dot voting**
 Each participant gets 4 votes (20% of ~20 expected observations). Stack votes allowed. Top vote-getters proceed to action items.
 
-*[Expected top vote-getters based on session context:]*
+_[Expected top vote-getters based on session context:]_
+
 - Scope change protocol (likely high votes from all three participants)
 - Discovery brief sign-off gate (likely high votes from PM and designer)
 - Weekly timeline review ritual (likely high votes from PM)
@@ -654,15 +696,16 @@ Each participant gets 4 votes (20% of ~20 expected observations). Stack votes al
 
 ### Phase 4: Action Items
 
-| # | Action | Owner | Trigger / When | Success Measure |
-|---|--------|-------|----------------|-----------------|
-| 1 | Add a scope change clause to the standard project agreement. When a client requests a new deliverable, the PM sends a one-paragraph written scope change memo within 24 hours that names the deliverable, the additional fee, and the revised delivery date. Work on the new deliverable does not begin until the memo is signed. | Project Manager | Effective immediately -- update template before next proposal goes out | Zero scope additions happen on future projects without a signed scope change memo |
-| 2 | Add a discovery brief sign-off requirement to the project kickoff checklist. Concept work does not begin until the client has signed the discovery brief in writing (email confirmation is sufficient). This is a hard gate, not a soft recommendation. | Project Manager | Every new brand project kickoff | Concept work never begins before discovery brief is confirmed in writing |
-| 3 | Schedule a 15-minute weekly timeline review as a standing calendar event from project day one. The PM updates the actual timeline against planned progress each Monday morning and shares a one-line status ("On track / 1 week behind / 2+ weeks behind -- here's why") with the full team and client. | Project Manager | First calendar event created during project kickoff | Timeline document reflects actual progress every week of the project without exception |
-| 4 | Create a social media deliverables decision in the project proposal: either include social templates as a base deliverable (with fee built in) or explicitly exclude them in writing so clients know they are an add-on. End the ambiguity that invites scope creep. | Designer | Before next brand proposal is sent | Social media templates are either included with a line item or explicitly excluded in every proposal |
-| 5 | Before next brand project launches, conduct a 30-minute internal kickoff where the team reviews these 4 action items and confirms how each one applies to the new project. | All three -- Designer leads | Within first week of any new brand project | The action item review is documented in the project notes |
+| #   | Action                                                                                                                                                                                                                                                                                                                            | Owner                       | Trigger / When                                                         | Success Measure                                                                                      |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 1   | Add a scope change clause to the standard project agreement. When a client requests a new deliverable, the PM sends a one-paragraph written scope change memo within 24 hours that names the deliverable, the additional fee, and the revised delivery date. Work on the new deliverable does not begin until the memo is signed. | Project Manager             | Effective immediately -- update template before next proposal goes out | Zero scope additions happen on future projects without a signed scope change memo                    |
+| 2   | Add a discovery brief sign-off requirement to the project kickoff checklist. Concept work does not begin until the client has signed the discovery brief in writing (email confirmation is sufficient). This is a hard gate, not a soft recommendation.                                                                           | Project Manager             | Every new brand project kickoff                                        | Concept work never begins before discovery brief is confirmed in writing                             |
+| 3   | Schedule a 15-minute weekly timeline review as a standing calendar event from project day one. The PM updates the actual timeline against planned progress each Monday morning and shares a one-line status ("On track / 1 week behind / 2+ weeks behind -- here's why") with the full team and client.                           | Project Manager             | First calendar event created during project kickoff                    | Timeline document reflects actual progress every week of the project without exception               |
+| 4   | Create a social media deliverables decision in the project proposal: either include social templates as a base deliverable (with fee built in) or explicitly exclude them in writing so clients know they are an add-on. End the ambiguity that invites scope creep.                                                              | Designer                    | Before next brand proposal is sent                                     | Social media templates are either included with a line item or explicitly excluded in every proposal |
+| 5   | Before next brand project launches, conduct a 30-minute internal kickoff where the team reviews these 4 action items and confirms how each one applies to the new project.                                                                                                                                                        | All three -- Designer leads | Within first week of any new brand project                             | The action item review is documented in the project notes                                            |
 
 **Action item review check:**
+
 - [x] All 5 actions start with a specific verb and name an exact behavior
 - [x] Each action has a single named owner
 - [x] Each action has a clear trigger
@@ -673,6 +716,7 @@ Each participant gets 4 votes (20% of ~20 expected observations). Stack votes al
 ### Phase 5: Retrospective Summary
 
 **Key metrics**
+
 - **Total observations collected:** ~20 (estimated based on 3 participants, 4 DAKI categories)
 - **Recurring patterns:** 4 of 5 highlighted observations are recurring patterns
 - **Within team control:** 4 of 5 are fully controllable; 1 is partially controlled
@@ -680,6 +724,7 @@ Each participant gets 4 votes (20% of ~20 expected observations). Stack votes al
 - **Action items assigned to owners:** 5
 
 **Top 3 insights:**
+
 1. Scope grew by at least one major deliverable without any formal process to capture the impact on timeline or budget -- this has happened before and will happen again without a signed scope change protocol.
 2. The project's timeline became fiction by week 8 because reviewing it stopped being a scheduled ritual, meaning problems grew silently instead of being surfaced and managed.
 3. The discovery brief was treated as a working document rather than a formal agreement, allowing misalignments between what we thought was approved and what the client remembered approving to persist into the concept phase.

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart time-management template api-design research email cleaning"
-  category: "productivity"
-  subcategory: "organization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart time-management template api-design research email cleaning'
+  category: 'productivity'
+  subcategory: 'organization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Meeting Notes Summarizer
 
 You are a meeting documentation specialist. Help the user transform raw meeting notes or transcripts into clear, actionable summaries. Extract decisions, action items, and key discussion points. Format for easy scanning and follow-up.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about meeting notes summarizer techniques or best practices
 - User needs guidance on meeting notes summarizer concepts
 - User wants to implement or improve their approach to meeting notes summarizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of meeting notes summarizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -76,16 +77,16 @@ NEXT MEETING: [Date, time, focus topic]
 
 When reviewing raw notes or a transcript, look for these signals:
 
-| Signal | Extract As |
-|--------|-----------|
-| "We decided to..." / "Let's go with..." | DECISION |
-| "Can you..." / "[Name] will..." / "I'll take that" | ACTION ITEM |
-| "By when?" / "Target date is..." | DUE DATE |
-| "We need to figure out..." / "Open question..." | PARKING LOT |
-| "The main concern is..." / "Risk is..." | KEY DISCUSSION POINT |
-| "Everyone agrees..." / "Consensus is..." | DECISION |
-| "Let's revisit..." / "Next time we should..." | NEXT MEETING TOPIC |
-| "Blocked by..." / "Waiting on..." | DEPENDENCY/BLOCKER |
+| Signal                                             | Extract As           |
+| -------------------------------------------------- | -------------------- |
+| "We decided to..." / "Let's go with..."            | DECISION             |
+| "Can you..." / "[Name] will..." / "I'll take that" | ACTION ITEM          |
+| "By when?" / "Target date is..."                   | DUE DATE             |
+| "We need to figure out..." / "Open question..."    | PARKING LOT          |
+| "The main concern is..." / "Risk is..."            | KEY DISCUSSION POINT |
+| "Everyone agrees..." / "Consensus is..."           | DECISION             |
+| "Let's revisit..." / "Next time we should..."      | NEXT MEETING TOPIC   |
+| "Blocked by..." / "Waiting on..."                  | DEPENDENCY/BLOCKER   |
 
 ### Action Item Formula
 
@@ -264,15 +265,15 @@ Thanks,
 
 ### During the Meeting
 
-| Practice | Why |
-|----------|-----|
-| Use a template (open it before the meeting starts) | Structure from the start |
-| Write decisions in real-time, not after | Memory fades fast |
-| Confirm action items aloud | "So [Name] will do X by Y, correct?" |
-| Capture exact quotes for sensitive topics | Prevents misremembering |
-| Use shorthand, clean up after | Speed during, clarity after |
-| Mark unclear items with "?" | Review and clarify before sending |
-| Note who said what for decisions | Accountability |
+| Practice                                           | Why                                  |
+| -------------------------------------------------- | ------------------------------------ |
+| Use a template (open it before the meeting starts) | Structure from the start             |
+| Write decisions in real-time, not after            | Memory fades fast                    |
+| Confirm action items aloud                         | "So [Name] will do X by Y, correct?" |
+| Capture exact quotes for sensitive topics          | Prevents misremembering              |
+| Use shorthand, clean up after                      | Speed during, clarity after          |
+| Mark unclear items with "?"                        | Review and clarify before sending    |
+| Note who said what for decisions                   | Accountability                       |
 
 ### After the Meeting
 
@@ -284,17 +285,16 @@ Thanks,
 
 ### Shorthand Reference
 
-| Symbol | Meaning |
-|--------|---------|
-| --> | Action item |
-| !! | Important / urgent |
-| ? | Needs clarification |
+| Symbol    | Meaning             |
+| --------- | ------------------- |
+| -->       | Action item         |
+| !!        | Important / urgent  |
+| ?         | Needs clarification |
 | DECISION: | Final decision made |
-| PARKED | Deferred to later |
-| @name | Assigned to person |
-| +1 | Agreement |
-| Q: / A: | Question and answer |
-
+| PARKED    | Deferred to later   |
+| @name     | Assigned to person  |
+| +1        | Agreement           |
+| Q: / A:   | Question and answer |
 
 ## Process
 
@@ -303,7 +303,6 @@ Thanks,
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -324,14 +323,12 @@ Thanks,
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

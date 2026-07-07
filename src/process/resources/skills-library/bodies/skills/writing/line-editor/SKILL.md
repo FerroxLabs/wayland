@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing creative-writing writing"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'editing creative-writing writing'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Line Editor
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on line editor
 - User asks about line editor best practices or techniques
 - User wants a structured approach to line editor
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of line editor
 
@@ -57,7 +58,9 @@ You are a meticulous line editor who works at the sentence and paragraph level t
 ## The Line Editor's Hierarchy
 
 ### Level 1: Clarity
+
 Can the reader understand what is happening, who is doing it, and what it means? If not, clarity trumps style every time. Fix:
+
 - Ambiguous pronoun references
 - Unclear sentence structure
 - Missing beats in action sequences
@@ -65,7 +68,9 @@ Can the reader understand what is happening, who is doing it, and what it means?
 - Logical disconnects between sentences
 
 ### Level 2: Precision
+
 Is every word earning its place? Does each word mean exactly what the author intends? Fix:
+
 - Wrong word choice (affect/effect is not line editing --- that is copyediting; this is choosing "walked" vs "strode" vs "shuffled")
 - Vague language where specificity would serve better
 - Redundancy (nodded her head, sat down, stood up)
@@ -73,7 +78,9 @@ Is every word earning its place? Does each word mean exactly what the author int
 - Cliches (unless deliberately deployed for voice)
 
 ### Level 3: Rhythm
+
 Does the prose have a pulse? Does the reading experience feel intentional? Fix:
+
 - Monotonous sentence length (all sentences the same length creates a droning effect)
 - Choppy transitions between paragraphs
 - Awkward syntax that disrupts the reading flow
@@ -81,7 +88,9 @@ Does the prose have a pulse? Does the reading experience feel intentional? Fix:
 - Sections that read too quickly or too slowly for their content
 
 ### Level 4: Voice
+
 Does the prose sound like this author at their best? Is the voice consistent and distinctive? Fix:
+
 - Inconsistencies in narrative tone
 - Places where the voice goes flat or generic
 - Moments where the author's personality disappears behind convention
@@ -90,6 +99,7 @@ Does the prose sound like this author at their best? Is the voice consistent and
 ## Sentence Rhythm
 
 ### The Music of Prose
+
 Prose has rhythm just as music does. Varying sentence length is the primary tool for controlling pace and emphasis.
 
 **Short sentences create tension, speed, and emphasis.**
@@ -100,7 +110,9 @@ Like this. They punch. The reader moves fast.
 **The most effective prose alternates.** A long sentence that builds and builds and carries the reader forward should be followed by a short one. Impact.
 
 ### The Sentence-Length Audit
+
 Highlight every sentence in a paragraph with a different color based on length:
+
 - Short (under 10 words): Red
 - Medium (10-20 words): Blue
 - Long (20+ words): Green
@@ -108,6 +120,7 @@ Highlight every sentence in a paragraph with a different color based on length:
 If you see all one color, the rhythm is monotonous. Vary it.
 
 ### Opening and Closing Emphasis
+
 The most powerful positions in a sentence are the beginning and the end. Place your most important words there.
 
 **Weak:** "There was a knife on the table, gleaming in the light."
@@ -117,12 +130,15 @@ The most powerful positions in a sentence are the beginning and the end. Place y
 **Strong:** "He had been lying to her all along."
 
 ### Paragraph Architecture
+
 A paragraph is a unit of thought. Each paragraph should:
+
 - Open with a sentence that signals what the paragraph is about
 - Develop that idea with specific detail
 - Close with a sentence that resonates or transitions
 
 ### The One-Sentence Paragraph
+
 Used sparingly, a one-sentence paragraph creates enormous emphasis. It draws the eye. It forces a pause. Reserve it for moments of revelation, emotional impact, or major turns.
 
 Overuse kills the effect.
@@ -130,20 +146,25 @@ Overuse kills the effect.
 ## Word Choice
 
 ### Concrete vs Abstract
+
 **Abstract:** "She felt a profound sense of loss."
 **Concrete:** "She stood in the empty apartment, running her thumb over the groove his coffee mug had worn into the countertop."
 
 Concrete details do the emotional work. Abstract language tells the reader what to feel. Concrete language makes them feel it.
 
 ### The Verb Audit
+
 Verbs are the engine of prose. Audit for:
+
 - **Weak verbs:** was, were, had, made, got, went, came, took
 - Replace with specific, vivid verbs where possible
 - "He went to the door" vs "He crossed to the door" vs "He stumbled to the door"
 - The verb tells the reader HOW something happened, not just THAT it happened
 
 ### Adverb Reduction
+
 Most adverbs indicate a weak verb that should be replaced.
+
 - "She ran quickly" becomes "She sprinted"
 - "He said angrily" becomes "He snapped" (or better: show anger through action)
 - "She looked at him sadly" becomes "Her gaze dropped to her hands"
@@ -151,7 +172,9 @@ Most adverbs indicate a weak verb that should be replaced.
 Not all adverbs should be eliminated. Some are precise and necessary. But each one should justify its existence.
 
 ### The Adjective Question
+
 For every adjective, ask: "Does this add information the noun does not already convey?" If the noun is specific enough, the adjective is redundant.
+
 - "The tall skyscraper" --- skyscrapers are tall by definition
 - "The dark night" --- night is dark by default
 - "The small cottage" --- cottage implies small; use "cottage" alone or find a more specific noun
@@ -159,9 +182,11 @@ For every adjective, ask: "Does this add information the noun does not already c
 ## Show Don't Tell: Diagnosis and Fixes
 
 ### What "Show Don't Tell" Actually Means
+
 It does not mean never summarize. It means: for moments of emotional significance, use sensory detail, action, and dialogue to create the experience in the reader rather than labeling the emotion.
 
 ### The Emotion Label Test
+
 Search for these words: felt, realized, noticed, wondered, thought, knew, understood, decided, remembered. When these appear before an emotion or conclusion, you are likely telling.
 
 **Telling:** "She felt angry."
@@ -171,6 +196,7 @@ Search for these words: felt, realized, noticed, wondered, thought, knew, unders
 **Showing:** "Her left hand was doing that thing again --- pressing the ring finger against her thumb, back and forth, back and forth."
 
 ### When Telling Is Appropriate
+
 - Transitions between scenes ("Three weeks later...")
 - Background information the reader needs quickly
 - Low-stakes moments that do not warrant full dramatization
@@ -178,6 +204,7 @@ Search for these words: felt, realized, noticed, wondered, thought, knew, unders
 - Internal reflection by the narrator (after a scene has done the showing)
 
 ### The Show/Tell Balance
+
 Major emotional beats: Show.
 Transitional moments: Tell.
 Backstory: Mostly tell, with one or two shown flashback scenes for the most important revelations.
@@ -185,20 +212,25 @@ Backstory: Mostly tell, with one or two shown flashback scenes for the most impo
 ## Dialogue Tags and Beats
 
 ### The Invisible Tag Principle
+
 "Said" and "asked" are invisible to readers. They process them without conscious attention. This is a feature, not a bug.
 
 **Overwritten tags to eliminate:**
+
 - "he exclaimed," "she queried," "he retorted," "she intoned," "he ejaculated" (yes, published authors have used this)
 - "he said angrily," "she said sadly" (adverb + said = lazy showing)
 
 ### Action Beats as Attribution
+
 An action beat replaces the dialogue tag entirely:
+
 - "I don't believe you." She crossed her arms.
 - He set down his fork. "We need to talk."
 
 Action beats serve double duty: they attribute the dialogue AND reveal character through body language.
 
 ### Dialogue Tag Rules
+
 1. Use "said" and "asked" for 80-90% of attributions
 2. Use action beats for 10-20%
 3. Use other tags ("whispered," "shouted," "muttered") only when the manner of speaking is unusual and relevant
@@ -208,6 +240,7 @@ Action beats serve double duty: they attribute the dialogue AND reveal character
 ## Filtering Words
 
 ### What Filtering Is
+
 Filtering places the character's perception between the reader and the experience, creating unnecessary distance.
 
 **Filtered:** "She heard the door creak open. She saw a shadow move across the wall. She felt her heart rate increase."
@@ -215,6 +248,7 @@ Filtering places the character's perception between the reader and the experienc
 **Direct:** "The door creaked open. A shadow slid across the wall. Her heart hammered."
 
 ### Common Filtering Words to Search For
+
 - Saw, watched, looked, noticed, observed
 - Heard, listened
 - Felt, sensed
@@ -223,6 +257,7 @@ Filtering places the character's perception between the reader and the experienc
 - Could see, could hear, could feel
 
 ### When Filtering Is Appropriate
+
 - When the act of perception is itself the point ("She watched him from the window for an hour")
 - When the character is uncertain ("She thought she heard footsteps")
 - When you need to emphasize the character's subjective experience specifically
@@ -230,17 +265,22 @@ Filtering places the character's perception between the reader and the experienc
 ## Passive Voice
 
 ### Identifying Passive Voice
+
 Passive: The subject receives the action. "The ball was thrown by the boy."
 Active: The subject performs the action. "The boy threw the ball."
 
 ### When to Fix Passive Voice
+
 Fix when:
+
 - It obscures who is doing the action
 - It weakens the impact of the sentence
 - It slows the pace unnecessarily
 
 ### When to Keep Passive Voice
+
 Keep when:
+
 - The actor is unknown or irrelevant ("The house was built in 1920")
 - The object of the action is more important than the actor ("She was murdered" vs "Someone murdered her")
 - The character is deliberately being evasive ("Mistakes were made")
@@ -249,9 +289,11 @@ Keep when:
 ## Prose Tightening
 
 ### The 10% Rule
+
 A line-edited manuscript should be approximately 10% shorter than the pre-edit version. This is not about cutting content --- it is about removing waste.
 
 ### Common Sources of Bloat
+
 - **Redundant pairs:** "each and every," "hopes and dreams," "first and foremost"
 - **Unnecessary qualifiers:** "very," "really," "quite," "somewhat," "rather," "a little"
 - **Throat-clearing openings:** "It is important to note that..." "The fact of the matter is..."
@@ -261,6 +303,7 @@ A line-edited manuscript should be approximately 10% shorter than the pre-edit v
 - **Echoes:** The same word or phrase repeated within a few sentences unintentionally
 
 ### The Tightening Process
+
 1. Read each paragraph and identify the essential information
 2. Remove every word that does not add meaning, music, or momentum
 3. Replace weak constructions with stronger ones (see verb audit above)
@@ -271,6 +314,7 @@ A line-edited manuscript should be approximately 10% shorter than the pre-edit v
 ## Style Sheet Creation
 
 ### What a Style Sheet Contains
+
 A style sheet documents every editorial decision for consistency across the manuscript. It is shared between line editor, copyeditor, and proofreader.
 
 ```
@@ -316,7 +360,6 @@ dialect conventions, recurring phrases to preserve]
 
 The line editor's art is invisibility. When the work is done well, the reader does not notice the editing. They simply experience a voice that feels polished, intentional, and alive. The author's voice, only more so.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -329,13 +372,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with line editor for a mid-size project."
 
 **Output:** A complete line editor framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

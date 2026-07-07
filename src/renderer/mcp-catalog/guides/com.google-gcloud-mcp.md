@@ -15,9 +15,9 @@ steps:
   - id: pick-project
     title: Pick a Google Cloud project
     estSeconds: 60
-    externalAction: { label: "Open Google Cloud console", url: "https://console.cloud.google.com" }
+    externalAction: { label: 'Open Google Cloud console', url: 'https://console.cloud.google.com' }
     inputs:
-      - { name: GCLOUD_PROJECT, label: "Project ID" }
+      - { name: GCLOUD_PROJECT, label: 'Project ID' }
     body: |
       Wayland needs a default project so commands like *"list my Cloud Run
       services"* know which project to target. You can change it per-call
@@ -36,7 +36,7 @@ steps:
     title: (Optional) Use a service account key
     estSeconds: 120
     inputs:
-      - { name: GOOGLE_APPLICATION_CREDENTIALS, label: "Path to service account JSON" }
+      - { name: GOOGLE_APPLICATION_CREDENTIALS, label: 'Path to service account JSON' }
     warning: |
       Prefer **gcloud auth application-default login** over service account
       keys when possible. Service account keys are long-lived secrets.
@@ -60,7 +60,7 @@ steps:
   - id: authorize
     title: Sign in with Google Cloud
     estSeconds: 30
-    primaryAction: { label: "Sign in with Google", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Google', action: 'oauth-flow' }
     body: |
       Click **Sign in with Google** below. A browser tab opens to Google's
       OAuth consent screen - the same `gcloud auth application-default login`
@@ -79,4 +79,3 @@ steps:
 The MCP uses Google's Application Default Credentials. Easiest path: sign in
 through the Wayland OAuth flow. Power users can drop a service account key
 file and point the env var at it.
-

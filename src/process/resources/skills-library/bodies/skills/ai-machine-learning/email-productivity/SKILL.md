@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml budgeting template testing automation best-practices time-management cleaning"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml budgeting template testing automation best-practices time-management cleaning'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Email Productivity
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about email productivity techniques or best practices
 - User needs guidance on email productivity concepts
 - User wants to implement or improve their approach to email productivity
 
 **Do NOT use when:**
+
 - The request falls outside the scope of email productivity
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -65,6 +66,7 @@ DO:         Quick task attached -> Do it now (under 2 minutes)
 ### The Inbox Zero Workflow
 
 **Step 1: The Initial Purge (One-Time)**
+
 ```
 1. Select ALL emails older than 14 days
 2. Archive them all (don't delete -- archive)
@@ -74,6 +76,7 @@ DO:         Quick task attached -> Do it now (under 2 minutes)
 ```
 
 **Step 2: Ongoing Maintenance**
+
 ```
 Process email in batches, not continuously:
 
@@ -115,18 +118,21 @@ PEOPLE LABELS (optional, for VIPs):
 ### Essential Email Filters/Rules
 
 **Auto-archive newsletters:**
+
 ```
 From: contains "newsletter@" OR "noreply@"
 Action: Skip inbox, apply label "@Read"
 ```
 
 **Flag emails from VIPs:**
+
 ```
 From: boss@company.com, client@important.com
 Action: Star, apply label "VIP", never send to spam
 ```
 
 **Remove noise:**
+
 ```
 Subject: contains "Out of Office" OR "Automatic reply"
 Action: Skip inbox, mark as read, archive
@@ -148,6 +154,7 @@ Use templates when you send similar messages more than 3 times per week, need co
 ### Template Library
 
 **Meeting Request:**
+
 ```
 Subject: Meeting Request: [Topic] - [Duration]
 
@@ -165,6 +172,7 @@ Best, [Name]
 ```
 
 **Follow-Up (No Response):**
+
 ```
 Subject: Re: [Original Subject]
 
@@ -179,6 +187,7 @@ Thanks, [Name]
 ```
 
 **Declining a Request:**
+
 ```
 Subject: Re: [Original Subject]
 
@@ -195,12 +204,12 @@ Best, [Name]
 
 ### Template Tools
 
-| Tool | Platform | Features |
-|------|----------|----------|
-| Gmail Templates | Gmail | Built-in, basic text templates |
-| Text Blaze | Chrome extension | Variables, dynamic content, team sharing |
-| Superhuman | Gmail | Snippets with variables and hotkeys |
-| Espanso | System-wide | Open-source text expansion |
+| Tool            | Platform         | Features                                 |
+| --------------- | ---------------- | ---------------------------------------- |
+| Gmail Templates | Gmail            | Built-in, basic text templates           |
+| Text Blaze      | Chrome extension | Variables, dynamic content, team sharing |
+| Superhuman      | Gmail            | Snippets with variables and hotkeys      |
+| Espanso         | System-wide      | Open-source text expansion               |
 
 ## Batch Processing
 
@@ -280,12 +289,12 @@ Step 4: For keepers, set up filters to auto-label
 
 ### Optimal Email Timing
 
-| Purpose | Best Time to Send | Why |
-|---------|------------------|-----|
-| Business communication | Tue-Thu, 9-11 AM recipient's time | Highest open rates |
-| Follow-ups | Tuesday or Thursday, 10 AM | Mid-week, mid-morning |
-| Cold outreach | Tuesday 8 AM or Thursday 2 PM | Before inbox fills / afternoon lull |
-| Urgent requests | Within recipient's working hours | Respect boundaries |
+| Purpose                | Best Time to Send                 | Why                                 |
+| ---------------------- | --------------------------------- | ----------------------------------- |
+| Business communication | Tue-Thu, 9-11 AM recipient's time | Highest open rates                  |
+| Follow-ups             | Tuesday or Thursday, 10 AM        | Mid-week, mid-morning               |
+| Cold outreach          | Tuesday 8 AM or Thursday 2 PM     | Before inbox fills / afternoon lull |
+| Urgent requests        | Within recipient's working hours  | Respect boundaries                  |
 
 ## Follow-Up Tracking
 
@@ -313,14 +322,14 @@ Send email -> Add to "Waiting For" list with expected response date
 
 ### Email Client Comparison
 
-| Client | Best For | Key Feature | Cost |
-|--------|---------|-------------|------|
-| Gmail (web) | Most users | Search, labels, filters | Free |
-| Outlook | Enterprise/Microsoft | Calendar integration | Included with M365 |
-| Superhuman | Power users | AI triage, split inbox, snippets | $30/mo |
-| Spark | Team email | AI compose, team features | Free-$8/mo |
-| Hey | Opinionated workflow | Screening, Feed, Paper Trail | $99/yr |
-| Fastmail | Privacy-focused | No ads, custom domains | $5-9/mo |
+| Client      | Best For             | Key Feature                      | Cost               |
+| ----------- | -------------------- | -------------------------------- | ------------------ |
+| Gmail (web) | Most users           | Search, labels, filters          | Free               |
+| Outlook     | Enterprise/Microsoft | Calendar integration             | Included with M365 |
+| Superhuman  | Power users          | AI triage, split inbox, snippets | $30/mo             |
+| Spark       | Team email           | AI compose, team features        | Free-$8/mo         |
+| Hey         | Opinionated workflow | Screening, Feed, Paper Trail     | $99/yr             |
+| Fastmail    | Privacy-focused      | No ads, custom domains           | $5-9/mo            |
 
 ### Email Productivity Stack
 
@@ -340,6 +349,7 @@ RECOMMENDED:
 ### The 5-Sentence Email Rule
 
 Most emails should be 5 sentences or fewer:
+
 1. Context (why you're writing)
 2. Key information or request
 3. Supporting detail (if necessary)
@@ -377,7 +387,6 @@ CALL TO ACTION:
 6. **Not using templates**: Rewriting the same message 10 times a week is wasted effort
 7. **Treating all emails equally**: A message from your top client and a vendor newsletter should not compete for the same attention
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -385,7 +394,6 @@ CALL TO ACTION:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -406,14 +414,12 @@ CALL TO ACTION:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

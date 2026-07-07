@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide research"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide research'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Trust Basics Explainer
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified estate planning attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -28,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks what a trust is, how trusts work, or whether they need one
 - A user asks about the difference between revocable and irrevocable trusts and wants to understand what distinguishes them conceptually
 - A user is preparing for a first meeting with an estate planning attorney and wants to arrive informed
@@ -39,6 +41,7 @@ metadata:
 - A user asks specifically about funding a trust or what happens to assets left out of a trust
 
 **Do NOT use when:**
+
 - The user wants you to recommend which specific trust type is right for their situation -- that requires an estate attorney applying facts to jurisdiction-specific law
 - The user wants to draft, review, or critique an actual trust document (use legal document review skills or refer to an estate attorney)
 - The user asks about tax planning strategies specific to their trust, including gift tax exclusions, estate tax exposure above the federal exemption, or charitable deduction structures (refer to a tax attorney or CPA)
@@ -82,6 +85,7 @@ Establish the three-party legal relationship clearly before introducing any trus
 Cover each type systematically. Explain what it is, how it works, what problems it solves, and what its real limitations are. Do not oversell any type.
 
 **Revocable Living Trust (RLT):**
+
 - Created and takes effect during the grantor's lifetime. Assets must be actively transferred into it (funded) to receive any benefit.
 - The grantor retains complete control: they can add or remove assets, change beneficiaries, amend terms, or revoke the trust entirely. This flexibility is the defining characteristic.
 - Assets inside the trust pass to beneficiaries at the grantor's death without probate, because the trust -- not the deceased individual -- holds legal title to those assets. There is no need for a court proceeding to transfer title.
@@ -93,6 +97,7 @@ Cover each type systematically. Explain what it is, how it works, what problems 
 - Cost to create: Roughly $1,500 to $3,500 for a basic single-grantor RLT in most U.S. markets; $3,000 to $6,000+ for a married couple's joint trust or more complex arrangements. Costs vary enormously by jurisdiction and attorney.
 
 **Irrevocable Trust:**
+
 - Once executed and funded, the grantor generally cannot modify, revoke, or retrieve the assets without the consent of the beneficiaries and, in some cases, court approval. This permanence is both the limitation and the source of its benefits.
 - Because the grantor has relinquished control, assets transferred to a properly structured irrevocable trust are generally removed from the grantor's taxable estate for federal estate tax purposes -- reducing potential estate tax exposure for high-net-worth individuals.
 - Irrevocable trusts can provide meaningful **creditor protection**, because the assets are no longer legally owned by the grantor. The degree of protection depends heavily on jurisdiction, how much time has passed since the transfer (fraudulent transfer laws look back 2-4 years in most states), and the specific trust structure.
@@ -102,6 +107,7 @@ Cover each type systematically. Explain what it is, how it works, what problems 
 - Cost to create: Roughly $3,000 to $10,000+ depending on type and complexity. Ongoing administration costs (trustee fees, tax return preparation) are a real recurring expense.
 
 **Testamentary Trust:**
+
 - A testamentary trust exists only on paper during the grantor's lifetime -- it is created inside a will and only comes into legal existence after the grantor's death and the will's admission to probate.
 - Because it is created through the will, it **does not avoid probate**. The will goes through the probate process, the court admits it, and then the testamentary trust is established with the assets that flow through probate.
 - A common and entirely appropriate use: a parent wants assets to be managed for minor children until they reach age 25 or 30, rather than distributing a lump sum at 18. The will creates the trust, names a trustee, specifies the distribution age and conditions, and the probate court supervises.
@@ -110,6 +116,7 @@ Cover each type systematically. Explain what it is, how it works, what problems 
 - Appropriate for simpler estates where probate in the relevant jurisdiction is not burdensome, but the grantor wants structured distribution rather than a lump-sum inheritance.
 
 **Special Purpose Trusts (Overview Only):**
+
 - **Special Needs Trust (SNT):** Provides for a beneficiary with disabilities without disqualifying them from means-tested government benefits like Medicaid and SSI. Critical to understand that a standard trust distribution would eliminate benefit eligibility. See `special-needs-trust-overview`.
 - **Spendthrift Trust:** Contains a clause (a "spendthrift provision") that prevents beneficiaries from assigning their interest to creditors in advance of distribution. Widely used and often included in standard revocable trusts as a precaution. The beneficiary cannot pledge the trust interest as collateral, and the beneficiary's creditors cannot intercept a distribution before it is paid.
 - **Charitable Remainder Trust (CRT) / Charitable Lead Trust (CLT):** Splits the beneficial interest between a charitable organization and non-charitable beneficiaries, potentially generating income tax deductions for the grantor. Significant complexity -- requires attorney and tax advisor.
@@ -379,6 +386,7 @@ This is one of the clearest cases where a revocable living trust provides a conc
 Without a trust, when one or both of you dies, your estate will likely need to go through **probate in Texas** (for your primary residence) AND **probate in the state where your vacation home is located** -- this second proceeding is called **ancillary probate**.
 
 Ancillary probate means:
+
 - A separate court proceeding in the vacation home's state
 - Separate legal fees and court costs in that state
 - Potentially a separate attorney who is licensed there
@@ -394,6 +402,7 @@ If both properties are retitled into a properly funded revocable living trust be
 ### What a Revocable Living Trust Would (and Would Not) Do for You
 
 **It would:**
+
 - Allow both properties to pass to your beneficiaries without probate in either state (if properly funded)
 - Allow either of you to continue managing all trust assets exactly as you do now -- day-to-day, nothing changes
 - Designate a successor trustee who steps in if one or both of you becomes incapacitated, avoiding a court-supervised conservatorship
@@ -401,6 +410,7 @@ If both properties are retitled into a properly funded revocable living trust be
 - Specify exactly who receives what, and under what conditions, including provisions for your blended family structure
 
 **It would NOT:**
+
 - Protect your assets from your creditors while you are alive and the trust is revocable
 - Reduce your estate taxes by itself (though with a combined estate, you should ask your attorney about whether your estate size makes estate tax planning relevant after the 2025 exemption sunset)
 - Handle your IRA accounts by retitling them -- retirement accounts require different treatment
@@ -414,6 +424,7 @@ You have two adult children and your wife has an adult son from her prior marria
 This is not a criticism of anyone's intentions. It is a structural reality of how revocable trusts work.
 
 Your attorney should discuss options that address this, which might include:
+
 - **A QTIP trust provision** (Qualified Terminable Interest Property): provides income or use of assets to the surviving spouse during her lifetime, while ensuring the principal passes to your children at her death
 - **Separate shares structure**: specifying that each spouse's share of the trust is separately designated for their own descendants
 - **Outright distribution at first death** with separate trust provisions for each spouse's share
@@ -424,18 +435,18 @@ Raise this explicitly with your attorney. It is not a sensitive topic for them -
 
 ### Trust Type Comparison
 
-| Feature                    | Revocable Living Trust              | Irrevocable Trust              | Testamentary Trust                |
-|----------------------------|-------------------------------------|--------------------------------|-----------------------------------|
-| When created               | Now, during your lifetime           | Now, during your lifetime      | At death via your will            |
-| Can be changed             | Yes, anytime                        | Generally no                   | Yes, until death via will         |
-| Avoids probate             | Yes -- for both states, if funded   | Yes                            | No -- requires probate            |
-| Creditor protection        | No                                  | Potentially, yes               | Depends on terms                  |
-| Estate tax benefit         | No                                  | Potentially, yes               | Depends on terms                  |
-| Incapacity planning        | Yes (successor trustee takes over)  | Yes                            | No                                |
-| Blended family structure   | Possible with proper drafting       | Possible with proper drafting  | Possible                          |
-| Approximate cost to create | $3,000 -- $6,000+ (married couple)  | $5,000 -- $12,000+             | Included in will package          |
+| Feature                    | Revocable Living Trust             | Irrevocable Trust             | Testamentary Trust        |
+| -------------------------- | ---------------------------------- | ----------------------------- | ------------------------- |
+| When created               | Now, during your lifetime          | Now, during your lifetime     | At death via your will    |
+| Can be changed             | Yes, anytime                       | Generally no                  | Yes, until death via will |
+| Avoids probate             | Yes -- for both states, if funded  | Yes                           | No -- requires probate    |
+| Creditor protection        | No                                 | Potentially, yes              | Depends on terms          |
+| Estate tax benefit         | No                                 | Potentially, yes              | Depends on terms          |
+| Incapacity planning        | Yes (successor trustee takes over) | Yes                           | No                        |
+| Blended family structure   | Possible with proper drafting      | Possible with proper drafting | Possible                  |
+| Approximate cost to create | $3,000 -- $6,000+ (married couple) | $5,000 -- $12,000+            | Included in will package  |
 
-*Costs are rough national estimates. Texas-specific attorney fees and estate complexity will determine actual cost.*
+_Costs are rough national estimates. Texas-specific attorney fees and estate complexity will determine actual cost._
 
 ---
 
@@ -455,14 +466,14 @@ Given your blended family structure, the question of who ultimately inherits IRA
 
 ### Trust Funding Checklist for Your Situation
 
-| Asset                    | What Needs to Happen                         | Key Consideration                                              |
-|--------------------------|----------------------------------------------|----------------------------------------------------------------|
-| Texas primary residence  | New deed retitled to trust, filed with county| Generally does not trigger due-on-sale under federal law       |
-| Out-of-state vacation home| New deed retitled to trust in that state     | That state's deed and recording requirements apply             |
-| Bank accounts            | Retitled at each bank with certificate        | Bring certificate of trust or abbreviated trust summary        |
-| Brokerage accounts       | Retitled at each custodian                   | Some custodians open a new account in the trust's name         |
-| IRAs                     | Do NOT retitle -- review beneficiary forms   | Discuss with attorney + tax advisor before changing anything   |
-| Vehicles                 | Usually not retitled; rely on pour-over will | Vehicle retitling can complicate insurance; most advisors skip |
+| Asset                      | What Needs to Happen                          | Key Consideration                                              |
+| -------------------------- | --------------------------------------------- | -------------------------------------------------------------- |
+| Texas primary residence    | New deed retitled to trust, filed with county | Generally does not trigger due-on-sale under federal law       |
+| Out-of-state vacation home | New deed retitled to trust in that state      | That state's deed and recording requirements apply             |
+| Bank accounts              | Retitled at each bank with certificate        | Bring certificate of trust or abbreviated trust summary        |
+| Brokerage accounts         | Retitled at each custodian                    | Some custodians open a new account in the trust's name         |
+| IRAs                       | Do NOT retitle -- review beneficiary forms    | Discuss with attorney + tax advisor before changing anything   |
+| Vehicles                   | Usually not retitled; rely on pour-over will  | Vehicle retitling can complicate insurance; most advisors skip |
 
 ---
 
@@ -502,4 +513,4 @@ A trust does not stand alone. A complete estate plan for both of you includes:
 
 ---
 
-*This overview reflects general principles of U.S. trust law as of 2024 and is prepared for educational purposes only. Texas trust law and probate procedures, and the laws of the state where your vacation property is located, will govern your specific situation. Consult a licensed estate planning attorney in your jurisdiction before making any estate planning decisions.*
+_This overview reflects general principles of U.S. trust law as of 2024 and is prepared for educational purposes only. Texas trust law and probate procedures, and the laws of the state where your vacation property is located, will govern your specific situation. Consult a licensed estate planning attorney in your jurisdiction before making any estate planning decisions._

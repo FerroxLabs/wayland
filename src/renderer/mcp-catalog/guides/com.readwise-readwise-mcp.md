@@ -12,7 +12,7 @@ steps:
   - id: authorize
     title: Sign in with Readwise
     estSeconds: 30
-    primaryAction: { label: "Sign in with Readwise", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Readwise', action: 'oauth-flow' }
     body: |
       Click **Sign in with Readwise** below. A browser tab opens at
       Readwise's OAuth consent screen.

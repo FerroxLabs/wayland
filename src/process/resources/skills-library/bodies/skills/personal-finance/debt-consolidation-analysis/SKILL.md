@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "debt-management personal-finance analysis budgeting"
-  category: "personal-finance"
-  subcategory: "debt-management"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'debt-management personal-finance analysis budgeting'
+  category: 'personal-finance'
+  subcategory: 'debt-management'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
+
 # Debt Consolidation Analysis
 
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly -- debt consolidation involves real legal and financial commitments with lasting consequences. The information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, certified financial planner (CFP), or licensed credit counselor before making significant debt decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user has two or more debts with different interest rates and asks whether combining them into a single loan makes financial sense
 - The user has received a specific consolidation loan offer (personal loan, home equity loan, HELOC, or balance transfer card) and wants a side-by-side cost comparison against keeping their debts separate
 - The user is paying only minimums on multiple high-rate credit cards and wants to understand whether a lower-rate consolidation loan would save money over the payoff period
@@ -34,6 +36,7 @@ metadata:
 - The user has a mix of high-rate and moderate-rate debts and wants to identify which debts are worth consolidating versus which to leave alone
 
 **Do NOT use when:**
+
 - The user wants a sequenced payoff plan without consolidation -- use `debt-snowball-planner` or `debt-avalanche-planner`; those skills optimize payoff order for existing debts as-is
 - The user wants to compare two or more new loan products unrelated to existing debt -- use `loan-comparison`
 - The user needs a full budget built from income and expenses -- use `budget-planning`; consolidation analysis requires knowing what debts exist, not building a full financial picture
@@ -304,27 +307,35 @@ work IF they choose to proceed. End with two clear action paths.]
 ## Edge Cases
 
 ### Consolidation APR Is Higher Than Weighted Average APR
+
 The consolidation offer fails the primary mathematical test. State the verdict directly: "The consolidation APR of XX.X% is higher than your weighted average APR of XX.X%. Consolidating at this rate will cost more in total interest than the avalanche method." Calculate the exact additional cost. The only remaining argument for consolidation is simplification -- trading dollars for convenience. Quantify that trade-off: "Consolidation would cost approximately $XXX more than the avalanche method, which is the dollar cost of having one payment instead of [N] payments." Present this tradeoff factually and let the user decide. Do not recommend consolidation in this scenario without explicitly flagging the mathematical cost.
 
 ### 0% Promotional Balance Transfer Offer
+
 This is a specialized case that requires phase-by-phase analysis rather than a single APR calculation. Phase 1: Calculate the transfer fee (typically 3-5% of transferred amount). Phase 2: Determine the required monthly payment to eliminate the full balance (including the transfer fee) within the promotional period -- this is: (balance + transfer fee) ÷ promo months. Phase 3: If the user cannot make that payment, calculate estimated remaining balance at promo expiration and apply the post-promotional APR (often 19-29%) for the remaining payoff period. Total cost = transfer fee + post-promo interest. Compare this total to the avalanche method. Key flag: If the user currently has a credit score below approximately 680, they may not qualify for the best 0% offers or may face a lower transfer limit than their total balance -- ask about credit score and transfer limit. Also note that balance transfers typically cannot be used to pay off a card from the same issuer.
 
 ### Highly Dominant Single Debt (One Debt Is 75%+ of Total Balance)
+
 When one debt accounts for 75% or more of the total balance, the weighted average APR is heavily influenced by that single debt's rate, and consolidation is essentially about replacing that one debt with a new loan. The analysis simplifies significantly -- compare the consolidation rate directly to the dominant debt's rate and note that the smaller debts are almost irrelevant to the outcome. If the dominant debt already has a rate below the consolidation rate (for example, an existing personal loan at 14% APR is the dominant debt), consolidation is particularly unlikely to save money. Highlight this efficiency: "Your [debt name] at $X,XXX comprises XX% of your total balance at XX% APR. Consolidation primarily needs to beat this rate -- the smaller debts have limited impact on the outcome."
 
 ### Debt Management Plan (DMP) as the Consolidation Alternative
+
 A nonprofit credit counseling DMP is fundamentally different from a consolidation loan -- it is not new credit. The agency negotiates reduced interest rates directly with creditors (often achieving 6-10% on credit cards versus original 18-28% rates) and the user pays the agency one monthly amount distributed to creditors. Calculate DMP cost as: total interest across all enrolled debts at the negotiated rate + total monthly fees over the plan duration (typically $25-55/month × 36-60 months = $900-$3,300 in fees). Compare this against both the personal loan consolidation and the avalanche method. Key advantages of DMP: no new loan application (no credit impact from inquiry), creditors accept the plan even with damaged credit, and the structured nature of the plan limits behavioral risk (you cannot use the enrolled cards). Key disadvantage: enrolled cards are closed or frozen for the duration, which temporarily impacts credit score. DMPs are often the best option when the user's credit score is too damaged to qualify for a meaningful rate reduction via personal loan.
 
 ### Consolidation Loan Term Significantly Longer Than Current Debts
+
 This is common when a user's current debts are 2-3 years from payoff but the consolidation offer is for 5-7 years. Even at a meaningfully lower rate, extending the term can increase total interest paid. Example: $8,000 at 22% APR with 30 months remaining costs approximately $2,900 in total interest at current trajectory. A consolidation loan at 12% APR over 60 months costs approximately $2,750 in interest -- only $150 less despite a 10 percentage point rate reduction. Show this arithmetic explicitly: "The lower rate saves $XXX in interest per year, but the longer term means you pay that lower rate for XX more months -- the net effect is [savings/cost] of $XXX." The monthly payment will be lower, but this is achieved by stretching the timeline, not by genuine cost reduction.
 
 ### Mix of Secured and Unsecured Debts
+
 If the user lists a mix of secured debts (mortgage at 4.5%, car loan at 6.5%) and unsecured debts (credit cards at 19-24%), isolate the two groups immediately. Explain that secured debts at standard market rates should not be included in the consolidation analysis for two reasons: (1) their rates are typically below what an unsecured personal loan would offer, so including them would increase the weighted average APR calculation and make consolidation look less effective than it is, and (2) they have their own refinancing mechanisms (mortgage refinance, auto loan refinance) with specific qualification criteria. Run the analysis using only the unsecured debts. If the user specifically wants to include a car loan or other secured debt, note clearly that doing so via a personal loan converts secured debt to unsecured debt (which is actually a risk reduction, but may not save money given the typically lower rates on auto loans).
 
 ### User Has Already Consolidated Once and Is Back in Credit Card Debt
+
 This is the behavioral failure mode in action. The user previously consolidated, did not close the freed credit cards, accumulated new balances, and is now considering consolidating again. This pattern is the strongest possible indicator of behavioral risk. Do not refuse to run the analysis -- run it fully. But add a prominent behavioral assessment section: "You have consolidated credit card debt previously. The most important factor in this analysis is not the math -- it is addressing the spending pattern that led to new card debt after the last consolidation. A second consolidation provides no mathematical benefit if the same pattern recurs." Suggest: (1) closing all credit card accounts permanently before consolidating, (2) considering a DMP which prevents card use as a structural constraint, (3) addressing budget deficits that may be driving the card spending.
 
 ### Partial Consolidation -- Consolidating Only Some Debts
+
 The consolidation offer may not cover all debts (the loan limit is lower than total balance) or it may only be mathematically worthwhile to consolidate the highest-rate debts. Run the analysis with only the debts that will be consolidated and recalculate the weighted average APR of the remaining unconsolidated debts separately. Present two post-consolidation scenarios: (1) the consolidated loan payment plus minimum payments on remaining debts, and (2) the consolidated loan payment plus an accelerated payoff on remaining debts. Note that partial consolidation still reduces payment count, but by less than full consolidation.
 
 ---
@@ -343,15 +354,15 @@ The consolidation offer may not cover all debts (the loan limit is lower than to
 
 ### Current Debt Inventory
 
-| Debt      | Type        | Balance    | APR   | Min. Payment | Est. Remaining Term | Secured? |
-|-----------|-------------|-----------|-------|--------------|---------------------|---------|
-| Card A    | Credit card | $4,500    | 22.0% | $125         | ~58 months          | No      |
-| Card B    | Credit card | $2,800    | 18.0% | $80          | ~52 months          | No      |
-| Card C    | Credit card | $1,200    | 24.0% | $40          | ~46 months          | No      |
-| **Total** |             | **$8,500** |       | **$245**     | ~58 months (longest)| No      |
+| Debt      | Type        | Balance    | APR   | Min. Payment | Est. Remaining Term  | Secured? |
+| --------- | ----------- | ---------- | ----- | ------------ | -------------------- | -------- |
+| Card A    | Credit card | $4,500     | 22.0% | $125         | ~58 months           | No       |
+| Card B    | Credit card | $2,800     | 18.0% | $80          | ~52 months           | No       |
+| Card C    | Credit card | $1,200     | 24.0% | $40          | ~46 months           | No       |
+| **Total** |             | **$8,500** |       | **$245**     | ~58 months (longest) | No       |
 
 **Weighted Average APR:** 20.7%
-*Calculation: (($4,500 × 22%) + ($2,800 × 18%) + ($1,200 × 24%)) ÷ $8,500 = ($990 + $504 + $288) ÷ $8,500 = $1,782 ÷ $8,500 = 20.97%, rounded to 20.7%*
+_Calculation: (($4,500 × 22%) + ($2,800 × 18%) + ($1,200 × 24%)) ÷ $8,500 = ($990 + $504 + $288) ÷ $8,500 = $1,782 ÷ $8,500 = 20.97%, rounded to 20.7%_
 
 All three debts are unsecured consumer revolving debt -- all three are appropriate consolidation candidates.
 
@@ -359,21 +370,21 @@ All three debts are unsecured consumer revolving debt -- all three are appropria
 
 ### Consolidation Vehicle Details
 
-| Detail                       | Value                    |
-|------------------------------|--------------------------|
-| Vehicle type                 | Unsecured personal loan  |
-| Loan amount                  | $8,500                   |
-| APR                          | 11.0%                    |
-| Rate type                    | Fixed                    |
-| Term                         | 48 months                |
-| Monthly payment              | $220.49 (~$220)          |
-| Origination fee              | $255 (3.0% of $8,500)    |
-| Other fees                   | None stated              |
-| **Total upfront fees**       | **$255**                 |
-| Promotional period           | None                     |
-| Post-promotional APR         | N/A                      |
+| Detail                 | Value                   |
+| ---------------------- | ----------------------- |
+| Vehicle type           | Unsecured personal loan |
+| Loan amount            | $8,500                  |
+| APR                    | 11.0%                   |
+| Rate type              | Fixed                   |
+| Term                   | 48 months               |
+| Monthly payment        | $220.49 (~$220)         |
+| Origination fee        | $255 (3.0% of $8,500)   |
+| Other fees             | None stated             |
+| **Total upfront fees** | **$255**                |
+| Promotional period     | None                    |
+| Post-promotional APR   | N/A                     |
 
-*Note: Verify with lender whether the $255 origination fee is deducted from proceeds (meaning $8,245 is disbursed to pay off $8,500 in debts -- leaving a $255 shortfall) or added to the loan balance (making the effective principal $8,755 with slightly higher total interest). The analysis below assumes the fee is a direct cost paid separately, and the full $8,500 in debts is retired.*
+_Note: Verify with lender whether the $255 origination fee is deducted from proceeds (meaning $8,245 is disbursed to pay off $8,500 in debts -- leaving a $255 shortfall) or added to the loan balance (making the effective principal $8,755 with slightly higher total interest). The analysis below assumes the fee is a direct cost paid separately, and the full $8,500 in debts is retired._
 
 ---
 
@@ -383,16 +394,20 @@ All three scenarios evaluated at the same effective monthly outflow: **$245/mont
 For the consolidation scenario, the payment is $220 -- $25/month LESS than current minimums.
 
 #### Scenario A: Keep Separate -- Minimum Payments Only ($245/month total, declining minimums)
+
 Using standard iterative calculation with minimums approximately fixed at current amounts:
+
 - Card A ($4,500, 22% APR, $125/month): ~58 months, ~$2,785 interest
 - Card B ($2,800, 18% APR, $80/month): ~52 months, ~$1,300 interest
 - Card C ($1,200, 24% APR, $40/month): ~46 months, ~$595 interest
 - **Total interest (minimum payments): ~$4,680 | Total months: ~58 | Total cost: ~$4,680**
 
 #### Scenario B: Keep Separate -- Avalanche Method at $245/month
+
 Apply $245/month total: minimums to all debts, extra $0 (minimums already sum to $245) -- since total minimums equal $245, the avalanche at $245/month is essentially the same as minimum payments in the first month. However, as lower-balance debts clear, freed minimum payments roll to higher-rate debts.
 
-*Refined avalanche at $245/month fixed:*
+_Refined avalanche at $245/month fixed:_
+
 - Priority order: Card C (24%) → Card A (22%) → Card B (18%)
 - Card C clears in ~36 months using $40/month minimum, but with freed payments from other cleared debts rolling in, this accelerates
 - Running the iterative avalanche calculation at constant $245/month total:
@@ -401,9 +416,10 @@ Apply $245/month total: minimums to all debts, extra $0 (minimums already sum to
   - Card B ($2,800, 18%, gets $80 + freed from C and A): clears ~month 58
 - **Total interest (avalanche at $245/month): ~$3,490 | Total months: ~58 | Total cost: ~$3,490**
 
-*Note: The avalanche only modestly beats minimum payments here because total monthly payment ($245) barely exceeds total minimums ($245) -- there is almost no surplus to accelerate with. The real difference would emerge if the user could pay more than minimums.*
+_Note: The avalanche only modestly beats minimum payments here because total monthly payment ($245) barely exceeds total minimums ($245) -- there is almost no surplus to accelerate with. The real difference would emerge if the user could pay more than minimums._
 
 #### Scenario C: Consolidate at $220/month for 48 Months
+
 - Total interest: ($220 × 48) - $8,500 = $10,560 - $8,500 = **$2,060**
 - Origination fee: **$255**
 - **Total cost: $2,060 + $255 = $2,315 | Total months: 48**
@@ -412,52 +428,52 @@ Apply $245/month total: minimums to all debts, extra $0 (minimums already sum to
 
 ### Cost Comparison Summary Table
 
-| Scenario                        | Total Interest | Total Fees | **Total Cost** | Months to Payoff |
-|---------------------------------|---------------|-----------|----------------|-----------------|
-| Keep separate -- minimums only  | ~$4,680       | $0        | **~$4,680**    | ~58 months      |
-| Keep separate -- avalanche      | ~$3,490       | $0        | **~$3,490**    | ~58 months      |
-| **Consolidate at 11% fixed**    | **~$2,060**   | **$255**  | **~$2,315**    | **48 months**   |
+| Scenario                       | Total Interest | Total Fees | **Total Cost** | Months to Payoff |
+| ------------------------------ | -------------- | ---------- | -------------- | ---------------- |
+| Keep separate -- minimums only | ~$4,680        | $0         | **~$4,680**    | ~58 months       |
+| Keep separate -- avalanche     | ~$3,490        | $0         | **~$3,490**    | ~58 months       |
+| **Consolidate at 11% fixed**   | **~$2,060**    | **$255**   | **~$2,315**    | **48 months**    |
 
 ---
 
 ### Savings Analysis
 
-| Metric                                   | vs. Minimums  | vs. Avalanche |
-|------------------------------------------|--------------|---------------|
-| Interest difference                      | Save ~$2,620 | Save ~$1,430  |
-| Fee cost of consolidation                | ($255)       | ($255)        |
-| **Net savings**                          | **~$2,365**  | **~$1,175**   |
-| Month 1 interest savings (vs. avg rate)  | ~$70/month   | ~$70/month    |
-| Break-even point (fees ÷ monthly savings)| ~Month 4     | ~Month 4      |
-| Months remaining after break-even        | 44 months    | 44 months     |
+| Metric                                    | vs. Minimums | vs. Avalanche |
+| ----------------------------------------- | ------------ | ------------- |
+| Interest difference                       | Save ~$2,620 | Save ~$1,430  |
+| Fee cost of consolidation                 | ($255)       | ($255)        |
+| **Net savings**                           | **~$2,365**  | **~$1,175**   |
+| Month 1 interest savings (vs. avg rate)   | ~$70/month   | ~$70/month    |
+| Break-even point (fees ÷ monthly savings) | ~Month 4     | ~Month 4      |
+| Months remaining after break-even         | 44 months    | 44 months     |
 
-*The $255 origination fee is recovered within approximately 4 months of monthly interest savings (~$70/month × 4 = $280). This is an exceptionally fast break-even.*
+_The $255 origination fee is recovered within approximately 4 months of monthly interest savings (~$70/month × 4 = $280). This is an exceptionally fast break-even._
 
 ---
 
 ### Monthly Cash Flow Comparison
 
-| Scenario                         | Monthly Payment | Delta vs. Current |
-|----------------------------------|----------------|-------------------|
-| Current total minimums           | $245           | baseline          |
-| Consolidation loan payment       | $220           | **-$25/month**    |
-| Avalanche at $245/month          | $245           | Same              |
+| Scenario                   | Monthly Payment | Delta vs. Current |
+| -------------------------- | --------------- | ----------------- |
+| Current total minimums     | $245            | baseline          |
+| Consolidation loan payment | $220            | **-$25/month**    |
+| Avalanche at $245/month    | $245            | Same              |
 
-*Consolidation reduces monthly payment by $25. This is a modest cash flow benefit. However, the more significant benefit is the total cost reduction of ~$1,175 versus the avalanche and ~$2,365 versus minimums. The monthly payment comparison understates the advantage.*
+_Consolidation reduces monthly payment by $25. This is a modest cash flow benefit. However, the more significant benefit is the total cost reduction of ~$1,175 versus the avalanche and ~$2,365 versus minimums. The monthly payment comparison understates the advantage._
 
 ---
 
 ### Risk Register
 
-| Risk Factor                          | Level    | Details                                                                   |
-|--------------------------------------|---------|---------------------------------------------------------------------------|
-| Rate structure                       | **Low** | Fixed at 11% for 48 months -- no rate increase risk                       |
-| Freed credit lines -- new spending   | **High**| $8,500 in card credit lines freed; Cards A, B, C remain open             |
-| Collateral risk                      | **Low** | Unsecured personal loan -- no asset at risk; worst case is credit damage  |
-| Promotional rate expiration          | **N/A** | No promotional period                                                     |
-| Extended term vs. current debts      | **Low** | Consolidation pays off in 48 months vs. ~58 months under minimums -- shorter |
-| Prepayment penalties on old debts    | **None**| No penalties reported                                                     |
-| Credit score impact                  | Minimal | Hard inquiry (-5 to -10 pts temporarily); utilization drop may offset     |
+| Risk Factor                        | Level    | Details                                                                      |
+| ---------------------------------- | -------- | ---------------------------------------------------------------------------- |
+| Rate structure                     | **Low**  | Fixed at 11% for 48 months -- no rate increase risk                          |
+| Freed credit lines -- new spending | **High** | $8,500 in card credit lines freed; Cards A, B, C remain open                 |
+| Collateral risk                    | **Low**  | Unsecured personal loan -- no asset at risk; worst case is credit damage     |
+| Promotional rate expiration        | **N/A**  | No promotional period                                                        |
+| Extended term vs. current debts    | **Low**  | Consolidation pays off in 48 months vs. ~58 months under minimums -- shorter |
+| Prepayment penalties on old debts  | **None** | No penalties reported                                                        |
+| Credit score impact                | Minimal  | Hard inquiry (-5 to -10 pts temporarily); utilization drop may offset        |
 
 **Critical behavioral risk detail:** Upon consolidation, Cards A, B, and C will have combined available credit of approximately $8,500+. If you carry even a moderate balance on these cards after consolidation -- say $3,000 at an average of 21.3% APR -- that adds ~$640/year in new interest on top of your $220 consolidation payment. Within 18 months you would have erased the financial benefit of consolidation entirely.
 
@@ -466,6 +482,7 @@ Apply $245/month total: minimums to all debts, extra $0 (minimums already sum to
 ### Decision Criteria Checklist
 
 **Mathematical factors:**
+
 - [x] Consolidation APR (11.0%) is LOWER than weighted average APR (20.7%) -- 9.7 percentage points lower
 - [x] Total consolidation cost ($2,315) is LESS than avalanche cost ($3,490) -- saves ~$1,175
 - [x] Break-even point (month 4) falls well before the midpoint of the loan term (month 24)
@@ -473,6 +490,7 @@ Apply $245/month total: minimums to all debts, extra $0 (minimums already sum to
 - [ ] Balance transfer promotional period: N/A
 
 **Risk factors:**
+
 - [x] Three freed credit lines will remain open -- behavioral risk is present and elevated
 - [ ] Consolidation vehicle is secured by an asset -- NOT present (unsecured loan)
 - [ ] Variable rate -- NOT present (fixed rate)
@@ -504,6 +522,7 @@ Two clear paths forward are outlined below.
 ---
 
 ### Action Path A: If Proceeding with Consolidation
+
 - [ ] Obtain the full loan agreement in writing; confirm 11% fixed APR, 48-month term, $220.49 monthly payment, and 3% origination fee ($255)
 - [ ] Confirm with the lender whether the $255 fee is deducted from disbursement or added to the balance -- if added, recalculate total cost
 - [ ] Request that loan proceeds be disbursed directly to Card A, Card B, and Card C issuers (many personal loan lenders offer direct payoff as a service)

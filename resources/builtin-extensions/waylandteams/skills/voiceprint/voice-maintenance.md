@@ -24,7 +24,7 @@ Trigger phrases:
 
 **2. Running-log entry: append, stamp, stop.** The whole point is zero friction.
 
-**3. Addendum: a short markdown block** with three sections: *Context* (one sentence on what this is for and who reads it), *Adjustments to the canon* (which DOs to dial up or down, which DON'Ts to relax or tighten), *Banned for this piece only* (words that fit the normal voice but not this audience). Hand back with: *"Paste alongside the canonical voice file, not in place of it."*
+**3. Addendum: a short markdown block** with three sections: _Context_ (one sentence on what this is for and who reads it), _Adjustments to the canon_ (which DOs to dial up or down, which DON'Ts to relax or tighten), _Banned for this piece only_ (words that fit the normal voice but not this audience). Hand back with: _"Paste alongside the canonical voice file, not in place of it."_
 
 **4. Full refresh: load three inputs and recompile.**
 
@@ -40,7 +40,7 @@ Diff old against new. Three categories:
 
 Then add anything new the log and fresh samples surface that the old file missed.
 
-**5. Save with date in body.** Below the H1: *"Last refresh: YYYY-MM-DD. Previous version archived at `<username>-voice-vN.md` if you want the diff."* Stamping tells the user (and model) how fresh the signal is.
+**5. Save with date in body.** Below the H1: _"Last refresh: YYYY-MM-DD. Previous version archived at `<username>-voice-vN.md` if you want the diff."_ Stamping tells the user (and model) how fresh the signal is.
 
 ## Decision rules
 
@@ -60,14 +60,16 @@ Then add anything new the log and fresh samples surface that the old file missed
 
 ## Before / after
 
-**Brief:** User says: *"This model keeps writing 'delve into' and I keep deleting it. Drives me up the wall."*
+**Brief:** User says: _"This model keeps writing 'delve into' and I keep deleting it. Drives me up the wall."_
 
 **Before** (premature refresh):
+
 > Voiceprint opens a session, rebuilds the file, the user re-gathers samples — 45 minutes on a one-line update.
 
 **After** (running-log entry):
+
 > Append to `voice-notes.md`:
-> *2026-05-17 — Banned: "delve into." User edits it out every time. Add to DON'T at next refresh.*
+> _2026-05-17 — Banned: "delve into." User edits it out every time. Add to DON'T at next refresh._
 > Then wait. When two more entries accumulate, the trigger is real.
 
 The log loop is the whole game. Daily friction, monthly cleanup, semi-annual rebuild.

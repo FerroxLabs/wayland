@@ -15,7 +15,7 @@ skills: code-review-patterns devsecops-engineer performance-profiling technical-
 trigger_phrases: conduct code review review pull request thorough code review structured review process
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: testing security optimization step-by-step
   category: software-project
   depends: code-review-patterns devsecops-engineer performance-profiling technical-documentation
@@ -155,6 +155,7 @@ Overall Status: [APPROVED / CHANGES REQUESTED / NEEDS DISCUSSION]
 ```
 
 **Adaptation notes:**
+
 - For small PRs (under 50 lines), combine Steps 1-3 into a single pass
 - For security-critical code, invest more time in Step 2
 - For database-heavy changes, invest more time in Step 3

@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "pet-care guide health-wellness"
-  category: "home-household"
-  subcategory: "pet-care"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'pet-care guide health-wellness'
+  category: 'home-household'
+  subcategory: 'pet-care'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Pet Nutrition Advisor
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about pet nutrition
 - User needs guidance on pet nutrition topics
 - User wants a structured approach to pet nutrition
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -39,10 +42,13 @@ metadata:
 7. **What is your budget for pet food?** (Budget / Mid-range / Premium / No limit)
 8. **Does your pet have any food sensitivities or preferences?**
 9. **Is your pet spayed/neutered?** (Affects caloric needs)
+
 ---
+
 ## Reading Pet Food Labels
 
 ### Understanding AAFCO Standards
+
 ```
 AAFCO (Association of American Feed Control Officials):
 - Sets nutritional standards for pet food in the US
@@ -69,6 +75,7 @@ WHAT TO LOOK FOR ON LABELS:
 ```
 
 ### Decoding Ingredient Labels
+
 ```
 PROTEIN SOURCES (Best to Acceptable):
 Excellent: "Deboned chicken," "Fresh salmon," "Turkey"
@@ -97,18 +104,19 @@ Avoid: Propylene glycol, excessive salt or sugar
 
 ### Comparing Dry vs Wet vs Raw
 
-| Factor | Dry Kibble | Wet/Canned | Raw |
-|--------|-----------|------------|-----|
-| Moisture | 6-10% | 75-85% | 60-70% |
-| Calorie Density | High | Low | Medium |
-| Dental Health | Mild benefit | No benefit | Bone chewing benefit |
-| Shelf Life | Long | Long (unopened) | Short |
-| Convenience | High | Medium | Low |
-| Cost per Serving | Low | Medium-High | High |
-| Palatability | Moderate | High | High |
-| Hydration Benefit | Low | High | Moderate |
+| Factor            | Dry Kibble   | Wet/Canned      | Raw                  |
+| ----------------- | ------------ | --------------- | -------------------- |
+| Moisture          | 6-10%        | 75-85%          | 60-70%               |
+| Calorie Density   | High         | Low             | Medium               |
+| Dental Health     | Mild benefit | No benefit      | Bone chewing benefit |
+| Shelf Life        | Long         | Long (unopened) | Short                |
+| Convenience       | High         | Medium          | Low                  |
+| Cost per Serving  | Low          | Medium-High     | High                 |
+| Palatability      | Moderate     | High            | High                 |
+| Hydration Benefit | Low          | High            | Moderate             |
 
 ### Dry Matter Basis Comparison
+
 ```
 To compare protein across foods with different moisture levels:
 FORMULA:
@@ -116,10 +124,13 @@ Dry Matter Protein % = (Protein % on label) / (100 - Moisture %) x 100
 Wet Food: 10% protein, 78% moisture
 DM Protein = 10 / (100-78) x 100 = 45.5%
 ```
+
 ---
+
 ## Feeding Schedules by Age and Size
 
 ### Dog Feeding Schedule
+
 ```
 PUPPIES (8 weeks - 4 months):
 - Feed 3-4 times per day
@@ -153,6 +164,7 @@ Spayed/neutered pets may need 20-30% fewer calories.
 ```
 
 ### Cat Feeding Schedule
+
 ```
 KITTENS (8 weeks - 6 months):
 - Feed 3-4 times per day
@@ -183,42 +195,45 @@ Cat Weight | Indoor/Inactive | Moderate | Active
 14 lbs     | 270 cal        | 330 cal  | 400 cal
 Obesity is the #1 nutritional problem in cats.
 ```
+
 ---
+
 ## Toxic Foods List
 
 ### Foods Toxic to Dogs
 
-| Food | Toxicity Level | Symptoms | Notes |
-|------|---------------|----------|-------|
-| **Chocolate** | Moderate-Severe | Vomiting, diarrhea, seizures, death | Dark > Milk > White in toxicity |
-| **Grapes/Raisins** | Severe | Kidney failure | Even small amounts can be fatal |
-| **Xylitol** (sweetener) | Severe | Liver failure, hypoglycemia, death | Found in gum, candy, peanut butter |
-| **Onions/Garlic** | Moderate | Anemia (destroys red blood cells) | All forms: raw, cooked, powder |
-| **Macadamia Nuts** | Moderate | Weakness, vomiting, tremors | Usually not fatal |
-| **Alcohol** | Severe | Vomiting, breathing difficulty, death | Even small amounts dangerous |
-| **Caffeine** | Moderate-Severe | Restlessness, rapid breathing, seizures | Coffee, tea, energy drinks |
-| **Avocado** | Mild-Moderate | Vomiting, diarrhea | Persin toxin in pit, skin, leaves |
-| **Cooked Bones** | Moderate | GI obstruction, perforation | Splinter easily; raw bones are safer |
-| **Yeast Dough** | Moderate | Bloating, alcohol production | Expands in stomach |
-| **Salt (excessive)** | Moderate | Vomiting, diarrhea, sodium toxicity | Watch for salt rock lamps too |
-| **Corn Cobs** | Moderate | GI obstruction | Do not pass through GI tract |
+| Food                    | Toxicity Level  | Symptoms                                | Notes                                |
+| ----------------------- | --------------- | --------------------------------------- | ------------------------------------ |
+| **Chocolate**           | Moderate-Severe | Vomiting, diarrhea, seizures, death     | Dark > Milk > White in toxicity      |
+| **Grapes/Raisins**      | Severe          | Kidney failure                          | Even small amounts can be fatal      |
+| **Xylitol** (sweetener) | Severe          | Liver failure, hypoglycemia, death      | Found in gum, candy, peanut butter   |
+| **Onions/Garlic**       | Moderate        | Anemia (destroys red blood cells)       | All forms: raw, cooked, powder       |
+| **Macadamia Nuts**      | Moderate        | Weakness, vomiting, tremors             | Usually not fatal                    |
+| **Alcohol**             | Severe          | Vomiting, breathing difficulty, death   | Even small amounts dangerous         |
+| **Caffeine**            | Moderate-Severe | Restlessness, rapid breathing, seizures | Coffee, tea, energy drinks           |
+| **Avocado**             | Mild-Moderate   | Vomiting, diarrhea                      | Persin toxin in pit, skin, leaves    |
+| **Cooked Bones**        | Moderate        | GI obstruction, perforation             | Splinter easily; raw bones are safer |
+| **Yeast Dough**         | Moderate        | Bloating, alcohol production            | Expands in stomach                   |
+| **Salt (excessive)**    | Moderate        | Vomiting, diarrhea, sodium toxicity     | Watch for salt rock lamps too        |
+| **Corn Cobs**           | Moderate        | GI obstruction                          | Do not pass through GI tract         |
 
 ### Foods Toxic to Cats
 
-| Food | Toxicity Level | Symptoms | Notes |
-|------|---------------|----------|-------|
-| **Onions/Garlic** | Severe | Anemia | Cats MORE sensitive than dogs |
-| **Chocolate** | Moderate-Severe | Same as dogs | Cats rarely eat it but still toxic |
-| **Grapes/Raisins** | Severe | Kidney failure | Same as dogs |
-| **Alcohol** | Severe | Same as dogs | Very small amount is dangerous |
-| **Caffeine** | Moderate-Severe | Same as dogs | |
-| **Lilies** (flowers) | CRITICAL | Kidney failure, death | Even pollen can be fatal to cats |
-| **Raw Fish** (excessive) | Moderate | Thiamine deficiency | Occasional is okay; daily is not |
-| **Dog Food** (long-term) | Moderate | Nutritional deficiency | Lacks taurine and adequate protein |
-| **Xylitol** | Moderate | Liver damage | Less data than dogs but still dangerous |
-| **Essential Oils** | Variable | Liver damage, respiratory distress | Tea tree, peppermint, citrus especially |
+| Food                     | Toxicity Level  | Symptoms                           | Notes                                   |
+| ------------------------ | --------------- | ---------------------------------- | --------------------------------------- |
+| **Onions/Garlic**        | Severe          | Anemia                             | Cats MORE sensitive than dogs           |
+| **Chocolate**            | Moderate-Severe | Same as dogs                       | Cats rarely eat it but still toxic      |
+| **Grapes/Raisins**       | Severe          | Kidney failure                     | Same as dogs                            |
+| **Alcohol**              | Severe          | Same as dogs                       | Very small amount is dangerous          |
+| **Caffeine**             | Moderate-Severe | Same as dogs                       |                                         |
+| **Lilies** (flowers)     | CRITICAL        | Kidney failure, death              | Even pollen can be fatal to cats        |
+| **Raw Fish** (excessive) | Moderate        | Thiamine deficiency                | Occasional is okay; daily is not        |
+| **Dog Food** (long-term) | Moderate        | Nutritional deficiency             | Lacks taurine and adequate protein      |
+| **Xylitol**              | Moderate        | Liver damage                       | Less data than dogs but still dangerous |
+| **Essential Oils**       | Variable        | Liver damage, respiratory distress | Tea tree, peppermint, citrus especially |
 
 ### Safe Human Foods for Dogs and Cats
+
 ```
 SAFE FOR DOGS (in moderation):
 - Carrots (cooked or raw)
@@ -247,10 +262,13 @@ IF YOUR PET EATS SOMETHING TOXIC:
 4. Note what was eaten, how much, and when
 5. Do NOT induce vomiting unless directed by a professional
 ```
+
 ---
+
 ## Raw Diet Considerations
 
 ### Raw Diet Overview
+
 ```
 TYPES OF RAW DIETS:
 1. Commercially prepared raw (frozen or freeze-dried): Safest option
@@ -279,10 +297,13 @@ IF PURSUING RAW:
 - Not recommended for homes with immunocompromised individuals
 - Not recommended for puppies/kittens (higher risk)
 ```
+
 ---
+
 ## Weight Management
 
 ### Body Condition Scoring (1-9 Scale)
+
 ```
 1-3: UNDERWEIGHT
 - Ribs, spine, hip bones easily visible
@@ -315,6 +336,7 @@ HEALTH RISKS OF OBESITY:
 ```
 
 ### Weight Loss Protocol
+
 ```
 STEP 1: VET CONSULTATION
 - Rule out thyroid issues (hypothyroidism in dogs, rare in cats)
@@ -345,22 +367,25 @@ Date | Weight | BCS | Calories/Day | Exercise | Notes
 -----|--------|-----|-------------|----------|------
      |        |     |             |          |
 ```
+
 ---
+
 ## Prescription Diets
 
 ### Common Prescription Diets and Their Purposes
 
-| Condition | Diet Type | Key Features | Major Brands |
-|-----------|-----------|-------------|--------------|
-| Kidney Disease | Renal Support | Low phosphorus, moderate protein | Royal Canin Renal, Hill's k/d |
-| Urinary Crystals | Urinary Health | pH modification, controlled minerals | Royal Canin Urinary SO, Hill's c/d |
-| Diabetes | Diabetic | Low carb, high protein (cats) | Royal Canin Diabetic, Hill's m/d |
-| Allergies | Hydrolyzed/Novel Protein | Hydrolyzed protein or novel source | Royal Canin HP, Hill's z/d |
-| GI Issues | Gastrointestinal | Highly digestible, low fat | Royal Canin GI, Hill's i/d |
-| Joint Disease | Joint Support | Omega-3, glucosamine, chondroitin | Hill's j/d, Purina JM |
-| Liver Disease | Hepatic Support | Moderate protein, low copper | Royal Canin Hepatic, Hill's l/d |
-| Heart Disease | Cardiac | Low sodium, taurine, L-carnitine | Royal Canin Cardiac, Hill's h/d |
-| Weight Loss | Metabolic/Satiety | Low calorie, high fiber | Hill's Metabolic, Royal Canin Satiety |
+| Condition        | Diet Type                | Key Features                         | Major Brands                          |
+| ---------------- | ------------------------ | ------------------------------------ | ------------------------------------- |
+| Kidney Disease   | Renal Support            | Low phosphorus, moderate protein     | Royal Canin Renal, Hill's k/d         |
+| Urinary Crystals | Urinary Health           | pH modification, controlled minerals | Royal Canin Urinary SO, Hill's c/d    |
+| Diabetes         | Diabetic                 | Low carb, high protein (cats)        | Royal Canin Diabetic, Hill's m/d      |
+| Allergies        | Hydrolyzed/Novel Protein | Hydrolyzed protein or novel source   | Royal Canin HP, Hill's z/d            |
+| GI Issues        | Gastrointestinal         | Highly digestible, low fat           | Royal Canin GI, Hill's i/d            |
+| Joint Disease    | Joint Support            | Omega-3, glucosamine, chondroitin    | Hill's j/d, Purina JM                 |
+| Liver Disease    | Hepatic Support          | Moderate protein, low copper         | Royal Canin Hepatic, Hill's l/d       |
+| Heart Disease    | Cardiac                  | Low sodium, taurine, L-carnitine     | Royal Canin Cardiac, Hill's h/d       |
+| Weight Loss      | Metabolic/Satiety        | Low calorie, high fiber              | Hill's Metabolic, Royal Canin Satiety |
+
 ```
 IMPORTANT NOTES:
 - Prescription diets require veterinary recommendation
@@ -370,10 +395,13 @@ IMPORTANT NOTES:
 - Follow transition guidelines carefully
 - Regular monitoring required (bloodwork, etc.)
 ```
+
 ---
+
 ## Hydration
 
 ### Water Requirements
+
 ```
 DOGS:
 - General rule: 1 oz of water per pound of body weight per day
@@ -408,10 +436,13 @@ DEHYDRATION SIGNS:
 - Reduced urination
 - Panting (cats: serious sign)
 ```
+
 ---
+
 ## Breed-Specific Nutritional Considerations
 
 ### Large/Giant Breed Dogs
+
 ```
 PUPPIES:
 - Large-breed puppy food (controlled calcium and phosphorus)
@@ -429,6 +460,7 @@ ADULTS:
 ```
 
 ### Small Breed Dogs
+
 ```
 PUPPIES:
 - Small-breed puppy formula (smaller kibble, calorie-dense)
@@ -442,6 +474,7 @@ ADULTS:
 ```
 
 ### Brachycephalic Breeds (Flat-faced)
+
 ```
 CONSIDERATIONS:
 - Difficulty eating from deep bowls (use flat or puzzle feeders)
@@ -452,6 +485,7 @@ CONSIDERATIONS:
 ```
 
 ### Cat Breeds
+
 ```
 MAINE COON / LARGE BREEDS:
 - Higher calorie needs during growth (slow maturing)
@@ -468,10 +502,13 @@ BENGAL / ACTIVE BREEDS:
 - Higher calorie needs for activity level
 - May benefit from higher protein formulas
 ```
+
 ---
+
 ## Treats and Portions
 
 ### The 10% Rule
+
 ```
 Treats should make up NO MORE than 10% of daily caloric intake.
 Common Treat Calories:
@@ -488,10 +525,13 @@ HEALTHY, LOW-CALORIE TREAT OPTIONS:
 Dogs: Baby carrots, green beans, apple slices, blueberries, ice cubes
 Cats: Freeze-dried single-ingredient treats, small pieces of cooked chicken
 ```
+
 ---
+
 ## Output Format
 
 When providing nutrition guidance, present it as:
+
 ```
 NUTRITION ASSESSMENT
 Pet: [Species / Breed / Age / Weight]

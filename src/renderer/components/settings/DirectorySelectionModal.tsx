@@ -142,12 +142,7 @@ const DirectorySelectionModal: React.FC<DirectorySelectionModalProps> = ({
             <Button onClick={onCancel} style={{ borderRadius: 8 }} className='px-16px'>
               {t('common.cancel')}
             </Button>
-            <Button
-              type='primary'
-              onClick={handleConfirm}
-              disabled={!selectedPath}
-              className=''
-            >
+            <Button type='primary' onClick={handleConfirm} disabled={!selectedPath} className=''>
               {t('common.confirm')}
             </Button>
           </div>

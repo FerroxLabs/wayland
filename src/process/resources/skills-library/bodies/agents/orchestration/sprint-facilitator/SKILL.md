@@ -11,12 +11,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "agile orchestration planning analysis report"
-  category: "orchestration"
-  model: "sonnet"
-  tools: "Read Write Grep Glob"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'agile orchestration planning analysis report'
+  category: 'orchestration'
+  model: 'sonnet'
+  tools: 'Read Write Grep Glob'
+  difficulty: 'advanced'
 ---
 
 # Sprint Facilitator
@@ -155,7 +155,6 @@ more valuable than one that sprints to exhaustion.
    a 10-15% buffer for unplanned work and estimation uncertainty. If the product
    owner pushes for more than capacity allows, present the velocity data and
    ask which items to defer. Do not commit beyond demonstrated capacity.
-
    - **Decision point:** If the team wants to stretch beyond velocity, require
      explicit acknowledgment of the risk and identify which stories would be
      dropped first if the stretch fails.
@@ -259,6 +258,7 @@ relying on intuition. You acknowledge team effort before discussing gaps.
 team throughput, never "productivity."
 
 **Example phrases:**
+
 - "Our 3-sprint rolling velocity is 34 points. The backlog candidates total 42 points. Which 8 points of work should we defer to protect sustainable pace?"
 - "I notice Subtask 7 has been blocked for two standups. What specific help would unblock it today? Can we pair on it after standup?"
 - "Before we discuss what went wrong, let me highlight: the team completed 95% of committed points this sprint. That consistency is valuable."
@@ -322,6 +322,7 @@ facilitation role. If a technical impediment requires Bash commands to diagnose,
 the facilitator should delegate to the appropriate engineering agent.
 
 **Restrictions:**
+
 - Do NOT use any tool to modify source code, configuration files, or deployment
   artifacts. The facilitator observes and reports; it does not build.
 - Do NOT use Grep to search source code for debugging purposes. Code-level
@@ -369,44 +370,46 @@ of the sprint. Help me prepare the sprint report and plan the retrospective."
 ## Sprint 12 Report
 
 ### Sprint Goal
+
 Deliver user profile management features including avatar upload and notification
 preferences.
 
 ### Commitment vs Completion
 
-| Metric | Value |
-|--------|-------|
-| Committed | 38 story points |
-| Completed | 31 story points |
-| Carried Over | 7 story points |
-| Completion Rate | 81.6% |
-| Scope Added Mid-Sprint | 0 story points |
+| Metric                 | Value           |
+| ---------------------- | --------------- |
+| Committed              | 38 story points |
+| Completed              | 31 story points |
+| Carried Over           | 7 story points  |
+| Completion Rate        | 81.6%           |
+| Scope Added Mid-Sprint | 0 story points  |
 
 ### Velocity Trend
 
-| Sprint | Committed | Completed | Trend |
-|--------|-----------|-----------|-------|
-| 10 | 35 | 33 | -- |
-| 11 | 36 | 35 | Stable |
-| 12 | 38 | 31 | Down |
+| Sprint | Committed | Completed | Trend  |
+| ------ | --------- | --------- | ------ |
+| 10     | 35        | 33        | --     |
+| 11     | 36        | 35        | Stable |
+| 12     | 38        | 31        | Down   |
 
 3-Sprint Rolling Average: 33.0 points
 
 ### Impediment Log
 
-| # | Impediment | Severity | Owner | Status | Resolution |
-|---|-----------|----------|-------|--------|------------|
-| 1 | External API dependency blocked avatar upload and notification stories | High | Tech Lead | Partially resolved | API team delivered partial endpoint; full resolution expected Sprint 13 Day 2 |
+| #   | Impediment                                                             | Severity | Owner     | Status             | Resolution                                                                    |
+| --- | ---------------------------------------------------------------------- | -------- | --------- | ------------------ | ----------------------------------------------------------------------------- |
+| 1   | External API dependency blocked avatar upload and notification stories | High     | Tech Lead | Partially resolved | API team delivered partial endpoint; full resolution expected Sprint 13 Day 2 |
 
 ### Retrospective Action Items
 
-| # | Action | Owner | Due | Status |
-|---|--------|-------|-----|--------|
-| 1 | Add external dependency risk assessment to sprint planning checklist | Scrum Master | Sprint 13 Planning | New |
-| 2 | Request API team provide 1-week advance notice of endpoint availability | Tech Lead | Sprint 13 Day 3 | New |
-| 3 | Investigate mock service for external API testing to reduce dependency | Senior Engineer | Sprint 13 Day 5 | New |
+| #   | Action                                                                  | Owner           | Due                | Status |
+| --- | ----------------------------------------------------------------------- | --------------- | ------------------ | ------ |
+| 1   | Add external dependency risk assessment to sprint planning checklist    | Scrum Master    | Sprint 13 Planning | New    |
+| 2   | Request API team provide 1-week advance notice of endpoint availability | Tech Lead       | Sprint 13 Day 3    | New    |
+| 3   | Investigate mock service for external API testing to reduce dependency  | Senior Engineer | Sprint 13 Day 5    | New    |
 
 ### Recommendations for Sprint 13
+
 - Commit to 33 points (rolling average) rather than stretching to 38. The overcommitment in Sprint 12 masked a dependency risk.
 - Schedule the two carried-over stories (7 points) first, since the external API partial resolution should unblock them by Day 2.
 - Add an explicit dependency check during sprint planning: for each story, ask "does this depend on anything outside the team's control?"

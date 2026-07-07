@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "investing personal-finance analysis guide"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'investing personal-finance analysis guide'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Compound Growth Explainer
 
 > **Disclaimer:** This skill provides educational information about financial concepts and mathematical demonstrations of compound growth. It does NOT constitute financial advice, investment recommendations, tax guidance, or a projection of actual investment results. Individual financial circumstances vary significantly. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
@@ -28,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks what compound interest is, how it works, or wants an intuitive explanation of exponential growth in money
 - The user has a starting amount and/or a contribution amount and wants to see how those numbers grow over time at various rates
 - The user wants to understand the mathematical difference between simple interest and compound interest, including a side-by-side comparison
@@ -38,6 +40,7 @@ metadata:
 - The user wants to see the math broken down step-by-step so they can verify or understand each calculation themselves
 
 **Do NOT use this skill when:**
+
 - The user needs a structured retirement readiness analysis with savings gap, income replacement ratios, and Social Security integration -- use `retirement-savings-calculator`
 - The user wants to quantify how investment management fees, expense ratios, or advisor fees reduce long-term wealth -- use `investment-fee-analyzer`
 - The user is deciding how to allocate money across asset classes, choosing between stocks/bonds/cash, or wants risk-adjusted portfolio construction -- use `portfolio-allocation-framework`
@@ -81,6 +84,7 @@ Anchor the user's intuition before presenting formulas. This step ensures the nu
 State each formula explicitly and define every variable. Show the formula, the substituted numbers, and the result -- never skip directly to an answer.
 
 **Formula 1: Lump Sum with No Contributions (Standard Compound Interest)**
+
 ```
 FV = PV × (1 + r/n)^(n×t)
 
@@ -94,6 +98,7 @@ t   = Time in years
 For monthly compounding: FV = PV × (1 + 0.06/12)^(12×t) = PV × (1.005)^(12t)
 
 **Formula 2: Lump Sum Plus Regular Monthly Contributions (Future Value of Annuity Due)**
+
 ```
 FV = PV × (1 + r/12)^(12t) + PMT × [((1 + r/12)^(12t) - 1) / (r/12)]
 
@@ -106,6 +111,7 @@ Total FV is the sum of both
 Show the user both terms separately before adding them. This makes it clear how much the starting amount contributes vs. how much ongoing contributions contribute.
 
 **Formula 3: Simple Interest (for contrast)**
+
 ```
 FV_simple = PV × (1 + r × t)
 
@@ -114,6 +120,7 @@ between simple and compound growth
 ```
 
 **Rule of 72 Approximation:**
+
 ```
 Doubling time (years) ≈ 72 / annual percentage rate
 
@@ -128,12 +135,14 @@ For higher rates, use the exact formula: t = ln(2) / ln(1 + r)
 Work through each scenario methodically. Show intermediate calculations for at least the first 2--3 years so the user can follow the logic before trusting the full table.
 
 **Table 1: Simple vs. Compound (lump sum only, same rate)**
+
 - Use the user's starting amount and one rate (their preferred rate or 6% as default)
 - Show years 1, 5, 10, 20, and the user's full horizon
 - The gap should be minimal at year 1 and striking at the full horizon
 - Compute the difference column as (Compound -- Simple) to show what compounding added
 
 **Table 2: Growth at Three Rates (with monthly contributions)**
+
 - Use the user's PV and PMT
 - Use conservative (4%), moderate (7%), and optimistic (10%) if the user has no preference
 - Justify rate selection briefly: these represent approximate ranges for low-volatility, diversified, and more growth-oriented scenarios respectively -- they are not predictions
@@ -141,12 +150,14 @@ Work through each scenario methodically. Show intermediate calculations for at l
 - Show the dollar difference between the conservative and optimistic scenarios at the endpoint -- this is often larger than people expect
 
 **Table 3: Compounding Frequency Comparison**
+
 - This is a frequently misunderstood nuance -- briefly demonstrate with the user's numbers
 - Compare annual, monthly, and daily compounding at the same rate
 - The difference between monthly and daily is small (often less than 0.1% of final value); the difference between annual and monthly is more meaningful for shorter horizons
 - This table can be compact: just show the final value at the horizon for each frequency
 
 **Table 4: Cost of Waiting (starting now vs. delaying)**
+
 - Use the moderate rate and the user's contribution amount
 - Show three scenarios: starting immediately, starting 5 years later, starting 10 years later
 - When the user delays, they lose the compounding on both their existing principal AND on the contributions they would have made in those missing years
@@ -186,11 +197,13 @@ The Rule of 72 converts abstract exponential math into a memorable, actionable m
 Every compound growth illustration requires a reality calibration section. Do not omit this.
 
 **Inflation adjustment:**
+
 - If the user did not request it, briefly flag it anyway: nominal returns (the headline percentage) include inflation; real returns (purchasing power) subtract it
 - A simple rule of thumb: nominal rate minus expected inflation rate ≈ real rate. At 7% nominal and 3% inflation, real purchasing power grows at approximately 4% annually (exact: (1.07/1.03) -- 1 = 3.88%)
 - If the user wants a real-return table, build a second version of Table 2 using the inflation-adjusted rate alongside the nominal version. Label clearly.
 
 **Tax drag:**
+
 - In a taxable account, dividends and realized gains are taxed annually, which reduces the effective compounding rate
 - In a tax-deferred account (traditional 401k, IRA), growth compounds untouched but withdrawals are taxed as ordinary income
 - In a tax-exempt account (Roth IRA, Roth 401k), growth is never taxed if withdrawal conditions are met
@@ -198,6 +211,7 @@ Every compound growth illustration requires a reality calibration section. Do no
 - As a rough illustration: a 0.5--1.5% annual tax drag on taxable accounts can reduce a 30-year outcome by 10--25% compared to a tax-deferred account -- reference the `investment-fee-analyzer` skill for precise tax-drag quantification
 
 **Volatility reality check:**
+
 - Real investments do not grow at a constant rate each year
 - Sequence matters: two portfolios with the same average return but different year-by-year sequences produce different outcomes -- this is especially important when withdrawals are involved (sequence of returns risk) but is beyond the scope of this skill
 - Note: the calculated values represent a mathematical scenario in which the stated growth rate is achieved smoothly and consistently, year after year. Actual returns will vary above and below this line in any given year.
@@ -415,27 +429,35 @@ Tripling time ≈ 114 / rate. At [r2]%: your $[PV] triples in approximately [114
 ## Edge Cases
 
 ### User Provides No Numbers
+
 Ask for at minimum a starting amount (PV) and time horizon. A contribution amount is strongly preferred but optional -- some users are modeling a one-time lump sum. If the user wants a general concept explanation before sharing numbers, work through the canonical example: $1,000 starting, $100/month, 30-year horizon. Label it explicitly as a teaching illustration and invite the user to substitute their own figures. Do not invent numbers for the user and present them as if they were provided.
 
 ### User Is Asking About Debt Compounding Against Them
+
 The formula is identical, but the framing, emotional valence, and recommended actions are completely different. Do not run a debt compounding scenario through this skill's full output format. Instead, apply the lump sum formula (no PMT term) to the debt balance, show how rapidly it grows without payments, and note that the same compounding power that builds wealth in savings destroys it in high-interest debt. Provide the calculation and recommend addressing the debt question in the context of a debt payoff plan. Do not suggest this is equivalent to investment compounding -- the asymmetry (tax treatment, rates, control) matters.
 
 ### Very Short Time Horizon (Under 3 Years)
+
 Complete the calculation honestly. At 3 years, the compounding premium on $10,000 at 7% vs. simple interest is about $155 -- not nothing, but not transformational. Explicitly label the output: "Over [n] years, the primary driver of your balance growth is contributions ($[total contrib]) rather than compounding ($[growth]). Compounding becomes increasingly powerful beyond the 10-year mark." Do not refuse to run the numbers or imply the user is doing something wrong -- some users have short horizons for valid reasons.
 
 ### Very Long Time Horizon (Over 40 Years)
+
 Results may appear implausibly large. A $300/month investment at 8% for 45 years produces a figure around $1.4 million in nominal terms. This is mathematically correct but requires extra contextualization: (1) inflation will significantly reduce the real purchasing power of that figure; (2) this assumes absolutely consistent contributions and rates with no interruptions; (3) the result is sensitive to the final years of compounding. Consider showing both nominal and real (inflation-adjusted) final values side-by-side for horizons over 30 years, even if the user did not ask.
 
 ### User Wants to Account for Inflation
+
 Build two complete versions of the rate-comparison table: one nominal, one real. For the real table, reduce each rate by the user's stated inflation assumption. If the user has not specified an inflation assumption, use 2.5--3% as a range (common long-run central bank targets in many developed economies) and note that the actual rate is unknown. Use the Fisher Equation for precision: Real rate = (1 + nominal) / (1 + inflation) -- 1. For example, at 7% nominal and 3% inflation: (1.07/1.03) -- 1 = 3.88% real. Do not simply subtract inflation from the nominal rate; that is an approximation that becomes material at higher rates.
 
 ### User Provides an Assumed Rate Above 12%
+
 Run the calculation as requested -- do not refuse. Add a clearly marked callout: "Note: A [rate]% sustained annual return is above the historical long-run nominal return of broad equity indices in most major markets. It may be achievable in specific asset classes, leveraged strategies, or certain historical windows, but carries substantially higher risk than lower-return scenarios. This calculation shows what the math produces -- not a prediction of what this rate will be achieved." Calculate using the exact doubling formula (t = ln(2)/ln(1+r)) rather than the Rule of 72 at these rates.
 
 ### User Asks "Which Account Type Should I Use?"
+
 This falls outside this skill's scope. The compounding math is identical regardless of account type, but the tax treatment differs dramatically and changes the effective outcome. Compute the nominal growth scenario they asked about, then note: "The account type significantly affects the after-tax outcome of this growth. A Roth account allows this growth to accumulate without future tax; a traditional pre-tax account defers taxes to withdrawal; a taxable account incurs annual tax drag on gains and dividends. For help thinking through account selection, see `portfolio-allocation-framework`." Do not provide specific tax calculations here [JURISDICTION: verify].
 
 ### User's Contribution Amount Is Zero (Lump Sum Only)
+
 The annuity term in the FV formula drops to zero. Use only FV = PV × (1 + r/12)^(12t). Acknowledge in the output that without ongoing contributions, the growth is entirely a function of the starting amount and the rate. Note that adding even a small monthly contribution amount -- the user can experiment with amounts -- dramatically accelerates the final value, particularly in early periods. Offer to run a follow-up scenario with a modest contribution amount to illustrate the difference if helpful.
 
 ---
@@ -451,14 +473,15 @@ The annuity term in the FV formula drops to zero. Use only FV = PV × (1 + r/12)
 ## Compound Growth Analysis
 
 ### Your Numbers
-| Parameter             | Value               |
-|-----------------------|---------------------|
-| Starting amount (PV)  | $8,000              |
-| Monthly contribution  | $300/month          |
-| Time horizon          | 25 years            |
-| Compounding frequency | Monthly (12x/year)  |
-| Rates modeled         | 4%, 7%, 10%         |
-| Total months          | 300                 |
+
+| Parameter             | Value              |
+| --------------------- | ------------------ |
+| Starting amount (PV)  | $8,000             |
+| Monthly contribution  | $300/month         |
+| Time horizon          | 25 years           |
+| Compounding frequency | Monthly (12x/year) |
+| Rates modeled         | 4%, 7%, 10%        |
+| Total months          | 300                |
 
 ---
 
@@ -483,16 +506,19 @@ Monthly rate = 7% / 12 = 0.005833
 Annuity factor for 12 months = ((1.005833)^12 -- 1) / 0.005833 = (1.072290 -- 1) / 0.005833 = 12.391
 
 **Year 1:**
+
 - Lump sum component: $8,000 × (1.005833)^12 = $8,000 × 1.07229 = $8,578
 - Contribution component: $300 × 12.391 = $3,717
 - **End of Year 1 total: $8,578 + $3,717 = $12,295**
 
 **Year 2:**
+
 - Lump sum component: $12,295 × 1.07229 = $13,183
 - Contribution component: $300 × 12.391 = $3,717
 - **End of Year 2 total: $13,183 + $3,717 = $16,900**
 
 **Year 3:**
+
 - Lump sum component: $16,900 × 1.07229 = $18,121
 - Contribution component: $300 × 12.391 = $3,717
 - **End of Year 3 total: $18,121 + $3,717 = $21,838**
@@ -502,87 +528,92 @@ Notice: the contribution component ($3,717) is constant each year -- it is alway
 ---
 
 ### Simple vs. Compound Interest
+
 ($8,000 at 7%, no additional contributions -- isolating the compounding effect)
 
-| Year | Simple Interest   | Compound Interest  | Compounding Premium |
-|------|------------------:|-------------------:|--------------------:|
-| 1    | $8,560            | $8,578             | $18                 |
-| 5    | $10,800           | $11,282            | $482                |
-| 10   | $13,600           | $15,937            | $2,337              |
-| 20   | $19,200           | $31,846            | $12,646             |
-| 25   | $22,000           | $44,982            | $22,982             |
+| Year | Simple Interest | Compound Interest | Compounding Premium |
+| ---- | --------------: | ----------------: | ------------------: |
+| 1    |          $8,560 |            $8,578 |                 $18 |
+| 5    |         $10,800 |           $11,282 |                $482 |
+| 10   |         $13,600 |           $15,937 |              $2,337 |
+| 20   |         $19,200 |           $31,846 |             $12,646 |
+| 25   |         $22,000 |           $44,982 |             $22,982 |
 
 Over 25 years, compounding adds $22,982 to the lump sum alone -- more than double the starting amount -- compared to simple interest. This entire premium comes from earning interest on previously earned interest, applied to no new money beyond the original $8,000.
 
 ---
 
 ### Growth at Three Rates
+
 (Starting: $8,000 | Monthly contribution: $300/month | Monthly compounding)
 
-| Year   | At 4%      | At 7%       | At 10%      | 4% vs. 10% Gap |
-|--------|----------:|------------:|------------:|---------------:|
-| 5      | $24,516   | $26,167      | $27,940     | $3,424          |
-| 10     | $43,951   | $51,530      | $61,060     | $17,109         |
-| 15     | $66,644   | $87,348      | $117,437    | $50,793         |
-| 20     | $93,182   | $138,491     | $214,073    | $120,891        |
-| 25     | $124,289  | $211,561     | $380,830    | $256,541        |
+| Year |    At 4% |    At 7% |   At 10% | 4% vs. 10% Gap |
+| ---- | -------: | -------: | -------: | -------------: |
+| 5    |  $24,516 |  $26,167 |  $27,940 |         $3,424 |
+| 10   |  $43,951 |  $51,530 |  $61,060 |        $17,109 |
+| 15   |  $66,644 |  $87,348 | $117,437 |        $50,793 |
+| 20   |  $93,182 | $138,491 | $214,073 |       $120,891 |
+| 25   | $124,289 | $211,561 | $380,830 |       $256,541 |
 
 A 6-percentage-point difference in annual return ($4% vs. 10%) produces a $256,541 difference in outcome over 25 years on the same contributions. This is the sensitivity of compounding to rate -- and why investors obsess over small differences in long-run return.
 
 ---
 
 ### Compounding Frequency Comparison
+
 ($8,000 at 7%, 25 years, no additional contributions)
 
 | Compounding Frequency | Final Value | vs. Monthly |
-|-----------------------|------------:|------------:|
-| Annual (1x/year)      | $43,429     | --$1,553    |
-| Monthly (12x/year)    | $44,982     | baseline    |
-| Daily (365x/year)     | $45,176     | +$194       |
+| --------------------- | ----------: | ----------: |
+| Annual (1x/year)      |     $43,429 |    --$1,553 |
+| Monthly (12x/year)    |     $44,982 |    baseline |
+| Daily (365x/year)     |     $45,176 |       +$194 |
 
 The difference between monthly and daily compounding is $194 over 25 years -- negligible. The difference between annual and monthly compounding is $1,553 -- noticeable but not dramatic for a $8,000 lump sum. For your full scenario with $300/month, monthly compounding is the appropriate and standard assumption.
 
 ---
 
 ### The Cost of Waiting
+
 (Rate: 7% | Monthly contribution: $300/month)
 
-| Scenario      | Years Invested | Total Contributions | Final Value  | Cost of Waiting |
-|---------------|:--------------:|--------------------:|-------------:|----------------:|
-| Start now     | 25 years       | $98,000             | $211,561     | --              |
-| Delay 5 yrs   | 20 years       | $80,000             | $138,491     | --$73,070       |
-| Delay 10 yrs  | 15 years       | $62,000             | $87,348      | --$124,213      |
+| Scenario     | Years Invested | Total Contributions | Final Value | Cost of Waiting |
+| ------------ | :------------: | ------------------: | ----------: | --------------: |
+| Start now    |    25 years    |             $98,000 |    $211,561 |              -- |
+| Delay 5 yrs  |    20 years    |             $80,000 |    $138,491 |       --$73,070 |
+| Delay 10 yrs |    15 years    |             $62,000 |     $87,348 |      --$124,213 |
 
 Waiting just 5 years costs $73,070 in final value -- despite contributing only $18,000 less in total. The remaining $55,070 of that loss is compounding that simply never had time to occur. To make up the $73,070 cost of a 5-year delay, you would need to contribute approximately $574/month for the remaining 20 years instead of $300/month -- nearly double.
 
 ---
 
 ### Growth Breakdown: Contributions vs. Compounding
+
 (Rate: 7% | $8,000 starting | $300/month)
 
 **At Year 8 (roughly one-third of horizon):**
-| Component                | Amount    | % of Total |
+| Component | Amount | % of Total |
 |--------------------------|----------:|-----------:|
-| Starting principal       | $8,000    | 18.7%      |
-| Contributions made       | $28,800   | 67.5%      |
-| Growth from compounding  | $5,879    | 13.8%      |
-| **Total**                | **$42,679** | **100%** |
+| Starting principal | $8,000 | 18.7% |
+| Contributions made | $28,800 | 67.5% |
+| Growth from compounding | $5,879 | 13.8% |
+| **Total** | **$42,679** | **100%** |
 
 **At Year 17 (roughly two-thirds of horizon):**
-| Component                | Amount    | % of Total |
+| Component | Amount | % of Total |
 |--------------------------|----------:|-----------:|
-| Starting principal       | $8,000    | 7.9%       |
-| Contributions made       | $61,200   | 60.3%      |
-| Growth from compounding  | $32,208   | 31.8%      |
-| **Total**                | **$101,408** | **100%**|
+| Starting principal | $8,000 | 7.9% |
+| Contributions made | $61,200 | 60.3% |
+| Growth from compounding | $32,208 | 31.8% |
+| **Total** | **$101,408** | **100%**|
 
 **At Year 25 (full horizon):**
-| Component                | Amount    | % of Total |
+| Component | Amount | % of Total |
 |--------------------------|----------:|-----------:|
-| Starting principal       | $8,000    | 3.8%       |
-| Contributions made       | $90,000   | 42.5%      |
-| Growth from compounding  | $113,561  | 53.7%      |
-| **Total**                | **$211,561** | **100%**|
+| Starting principal | $8,000 | 3.8% |
+| Contributions made | $90,000 | 42.5% |
+| Growth from compounding | $113,561 | 53.7% |
+| **Total** | **$211,561** | **100%**|
 
 Compounding's share of your total balance rises from 14% at year 8, to 32% at year 17, to 54% at year 25. By your final year, more than half of everything you have accumulated is money that came from compounding -- not from your contributions. You will contribute $90,000 over 25 years and compounding will add $113,561 on top. At the end, compounding is your largest single "contributor."
 
@@ -590,11 +621,11 @@ Compounding's share of your total balance rises from 14% at year 8, to 32% at ye
 
 ### Rule of 72: Doubling Your Starting $8,000
 
-| Rate  | Exact Doubling Time | Rule of 72 Estimate | After 1st Double       | After 2nd Double       | After 3rd Double       |
-|-------|:-------------------:|:-------------------:|:----------------------:|:----------------------:|:----------------------:|
-| 4%    | 17.7 years          | 18.0 years          | $16,000 (yr 18)        | $32,000 (yr 36)        | $64,000 (yr 54)        |
-| 7%    | 10.2 years          | 10.3 years          | $16,000 (yr 10)        | $32,000 (yr 20)        | $64,000 (yr 30)        |
-| 10%   | 7.3 years           | 7.2 years           | $16,000 (yr 7)         | $32,000 (yr 15)        | $64,000 (yr 22)        |
+| Rate | Exact Doubling Time | Rule of 72 Estimate | After 1st Double | After 2nd Double | After 3rd Double |
+| ---- | :-----------------: | :-----------------: | :--------------: | :--------------: | :--------------: |
+| 4%   |     17.7 years      |     18.0 years      | $16,000 (yr 18)  | $32,000 (yr 36)  | $64,000 (yr 54)  |
+| 7%   |     10.2 years      |     10.3 years      | $16,000 (yr 10)  | $32,000 (yr 20)  | $64,000 (yr 30)  |
+| 10%  |      7.3 years      |      7.2 years      |  $16,000 (yr 7)  | $32,000 (yr 15)  | $64,000 (yr 22)  |
 
 At 7%, your $8,000 starting amount doubles to $16,000 in about 10 years and doubles again to $32,000 by year 20 -- well within your 25-year horizon. Note: these doublings apply to the starting lump sum only, not to the ongoing contribution stream. Your contribution stream has its own compounding dynamic reflected in the full growth tables above.
 
@@ -615,6 +646,7 @@ Tripling time at 7%: approximately 114 / 7 = 16.3 years. Your $8,000 triples to 
 ---
 
 ### Important Notes
+
 - The 4%, 7%, and 10% rates are mathematical scenarios, not predictions or guaranteed returns
 - Real investments fluctuate significantly year to year -- actual balances will differ from any constant-rate projection, often substantially in individual years
 - These figures are nominal (before inflation). At 3% inflation, $211,561 in 25 years has the purchasing power of roughly $101,000 in today's dollars

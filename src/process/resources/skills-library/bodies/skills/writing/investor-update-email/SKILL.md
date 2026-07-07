@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "email writing entrepreneurship"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'email writing entrepreneurship'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Investor Update Email
 
 ## When to Use
@@ -25,6 +26,7 @@ metadata:
 Use this skill when the user needs to write a periodic update email to their investor base -- angels, seed funds, institutional VCs, or LP co-investors -- to communicate company progress, financial health, and near-term priorities.
 
 **Use this skill when:**
+
 - A founder needs to write a monthly or quarterly investor update email for their startup's investor base (angels, pre-seed, seed, or Series A+ investors)
 - A founder has just closed a round and needs to establish the first update cadence, setting the tone and template for all future updates
 - The company has experienced a difficult period (missed targets, unexpected churn, team changes) and the founder needs to communicate bad news with integrity and a clear response plan
@@ -34,6 +36,7 @@ Use this skill when the user needs to write a periodic update email to their inv
 - The reporting period included a major event: a pivot, a key hire or departure, a contract win or loss, a regulatory development, or a competitor move
 
 **Do NOT use this skill when:**
+
 - The user needs to prepare a board meeting narrative with governance items, committee updates, or formal resolutions -- use `board-update-narrative` instead, which covers fiduciary framing and board-appropriate format
 - The user needs a cross-functional stakeholder communication covering employees, partners, and advisors in a single document -- use `stakeholder-update` instead
 - The user needs to create a pitch deck, investor memo, or fundraising narrative to approach new investors -- that is a distinct persuasion document requiring a different structure and skill set
@@ -79,9 +82,10 @@ The metrics dashboard is the most-read section of any investor update. Investors
 - **For pre-revenue companies:** Replace revenue rows with product and user metrics. Appropriate substitutes include: users in beta (and qualitative NPS or retention), LOIs or signed pilots (with dollar value if possible), technical milestones achieved, and hiring progress. Still show burn rate and runway prominently.
 - **Flag metrics that changed definition.** If you changed how you calculate a metric (e.g., switched from gross MRR to net MRR), add a footnote. Investors will notice the discontinuity and trust you more for explaining it.
 - **Use consistent formatting across every update.** Investors build pattern recognition over 12-24 months. Changing column order or metric names without explanation creates confusion and erodes trust.
-- **Annotate anomalies inline.** If churn spiked, add a small asterisk and note in the table itself: "* 5.0% -- see Challenges." Do not make investors hunt for the explanation.
+- **Annotate anomalies inline.** If churn spiked, add a small asterisk and note in the table itself: "\* 5.0% -- see Challenges." Do not make investors hunt for the explanation.
 
 Key metric frameworks by business model:
+
 - **B2B SaaS:** MRR/ARR, MoM growth rate, net revenue retention (NRR), gross churn, CAC, pipeline value, logo count
 - **Marketplace:** GMV, take rate, buyer count, seller count, repeat purchase rate, net revenue
 - **Consumer/App:** DAU, MAU, D1/D7/D30 retention, LTV, CAC, revenue or ARPU
@@ -153,8 +157,8 @@ Subject: [Company Name] -- [Month / Q# Year] Investor Update
 
 Hi [First names separated by commas, or "all" for large lists],
 
-[One-sentence executive summary of the period. Lead with the most important 
-number or event. Acknowledge the biggest challenge immediately if it is 
+[One-sentence executive summary of the period. Lead with the most important
+number or event. Acknowledge the biggest challenge immediately if it is
 significant. 2-3 sentences max before the metrics table.]
 
 ---
@@ -176,7 +180,7 @@ significant. 2-3 sentences max before the metrics table.]
 
 ### Highlights
 
-- **[Specific win with context]:** [1-2 sentences: what happened + why it matters 
+- **[Specific win with context]:** [1-2 sentences: what happened + why it matters
   or what it signals about the business]
 - **[Second win with context]:** [1-2 sentences]
 - **[Third win if applicable]:** [1-2 sentences]
@@ -185,7 +189,7 @@ significant. 2-3 sentences max before the metrics table.]
 
 ### Challenges
 
-- **[Specific challenge with root cause]:** [What happened, why you think it 
+- **[Specific challenge with root cause]:** [What happened, why you think it
   happened, and what you are doing about it -- 2-3 sentences]
 - **[Second challenge if applicable]:** [Same structure]
 
@@ -193,8 +197,8 @@ significant. 2-3 sentences max before the metrics table.]
 
 ### Asks
 
-- **[Role/type of ask]:** [Specific request with enough detail that an investor 
-  can act without asking a follow-up question -- who you want to meet, why, 
+- **[Role/type of ask]:** [Specific request with enough detail that an investor
+  can act without asking a follow-up question -- who you want to meet, why,
   and how to connect them]
 - **[Second ask]:** [Same specificity standard]
 - **[Third ask if applicable]:** [Same specificity standard]
@@ -203,25 +207,25 @@ significant. 2-3 sentences max before the metrics table.]
 
 ### Looking Ahead
 
-[2-4 sentences or bullets covering the 2-4 specific priorities for next period, 
-the metric targets that define success, and any known risks or scheduled events 
+[2-4 sentences or bullets covering the 2-4 specific priorities for next period,
+the metric targets that define success, and any known risks or scheduled events
 investors should be aware of. If a fundraise is planned, state it explicitly here.]
 
 ---
 
-[Optional: Fundraising Update -- only include if actively fundraising or 
+[Optional: Fundraising Update -- only include if actively fundraising or
 within 90 days of starting a raise]
 
 ### Fundraising Update
 
-[1 paragraph: Target raise amount, structure (priced round, SAFE, bridge), 
-current status (soft-circling, term sheet conversations, signed lead), 
-timeline, and specifically how investors on this list can help -- 
+[1 paragraph: Target raise amount, structure (priced round, SAFE, bridge),
+current status (soft-circling, term sheet conversations, signed lead),
+timeline, and specifically how investors on this list can help --
 warm intros to named funds or types of funds.]
 
 ---
 
-Thank you for your continued support. Reply to this email anytime -- I read 
+Thank you for your continued support. Reply to this email anytime -- I read
 every response.
 
 [Founder Name]
@@ -264,6 +268,7 @@ every response.
 ### Pre-Revenue or Pre-Product-Market Fit Company
 
 For companies with no revenue, the metrics table must still convey momentum and business health. Use these substitutes:
+
 - Replace MRR with users in beta (paying or free), weekly active users, or pilot count
 - Add a "Milestones" row showing completion percentage of the current sprint or roadmap phase
 - Include signed LOIs or pipeline conversations with dollar-range estimates
@@ -275,6 +280,7 @@ For companies with no revenue, the metrics table must still convey momentum and 
 ### Delivering Predominantly Bad News
 
 When the month has been genuinely hard -- missed targets across the board, a major customer loss, a team departure, a market contraction -- the standard format still applies, but the emphasis and opening shift:
+
 - Open the email body with the honest summary, not the metrics table. Say what happened and acknowledge it directly before the data.
 - Do not soft-pedal with euphemisms. "Revenue declined 18% due to two large churns" is honest. "Revenue faced some headwinds" is not.
 - For each challenge, the response plan must be specific and time-bound. "We are addressing this" is not a response plan. "We are implementing a 90-day churn recovery playbook starting February 1, targeting re-engagement of 3 specific churned accounts" is a response plan.
@@ -285,6 +291,7 @@ When the month has been genuinely hard -- missed targets across the board, a maj
 ### Actively Fundraising a New Round
 
 When a raise is underway or imminent, the investor update plays a dual role: it updates current investors and primes them to help.
+
 - Add a "Fundraising Update" section between Challenges and Asks. This section should cover: target raise amount and structure (e.g., "$3M SAFE at $15M cap"), timeline ("targeting close by April 30"), current status ("2 term sheets, seeking co-investors"), and what current investors can do (specific fund names, types of funds, or angels you want introductions to).
 - Current investors often become the best advocates for a new round if they are kept informed of momentum. A strong update during a raise -- showing metrics trending in the right direction -- can tip a co-investor's decision.
 - Do not use the investor update to pressure current investors for follow-on capital directly. The ask is introductions and advocacy, not capital (unless you are running a direct follow-on process with existing investors, which should be handled in separate 1:1 conversations, not the group email).
@@ -293,6 +300,7 @@ When a raise is underway or imminent, the investor update plays a dual role: it 
 ### Pivot or Major Strategic Shift
 
 A pivot deserves its own dedicated section, not just a bullet point in challenges.
+
 - Create a section called "Strategic Update" or "Company Direction Update" that appears before the standard metrics table.
 - Structure it in three parts: (1) What we learned and what drove the decision -- 2-3 data points that made the pivot necessary, (2) What we are stopping or changing, and (3) What we are starting and the hypothesis we are testing.
 - Include the specific metrics you will track in the new direction and the timeline for evaluating them. "We will know if this is working by [date] if [metric] reaches [threshold]."
@@ -302,6 +310,7 @@ A pivot deserves its own dedicated section, not just a bullet point in challenge
 ### Large Investor Base (25+ Recipients)
 
 For companies with large cap tables -- common after multiple angel rounds or crowdfunding -- the investor update requires additional structural discipline.
+
 - Send to the full list using the standard template. Do not attempt to personalize individual emails at scale; the time cost is too high and inconsistency creates confusion.
 - For high-value investors (lead investors, board members, check sizes above a threshold you define), send a separate brief note before or after the group email with one additional personalized paragraph -- either a specific ask calibrated to their network, or a 1:1 call offer.
 - Use a consistent "Reply-to" address and read every reply. Many founders on large lists stop reading responses. Any investor who replies is engaged and valuable; ignoring responses damages relationships.
@@ -311,6 +320,7 @@ For companies with large cap tables -- common after multiple angel rounds or cro
 ### Key Team Departure
 
 When a co-founder, VP, or other key team member departs -- voluntary or otherwise -- the investor update is the right channel to communicate this.
+
 - Do not attempt to hide or minimize the departure. Investors will find out, and discovering it through other channels destroys trust completely.
 - State the departure factually in the Challenges section (or as a standalone "Team Update" section if the departure is significant): name, role, departure date, and reason (in one sentence, without excessive detail).
 - Follow immediately with the continuity plan: who is covering the role in the interim, what the hiring timeline is, and what the company's capacity looks like in the short term.
@@ -320,6 +330,7 @@ When a co-founder, VP, or other key team member departs -- voluntary or otherwis
 ### Missed Commitments From a Prior Update
 
 When the prior update included forward-looking targets ("hitting $55K MRR by February 28") and those targets were not met, the follow-up update must address the miss directly.
+
 - Open the "Looking Ahead" section's retrospective by naming the prior commitment and the actual outcome. "We targeted $55K MRR by February 28; we reached $51K."
 - Provide a root-cause explanation (one sentence) without excuses. "We lost two pipeline deals that slipped to March due to procurement delays" is an explanation. "The market was challenging" is not.
 - Revise the forward target with the same specificity. If the original target was set with insufficient information, say so and explain what you know now that you did not know then.
@@ -345,16 +356,16 @@ February was our best growth month yet -- MRR hit $36K (+16%) and net revenue re
 
 ### Key Metrics
 
-| Metric                | January 2026    | February 2026   | Change         |
-|-----------------------|-----------------|-----------------|----------------|
-| MRR                   | $31,000         | $36,000         | +16%           |
-| Paying customers      | 20              | 22              | +2             |
-| Net revenue retention | 103%            | 108%            | +5pp           |
-| Gross churn           | 0.8%            | 12.0%           | +11.2pp *      |
-| Pipeline (qualified)  | $89K            | $114K           | +28%           |
-| Cash / Runway         | $720K / 10 mo   | $680K / 9 mo    | -1 month       |
+| Metric                | January 2026  | February 2026 | Change     |
+| --------------------- | ------------- | ------------- | ---------- |
+| MRR                   | $31,000       | $36,000       | +16%       |
+| Paying customers      | 20            | 22            | +2         |
+| Net revenue retention | 103%          | 108%          | +5pp       |
+| Gross churn           | 0.8%          | 12.0%         | +11.2pp \* |
+| Pipeline (qualified)  | $89K          | $114K         | +28%       |
+| Cash / Runway         | $720K / 10 mo | $680K / 9 mo  | -1 month   |
 
-*Churn spike driven entirely by Redstone Distribution -- see Challenges*
+_Churn spike driven entirely by Redstone Distribution -- see Challenges_
 
 ---
 

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "research analysis strategy planning"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'research analysis strategy planning'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Market Researcher
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user needs TAM/SAM/SOM market sizing or wants to conduct primary and secondary market research
 - The user wants to create customer personas, apply the Jobs-to-be-Done framework, or validate market demand
 - The user needs a structured market research report with methodology, findings, and recommendations
 - The user wants competitive intelligence gathering as part of a broader market analysis
 
 **Do NOT use this skill when:**
+
 - The user needs deep competitive analysis with battle cards and positioning maps (use competitive-analyst instead)
 - The user wants strategic frameworks like SWOT or Porter's Five Forces (use swot-analyzer instead)
 - The user is building a full business plan (use business-planner instead)
@@ -42,13 +44,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on market researcher
 - User asks about market researcher best practices or techniques
 - User wants a structured approach to market researcher
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of market researcher
+
 ## Questions to Ask the User First
 
 1. **What is the core research question you want to answer?**
@@ -61,10 +66,13 @@ metadata:
 8. **Do you have any existing data?** (Surveys, sales data, analytics)
 9. **What decisions will this research inform?** (Go/no-go, pricing, positioning, features)
 10. **Is this a new market entry or expansion of an existing business?**
+
 ---
+
 ## Step 1: Define Research Objectives
 
 ### Research Brief Template
+
 ```
 MARKET RESEARCH BRIEF
 Project Name: {{project_name}}
@@ -99,10 +107,13 @@ DELIVERABLES:
 TIMELINE: {{start_date}} to {{end_date}}
 BUDGET: ${{total_budget}}
 ```
+
 ---
+
 ## Step 2: Market Sizing (TAM/SAM/SOM)
 
 ### Method A: Top-Down Approach
+
 ```
 TOP-DOWN MARKET SIZING
 
@@ -127,6 +138,7 @@ SERVICEABLE OBTAINABLE MARKET (SOM):
 ```
 
 ### Method B: Bottom-Up Approach (More Credible)
+
 ```
 BOTTOM-UP MARKET SIZING
 Build from individual customer economics upward.
@@ -152,6 +164,7 @@ STEP 4: Apply realistic constraints
 ```
 
 ### Method C: Value-Theory Approach
+
 ```
 VALUE-THEORY MARKET SIZING
 
@@ -175,10 +188,13 @@ Market size = ${{total_problem_value}} x {{capture_rate}}%
 - [ ] Growth rates are based on historical data or analogies
 - [ ] TAM is not so large it seems unrealistic
 - [ ] SOM is achievable given your current resources
+
 ---
+
 ## Step 3: Primary Research
 
 ### 3A: Customer Interviews
+
 ```
 INTERVIEW GUIDE
 Target: {{number}} interviews with {{customer_segment}}
@@ -214,6 +230,7 @@ WRAP-UP (3 minutes):
 ```
 
 ### 3B: Survey Design
+
 ```
 SURVEY STRUCTURE
 Title: {{survey_title}}
@@ -248,6 +265,7 @@ SECTION 5: DEMOGRAPHICS (2-3 questions)
 ```
 
 ### 3C: Focus Groups
+
 ```
 FOCUS GROUP PLAN
 
@@ -273,41 +291,46 @@ GROUND RULES:
 - Disagree respectfully
 - This is being recorded for research purposes only
 ```
+
 ---
+
 ## Step 4: Secondary Research Sources
 
 ### Free Sources
 
-| Source | What It Provides | URL |
-|--------|-----------------|-----|
-| US Census Bureau | Demographic & economic data | census.gov |
-| BLS (Bureau of Labor Statistics) | Employment & industry data | bls.gov |
-| SEC EDGAR | Public company filings | sec.gov/edgar |
-| Google Trends | Search interest over time | trends.google.com |
-| Statista (free tier) | Statistics and market data | statista.com |
-| Crunchbase (free tier) | Startup funding data | crunchbase.com |
-| SimilarWeb (free tier) | Website traffic estimates | similarweb.com |
-| Social Blade | Social media analytics | socialblade.com |
-| Reddit / Forums | Unfiltered customer sentiment | reddit.com |
-| G2 / Capterra Reviews | Software competitor reviews | g2.com / capterra.com |
-| Job Postings | Hiring signals from competitors | linkedin.com/jobs |
-| Patent Search | IP landscape | patents.google.com |
-| Industry Associations | Market reports and data | (varies by industry) |
+| Source                           | What It Provides                | URL                   |
+| -------------------------------- | ------------------------------- | --------------------- |
+| US Census Bureau                 | Demographic & economic data     | census.gov            |
+| BLS (Bureau of Labor Statistics) | Employment & industry data      | bls.gov               |
+| SEC EDGAR                        | Public company filings          | sec.gov/edgar         |
+| Google Trends                    | Search interest over time       | trends.google.com     |
+| Statista (free tier)             | Statistics and market data      | statista.com          |
+| Crunchbase (free tier)           | Startup funding data            | crunchbase.com        |
+| SimilarWeb (free tier)           | Website traffic estimates       | similarweb.com        |
+| Social Blade                     | Social media analytics          | socialblade.com       |
+| Reddit / Forums                  | Unfiltered customer sentiment   | reddit.com            |
+| G2 / Capterra Reviews            | Software competitor reviews     | g2.com / capterra.com |
+| Job Postings                     | Hiring signals from competitors | linkedin.com/jobs     |
+| Patent Search                    | IP landscape                    | patents.google.com    |
+| Industry Associations            | Market reports and data         | (varies by industry)  |
 
 ### Paid Sources
 
-| Source | What It Provides | Typical Cost |
-|--------|-----------------|-------------|
-| IBISWorld | Industry reports | $1K-5K/report |
-| Gartner | Technology research | $30K+/year |
-| CB Insights | Market intelligence | $10K+/year |
-| Pitchbook | VC & deal data | $20K+/year |
-| Nielsen | Consumer data | Custom pricing |
-| SurveyMonkey Audience | Survey panel access | $1-5/response |
+| Source                | What It Provides    | Typical Cost   |
+| --------------------- | ------------------- | -------------- |
+| IBISWorld             | Industry reports    | $1K-5K/report  |
+| Gartner               | Technology research | $30K+/year     |
+| CB Insights           | Market intelligence | $10K+/year     |
+| Pitchbook             | VC & deal data      | $20K+/year     |
+| Nielsen               | Consumer data       | Custom pricing |
+| SurveyMonkey Audience | Survey panel access | $1-5/response  |
+
 ---
+
 ## Step 5: Customer Persona Creation
 
 ### Jobs-to-be-Done (JTBD) Framework
+
 ```
 JTBD ANALYSIS
 CORE FUNCTIONAL JOB:
@@ -340,6 +363,7 @@ Highest opportunity: {{outcome_with_highest_score}}
 ```
 
 ### Detailed Persona Template
+
 ```
 PERSONA: {{persona_name}}
 IDENTITY:
@@ -377,10 +401,13 @@ BUYING BEHAVIOR:
 QUOTE:
 "{{A real or realistic quote this persona would say about the problem}}"
 ```
+
 ---
+
 ## Step 6: Trend Analysis
 
 ### Trend Identification Framework
+
 ```
 TREND ANALYSIS: {{industry/market}}
 MACRO TRENDS (5-10 year horizon):
@@ -410,6 +437,7 @@ WILDCARDS (low probability, high impact):
 ```
 
 ### PESTLE Analysis
+
 ```
 PESTLE ANALYSIS: {{market/industry}}
 POLITICAL:
@@ -435,10 +463,13 @@ TOP 3 FACTORS BY IMPACT:
 2. {{second_most}}
 3. {{third_most}}
 ```
+
 ---
+
 ## Step 7: Competitive Intelligence
 
 ### Competitive Intelligence Gathering Checklist
+
 ```
 For each competitor, gather:
 BASIC INFO:
@@ -474,8 +505,11 @@ STRATEGIC:
 - [ ] Patent filings
 - [ ] Regulatory filings or compliance certifications
 ```
+
 ---
+
 ## Step 8: Research Report Template
+
 ```
 MARKET RESEARCH REPORT
 Title: {{report_title}}
@@ -526,7 +560,9 @@ APPENDICES
   C. Detailed competitor profiles
   D. Data sources and bibliography
 ```
+
 ---
+
 ## Research Quality Checklist
 
 - [ ] Research questions are clearly defined before data collection
@@ -540,7 +576,6 @@ APPENDICES
 - [ ] Report distinguishes between facts and interpretations
 - [ ] Recommendations are directly supported by the research data
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -553,13 +588,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with market researcher for a mid-size project."
 
 **Output:** A complete market researcher framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

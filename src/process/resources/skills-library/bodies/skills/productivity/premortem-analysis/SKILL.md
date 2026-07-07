@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis planning"
-  category: "productivity"
-  subcategory: "decision-making"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'decision-making analysis planning'
+  category: 'productivity'
+  subcategory: 'decision-making'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Premortem Analysis
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a specific, defined plan or decision they are about to commit to and wants to stress-test it before acting -- a business launch, hiring decision, major purchase, career move, product release, partnership agreement, or personal commitment
 - The user explicitly asks to "run a premortem," "imagine what could go wrong," or "think through failure scenarios" for something they are nearly ready to execute
 - The user wants to identify blind spots in a plan that has already been positively framed -- they have been selling the idea to themselves or others and need permission to think negatively
@@ -29,6 +31,7 @@ metadata:
 - The user is running a retrospective on a past failure and wants a structured framework to prevent repetition (retrospective premortem -- the same framework applied backward)
 
 **Do NOT use when:**
+
 - The user has not yet chosen a course of action and is still comparing options -- use `weighted-decision-matrix` to score and select, then return to premortem once a decision is made
 - The user wants an exhaustive ongoing risk register for an active project with probability tracking, owners, residual risk, and audit trails -- use `risk-assessment`, which is built for that operational context
 - The user is thinking through second- and third-order consequences of a decision that is not yet made -- use `second-order-thinking` to explore the causal chain before committing
@@ -239,24 +242,31 @@ Execute these actions BEFORE beginning the plan:
 ## Edge Cases
 
 ### The plan is highly personal (health change, relationship decision, major life move)
+
 Personal plans have an additional failure category that professional plans underweight: identity and self-concept failures. These occur when the plan requires the person to behave in ways that conflict with their current self-image or social environment. A person who has always been sedentary planning a marathon training program faces execution failures AND identity failures -- "I stopped thinking of myself as someone who runs." In these cases, add a specific question: "Is there any part of this plan that requires you to become a different kind of person? What is the evidence you can make that transition?" Probe for social environment failures: who in their current social circle will consciously or unconsciously undermine the change? This is one of the most reliable predictors of personal plan failure and one of the least discussed.
 
 ### The user has already begun executing the plan
+
 Premortems are still valuable mid-execution, but the frame shifts in two important ways. First, ask: "It is 12 months from NOW -- not from the start -- and it has failed. What went wrong from this point forward?" This correctly scopes the analysis to the remaining decision space. Second, classify prevention actions as either "still possible" or "already committed." Some prevention actions will reference decisions that have already been made and cannot be reversed -- label those as "monitor only" in the mitigation plan. Sunk cost is real: the user cannot get back time or money already spent, but they CAN still make choices about what happens next. Keep the analysis focused on the forward decision space.
 
 ### The user's plan is a group or organizational decision with multiple stakeholders
+
 In group premortems, the most important process modification is ensuring independent generation of failure reasons before group discussion. Have each person write their list individually, then combine. Research by Klein and others shows that group premortems conducted conversationally reproduce the optimism bias of group planning -- the dominant voice's failure list becomes the group's failure list. When combining individual lists, count how many people independently identified each failure (frequency = a proxy for consensus risk level) and prioritize failures that were independently surfaced by multiple people. Also: failure reasons that only ONE person identified and that the group initially dismisses deserve special scrutiny -- they are likely to be the contrarian insights that premortems are designed to surface.
 
 ### Multiple failure modes share the same or similar RPN
+
 When RPNs tie, apply a priority tiebreaker sequence: (1) prioritize by Detectability, highest first -- failures you cannot see coming are more dangerous regardless of likelihood; (2) then by Impact, highest first -- given equal visibility, the failure that damages the plan more deserves more mitigation investment; (3) then by Likelihood, highest first -- given equal visibility and impact, the more probable failure gets prioritized. Document the tiebreaker reasoning in the report so the user understands why one tied failure outranks another.
 
 ### The user rates all failure modes as low likelihood (optimism bias)
+
 This is common and expected -- it is the same optimism bias that makes premortems necessary. Challenge each low likelihood rating with three questions: (1) "Has this ever happened to you on a similar plan?" (2) "Has this ever happened to someone you know on a similar plan?" (3) "If you were advising a friend on this plan, would you rate this as unlikely?" If any answer is "yes" or "I'm not sure," the rating should be at least 3/5. Additionally, use the outside view correction: for any first-time activity (first business, first course, first major renovation), base rates for similar plans should anchor the likelihood estimates. Most first-time businesses do not reach their year-one revenue targets. Most home renovations exceed budget by 20-40%. These base rates should inform likelihood scoring more than the user's optimistic projection.
 
 ### The premortem reveals a failure mode that is also a benefit of the plan
+
 Some failure modes reveal that the plan has embedded a real option or upside case that has not been explicitly considered. For example: a course launch "fails" because a corporate client wants to license the entire curriculum, and the creator spends all their time on that deal instead of selling individual enrollments. The original success metric (200 individual students) is missed, but a better outcome is achieved. When a "failure" scenario reveals an unexpected upside path, note it separately as a "pivot opportunity" -- a scenario worth planning for deliberately rather than treating as a failure to prevent. This is the premortem equivalent of discovering a valuable assumption you did not know you were making.
 
 ### The plan involves external dependencies on partners, vendors, or third parties
+
 Plans with external dependencies have a structural vulnerability: the premortem analyst can only generate mitigations for decisions within their control. For any failure mode caused by a third-party dependency, add a specific mitigation type that is often overlooked: contractual and structural safeguards. Before the plan begins, failure modes driven by vendor failure, partner non-performance, or platform changes should prompt: "What contract clause, SLA, backup vendor, or structural redundancy would protect against this?" A technology startup whose plan depends on a single API provider should ask: "What is our contingency if that API is deprecated or pricing doubles?" The answer to that question -- a backup provider relationship, a contractual rate lock, or an internal capability build -- is the mitigation, not optimism about the provider's stability.
 
 ## Example
@@ -270,12 +280,13 @@ Plans with external dependencies have a structural vulnerability: the premortem 
 ---
 
 ### Plan Summary
-| Field | Details |
-|-------|---------|
-| Decision | Quit full-time employment to co-found a B2B SaaS company building contract review automation for law firms |
-| Success definition | 10 paying law firm customers at $500/month recurring ($5,000 MRR) by month 12 after quitting |
-| Time horizon | 12 months post-quit date |
-| Initial confidence | 8/10 |
+
+| Field                      | Details                                                                                                            |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Decision                   | Quit full-time employment to co-found a B2B SaaS company building contract review automation for law firms         |
+| Success definition         | 10 paying law firm customers at $500/month recurring ($5,000 MRR) by month 12 after quitting                       |
+| Time horizon               | 12 months post-quit date                                                                                           |
+| Initial confidence         | 8/10                                                                                                               |
 | Constraints already locked | 8 months of runway (personal savings), co-founder on sales already committed, founder is primary technical builder |
 
 ---
@@ -288,18 +299,18 @@ Plans with external dependencies have a structural vulnerability: the premortem 
 
 ### All Failure Modes
 
-| # | Failure Reason | Category | L (1-5) | I (1-5) | D (1-5) | RPN | Fatal Flaw? |
-|---|---------------|----------|---------|---------|---------|-----|-------------|
-| 1 | Law firms did not buy from an unknown vendor with no legal industry track record -- trust and procurement cycles defeated the sales process | Assumption | 4 | 5 | 4 | 80 | Yes (if no mitigation) |
-| 2 | Enterprise sales cycles for law firms are 6-12 months -- the runway ran out before deals closed | Resource | 4 | 5 | 3 | 60 | Yes (if no mitigation) |
-| 3 | Co-founder did not generate pipeline -- "handling sales" meant sending emails, not building a repeatable process | Execution | 3 | 5 | 3 | 45 | No |
-| 4 | The MVP was technically functional but did not map to how law firm associates actually review contracts in practice | Assumption | 3 | 4 | 5 | 60 | No |
-| 5 | Founder burned out at month 7 -- building the product alone while also doing customer development, marketing, and operations | Motivation | 4 | 4 | 3 | 48 | No |
-| 6 | Legal liability concerns -- law firms refused to use AI for contract review without indemnification clauses the founders could not offer | External | 3 | 5 | 5 | 75 | Yes (if unaddressed) |
-| 7 | A well-funded competitor (or an incumbent like Kira Systems or Luminance) released a competitive feature while the MVP was in development | External | 3 | 3 | 4 | 36 | No |
-| 8 | Customer discovery was done with in-house legal teams at tech companies, not actual law firms -- the target customer's workflow was not validated | Feedback | 4 | 4 | 5 | 80 | No |
-| 9 | The $500/month price point was too low for law firms but too high to close quickly -- pricing was neither enterprise nor self-serve | Assumption | 3 | 3 | 4 | 36 | No |
-| 10 | No legal industry network meant cold outreach was the only acquisition channel -- response rates were below 1% | Execution | 4 | 4 | 4 | 64 | No |
+| #   | Failure Reason                                                                                                                                    | Category   | L (1-5) | I (1-5) | D (1-5) | RPN | Fatal Flaw?            |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------- | ------- | ------- | --- | ---------------------- |
+| 1   | Law firms did not buy from an unknown vendor with no legal industry track record -- trust and procurement cycles defeated the sales process       | Assumption | 4       | 5       | 4       | 80  | Yes (if no mitigation) |
+| 2   | Enterprise sales cycles for law firms are 6-12 months -- the runway ran out before deals closed                                                   | Resource   | 4       | 5       | 3       | 60  | Yes (if no mitigation) |
+| 3   | Co-founder did not generate pipeline -- "handling sales" meant sending emails, not building a repeatable process                                  | Execution  | 3       | 5       | 3       | 45  | No                     |
+| 4   | The MVP was technically functional but did not map to how law firm associates actually review contracts in practice                               | Assumption | 3       | 4       | 5       | 60  | No                     |
+| 5   | Founder burned out at month 7 -- building the product alone while also doing customer development, marketing, and operations                      | Motivation | 4       | 4       | 3       | 48  | No                     |
+| 6   | Legal liability concerns -- law firms refused to use AI for contract review without indemnification clauses the founders could not offer          | External   | 3       | 5       | 5       | 75  | Yes (if unaddressed)   |
+| 7   | A well-funded competitor (or an incumbent like Kira Systems or Luminance) released a competitive feature while the MVP was in development         | External   | 3       | 3       | 4       | 36  | No                     |
+| 8   | Customer discovery was done with in-house legal teams at tech companies, not actual law firms -- the target customer's workflow was not validated | Feedback   | 4       | 4       | 5       | 80  | No                     |
+| 9   | The $500/month price point was too low for law firms but too high to close quickly -- pricing was neither enterprise nor self-serve               | Assumption | 3       | 3       | 4       | 36  | No                     |
+| 10  | No legal industry network meant cold outreach was the only acquisition channel -- response rates were below 1%                                    | Execution  | 4       | 4       | 4       | 64  | No                     |
 
 **Scoring guide:** L = Likelihood (1=<10%, 5=>75%) | I = Impact (1=minor setback, 5=fatal to plan) | D = Detectability (1=immediate warning, 5=no warning until complete) | RPN = L × I × D
 
@@ -318,6 +329,7 @@ Plans with external dependencies have a structural vulnerability: the premortem 
 ### Top 5 Failure Mode Mitigation Plans
 
 **#1 (tied): Customer discovery was done with the wrong customer segment -- RPN: 80**
+
 - **Why this ranks at the top:** Detectability is 5/5 -- this failure will not be visible until the MVP is built and real law firm users try it for the first time. At that point, 5-6 months of build time has been consumed and the learning is expensive. The impact is severe because a product that does not fit the actual workflow cannot be sold regardless of how good the technology is.
 - **Prevention action (do NOW -- before quitting the job):** Interview 15 law firm associates (not in-house counsel, specifically law firm associates doing commercial contract review at AmLaw 200 or comparable firms) in the next 6 weeks. Use a structured discovery script focused on: what tool they use today, where they lose time in the review process, what they have tried and abandoned, and what a perfect outcome looks like. Do not pitch the product. Map their actual workflow step-by-step. Build the MVP to fit that map, not your assumption of it.
 - **Early warning tripwire:** If you cannot get 15 law firm associates to agree to a 30-minute discovery call within 4 weeks, you do not have sufficient market access to launch -- delay quit date until you do. Threshold: fewer than 5 discovery calls completed by week 4 triggers an outreach strategy review.
@@ -326,6 +338,7 @@ Plans with external dependencies have a structural vulnerability: the premortem 
 - **Owner:** Founder -- calendar 3 outreach sessions per week for 6 weeks starting immediately.
 
 **#2 (tied): Law firms distrust unknown vendors -- procurement and trust barriers -- RPN: 80**
+
 - **Why this ranks at the top:** This is the classic "crossing the chasm" failure for enterprise B2B in a regulated, risk-averse industry. Law firms are late technology adopters by structure: they have malpractice liability, client confidentiality obligations, and IT security reviews that make buying from unknown startups genuinely risky for them, not just uncomfortable. Likelihood is 4/5 because this is a documented pattern, not speculation.
 - **Prevention action (do NOW):** Before launching, identify and recruit 1-2 advisory board members who are current or former law firm partners with active professional networks. Offer meaningful equity (0.1-0.25% vested over 2 years) in exchange for active introductions. Advisory credibility is a trust proxy that can shorten procurement timelines by 50-70% in legal markets. Also: apply to at least one legal tech accelerator or incubator (many law firms run them) to gain institutional credibility before cold outreach begins.
 - **Early warning tripwire:** If 30 cold outreach contacts to law firm decision-makers (managing partners or heads of operations) yield fewer than 2 discovery calls in 60 days, cold outreach alone will not scale to 10 customers. Threshold: 2 positive responses / 30 contacts in 60 days triggers a full channel pivot to warm introductions and legal tech community engagement.
@@ -334,6 +347,7 @@ Plans with external dependencies have a structural vulnerability: the premortem 
 - **Owner:** Both founders -- co-founder to lead advisor recruitment; founder to lead legal tech community engagement.
 
 **#3: Legal liability and indemnification barriers -- RPN: 75**
+
 - **Why this ranks third:** This is scored as a potential fatal flaw because it is structural. Law firms using AI for contract review face malpractice exposure if the tool makes an error that results in a client claim. A startup with no insurance, no track record, and no ability to offer meaningful indemnification will be rejected by risk-averse law firm procurement committees even if the technology is excellent. Detectability is 5/5 -- this objection typically surfaces only when the deal is near close, after months of sales time have been invested.
 - **Prevention action (do NOW -- before launch):** Consult a legal technology attorney (not a general startup attorney) about the liability landscape for AI-assisted legal document review. Research what indemnification language competitors offer. Determine whether professional liability insurance for AI-assisted legal work is available and what it costs. Build an acceptable indemnification clause into the standard contract before the first sales conversation, not after the first objection.
 - **Early warning tripwire:** If any discovery call includes the phrase "what happens if the tool misses something" or "how do you handle errors," treat it as a liability objection signal. Pre-prepare a liability brief and include it in all follow-up materials. If 3 or more discovery conversations raise this as a blocker, the liability framework needs immediate re-architecture.
@@ -342,6 +356,7 @@ Plans with external dependencies have a structural vulnerability: the premortem 
 - **Owner:** Founder -- schedule legal consultation within 30 days of quit date.
 
 **#4: Enterprise sales cycle exceeds runway -- RPN: 60 (tied with workflow mismatch, prioritized by impact)**
+
 - **Why this ranks fourth:** The mechanics of B2B sales cycles in law firms are well-documented. Mid-size law firms (50-200 attorneys) typically have 3-6 month procurement cycles for new software. If the MVP launches at month 6 and sales begins in earnest then, the earliest first payment is month 9 -- leaving 1-2 months of runway when 10 customers are needed. This is a structural timing problem, not a performance problem.
 - **Prevention action (do NOW):** Restructure the sales strategy to begin pipeline development in month 1 (immediately after quitting), not month 6 (after MVP is built). The goal of months 1-3 is not product -- it is building a pipeline of 10-15 qualified prospects who have committed to be "first to try" when the MVP is ready. This means sales begins before product. Also: reconsider the runway. 8 months is insufficient for B2B SaaS targeting law firms. A seed round or revenue-based advance from a legal tech accelerator should be part of the plan.
 - **Early warning tripwire:** At month 3, if the co-founder does not have 5 qualified law firms with a named contact who has agreed to a demo when the MVP is ready, the month-12 target is mathematically unreachable given procurement timelines. Threshold: fewer than 5 committed demo prospects by month 3 triggers a pivot to a lower-friction customer segment (e.g., solo practitioners or small firms with shorter procurement cycles) as a bridging revenue strategy.
@@ -350,6 +365,7 @@ Plans with external dependencies have a structural vulnerability: the premortem 
 - **Owner:** Co-founder leads pipeline; founder leads funding strategy -- establish milestone at 90 days post-quit.
 
 **#5: No legal industry network -- cold outreach as sole acquisition channel -- RPN: 64**
+
 - **Why this ranks fifth:** Cold outreach to law firms has documented response rates of 0.5-2% at the top of funnel. At 1% response rate, reaching 10 paying customers requires roughly 1,000 cold contacts -- a volume that is incompatible with a 12-month runway for a 2-person team that is simultaneously building a product. This is not a pessimistic projection; it is the base rate for cold B2B SaaS outreach in a low-trust industry.
 - **Prevention action (do NOW):** Before quitting, invest 60 hours over 6 weeks building a warm outreach foundation. Join and participate in legal technology communities: Legal Tech Hub, the Association of Legal Administrators, Legal Innovators Slack communities, bar association technology committees. Attend one legal tech conference (ILTACON, CLOC, Legalweek) either as a sponsor or participant before launch. Publish 3-5 pieces of thought leadership content (on LinkedIn or in legal trade publications) on contract review automation. These activities convert cold outreach into warm outreach, improving response rates by 5-10x.
 - **Early warning tripwire:** If at month 2, the co-founder's outreach is generating fewer than 3 positive responses per week from qualified prospects, cold outreach is not the right channel. Threshold triggers: shift to partnership channel -- approach law firm management consultants, legal operations consultants, and bar association technology committees as intermediaries who can refer business.
@@ -373,12 +389,12 @@ Both fatal flaws are solvable, which means the plan is viable -- but only if the
 
 ### Confidence Recalibration
 
-| Metric | Value |
-|--------|-------|
-| Initial confidence | 8/10 |
-| Post-premortem confidence | 5/10 |
-| Delta | -3 points |
-| Reason for change | The sales cycle / runway mismatch and the liability framework gap are structural issues that were not in the original plan. The customer discovery gap means the MVP may be built for the wrong workflow. None of these are plan-killers, but all three require concrete action before the original plan timeline can be trusted. |
+| Metric                    | Value                                                                                                                                                                                                                                                                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Initial confidence        | 8/10                                                                                                                                                                                                                                                                                                                              |
+| Post-premortem confidence | 5/10                                                                                                                                                                                                                                                                                                                              |
+| Delta                     | -3 points                                                                                                                                                                                                                                                                                                                         |
+| Reason for change         | The sales cycle / runway mismatch and the liability framework gap are structural issues that were not in the original plan. The customer discovery gap means the MVP may be built for the wrong workflow. None of these are plan-killers, but all three require concrete action before the original plan timeline can be trusted. |
 
 **Recommendation:** Proceed with modifications
 

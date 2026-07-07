@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events planning design"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events planning design'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Memory Keeping System
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to organize a backlog of digital photos (typically 1,000+ images across phones, old computers, or cloud services) and does not know where to begin
 - A user wants to create an ongoing family memory system from scratch -- including photo management, physical keepsakes, and documentation -- and needs a complete, integrated plan
 - A user is preparing for a major life transition (new baby, child starting school, family move, divorce, death of a grandparent) and wants to capture and preserve memories more intentionally
@@ -29,6 +31,7 @@ metadata:
 - A user wants to ensure long-term digital preservation, including backup redundancy, file format longevity, and migration strategies for aging media
 
 **Do NOT use when:**
+
 - The user wants photography technique guidance -- camera settings, lighting, composition, or post-processing (use photography or design-creative skills)
 - The user wants to create social media content from family photos -- Instagram curation, sharing strategies, or audience-building (this is content creation, not memory preservation)
 - The user wants professional photo restoration or digitization of very old or damaged prints (this requires specialist tools and expertise beyond this skill's scope)
@@ -140,16 +143,18 @@ Memory keeping is not just about the next year -- it is about materials that rem
 
 **Folder Structure:**
 ```
+
 Family Photos/
-  YYYY/
-    YYYY-MM-Description/
-      [photo files]
-    YYYY-MM-Description/
-  YYYY/
-    [same pattern]
-  Artwork/
-    [Child Name]/
-      YYYY/
+YYYY/
+YYYY-MM-Description/
+[photo files]
+YYYY-MM-Description/
+YYYY/
+[same pattern]
+Artwork/
+[Child Name]/
+YYYY/
+
 ```
 
 **Curation Rules:**
@@ -340,13 +345,14 @@ Many users have a gap era: digital photos taken with early digital cameras and s
 ## Chen Family Memory Keeping Plan
 
 ### Current State Summary
-| Dimension | Current State | Volume/Scale |
-|-----------|--------------|--------------|
-| Digital photos | iPhone (primary), husband's Android, old laptop, Google Photos, iCloud | ~14,000 total across all sources |
-| Videos | Mixed across same locations | Unknown volume |
-| Physical keepsakes | 3 banker's boxes | ~5 years, 2 children |
-| Documentation | None currently | No existing habit |
-| Backlog | Yes | Approximately 5 years |
+
+| Dimension          | Current State                                                          | Volume/Scale                     |
+| ------------------ | ---------------------------------------------------------------------- | -------------------------------- |
+| Digital photos     | iPhone (primary), husband's Android, old laptop, Google Photos, iCloud | ~14,000 total across all sources |
+| Videos             | Mixed across same locations                                            | Unknown volume                   |
+| Physical keepsakes | 3 banker's boxes                                                       | ~5 years, 2 children             |
+| Documentation      | None currently                                                         | No existing habit                |
+| Backlog            | Yes                                                                    | Approximately 5 years            |
 
 ---
 
@@ -355,6 +361,7 @@ Many users have a gap era: digital photos taken with early digital cameras and s
 The most important thing to do first is establish the going-forward system so new memories do not continue accumulating into the chaos while you work on the old ones. This takes about 2 hours total. The backlog is a separate project and you will not touch it this week.
 
 **This week only:**
+
 1. Create a folder called `Family Photos` on your most reliable computer (or an external drive dedicated to this purpose). Inside it, create a folder: `2026`. Inside that, create monthly subfolders: `2026-01-January`, `2026-02-February`, and so on through December.
 2. Enable auto-sync on your iPhone to iCloud (if not already on) so no new photos are lost from this point forward.
 3. Ask your husband to do the same with Google Photos on his Android.
@@ -365,6 +372,7 @@ The most important thing to do first is establish the going-forward system so ne
 ### Digital Photo System
 
 **Folder Structure:**
+
 ```
 Family Photos/
   2026/
@@ -393,6 +401,7 @@ Family Photos/
 ```
 
 **Curation Rules:**
+
 - Ordinary day or errand: keep 0--3 photos (most days do not need documentation)
 - Weekend outing or activity: keep 5--10 photos
 - Birthday party or holiday: keep 15--25 photos
@@ -429,6 +438,7 @@ Family Photos/
 | Inherited items from grandparents | Pending -- do not make decisions until you have photographed everything and taken at least 6 months | | |
 
 **Container System:**
+
 - Per child per school year: one standard photo storage box (12" x 10" x 4") -- available at any craft or office supply store
 - Label each box: `[Child Name] -- [School Year] -- Grade [#]`
 - Materials: Store paper items in acid-free folders inside the box. The box itself should be archival (acid-free) for paper items you intend to keep 20+ years, particularly report cards and writing samples
@@ -436,6 +446,7 @@ Family Photos/
 - You have 3 banker's boxes covering 5 years for 2 children. That is approximately 10 school years of material. Your target after sorting: 10 photo storage boxes (one per child per year). You will consolidate from 3 large boxes to 10 smaller, organized boxes -- which may actually take up less total space and will be infinitely more usable
 
 **Artwork Digitization Protocol:**
+
 1. Lay the piece flat on white foam board or a white wall
 2. Stand directly above it, phone camera pointing straight down
 3. Use natural window light or a well-lit room -- no flash
@@ -454,6 +465,7 @@ Family Photos/
 **Frequency:** Weekly, Sunday evening, 5--10 minutes. This is the only documentation task on your weekly list.
 
 **Weekly Prompts -- answer any 2--3 that resonate this week:**
+
 1. What made Mia or James laugh out loud this week?
 2. What did one of them do or say that showed you who they are becoming?
 3. What ordinary moment do I want to remember in 10 years? (Bedtime routines, the way they talk to each other, Tuesday afternoon after school)
@@ -465,6 +477,7 @@ Example entry: `March 4 -- James (9) -- "Mom, do you think clouds feel lonely wh
 
 **Annual Narrative Document (write every January, one per child):**
 This is the most valuable documentation you can create. Write 1--2 pages per child covering:
+
 - What Mia / James is like at this age -- their personality, quirks, specific characteristics
 - What they were into this year (shows, books, games, activities, foods, obsessions)
 - What made them laugh / what scared them
@@ -483,20 +496,22 @@ Write it in the second person addressed to the child: "You were seven this year.
 **First step -- consolidation:** Before sorting anything, copy all photos from all sources (iPhone, husband's Android, old laptop, any downloaded Google Photos or iCloud exports) into a single temporary folder called `[Unsorted Raw]` on your external drive. Now everything exists in one place and nothing is lost. This consolidation step may take a full afternoon.
 
 **Then sort:**
+
 - Recommended session length: 30--45 minutes maximum
 - Sessions per week: 1--2 (any more becomes aversive and you will stop)
 - Estimated total sessions at this pace: 12--16 sessions
 - Estimated completion if you start this month: 2--4 months of background work alongside the new system
 
-| Phase | Period Covered | Approach | Target Completion |
-|-------|---------------|----------|-------------------|
-| Consolidation | All sources | Copy everything into one raw folder | This month |
-| Phase 1 | 2025 photos | Sort into year/month folders, curate | Month 2 |
-| Phase 2 | 2024 photos | Same | Month 3 |
-| Phase 3 | 2022--2023 photos | Same | Month 4--5 |
-| Phase 4 | 2021 and earlier | Same | Month 5--6 |
+| Phase         | Period Covered    | Approach                             | Target Completion |
+| ------------- | ----------------- | ------------------------------------ | ----------------- |
+| Consolidation | All sources       | Copy everything into one raw folder  | This month        |
+| Phase 1       | 2025 photos       | Sort into year/month folders, curate | Month 2           |
+| Phase 2       | 2024 photos       | Same                                 | Month 3           |
+| Phase 3       | 2022--2023 photos | Same                                 | Month 4--5        |
+| Phase 4       | 2021 and earlier  | Same                                 | Month 5--6        |
 
 **Session Protocol:**
+
 1. Open one month's worth of raw photos (or one year for sparse years)
 2. First 10 minutes: batch-delete obvious junk -- blurry shots, screenshots, food photos you do not care about, accidental captures. Be aggressive. You have 14,000 photos; you will not miss 2,000 obvious failures.
 3. Next 15 minutes: eliminate near-duplicates. For any group of 5 similar photos of the same moment, keep 1--2 and delete the rest.
@@ -509,18 +524,18 @@ Write it in the second person addressed to the child: "You were seven this year.
 
 ### Ongoing Maintenance Schedule
 
-| Task | Frequency | Time Required | Anchor |
-|------|-----------|---------------|--------|
-| Phone photo curation (delete junk, move best to shared album) | Weekly | 10 min | Sunday evening |
-| Weekly journal entry (2--3 prompts) | Weekly | 5--10 min | Same session as photo curation |
-| Monthly photo download to organized folder | Monthly | 15 min | 1st of the month |
-| Husband syncs his best photos to shared album | Monthly | 10 min | Same day |
-| External drive backup update | Quarterly | 15 min | First weekend of Jan/Apr/Jul/Oct |
-| Physical keepsake sort (new accumulation) | Annually | 30--45 min per child | Late May/June at school year end |
-| Final curation of previous year's photos | Annually | 1--2 hours | January |
-| Annual photo book order | Annually | 2--3 hours selecting, 1 hour ordering | January |
-| Annual narrative document (one per child) | Annually | 1 hour per child | January or child's birthday |
-| Archive export backup (download from cloud services) | Annually | 1--2 hours | January alongside above |
+| Task                                                          | Frequency | Time Required                         | Anchor                           |
+| ------------------------------------------------------------- | --------- | ------------------------------------- | -------------------------------- |
+| Phone photo curation (delete junk, move best to shared album) | Weekly    | 10 min                                | Sunday evening                   |
+| Weekly journal entry (2--3 prompts)                           | Weekly    | 5--10 min                             | Same session as photo curation   |
+| Monthly photo download to organized folder                    | Monthly   | 15 min                                | 1st of the month                 |
+| Husband syncs his best photos to shared album                 | Monthly   | 10 min                                | Same day                         |
+| External drive backup update                                  | Quarterly | 15 min                                | First weekend of Jan/Apr/Jul/Oct |
+| Physical keepsake sort (new accumulation)                     | Annually  | 30--45 min per child                  | Late May/June at school year end |
+| Final curation of previous year's photos                      | Annually  | 1--2 hours                            | January                          |
+| Annual photo book order                                       | Annually  | 2--3 hours selecting, 1 hour ordering | January                          |
+| Annual narrative document (one per child)                     | Annually  | 1 hour per child                      | January or child's birthday      |
+| Archive export backup (download from cloud services)          | Annually  | 1--2 hours                            | January alongside above          |
 
 **Total weekly time commitment: 15--20 minutes.** If any week you do not do it, do not catch up -- just pick up next week. A missed week matters far less than abandoning the system.
 

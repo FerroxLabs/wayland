@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend architecture automation"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend architecture automation'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Message Queue Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks which message queue pattern (competing consumers, pub/sub, dead-letter, saga, outbox) to use for a specific architecture problem
 - The user is designing an event-driven or microservices system and needs to decouple producers from consumers
 - The user asks about ordering guarantees, at-least-once vs. exactly-once delivery, or consumer group semantics
@@ -29,6 +31,7 @@ metadata:
 - The user asks about broker selection (RabbitMQ, Apache Kafka, Amazon SQS, Redis Streams, Google Pub/Sub, NATS) and how their semantics affect pattern choice
 
 **Do NOT use this skill when:**
+
 - The user needs help with in-process event emitters (Node.js EventEmitter, Python asyncio queues) -- those are not distributed message queues
 - The user is asking about task scheduling (cron jobs, delayed execution) without a queue component -- check the job-scheduling skill
 - The user needs WebSocket or Server-Sent Event real-time push to browsers -- that is a different communication pattern
@@ -100,7 +103,7 @@ Use this pattern whenever a service must atomically update its own database AND 
 Every queue needs a DLQ and a documented retry policy before the first consumer is deployed.
 
 - Define **max delivery attempts** based on error type: transient errors (network timeout, DB connection) warrant 3--5 retries with exponential backoff starting at 1 second. Permanent errors (deserialization failure, schema violation, invalid business rule) should dead-letter immediately after 1 attempt -- retrying will never help.
-- Implement **exponential backoff with jitter** in the consumer: `sleep = min(base * 2^attempt, cap) + random(0, jitter)`. Typical values: base=1s, cap=300s (5 minutes), jitter=cap*0.25. This prevents thundering herd when a downstream dependency recovers after an outage.
+- Implement **exponential backoff with jitter** in the consumer: `sleep = min(base * 2^attempt, cap) + random(0, jitter)`. Typical values: base=1s, cap=300s (5 minutes), jitter=cap\*0.25. This prevents thundering herd when a downstream dependency recovers after an outage.
 - Tag every message sent to the DLQ with metadata: original queue name, failure reason, exception class, stack trace (truncated to 1KB), delivery attempt count, original timestamp, and consumer hostname. This makes DLQ triage far faster.
 - Build a **DLQ processor** -- do not manually replay messages. The processor should: inspect the failure reason, apply a fix if possible (schema migration, data correction), then republish to the original queue. Never delete from the DLQ without either reprocessing or explicit analyst sign-off.
 - Set DLQ retention high: 14 days minimum. SQS default is 4 days -- explicitly set `MessageRetentionPeriod` to 1209600 (14 days) for all DLQs.
@@ -132,7 +135,7 @@ Production message queue systems require ongoing operational visibility.
 
 ## Output Format
 
-```
+````
 ## Message Queue Pattern Design: [System Name]
 
 ### Delivery Requirements
@@ -186,22 +189,25 @@ Production message queue systems require ongoing operational visibility.
     "original_queue": null
   }
 }
-```
+````
 
 ### Retry & DLQ Policy
-| Error Type           | Action             | Max Attempts | Backoff Strategy       |
-|----------------------|--------------------|--------------|------------------------|
-| Network timeout      | Retry              | 5            | Exp, base 1s, cap 300s |
-| Deserialization fail | DLQ immediately    | 1            | None                   |
-| Business rule fail   | DLQ immediately    | 1            | None                   |
-| DB connection error  | Retry              | 3            | Exp, base 2s, cap 60s  |
+
+| Error Type           | Action          | Max Attempts | Backoff Strategy       |
+| -------------------- | --------------- | ------------ | ---------------------- |
+| Network timeout      | Retry           | 5            | Exp, base 1s, cap 300s |
+| Deserialization fail | DLQ immediately | 1            | None                   |
+| Business rule fail   | DLQ immediately | 1            | None                   |
+| DB connection error  | Retry           | 3            | Exp, base 2s, cap 60s  |
 
 ### Transactional Outbox (if applicable)
+
 - Outbox table: [schema.outbox_events]
 - Relay mechanism: [Debezium CDC / polling relay, interval Xs]
 - Retention: [24h processed, 7d archived]
 
 ### Saga Design (if applicable)
+
 - Saga type: [choreography / orchestration]
 - Steps: [step1 -> step2 -> step3]
 - Compensation: [step3_compensate -> step2_compensate -> step1_compensate]
@@ -209,17 +215,20 @@ Production message queue systems require ongoing operational visibility.
 - State table: [schema.saga_state]
 
 ### Monitoring & Alerting
-| Metric                    | Warning Threshold | Critical Threshold | Tool              |
-|---------------------------|-------------------|--------------------|-------------------|
-| Consumer lag (seconds)    | >30s              | >120s              | Prometheus/Burrow |
-| DLQ depth                 | >0                | >50                | CloudWatch/DD     |
-| Message age P99           | >10s              | >60s               | Custom metric     |
-| Consumer error rate       | >1%               | >5%                | APM               |
+
+| Metric                 | Warning Threshold | Critical Threshold | Tool              |
+| ---------------------- | ----------------- | ------------------ | ----------------- |
+| Consumer lag (seconds) | >30s              | >120s              | Prometheus/Burrow |
+| DLQ depth              | >0                | >50                | CloudWatch/DD     |
+| Message age P99        | >10s              | >60s               | Custom metric     |
+| Consumer error rate    | >1%               | >5%                | APM               |
 
 ### Implementation Notes
+
 - [Specific gotcha or non-obvious configuration detail]
 - [Schema evolution policy]
 - [Local development setup -- e.g., Docker Compose with broker]
+
 ```
 
 ---
@@ -330,27 +339,29 @@ When the message broker is unavailable, naive producers either drop messages or 
 ### Topology Diagram
 
 ```
+
 [Order Service (Python)]
-         |
-         | INSERT into outbox_events table (same DB transaction as order record)
-         |
+|
+| INSERT into outbox_events table (same DB transaction as order record)
+|
 [Outbox Relay (Lambda, polls every 5s)]
-         |
-         | SNS Publish: OrderPlaced event
-         v
+|
+| SNS Publish: OrderPlaced event
+v
 [SNS Topic: ecommerce-order-events]
-         |
-         |--- [SQS FIFO: inventory-reservation.fifo]     --> [Inventory Service (Python)]
-         |--- [SQS FIFO: payment-processing.fifo]        --> [Payment Service (Node.js)]
-         |--- [SQS Standard: email-notifications]        --> [Email Service (Node.js)]
-         |--- [SQS Standard: analytics-ingest]           --> [Analytics Worker (Python)]
-         |
-         Each SQS queue has a corresponding DLQ:
-         inventory-reservation.fifo         --> inventory-reservation-dlq.fifo
-         payment-processing.fifo            --> payment-processing-dlq.fifo
-         email-notifications                --> email-notifications-dlq
-         analytics-ingest                   --> analytics-ingest-dlq
-```
+|
+|--- [SQS FIFO: inventory-reservation.fifo] --> [Inventory Service (Python)]
+|--- [SQS FIFO: payment-processing.fifo] --> [Payment Service (Node.js)]
+|--- [SQS Standard: email-notifications] --> [Email Service (Node.js)]
+|--- [SQS Standard: analytics-ingest] --> [Analytics Worker (Python)]
+|
+Each SQS queue has a corresponding DLQ:
+inventory-reservation.fifo --> inventory-reservation-dlq.fifo
+payment-processing.fifo --> payment-processing-dlq.fifo
+email-notifications --> email-notifications-dlq
+analytics-ingest --> analytics-ingest-dlq
+
+````
 
 ### Queue Configuration
 
@@ -390,7 +401,7 @@ When the message broker is unavailable, naive producers either drop messages or 
     "original_queue": null
   }
 }
-```
+````
 
 **Note:** Customer PII (name, email address) is NOT in the event payload. The email service fetches it from the customer service using `customer_id`. This prevents PII exposure in queue messages, DLQs, and CloudWatch logs.
 
@@ -543,25 +554,25 @@ async def reserve_inventory(order_id: str, items: list) -> bool:
 
 ### Retry & DLQ Policy
 
-| Consumer         | Error Type                  | Action          | Max Attempts | Backoff                    |
-|------------------|-----------------------------|-----------------|--------------|----------------------------|
-| Inventory        | DB connection error         | Retry           | 5            | Exp 1s, cap 30s, jitter 25% |
-| Inventory        | InsufficientInventoryError  | DLQ immediately | 1            | None -- business failure    |
-| Payment          | Stripe timeout              | Retry           | 3            | Exp 2s, cap 60s            |
-| Payment          | Stripe card_declined        | DLQ immediately | 1            | None -- trigger compensation |
-| Email            | SMTP connection error       | Retry           | 5            | Exp 1s, cap 120s           |
-| Analytics        | Warehouse connection error  | Retry           | 10           | Exp 5s, cap 300s           |
+| Consumer  | Error Type                 | Action          | Max Attempts | Backoff                      |
+| --------- | -------------------------- | --------------- | ------------ | ---------------------------- |
+| Inventory | DB connection error        | Retry           | 5            | Exp 1s, cap 30s, jitter 25%  |
+| Inventory | InsufficientInventoryError | DLQ immediately | 1            | None -- business failure     |
+| Payment   | Stripe timeout             | Retry           | 3            | Exp 2s, cap 60s              |
+| Payment   | Stripe card_declined       | DLQ immediately | 1            | None -- trigger compensation |
+| Email     | SMTP connection error      | Retry           | 5            | Exp 1s, cap 120s             |
+| Analytics | Warehouse connection error | Retry           | 10           | Exp 5s, cap 300s             |
 
 ### Monitoring & Alerting
 
-| Metric                              | Warning    | Critical   | Tool                          |
-|-------------------------------------|------------|------------|-------------------------------|
-| inventory-reservation queue depth   | >100 msgs  | >500 msgs  | CloudWatch SQS metrics        |
-| payment-processing queue depth      | >50 msgs   | >200 msgs  | CloudWatch SQS metrics        |
-| Any DLQ depth                       | >0         | >10        | CloudWatch Alarm -> PagerDuty |
-| Saga timeout rate (per hour)        | >5         | >20        | Custom CloudWatch metric      |
-| Outbox relay lag (unprocessed rows) | >50        | >200       | RDS query -> CloudWatch       |
-| Order saga P99 completion time      | >60s       | >180s      | X-Ray trace percentile        |
+| Metric                              | Warning   | Critical  | Tool                          |
+| ----------------------------------- | --------- | --------- | ----------------------------- |
+| inventory-reservation queue depth   | >100 msgs | >500 msgs | CloudWatch SQS metrics        |
+| payment-processing queue depth      | >50 msgs  | >200 msgs | CloudWatch SQS metrics        |
+| Any DLQ depth                       | >0        | >10       | CloudWatch Alarm -> PagerDuty |
+| Saga timeout rate (per hour)        | >5        | >20       | Custom CloudWatch metric      |
+| Outbox relay lag (unprocessed rows) | >50       | >200      | RDS query -> CloudWatch       |
+| Order saga P99 completion time      | >60s      | >180s     | X-Ray trace percentile        |
 
 ### Local Development Setup
 
@@ -570,7 +581,7 @@ async def reserve_inventory(order_id: str, items: list) -> bool:
 services:
   localstack:
     image: localstack/localstack:3.2
-    ports: ["4566:4566"]
+    ports: ['4566:4566']
     environment:
       SERVICES: sqs,sns
       DEFAULT_REGION: us-east-1
@@ -583,7 +594,7 @@ services:
       POSTGRES_DB: orders
       POSTGRES_USER: app
       POSTGRES_PASSWORD: localdev
-    ports: ["5432:5432"]
+    ports: ['5432:5432']
 ```
 
 ```bash

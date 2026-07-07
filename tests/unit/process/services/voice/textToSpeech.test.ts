@@ -6,11 +6,7 @@
 
 import { DEFAULT_TTS_CONFIG, normalizeTextToSpeechConfig } from '@/common/types/ttsTypes';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
-import {
-  KokoroLocal,
-  KokoroLocalUnavailableError,
-  type KokoroLocalRuntime,
-} from '@process/services/voice/KokoroLocal';
+import { KokoroLocal, KokoroLocalUnavailableError, type KokoroLocalRuntime } from '@process/services/voice/KokoroLocal';
 import { synthesize } from '@process/services/voice/TextToSpeechService';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -86,29 +82,27 @@ describe('KokoroLocal.synthesize', () => {
   it('throws KokoroLocalUnavailableError when the binary is missing', async () => {
     const runtime = fakeKokoroRuntime({ resolveBinary: () => null });
     await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toBeInstanceOf(
-      KokoroLocalUnavailableError,
+      KokoroLocalUnavailableError
     );
   });
 
   it('throws KokoroLocalUnavailableError when the model is missing', async () => {
     const runtime = fakeKokoroRuntime({ resolveModel: () => null });
     await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toBeInstanceOf(
-      KokoroLocalUnavailableError,
+      KokoroLocalUnavailableError
     );
   });
 
   it('uses a coded error message the TTS service can surface to the user', async () => {
     const runtime = fakeKokoroRuntime({ resolveBinary: () => null });
-    await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toThrow(
-      /^TTS_KOKORO_LOCAL_UNAVAILABLE/,
-    );
+    await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toThrow(/^TTS_KOKORO_LOCAL_UNAVAILABLE/);
   });
 
   it('does not invoke run when the binary is missing', async () => {
     const run = vi.fn(async () => new Uint8Array(0));
     const runtime = fakeKokoroRuntime({ resolveBinary: () => null, run });
     await expect(KokoroLocal.synthesize('hi', baseConfig(), runtime)).rejects.toBeInstanceOf(
-      KokoroLocalUnavailableError,
+      KokoroLocalUnavailableError
     );
     expect(run).not.toHaveBeenCalled();
   });
@@ -143,7 +137,7 @@ describe('synthesize (TextToSpeechService)', () => {
   it('propagates KokoroLocalUnavailableError from the kokoro-local provider', async () => {
     const runtime = fakeKokoroRuntime({ resolveBinary: () => null });
     await expect(synthesize('Hi', baseConfig({ provider: 'kokoro-local' }), runtime)).rejects.toBeInstanceOf(
-      KokoroLocalUnavailableError,
+      KokoroLocalUnavailableError
     );
   });
 });

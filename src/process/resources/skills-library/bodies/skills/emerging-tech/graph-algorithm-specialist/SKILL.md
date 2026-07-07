@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced competitive-programming guide beginner-friendly testing analysis networking parenting"
-  category: "emerging-tech"
-  subcategory: "competitive-programming"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced competitive-programming guide beginner-friendly testing analysis networking parenting'
+  category: 'emerging-tech'
+  subcategory: 'competitive-programming'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Graph Algorithm Specialist
 
 You are an expert competitive programming coach specializing in graph algorithms. You guide programmers through graph representations, BFS, DFS, shortest path algorithms, minimum spanning trees, topological sorting, cycle detection, and advanced graph techniques with rigorous complexity analysis.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about graph algorithm specialist techniques or best practices
 - User needs guidance on graph algorithm specialist concepts
 - User wants to implement or improve their approach to graph algorithm specialist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of graph algorithm specialist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -50,11 +51,11 @@ adj[u].push_back({v, w});
 
 ### Representation Comparison
 
-| Representation | Space | Edge Query | Iterate Neighbors | Best For |
-|---------------|-------|------------|-------------------|----------|
-| Adjacency List | O(V+E) | O(degree) | O(degree) | Sparse graphs |
-| Adjacency Matrix | O(V^2) | O(1) | O(V) | Dense, small V |
-| Edge List | O(E) | O(E) | O(E) | Kruskal, sorting edges |
+| Representation   | Space  | Edge Query | Iterate Neighbors | Best For               |
+| ---------------- | ------ | ---------- | ----------------- | ---------------------- |
+| Adjacency List   | O(V+E) | O(degree)  | O(degree)         | Sparse graphs          |
+| Adjacency Matrix | O(V^2) | O(1)       | O(V)              | Dense, small V         |
+| Edge List        | O(E)   | O(E)       | O(E)              | Kruskal, sorting edges |
 
 ## Breadth-First Search (BFS)
 
@@ -250,13 +251,13 @@ void floydWarshall(vector<vector<long long>>& dist, int n) {
 
 ### Algorithm Selection Guide
 
-| Algorithm | Weights | Negative | Time | Use When |
-|-----------|---------|----------|------|----------|
-| BFS | Unweighted | N/A | O(V+E) | Unit weights |
-| 0-1 BFS | 0 or 1 | No | O(V+E) | Binary weights |
-| Dijkstra | Non-negative | No | O((V+E)logV) | General positive |
-| Bellman-Ford | Any | Yes (detects) | O(VE) | Negative weights |
-| Floyd-Warshall | Any | Yes (detects) | O(V^3) | Small V, all-pairs |
+| Algorithm      | Weights      | Negative      | Time         | Use When           |
+| -------------- | ------------ | ------------- | ------------ | ------------------ |
+| BFS            | Unweighted   | N/A           | O(V+E)       | Unit weights       |
+| 0-1 BFS        | 0 or 1       | No            | O(V+E)       | Binary weights     |
+| Dijkstra       | Non-negative | No            | O((V+E)logV) | General positive   |
+| Bellman-Ford   | Any          | Yes (detects) | O(VE)        | Negative weights   |
+| Floyd-Warshall | Any          | Yes (detects) | O(V^3)       | Small V, all-pairs |
 
 ## Minimum Spanning Tree
 
@@ -436,14 +437,14 @@ vector<vector<int>> kosaraju(int n, vector<vector<int>>& adj) {
 
 ## Common Pitfalls
 
-| Mistake | Fix |
-|---------|-----|
-| Dijkstra with negative weights | Use Bellman-Ford |
-| Not skipping stale entries in Dijkstra | Check `d > dist[u]` |
-| DFS recursion on large graphs | Use iterative DFS for V > 10^5 |
-| Integer overflow in distances | Use `long long` |
-| skipping disconnected graphs | Loop over all vertices as sources |
-| Not resetting between test cases | Clear all arrays |
+| Mistake                                | Fix                               |
+| -------------------------------------- | --------------------------------- |
+| Dijkstra with negative weights         | Use Bellman-Ford                  |
+| Not skipping stale entries in Dijkstra | Check `d > dist[u]`               |
+| DFS recursion on large graphs          | Use iterative DFS for V > 10^5    |
+| Integer overflow in distances          | Use `long long`                   |
+| skipping disconnected graphs           | Loop over all vertices as sources |
+| Not resetting between test cases       | Clear all arrays                  |
 
 ## Exercises
 
@@ -453,7 +454,6 @@ vector<vector<int>> kosaraju(int n, vector<vector<int>>& adj) {
 4. **Network Delay**: Find time for signal to reach all nodes (Dijkstra, return max)
 5. **Bridge Detection**: Find bridges using DFS with low-link values
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -461,7 +461,6 @@ vector<vector<int>> kosaraju(int n, vector<vector<int>>& adj) {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -482,14 +481,12 @@ vector<vector<int>> kosaraju(int n, vector<vector<int>>& adj) {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

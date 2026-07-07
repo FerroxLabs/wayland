@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills academic-writing guide"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills academic-writing guide'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Test Prep Coach
@@ -21,12 +21,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User is preparing for a standardized test (SAT, GRE, GMAT, LSAT, MCAT, etc.)
 - User needs test-taking strategies specific to an exam format
 - User wants a structured study timeline for an upcoming exam
 - User needs practice with specific question types or test sections
 
 **Do NOT use this skill when:**
+
 - User needs tutoring on subject matter -- use personal-tutor or domain-specific skills
 - User wants flashcards made -- use flashcard-creator
 - User needs general study habits -- use study-planner
@@ -490,40 +492,47 @@ When coaching test prep, provide:
 **Primary gap:** Quant needs +12 points (significant); Verbal needs +5 (moderate)
 
 ### Time Allocation (20 hrs/week = 160 hrs total)
-| Section | Hours | % of Study | Why |
-|---------|-------|-----------|-----|
-| Quant | 90 | 56% | Largest gap, highest ROI |
-| Verbal | 45 | 28% | Moderate gap, build on strength |
-| AWA (Writing) | 10 | 6% | Template practice, low effort |
-| Practice tests | 15 | 10% | 5 full tests (3 hrs each) |
+
+| Section        | Hours | % of Study | Why                             |
+| -------------- | ----- | ---------- | ------------------------------- |
+| Quant          | 90    | 56%        | Largest gap, highest ROI        |
+| Verbal         | 45    | 28%        | Moderate gap, build on strength |
+| AWA (Writing)  | 10    | 6%         | Template practice, low effort   |
+| Practice tests | 15    | 10%        | 5 full tests (3 hrs each)       |
 
 ### Quant Strategy (148 to 160+)
+
 **Weeks 1-2:** Core concept review
+
 - Algebra, number properties, geometry fundamentals
 - Do 30 problems/day from ETS Official Guide, sorted by type
 
 **Weeks 3-5:** Pattern recognition
+
 - GRE quant has ~15 recurring problem patterns
 - Drill: quantitative comparison (learn the "pick numbers" strategy)
 - Drill: data interpretation (learn to read charts fast -- 2 min per question max)
 
 **Weeks 6-8:** Timed practice
+
 - Full quant sections under time pressure (35 min, 20 questions)
 - Review every wrong answer: was it concept gap, careless error, or time pressure?
 
 ### Verbal Strategy (155 to 160+)
+
 - Learn 300 high-frequency GRE words (use flashcard-creator skill for Anki deck)
 - Practice "text completion" with elimination strategy: cover answer choices, predict the word, then match
 - Reading comprehension: read the first and last sentence of each paragraph first, then the questions
 
 ### Practice Test Schedule
-| Week | Test | Purpose |
-|------|------|---------|
-| Week 2 | PowerPrep Practice Test 1 | Baseline after initial study |
-| Week 4 | ETS Practice Test | Mid-point check |
-| Week 6 | PowerPrep Practice Test 2 | Progress check |
-| Week 7 | Third-party test | Stamina practice |
-| Week 8 (3 days before) | Light review only | No new material, confidence building |
+
+| Week                   | Test                      | Purpose                              |
+| ---------------------- | ------------------------- | ------------------------------------ |
+| Week 2                 | PowerPrep Practice Test 1 | Baseline after initial study         |
+| Week 4                 | ETS Practice Test         | Mid-point check                      |
+| Week 6                 | PowerPrep Practice Test 2 | Progress check                       |
+| Week 7                 | Third-party test          | Stamina practice                     |
+| Week 8 (3 days before) | Light review only         | No new material, confidence building |
 
 ## Edge Cases
 

@@ -13,7 +13,7 @@ metadata:
 prerequisites:
   python_packages: []
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 ---
 
 > **Templates and analytical tools only - not legal, marketing-compliance, or data-protection advice.** ICP outputs feed downstream cold-outreach work (CAN-SPAM, CASL, GDPR, UWG §7, CCPA exposure) and should not include illegal targeting (e.g., do not target German B2B prospects for cold email - UWG §7 forbids it without prior express consent). Drafted first messages inherit the sales-outreach Phase 0 jurisdiction gate. Never instruct users to scrape LinkedIn, Glassdoor, G2, Capterra, or Crunchbase free-tier - those ToS forbid it; use official APIs or OSINT.
@@ -33,14 +33,16 @@ Do NOT use for: scoring an individual company against an existing ICP (`sales-pr
 This skill is **dual-mode**.
 
 **Standalone mode** (`/sales-icp <description>`)
+
 - User passes a description of their business, product, or service.
 - Skill runs market research (Phase 0), builds the full 6-dimension ICP, negative ICP, scoring rubric, personas, and prospecting playbook, then writes a Markdown report.
 - Default output path: `build_report_path("business-sales", instruction)` -- typically `.wayland/business-sales/<timestamp>-icp.md`.
 - Caller may override with an explicit `out_path` argument.
 
 **Subagent mode** (invoked by `sales-prospect` via `delegate_task(tasks=[...])`)
+
 - Parent orchestrator pre-fetches the prospect company's pages, contact intel, and competitive context, AND loads the user's existing `IDEAL-CUSTOMER-PROFILE.md` if available.
-- Child receives a fully self-contained `context` payload (see *Subagent contract* below).
+- Child receives a fully self-contained `context` payload (see _Subagent contract_ below).
 - Child does NOT re-fetch; it scores the prospect's ICP-fit and outreach readiness using the inputs.
 - Child returns a JSON object matching `output_schema` AND writes a per-dimension Markdown file to the assigned `out_path`.
 - Toolset for the child is `[terminal, file, web]` -- `execute_code` is blocked for delegated subagents, so any helper-script work must already be done by the parent.
@@ -48,10 +50,12 @@ This skill is **dual-mode**.
 ## Inputs
 
 Standalone mode accepts:
+
 - `description` (required) -- a description of the business, product, or service. Should include: what it does, who it's currently sold to, price point or deal size, key differentiators, industry focus, company stage. If fewer than 10 words or critical context is missing, ask ONE clarifying question before proceeding.
 - `out_path` (optional) -- caller-controlled output path; falls back to `build_report_path("business-sales", instruction)`.
 
 Subagent mode receives in `context`:
+
 - `prospect_company` -- name + URL of the company being scored
 - `company_research` -- output from the Company Research subagent (firmographics, tech stack, growth signals)
 - `contact_intelligence` -- output from the Contact Intelligence subagent (buying committee, personalization anchors)
@@ -67,6 +71,7 @@ Subagent mode receives in `context`:
 ### Phase 0: Market Research
 
 Use `web_search` (5-result cap) to validate assumptions before drafting:
+
 1. `[product category] market size TAM` -- addressable market
 2. `[product category] competitors alternatives` -- positioning
 3. `[product category] trends 2026` -- market dynamics
@@ -112,6 +117,7 @@ Present firmographic criteria as a table with columns: Criteria, Ideal Range, Wh
 #### Dimension 4: Pain Point Mapping
 
 Identify and rank the top 3-5 pain points. For EACH pain point, document:
+
 - **Pain Point Name:** Clear, specific label
 - **Severity Ranking:** Critical (business risk) / High (significant inefficiency) / Medium (nice-to-fix)
 - **How It Manifests:** Observable symptoms. What does the team complain about? What breaks?
@@ -145,6 +151,7 @@ Present as a ranked list with a severity heat map.
 ### Phase 3: Define the Negative ICP
 
 CRITICAL section. Define characteristics that DISQUALIFY a prospect. Document at least 8-10 disqualification criteria:
+
 - Too small (below revenue/headcount threshold)
 - Too large (above complexity/bureaucracy threshold)
 - Wrong industry (industries that seem related but aren't a fit, and why)
@@ -162,18 +169,19 @@ For each, explain the specific red flag AND why it disqualifies.
 
 Build a lead qualification scorecard anyone on the team can use.
 
-| Category | Max Points | Scoring Criteria |
-|----------|-----------|-----------------|
-| Firmographic Fit | 25 | Size, industry, geography, stage |
-| Technographic Fit | 15 | Tech stack, sophistication, integration readiness |
-| Pain Point Alignment | 20 | Severity of pain, urgency, current workaround inadequacy |
-| Budget Capacity | 20 | Revenue, funding, tech spend, deal size fit |
-| Contact Access | 10 | Decision maker identified, warm path available |
-| Timing Signals | 10 | Trigger events, budget cycle, urgency indicators |
+| Category             | Max Points | Scoring Criteria                                         |
+| -------------------- | ---------- | -------------------------------------------------------- |
+| Firmographic Fit     | 25         | Size, industry, geography, stage                         |
+| Technographic Fit    | 15         | Tech stack, sophistication, integration readiness        |
+| Pain Point Alignment | 20         | Severity of pain, urgency, current workaround inadequacy |
+| Budget Capacity      | 20         | Revenue, funding, tech spend, deal size fit              |
+| Contact Access       | 10         | Decision maker identified, warm path available           |
+| Timing Signals       | 10         | Trigger events, budget cycle, urgency indicators         |
 
 For each category, define what scores 0%, 25%, 50%, 75%, and 100% of available points.
 
 **Example -- Firmographic Fit (25 points):**
+
 - **25 points (100%):** Company is in the primary target industry, within ideal revenue AND employee range, in target geography, at ideal stage, and showing strong growth signals
 - **19 points (75%):** Meets 4 of 5 firmographic criteria. One minor gap (e.g., slightly outside ideal size range but in perfect industry)
 - **13 points (50%):** Meets 3 of 5 criteria. Reasonable fit but needs further validation. Could be a fit with the right use case.
@@ -183,6 +191,7 @@ For each category, define what scores 0%, 25%, 50%, 75%, and 100% of available p
 Repeat this level of detail for ALL SIX scoring categories. A salesperson should be able to score a lead in under 5 minutes without asking anyone for help.
 
 **Grade Bands:**
+
 - **A+ (90-100):** Drop everything and pursue. Perfect fit, strong signals, clear path. Personalized, multi-threaded outreach within 24 hours.
 - **A (75-89):** High priority. Strong fit with minor gaps. Pursue actively with personalized outreach.
 - **B (60-74):** Good fit. Worth pursuing but don't over-invest until qualified further. Semi-personalized outreach.
@@ -190,6 +199,7 @@ Repeat this level of detail for ALL SIX scoring categories. A salesperson should
 - **D (0-39):** Does not fit ICP. Do not pursue. Marketing nurture list at most.
 
 **Quick Qualification Checklist** (60-second yes/no):
+
 1. Are they in a target industry? (Y/N)
 2. Are they in the ideal size range? (Y/N)
 3. Do they show growth signals? (Y/N)
@@ -203,6 +213,7 @@ Score: 5 Yes = likely A. 3-4 Yes = likely B. 1-2 Yes = likely C. 0 Yes = D.
 Each persona must feel like a real person, not a marketing abstraction.
 
 For EACH persona:
+
 - **Persona Name:** Memorable archetype (e.g., "The Frustrated VP of Engineering", "The Growth-Hungry Founder", "The Risk-Averse CFO")
 - **Demographic Profile:** Title, age range, career path, education, reporting structure
 - **Day-in-the-Life:** Typical day -- meetings, tasks, pressures
@@ -242,17 +253,17 @@ When invoked under `sales-prospect`, this skill scores the **Outreach Readiness*
 
 Evaluate and rank channels for this prospect. Do NOT default to email -- choose the channel with the highest probability of getting a response.
 
-| Channel | Best When | Considerations |
-|---------|-----------|---------------|
-| **Cold Email** | Contact email is findable, prospect role checks email, personalization is strong | Most scalable but lowest response rate. Must be highly personalized to stand out. |
-| **LinkedIn DM** | Contact is active on LinkedIn (posts regularly, engages), profile public | Higher response rate than email but more limited in length. Works best with prior engagement. |
-| **LinkedIn Engage-First** | Contact creates content regularly | Comment on 2-3 posts before DM. Warms the contact. Takes 1-2 weeks but dramatically improves response. |
-| **Phone Call** | Direct phone available, prospect in role that answers calls (sales leaders, founders of small companies) | Highest conversion per attempt but hardest to execute. Best combined with another channel. |
-| **Warm Introduction** | Mutual connection exists and willing to intro | Highest response rate of all channels. Always pursue if available. |
-| **Event-Based** | Prospect attending or speaking at upcoming event | Natural context for connection. Mention event in outreach. |
-| **Community-Based** | Prospect active in a specific community (Slack, Discord, forum) | Engage in community first, then transition to direct conversation. |
-| **Referral from Customer** | You have a customer in their network or industry | Social proof + warm path. Ask customer for introduction or permission to name-drop. |
-| **Content/Inbound Trigger** | Prospect engages with your content (downloads, webinar) | Requires existing content engine. Most natural conversation starter. |
+| Channel                     | Best When                                                                                                | Considerations                                                                                         |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **Cold Email**              | Contact email is findable, prospect role checks email, personalization is strong                         | Most scalable but lowest response rate. Must be highly personalized to stand out.                      |
+| **LinkedIn DM**             | Contact is active on LinkedIn (posts regularly, engages), profile public                                 | Higher response rate than email but more limited in length. Works best with prior engagement.          |
+| **LinkedIn Engage-First**   | Contact creates content regularly                                                                        | Comment on 2-3 posts before DM. Warms the contact. Takes 1-2 weeks but dramatically improves response. |
+| **Phone Call**              | Direct phone available, prospect in role that answers calls (sales leaders, founders of small companies) | Highest conversion per attempt but hardest to execute. Best combined with another channel.             |
+| **Warm Introduction**       | Mutual connection exists and willing to intro                                                            | Highest response rate of all channels. Always pursue if available.                                     |
+| **Event-Based**             | Prospect attending or speaking at upcoming event                                                         | Natural context for connection. Mention event in outreach.                                             |
+| **Community-Based**         | Prospect active in a specific community (Slack, Discord, forum)                                          | Engage in community first, then transition to direct conversation.                                     |
+| **Referral from Customer**  | You have a customer in their network or industry                                                         | Social proof + warm path. Ask customer for introduction or permission to name-drop.                    |
+| **Content/Inbound Trigger** | Prospect engages with your content (downloads, webinar)                                                  | Requires existing content engine. Most natural conversation starter.                                   |
 
 Select **Primary**, **Secondary**, **Tertiary** channels and justify each based on the specific prospect data available.
 
@@ -270,6 +281,7 @@ Select the framework that best matches this prospect's situation. Explain WHY.
 ### Step 3: Build Personalization Strategy Per Decision Maker
 
 For each top 3-5 contact:
+
 - **Contact:** [Name, Title]
 - **Buying Role:** [Economic / Technical / User / Champion]
 - **Their Priority:** What matters most to this person?
@@ -297,6 +309,7 @@ Common categories: status quo, budget, timing, authority, trust, complexity, com
 ### Step 6: Draft First Outreach Message
 
 Requirements:
+
 - Email <= 150 words; LinkedIn DM <= 100 words
 - At least one specific personalization element (not generic)
 - References a real pain point or trigger event
@@ -309,13 +322,13 @@ Also draft: subject line (under 50 chars), LinkedIn connection note (under 300 c
 
 ## Scoring Rubric (Subagent Mode)
 
-| Dimension | Score Range | What It Measures |
-|-----------|-----------|------------------|
-| **Personalization Quality** | 0-10 | How personalized can the outreach be? Strong hooks per contact, or generic at best? |
-| **Channel Strategy** | 0-10 | Right channel identified? Multiple viable channels? Warm path? |
-| **Messaging Fit** | 0-10 | Framework matches the prospect's situation? Value prop clear and compelling? |
-| **Objection Preparedness** | 0-10 | Likely objections predicted with strong responses? Team ready for pushback? |
-| **Timing Opportunity** | 0-10 | Favorable timing signals? Trigger events? Good positioning in their buying cycle? |
+| Dimension                   | Score Range | What It Measures                                                                    |
+| --------------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| **Personalization Quality** | 0-10        | How personalized can the outreach be? Strong hooks per contact, or generic at best? |
+| **Channel Strategy**        | 0-10        | Right channel identified? Multiple viable channels? Warm path?                      |
+| **Messaging Fit**           | 0-10        | Framework matches the prospect's situation? Value prop clear and compelling?        |
+| **Objection Preparedness**  | 0-10        | Likely objections predicted with strong responses? Team ready for pushback?         |
+| **Timing Opportunity**      | 0-10        | Favorable timing signals? Trigger events? Good positioning in their buying cycle?   |
 
 ### Scoring Calibration
 
@@ -326,7 +339,7 @@ Also draft: subject line (under 50 chars), LinkedIn connection note (under 300 c
 - **1-2:** Poor. Almost no personalization available, no warm paths, messaging is essentially a template. Low probability of response.
 - **0:** Not ready. Critical information missing (no contacts identified, no pain points found, no channel viable). Needs more research before outreach.
 
-**Outreach Readiness Score** = (Personalization Quality + Channel Strategy + Messaging Fit + Objection Preparedness + Timing Opportunity) / 5 * 10 -> yields a 0-100 integer. This value is emitted as the canonical top-level `dimension_score` (see JSON shape below). Weighted 20% in the `sales-prospect` aggregate.
+**Outreach Readiness Score** = (Personalization Quality + Channel Strategy + Messaging Fit + Objection Preparedness + Timing Opportunity) / 5 \* 10 -> yields a 0-100 integer. This value is emitted as the canonical top-level `dimension_score` (see JSON shape below). Weighted 20% in the `sales-prospect` aggregate.
 
 ## Output
 
@@ -345,11 +358,11 @@ Return JSON matching `context.output_schema` (typically this shape, but always h
   "dimension": "icp",
   "dimension_score": 74,
   "subscores": {
-    "personalization_quality": {"score": 80, "rationale": "<one-line>"},
-    "channel_strategy":        {"score": 70, "rationale": "<one-line>"},
-    "messaging_fit":           {"score": 70, "rationale": "<one-line>"},
-    "objection_preparedness":  {"score": 80, "rationale": "<one-line>"},
-    "timing_opportunity":      {"score": 70, "rationale": "<one-line>"}
+    "personalization_quality": { "score": 80, "rationale": "<one-line>" },
+    "channel_strategy": { "score": 70, "rationale": "<one-line>" },
+    "messaging_fit": { "score": 70, "rationale": "<one-line>" },
+    "objection_preparedness": { "score": 80, "rationale": "<one-line>" },
+    "timing_opportunity": { "score": 70, "rationale": "<one-line>" }
   },
   "key_findings": ["<one-line>", "..."],
   "primary_channel": "<channel + target contact>",
@@ -359,11 +372,14 @@ Return JSON matching `context.output_schema` (typically this shape, but always h
     "body": "<full first message>"
   },
   "follow_up_cadence": ["Day 1: ...", "Day 3: ...", "..."],
-  "top_objections": [
-    {"objection": "<exact words>", "response": "<how to respond>", "proof": "<evidence>"}
-  ],
+  "top_objections": [{ "objection": "<exact words>", "response": "<how to respond>", "proof": "<evidence>" }],
   "recommendations": [
-    {"tier": "immediate|short_term|long_term", "title": "...", "impact": "high|medium|low", "effort": "low|medium|high"}
+    {
+      "tier": "immediate|short_term|long_term",
+      "title": "...",
+      "impact": "high|medium|low",
+      "effort": "low|medium|high"
+    }
   ],
   "outreach_risks": ["<risk + mitigation>"],
   "report_path": "<absolute out_path>"
@@ -371,8 +387,9 @@ Return JSON matching `context.output_schema` (typically this shape, but always h
 ```
 
 **Scale conversion.** The Outreach Readiness rubric grades each of the 5 sub-dimensions on a 0-10 band. For the canonical JSON above:
+
 - `subscores.<bucket>.score = rubric_value * 10` to land on the 0-100 scale.
-- Top-level `dimension_score = round(mean(subscores.*.score))` - equivalent to the historical Outreach Readiness Score (sum / 5 * 10). Both yield the same 0-100 integer.
+- Top-level `dimension_score = round(mean(subscores.*.score))` - equivalent to the historical Outreach Readiness Score (sum / 5 \* 10). Both yield the same 0-100 integer.
 
 The aggregator (`sales-prospect` Phase 3) reads `dimension_score` directly. Outreach Readiness is weighted **20%** in the Prospect Score.
 

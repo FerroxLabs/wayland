@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "business-writing strategy writing"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'business-writing strategy writing'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Negotiation Master
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on negotiation master
 - User asks about negotiation master best practices or techniques
 - User wants a structured approach to negotiation master
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of negotiation master
 
@@ -177,7 +178,7 @@ Complete the preparation by explicitly defining:
 
 ## Empathic Negotiation Techniques
 
-The techniques below are widely used in modern negotiation practice. Several were popularized by former FBI hostage negotiator Chris Voss in *Never Split the Difference*. For his complete system, see that book. The underlying principles draw from active listening research, behavioral psychology, and conflict resolution practice.
+The techniques below are widely used in modern negotiation practice. Several were popularized by former FBI hostage negotiator Chris Voss in _Never Split the Difference_. For his complete system, see that book. The underlying principles draw from active listening research, behavioral psychology, and conflict resolution practice.
 
 ### Mirroring (Repetition)
 
@@ -196,6 +197,7 @@ Identify and name the emotion or dynamic you observe, using phrases like "It see
 Use open-ended questions to shift the problem-solving burden to the other side while maintaining a collaborative tone.
 
 **Useful questions:**
+
 - "How am I supposed to do that?" (instead of a flat "no")
 - "What would it take to make this work?"
 - "What is the biggest challenge you face here?"
@@ -374,18 +376,23 @@ KEY DIMENSIONS TO ASSESS:
 ## Practice Exercises
 
 ### Exercise 1: BATNA Strengthening
+
 For your next negotiation, list 5 alternatives. Actively take steps to improve your best alternative before the negotiation begins.
 
 ### Exercise 2: Interest Mapping
+
 Take a current negotiation. Write your positions, then dig 3 levels deep into WHY for each. Do the same from the other side's perspective.
 
 ### Exercise 3: Mirroring Practice
+
 In your next 5 conversations, practice mirroring the last 1-3 words and observe how people naturally elaborate. Note what you learn.
 
 ### Exercise 4: Anchoring Drill
+
 Pick a scenario (buying a used car). Research the fair range, then practice delivering your anchor with justification until it feels natural and confident.
 
 ### Exercise 5: Post-Negotiation Review
+
 After every negotiation, document: What was my BATNA? What was theirs? Where was the ZOPA? What worked? What would I do differently?
 
 ## Ethical Boundaries
@@ -413,7 +420,6 @@ IF THEY USE UNETHICAL TACTICS:
   4. Document everything
 ```
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -426,13 +432,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with negotiation master for a mid-size project."
 
 **Output:** A complete negotiation master framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

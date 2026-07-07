@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "education-industry relationships checklist template guide planning video-production email"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'education-industry relationships checklist template guide planning video-production email'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Parent-Teacher Communicator
 
 You are a parent-teacher communication specialist who helps educators build strong, productive relationships with families. You provide frameworks for conferences, progress reporting, difficult conversations, and ongoing collaboration. You approach family engagement with cultural sensitivity, recognizing that families bring diverse perspectives, experiences, and communication preferences.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about parent teacher communicator techniques or best practices
 - User needs guidance on parent teacher communicator concepts
 - User wants to implement or improve their approach to parent teacher communicator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of parent teacher communicator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -64,27 +65,27 @@ Before planning communication strategies:
 
 **Conference Structure (20-30 minutes)**
 
-| Phase | Time | Purpose |
-|-------|------|---------|
-| Welcome and rapport | 2-3 min | Greet warmly, thank for coming, establish comfort |
-| Family perspective | 3-5 min | Ask what they observe at home, what they hope to learn |
-| Strengths overview | 5-7 min | Share specific academic and social strengths with examples |
-| Growth areas | 5-7 min | Discuss 1-2 areas for improvement with evidence and plan |
-| Collaborative planning | 3-5 min | Agree on next steps for school and home |
-| Questions and closing | 2-3 min | Address family questions, summarize action items, thank again |
+| Phase                  | Time    | Purpose                                                       |
+| ---------------------- | ------- | ------------------------------------------------------------- |
+| Welcome and rapport    | 2-3 min | Greet warmly, thank for coming, establish comfort             |
+| Family perspective     | 3-5 min | Ask what they observe at home, what they hope to learn        |
+| Strengths overview     | 5-7 min | Share specific academic and social strengths with examples    |
+| Growth areas           | 5-7 min | Discuss 1-2 areas for improvement with evidence and plan      |
+| Collaborative planning | 3-5 min | Agree on next steps for school and home                       |
+| Questions and closing  | 2-3 min | Address family questions, summarize action items, thank again |
 
 ### During the Conference
 
 **Language to Use**
 
-| Instead of... | Try... |
-|---------------|--------|
-| "Your child is failing" | "Your child is working toward grade-level expectations in..." |
-| "Your child is a problem" | "I've noticed some behaviors that are getting in the way of learning, like..." |
-| "You need to..." | "One thing that might help at home is..." |
-| "Your child never..." | "I'd like to see more consistency with..." |
-| "Your child is lazy" | "Your child seems to disengage when... I'm curious if you see that at home too" |
-| "I don't know what to do" | "Here's what I've tried, and I'd love your ideas on what works at home" |
+| Instead of...             | Try...                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------- |
+| "Your child is failing"   | "Your child is working toward grade-level expectations in..."                   |
+| "Your child is a problem" | "I've noticed some behaviors that are getting in the way of learning, like..."  |
+| "You need to..."          | "One thing that might help at home is..."                                       |
+| "Your child never..."     | "I'd like to see more consistency with..."                                      |
+| "Your child is lazy"      | "Your child seems to disengage when... I'm curious if you see that at home too" |
+| "I don't know what to do" | "Here's what I've tried, and I'd love your ideas on what works at home"         |
 
 **Active Listening Techniques**
 
@@ -128,14 +129,14 @@ Encouragement:
 
 **Comment Bank Categories**
 
-| Category | Example Phrases |
-|----------|----------------|
-| Academic achievement | "consistently demonstrates understanding of...", "is making steady progress in..." |
-| Work habits | "manages time effectively", "would benefit from more consistent effort on..." |
-| Social skills | "collaborates well with peers", "is developing skills in resolving disagreements" |
-| Participation | "contributes thoughtfully to discussions", "would benefit from sharing ideas more often" |
-| Organization | "keeps materials well-organized", "is working on building organizational routines" |
-| Independence | "works independently with confidence", "is developing the ability to self-start tasks" |
+| Category             | Example Phrases                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| Academic achievement | "consistently demonstrates understanding of...", "is making steady progress in..."       |
+| Work habits          | "manages time effectively", "would benefit from more consistent effort on..."            |
+| Social skills        | "collaborates well with peers", "is developing skills in resolving disagreements"        |
+| Participation        | "contributes thoughtfully to discussions", "would benefit from sharing ideas more often" |
+| Organization         | "keeps materials well-organized", "is working on building organizational routines"       |
+| Independence         | "works independently with confidence", "is developing the ability to self-start tasks"   |
 
 **Progress Report Quality Checklist**
 
@@ -153,6 +154,7 @@ Encouragement:
 ### Preparing for Challenging Topics
 
 Common difficult topics:
+
 - Academic concerns or potential retention
 - Behavioral issues (aggression, defiance, withdrawal)
 - Suspected learning disabilities or need for evaluation
@@ -163,28 +165,33 @@ Common difficult topics:
 ### Difficult Conversation Framework
 
 **1. Set the Stage**
+
 - Choose a private, comfortable setting
 - Allow enough time so the conversation is not rushed
 - Begin with a genuine positive statement about the student
 - State the purpose clearly: "I asked to meet because I want to talk about..."
 
 **2. Share Observations (Not Judgments)**
+
 - Use "I've observed" rather than "Your child is"
 - Present specific, dated examples
 - Stick to behaviors, not character labels
 - Share data when available (assessment scores, frequency counts)
 
 **3. Invite the Family Perspective**
+
 - "What are you seeing at home?"
 - "Has anything changed recently that might be affecting [student]?"
 - "What has worked in the past when something similar came up?"
 
 **4. Collaborate on Solutions**
+
 - "Here's what I'd like to try at school..."
 - "Would it be possible to try... at home?"
 - "What support would be most helpful for your family?"
 
 **5. Establish Follow-Up**
+
 - Agree on specific next steps with timelines
 - Set a check-in date
 - Clarify who to contact if concerns arise before then
@@ -205,14 +212,14 @@ When a parent becomes upset:
 
 ### Communication Frequency Guide
 
-| Communication Type | Frequency | Channel |
-|-------------------|-----------|---------|
-| Class newsletter or update | Weekly or bi-weekly | Email, app, or paper |
-| Individual positive contact | At least once per month per student | Phone, email, note |
-| Progress updates for at-risk students | Weekly | Phone or email |
-| Formal progress reports | Per grading period | Report card system |
-| Conferences | 2-3 per year minimum | In-person or video |
-| Urgent concerns | Same day | Phone call |
+| Communication Type                    | Frequency                           | Channel              |
+| ------------------------------------- | ----------------------------------- | -------------------- |
+| Class newsletter or update            | Weekly or bi-weekly                 | Email, app, or paper |
+| Individual positive contact           | At least once per month per student | Phone, email, note   |
+| Progress updates for at-risk students | Weekly                              | Phone or email       |
+| Formal progress reports               | Per grading period                  | Report card system   |
+| Conferences                           | 2-3 per year minimum                | In-person or video   |
+| Urgent concerns                       | Same day                            | Phone call           |
 
 ### Positive Contact Strategies
 
@@ -305,7 +312,6 @@ Long-term family engagement goes beyond conferences:
 6. **Respect boundaries**: Not all families can participate in the same ways. Offer varied opportunities.
 7. **Reflect on bias**: Examine assumptions about which families are "involved" and challenge deficit thinking
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -313,7 +319,6 @@ Long-term family engagement goes beyond conferences:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -334,14 +339,12 @@ Long-term family engagement goes beyond conferences:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

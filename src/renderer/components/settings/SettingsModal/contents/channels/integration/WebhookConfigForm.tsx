@@ -60,17 +60,12 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
   // Until that resolves to a real hostname we MUST NOT compose and display a
   // URL containing the placeholder - operators would copy a malformed URL.
   const TUNNEL_PLACEHOLDER = '(configure tunnel in Phase 4)';
-  const rawTunnelHost = t(
-    'settings.channels.webhook.webhookUrl.tunnelPlaceholder',
-    TUNNEL_PLACEHOLDER
-  );
-  const tunnelConfigured =
-    rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
+  const rawTunnelHost = t('settings.channels.webhook.webhookUrl.tunnelPlaceholder', TUNNEL_PLACEHOLDER);
+  const tunnelConfigured = rawTunnelHost !== TUNNEL_PLACEHOLDER && !rawTunnelHost.startsWith('(');
 
   const inboundUrl = useMemo(() => {
     if (!tunnelConfigured) return '';
-    const tokenSegment =
-      webhookToken ?? t('settings.channels.webhook.webhookUrl.notMinted', '<not-minted>');
+    const tokenSegment = webhookToken ?? t('settings.channels.webhook.webhookUrl.notMinted', '<not-minted>');
     return `https://${rawTunnelHost}/webhooks/webhook/${tokenSegment}`;
   }, [webhookToken, tunnelConfigured, rawTunnelHost, t]);
 
@@ -91,13 +86,9 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
       });
       if (result.success && result.data) {
         setWebhookToken(result.data.token);
-        Message.success(
-          t('settings.channels.webhook.webhookUrl.rotateSuccess', 'Inbound URL rotated')
-        );
+        Message.success(t('settings.channels.webhook.webhookUrl.rotateSuccess', 'Inbound URL rotated'));
       } else {
-        Message.error(
-          result.msg ?? t('settings.channels.webhook.webhookUrl.rotateFailed', 'Rotation failed')
-        );
+        Message.error(result.msg ?? t('settings.channels.webhook.webhookUrl.rotateFailed', 'Rotation failed'));
       }
     } catch (error: unknown) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -108,9 +99,7 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
 
   const handleTestAndEnable = useCallback(async () => {
     if (!outboundUrl.trim()) {
-      Message.error(
-        t('settings.channels.webhook.credentials.outboundUrl.required', 'Outbound URL is required')
-      );
+      Message.error(t('settings.channels.webhook.credentials.outboundUrl.required', 'Outbound URL is required'));
       return;
     }
     setTesting(true);
@@ -124,10 +113,7 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
         token: tokenJson,
       });
       if (!testResult.success) {
-        Message.error(
-          testResult.msg ??
-            t('settings.channels.webhook.connectionFailed', 'Connection test failed')
-        );
+        Message.error(testResult.msg ?? t('settings.channels.webhook.connectionFailed', 'Connection test failed'));
         return;
       }
 
@@ -139,14 +125,9 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
         },
       });
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.webhook.pluginEnabled', 'Webhook channel enabled')
-        );
+        Message.success(t('settings.channels.webhook.pluginEnabled', 'Webhook channel enabled'));
       } else {
-        Message.error(
-          enableResult.msg ??
-            t('settings.channels.webhook.enableFailed', 'Failed to enable plugin')
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.webhook.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error: unknown) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -185,10 +166,7 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
       </PreferenceRow>
 
       <PreferenceRow
-        label={t(
-          'settings.channels.webhook.credentials.outboundSecret.label',
-          'Outbound Signing Secret'
-        )}
+        label={t('settings.channels.webhook.credentials.outboundSecret.label', 'Outbound Signing Secret')}
         description={t(
           'settings.channels.webhook.credentials.outboundSecret.help',
           'Optional. When set, Wayland adds X-Webhook-Signature: sha256=<hmac> to every outbound POST.'
@@ -197,10 +175,7 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
         <Input.Password
           value={outboundSecret}
           onChange={(value) => setOutboundSecret(value)}
-          placeholder={t(
-            'settings.channels.webhook.credentials.outboundSecret.placeholder',
-            'whsec_xxxxxxxxxxxxxxxx'
-          )}
+          placeholder={t('settings.channels.webhook.credentials.outboundSecret.placeholder', 'whsec_xxxxxxxxxxxxxxxx')}
           visibilityToggle
           style={{ width: 280 }}
         />
@@ -251,7 +226,6 @@ const WebhookConfigForm: React.FC<WebhookConfigFormProps> = ({
         </Button>
       </div>
       <ChannelAgentModelSelector platform='webhook' modelSelection={modelSelection} />
-
     </div>
   );
 };

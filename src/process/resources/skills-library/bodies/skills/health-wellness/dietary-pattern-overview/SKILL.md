@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "nutrition planning research"
-  category: "health-wellness"
-  subcategory: "nutrition-diet"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'nutrition planning research'
+  category: 'health-wellness'
+  subcategory: 'nutrition-diet'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
+
 # Dietary Pattern Overview
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks what a specific named dietary pattern involves -- Mediterranean, ketogenic, DASH, paleo, plant-based, whole-food, flexitarian, carnivore, low-FODMAP, Okinawan, Nordic, or similar
 - The user wants a side-by-side comparison of two or more dietary approaches to understand their differences before making a choice
 - The user asks about the philosophical or scientific rationale behind a dietary pattern ("Why does keto work?" or "What is the logic behind paleo?")
@@ -33,6 +35,7 @@ metadata:
 - The user needs help understanding the vocabulary of nutrition science -- terms like ketosis, glycemic index, phytonutrients, bioavailability, or net carbs -- in the context of a dietary pattern
 
 **Do NOT use when:**
+
 - The user wants a personalized diet plan specifying what they personally should eat -- redirect to a registered dietitian (RD) or registered dietitian nutritionist (RDN)
 - The user asks you to calculate their specific macros, calories, or nutrient targets -- use the `macro-calculation` skill instead
 - The user is managing an active eating disorder (anorexia, bulimia, binge eating disorder, ARFID) -- dietary pattern information can be triggering or harmful; recommend a healthcare provider specializing in eating disorders
@@ -56,6 +59,7 @@ Before generating any content, identify exactly what the user wants:
 - **Research inquiry:** The user wants to know what the evidence actually says about a pattern -- quality and size of studies, what outcomes have been studied, what remains uncertain
 
 If the user's request is ambiguous, ask one targeted clarifying question rather than asking multiple questions at once. Typical clarifying questions:
+
 - "Are you looking for a deep overview of one pattern, or a comparison between specific patterns?"
 - "Is there a particular aspect you're most curious about -- the food list, the research evidence, or the day-to-day practicality?"
 
@@ -64,6 +68,7 @@ If the user's request is ambiguous, ask one targeted clarifying question rather 
 Recognize the major dietary patterns and their variants:
 
 **Carbohydrate-spectrum patterns (organized from highest to lowest carb intake):**
+
 - High-carb whole food (Okinawan traditional, ornish-style): >60% calories from carbohydrates, predominantly plant-derived
 - Mediterranean: 40-50% carbohydrates from whole food sources
 - DASH: 50-55% carbohydrates, emphasis on low sodium
@@ -74,6 +79,7 @@ Recognize the major dietary patterns and their variants:
 - Carnivore / zero-carb: Near 0g carbohydrates
 
 **Food-philosophy patterns (defined by inclusion/exclusion rules rather than macros):**
+
 - Whole-food plant-based (WFPB): No animal products, no refined foods
 - Vegetarian (lacto-ovo): Excludes meat and fish; includes dairy and eggs
 - Vegan: Excludes all animal-derived products
@@ -82,6 +88,7 @@ Recognize the major dietary patterns and their variants:
 - Carnivore: Exclusively animal products
 
 **Condition-associated patterns (originally designed for health management):**
+
 - DASH: Originally designed for hypertension management
 - Low-FODMAP: Designed for irritable bowel syndrome symptom management
 - Gluten-free: Required for celiac disease; used electively by others
@@ -95,6 +102,7 @@ For each pattern, build the profile across six dimensions:
 
 **Dimension 1 -- Core Organizing Principle**
 Identify the single metabolic, philosophical, or historical logic that defines the pattern. This is the "why" behind the food rules.
+
 - Mediterranean: Food culture optimization -- the eating patterns of populations with historically low rates of chronic disease
 - Ketogenic: Metabolic substrate shift -- reducing carbohydrates to <50g/day forces hepatic ketogenesis, producing beta-hydroxybutyrate, acetoacetate, and acetone as alternative fuel substrates
 - DASH: Nutrient composition targeting -- specifically engineered to deliver high potassium, magnesium, calcium, and fiber while reducing sodium below 2,300mg/day (or 1,500mg/day for stricter DASH)
@@ -104,12 +112,14 @@ Identify the single metabolic, philosophical, or historical logic that defines t
 
 **Dimension 2 -- Macro Distribution**
 Use specific percentage ranges and gram-based targets where relevant:
+
 - Always express both percentage of total calories AND absolute gram ranges where meaningful (especially for carbohydrates, where absolute grams determine metabolic state)
 - Note that protein is typically expressed as g/kg body weight in clinical research (0.8g/kg is the RDA minimum; 1.2-2.0g/kg is relevant for active individuals)
 - Distinguish between total carbohydrates and net carbohydrates (total carbs minus dietary fiber) -- this distinction is critical for ketogenic and low-carb patterns
 
 **Dimension 3 -- Food Framework**
 Organize foods into:
+
 - **Foundational foods** (eat freely, form the base of the pattern)
 - **Moderate foods** (consume in measured portions or limited frequency)
 - **Restricted foods** (occasional or strictly limited)
@@ -119,12 +129,14 @@ Be specific with food examples rather than food categories alone. "Fish" is less
 
 **Dimension 4 -- Research Profile**
 Distinguish between levels of evidence:
+
 - **Large, long-term randomized controlled trials (RCTs):** Highest evidence -- PREDIMED trial (Mediterranean), ACCORD trial (low-fat), DIRECT trial (Mediterranean vs. low-fat vs. low-carb)
 - **Prospective cohort studies:** Large population observations over time -- strong for associations, cannot prove causation (Nurses' Health Study, EPIC, Blue Zones research)
 - **Short-term RCTs (under 12 months):** Useful for mechanistic insights, metabolic marker changes
 - **Mechanistic and animal studies:** Hypothesis-generating only
 
 Use language calibrated to evidence quality:
+
 - "Multiple large RCTs have consistently demonstrated..." (strong)
 - "Prospective cohort data suggest an association between..." (moderate)
 - "Preliminary research and mechanistic studies suggest..." (weak/early)
@@ -132,6 +144,7 @@ Use language calibrated to evidence quality:
 
 **Dimension 5 -- Practical Realities**
 Assess across five factors with specific, honest ratings:
+
 - **Cost:** Low (<$50/week per person for most meals), Moderate ($50-100/week), High (>$100/week)
 - **Meal prep complexity:** Low (minimal cooking required), Moderate (regular cooking from whole ingredients), High (requires significant planning, label reading, or specialized ingredients)
 - **Social dining compatibility:** Easy (pattern fits most restaurant menus), Moderate (requires some menu navigation), Challenging (requires significant communication with hosts/restaurants, or avoidance of social eating situations)
@@ -140,6 +153,7 @@ Assess across five factors with specific, honest ratings:
 
 **Dimension 6 -- Nutrient Considerations and Common Gaps**
 Every dietary pattern has predictable nutritional vulnerabilities:
+
 - **Ketogenic:** Risk of inadequate fiber (most individuals get 10-15g/day vs. 25-38g recommended), electrolyte depletion (sodium, potassium, magnesium) during adaptation, reduced micronutrient diversity
 - **Vegan/WFPB:** Risk of vitamin B12 deficiency (supplementation universally required), vitamin D, long-chain omega-3s (EPA/DHA), heme iron (non-heme iron has lower bioavailability -- ~2-20% vs. heme iron at 15-35%), zinc, iodine, calcium
 - **Carnivore:** Risk of fiber absence, vitamin C deficiency, folate deficiency, and highly elevated saturated fat intake
@@ -357,6 +371,7 @@ for any given individual -- note these are conversation starters for an RD, not 
 Examples: Whole30, SlimFast, Atkins Phase 1, cabbage soup diet, military diet, blood type diet.
 
 **How to handle:**
+
 1. Identify the closest evidence-based analog (Whole30 is essentially a stricter version of paleo; Atkins Phase 1 is functionally ketogenic with very aggressive carb restriction at 20g/day).
 2. Describe the branded approach accurately -- what it restricts, what it emphasizes, what its stated goals are.
 3. Note explicitly the state of the research: "Whole30 has not been studied in peer-reviewed long-term trials; its core principles overlap with paleo, which has been studied in shorter-term RCTs with generally mixed results."
@@ -368,6 +383,7 @@ Examples: Whole30, SlimFast, Atkins Phase 1, cabbage soup diet, military diet, b
 These hybrid approaches are increasingly common and some are nutritionally viable; others create significant planning challenges.
 
 **Common combinations and their viability:**
+
 - **Plant-based ketogenic (vegan keto):** Viable but requires careful planning. Fat sources become heavily reliant on avocados, coconuts, nuts, seeds, and olive oil. Protein must come exclusively from tofu, tempeh, seitan (but seitan is wheat gluten, which some keto followers limit), edamame, and protein-rich plant foods. B12 supplementation is required. Net carbs must remain below 20-30g, which limits even legumes. Practical difficulty: High.
 - **Mediterranean low-carb:** Highly viable and studied. The DIRECT trial's low-carb arm was essentially a Mediterranean-influenced low-carb approach. Fish, olive oil, vegetables, and nuts form the foundation; grains and legumes are reduced but not necessarily eliminated. This is one of the more sustainable hybrid approaches.
 - **DASH + plant-based:** Highly compatible. DASH already emphasizes plant foods and low-fat dairy; replacing dairy with fortified plant alternatives and removing lean meat is a natural overlap. Requires B12 supplementation if fully vegan.
@@ -380,6 +396,7 @@ For any combination, identify: (a) what constraints overlap and reinforce each o
 A user may say "I have Type 2 diabetes -- I heard low-carb is good for me" or "I have high blood pressure and want to know about DASH."
 
 **How to handle:**
+
 1. Do not avoid the topic entirely -- that is unhelpfully evasive.
 2. Provide the general educational overview of the dietary pattern they asked about.
 3. Acknowledge that the condition they mentioned is relevant context: "DASH was specifically developed and researched in the context of blood pressure management and has the most robust evidence base for that application."
@@ -391,6 +408,7 @@ A user may say "I have Type 2 diabetes -- I heard low-carb is good for me" or "I
 Intermittent fasting is a meal timing framework, not a dietary composition pattern. However, it is frequently conflated with dietary patterns and users often ask about it in this context.
 
 **What IF actually is:** A structured approach to the timing of eating windows rather than specification of what is eaten. Common protocols:
+
 - **16:8 (Leangains protocol):** 16-hour fasting window, 8-hour eating window daily
 - **5:2 (Fast Diet):** Five days of normal eating, two non-consecutive days restricted to 500-600 kcal
 - **OMAD (One Meal a Day):** Extreme 23:1 fasting-to-eating ratio; nutritional adequacy is difficult to achieve
@@ -411,6 +429,7 @@ Users commonly encounter headlines like "Red meat causes cancer!" followed by "S
 **Explain the confounding problem:** Population studies cannot randomize people to decades-long dietary patterns. People who eat more vegetables also tend to exercise more, smoke less, sleep more, and have higher socioeconomic status. Separating dietary effects from lifestyle confounders is genuinely difficult. This is why nutrition headlines flip -- individual studies capture associations within specific populations under specific conditions.
 
 **Anchor to the areas of genuine consensus:** Across virtually all dietary patterns supported by research, the following points are broadly agreed upon:
+
 - Minimizing ultra-processed foods (NOVA Group 4) is consistently associated with better health outcomes
 - Adequate vegetables and fruits provide micronutrients and fiber with minimal known downside
 - Excessive added sugar intake (>25-50g/day depending on guideline) is consistently associated with negative metabolic markers
@@ -454,63 +473,63 @@ For users asking how dietary patterns interact with athletic training:
 
 ### Macro Distribution
 
-| Macro           | % of Total Calories | Typical Daily Grams*    | Primary Sources                                              |
-|-----------------|---------------------|-------------------------|--------------------------------------------------------------|
-| Carbohydrates   | 40-50%              | 200-250g                | Whole grains (farro, barley, bulgur), legumes, vegetables, fruits |
-| Fat             | 35-40%              | 78-89g                  | Extra-virgin olive oil (primary), nuts, fatty fish, small amounts of full-fat dairy |
-| Protein         | 15-20%              | 75-100g / ~1.0-1.2g/kg  | Fish (especially fatty fish), legumes, poultry, eggs, small amounts of red meat |
+| Macro         | % of Total Calories | Typical Daily Grams\*  | Primary Sources                                                                     |
+| ------------- | ------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| Carbohydrates | 40-50%              | 200-250g               | Whole grains (farro, barley, bulgur), legumes, vegetables, fruits                   |
+| Fat           | 35-40%              | 78-89g                 | Extra-virgin olive oil (primary), nuts, fatty fish, small amounts of full-fat dairy |
+| Protein       | 15-20%              | 75-100g / ~1.0-1.2g/kg | Fish (especially fatty fish), legumes, poultry, eggs, small amounts of red meat     |
 
-*Based on a 2,000 kcal reference intake. Individual needs vary.
+\*Based on a 2,000 kcal reference intake. Individual needs vary.
 
 ---
 
 ### Food Framework
 
-| Category              | Foundational (Eat Freely)                              | Moderate (Measured Portions)                    | Restricted/Excluded                               |
-|-----------------------|--------------------------------------------------------|-------------------------------------------------|---------------------------------------------------|
-| Vegetables            | All non-starchy vegetables; tomatoes, leafy greens, eggplant, zucchini, artichokes | Starchy vegetables (potatoes, sweet potatoes) -- 1-2 servings/day | Fried vegetables in refined oils                  |
-| Fruits                | Berries, citrus, stone fruits, figs, grapes            | Dried fruits (concentrated sugar); fruit juice  | Added-sugar fruit products                        |
-| Proteins              | Fatty fish (salmon, sardines, mackerel, anchovies) 2-4x/week; legumes daily | Poultry (3-4x/week), eggs (4-7/week)            | Red meat (limited to a few servings/month); processed meats (minimized) |
-| Fats & Oils           | Extra-virgin olive oil as primary cooking fat (3-4 tbsp/day in research protocols) | Nuts and seeds (30g/day); olives               | Butter, margarine, refined vegetable oils as primary fats |
-| Grains & Starches     | Whole grains: farro, barley, whole wheat, oats, bulgur, whole grain pasta | White bread, white rice (occasional)            | Refined grain products as dietary staples; ultra-processed grain products |
-| Dairy                 | Small amounts of aged cheese; Greek-style yogurt        | Full-fat dairy in moderation                    | Low-fat processed dairy products are not emphasized; no strict exclusion |
-| Legumes               | Lentils, chickpeas, white beans, fava beans -- daily consumption | Hummus in moderate portions                     | No exclusions                                     |
-| Beverages             | Water, herbal tea, coffee (without added sugar)         | Red wine -- 1 glass/day for women, up to 2 for men in research protocols (not a recommendation for non-drinkers to start) | Sugar-sweetened beverages, excessive alcohol      |
+| Category          | Foundational (Eat Freely)                                                          | Moderate (Measured Portions)                                                                                              | Restricted/Excluded                                                       |
+| ----------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Vegetables        | All non-starchy vegetables; tomatoes, leafy greens, eggplant, zucchini, artichokes | Starchy vegetables (potatoes, sweet potatoes) -- 1-2 servings/day                                                         | Fried vegetables in refined oils                                          |
+| Fruits            | Berries, citrus, stone fruits, figs, grapes                                        | Dried fruits (concentrated sugar); fruit juice                                                                            | Added-sugar fruit products                                                |
+| Proteins          | Fatty fish (salmon, sardines, mackerel, anchovies) 2-4x/week; legumes daily        | Poultry (3-4x/week), eggs (4-7/week)                                                                                      | Red meat (limited to a few servings/month); processed meats (minimized)   |
+| Fats & Oils       | Extra-virgin olive oil as primary cooking fat (3-4 tbsp/day in research protocols) | Nuts and seeds (30g/day); olives                                                                                          | Butter, margarine, refined vegetable oils as primary fats                 |
+| Grains & Starches | Whole grains: farro, barley, whole wheat, oats, bulgur, whole grain pasta          | White bread, white rice (occasional)                                                                                      | Refined grain products as dietary staples; ultra-processed grain products |
+| Dairy             | Small amounts of aged cheese; Greek-style yogurt                                   | Full-fat dairy in moderation                                                                                              | Low-fat processed dairy products are not emphasized; no strict exclusion  |
+| Legumes           | Lentils, chickpeas, white beans, fava beans -- daily consumption                   | Hummus in moderate portions                                                                                               | No exclusions                                                             |
+| Beverages         | Water, herbal tea, coffee (without added sugar)                                    | Red wine -- 1 glass/day for women, up to 2 for men in research protocols (not a recommendation for non-drinkers to start) | Sugar-sweetened beverages, excessive alcohol                              |
 
 ---
 
 ### Research Profile
 
-| Evidence Level                    | Key Findings                                                                                                     | Study Context                                                              |
-|-----------------------------------|------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| Large RCTs                        | PREDIMED trial: Mediterranean diet supplemented with extra-virgin olive oil or nuts reduced major cardiovascular events by ~30% vs. low-fat control in high-risk adults over ~5 years | 7,447 adults, Spain, published NEJM 2013 (revised 2018 after randomization correction); remains largest Mediterranean diet RCT |
-| Large RCTs                        | DIRECT trial: Mediterranean diet produced comparable or superior weight loss and metabolic improvements vs. low-fat diet over 2 years | 322 moderately obese adults; demonstrated adherence advantage of Mediterranean over low-fat |
-| Prospective cohort data           | Higher adherence to Mediterranean pattern associated with reduced all-cause mortality, reduced incidence of cardiovascular disease, Type 2 diabetes, and certain cancers in multiple large cohorts | EPIC study (>500,000 Europeans), Nurses' Health Study, Health Professionals Follow-Up Study |
-| Short-term mechanistic studies    | Improvements in LDL oxidation, HDL function, blood pressure, fasting glucose, inflammatory markers (CRP, IL-6) in multiple short-term RCTs | 3-6 month intervention studies; consistent direction of effect across diverse populations |
-| Areas of scientific uncertainty   | Relative contribution of individual components (olive oil vs. fish vs. fiber vs. polyphenols) cannot be fully disaggregated; optimal olive oil quantity; applicability across different cultural contexts | Active research into Mediterranean pattern adaptation for non-Mediterranean populations |
+| Evidence Level                  | Key Findings                                                                                                                                                                                              | Study Context                                                                                                                  |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Large RCTs                      | PREDIMED trial: Mediterranean diet supplemented with extra-virgin olive oil or nuts reduced major cardiovascular events by ~30% vs. low-fat control in high-risk adults over ~5 years                     | 7,447 adults, Spain, published NEJM 2013 (revised 2018 after randomization correction); remains largest Mediterranean diet RCT |
+| Large RCTs                      | DIRECT trial: Mediterranean diet produced comparable or superior weight loss and metabolic improvements vs. low-fat diet over 2 years                                                                     | 322 moderately obese adults; demonstrated adherence advantage of Mediterranean over low-fat                                    |
+| Prospective cohort data         | Higher adherence to Mediterranean pattern associated with reduced all-cause mortality, reduced incidence of cardiovascular disease, Type 2 diabetes, and certain cancers in multiple large cohorts        | EPIC study (>500,000 Europeans), Nurses' Health Study, Health Professionals Follow-Up Study                                    |
+| Short-term mechanistic studies  | Improvements in LDL oxidation, HDL function, blood pressure, fasting glucose, inflammatory markers (CRP, IL-6) in multiple short-term RCTs                                                                | 3-6 month intervention studies; consistent direction of effect across diverse populations                                      |
+| Areas of scientific uncertainty | Relative contribution of individual components (olive oil vs. fish vs. fiber vs. polyphenols) cannot be fully disaggregated; optimal olive oil quantity; applicability across different cultural contexts | Active research into Mediterranean pattern adaptation for non-Mediterranean populations                                        |
 
 ---
 
 ### Practical Assessment
 
-| Factor                     | Rating         | Detail                                                                                                                     |
-|----------------------------|----------------|----------------------------------------------------------------------------------------------------------------------------|
-| Cost (per person/week)     | Moderate ($60-90) | Extra-virgin olive oil and fatty fish are the primary cost drivers; canned sardines and legumes significantly reduce cost without compromising pattern fidelity |
-| Meal prep complexity       | Moderate       | Requires regular cooking from whole ingredients; most dishes are not technically complex; olive oil-based cooking is straightforward; meal prep can be batched |
-| Social dining ease         | Easy           | Mediterranean-style foods are widely available in restaurants; the pattern accommodates most menus without requiring significant modification or explanation |
-| Travel compatibility       | Easy           | Fish, olive oil, vegetables, and nuts are available in most food environments globally; the pattern is defined by emphasis rather than strict exclusion, making it flexible |
-| Long-term adherence        | High (70-80%+ at 12 months in major trials) | Among the highest adherence rates of any studied dietary pattern; food variety, palatability, and social compatibility are cited as key adherence drivers |
-| Athletic performance       | Good across most modalities | Adequate carbohydrate supports glycogen stores for training; omega-3s from fish support recovery and anti-inflammatory response; good compatibility with endurance training |
+| Factor                 | Rating                                      | Detail                                                                                                                                                                      |
+| ---------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cost (per person/week) | Moderate ($60-90)                           | Extra-virgin olive oil and fatty fish are the primary cost drivers; canned sardines and legumes significantly reduce cost without compromising pattern fidelity             |
+| Meal prep complexity   | Moderate                                    | Requires regular cooking from whole ingredients; most dishes are not technically complex; olive oil-based cooking is straightforward; meal prep can be batched              |
+| Social dining ease     | Easy                                        | Mediterranean-style foods are widely available in restaurants; the pattern accommodates most menus without requiring significant modification or explanation                |
+| Travel compatibility   | Easy                                        | Fish, olive oil, vegetables, and nuts are available in most food environments globally; the pattern is defined by emphasis rather than strict exclusion, making it flexible |
+| Long-term adherence    | High (70-80%+ at 12 months in major trials) | Among the highest adherence rates of any studied dietary pattern; food variety, palatability, and social compatibility are cited as key adherence drivers                   |
+| Athletic performance   | Good across most modalities                 | Adequate carbohydrate supports glycogen stores for training; omega-3s from fish support recovery and anti-inflammatory response; good compatibility with endurance training |
 
 ---
 
 ### Predictable Nutrient Gaps
 
-| Nutrient       | Risk Level  | Reason                                                               | Monitoring / Mitigation                                           |
-|----------------|-------------|----------------------------------------------------------------------|-------------------------------------------------------------------|
-| Vitamin B12    | Low-Moderate | If following a plant-forward Mediterranean variant that significantly reduces fish and animal protein | Ensure regular inclusion of fish (2-4x/week covers B12 needs for most people) |
-| Iron           | Low         | Lower red meat intake; non-heme iron from legumes has lower bioavailability | Pair legumes with vitamin C-rich foods to enhance non-heme iron absorption; consume adequate legumes |
-| Calcium        | Low         | Possible if dairy is minimized | Sardines with bones, leafy greens, and fortified foods offset this |
+| Nutrient    | Risk Level   | Reason                                                                                                | Monitoring / Mitigation                                                                              |
+| ----------- | ------------ | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Vitamin B12 | Low-Moderate | If following a plant-forward Mediterranean variant that significantly reduces fish and animal protein | Ensure regular inclusion of fish (2-4x/week covers B12 needs for most people)                        |
+| Iron        | Low          | Lower red meat intake; non-heme iron from legumes has lower bioavailability                           | Pair legumes with vitamin C-rich foods to enhance non-heme iron absorption; consume adequate legumes |
+| Calcium     | Low          | Possible if dairy is minimized                                                                        | Sardines with bones, leafy greens, and fortified foods offset this                                   |
 
 ---
 
@@ -524,13 +543,13 @@ For users asking how dietary patterns interact with athletic training:
 
 ### Macro Distribution
 
-| Macro           | % of Total Calories | Typical Daily Grams*    | Primary Sources                                                    |
-|-----------------|---------------------|-------------------------|--------------------------------------------------------------------|
-| Carbohydrates   | 5-10%               | 20-50g total (20-30g net) | Non-starchy vegetables only; small amounts of nuts and seeds       |
-| Fat             | 65-75%              | 144-167g                | Olive oil, avocados, nuts, seeds, butter/ghee, fatty cuts of meat, full-fat dairy, coconut products |
-| Protein         | 20-25%              | 100-125g / ~1.2-1.6g/kg  | Beef, pork, lamb, poultry, fish, eggs, full-fat dairy               |
+| Macro         | % of Total Calories | Typical Daily Grams\*     | Primary Sources                                                                                     |
+| ------------- | ------------------- | ------------------------- | --------------------------------------------------------------------------------------------------- |
+| Carbohydrates | 5-10%               | 20-50g total (20-30g net) | Non-starchy vegetables only; small amounts of nuts and seeds                                        |
+| Fat           | 65-75%              | 144-167g                  | Olive oil, avocados, nuts, seeds, butter/ghee, fatty cuts of meat, full-fat dairy, coconut products |
+| Protein       | 20-25%              | 100-125g / ~1.2-1.6g/kg   | Beef, pork, lamb, poultry, fish, eggs, full-fat dairy                                               |
 
-*Based on a 2,000 kcal reference intake. Note: protein must be moderated on strict ketogenic protocols, as excess protein undergoes gluconeogenesis and can disrupt ketosis. This is a key distinction from high-protein low-carb approaches.
+\*Based on a 2,000 kcal reference intake. Note: protein must be moderated on strict ketogenic protocols, as excess protein undergoes gluconeogenesis and can disrupt ketosis. This is a key distinction from high-protein low-carb approaches.
 
 **Net carbohydrate calculation:** Net carbs = Total carbohydrates -- Dietary fiber -- Sugar alcohols (erythritol subtracts fully; maltitol subtracts partially). This calculation is critical to determining whether an individual will maintain nutritional ketosis.
 
@@ -538,25 +557,25 @@ For users asking how dietary patterns interact with athletic training:
 
 ### Food Framework
 
-| Category              | Foundational (Eat Freely)                                              | Moderate (Measured Portions)                                    | Restricted/Excluded                                               |
-|-----------------------|------------------------------------------------------------------------|-----------------------------------------------------------------|-------------------------------------------------------------------|
-| Vegetables            | Leafy greens (spinach, arugula, kale), zucchini, cauliflower, broccoli, asparagus, cucumber, celery, bell peppers | Onions, tomatoes, Brussels sprouts (carbs add up quickly in quantity) | Root vegetables (carrots, potatoes, sweet potatoes, parsnips), corn, peas |
-| Fruits                | Avocados (technically a fruit; high fat, low net carb); small amounts of berries (raspberries, blackberries have lowest net carbs at ~5-6g/100g) | Strawberries (moderate); lemon/lime juice in small quantities   | All fruit except avocado and limited berries; dried fruit; fruit juice |
-| Proteins              | Beef, lamb, pork (all cuts), chicken (especially thighs), fatty fish (salmon, mackerel, sardines), eggs | White fish (cod, halibut) -- lower fat, fine on keto; shellfish (some have carbs -- mussels, oysters require portioning) | Breaded or battered proteins; processed meats with fillers/sugar |
-| Fats & Oils           | Extra-virgin olive oil, avocado oil, butter, ghee, coconut oil, lard, tallow, heavy cream | MCT oil (medium-chain triglycerides -- rapidly converted to ketones, useful in adaptation phase) | Margarine; refined vegetable oils (corn, soybean, canola in large amounts); no inherent exclusion but ketogenic dieters typically minimize these |
-| Grains & Starches     | None                                                                    | None                                                            | All grains (wheat, rice, oats, corn, barley, rye); bread, pasta, rice, cereals, oatmeal |
-| Dairy                 | Hard cheeses (cheddar, gouda, parmesan -- very low carb), full-fat cream, sour cream, cream cheese | Soft cheeses in measured portions; whole milk (higher carb at ~12g/cup -- typically avoided) | Low-fat and non-fat dairy (higher carb content proportionally); sweetened dairy; yogurt (most varieties too high in carbs) |
-| Legumes               | None                                                                    | None                                                            | All legumes (lentils, chickpeas, black beans, kidney beans -- too high in net carbs) |
-| Beverages             | Water, sparkling water, black coffee, unsweetened tea, bone broth (electrolytes) | Dry wine (approximately 2-4g carbs per 5oz glass); spirits (0 carbs) | All sugar-sweetened beverages; fruit juice; beer (~13g carbs/12oz); sweetened alcoholic drinks |
+| Category          | Foundational (Eat Freely)                                                                                                                        | Moderate (Measured Portions)                                                                                             | Restricted/Excluded                                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Vegetables        | Leafy greens (spinach, arugula, kale), zucchini, cauliflower, broccoli, asparagus, cucumber, celery, bell peppers                                | Onions, tomatoes, Brussels sprouts (carbs add up quickly in quantity)                                                    | Root vegetables (carrots, potatoes, sweet potatoes, parsnips), corn, peas                                                                        |
+| Fruits            | Avocados (technically a fruit; high fat, low net carb); small amounts of berries (raspberries, blackberries have lowest net carbs at ~5-6g/100g) | Strawberries (moderate); lemon/lime juice in small quantities                                                            | All fruit except avocado and limited berries; dried fruit; fruit juice                                                                           |
+| Proteins          | Beef, lamb, pork (all cuts), chicken (especially thighs), fatty fish (salmon, mackerel, sardines), eggs                                          | White fish (cod, halibut) -- lower fat, fine on keto; shellfish (some have carbs -- mussels, oysters require portioning) | Breaded or battered proteins; processed meats with fillers/sugar                                                                                 |
+| Fats & Oils       | Extra-virgin olive oil, avocado oil, butter, ghee, coconut oil, lard, tallow, heavy cream                                                        | MCT oil (medium-chain triglycerides -- rapidly converted to ketones, useful in adaptation phase)                         | Margarine; refined vegetable oils (corn, soybean, canola in large amounts); no inherent exclusion but ketogenic dieters typically minimize these |
+| Grains & Starches | None                                                                                                                                             | None                                                                                                                     | All grains (wheat, rice, oats, corn, barley, rye); bread, pasta, rice, cereals, oatmeal                                                          |
+| Dairy             | Hard cheeses (cheddar, gouda, parmesan -- very low carb), full-fat cream, sour cream, cream cheese                                               | Soft cheeses in measured portions; whole milk (higher carb at ~12g/cup -- typically avoided)                             | Low-fat and non-fat dairy (higher carb content proportionally); sweetened dairy; yogurt (most varieties too high in carbs)                       |
+| Legumes           | None                                                                                                                                             | None                                                                                                                     | All legumes (lentils, chickpeas, black beans, kidney beans -- too high in net carbs)                                                             |
+| Beverages         | Water, sparkling water, black coffee, unsweetened tea, bone broth (electrolytes)                                                                 | Dry wine (approximately 2-4g carbs per 5oz glass); spirits (0 carbs)                                                     | All sugar-sweetened beverages; fruit juice; beer (~13g carbs/12oz); sweetened alcoholic drinks                                                   |
 
 ---
 
 ### Research Profile
 
-| Evidence Level                    | Key Findings                                                                                                                  | Study Context                                                                              |
-|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| Short-to-medium term RCTs         | Ketogenic and very-low-carbohydrate diets consistently produce greater short-term (3-6 month) weight loss than low-fat diets in head-to-head comparisons; this advantage narrows at 12 months and largely disappears at 24 months when adherence is controlled for | Meta-analyses of 20+ RCTs; advantage appears largest in first 6 months; DIRECT trial showed comparable 2-year outcomes |
-| Short-term RCTs                   | Significant reductions in fasting triglycerides (often 20-50% reductions in hypertriglyceridemia cases), improved HDL cholesterol, and reduced fasting insulin observed consistently in short-term studies | Multiple RCTs across diverse populations; effect size on triglycerides among the most consistent findings |
-| Short-term RCTs                   | LDL cholesterol response is heterogeneous -- some individuals show substantial LDL increases (including LDL-P and ApoB increases in some studies); others show no change or decreases | This heterogeneity is clinically relevant; LDL response appears linked to the type of fat consumed and individual genetic variation (ApoE genotype may predict response) |
-| Type 2 diabetes research          | Studies in Type 2 diabetes show significant improvements in HbA1c, fasting glucose, and reduced medication requirements over 6-24 months in some trials | Virta Health 2-year study (n=349) demonstrated maintained T2D remission markers; requires medical supervision due to medication adjustments needed as glucose improves |
-| Areas of scientific uncertainty   | Long-term (beyond 2 years) effects on cardiovascular outcomes, renal function, gut microbiome diversity, and bone health are not well established; most RCTs are short-term and small; the optimal protein level to maintain ketosis
+| Evidence Level                  | Key Findings                                                                                                                                                                                                                                                       | Study Context                                                                                                                                                            |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Short-to-medium term RCTs       | Ketogenic and very-low-carbohydrate diets consistently produce greater short-term (3-6 month) weight loss than low-fat diets in head-to-head comparisons; this advantage narrows at 12 months and largely disappears at 24 months when adherence is controlled for | Meta-analyses of 20+ RCTs; advantage appears largest in first 6 months; DIRECT trial showed comparable 2-year outcomes                                                   |
+| Short-term RCTs                 | Significant reductions in fasting triglycerides (often 20-50% reductions in hypertriglyceridemia cases), improved HDL cholesterol, and reduced fasting insulin observed consistently in short-term studies                                                         | Multiple RCTs across diverse populations; effect size on triglycerides among the most consistent findings                                                                |
+| Short-term RCTs                 | LDL cholesterol response is heterogeneous -- some individuals show substantial LDL increases (including LDL-P and ApoB increases in some studies); others show no change or decreases                                                                              | This heterogeneity is clinically relevant; LDL response appears linked to the type of fat consumed and individual genetic variation (ApoE genotype may predict response) |
+| Type 2 diabetes research        | Studies in Type 2 diabetes show significant improvements in HbA1c, fasting glucose, and reduced medication requirements over 6-24 months in some trials                                                                                                            | Virta Health 2-year study (n=349) demonstrated maintained T2D remission markers; requires medical supervision due to medication adjustments needed as glucose improves   |
+| Areas of scientific uncertainty | Long-term (beyond 2 years) effects on cardiovascular outcomes, renal function, gut microbiome diversity, and bone health are not well established; most RCTs are short-term and small; the optimal protein level to maintain ketosis                               |

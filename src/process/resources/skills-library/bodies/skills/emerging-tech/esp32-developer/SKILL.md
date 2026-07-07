@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot beginner-friendly python planning networking performing-arts sleep"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'advanced iot beginner-friendly python planning networking performing-arts sleep'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # ESP32 Developer
 
 You are an expert ESP32 developer with deep experience building WiFi and BLE-connected IoT devices. You work fluently across the Arduino framework and MicroPython, understand FreeRTOS fundamentals, and specialize in power-efficient designs with reliable OTA update mechanisms.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about esp32 developer techniques or best practices
 - User needs guidance on esp32 developer concepts
 - User wants to implement or improve their approach to esp32 developer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of esp32 developer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,15 +48,15 @@ You are an expert ESP32 developer with deep experience building WiFi and BLE-con
 
 ## ESP32 Variant Selection
 
-| Feature | ESP32 (Classic) | ESP32-S2 | ESP32-S3 | ESP32-C3 |
-|---------|----------------|----------|----------|----------|
-| CPU | Dual-core Xtensa 240MHz | Single-core Xtensa 240MHz | Dual-core Xtensa 240MHz | Single-core RISC-V 160MHz |
-| WiFi | 802.11 b/g/n | 802.11 b/g/n | 802.11 b/g/n | 802.11 b/g/n |
-| Bluetooth | BT 4.2 + BLE | None | BLE 5.0 | BLE 5.0 |
-| USB | No native | USB OTG | USB OTG | No native |
-| AI acceleration | None | None | Vector instructions | None |
-| Best for | General purpose | Cost-sensitive WiFi | Camera/AI/USB | Low-cost BLE+WiFi |
-| Deep sleep current | ~10 uA | ~5 uA | ~8 uA | ~5 uA |
+| Feature            | ESP32 (Classic)         | ESP32-S2                  | ESP32-S3                | ESP32-C3                  |
+| ------------------ | ----------------------- | ------------------------- | ----------------------- | ------------------------- |
+| CPU                | Dual-core Xtensa 240MHz | Single-core Xtensa 240MHz | Dual-core Xtensa 240MHz | Single-core RISC-V 160MHz |
+| WiFi               | 802.11 b/g/n            | 802.11 b/g/n              | 802.11 b/g/n            | 802.11 b/g/n              |
+| Bluetooth          | BT 4.2 + BLE            | None                      | BLE 5.0                 | BLE 5.0                   |
+| USB                | No native               | USB OTG                   | USB OTG                 | No native                 |
+| AI acceleration    | None                    | None                      | Vector instructions     | None                      |
+| Best for           | General purpose         | Cost-sensitive WiFi       | Camera/AI/USB           | Low-cost BLE+WiFi         |
+| Deep sleep current | ~10 uA                  | ~5 uA                     | ~8 uA                   | ~5 uA                     |
 
 ---
 
@@ -245,13 +246,13 @@ void publishSensorData(float temp, float humidity) {
 
 ### Sleep Mode Comparison
 
-| Mode | Current Draw | Wake Sources | Wake Time | Use Case |
-|------|-------------|-------------|-----------|----------|
-| Active (WiFi) | 80-240 mA | N/A | N/A | Continuous operation |
-| Modem sleep | 15-20 mA | Timer, GPIO | Instant | WiFi keepalive |
-| Light sleep | 0.8 mA | Timer, GPIO, touch, UART | <1 ms | Fast response needed |
-| Deep sleep | 10-150 uA | Timer, ext0/ext1, touch, ULP | ~250 ms | Battery sensor nodes |
-| Hibernation | 2.5 uA | Timer, ext0 only | ~250 ms | Maximum battery life |
+| Mode          | Current Draw | Wake Sources                 | Wake Time | Use Case             |
+| ------------- | ------------ | ---------------------------- | --------- | -------------------- |
+| Active (WiFi) | 80-240 mA    | N/A                          | N/A       | Continuous operation |
+| Modem sleep   | 15-20 mA     | Timer, GPIO                  | Instant   | WiFi keepalive       |
+| Light sleep   | 0.8 mA       | Timer, GPIO, touch, UART     | <1 ms     | Fast response needed |
+| Deep sleep    | 10-150 uA    | Timer, ext0/ext1, touch, ULP | ~250 ms   | Battery sensor nodes |
+| Hibernation   | 2.5 uA       | Timer, ext0 only             | ~250 ms   | Maximum battery life |
 
 ### Deep Sleep Implementation
 
@@ -481,14 +482,14 @@ while True:
 
 ### MicroPython vs Arduino Decision
 
-| Factor | MicroPython | Arduino (C++) |
-|--------|------------|---------------|
-| Development speed | Fast (REPL, no compile) | Slower (compile/upload cycle) |
-| Performance | 10-100x slower | Native speed |
-| Memory usage | Higher overhead (~80KB) | Minimal overhead |
-| Library ecosystem | Smaller | Massive |
-| Best for | Prototyping, simple logic | Production, performance-critical |
-| OTA updates | Upload .py files | Flash full firmware |
+| Factor            | MicroPython               | Arduino (C++)                    |
+| ----------------- | ------------------------- | -------------------------------- |
+| Development speed | Fast (REPL, no compile)   | Slower (compile/upload cycle)    |
+| Performance       | 10-100x slower            | Native speed                     |
+| Memory usage      | Higher overhead (~80KB)   | Minimal overhead                 |
+| Library ecosystem | Smaller                   | Massive                          |
+| Best for          | Prototyping, simple logic | Production, performance-critical |
+| OTA updates       | Upload .py files          | Flash full firmware              |
 
 ---
 
@@ -524,7 +525,6 @@ void setup() {
 }
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -532,7 +532,6 @@ void setup() {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -553,14 +552,12 @@ void setup() {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

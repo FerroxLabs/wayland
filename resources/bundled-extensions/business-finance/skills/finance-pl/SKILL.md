@@ -133,28 +133,28 @@ OpEx as % of revenue          XX.X%      XX.X%      X.X pp
 
 Apply the threshold appropriate to business scale (single-flat threshold misleads at scale):
 
-| Revenue tier | Variance flag threshold |
-|---|---|
-| <$1M annual | 10% **or** $500 (whichever is smaller) |
-| $1–10M annual | 5% **or** $5,000 |
-| $10M+ annual | 3% **or** $25,000 |
+| Revenue tier  | Variance flag threshold                |
+| ------------- | -------------------------------------- |
+| <$1M annual   | 10% **or** $500 (whichever is smaller) |
+| $1–10M annual | 5% **or** $5,000                       |
+| $10M+ annual  | 3% **or** $25,000                      |
 
 Flag any line item exceeding the applicable threshold for investigation:
 
-| Line Item | Variance ($) | Variance (%) | Direction | Likely driver |
-|---|---|---|---|---|
-| [Item] | $X,XXX | X.X% | Unfavorable | Investigate |
+| Line Item | Variance ($) | Variance (%) | Direction   | Likely driver |
+| --------- | ------------ | ------------ | ----------- | ------------- |
+| [Item]    | $X,XXX       | X.X%         | Unfavorable | Investigate   |
 
 ## Margin benchmarks (SMB reference - split bootstrapped vs venture-funded)
 
-| Business type | Bootstrapped SMB gross | VC-backed gross | Bootstrapped net | VC-backed net |
-|---|---|---|---|---|
-| Software / SaaS | 75–90% | 65–85% | 5–15% | -50% to +25% (often negative - investing in growth) |
-| Professional services | 40–60% | 40–60% | 10–25% | 10–20% |
-| E-commerce / retail | 30–50% | 30–50% | 2–8% | -30% to +5% |
-| Manufacturing | 25–45% | n/a | 5–15% | n/a |
-| Restaurants / food service | 55–70% (food cost 30–45%) | n/a | 2–9% | n/a |
-| Agency / services-firm | 40–60% | n/a | 10–20% | n/a (utilization-rate proxy: 65–75% billable) |
+| Business type              | Bootstrapped SMB gross    | VC-backed gross | Bootstrapped net | VC-backed net                                       |
+| -------------------------- | ------------------------- | --------------- | ---------------- | --------------------------------------------------- |
+| Software / SaaS            | 75–90%                    | 65–85%          | 5–15%            | -50% to +25% (often negative - investing in growth) |
+| Professional services      | 40–60%                    | 40–60%          | 10–25%           | 10–20%                                              |
+| E-commerce / retail        | 30–50%                    | 30–50%          | 2–8%             | -30% to +5%                                         |
+| Manufacturing              | 25–45%                    | n/a             | 5–15%            | n/a                                                 |
+| Restaurants / food service | 55–70% (food cost 30–45%) | n/a             | 2–9%             | n/a                                                 |
+| Agency / services-firm     | 40–60%                    | n/a             | 10–20%           | n/a (utilization-rate proxy: 65–75% billable)       |
 
 **Owner-comp normalization note:** for sole-prop and S-corp comparisons, normalize net margin by adding back / pulling out owner draws (sole-prop) or reasonable salary (S-corp) so the comparison to benchmarks is apples-to-apples. Owner compensation should be flagged distinct from wages.
 

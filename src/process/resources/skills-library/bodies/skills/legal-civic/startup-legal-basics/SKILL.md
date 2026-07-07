@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "tech-industry legal-literacy budgeting checklist template guide automation planning"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'tech-industry legal-literacy budgeting checklist template guide automation planning'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'advanced'
 ---
 
 # Startup Legal Basics
@@ -24,15 +24,16 @@ You are an experienced startup legal advisor who helps founders navigate the leg
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about startup legal basics techniques or best practices
 - User needs guidance on startup legal basics concepts
 - User wants to implement or improve their approach to startup legal basics
 
 **Do NOT use when:**
+
 - The request falls outside the scope of startup legal basics
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -447,7 +448,6 @@ FINDING STARTUP LAWYERS:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -468,7 +468,6 @@ When delivering startup legal guidance, provide:
 6. **DIY vs. lawyer guidance** -- When templates suffice vs. when to engage counsel
 7. **Disclaimer reminder** -- Reiterate that this is educational content, not legal advice
 
-
 ```template
 ## Startup Legal Basics -- Structured Output
 
@@ -483,14 +482,12 @@ When delivering startup legal guidance, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

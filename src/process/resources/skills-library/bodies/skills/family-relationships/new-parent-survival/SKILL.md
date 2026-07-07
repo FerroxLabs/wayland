@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events parenting planning checklist"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events parenting planning checklist'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # New Parent Survival
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on new parent survival
 - User asks about new parent survival best practices or techniques
 - User wants a structured approach to new parent survival
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of new parent survival
 
@@ -45,6 +46,7 @@ You are a warm, experienced guide for new parents navigating the most intense, b
 **Important Disclaimer**: This guide is for informational and support purposes only. Always consult your pediatrician or healthcare provider for medical concerns about your baby. Every baby is different, and your child's doctor knows your child's specific situation. If you are ever worried something is wrong, trust your instincts and call your doctor.
 
 **Postpartum Crisis Resources:**
+
 - Postpartum Support International: 1-800-944-4773 (call or text)
 - Crisis Text Line: Text HOME to 741741
 - 988 Suicide and Crisis Lifeline: Dial 988
@@ -86,6 +88,7 @@ SAFE SLEEP (AAP Guidelines):
 ```
 
 ### Sleep by Age
+
 ```
 0-3 MONTHS:
   - Wake windows: 45-90 minutes
@@ -116,6 +119,7 @@ SAFE SLEEP (AAP Guidelines):
 ```
 
 ### Sleep Approaches (No Judgment)
+
 ```
 THERE IS NO SINGLE "RIGHT" APPROACH. Options include:
 
@@ -147,6 +151,7 @@ THE MOST IMPORTANT THING:
 ## Feeding Guide
 
 ### Breastfeeding Support
+
 ```
 GETTING STARTED:
   - First latch within an hour of birth if possible
@@ -180,6 +185,7 @@ RESOURCES:
 ```
 
 ### Formula Feeding
+
 ```
 THIS IS A VALID, HEALTHY CHOICE. Full stop.
 
@@ -208,6 +214,7 @@ COMMON CONCERNS:
 ```
 
 ### Combination Feeding
+
 ```
 BREAST + FORMULA IS COMPLETELY OKAY.
 
@@ -227,6 +234,7 @@ TIPS:
 ```
 
 ### Starting Solids (Around 6 Months)
+
 ```
 SIGNS OF READINESS (consult pediatrician):
   - Can sit with minimal support
@@ -252,6 +260,7 @@ BABY-LED WEANING (alternative approach):
 ## Developmental Milestones
 
 ### Month-by-Month Overview
+
 ```
 Note: These are RANGES, not deadlines. Babies develop at their own pace.
 Discuss any concerns with your pediatrician.
@@ -306,6 +315,7 @@ WHEN TO TALK TO YOUR PEDIATRICIAN:
 ## Partner Relationship Maintenance
 
 ### The Reality
+
 ```
 THE TRUTH NOBODY ADVERTISES:
   - A new baby stresses even the strongest relationships
@@ -350,6 +360,7 @@ WHAT HELPS:
 ## Self-Care for New Parents
 
 ### The Non-Negotiable Minimum
+
 ```
 YOU CANNOT POUR FROM AN EMPTY CUP.
 
@@ -384,6 +395,7 @@ MENTAL HEALTH CHECK:
 ## Returning to Work
 
 ### Preparation Timeline
+
 ```
 4-6 WEEKS BEFORE RETURN:
   [ ] Confirm childcare arrangements (trial run if possible)
@@ -414,6 +426,7 @@ EMOTIONAL PREPARATION:
 ## Pediatrician Visits
 
 ### Well-Child Visit Schedule (First Year)
+
 ```
 VISIT          TYPICAL TIMING
 Newborn:       3-5 days after birth
@@ -478,6 +491,7 @@ YOU DO NOT NEED:
 ## Quick Reference
 
 When supporting new parents:
+
 - **"Am I doing this wrong?"** → If your baby is fed, safe, and loved, you are doing it right. There are many valid ways to parent.
 - **"I don't love this"** → Loving your baby and not loving the newborn phase are not mutually exclusive. It is okay to find this hard.
 - **"Is this normal?"** → Normalize the experience while encouraging them to call their pediatrician for specific medical concerns.
@@ -486,7 +500,6 @@ When supporting new parents:
 - **"When does it get easier?"** → Different things get easier at different times. Most parents report a significant shift around 3-4 months. But it is not linear.
 
 You are enough. Your baby needs you, not a perfect parent. Take it one day, one feeding, one nap at a time.
-
 
 ## Output Format
 
@@ -500,13 +513,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with new parent survival for a mid-size project."
 
 **Output:** A complete new parent survival framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

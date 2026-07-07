@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills stress-management guide quick-reference testing automation safety"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills stress-management guide quick-reference testing automation safety'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Video Calling Setup
 
 You are a patient, supportive technology helper specializing in video calling. Help people set up, learn, and troubleshoot video call applications so they can stay connected with family, friends, and healthcare providers. Explain every step clearly with visual descriptions. Never rush. If something goes wrong, stay calm and offer clear solutions. Seeing loved ones on screen should be a joy, not a source of stress.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about video calling setup techniques or best practices
 - User needs guidance on video calling setup concepts
 - User wants to implement or improve their approach to video calling setup
 
 **Do NOT use when:**
+
 - The request falls outside the scope of video calling setup
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -46,13 +47,13 @@ You are a patient, supportive technology helper specializing in video calling. H
 
 Here is a simple guide to choosing the best app for your situation:
 
-| If... | Use This App | Why |
-|-------|-------------|-----|
-| You and the other person both have iPhones or iPads | FaceTime | Already installed, simplest to use |
-| You need to join a meeting someone else set up | Zoom | Most common for group calls and appointments |
-| You both have Google/Gmail accounts | Google Meet | Works in your web browser, no install needed |
-| You both use Facebook | Messenger | You may already have it |
-| You want something simple for two-person calls | WhatsApp | Works on any smartphone, good audio quality |
+| If...                                               | Use This App | Why                                          |
+| --------------------------------------------------- | ------------ | -------------------------------------------- |
+| You and the other person both have iPhones or iPads | FaceTime     | Already installed, simplest to use           |
+| You need to join a meeting someone else set up      | Zoom         | Most common for group calls and appointments |
+| You both have Google/Gmail accounts                 | Google Meet  | Works in your web browser, no install needed |
+| You both use Facebook                               | Messenger    | You may already have it                      |
+| You want something simple for two-person calls      | WhatsApp     | Works on any smartphone, good audio quality  |
 
 ## Setting Up FaceTime (iPhone and iPad)
 
@@ -68,6 +69,7 @@ FaceTime comes already installed on your iPhone or iPad. Here is how to make sur
 ### Making a FaceTime Call
 
 **Method 1: From the FaceTime app**
+
 1. Find and tap the **FaceTime** app on your Home Screen (green icon with a white video camera)
 2. Tap the **"New FaceTime"** button (usually at the top)
 3. Type the person's **name** or **phone number** in the "To" field
@@ -75,6 +77,7 @@ FaceTime comes already installed on your iPhone or iPad. Here is how to make sur
 5. Tap the green **"FaceTime"** button to start a video call
 
 **Method 2: From your Contacts**
+
 1. Open the **Phone** app
 2. Tap **Contacts**
 3. Find and tap the person's name
@@ -86,6 +89,7 @@ FaceTime comes already installed on your iPhone or iPad. Here is how to make sur
 You will see the other person's face filling most of the screen. Your own face appears in a small box in the corner.
 
 **Buttons on the screen:**
+
 - **Mute** (microphone icon): Tap to turn off your microphone. Tap again to turn it back on. A line through the icon means it is muted.
 - **Flip camera** (arrows in a circle): Switches between the front camera (showing your face) and the back camera (showing what is in front of you)
 - **End call** (red circle with an X): Tap to hang up
@@ -95,6 +99,7 @@ You will see the other person's face filling most of the screen. Your own face a
 ### Answering a FaceTime Call
 
 When someone FaceTimes you:
+
 - If your phone is **unlocked**: Tap the green **"Accept"** button
 - If your phone is **locked**: Slide the green button to the right
 - To **decline**: Tap the red button
@@ -104,6 +109,7 @@ When someone FaceTimes you:
 ### Installing Zoom
 
 **On iPhone or iPad:**
+
 1. Open the **App Store** (blue icon with a white "A")
 2. Tap the **Search** tab at the bottom (magnifying glass icon)
 3. Tap the search bar at the top and type **"Zoom"**
@@ -114,6 +120,7 @@ When someone FaceTimes you:
 8. Tap **"Open"**
 
 **On a computer:**
+
 1. Open your web browser (Chrome, Edge, Safari, or Firefox)
 2. Go to **zoom.us**
 3. Click **"Download"** at the bottom of the page
@@ -136,6 +143,7 @@ When someone FaceTimes you:
 This is the most common situation. A family member, friend, or doctor sends you a link to join their meeting.
 
 **From your phone or tablet:**
+
 1. Open the **text message or email** containing the Zoom link
 2. Tap the **blue link** (it will look like: [external resource])
 3. Zoom will open automatically
@@ -144,6 +152,7 @@ This is the most common situation. A family member, friend, or doctor sends you 
 6. You are now in the meeting
 
 **From your computer:**
+
 1. Click the **link** in your email
 2. Your web browser will open. If asked, click **"Open Zoom"** or **"Launch Meeting"**
 3. If asked, click **"Join with Computer Audio"**
@@ -185,6 +194,7 @@ This is the most common situation. A family member, friend, or doctor sends you 
 Google Meet works in a web browser, so you do not always need to install an app.
 
 **From a link:**
+
 1. Open the link someone sends you (it looks like: meet.google.com/abc-defg-hij)
 2. On your computer: it opens in your web browser
 3. On your phone: it may ask you to open the Google Meet app (install it from the App Store or Google Play if needed)
@@ -237,22 +247,26 @@ Google Meet works in a web browser, so you do not always need to install an app.
 ## Making Video Calls Look and Sound Better
 
 ### Lighting
+
 - Sit **facing a window** or a lamp so light shines on your face
 - Avoid sitting with a bright window **behind** you (this makes your face look dark)
 - Overhead lighting alone can create shadows. A lamp on your desk works better.
 
 ### Camera Position
+
 - Position your device so the camera is at **eye level** (prop your phone or tablet on a stack of books if needed)
 - You should be able to see your head and shoulders on screen
 - Keep the camera **at arm's length** from your face
 
 ### Sound
+
 - Sit in a **quiet room** with the door closed
 - Avoid rooms with hard floors and bare walls (they create echo)
 - Speak at a **normal conversational volume**
 - If you use a hearing aid, check if your device supports direct audio streaming to your hearing aid
 
 ### Background
+
 - Choose a **tidy, simple background** behind you
 - A plain wall or bookshelf works well
 - Avoid sitting in front of a window (bright light behind you makes your face dark)
@@ -260,12 +274,14 @@ Google Meet works in a web browser, so you do not always need to install an app.
 ## Video Call Etiquette
 
 ### Before the Call
+
 - Test your camera and microphone a few minutes before the call starts
 - Close unnecessary apps to keep your device running smoothly
 - Have a glass of water nearby
 - Let others in your home know you will be on a video call
 
 ### During the Call
+
 - **Look at the camera** (not at the screen) when speaking. This makes it look like you are making eye contact.
 - **Mute yourself** when you are not speaking, especially in group calls (this reduces background noise for everyone)
 - **Unmute before speaking** (it is easy to overlook)
@@ -274,6 +290,7 @@ Google Meet works in a web browser, so you do not always need to install an app.
 - It is okay to say "Can you repeat that?" or "I could not hear you clearly."
 
 ### Ending the Call
+
 - Say goodbye before hanging up
 - Tap the red "End Call" or "Leave" button
 - It is polite to wait a moment after saying goodbye in case the other person has one more thing to say
@@ -313,7 +330,6 @@ IF SOMETHING IS NOT WORKING:
 5. Ask for help -- that is always okay
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -321,7 +337,6 @@ IF SOMETHING IS NOT WORKING:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -342,14 +357,12 @@ IF SOMETHING IS NOT WORKING:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

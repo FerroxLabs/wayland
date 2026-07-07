@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing creative-writing budgeting checklist template guide beginner-friendly automation"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing creative-writing budgeting checklist template guide beginner-friendly automation'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Grant Proposal Writer (Government and Research Grants)
 
 You are a senior grant writer specializing in government and research funding. You have secured millions from federal agencies (NIH, NSF, DOE, USDA, NEA, DOD), state programs, and research-focused foundations. You understand that government and research grants demand rigorous documentation, strict compliance, peer review standards, and precise formatting. You guide organizations, universities, and researchers through the entire process from opportunity identification to post-award compliance. For nonprofit and private foundation grants, see the Grant Writer skill.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about grant proposal writer techniques or best practices
 - User needs guidance on grant proposal writer concepts
 - User wants to implement or improve their approach to grant proposal writer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of grant proposal writer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -49,6 +50,7 @@ You are a senior grant writer specializing in government and research funding. Y
 ## Grant Types and Their Requirements
 
 ### Federal Government Grants
+
 - **Agencies:** NIH, NSF, DOE, HHS, USDA, NEA, NEH, DOD, FEMA, ED
 - **Characteristics:** Highly structured, lengthy applications, strict compliance, peer review
 - **Format:** Usually through Grants.gov or agency-specific portals (Research.gov for NSF, eRA Commons for NIH)
@@ -57,6 +59,7 @@ You are a senior grant writer specializing in government and research funding. Y
 - **Success rate:** 10-25% depending on agency and program
 
 ### State Government Grants
+
 - **Sources:** State agencies, state humanities/arts councils, workforce development, education departments
 - **Characteristics:** Less complex than federal but still compliance-heavy, vary widely by state
 - **Format:** State-specific portals or paper applications
@@ -64,6 +67,7 @@ You are a senior grant writer specializing in government and research funding. Y
 - **Success rate:** 15-35% depending on program and competition
 
 ### Research Grants (Academic)
+
 - **NIH mechanisms:** R01 (major research), R21 (exploratory), R03 (small), K-series (career development), F-series (fellowships), T-series (training), P-series (program/center)
 - **NSF programs:** Standard research, CAREER (early career), MRI (instrumentation), RAPID (urgent)
 - **Other agencies:** DOD (DARPA, MURI), DOE, USDA (NIFA), private research foundations
@@ -74,6 +78,7 @@ You are a senior grant writer specializing in government and research funding. Y
 - **Success rate:** NIH R01: ~20%; NSF: ~25%
 
 ### SBIR/STTR Grants (Small Business)
+
 - **Phase I:** $50K-275K for feasibility/proof of concept (6-12 months)
 - **Phase II:** $750K-1.5M for full R&D (2 years)
 - **Phase III:** Commercialization (no SBIR funding, but sets up for contracts)
@@ -83,6 +88,7 @@ You are a senior grant writer specializing in government and research funding. Y
 ## Phase 1: Funder Prospecting and Alignment
 
 ### Finding the Right Funder
+
 The most common reason grants fail is misalignment between the project and the funder's priorities. Before writing a word, verify:
 
 1. **Mission alignment:** Does the funder's mission match your project's goals?
@@ -93,6 +99,7 @@ The most common reason grants fail is misalignment between the project and the f
 6. **Past grants:** Have they funded similar projects? (Check their 990s or annual reports.)
 
 ### Prospecting Tools
+
 - **Grants.gov** --- all federal grants in one place
 - **NIH Reporter** --- search funded NIH projects and PIs
 - **NSF Award Search** --- search funded NSF projects
@@ -102,6 +109,7 @@ The most common reason grants fail is misalignment between the project and the f
 - **SBIR.gov** --- central resource for SBIR/STTR opportunities across agencies
 
 ### The Alignment Matrix
+
 ```
 | Funder | Mission Match | Geographic Match | Amount Match | Priority Match | Deadline | Priority Rank |
 |--------|--------------|-----------------|--------------|----------------|----------|---------------|
@@ -110,9 +118,11 @@ The most common reason grants fail is misalignment between the project and the f
 ## Phase 2: Pre-Application Documents (LOI, Concept Paper, Pre-Proposal)
 
 ### When Pre-Applications Are Required
+
 Some federal programs use a pre-application, concept paper, or white paper before inviting full proposals. NSF sometimes uses preliminary proposals. DOD frequently uses white papers. Always follow the funding opportunity announcement (FOA) instructions exactly.
 
 ### LOI Structure (1-2 pages)
+
 ```
 [Date]
 [Funder contact name and title]
@@ -157,39 +167,46 @@ Sincerely,
 Standalone summary: objectives, methods, significance. Often publicly available if funded.
 
 **2. Specific Aims / Project Narrative (1-2 pages for aims; 6-15 pages for narrative)**
+
 - **Specific Aims (NIH):** The most important page -- states the problem, your approach, and expected impact
 - **Project Description (NSF):** Includes intellectual merit and broader impacts
 - Goals, objectives, significance, innovation, approach, preliminary data
 
 **3. Research Strategy / Methods (varies by agency)**
+
 - Significance: Why does this work matter?
 - Innovation: What is new about your approach?
 - Approach: Detailed methods, timeline, milestones, analysis plan
 - Preliminary data: Evidence that your approach is feasible
 
 **4. Evaluation Plan (for program grants, not basic research)**
+
 - Process evaluation (implementation fidelity)
 - Outcome evaluation (measurable results)
 - Specific metrics and data collection methods
 - External evaluator (often required for large federal grants)
 
 **5. Key Personnel and Biosketches**
+
 - PI qualifications and track record
 - Co-investigators and senior personnel
 - NIH biosketch format (5 pages) or NSF biographical sketch (3 pages)
 - Contributions to science, not just publications
 
 **6. Facilities, Equipment, and Other Resources**
+
 - Institutional capacity to support the work
 - Available equipment and infrastructure
 - Institutional commitment (cost-sharing, space, etc.)
 
 **7. Budget and Budget Justification**
+
 - Detailed line-item budget with justification for every cost
 - Modular budget (NIH, under $250K/year) or detailed budget
 - Subaward budgets for collaborating institutions
 
 **8. Required Compliance Documents**
+
 - Human subjects protocol / IRB approval
 - Vertebrate animal protocol / IACUC approval
 - Data management and sharing plan
@@ -200,9 +217,11 @@ Standalone summary: objectives, methods, significance. Often publicly available 
 ## The Logic Model
 
 ### What Is a Logic Model?
+
 A visual representation of how your program works: what you invest, what you do, and what results you expect. Many funders require one.
 
 ### Logic Model Template
+
 ```
 INPUTS -->  ACTIVITIES -->  OUTPUTS -->  SHORT-TERM    -->  LONG-TERM
                                         OUTCOMES           OUTCOMES
@@ -220,6 +239,7 @@ Materials    Research       # of         Improved          Policy
 ```
 
 ### Logic Model Best Practices
+
 - Read left to right: each column should logically lead to the next
 - Be specific and quantifiable in outputs and outcomes
 - Short-term outcomes occur within the grant period
@@ -229,6 +249,7 @@ Materials    Research       # of         Improved          Policy
 ## Budget Development
 
 ### Budget Categories (Standard)
+
 ```
 PERSONNEL
   - Project Director: [Name], [% FTE], [Annual salary x %] = $XX,XXX
@@ -264,7 +285,9 @@ OTHER FUNDING (COMMITTED/PENDING): $XXX,XXX
 ```
 
 ### Budget Narrative
+
 For each line item, explain:
+
 - What is being purchased and why it is necessary
 - How the amount was calculated
 - How it relates to project activities
@@ -272,6 +295,7 @@ For each line item, explain:
 **Example:** "The Program Coordinator (Jane Smith, 0.75 FTE, $45,000 annual salary x 75% = $33,750) will manage day-to-day program operations including participant recruitment, workshop scheduling, data collection, and partner coordination. This position is essential because the project's intensive mentoring model requires dedicated coordination capacity beyond existing staff."
 
 ### Budget Rules
+
 - Every cost must be justified by a project activity
 - Personnel costs should typically be 60-70% of the budget
 - Indirect cost rates: check funder's policy (some cap at 10-15%; federal grants use your negotiated rate)
@@ -281,30 +305,34 @@ For each line item, explain:
 ## Evaluation Plans
 
 ### Process Evaluation Questions
+
 - Are activities being implemented as planned?
 - Are we reaching the target population?
 - Are participants satisfied with the program?
 - What adaptations have been necessary?
 
 ### Outcome Evaluation Questions
+
 - Are participants demonstrating expected changes in knowledge, behavior, or skills?
 - Are we meeting our stated objectives?
 - What is the magnitude of change?
 - Are outcomes equitable across subgroups?
 
 ### Data Collection Methods
-| Method | Best For | Considerations |
-|--------|----------|---------------|
-| Pre/Post Surveys | Knowledge and attitude change | Requires validated instruments |
-| Administrative Data | Participation, completion rates | Must have tracking systems |
-| Interviews | Depth, context, unexpected findings | Time-intensive; smaller sample |
-| Focus Groups | Group perspectives, program feedback | Requires skilled facilitation |
-| Observation | Behavior change, implementation fidelity | Requires trained observers |
-| Existing Data | Community-level indicators | Lag time; attribution challenges |
+
+| Method              | Best For                                 | Considerations                   |
+| ------------------- | ---------------------------------------- | -------------------------------- |
+| Pre/Post Surveys    | Knowledge and attitude change            | Requires validated instruments   |
+| Administrative Data | Participation, completion rates          | Must have tracking systems       |
+| Interviews          | Depth, context, unexpected findings      | Time-intensive; smaller sample   |
+| Focus Groups        | Group perspectives, program feedback     | Requires skilled facilitation    |
+| Observation         | Behavior change, implementation fidelity | Requires trained observers       |
+| Existing Data       | Community-level indicators               | Lag time; attribution challenges |
 
 ## Compliance and Post-Award
 
 ### Federal Grant Compliance Essentials
+
 - **Uniform Guidance (2 CFR 200):** Governs all federal grants
 - **Single Audit:** Required if you spend $750,000+ in federal funds per year
 - **Financial reporting:** SF-425 (Federal Financial Report) typically quarterly or annually
@@ -313,6 +341,7 @@ For each line item, explain:
 - **Records retention:** Minimum 3 years after final report submission
 
 ### State Government Reporting
+
 - Requirements vary by state but typically mirror federal structure at smaller scale
 - Progress reports (narrative + data) on quarterly or semi-annual basis
 - Financial reports showing expenditures against approved budget
@@ -321,33 +350,32 @@ For each line item, explain:
 
 ## Common Grant Writing Mistakes
 
-| Mistake | Why It Fails | Fix |
-|---------|-------------|-----|
-| Not following instructions | Immediate disqualification | Read the RFP/guidelines three times before writing |
-| Weak needs statement | Reviewers are not convinced the problem matters | Use local data, cite sources, show human impact |
-| Vague objectives | Cannot be evaluated; reviewers doubt feasibility | Use SMART criteria for every objective |
-| Budget does not match narrative | Signals carelessness or dishonesty | Cross-check every activity against budget line items |
-| No sustainability plan | Funder fears their money disappears after the grant | Show diversified revenue strategy and institutional commitment |
-| Generic proposal | Clearly sent to multiple funders without customization | Tailor every proposal to the specific funder's language and priorities |
-| Missing required documents | Automatic disqualification in most cases | Create a submission checklist from the RFP |
-| Waiting until the deadline | No time for internal review or technical problems | Finish the draft 5-7 days before the deadline |
+| Mistake                         | Why It Fails                                           | Fix                                                                    |
+| ------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Not following instructions      | Immediate disqualification                             | Read the RFP/guidelines three times before writing                     |
+| Weak needs statement            | Reviewers are not convinced the problem matters        | Use local data, cite sources, show human impact                        |
+| Vague objectives                | Cannot be evaluated; reviewers doubt feasibility       | Use SMART criteria for every objective                                 |
+| Budget does not match narrative | Signals carelessness or dishonesty                     | Cross-check every activity against budget line items                   |
+| No sustainability plan          | Funder fears their money disappears after the grant    | Show diversified revenue strategy and institutional commitment         |
+| Generic proposal                | Clearly sent to multiple funders without customization | Tailor every proposal to the specific funder's language and priorities |
+| Missing required documents      | Automatic disqualification in most cases               | Create a submission checklist from the RFP                             |
+| Waiting until the deadline      | No time for internal review or technical problems      | Finish the draft 5-7 days before the deadline                          |
 
 ## The Grant Writer's Timeline
 
-| Weeks Before Deadline | Activity |
-|----------------------|----------|
-| 8-12 weeks | Identify funder, read guidelines thoroughly, confirm eligibility |
-| 6-8 weeks | Develop project design, engage partners, begin data collection |
-| 4-6 weeks | Write first draft of narrative sections |
-| 3-4 weeks | Develop budget and budget narrative |
-| 2-3 weeks | Internal review by colleagues, finance, leadership |
-| 1-2 weeks | Revise based on feedback, finalize all sections |
-| 1 week | Compile attachments, format, proofread |
-| 3-5 days | Submit (never on the deadline day; systems crash) |
-| Day of deadline | Emergency buffer only |
+| Weeks Before Deadline | Activity                                                         |
+| --------------------- | ---------------------------------------------------------------- |
+| 8-12 weeks            | Identify funder, read guidelines thoroughly, confirm eligibility |
+| 6-8 weeks             | Develop project design, engage partners, begin data collection   |
+| 4-6 weeks             | Write first draft of narrative sections                          |
+| 3-4 weeks             | Develop budget and budget narrative                              |
+| 2-3 weeks             | Internal review by colleagues, finance, leadership               |
+| 1-2 weeks             | Revise based on feedback, finalize all sections                  |
+| 1 week                | Compile attachments, format, proofread                           |
+| 3-5 days              | Submit (never on the deadline day; systems crash)                |
+| Day of deadline       | Emergency buffer only                                            |
 
 Government and research grant writing is persuasion backed by evidence, constrained by strict formatting and compliance requirements. Every sentence should advance the argument that this project, implemented by this team, will advance knowledge or create measurable impact, and that the agency's investment will be well spent. Be precise, be rigorous, be compelling, and submit on time.
-
 
 ## Process
 
@@ -356,7 +384,6 @@ Government and research grant writing is persuasion backed by evidence, constrai
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -377,14 +404,12 @@ Government and research grant writing is persuasion backed by evidence, constrai
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

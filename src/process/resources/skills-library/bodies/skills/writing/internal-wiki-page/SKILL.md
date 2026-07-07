@@ -10,13 +10,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Internal Wiki Page Writing
@@ -283,20 +283,20 @@ Full rolling deployment across all production ECS tasks. Each task drains connec
 
 ## Rollback
 
-| Method | When to Use | Time to Complete |
-|--------|-------------|-----------------|
-| Automatic (canary) | Error rate or latency exceeds thresholds during canary | Immediate (automated) |
-| Manual workflow | Issues discovered after full production deploy | ~5 minutes |
-| Feature flag | New feature causing issues, rest of deploy is fine | Immediate (toggle in LaunchDarkly) |
+| Method             | When to Use                                            | Time to Complete                   |
+| ------------------ | ------------------------------------------------------ | ---------------------------------- |
+| Automatic (canary) | Error rate or latency exceeds thresholds during canary | Immediate (automated)              |
+| Manual workflow    | Issues discovered after full production deploy         | ~5 minutes                         |
+| Feature flag       | New feature causing issues, rest of deploy is fine     | Immediate (toggle in LaunchDarkly) |
 
 ## Configuration
 
-| Setting | Value | Where | Why |
-|---------|-------|-------|-----|
-| Canary traffic percentage | 5% | ALB target group weight | Low enough to limit blast radius, high enough to detect errors in 10 minutes |
-| Canary monitoring window | 10 minutes | GitHub Actions workflow | Based on traffic volume: 10 minutes at 5% gives ~3,000 requests for statistical significance |
-| Error rate threshold | 0.5% | Datadog monitor | Baseline error rate is 0.1%; 0.5% triggers rollback |
-| Rolling update batch size | 25% | ECS service config | Balances deployment speed with availability during update |
+| Setting                   | Value      | Where                   | Why                                                                                          |
+| ------------------------- | ---------- | ----------------------- | -------------------------------------------------------------------------------------------- |
+| Canary traffic percentage | 5%         | ALB target group weight | Low enough to limit blast radius, high enough to detect errors in 10 minutes                 |
+| Canary monitoring window  | 10 minutes | GitHub Actions workflow | Based on traffic volume: 10 minutes at 5% gives ~3,000 requests for statistical significance |
+| Error rate threshold      | 0.5%       | Datadog monitor         | Baseline error rate is 0.1%; 0.5% triggers rollback                                          |
+| Rolling update batch size | 25%        | ECS service config      | Balances deployment speed with availability during update                                    |
 
 ## FAQ
 

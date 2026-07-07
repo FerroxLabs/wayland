@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Membership Manager
@@ -19,12 +19,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to design or improve a membership program with tiers, benefits, and dues structures
 - The user needs help with member onboarding, engagement strategies, or renewal campaigns
 - The user wants guidance on membership communications, events, or CRM selection
 - The user is building a professional association, club, or organization with paying members
 
 **Do NOT use this skill when:**
+
 - The user is designing a SaaS subscription product (use subscription-model-designer instead)
 - The user wants to build an online community without paid membership (use community-organizer instead)
 - The user needs volunteer management rather than member management (use volunteer-coordinator instead)
@@ -42,11 +44,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on membership manager
 - User asks about membership manager best practices or techniques
 - User wants a structured approach to membership manager
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of membership manager
 
@@ -68,11 +72,13 @@ Before designing or improving a membership program:
 ## Membership Tier Design
 
 ### Why Tiers?
+
 Tiered membership captures different levels of engagement and investment. Not everyone values the same things or can contribute equally. Tiers create entry points and upgrade paths.
 
 ### Tier Design Framework
 
 **Basic / Individual ($25-75/year)**
+
 - Newsletter or email updates
 - Member directory listing
 - Voting rights (if applicable)
@@ -81,6 +87,7 @@ Tiered membership captures different levels of engagement and investment. Not ev
 - Discounts on events or merchandise
 
 **Standard / Professional ($75-200/year)**
+
 - Everything in Basic plus:
 - Full access to resources (library, archives, tools)
 - Member-only events or programs
@@ -89,6 +96,7 @@ Tiered membership captures different levels of engagement and investment. Not ev
 - One guest pass to events
 
 **Premium / Sustaining ($200-500/year)**
+
 - Everything in Standard plus:
 - Priority registration for events
 - Complimentary event tickets
@@ -97,6 +105,7 @@ Tiered membership captures different levels of engagement and investment. Not ev
 - Invitation to leadership events
 
 **Patron / Leadership ($500-2,500+/year)**
+
 - Everything in Premium plus:
 - Named recognition
 - Reserved seating at events
@@ -105,6 +114,7 @@ Tiered membership captures different levels of engagement and investment. Not ev
 - Advisory role opportunity
 
 ### Special Membership Categories
+
 - **Student**: Reduced rate (50-75% discount), proof of enrollment required
 - **Senior / Retired**: Reduced rate (25-50% discount)
 - **Family / Household**: One membership covering household members
@@ -113,6 +123,7 @@ Tiered membership captures different levels of engagement and investment. Not ev
 - **Introductory / Trial**: Reduced first-year rate to lower barrier to entry
 
 ### Pricing Strategy
+
 - Research peer organizations' pricing (what does market support?)
 - Calculate cost to deliver benefits per member
 - Consider perceived value vs actual cost
@@ -124,6 +135,7 @@ Tiered membership captures different levels of engagement and investment. Not ev
 ## Benefits Design
 
 ### Tangible Benefits
+
 - Publications (magazine, journal, newsletter)
 - Event discounts or complimentary attendance
 - Professional development (courses, webinars, certifications)
@@ -134,6 +146,7 @@ Tiered membership captures different levels of engagement and investment. Not ev
 - Partner/vendor discounts
 
 ### Intangible Benefits
+
 - Community belonging and identity
 - Professional credibility (credentials, affiliations)
 - Networking and peer connections
@@ -142,7 +155,9 @@ Tiered membership captures different levels of engagement and investment. Not ev
 - Sense of contributing to a cause
 
 ### Assessing Benefit Value
+
 Survey current members annually:
+
 - Which benefits do you use?
 - Which benefits are most important to you?
 - What benefits would you add?
@@ -154,36 +169,43 @@ Use responses to invest in high-value benefits and sunset underused ones.
 ## Member Onboarding
 
 ### First Impressions Matter
+
 The first 90 days determine whether a new member engages or becomes a name on a list.
 
 ### Onboarding Sequence
 
 **Immediately (Day 0-1)**:
+
 - Automated welcome email with confirmation and login credentials
 - Thank you from a real person (not just auto-generated)
 - Welcome kit: Digital or physical packet with key information
 
 **Week 1**:
+
 - Email: How to access top 3 member benefits
 - Invitation to upcoming event or webinar
 - Introduction to member portal/community
 
 **Week 2-3**:
+
 - Personal phone call or email from staff or board member
 - Invitation to complete member profile
 - Suggestion to join a committee or interest group
 
 **Month 1-2**:
+
 - Check-in: "Are you finding value in your membership?"
 - Highlight a member success story (social proof)
 - Invite to connect with other new members (cohort connection)
 
 **Month 3**:
+
 - Survey: First impressions and experience
 - Invitation to a signature event or program
 - Introduction to volunteer opportunities
 
 ### Welcome Kit Contents
+
 - Welcome letter from the president or executive director
 - Quick-start guide: 5 things to do in your first week as a member
 - Member directory information
@@ -195,6 +217,7 @@ The first 90 days determine whether a new member engages or becomes a name on a 
 ## Engagement Strategies
 
 ### The Engagement Ladder
+
 ```
 Advocate / Leader (Champion)
      |
@@ -214,18 +237,21 @@ Goal: Move members upward on the ladder over time.
 ### Engagement Tactics by Level
 
 **Low engagement** (reads emails occasionally):
+
 - Personalized content based on interests
 - Easy entry-point events (free webinars, social gatherings)
 - "We miss you" re-engagement campaigns
 - Highlight one specific benefit they have not used
 
 **Medium engagement** (attends events, uses benefits):
+
 - Committee recruitment
 - Peer networking introductions
 - Speaking or presentation opportunities
 - Member spotlight recognition
 
 **High engagement** (volunteers, advocates, leads):
+
 - Board or leadership nomination
 - Mentorship program (mentor or mentee)
 - Represent organization externally
@@ -233,6 +259,7 @@ Goal: Move members upward on the ladder over time.
 - Advisory input on strategic decisions
 
 ### Engagement Metrics to Track
+
 - Email open rates and click rates
 - Event attendance (frequency and recency)
 - Resource downloads or portal logins
@@ -244,6 +271,7 @@ Goal: Move members upward on the ladder over time.
 ## Renewal Campaigns
 
 ### Renewal Timeline
+
 Start renewal outreach 90 days before expiration:
 
 **90 days before**: First notice - highlight benefits used, upcoming value, easy renewal link
@@ -255,6 +283,7 @@ Start renewal outreach 90 days before expiration:
 **60+ days after**: Lapsed member survey - why did you not renew?
 
 ### Renewal Best Practices
+
 - **Auto-renewal option**: Set as default with opt-out (highest retention method)
 - **Multiple payment methods**: Credit card, ACH, check, PayPal
 - **Easy process**: One-click renewal from email, pre-populated forms
@@ -264,6 +293,7 @@ Start renewal outreach 90 days before expiration:
 - **Payment plans**: Monthly or quarterly options reduce barrier for annual dues
 
 ### Retention Targets
+
 - First-year member retention: 70-75% is strong (most vulnerable period)
 - Ongoing member retention: 85-90% is strong
 - Track by: Tier, join source, engagement level, demographic
@@ -271,12 +301,14 @@ Start renewal outreach 90 days before expiration:
 ## Member Communications
 
 ### Communication Calendar
+
 - **Weekly/Biweekly**: Email newsletter or digest
 - **Monthly**: Deeper content piece (article, webinar recap, member spotlight)
 - **Quarterly**: Magazine/journal, state of the organization update
 - **Annually**: Annual report, membership survey, renewal cycle
 
 ### Email Best Practices
+
 - Segment lists by interest, tier, engagement level, geography
 - Personalize (first name, relevant content based on profile)
 - Mobile-friendly design (60%+ of email opened on mobile)
@@ -286,6 +318,7 @@ Start renewal outreach 90 days before expiration:
 - Monitor metrics: Open rate (20-30% is typical for associations), click rate (2-5%)
 
 ### Communication Channels
+
 - **Email**: Primary channel, most trackable
 - **Website/Portal**: Self-service hub for benefits and resources
 - **Social media**: Community building, awareness, recruitment
@@ -295,6 +328,7 @@ Start renewal outreach 90 days before expiration:
 - **In-person/virtual events**: Deepest engagement
 
 ### Content Strategy
+
 - **80/20 rule**: 80% value content (education, resources, connections), 20% promotional (events, renewal, asks)
 - Feature members as experts and contributors
 - Share industry news and analysis
@@ -304,6 +338,7 @@ Start renewal outreach 90 days before expiration:
 ## Events for Members
 
 ### Event Types
+
 - **Annual conference**: Signature event, major revenue and engagement driver
 - **Professional development**: Workshops, certifications, webinars
 - **Networking**: Mixers, receptions, dinners, speed networking
@@ -313,12 +348,14 @@ Start renewal outreach 90 days before expiration:
 - **Regional chapters**: Local events for geographically distributed membership
 
 ### Event Value for Membership
+
 - Events are consistently rated as the #1 member benefit in association surveys
 - In-person events create the strongest emotional connection to the organization
 - Virtual events extend reach to members who cannot travel
 - Hybrid events combine the best of both but are expensive to execute well
 
 ### Member-Only vs Public Events
+
 - Some events should be member-exclusive (creates value for membership)
 - Some events should be open to non-members (recruitment opportunity)
 - Consider member pricing vs non-member pricing (show the membership value)
@@ -326,12 +363,14 @@ Start renewal outreach 90 days before expiration:
 ## Dues Structure
 
 ### Flat Rate vs Tiered
+
 - **Flat rate**: Simple, everyone pays the same, easy to communicate
 - **Tiered by level**: Different benefits at different prices
 - **Income-based**: Common in professional associations (scaled to salary)
 - **Organization-size-based**: For institutional members (scaled to budget or staff size)
 
 ### Financial Considerations
+
 - Dues revenue should cover membership program costs at minimum
 - Dues should not be sole revenue source (diversify with events, sponsorships, grants)
 - Calculate: Revenue per member after cost of benefits delivery
@@ -339,6 +378,7 @@ Start renewal outreach 90 days before expiration:
 - Reserve fund: 3-6 months of membership program operating costs
 
 ### Dues Increases
+
 - Communicate increase at least 90 days before implementation
 - Explain the reason (rising costs, added benefits, investment in programs)
 - Grandfathering: Consider holding current rate for existing members for one cycle
@@ -350,6 +390,7 @@ Start renewal outreach 90 days before expiration:
 ### What to Look For
 
 **Association Management System (AMS)** - Purpose-built for membership organizations:
+
 - Member database with profiles and history
 - Dues billing and online payment processing
 - Event registration and management
@@ -363,22 +404,26 @@ Start renewal outreach 90 days before expiration:
 ### Recommended Platforms by Size
 
 **Small (under 500 members)**:
+
 - **Wild Apricot** ($60-240/month): Most popular for small associations
 - **MemberClicks**: Affordable, user-friendly AMS
 - **Join It**: Simple, affordable membership management
 
 **Medium (500-5,000 members)**:
+
 - **YourMembership**: Full-featured AMS
 - **GrowthZone (ChamberMaster)**: Chambers of commerce and associations
 - **Novi AMS**: Modern, well-designed platform
 
 **Large (5,000+ members)**:
+
 - **Aptify**: Enterprise AMS on Microsoft platform
 - **iMIS**: Powerful, highly configurable
 - **Fonteva (Salesforce-based)**: Leverages Salesforce ecosystem
 - **Personify**: Comprehensive for large associations
 
 ### Implementation Tips
+
 - Clean your data before migration (deduplicate, update records)
 - Plan for 3-6 months implementation timeline
 - Train all users thoroughly
@@ -388,6 +433,7 @@ Start renewal outreach 90 days before expiration:
 ## Measuring Membership Program Health
 
 ### Key Metrics Dashboard
+
 - Total membership count (trending over time)
 - Net member growth (new members minus lapsed members)
 - Retention rate by year and tier
@@ -416,7 +462,6 @@ Start renewal outreach 90 days before expiration:
 - **Association Forum**: Training and networking for association professionals
 - **Wild Apricot Blog**: Practical membership management tips (even if not using their platform)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -429,13 +474,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with membership manager for a mid-size project."
 
 **Output:** A complete membership manager framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

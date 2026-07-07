@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fitness workout-planning strategy"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fitness workout-planning strategy'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
+
 # Workout Recovery Protocols
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user reports persistent fatigue, lingering muscle soreness, or stalled progress despite consistent training -- signals that recovery is the limiting factor, not the program itself
 - The user asks specifically about post-workout nutrition timing, protein distribution, or carbohydrate replenishment strategies
 - The user wants to plan deload weeks, autoregulation strategies, or periodized recovery blocks into their training year
@@ -35,6 +37,7 @@ metadata:
 - The user describes symptoms consistent with functional overreaching -- short-term performance decline with high fatigue -- and needs a structured reduction plan
 
 **Do NOT use when:**
+
 - The user has an acute or chronic injury requiring tissue healing, rehabilitation exercises, or return-to-sport progressions -- refer to injury rehabilitation or physical therapy consultation
 - The user describes symptoms consistent with non-functional overreaching or overtraining syndrome (OTS) -- persistent performance decline lasting 2+ months, mood disturbances, hormonal disruption -- advise consulting a sports medicine physician, as OTS is a clinical diagnosis
 - The user has a diagnosed sleep disorder (insomnia, sleep apnea, restless legs syndrome) -- sleep hygiene tips are insufficient; refer to a healthcare provider
@@ -275,6 +278,7 @@ Compile all four protocol sections (sleep, nutrition, active recovery, deload) i
 ### User Trains 6-7 Days Per Week With No Rest Days
 
 Training frequency above 5 days per week requires at minimum 2 days of genuine low-intensity work (RPE 2-3) to prevent cumulative sympathetic nervous system overdrive. If the user insists on daily training:
+
 - Classify training days as "high" (RPE 7-9), "medium" (RPE 5-6), or "low" (RPE 2-4) across the week. High days must never exceed 3 per week without at least one low day between them.
 - Require that low days qualify genuinely as active recovery (below 65% max heart rate, no loaded compound movements at working weights, no competitive sport at intensity).
 - Recommend HRV or RHR monitoring daily as a non-negotiable feedback mechanism at this training frequency.
@@ -283,6 +287,7 @@ Training frequency above 5 days per week requires at minimum 2 days of genuine l
 ### User Is in a Significant Caloric Deficit (500-750+ kcal/Day)
 
 Caloric deficits meaningfully impair recovery through three mechanisms: reduced glycogen availability, reduced anabolic hormone output, and reduced protein synthesis capacity. Recovery expectations must be adjusted:
+
 - Push protein to 2.0-2.2 g/kg (upper range) to preserve lean mass and support repair under energy restriction.
 - Recommend distributing carbohydrates toward training days specifically (carbohydrate periodization) rather than uniformly reducing them across all days.
 - Recommend reducing training volume by 10-20% compared to a maintenance or surplus phase -- a deficit is not the optimal time to maximize training volume.
@@ -292,6 +297,7 @@ Caloric deficits meaningfully impair recovery through three mechanisms: reduced 
 ### User Works Night Shifts or Has Severely Disrupted Circadian Rhythm
 
 The core sleep principles (duration, darkness, temperature, consistency) apply regardless of when the sleep window falls, but implementation requires adjustment:
+
 - The anchor principle for night-shift workers is treating their sleep window as their biological "night" -- maintaining consistency of the sleep window even on days off is the single most important adaptation.
 - Complete darkness is non-negotiable for daytime sleep; blackout curtains or a sleep mask are essential, not optional.
 - Melatonin release timing shifts after 2-3 weeks of consistent night-shift work -- advise against using "normal" circadian timing expectations to evaluate sleep quality during the adaptation period.
@@ -300,6 +306,7 @@ The core sleep principles (duration, darkness, temperature, consistency) apply r
 ### User Is a Vegetarian or Vegan Athlete
 
 Total daily protein remains at 1.6-2.2 g/kg, but several practical adjustments are required:
+
 - Most plant protein sources have lower leucine content per gram of protein compared to animal sources. To trigger MPS reliably, increase per-meal protein targets to 35-45g protein from plant sources (compared to 25-35g from animal sources) to clear the leucine threshold of ~2.5g.
 - Soy protein, hemp protein, and quinoa are nutritionally complete protein sources (full essential amino acid profiles) and can be used as anchor proteins. Most other plant proteins (rice, pea, lentil) are incomplete individually but become complete when combined.
 - Iron, zinc, and calcium -- all micronutrients relevant to recovery -- have lower bioavailability in plant foods. Without recommending specific supplements, note that whole food variety and pairing vitamin C sources with iron-containing plant foods (enhances absorption) are relevant dietary strategies.
@@ -308,6 +315,7 @@ Total daily protein remains at 1.6-2.2 g/kg, but several practical adjustments a
 ### User Has Just Returned From a Layoff (2-4 Weeks Off Training)
 
 Returning from a layoff requires a modified recovery protocol because training capacity has temporarily decreased while motivation is often high:
+
 - Reduce returning volume to 50-60% of the pre-layoff baseline for the first week. Even if the user feels capable of more, muscle connective tissue (tendons, ligaments) de-adapts during a layoff and needs 2-3 weeks to rebuild tolerance after muscle strength returns.
 - DOMS after return to training will be disproportionately severe due to the repeated bout effect resetting. Warn the user explicitly and ensure active recovery days are placed between each training session in the first week.
 - Increase protein slightly above maintenance levels during the return phase: 2.0 g/kg supports the accelerated repair demand of returning tissue.
@@ -316,6 +324,7 @@ Returning from a layoff requires a modified recovery protocol because training c
 ### User Reports Persistent Soreness in a Specific Muscle Group Only
 
 Localized persistent soreness lasting more than 72 hours consistently in one muscle group -- rather than generalized fatigue -- suggests a localized training issue rather than systemic overreaching:
+
 - Check whether that muscle group is being directly or indirectly trained more frequently than perceived (e.g., hip flexors receiving stress from both squat sessions and deadlift sessions when counted together).
 - Reduce direct volume to that muscle group specifically for 1-2 weeks without reducing overall training load.
 - If the soreness is accompanied by any sharpness, swelling, restricted range of motion, or warmth, immediately flag this as outside the scope of this protocol and recommend evaluation by a physical therapist or sports medicine physician. This pattern can indicate a soft tissue injury, not DOMS.
@@ -324,6 +333,7 @@ Localized persistent soreness lasting more than 72 hours consistently in one mus
 ### User Asks About Back-to-Back High-Intensity Days (Competition Preparation or Tournament Play)
 
 This is a scenario where the standard recovery timeline is compressed and the goal shifts from maximizing adaptation to maximizing performance retention:
+
 - Prioritize carbohydrate intake aggressively the evening before Day 2 (4-6g/kg carbohydrates in the 12 hours after Day 1 to maximize glycogen resynthesis rate).
 - Cold water immersion (10-15 C, 10-15 minutes) after Day 1 is appropriate in this scenario specifically because performance maintenance across sessions outweighs concerns about blunting hypertrophy adaptations.
 - Sleep between sessions is the most powerful recovery modality available -- prioritize sleep time over every other recovery intervention if time is constrained.
@@ -349,6 +359,7 @@ This is a scenario where the standard recovery timeline is compressed and the go
 **Life stress context:** High occupational stress, weekday sleep debt (~6.5 hours), weekend compensation sleeping -- social jet lag pattern present
 **Primary recovery bottleneck:** Sleep consistency and duration is the highest-priority intervention. High life stress combined with sleep debt creates a chronic cortisol elevation pattern that directly suppresses testosterone and growth hormone -- no nutrition or training adjustment will fully overcome this deficit without addressing sleep first.
 **Protocol priority order:**
+
 1. Sleep duration and consistency (immediate impact)
 2. Daily protein intake and post-workout nutrition
 3. Carbohydrate periodization to training days
@@ -359,15 +370,15 @@ This is a scenario where the standard recovery timeline is compressed and the go
 
 ### Sleep Protocol
 
-| Element                  | Current Habit                  | Target                                 | Priority |
-|--------------------------|--------------------------------|----------------------------------------|----------|
-| Duration (weekdays)      | 6.5 hours                      | 7.5-8.0 hours minimum                 | HIGH     |
-| Duration (weekends)      | Variable catch-up              | Same 7.5-8.0 hours -- no compensation sleeping | HIGH |
-| Consistency (wake time)  | Variable (later on weekends)   | Same wake time daily ±20 minutes       | HIGH     |
-| Pre-sleep routine        | Unknown                        | Dim lights 60 min, no screens 30 min before bed | HIGH |
-| Room temperature         | Unknown                        | 65-68 F (18-20 C)                      | MEDIUM   |
-| Post-training buffer     | Unknown                        | 90-120 min after evening sessions      | MEDIUM   |
-| Napping                  | Not established                | 20-min nap before 2 PM on high-stress days | LOW |
+| Element                 | Current Habit                | Target                                          | Priority |
+| ----------------------- | ---------------------------- | ----------------------------------------------- | -------- |
+| Duration (weekdays)     | 6.5 hours                    | 7.5-8.0 hours minimum                           | HIGH     |
+| Duration (weekends)     | Variable catch-up            | Same 7.5-8.0 hours -- no compensation sleeping  | HIGH     |
+| Consistency (wake time) | Variable (later on weekends) | Same wake time daily ±20 minutes                | HIGH     |
+| Pre-sleep routine       | Unknown                      | Dim lights 60 min, no screens 30 min before bed | HIGH     |
+| Room temperature        | Unknown                      | 65-68 F (18-20 C)                               | MEDIUM   |
+| Post-training buffer    | Unknown                      | 90-120 min after evening sessions               | MEDIUM   |
+| Napping                 | Not established              | 20-min nap before 2 PM on high-stress days      | LOW      |
 
 **Key action:** Set a fixed wake time (the same every day, including weekends) and work backward to determine required bedtime to achieve 7.5-8 hours. The current weekend "catch-up" pattern is not restoring circadian rhythm and is actively creating weekly social jet lag -- the fatigue pattern described is consistent with this mechanism.
 
@@ -380,19 +391,20 @@ This is a scenario where the standard recovery timeline is compressed and the go
 **Body weight:** 80 kg
 **Daily protein target:** 160-176g/day (2.0-2.2 g/kg -- upper range given 6-week performance stall and elevated stress load)
 
-| Window            | Timing                     | Composition                                      | Example Foods                                       |
-|-------------------|----------------------------|--------------------------------------------------|------------------------------------------------------|
-| Pre-workout       | 1.5-2.5 hours before       | 40-60g carbs + 25-35g protein                    | Oatmeal + eggs; rice + chicken; Greek yogurt + banana|
-| Intra-workout (strength) | During (if >60 min) | Water only unless session exceeds 75 min; then 30g carbs | Small banana or handful of dates                    |
-| Intra-workout (zone 2 cardio) | During       | Water; 15-30g carbs/hour if session exceeds 60 min | Diluted juice, dates, banana                     |
-| Post-workout      | Within 1.5 hours           | 35-40g protein + 50-70g carbs                    | Salmon + white rice; chicken + potato; eggs + bread |
-| Midday meal       | 3-4 hours after post-workout | 35-40g protein + vegetables + moderate carbs   | Beef + greens + sweet potato                        |
-| Evening meal      | 3-4 hours before sleep     | 30-35g protein + vegetables + moderate fat       | Chicken + broccoli + olive oil; fish + salad        |
-| Pre-bed (optional)| 45-60 min before sleep     | 20-30g slow-digesting protein                    | Cottage cheese, Greek yogurt                        |
+| Window                        | Timing                       | Composition                                              | Example Foods                                         |
+| ----------------------------- | ---------------------------- | -------------------------------------------------------- | ----------------------------------------------------- |
+| Pre-workout                   | 1.5-2.5 hours before         | 40-60g carbs + 25-35g protein                            | Oatmeal + eggs; rice + chicken; Greek yogurt + banana |
+| Intra-workout (strength)      | During (if >60 min)          | Water only unless session exceeds 75 min; then 30g carbs | Small banana or handful of dates                      |
+| Intra-workout (zone 2 cardio) | During                       | Water; 15-30g carbs/hour if session exceeds 60 min       | Diluted juice, dates, banana                          |
+| Post-workout                  | Within 1.5 hours             | 35-40g protein + 50-70g carbs                            | Salmon + white rice; chicken + potato; eggs + bread   |
+| Midday meal                   | 3-4 hours after post-workout | 35-40g protein + vegetables + moderate carbs             | Beef + greens + sweet potato                          |
+| Evening meal                  | 3-4 hours before sleep       | 30-35g protein + vegetables + moderate fat               | Chicken + broccoli + olive oil; fish + salad          |
+| Pre-bed (optional)            | 45-60 min before sleep       | 20-30g slow-digesting protein                            | Cottage cheese, Greek yogurt                          |
 
 **Daily protein distribution target:** 4 meals × 38-44g average = 152-176g total (within target range)
 
 **Carbohydrate periodization for this schedule:**
+
 - Strength training days (3x/week): 280-320g carbohydrates (3.5-4.0 g/kg × 80 kg)
 - Zone 2 cardio days (2x/week): 200-240g carbohydrates (2.5-3.0 g/kg)
 - Rest day (1x/week): 120-160g carbohydrates (1.5-2.0 g/kg)
@@ -408,8 +420,8 @@ This is a scenario where the standard recovery timeline is compressed and the go
 **Calculated max heart rate (assuming age 30 estimate -- adjust if known):** ~190 BPM
 **Active recovery heart rate ceiling:** Below 121 BPM (65% of 190 BPM)
 
-| Day of Week | Modality                    | Duration | Target HR / RPE        | Notes                                                   |
-|-------------|-----------------------------|-----------|-----------------------|----------------------------------------------------------|
+| Day of Week | Modality                    | Duration  | Target HR / RPE       | Notes                                                    |
+| ----------- | --------------------------- | --------- | --------------------- | -------------------------------------------------------- |
 | Wednesday   | Easy walk or flat cycling   | 25-30 min | Below 120 BPM / RPE 3 | Between strength sessions -- blood flow, no added stress |
 | Sunday      | Yoga flow or light swimming | 25-35 min | RPE 2-3               | Emphasize hip flexors, thoracic spine, hamstrings        |
 
@@ -428,18 +440,19 @@ This is a scenario where the standard recovery timeline is compressed and the go
 **Deload frequency going forward:** Every 4th week (given concurrent training, high occupational stress, and sleep debt)
 **Immediate deload (this week):** Volume deload -- the most appropriate type given the suspected cumulative fatigue mechanism
 
-| Parameter              | Current Normal Week                   | Immediate Deload Week (This Week)           |
-|------------------------|---------------------------------------|----------------------------------------------|
-| Strength sets/session  | Estimated 15-20 sets total/session    | 8-10 sets total/session (reduce by ~50%)    |
-| Working load           | Current working weights               | Maintain at same weight; reduce sets only   |
-| Training days          | 5 days (3 strength + 2 cardio)        | 4 days (2 strength + 2 easy cardio/walk)    |
-| Zone 2 cardio duration | Current duration                      | Reduce to 70% of current duration           |
-| Session duration       | Current length                        | Reduce each session by 15-20 minutes        |
-| Protein intake         | Target 160g                           | Maintain at 160g -- do not reduce           |
+| Parameter              | Current Normal Week                | Immediate Deload Week (This Week)         |
+| ---------------------- | ---------------------------------- | ----------------------------------------- |
+| Strength sets/session  | Estimated 15-20 sets total/session | 8-10 sets total/session (reduce by ~50%)  |
+| Working load           | Current working weights            | Maintain at same weight; reduce sets only |
+| Training days          | 5 days (3 strength + 2 cardio)     | 4 days (2 strength + 2 easy cardio/walk)  |
+| Zone 2 cardio duration | Current duration                   | Reduce to 70% of current duration         |
+| Session duration       | Current length                     | Reduce each session by 15-20 minutes      |
+| Protein intake         | Target 160g                        | Maintain at 160g -- do not reduce         |
 
 **Post-deload return (Week 1 back to full training):** Return at 80% of normal volume. Do not attempt to immediately return to pre-deload full load. Week 2 return at 90-95%.
 
 **Reactive deload triggers going forward (act if 2+ present simultaneously):**
+
 1. Strength on tracked lifts declining 2+ consecutive sessions
 2. Resting heart rate elevated 10+ BPM above morning baseline for 3+ days
 3. Persistent DOMS lasting beyond 72 hours in any muscle group
@@ -450,8 +463,8 @@ This is a scenario where the standard recovery timeline is compressed and the go
 
 ### Recovery Monitoring System
 
-| Metric                  | How to Track                                    | Baseline Period | Action Threshold                                 |
-|-------------------------|-------------------------------------------------|-----------------|--------------------------------------------------|
-| Hooper Index (daily)    | Morning rating 1-7 for: sleep quality, fatigue, stress, muscle soreness | First 2 weeks | Sum >20 for 3 days = reduce load that day     |
-| Resting heart rate      | Before standing, same time each morning         | 2 weeks to establish baseline | 7+ above average = moderate caution; 10+ = rest day |
-| Strength performance    | Log working weights and reps for 3 key lifts    | Ongoing         | Unexplained decline 2+ sessions =
+| Metric               | How to Track                                                            | Baseline Period               | Action Threshold                                    |
+| -------------------- | ----------------------------------------------------------------------- | ----------------------------- | --------------------------------------------------- |
+| Hooper Index (daily) | Morning rating 1-7 for: sleep quality, fatigue, stress, muscle soreness | First 2 weeks                 | Sum >20 for 3 days = reduce load that day           |
+| Resting heart rate   | Before standing, same time each morning                                 | 2 weeks to establish baseline | 7+ above average = moderate caution; 10+ = rest day |
+| Strength performance | Log working weights and reps for 3 key lifts                            | Ongoing                       | Unexplained decline 2+ sessions =                   |

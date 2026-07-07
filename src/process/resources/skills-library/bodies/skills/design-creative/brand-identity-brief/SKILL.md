@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "branding design planning"
-  category: "design-creative"
-  subcategory: "graphic-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'branding design planning'
+  category: 'design-creative'
+  subcategory: 'graphic-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Brand Identity Brief
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user is launching a new business, product, or service and needs a foundational brand document to align designers, marketers, content creators, and leadership before any visual production begins
 - A user needs to communicate brand direction to an agency, freelancer, or internal team and wants a single reference document that answers "what does this brand look and sound like?"
 - A user is conducting a brand audit and needs to formalize undocumented brand conventions that have evolved organically across marketing materials
@@ -30,6 +32,7 @@ metadata:
 - A user needs to onboard a new creative team member or agency partner to an existing brand without losing institutional knowledge
 
 **Do NOT use when:**
+
 - The user wants a specific, deliverable color palette with exact hex codes, HSL values, tint scales, and accessibility contrast ratios -- use `color-palette-design` instead, which handles the technical execution of color systems
 - The user wants a complete typography system with modular scale ratios, line-height specifications, responsive type breakpoints, and font licensing guidance -- use `typography-system` for that technical layer
 - The user wants logo design direction including symbol concepts, wordmark variations, lockup rules, and monochrome treatments -- use `logo-design-brief` which is purpose-built for that deliverable
@@ -123,6 +126,7 @@ Usage constraints are the enforcement layer. They prevent brand dilution in the 
 
 ```markdown
 ## Brand Identity Brief: [Brand Name]
+
 **Version:** 1.0  
 **Date:** [Month Year]  
 **Prepared for:** [Audience -- internal team / agency / freelancer]  
@@ -147,6 +151,7 @@ Usage constraints are the enforcement layer. They prevent brand dilution in the 
 For [precisely defined target audience], [Brand Name] is the [category frame] that [single meaningful differentiator] because [credible reason to believe].
 
 **Positioning notes:**
+
 - [What this positioning excludes -- who we are NOT trying to reach]
 - [What the key tension in this positioning is, if any]
 - [How this differs from the nearest competitor's positioning]
@@ -164,36 +169,40 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 ### 4. Brand Personality
 
 #### Traits
-| Trait | What It Means in This Brand Context | In Practice | Taken Too Far Becomes |
-|-------|--------------------------------------|-------------|------------------------|
-| [Trait 1] | [Specific definition, not dictionary] | [Observable design or content behavior] | [Failure mode] |
-| [Trait 2] | [Specific definition, not dictionary] | [Observable design or content behavior] | [Failure mode] |
-| [Trait 3] | [Specific definition, not dictionary] | [Observable design or content behavior] | [Failure mode] |
-| [Trait 4, if applicable] | | | |
-| [Trait 5, if applicable] | | | |
+
+| Trait                    | What It Means in This Brand Context   | In Practice                             | Taken Too Far Becomes |
+| ------------------------ | ------------------------------------- | --------------------------------------- | --------------------- |
+| [Trait 1]                | [Specific definition, not dictionary] | [Observable design or content behavior] | [Failure mode]        |
+| [Trait 2]                | [Specific definition, not dictionary] | [Observable design or content behavior] | [Failure mode]        |
+| [Trait 3]                | [Specific definition, not dictionary] | [Observable design or content behavior] | [Failure mode]        |
+| [Trait 4, if applicable] |                                       |                                         |                       |
+| [Trait 5, if applicable] |                                       |                                         |                       |
 
 #### Anti-Traits
-| We Are NOT | What This Looks Like | Why We Avoid It |
-|------------|---------------------|-----------------|
-| [Anti-trait 1] | [Observable behavior to avoid] | [Connection to brand position or audience expectation] |
-| [Anti-trait 2] | [Observable behavior to avoid] | [Connection to brand position or audience expectation] |
-| [Anti-trait 3, if applicable] | | |
+
+| We Are NOT                    | What This Looks Like           | Why We Avoid It                                        |
+| ----------------------------- | ------------------------------ | ------------------------------------------------------ |
+| [Anti-trait 1]                | [Observable behavior to avoid] | [Connection to brand position or audience expectation] |
+| [Anti-trait 2]                | [Observable behavior to avoid] | [Connection to brand position or audience expectation] |
+| [Anti-trait 3, if applicable] |                                |                                                        |
 
 #### Personality Sliders
-| Dimension | Brand Position (1=left extreme, 5=right extreme) |
-|-----------|--------------------------------------------------|
-| Serious (1) -- Playful (5) | [1 / 2 / 3 / 4 / 5] |
-| Expert (1) -- Accessible (5) | [1 / 2 / 3 / 4 / 5] |
-| Traditional (1) -- Progressive (5) | [1 / 2 / 3 / 4 / 5] |
-| Exclusive (1) -- Inclusive (5) | [1 / 2 / 3 / 4 / 5] |
-| Quiet (1) -- Bold (5) | [1 / 2 / 3 / 4 / 5] |
-| Earnest (1) -- Ironic (5) | [1 / 2 / 3 / 4 / 5] |
+
+| Dimension                          | Brand Position (1=left extreme, 5=right extreme) |
+| ---------------------------------- | ------------------------------------------------ |
+| Serious (1) -- Playful (5)         | [1 / 2 / 3 / 4 / 5]                              |
+| Expert (1) -- Accessible (5)       | [1 / 2 / 3 / 4 / 5]                              |
+| Traditional (1) -- Progressive (5) | [1 / 2 / 3 / 4 / 5]                              |
+| Exclusive (1) -- Inclusive (5)     | [1 / 2 / 3 / 4 / 5]                              |
+| Quiet (1) -- Bold (5)              | [1 / 2 / 3 / 4 / 5]                              |
+| Earnest (1) -- Ironic (5)          | [1 / 2 / 3 / 4 / 5]                              |
 
 ---
 
 ### 5. Visual Tone
 
 #### 5.1 Color Direction
+
 - **Temperature:** [Warm / Cool / Neutral / Warm-to-neutral / Cool-to-neutral]
 - **Saturation:** [Vivid / Moderate / Muted / Desaturated]
 - **Value range:** [Light-dominant / Dark-dominant / Full range]
@@ -202,9 +211,10 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 - **Colors to avoid and why:** [Colors that conflict with positioning, carry competitor association, or create wrong perception]
 - **Rationale:** [2-3 sentences connecting color direction directly to personality traits]
 
-*For exact hex values, tint scales, and accessibility specs, see `color-palette-design` deliverable.*
+_For exact hex values, tint scales, and accessibility specs, see `color-palette-design` deliverable._
 
 #### 5.2 Typography Direction
+
 - **Primary category:** [Serif / Sans-serif / Display / Mixed]
 - **Style within category:** [Geometric / Humanist / Transitional / Modern / Slab / Other]
 - **Weight tendency:** [Light-to-Regular / Regular-to-SemiBold / Bold-dominant / Mixed by hierarchy level]
@@ -212,9 +222,10 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 - **Type personality note:** [What the type direction communicates emotionally]
 - **Rationale:** [2-3 sentences connecting type direction to personality and audience expectations]
 
-*For specific typeface selection, scale ratios, and size specifications, see `typography-system` deliverable.*
+_For specific typeface selection, scale ratios, and size specifications, see `typography-system` deliverable._
 
 #### 5.3 Imagery Style
+
 - **Primary type:** [Photography / Illustration / Iconography / Mixed -- specify primary and secondary]
 - **Subject matter:** [What is depicted -- people, products, environments, abstract concepts, data]
 - **Human presence:** [Required / Optional / Minimal / None]
@@ -226,6 +237,7 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 - **Rationale:** [2-3 sentences connecting imagery direction to audience reality and brand personality]
 
 #### 5.4 Shape Language and Spatial Approach
+
 - **Corner treatment:** [Sharp (0px radius) / Subtly rounded (2-4px) / Rounded (8-12px) / Fully rounded (pill shapes)]
 - **Form vocabulary:** [Geometric / Organic / Mixed -- with specific examples of where each appears]
 - **Spatial density:** [Open and minimal / Balanced / Rich and layered]
@@ -233,6 +245,7 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 - **Rationale:** [How these choices reinforce the brand's emotional position]
 
 #### 5.5 Motion Direction (if digital)
+
 - **Energy level:** [Subtle and purposeful / Moderate and smooth / Expressive and lively]
 - **Physics:** [Linear / Spring-based / Inertia-based]
 - **Duration tendency:** [Fast (<200ms) / Moderate (200-400ms) / Deliberate (400ms+)]
@@ -243,8 +256,9 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 ### 6. Voice and Tone
 
 #### 6.1 Core Voice Attributes
-| Attribute | What This Means | What It Does NOT Mean |
-|-----------|----------------|----------------------|
+
+| Attribute     | What This Means              | What It Does NOT Mean                 |
+| ------------- | ---------------------------- | ------------------------------------- |
 | [Attribute 1] | [Behavior-level description] | [Common misinterpretation to prevent] |
 | [Attribute 2] | [Behavior-level description] | [Common misinterpretation to prevent] |
 | [Attribute 3] | [Behavior-level description] | [Common misinterpretation to prevent] |
@@ -252,25 +266,28 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 **Reading level target:** Grade [X-Y] (Flesch-Kincaid) -- [one-sentence description of what this means for sentence structure and vocabulary]
 
 #### 6.2 Tone by Context
-| Context | Tone Adjustment | Sample Sentence |
-|---------|----------------|-----------------|
-| Marketing / Acquisition | [Description] | "[Exact sample sentence]" |
-| Product UI / Microcopy | [Description] | "[Exact sample sentence]" |
-| Customer Support | [Description] | "[Exact sample sentence]" |
-| Error States | [Description] | "[Exact sample sentence]" |
-| Social Media | [Description] | "[Exact sample sentence]" |
-| Legal / Compliance | [Description] | "[Exact sample sentence]" |
+
+| Context                 | Tone Adjustment | Sample Sentence           |
+| ----------------------- | --------------- | ------------------------- |
+| Marketing / Acquisition | [Description]   | "[Exact sample sentence]" |
+| Product UI / Microcopy  | [Description]   | "[Exact sample sentence]" |
+| Customer Support        | [Description]   | "[Exact sample sentence]" |
+| Error States            | [Description]   | "[Exact sample sentence]" |
+| Social Media            | [Description]   | "[Exact sample sentence]" |
+| Legal / Compliance      | [Description]   | "[Exact sample sentence]" |
 
 #### 6.3 Vocabulary Filter
-| Avoid | Use Instead | Reason |
-|-------|-------------|--------|
+
+| Avoid            | Use Instead             | Reason                                              |
+| ---------------- | ----------------------- | --------------------------------------------------- |
 | [Word or phrase] | [Preferred alternative] | [Why -- psychology, brand conflict, or tone reason] |
-| [Word or phrase] | [Preferred alternative] | [Why] |
-| [Word or phrase] | [Preferred alternative] | [Why] |
-| [Word or phrase] | [Preferred alternative] | [Why] |
-| [Word or phrase] | [Preferred alternative] | [Why] |
+| [Word or phrase] | [Preferred alternative] | [Why]                                               |
+| [Word or phrase] | [Preferred alternative] | [Why]                                               |
+| [Word or phrase] | [Preferred alternative] | [Why]                                               |
+| [Word or phrase] | [Preferred alternative] | [Why]                                               |
 
 #### 6.4 Structural Tendencies
+
 - **Sentence length:** [Short and punchy (avg <12 words) / Moderate (12-20 words) / Long-form (20+ words acceptable)]
 - **Voice focus:** [Second-person "you" / First-person "we" / Third-person objective]
 - **Question use:** [Frequent (invites dialogue) / Occasional / Rare]
@@ -296,6 +313,7 @@ For [precisely defined target audience], [Brand Name] is the [category frame] th
 Use before publishing, submitting, or presenting any brand-applied asset.
 
 **Visual checks:**
+
 - [ ] Color palette: only approved directions used, no off-brand substitutions
 - [ ] Typography: correct category and style, no unauthorized weight or distortion
 - [ ] Imagery: matches subject, composition, color treatment, and prohibition rules
@@ -303,6 +321,7 @@ Use before publishing, submitting, or presenting any brand-applied asset.
 - [ ] Contrast: all text and brand elements meet minimum contrast requirements
 
 **Verbal checks:**
+
 - [ ] Positioning statement logic holds -- does this asset support our differentiation?
 - [ ] Voice attributes are present and no anti-traits have slipped in
 - [ ] Vocabulary filter applied -- no avoided words appear
@@ -310,6 +329,7 @@ Use before publishing, submitting, or presenting any brand-applied asset.
 - [ ] Reading level is appropriate for the audience
 
 **Strategic checks:**
+
 - [ ] Anti-traits are absent -- review each one explicitly
 - [ ] Personality slider positions are honored -- is the brand positioned where the sliders say it should be?
 - [ ] Target audience would recognize themselves in this asset
@@ -417,6 +437,7 @@ In categories where visual conventions are rigid (luxury goods, health and welln
 **Output:**
 
 ## Brand Identity Brief: Meridian
+
 **Version:** 1.0  
 **Date:** Current  
 **Prepared for:** Internal design and marketing teams  
@@ -431,11 +452,12 @@ In categories where visual conventions are rigid (luxury goods, health and welln
 **Business model:** B2B SaaS  
 **Primary audience:** Independent Registered Investment Advisors (RIAs) at firms with 1-20 advisors. These individuals are licensed financial professionals managing between $50M and $500M in client assets. They made the deliberate choice to leave a large institution and go independent -- they value autonomy, professional judgment, and directness. They are sophisticated users who understand financial data deeply but resent complexity imposed by software designed for 500-person enterprise firms. They are time-poor and trust-driven: if a platform loses their data or produces a discrepancy, they may lose a client  
 **Secondary audience:** Operations staff and compliance personnel at RIA firms who configure the platform and run reports  
-**Key competitors:**  
-- Orion Advisor Services: large platform, robust features, but visually dated, built for scale, enterprise pricing model that penalizes small firms, known for steep onboarding curves  
-- Advent Portfolio Exchange (APX): legacy system, institutional origins, widely considered over-complex for sub-20-advisor shops, carries reputation as "what the big banks use"  
+**Key competitors:**
+
+- Orion Advisor Services: large platform, robust features, but visually dated, built for scale, enterprise pricing model that penalizes small firms, known for steep onboarding curves
+- Advent Portfolio Exchange (APX): legacy system, institutional origins, widely considered over-complex for sub-20-advisor shops, carries reputation as "what the big banks use"
 - Tamarac (part of Envestnet): similarly enterprise-scaled, perceived as feature-bloated relative to what an independent RIA actually needs day-to-day  
-**Aspirational reference brands (outside category):** Linear (B2B developer tooling -- precision, speed, opinionated design) and Stripe (financial infrastructure -- clean, technical credibility without cold corporate feel)
+  **Aspirational reference brands (outside category):** Linear (B2B developer tooling -- precision, speed, opinionated design) and Stripe (financial infrastructure -- clean, technical credibility without cold corporate feel)
 
 ---
 
@@ -443,9 +465,10 @@ In categories where visual conventions are rigid (luxury goods, health and welln
 
 For independent RIA practices with 1-20 advisors, Meridian is the portfolio data platform that works at the speed and precision of the individual advisor's workflow because it was built exclusively for independent practices -- not retrofitted from enterprise architecture.
 
-**Positioning notes:**  
-- This positioning explicitly excludes large institutional asset managers, broker-dealers, and wirehouses -- Meridian is not trying to scale up-market and should not communicate as if it will  
-- The core tension is: technically sophisticated enough to earn advisor trust, but human-scaled enough to not feel like legacy enterprise software  
+**Positioning notes:**
+
+- This positioning explicitly excludes large institutional asset managers, broker-dealers, and wirehouses -- Meridian is not trying to scale up-market and should not communicate as if it will
+- The core tension is: technically sophisticated enough to earn advisor trust, but human-scaled enough to not feel like legacy enterprise software
 - Nearest competitor positioning (Orion): "built for growth, built for advisors" -- Meridian's counter is not "growth" but "precision and fit for independence"
 
 ---
@@ -461,35 +484,39 @@ For independent RIA practices with 1-20 advisors, Meridian is the portfolio data
 ### 4. Brand Personality
 
 #### Traits
-| Trait | What It Means in This Brand Context | In Practice | Taken Too Far Becomes |
-|-------|--------------------------------------|-------------|------------------------|
-| Precise | Meridian treats data accuracy as non-negotiable. Every number in our interface is correct, sourced, and traceable. We do not approximate or round for visual comfort | Data is displayed with appropriate decimal precision. Discrepancies are surfaced immediately, not smoothed over. Copy does not use vague quantifiers like "faster" without data | Pedantic -- obsessing over precision at the cost of usability, refusing to simplify anything |
-| Calm authority | We speak from expertise without needing to raise our voice. We are the most capable tool in the room and we know it -- but we don't perform confidence, we demonstrate it | Clean, unhurried layouts. No aggressive CTAs or scarcity marketing. Statements instead of exclamation points. Help documentation that explains the "why" not just the "how" | Arrogant -- treating the advisor as less capable, providing insufficient guidance, assuming they should figure it out |
-| Independent-minded | We were built for people who left the institution on purpose. We share their belief that better work happens when skilled professionals control their own tools and workflow | We do not default to institutional conventions without reason. We support customization. Our marketing respects the intelligence and autonomy of the advisor | Contrarian -- opposing convention for its own sake, dismissing practices that are conventional because they actually work |
-| Efficient | We respect the advisor's time above all else. Every interaction should take less time than the alternative | No unnecessary confirmation dialogs, no bloated feature menus, no marketing padding in UI copy. Workflows complete in the minimum number of steps | Minimal to the point of incomplete -- cutting so much that context is lost and errors increase |
+
+| Trait              | What It Means in This Brand Context                                                                                                                                          | In Practice                                                                                                                                                                     | Taken Too Far Becomes                                                                                                     |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Precise            | Meridian treats data accuracy as non-negotiable. Every number in our interface is correct, sourced, and traceable. We do not approximate or round for visual comfort         | Data is displayed with appropriate decimal precision. Discrepancies are surfaced immediately, not smoothed over. Copy does not use vague quantifiers like "faster" without data | Pedantic -- obsessing over precision at the cost of usability, refusing to simplify anything                              |
+| Calm authority     | We speak from expertise without needing to raise our voice. We are the most capable tool in the room and we know it -- but we don't perform confidence, we demonstrate it    | Clean, unhurried layouts. No aggressive CTAs or scarcity marketing. Statements instead of exclamation points. Help documentation that explains the "why" not just the "how"     | Arrogant -- treating the advisor as less capable, providing insufficient guidance, assuming they should figure it out     |
+| Independent-minded | We were built for people who left the institution on purpose. We share their belief that better work happens when skilled professionals control their own tools and workflow | We do not default to institutional conventions without reason. We support customization. Our marketing respects the intelligence and autonomy of the advisor                    | Contrarian -- opposing convention for its own sake, dismissing practices that are conventional because they actually work |
+| Efficient          | We respect the advisor's time above all else. Every interaction should take less time than the alternative                                                                   | No unnecessary confirmation dialogs, no bloated feature menus, no marketing padding in UI copy. Workflows complete in the minimum number of steps                               | Minimal to the point of incomplete -- cutting so much that context is lost and errors increase                            |
 
 #### Anti-Traits
-| We Are NOT | What This Looks Like | Why We Avoid It |
-|------------|---------------------|-----------------|
-| Enterprise-bloated | Excessive feature menus, settings buried three levels deep, onboarding that requires a training session, language like "leverage our robust ecosystem of integrations" | Meridian's entire reason for existing is that the alternative is too complex. If our UX feels enterprise-scaled, we have failed our core promise |
-| Startup-casual | Pastel color palettes, excessive white space with no information density, copy that says "Hey!" or uses first-name presumption, gamification of financial data, confetti animations on dashboard events | Our users are licensed professionals managing real client wealth. Startup aesthetics signal that we do not understand the professional context we are operating in |
-| Hype-driven | Superlatives without evidence ("the most powerful," "the only platform"), urgency tactics ("upgrade now before prices change"), growth-hack language ("10x your AUM") | Financial professionals are trained to be skeptical of claims. Hype undermines the Sage archetype and destroys the precise brand voice in a single sentence |
+
+| We Are NOT         | What This Looks Like                                                                                                                                                                                    | Why We Avoid It                                                                                                                                                    |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Enterprise-bloated | Excessive feature menus, settings buried three levels deep, onboarding that requires a training session, language like "leverage our robust ecosystem of integrations"                                  | Meridian's entire reason for existing is that the alternative is too complex. If our UX feels enterprise-scaled, we have failed our core promise                   |
+| Startup-casual     | Pastel color palettes, excessive white space with no information density, copy that says "Hey!" or uses first-name presumption, gamification of financial data, confetti animations on dashboard events | Our users are licensed professionals managing real client wealth. Startup aesthetics signal that we do not understand the professional context we are operating in |
+| Hype-driven        | Superlatives without evidence ("the most powerful," "the only platform"), urgency tactics ("upgrade now before prices change"), growth-hack language ("10x your AUM")                                   | Financial professionals are trained to be skeptical of claims. Hype undermines the Sage archetype and destroys the precise brand voice in a single sentence        |
 
 #### Personality Sliders
-| Dimension | Brand Position |
-|-----------|---------------|
-| Serious (1) -- Playful (5) | 2 -- Professional seriousness, with occasional dry precision humor in help copy |
-| Expert (1) -- Accessible (5) | 2 -- Expert-first; we do not explain basic finance to our users, but we do explain our system clearly |
-| Traditional (1) -- Progressive (5) | 3 -- Balanced: respects established financial practice, uses modern design patterns |
-| Exclusive (1) -- Inclusive (5) | 2 -- Built for a specific professional audience; does not try to appeal broadly |
-| Quiet (1) -- Bold (5) | 2 -- Confident restraint; lets precision speak instead of visual volume |
-| Earnest (1) -- Ironic (5) | 2 -- Earnest about the work, occasionally precise and dry in tone |
+
+| Dimension                          | Brand Position                                                                                        |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Serious (1) -- Playful (5)         | 2 -- Professional seriousness, with occasional dry precision humor in help copy                       |
+| Expert (1) -- Accessible (5)       | 2 -- Expert-first; we do not explain basic finance to our users, but we do explain our system clearly |
+| Traditional (1) -- Progressive (5) | 3 -- Balanced: respects established financial practice, uses modern design patterns                   |
+| Exclusive (1) -- Inclusive (5)     | 2 -- Built for a specific professional audience; does not try to appeal broadly                       |
+| Quiet (1) -- Bold (5)              | 2 -- Confident restraint; lets precision speak instead of visual volume                               |
+| Earnest (1) -- Ironic (5)          | 2 -- Earnest about the work, occasionally precise and dry in tone                                     |
 
 ---
 
 ### 5. Visual Tone
 
 #### 5.1 Color Direction
+
 - **Temperature:** Cool-to-neutral -- blue-adjacent foundation with warm neutral accents to prevent coldness
 - **Saturation:** Moderate-to-muted -- saturated enough to carry hierarchy and state, muted enough to maintain the calm authority trait
 - **Value range:** Light-dominant with a dark mode system -- primary interface is light; dark mode is an equally considered option given the professional user base's working hours and screen time
@@ -498,9 +525,10 @@ For independent RIA practices with 1-20 advisors, Meridian is the portfolio data
 - **Colors to avoid and why:** Bright primary blue (associates with large-bank legacy systems and is visually aggressive); any green as a primary color (confuses with competitor Orion's green, and green as a primary color in financial contexts reads "stock chart" rather than "platform"); any orange or red as primary colors (triggers risk-association in financial professionals)
 - **Rationale:** Cool-to-neutral palette reinforces calm authority and precision. Financial professionals associate this range with rigor and trustworthiness. Moderate saturation prevents the interface from feeling either clinical (fully desaturated) or playful (fully vivid) -- both of which conflict with the independent-minded professional personality
 
-*For exact hex values, tint scales, and accessibility specs, see `color-palette-design` deliverable.*
+_For exact hex values, tint scales, and accessibility specs, see `color-palette-design` deliverable._
 
 #### 5.2 Typography Direction
+
 - **Primary category:** Sans-serif
 - **Style within category:** Transitional-to-humanist -- more humanist warmth than geometric coldness, but with the optical precision and consistent metrics that data-heavy interfaces require. A purely geometric sans reads too cold for the calm authority trait; a fully organic humanist reads too informal for the precision trait
 - **Weight tendency:** Regular for body and data display; Medium for labels and UI navigation; SemiBold for headings only. Avoid Bold in data contexts -- heavy type in tables creates visual noise that impedes scanning
@@ -508,9 +536,10 @@ For independent RIA practices with 1-20 advisors, Meridian is the portfolio data
 - **Type personality note:** The typeface must carry calm authority at small sizes (9-11px labels in data tables) as well as at heading sizes. Test candidates at 9px before finalizing
 - **Rationale:** Humanist-transitional sans-serif reflects the balance between the advisor's professional rigor (precision trait) and their independent, human-centered practice (independent-minded trait). It also performs excellently in data-dense layouts, which is Meridian's primary use environment
 
-*For specific typeface selection, scale ratios, and size specifications, see `typography-system` deliverable.*
+_For specific typeface selection, scale ratios, and size specifications, see `typography-system` deliverable._
 
 #### 5.3 Imagery Style
+
 - **Primary type:** Photography (primary for marketing and brand contexts); minimal line iconography (functional, for product and documentation)
 - **Subject matter:** Advisors in their actual working environments -- small to mid-size office settings, laptops and second screens, quiet and focused. Also: data as a visual subject -- clean chart representations used as brand imagery in appropriate contexts
 - **Human presence:** Present but not dominant. When people appear, they are working -- not posing with crossed arms or shaking hands
@@ -522,6 +551,7 @@ For independent RIA practices with 1-20 advisors, Meridian is the portfolio data
 - **Rationale:** Advisors are a skeptical, professional audience. Stock-photo inauthenticity destroys credibility immediately. The imagery must show their world -- not an aspirational version of their world, and not a startup office version
 
 #### 5.4 Shape Language and Spatial Approach
+
 - **Corner treatment:** Subtly rounded (4-6px radius on cards, 3-4px on inputs and chips). Not sharp (reads as legacy or aggression) and not fully rounded (reads as consumer/startup). The radius signals precision with a degree of approachability
 - **Form vocabulary:** Geometric primary with deliberately minimal organic elements. Data interfaces require geometric grid alignment. Organic forms appear only in brand mark or illustration contexts
 - **Spatial density:** Balanced -- not the extreme open space of a luxury or consumer brand, and not the dense information architecture of enterprise legacy systems. Meridian should feel like a professional environment where information is organized and accessible, not buried and not stripped away
@@ -529,4 +559,5 @@ For independent RIA practices with 1-20 advisors, Meridian is the portfolio data
 - **Rationale:** Independent RIAs work in data-dense contexts by profession. They are not intimidated by information density. The spatial approach should respect their capacity to read complex data without overwhelming it -- the goal is organized density, not forced minimalism
 
 #### 5.5 Motion Direction
+
 - **Energy level:** Subtle and

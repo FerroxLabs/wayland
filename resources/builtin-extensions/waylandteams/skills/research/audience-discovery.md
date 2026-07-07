@@ -4,7 +4,7 @@
 
 You have raw material (interview transcripts, sales-call notes, support tickets, churn surveys) and need to turn it into segments the team can write to, price to, and channel to. Or a teammate handed you a demographic and asked for a persona.
 
-Runs *after* `jtbd-interviews.md`. If you don't have interview data, stop and go get it.
+Runs _after_ `jtbd-interviews.md`. If you don't have interview data, stop and go get it.
 
 ## The premise
 
@@ -12,19 +12,20 @@ Don't segment by age, income, or job title. Segment by **job** — the progress 
 
 ## The procedure
 
-**1. Read every transcript twice.** First pass: listen for the *shape*. Second pass: pull verbatim quotes into a sheet with five columns — trigger event, push, pull, anxiety, habit.
+**1. Read every transcript twice.** First pass: listen for the _shape_. Second pass: pull verbatim quotes into a sheet with five columns — trigger event, push, pull, anxiety, habit.
 
 **2. Cluster by job, not by person.** Group transcripts where the trigger event is structurally the same — same kind of moment, same kind of breaking point. A grad student and a retiree might both have hired the same productivity app to recover an hour of cognitive space after a draining commute.
 
 **3. Name each cluster from the customer's words.** Not "the time-strapped professional" — that's marketer-speak. Try "the Sunday-night-bracing-for-Monday person." If you can't picture the moment, the name is wrong.
 
 **4. Write a one-page segment card per cluster.** Required fields:
-   - Job (a verb phrase: "Help me get the kids out without yelling")
-   - Trigger event (one specific moment)
-   - Push, Pull, Anxiety, Habit — two lines each, one verbatim quote per Force
-   - Hired and fired (what they're switching to / from)
-   - Where they look (only what *they said*, not what you guess)
-   - Three of their own sentences you'd put on a wall
+
+- Job (a verb phrase: "Help me get the kids out without yelling")
+- Trigger event (one specific moment)
+- Push, Pull, Anxiety, Habit — two lines each, one verbatim quote per Force
+- Hired and fired (what they're switching to / from)
+- Where they look (only what _they said_, not what you guess)
+- Three of their own sentences you'd put on a wall
 
 **5. Stamp the segment in `TEAM_MEMORY.md` under `## Research`.** Don't make Copy and Sales dig.
 

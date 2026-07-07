@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design cloud"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'backend api-design cloud'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Serverless Architect
@@ -57,7 +57,7 @@ const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
 export const handler = async (event: any) => {
-  const result = await docClient.send(/* ... */);  // Reuses warm connection
+  const result = await docClient.send(/* ... */); // Reuses warm connection
   return result;
 };
 ```
@@ -81,9 +81,11 @@ Init code           MEDIUM     Lazy-load SDK clients, defer DB connections
 // esbuild config
 await build({
   entryPoints: ['src/handlers/*.ts'],
-  bundle: true, minify: true,
-  platform: 'node', target: 'node20',
-  external: ['@aws-sdk/*'],        // Available in Lambda runtime
+  bundle: true,
+  minify: true,
+  platform: 'node',
+  target: 'node20',
+  external: ['@aws-sdk/*'], // Available in Lambda runtime
   treeShaking: true,
   sourcemap: true,
 });
@@ -129,8 +131,8 @@ API Gateway -> Lambda (validate) -> SNS Topic
       "Type": "Task",
       "Resource": "arn:aws:lambda:us-east-1:123456:function:validate",
       "Next": "ProcessPayment",
-      "Retry": [{"ErrorEquals": ["TransientError"], "MaxAttempts": 3, "BackoffRate": 2.0}],
-      "Catch": [{"ErrorEquals": ["ValidationError"], "Next": "RejectOrder"}]
+      "Retry": [{ "ErrorEquals": ["TransientError"], "MaxAttempts": 3, "BackoffRate": 2.0 }],
+      "Catch": [{ "ErrorEquals": ["ValidationError"], "Next": "RejectOrder" }]
     },
     "ProcessPayment": {
       "Type": "Task",
@@ -176,9 +178,7 @@ USE ORIGIN FOR: Database ops, complex business logic, long-running tasks (>30s)
 ## Idempotency
 
 ```typescript
-export async function withIdempotency<T>(
-  key: string, ttl: number, operation: () => Promise<T>,
-): Promise<T> {
+export async function withIdempotency<T>(key: string, ttl: number, operation: () => Promise<T>): Promise<T> {
   const existing = await db.get({ TableName: IDEMPOTENCY_TABLE, Key: { pk: key } });
   if (existing.Item?.status === 'COMPLETED') return existing.Item.result as T;
 
@@ -213,7 +213,7 @@ Globals:
     MemorySize: 512
     Timeout: 30
     Tracing: Active
-    Architectures: [arm64]         # Graviton: 20% cheaper
+    Architectures: [arm64] # Graviton: 20% cheaper
 
 Resources:
   ApiGateway:
@@ -330,6 +330,7 @@ OBSERVABILITY:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing serverless architect solutions
 - Reviewing or improving existing serverless architect approaches
 - Making architectural or implementation decisions about serverless architect
@@ -337,6 +338,7 @@ OBSERVABILITY:
 - Troubleshooting serverless architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -347,21 +349,26 @@ OBSERVABILITY:
 # Serverless Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

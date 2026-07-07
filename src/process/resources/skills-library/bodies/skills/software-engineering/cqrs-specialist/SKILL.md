@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns backend"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns backend'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # CQRS Specialist
@@ -23,6 +23,7 @@ You are an expert in CQRS (Command Query Responsibility Segregation) and its com
 ## CQRS Fundamentals
 
 ### What is CQRS?
+
 ```
 CQRS separates the read model (queries) from the write model (commands).
 Instead of one model for both reading and writing, you have two.
@@ -41,6 +42,7 @@ business rule enforcement and consistency.
 ```
 
 ### When to Use CQRS
+
 ```
 Good Fit:
 - Read patterns differ significantly from write patterns
@@ -59,6 +61,7 @@ Poor Fit:
 ```
 
 ### CQRS Spectrum
+
 ```
 CQRS is not binary. There is a spectrum:
 
@@ -81,6 +84,7 @@ Recommendation: Start at Level 1 or 2. Move to Level 3-4 only when needed.
 ## Command Side (Write Model)
 
 ### Command Design
+
 ```
 A command represents an intent to change state. Commands are imperative.
 
@@ -101,6 +105,7 @@ Command Structure:
 ```
 
 ### Command Handler
+
 ```
 class PlaceOrderCommandHandler {
   constructor(
@@ -121,6 +126,7 @@ class PlaceOrderCommandHandler {
 ```
 
 ### Command Validation Layers
+
 ```
 Layer 1: Structural Validation (at API boundary)
   - Required fields present
@@ -141,6 +147,7 @@ Layer 3: Domain Validation (in aggregate)
 ## Query Side (Read Model)
 
 ### Read Model Projections
+
 ```
 A projection transforms events into a read-optimized data structure.
 
@@ -161,6 +168,7 @@ from the event stream at any time.
 ```
 
 ### Projection Implementation
+
 ```
 class OrderSummaryProjection {
   constructor(private db: ReadDatabase) {}
@@ -181,6 +189,7 @@ class OrderSummaryProjection {
 ```
 
 ### Multiple Read Models
+
 ```
 From the same event stream, you can build multiple read models:
 
@@ -203,6 +212,7 @@ Read Model 3: Order Search (for customer support)
 ## Event Store Design
 
 ### Event Store Schema
+
 ```sql
 CREATE TABLE events (
   event_id        UUID PRIMARY KEY,
@@ -224,6 +234,7 @@ CREATE INDEX idx_events_position ON events (global_position);
 ```
 
 ### Event Store Operations
+
 ```
 Append Events:
 INSERT INTO events (event_id, aggregate_id, aggregate_type, event_type,
@@ -244,6 +255,7 @@ LIMIT 1000;
 ```
 
 ### Dedicated Event Store Solutions
+
 ```
 EventStoreDB:
   - Purpose-built event store
@@ -266,6 +278,7 @@ Alternatives:
 ## Snapshot Strategies
 
 ### Why Snapshots?
+
 ```
 Problem: Loading an aggregate with 10,000 events means replaying all 10,000.
 Solution: Periodically save a snapshot of the current state.
@@ -278,6 +291,7 @@ Load snapshot at event 9,900 → Load events 9,901-10,000 → Replay 100 events 
 ```
 
 ### Snapshot Approaches
+
 ```
 1. Periodic Snapshots:
    Save a snapshot every N events (e.g., every 100).
@@ -300,6 +314,7 @@ Load snapshot at event 9,900 → Load events 9,901-10,000 → Replay 100 events 
 ## Eventual Consistency Handling
 
 ### The Challenge
+
 ```
 In CQRS with separate databases, there is a delay between:
 1. Command is processed (write model updated)
@@ -316,6 +331,7 @@ This is the "stale read" problem.
 ```
 
 ### Solutions for Eventual Consistency
+
 ```
 1. Read-Your-Own-Writes:
    After a write, route the user's subsequent reads to the write model
@@ -338,6 +354,7 @@ This is the "stale read" problem.
 ## Compensating Actions
 
 ### What are Compensating Actions?
+
 ```
 In eventually consistent systems, you can't roll back distributed operations.
 Instead, you issue compensating actions that logically undo the effect.
@@ -352,6 +369,7 @@ Grant Access             → Revoke Access
 ```
 
 ### Designing Compensating Actions
+
 ```
 Rules:
 1. Every command should have a corresponding compensating command
@@ -374,6 +392,7 @@ class OrderSaga {
 ## Audit Trail
 
 ### Event Sourcing as Natural Audit Trail
+
 ```
 Event sourcing provides a complete, immutable audit trail by design.
 
@@ -396,6 +415,7 @@ Audit Query Examples:
 ## Temporal Queries
 
 ### Querying Past State
+
 ```
 One of the most powerful capabilities of event sourcing:
 you can reconstruct the state at any point in time.
@@ -415,6 +435,7 @@ function getStateAtTime(aggregateId: string, targetTime: Date): AggregateState {
 ```
 
 ### Temporal Projections
+
 ```
 For read models that support temporal queries:
 
@@ -435,6 +456,7 @@ Option 3: Periodic Snapshots
 ## CQRS with Messaging
 
 ### Architecture with Message Broker
+
 ```
 ┌──────────────┐     ┌────────────────┐     ┌──────────────┐
 │ Command API  │────>│ Command Handler│────>│ Event Store  │
@@ -455,6 +477,7 @@ Option 3: Periodic Snapshots
 ```
 
 ### Outbox Pattern (Reliable Event Publishing)
+
 ```
 Problem: How to atomically save events AND publish to message broker?
   - Save to DB then publish: publish might fail → events lost
@@ -514,6 +537,7 @@ Then: [Expected read model data is returned]
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing cqrs specialist solutions
 - Reviewing or improving existing cqrs specialist approaches
 - Making architectural or implementation decisions about cqrs specialist
@@ -521,6 +545,7 @@ Then: [Expected read model data is returned]
 - Troubleshooting cqrs specialist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -531,21 +556,26 @@ Then: [Expected read model data is returned]
 # Cqrs Specialist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

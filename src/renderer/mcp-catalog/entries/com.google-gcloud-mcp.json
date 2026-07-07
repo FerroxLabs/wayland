@@ -14,8 +14,18 @@
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
-        { "name": "GOOGLE_APPLICATION_CREDENTIALS", "description": "Path to a service account JSON key file.", "isRequired": false, "isSecret": false },
-        { "name": "GCLOUD_PROJECT", "description": "Default Google Cloud project ID.", "isRequired": false, "isSecret": false }
+        {
+          "name": "GOOGLE_APPLICATION_CREDENTIALS",
+          "description": "Path to a service account JSON key file.",
+          "isRequired": false,
+          "isSecret": false
+        },
+        {
+          "name": "GCLOUD_PROJECT",
+          "description": "Default Google Cloud project ID.",
+          "isRequired": false,
+          "isSecret": false
+        }
       ]
     }
   ],
@@ -34,9 +44,7 @@
       "method": "oauth2-byo",
       "providerName": "Google Cloud",
       "providerSignupUrl": "https://console.cloud.google.com",
-      "scopes": [
-        { "name": "cloud-platform", "plainLanguage": "Full access to your selected Google Cloud projects." }
-      ]
+      "scopes": [{ "name": "cloud-platform", "plainLanguage": "Full access to your selected Google Cloud projects." }]
     },
     "toolGroups": [
       { "label": "Projects", "count": 3 },

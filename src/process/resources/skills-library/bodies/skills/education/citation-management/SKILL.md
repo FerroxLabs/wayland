@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing research study-skills step-by-step"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'academic-writing research study-skills step-by-step'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Citation Management
 
 ## When to Use
@@ -122,6 +123,7 @@ Produce a format reference card tailored to the citation style(s) the learner is
 Give the learner a verification system they can run before submission:
 
 **In-text citation checklist:**
+
 - Every factual claim that is not common knowledge has an in-text citation
 - Every direct quote includes a page number (or paragraph number for sources without pagination)
 - Every in-text citation has a matching entry in the reference list (same author spelling, same year)
@@ -131,6 +133,7 @@ Give the learner a verification system they can run before submission:
 - Et al. rules are applied correctly: APA 7 uses et al. for 3 or more authors in ALL in-text citations (first and subsequent); MLA uses et al. for 3 or more authors; Chicago NB spells out up to 10 authors in bibliography
 
 **Reference list audit -- run in this order:**
+
 1. Sort alphabetically by first author's last name (all styles) or by first author's last name then year (APA, Chicago Author-Date)
 2. Check that every entry has a hanging indent (first line flush left, all subsequent lines indented 0.5 inches)
 3. Verify that journal titles are italicized and article titles are NOT italicized (in APA and Chicago; in MLA, article titles go in quotation marks)
@@ -313,10 +316,11 @@ A graduate student might have a paper where the instructor requires APA but some
 ### The Learner Has More Than Three Authors and Is Unsure About Et Al.
 
 This is a genuine complexity because the rule differs by style and has changed across editions:
+
 - **APA 7th:** Use et al. for 3 or more authors in ALL in-text citations, first and subsequent. In the reference list, list up to 20 authors; for 21 or more, list the first 19, insert an ellipsis (...), then the final author.
 - **MLA 9th:** For 3 or more authors, list the first author followed by "et al." in both in-text and Works Cited.
 - **Chicago 17th NB bibliography and Author-Date reference list:** List up to 10 authors. For 11 or more, list the first 7, then "et al." In notes (NB style), list up to 3 authors; for 4 or more, use et al.
-Provide a table with these thresholds when the learner is working with multi-author sources.
+  Provide a table with these thresholds when the learner is working with multi-author sources.
 
 ### The Learner Is Citing a Source That Has Been Retracted
 
@@ -329,6 +333,7 @@ This is common. Instructors sometimes create simplified guides that omit or modi
 ### The Learner Is Converting an Existing Reference List from One Style to Another
 
 This requires a systematic field-mapping process, not line-by-line rewriting. Guide the learner to:
+
 1. First audit the existing list to ensure all required fields are present (APA to Chicago conversion often requires adding publisher location, which APA 7 dropped but Chicago still requires for books)
 2. Create a conversion table mapping each old format element to the new one (author format, date position, title capitalization, punctuation between elements)
 3. Use find-and-replace for systematic changes (e.g., changing all `(Year)` to `,  Year,` when converting APA to Chicago Author-Date)
@@ -337,14 +342,16 @@ This requires a systematic field-mapping process, not line-by-line rewriting. Gu
 ### The Learner Is Citing a Social Media Post, Podcast, or YouTube Video
 
 These are increasingly common source types that style guides added relatively recently:
+
 - **APA 7:** Twitter/X post: Author [@username]. (Year, Month Day). First 20 words of post [Tweet]. Platform. URL. YouTube: Author, A. (Year, Month Day). Title of video [Video]. Platform. URL.
 - **MLA 9:** Treat the platform as the container. Author. "Title or Description." Platform, Day Month Year, URL.
 - **Chicago 17th:** Similar logic to MLA but with different punctuation. If the post has no formal title, describe it in brackets.
-Key rule: archive or screenshot social media sources at the time of access because they can be deleted. Note this in the tracking sheet.
+  Key rule: archive or screenshot social media sources at the time of access because they can be deleted. Note this in the tracking sheet.
 
 ### The Learner Is Writing a Thesis with Hundreds of Sources and Their Reference Manager Has Corrupted Some Entries
 
 This is a high-stakes situation requiring triage. Guide them to:
+
 1. Export the full library from the reference manager as both the native format AND as a plain text/CSV file -- do both before making any changes
 2. Identify corrupted entries by filtering for missing required fields (most reference managers allow this)
 3. For entries with DOIs, re-import using the DOI directly (Zotero's "Add item by identifier" function is reliable for DOI-based imports)
@@ -446,15 +453,15 @@ Format: Author Last Name, Short Title (1--4 words from the main title), Page.
 
 Chicago NB does not use in-text parenthetical citations. All citations appear as footnotes (at the bottom of the page) or endnotes (at the end of the document). Your professor will specify which. The superscript number in the text directs the reader to the corresponding note.
 
-| Scenario | Footnote Format | Example |
-|----------|----------------|---------|
-| First citation to a book | Full citation with page | Clark, *Sleepwalkers*, (New York: Harper Perennial, 2013), 47. |
-| Second+ citation, same book | Short form | Clark, *Sleepwalkers*, 203. |
-| Immediately following same source | Ibid. with page | Ibid., 204. (use sparingly; check with professor) |
-| First citation to article | Full citation with page | Stevenson, "Militarization," *International Security* 22, no. 1 (1997): 125. |
-| Second+ citation, same article | Short form | Stevenson, "Militarization," 130. |
-| Two different works by Clark | Include short title in all footnotes | Clark, *Sleepwalkers*, 47. / Clark, *Kaiser Wilhelm II*, 88. |
-| Citing a source from a footnote in another book | Secondary citation; find the original | If unavoidable: Original Author, *Title*, page, cited in Clark, *Sleepwalkers*, 47. |
+| Scenario                                        | Footnote Format                       | Example                                                                             |
+| ----------------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------- |
+| First citation to a book                        | Full citation with page               | Clark, _Sleepwalkers_, (New York: Harper Perennial, 2013), 47.                      |
+| Second+ citation, same book                     | Short form                            | Clark, _Sleepwalkers_, 203.                                                         |
+| Immediately following same source               | Ibid. with page                       | Ibid., 204. (use sparingly; check with professor)                                   |
+| First citation to article                       | Full citation with page               | Stevenson, "Militarization," _International Security_ 22, no. 1 (1997): 125.        |
+| Second+ citation, same article                  | Short form                            | Stevenson, "Militarization," 130.                                                   |
+| Two different works by Clark                    | Include short title in all footnotes  | Clark, _Sleepwalkers_, 47. / Clark, _Kaiser Wilhelm II_, 88.                        |
+| Citing a source from a footnote in another book | Secondary citation; find the original | If unavoidable: Original Author, _Title_, page, cited in Clark, _Sleepwalkers_, 47. |
 
 ---
 
@@ -462,11 +469,11 @@ Chicago NB does not use in-text parenthetical citations. All citations appear as
 
 Set this up in Google Sheets or Excel before adding another source:
 
-| # | Author(s) Last, First | Year | Short Title | Type | Key Argument for Your Paper | Section of Your Paper | First Footnote # | Formatted Bibliography Entry | Status |
-|---|----------------------|------|-------------|------|-----------------------------|-----------------------|-----------------|------------------------------|--------|
-| 1 | Clark, Christopher | 2013 | Sleepwalkers | Book | Argues leaders "sleepwalked" into war; no single power intended global conflict | Intro + Sec. 2 (diplomatic failures) | 1 | Clark, Christopher. *The Sleepwalkers...* | ☑ Formatted |
-| 2 | Stevenson, David | 1997 | Militarization | Journal article | Military buildup created structural pressure toward war independent of political intent | Sec. 3 (militarism) | 5 | Stevenson, David. "Militarization..." | ☑ Formatted |
-| 3 | [Next source] | | | | | | | | ☐ Located |
+| #   | Author(s) Last, First | Year | Short Title    | Type            | Key Argument for Your Paper                                                             | Section of Your Paper                | First Footnote # | Formatted Bibliography Entry              | Status      |
+| --- | --------------------- | ---- | -------------- | --------------- | --------------------------------------------------------------------------------------- | ------------------------------------ | ---------------- | ----------------------------------------- | ----------- |
+| 1   | Clark, Christopher    | 2013 | Sleepwalkers   | Book            | Argues leaders "sleepwalked" into war; no single power intended global conflict         | Intro + Sec. 2 (diplomatic failures) | 1                | Clark, Christopher. _The Sleepwalkers..._ | ☑ Formatted |
+| 2   | Stevenson, David      | 1997 | Militarization | Journal article | Military buildup created structural pressure toward war independent of political intent | Sec. 3 (militarism)                  | 5                | Stevenson, David. "Militarization..."     | ☑ Formatted |
+| 3   | [Next source]         |      |                |                 |                                                                                         |                                      |                  |                                           | ☐ Located   |
 
 **Fill in the "Formatted Bibliography Entry" column with the complete, correctly formatted entry as you add each source** -- do not leave this until the end. Format it now while you have the source in front of you.
 
@@ -474,21 +481,22 @@ Set this up in Google Sheets or Excel before adding another source:
 
 ### Common Chicago NB Mistakes for History Papers
 
-| Mistake | Why It Matters | Correction |
-|---------|---------------|------------|
-| Using the same full footnote format every time you cite a source | Clutters the notes and looks like you do not know Chicago style | Full citation only on first mention; shortened form (Author, Short Title, Page) on all subsequent mentions |
-| Putting the author's name in inverted order (Last, First) in a footnote | Inverted order belongs in the bibliography only; footnotes use normal order (First Last) | Footnotes: Christopher Clark. Bibliography: Clark, Christopher. |
-| Using headline capitalization in article titles in footnotes and bibliography | Article titles (short works) go in quotation marks with headline caps in Chicago | "The Fischer Controversy, Documents, and the Truth" -- capitalize all major words in Chicago |
-| Omitting publisher city for books | Chicago still requires it (unlike APA 7); your professor will notice | Always include city and publisher: (New York: Harper Perennial, 2013) |
-| Forgetting to include the page range for a book chapter in the bibliography | The bibliography entry for a chapter must show where in the book it appears | Add the full chapter page range at the end: 29--52. |
-| Using ibid. for a source cited two footnotes ago | Ibid. is ONLY valid when the immediately preceding footnote cites the same source | Use the shortened form (Clark, *Sleepwalkers*, 203) whenever any other footnote intervenes |
-| Inconsistent treatment of subtitles | In Chicago, always include the subtitle, separated from the main title by a colon | *The Sleepwalkers: How Europe Went to War in 1914*, not *The Sleepwalkers* |
+| Mistake                                                                       | Why It Matters                                                                           | Correction                                                                                                 |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Using the same full footnote format every time you cite a source              | Clutters the notes and looks like you do not know Chicago style                          | Full citation only on first mention; shortened form (Author, Short Title, Page) on all subsequent mentions |
+| Putting the author's name in inverted order (Last, First) in a footnote       | Inverted order belongs in the bibliography only; footnotes use normal order (First Last) | Footnotes: Christopher Clark. Bibliography: Clark, Christopher.                                            |
+| Using headline capitalization in article titles in footnotes and bibliography | Article titles (short works) go in quotation marks with headline caps in Chicago         | "The Fischer Controversy, Documents, and the Truth" -- capitalize all major words in Chicago               |
+| Omitting publisher city for books                                             | Chicago still requires it (unlike APA 7); your professor will notice                     | Always include city and publisher: (New York: Harper Perennial, 2013)                                      |
+| Forgetting to include the page range for a book chapter in the bibliography   | The bibliography entry for a chapter must show where in the book it appears              | Add the full chapter page range at the end: 29--52.                                                        |
+| Using ibid. for a source cited two footnotes ago                              | Ibid. is ONLY valid when the immediately preceding footnote cites the same source        | Use the shortened form (Clark, _Sleepwalkers_, 203) whenever any other footnote intervenes                 |
+| Inconsistent treatment of subtitles                                           | In Chicago, always include the subtitle, separated from the main title by a colon        | _The Sleepwalkers: How Europe Went to War in 1914_, not _The Sleepwalkers_                                 |
 
 ---
 
 ### Pre-Submission Audit Checklist
 
 **Footnotes:**
+
 - [ ] Every factual claim that is not common knowledge has a footnote
 - [ ] Every direct quote (even a single distinctive phrase) has a footnote with a specific page number
 - [ ] First citation to each source uses full footnote format
@@ -497,6 +505,7 @@ Set this up in Google Sheets or Excel before adding another source:
 - [ ] Author names in footnotes are in normal order (First Last), not inverted
 
 **Bibliography:**
+
 - [ ] All sources cited in footnotes appear in the bibliography
 - [ ] Bibliography is sorted alphabetically by first author's last name
 - [ ] All bibliography entries use inverted author name (Last, First)

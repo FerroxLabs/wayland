@@ -49,10 +49,7 @@ describe('twilioVerifier', () => {
   });
 
   it('rejects a request with no signature header', () => {
-    const result = twilioVerifier(
-      { headers: {}, rawBody: buildBody(params), query: {}, url },
-      AUTH_TOKEN
-    );
+    const result = twilioVerifier({ headers: {}, rawBody: buildBody(params), query: {}, url }, AUTH_TOKEN);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.status).toBe(401);
   });

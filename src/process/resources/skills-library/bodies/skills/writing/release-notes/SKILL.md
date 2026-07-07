@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "technical-writing documentation writing"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'technical-writing documentation writing'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Release Notes Writing
 
 ## When to Use
@@ -121,6 +122,7 @@ The summary is written last because it depends on knowing the full scope of the 
 The order of sections communicates urgency. Readers making upgrade decisions read top to bottom and stop when they have enough information.
 
 Canonical section order:
+
 1. Version, date, upgrade command (orienting metadata)
 2. Summary (triage signal)
 3. Breaking Changes (highest urgency -- must act before upgrading)
@@ -154,7 +156,7 @@ Before delivering the output, verify:
 
 ## Output Format
 
-```markdown
+````markdown
 # [Product Name] v[X.Y.Z] Release Notes
 
 **Release date:** YYYY-MM-DD
@@ -163,6 +165,7 @@ Before delivering the output, verify:
 ```[package-manager]
 [upgrade command]
 ```
+````
 
 ---
 
@@ -179,11 +182,13 @@ Before delivering the output, verify:
 **Affected users:** [Who is affected -- e.g., "All users calling `Client.connect()`" or "Users using the `--output` CLI flag"]
 
 **Before:**
+
 ```[language]
 [exact previous API, config, or code pattern]
 ```
 
 **After:**
+
 ```[language]
 [exact new API, config, or code pattern]
 ```
@@ -202,8 +207,8 @@ Before delivering the output, verify:
 
 ## 🔒 Security
 
-| Severity | CVE | Description | Affected Versions |
-|----------|-----|-------------|-------------------|
+| Severity                   | CVE                           | Description                                               | Affected Versions  |
+| -------------------------- | ----------------------------- | --------------------------------------------------------- | ------------------ |
 | [Critical/High/Medium/Low] | [CVE-YYYY-NNNNN or "pending"] | [Plain-language description of the vulnerability and fix] | [vX.Y.Z -- vA.B.C] |
 
 [If High or Critical: "All users on affected versions should upgrade immediately."]
@@ -229,12 +234,12 @@ Before delivering the output, verify:
 
 ## Improvements
 
-| Area | Change | Impact |
-|------|--------|--------|
+| Area        | Change         | Impact                                       |
+| ----------- | -------------- | -------------------------------------------- |
 | [Component] | [What changed] | [Quantified or described user-facing impact] |
 | [Component] | [What changed] | [Quantified or described user-facing impact] |
 
-*Alternatively, use a bullet list for three or fewer improvements:*
+_Alternatively, use a bullet list for three or fewer improvements:_
 
 - **[Component -- improvement description]:** [Quantified impact or behavioral description.] ([#issue])
 
@@ -249,9 +254,9 @@ Before delivering the output, verify:
 
 ## Deprecations
 
-| Deprecated | Removed In | Replacement | Notes |
-|-----------|------------|-------------|-------|
-| `[symbol or feature name]` | v[X.0.0] | `[replacement symbol]` | [One-line migration note] |
+| Deprecated                 | Removed In | Replacement            | Notes                     |
+| -------------------------- | ---------- | ---------------------- | ------------------------- |
+| `[symbol or feature name]` | v[X.0.0]   | `[replacement symbol]` | [One-line migration note] |
 
 ---
 
@@ -259,7 +264,7 @@ Before delivering the output, verify:
 
 - **[Component]:** [Description of the issue and triggering conditions.] **Workaround:** [How to avoid or work around the issue until it is fixed.] Tracked in [#issue].
 
-*If no known issues:* No known issues in this release.
+_If no known issues:_ No known issues in this release.
 
 ---
 
@@ -287,7 +292,8 @@ Before delivering the output, verify:
 ## Acknowledgments
 
 [Optional. Credit external contributors and security reporters.]
-```
+
+````
 
 ---
 
@@ -372,7 +378,7 @@ When a security vulnerability is being disclosed under a coordinated timeline, t
 
 ```bash
 pip install pipelinekit==4.1.0
-```
+````
 
 ---
 
@@ -389,6 +395,7 @@ v4.1.0 introduces a streaming transform API that eliminates memory-bound limits 
 **Affected users:** All users calling `BatchProcessor.run()` without a `timeout` argument.
 
 **Before:**
+
 ```python
 # timeout was optional; default was 30 seconds
 processor = BatchProcessor(source=my_source, steps=my_steps)
@@ -396,6 +403,7 @@ processor.run()
 ```
 
 **After:**
+
 ```python
 # timeout is now required
 processor = BatchProcessor(source=my_source, steps=my_steps)
@@ -417,9 +425,9 @@ processor.run(timeout=30)
 
 ## 🔒 Security
 
-| Severity | CVE | Description | Affected Versions |
-|----------|-----|-------------|-------------------|
-| High | CVE-2024-38291 | SSRF vulnerability in `HTTPSource` when following HTTP redirects. An attacker controlling a data source URL could redirect requests to internal network endpoints. Fixed by disabling cross-scheme redirect following by default. | v3.0.0 -- v4.0.3 |
+| Severity | CVE            | Description                                                                                                                                                                                                                       | Affected Versions |
+| -------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| High     | CVE-2024-38291 | SSRF vulnerability in `HTTPSource` when following HTTP redirects. An attacker controlling a data source URL could redirect requests to internal network endpoints. Fixed by disabling cross-scheme redirect following by default. | v3.0.0 -- v4.0.3  |
 
 **All users on v3.x or v4.0.x should upgrade to v4.1.0 immediately.**
 
@@ -463,8 +471,8 @@ pipeline.run(timeout=300)
 
 ## Improvements
 
-| Area | Change | Impact |
-|------|--------|--------|
+| Area              | Change                                                                                | Impact                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | Memory management | Optimized buffer pooling in `BatchProcessor` for datasets exceeding 1 million records | Memory usage reduced by 60% (measured at 1M and 10M record benchmarks on a 16GB host; previously 8.4GB peak now 3.3GB peak) |
 
 ---
@@ -478,9 +486,9 @@ pipeline.run(timeout=300)
 
 ## Deprecations
 
-| Deprecated | Removed In | Replacement | Notes |
-|-----------|------------|-------------|-------|
-| `LegacyConnector` | v5.0.0 | `Connector` | `Connector` accepts the same `host`, `port`, and `credentials` arguments. Replace `LegacyConnector(...)` with `Connector(...)` with no other changes required. |
+| Deprecated        | Removed In | Replacement | Notes                                                                                                                                                          |
+| ----------------- | ---------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LegacyConnector` | v5.0.0     | `Connector` | `Connector` accepts the same `host`, `port`, and `credentials` arguments. Replace `LegacyConnector(...)` with `Connector(...)` with no other changes required. |
 
 ---
 

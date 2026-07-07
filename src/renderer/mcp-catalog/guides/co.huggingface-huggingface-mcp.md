@@ -13,9 +13,9 @@ steps:
   - id: api-key
     title: Paste your Hugging Face access token
     estSeconds: 120
-    externalAction: { label: "Open Access Tokens", url: "https://huggingface.co/settings/tokens" }
+    externalAction: { label: 'Open Access Tokens', url: 'https://huggingface.co/settings/tokens' }
     inputs:
-      - { name: HF_TOKEN, label: "Hugging Face access token", secret: true }
+      - { name: HF_TOKEN, label: 'Hugging Face access token', secret: true }
     warning: |
       For production use HF recommends **fine-grained** tokens, not `read` or
       `write` - scope each token to only the resources that one app needs so

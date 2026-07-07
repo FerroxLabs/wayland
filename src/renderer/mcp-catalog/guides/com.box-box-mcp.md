@@ -14,7 +14,7 @@ steps:
   - id: authorize
     title: Sign in with Box
     estSeconds: 60
-    primaryAction: { label: "Sign in with Box", action: "oauth-flow" }
+    primaryAction: { label: 'Sign in with Box', action: 'oauth-flow' }
     warning: |
       If your account is on a **Business / Enterprise** plan, your Box admin
       may need to enable the Box MCP server from **Admin Console →

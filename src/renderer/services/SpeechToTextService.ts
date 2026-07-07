@@ -38,8 +38,7 @@ const createAudioFileName = (mimeType: string) => {
 };
 
 const ensureAudioSize = (blob: Blob, provider?: string) => {
-  const limitBytes =
-    provider === 'flux-voice' ? FLUX_VOICE_MAX_AUDIO_FILE_SIZE_BYTES : MAX_AUDIO_FILE_SIZE_BYTES;
+  const limitBytes = provider === 'flux-voice' ? FLUX_VOICE_MAX_AUDIO_FILE_SIZE_BYTES : MAX_AUDIO_FILE_SIZE_BYTES;
   if (blob.size > limitBytes) {
     throw new Error('STT_FILE_TOO_LARGE');
   }

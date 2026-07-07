@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking step-by-step guide"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking step-by-step guide'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Cooking Techniques
 
 ## When to Use
@@ -26,6 +27,7 @@ metadata:
 Use this skill when the user's need centers on HOW to cook -- the mechanics, temperatures, timing, and science of a cooking method -- rather than WHAT to cook.
 
 **Trigger scenarios:**
+
 - User asks why a specific technique is not producing the expected result (soggy vegetables, gray band on steak, rubbery chicken, tough braise)
 - User asks which cooking method is best suited to a specific ingredient or cut (e.g., "should I roast or saute asparagus?", "is braising right for chicken thighs?")
 - User asks about cooking temperatures, timing windows, or doneness indicators for proteins or vegetables
@@ -35,6 +37,7 @@ Use this skill when the user's need centers on HOW to cook -- the mechanics, tem
 - User wants to combine multiple techniques (sear then roast, blanch then saute) and needs to know how the stages work together
 
 **Do NOT use this skill when:**
+
 - User needs a specific recipe with measured ingredients -- use `one-pot-meals` or `meal-prep-workflow` instead
 - User is asking about baking, pastry, or bread (oven-based baking with leaveners is a separate domain with different chemistry) -- use `baking-fundamentals`
 - User needs to learn knife skills, cutting technique, or how to break down a whole bird or fillet a fish -- use `knife-skills`
@@ -61,6 +64,7 @@ Before recommending any technique, gather the full picture. Do not skip this ste
 Match ingredient + desired result + time + equipment to the appropriate method. This is the core technical judgment. Use this framework:
 
 **Heat transfer method determines the technique:**
+
 - **Dry heat, direct contact (conduction):** Saute, pan-sear, stir-fry -- fast, high-heat, browning-focused
 - **Dry heat, radiant/convection oven:** Roast, broil -- hands-off, even heat, large volumes
 - **Dry heat, direct flame or radiant grill heat:** Grill -- char marks, smoke, surface caramelization
@@ -68,6 +72,7 @@ Match ingredient + desired result + time + equipment to the appropriate method. 
 - **Moist heat, vapor only:** Steam -- preserves color and nutrients, no browning, very gentle
 
 **Ingredient-to-technique matching rules:**
+
 - Tough cuts with high connective tissue (chuck, short ribs, pork shoulder, lamb shank, chicken thighs): braise or slow roast
 - Tender cuts with low connective tissue (tenderloin, chicken breast, fish fillets, shrimp): pan-sear, saute, poach, steam, or quick grill
 - Dense root vegetables (carrots, parsnips, beets, potatoes): roast at high heat or braise alongside proteins
@@ -89,6 +94,7 @@ Before the steps, give the user a brief but concrete explanation of WHY the tech
 Provide the technique's full execution sequence with concrete numbers and sensory cues at each stage. Never use vague descriptors alone -- "medium heat" must be accompanied by what the oil should look like or sound like at that setting.
 
 **For every technique, cover these five elements in the steps:**
+
 1. Pan/oven/grill preparation (including preheat time and temperature target)
 2. Food preparation specific to the technique (patting dry, bringing to room temperature, scoring skin, trussing, etc.)
 3. Fat selection with smoke point reference when high heat is involved
@@ -96,6 +102,7 @@ Provide the technique's full execution sequence with concrete numbers and sensor
 5. Doneness indicators -- at minimum two of these three: visual cue, auditory cue, internal temperature with a thermometer
 
 **Critical temperature references to include where relevant:**
+
 - Induction and gas stoves can preheat a cast iron or stainless pan to 400F+ surface temperature in 2-3 minutes; electric coil or smooth-top needs 3-5 minutes
 - Oven calibration varies by 25-50F from the set temperature in most home ovens -- suggest an oven thermometer for precision work
 - Convection ovens run 25F hotter effectively than conventional ovens at the same set temperature (the fan strips away the insulating moisture layer around food) -- reduce temperature by 25F or reduce time by 20-25% when using convection
@@ -276,6 +283,7 @@ All seven techniques work for vegetables, tofu, and plant proteins, but with spe
 ### High-Altitude Cooking (Above 3,500 Feet)
 
 Moist-heat techniques are most affected by elevation because water boils at lower temperatures:
+
 - At 5,000 feet: water boils at approximately 202F/94C (vs. 212F/100C at sea level)
 - At 7,500 feet: approximately 198F/92C
 - At 10,000 feet: approximately 194F/90C
@@ -347,34 +355,40 @@ Your three problems -- sticking, dryness, and flabby skin -- each have a distinc
 ### Step-by-Step Execution: Crispy Skin Salmon
 
 **Step 1: Preheat the pan empty, then add oil.**
+
 - Place the stainless steel or cast iron pan on medium-high heat for 2 minutes (gas) or 3-4 minutes (electric)
 - Test readiness: hover your palm 3-4 inches above the pan -- you should feel intense, uncomfortable heat radiating up within 1-2 seconds
 - Add 1 tablespoon of high-smoke-point oil and swirl to coat. The oil should shimmer and move freely like water within 15-20 seconds of hitting the pan
 - If the oil smokes immediately upon hitting the pan, reduce heat by 10-15% and wait 30 seconds before proceeding
 
 **Step 2: Place the salmon SKIN SIDE DOWN.**
+
 - Lower the fillet away from you (so any oil splatter goes away from your body) and place it skin-side down in the center of the pan
 - You should hear an immediate, aggressive sizzle -- like a sustained crackle, not a quiet bubble. If the sizzle is weak, the pan is too cool.
 - Immediately press the fillet firmly and evenly with a fish spatula for 30-45 full seconds. This counteracts the skin's tendency to curl and ensures full skin-to-pan contact across the entire surface.
 
 **Step 3: Maintain pressure, do not move the fillet.**
+
 - After the initial 30-45 second press, hold the spatula lightly against the fillet for another 30 seconds, then release
 - Do NOT slide the spatula under the fillet yet -- if you try to move it and it resists, the crust is not formed. Leave it alone.
 - Cook skin-side down for 3-4 minutes total for a 1-inch thick fillet, 4-5 minutes for a 1.25-inch fillet
 - Watch the flesh: you will see it change color from translucent red-orange at the bottom to opaque pink, slowly traveling upward. When the opaque color has traveled 2/3 of the way up the side of the fillet, the skin side is nearly done.
 
 **Step 4: Test for release, then flip.**
+
 - Slide a thin metal spatula or fish spatula under one edge of the fillet. If it resists or tears, wait another 30-45 seconds and test again. A properly seared fillet releases cleanly with minimal pressure.
 - Once released, flip the fillet gently. The skin should be deeply golden to amber-brown and rigid -- it will make a tapping sound when you touch it with a spatula.
 - Optionally: add 1 tablespoon of butter and 2 smashed garlic cloves and a thyme sprig to the pan now for basting. Tilt the pan and use a spoon to baste the fillet with the foaming butter every 15-20 seconds.
 
 **Step 5: Cook flesh side briefly and monitor internal temperature.**
+
 - Cook flesh-side down for 60-90 seconds for medium (slightly translucent in the very center) or 2 minutes for fully opaque center
 - Insert an instant-read thermometer into the thickest part horizontally through the side of the fillet, not from the top
 - Pull the fillet at 120-125F/49-52C for medium (slightly translucent center -- the Japanese-influenced style favored by most restaurant preparations); 130F/54C for medium-well (just barely opaque in the center); 145F/63C for USDA safe minimum (fully opaque, firmer texture)
 - Carryover cooking adds 3-5F to salmon after removal
 
 **Step 6: Rest and serve skin-side up.**
+
 - Transfer to a plate or wire rack skin-side up for 2-3 minutes
 - Never cover with foil -- steam from the hot fillet will soften the skin you just worked to crisp
 - Add finishing salt, lemon juice, or sauce at the table, not on the fish in the kitchen
@@ -383,27 +397,27 @@ Your three problems -- sticking, dryness, and flabby skin -- each have a distinc
 
 ### Doneness Reference Table: Pan-Seared Salmon (1-inch thick fillet)
 
-| Doneness Level | Skin-Side Time | Flesh-Side Time | Pull Temp (F/C) | Target Temp After Rest | Visual Cue |
-|---------------|---------------|----------------|-----------------|----------------------|-----------|
-| Medium-rare | 3-4 min | 45-60 sec | 115F / 46C | 118-120F / 48-49C | Translucent, dark orange in center |
-| Medium (recommended) | 3-4 min | 60-90 sec | 120-125F / 49-52C | 125-128F / 52-53C | Thin translucent layer in very center, opaque edge-to-center |
-| Medium-well | 3-4 min | 90-120 sec | 130F / 54C | 133-135F / 56-57C | Fully opaque, lighter pink uniformly |
-| USDA safe minimum | 3-4 min | 2-3 min | 140F / 60C | 145F / 63C | Fully opaque, beginning to flake easily |
+| Doneness Level       | Skin-Side Time | Flesh-Side Time | Pull Temp (F/C)   | Target Temp After Rest | Visual Cue                                                   |
+| -------------------- | -------------- | --------------- | ----------------- | ---------------------- | ------------------------------------------------------------ |
+| Medium-rare          | 3-4 min        | 45-60 sec       | 115F / 46C        | 118-120F / 48-49C      | Translucent, dark orange in center                           |
+| Medium (recommended) | 3-4 min        | 60-90 sec       | 120-125F / 49-52C | 125-128F / 52-53C      | Thin translucent layer in very center, opaque edge-to-center |
+| Medium-well          | 3-4 min        | 90-120 sec      | 130F / 54C        | 133-135F / 56-57C      | Fully opaque, lighter pink uniformly                         |
+| USDA safe minimum    | 3-4 min        | 2-3 min         | 140F / 60C        | 145F / 63C             | Fully opaque, beginning to flake easily                      |
 
-*Thicker fillets (1.25-1.5 inches): add 60-90 seconds to flesh-side time. Thinner fillets (under 3/4 inch): reduce skin-side to 2-2.5 minutes.*
+_Thicker fillets (1.25-1.5 inches): add 60-90 seconds to flesh-side time. Thinner fillets (under 3/4 inch): reduce skin-side to 2-2.5 minutes._
 
 ---
 
 ### Common Mistakes -- Diagnostic Guide
 
-| Symptom | Root Cause | Fix |
-|---------|-----------|-----|
-| Fillet sticks and tears when flipped | Pan not hot enough before adding fish; or flipped too early before crust formed | Preheat pan longer; test release with light spatula pressure before flipping -- if it resists, wait 30-45 more seconds |
-| Skin is soft, pale, steamed-looking | Skin was wet; fillet was not pressed into pan; pan temperature too low | Pat skin completely dry; score the skin to prevent curling; press with spatula for first 45 seconds |
-| Exterior dry and overcooked, interior raw | Cold fillet straight from refrigerator; pan too hot | Rest fillet at room temp 15-20 min before cooking; medium-high (not maximum) heat |
-| Pan is smoking aggressively and oil is dark | Oil choice has too low a smoke point (EVOO), or pan overheated | Use refined avocado, peanut, or canola oil; reduce heat if oil smokes before food is added |
-| Fish smells fishy even when fresh | Surface bacterial bloom from moisture; surface not dried; old fish | Buy the freshest fish available; pat completely dry; use day of purchase or next day maximum |
-| Flesh falls apart when flipping | Fish is overcooked and muscle fibers have separated; or fish was frozen-thawed improperly | Monitor internal temp; flip only once when crust has fully formed; use a wide fish spatula to support the full fillet |
+| Symptom                                     | Root Cause                                                                                | Fix                                                                                                                    |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Fillet sticks and tears when flipped        | Pan not hot enough before adding fish; or flipped too early before crust formed           | Preheat pan longer; test release with light spatula pressure before flipping -- if it resists, wait 30-45 more seconds |
+| Skin is soft, pale, steamed-looking         | Skin was wet; fillet was not pressed into pan; pan temperature too low                    | Pat skin completely dry; score the skin to prevent curling; press with spatula for first 45 seconds                    |
+| Exterior dry and overcooked, interior raw   | Cold fillet straight from refrigerator; pan too hot                                       | Rest fillet at room temp 15-20 min before cooking; medium-high (not maximum) heat                                      |
+| Pan is smoking aggressively and oil is dark | Oil choice has too low a smoke point (EVOO), or pan overheated                            | Use refined avocado, peanut, or canola oil; reduce heat if oil smokes before food is added                             |
+| Fish smells fishy even when fresh           | Surface bacterial bloom from moisture; surface not dried; old fish                        | Buy the freshest fish available; pat completely dry; use day of purchase or next day maximum                           |
+| Flesh falls apart when flipping             | Fish is overcooked and muscle fibers have separated; or fish was frozen-thawed improperly | Monitor internal temp; flip only once when crust has fully formed; use a wide fish spatula to support the full fillet  |
 
 ---
 
@@ -417,12 +431,12 @@ Your three problems -- sticking, dryness, and flabby skin -- each have a distinc
 
 ### Quick-Reference: All 7 Core Techniques Compared
 
-| Technique | Heat Type | Temp Range | Time | Fat Needed | Best For | Browning? |
-|-----------|----------|-----------|------|-----------|---------|----------|
-| Saute | Dry conduction | 375-425F / 190-218C pan | 3-10 min | 1-2 tbsp | Quick-cut veg, thin proteins, aromatics | Yes, moderate |
-| Pan-sear | Dry conduction | 425-475F / 218-246C pan | 2-4 min/side | 1 tbsp | Steaks, salmon, scallops, chops, duck breast | Yes, heavy |
-| Roast | Dry convection/radiant | 375-500F / 190-260C oven | 20-90 min | 1-2 tbsp coating | Whole chickens, sheet pan veg, large roasts | Yes, slow |
-| Braise | Moist + dry combo | 300-325F / 149-163C oven; 180F liquid | 1.5-4 hrs | 2 tbsp for initial sear | Chuck, short ribs, pork shoulder, chicken thighs | Exterior sear only |
-| Steam | Moist vapor | 212F / 100C at food surface | 3-15 min | None | Broccoli, green beans, delicate fish, dumplings | No |
-| Poach | Moist submerged | 160-180F / 71-82C liquid | 8-30 min | None | Salmon, chicken breast, eggs, white fish | No |
-| Grill | Dry radiant + conduction | 450-550F / 232-288C at grate | 3-10 min/side | Oil on food surface | Steaks, chops, vegetables, fish with skin | Yes, char marks |
+| Technique | Heat Type                | Temp Range                            | Time          | Fat Needed              | Best For                                         | Browning?          |
+| --------- | ------------------------ | ------------------------------------- | ------------- | ----------------------- | ------------------------------------------------ | ------------------ |
+| Saute     | Dry conduction           | 375-425F / 190-218C pan               | 3-10 min      | 1-2 tbsp                | Quick-cut veg, thin proteins, aromatics          | Yes, moderate      |
+| Pan-sear  | Dry conduction           | 425-475F / 218-246C pan               | 2-4 min/side  | 1 tbsp                  | Steaks, salmon, scallops, chops, duck breast     | Yes, heavy         |
+| Roast     | Dry convection/radiant   | 375-500F / 190-260C oven              | 20-90 min     | 1-2 tbsp coating        | Whole chickens, sheet pan veg, large roasts      | Yes, slow          |
+| Braise    | Moist + dry combo        | 300-325F / 149-163C oven; 180F liquid | 1.5-4 hrs     | 2 tbsp for initial sear | Chuck, short ribs, pork shoulder, chicken thighs | Exterior sear only |
+| Steam     | Moist vapor              | 212F / 100C at food surface           | 3-15 min      | None                    | Broccoli, green beans, delicate fish, dumplings  | No                 |
+| Poach     | Moist submerged          | 160-180F / 71-82C liquid              | 8-30 min      | None                    | Salmon, chicken breast, eggs, white fish         | No                 |
+| Grill     | Dry radiant + conduction | 450-550F / 232-288C at grate          | 3-10 min/side | Oil on food surface     | Steaks, chops, vegetables, fish with skin        | Yes, char marks    |

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills journaling guide analysis planning restoration contracts"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'teaching study-skills journaling guide analysis planning restoration contracts'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Political Philosophy Guide
@@ -22,15 +22,16 @@ You are an expert in political philosophy who helps users understand the foundat
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about political philosophy guide techniques or best practices
 - User needs guidance on political philosophy guide concepts
 - User wants to implement or improve their approach to political philosophy guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of political philosophy guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -473,7 +474,6 @@ ACCESSIBLE INTRODUCTIONS:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -496,7 +496,6 @@ When exploring political philosophy, provide:
 8. **Exercises and prompts** -- Activities for developing political reasoning
 9. **Reading recommendations** -- Accessible entry points for further study
 
-
 ```template
 ## Political Philosophy Guide -- Structured Output
 
@@ -511,14 +510,12 @@ When exploring political philosophy, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

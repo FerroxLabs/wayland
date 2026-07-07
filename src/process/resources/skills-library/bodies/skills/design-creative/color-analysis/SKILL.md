@@ -7,25 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fashion design guide"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fashion design guide'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Personal Color Analysis
+
 > **NOTE:** Color analysis is a guide, not a rigid rulebook. These frameworks help you discover colors that naturally enhance your appearance, but personal preference and confidence matter most. Wear what makes you feel great.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about color analysis
 - User needs guidance on color analysis topics
 - User wants a structured approach to color analysis
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -41,10 +45,13 @@ metadata:
 8. **What is your ethnicity/skin tone range?** (Very fair / Fair / Light-medium / Medium / Medium-dark / Dark / Very dark)
 9. **Do you color your hair?** (Natural / Colored -- what color?)
 10. **What is the purpose of this analysis?** (Wardrobe planning / Makeup selection / Hair color change / General guidance)
+
 ---
+
 ## Phase 1: Understanding Undertones
 
 ### The Undertone System
+
 ```
 Every person's skin has an UNDERTONE beneath the surface color.
 Undertone does NOT change with tanning, aging, or seasons.
@@ -78,6 +85,7 @@ NEUTRAL UNDERTONE:
 ```
 
 ### Undertone Identification Tests
+
 ```
 TEST 1: THE VEIN TEST
 Look at the veins on the inside of your wrist in natural daylight:
@@ -112,10 +120,13 @@ Hold different colored fabrics near your face in natural light:
 Look for: Skin appears healthier, eyes brighter, features more defined
 vs: Skin looks washed out, shadows under eyes, features blurred
 ```
+
 ---
+
 ## Phase 2: Seasonal Color Analysis
 
 ### The Four Seasons System
+
 ```
 The seasonal system categorizes people into four groups based on:
 1. UNDERTONE (Warm or Cool)
@@ -131,6 +142,7 @@ Each season has sub-seasons for more precision (12-season system).
 ```
 
 ### SPRING (Warm + Light + Bright)
+
 ```
 CHARACTERISTICS:
 - Warm undertone with light or clear quality
@@ -163,6 +175,7 @@ Ivory: #FFFFF0 | Camel: #C19A6B | Golden Yellow: #FFD700
 ```
 
 ### SUMMER (Cool + Light + Muted)
+
 ```
 CHARACTERISTICS:
 - Cool undertone with light, soft, muted quality
@@ -195,6 +208,7 @@ Taupe: #483C32 | Soft Navy: #3B5998 | Dusty Pink: #DCAE96
 ```
 
 ### AUTUMN (Warm + Deep + Muted)
+
 ```
 CHARACTERISTICS:
 - Warm undertone with deep, rich, earthy quality
@@ -228,6 +242,7 @@ Chocolate: #7B3F00 | Eggplant: #614051 | Copper: #B87333
 ```
 
 ### WINTER (Cool + Deep + Bright)
+
 ```
 CHARACTERISTICS:
 - Cool undertone with deep, high-contrast, vivid quality
@@ -259,10 +274,13 @@ True Red: #FF0000 | Emerald: #50C878 | Royal Blue: #4169E1
 Hot Pink: #FF69B4 | Black: #000000 | White: #FFFFFF
 Burgundy: #800020 | Cobalt: #0047AB | Amethyst: #9966CC
 ```
+
 ---
+
 ## Phase 3: The 12-Season Refined System
 
 ### Sub-Seasons Overview
+
 ```
 Each main season has 3 sub-seasons:
 
@@ -292,10 +310,13 @@ After identifying your main season, ask:
 2. Am I more muted or more bright? (Soft/True or Clear/Bright)
 3. Am I firmly in this season or do I share traits with an adjacent season?
 ```
+
 ---
+
 ## Phase 4: Hair Color Considerations
 
 ### Hair Color by Season
+
 ```
 SPRING (Warm + Light):
 Best hair colors: Golden blonde, honey, strawberry blonde, light golden brown
@@ -323,10 +344,13 @@ GOING GRAY/SILVER:
 - Gray hair shifts most people slightly toward the Summer or Winter palette
 - Adjust makeup and clothing colors as hair transitions
 ```
+
 ---
+
 ## Phase 5: Makeup Color Matching
 
 ### Makeup by Season
+
 ```
 SPRING MAKEUP:
 Foundation: Warm, golden undertone
@@ -362,6 +386,7 @@ Mascara: Black
 ```
 
 ### Universal Flattering Colors (Work for Everyone)
+
 ```
 UNIVERSALLY FLATTERING LIPSTICK SHADES:
 - Berry (adjusts to look cool or warm on different skin tones)
@@ -376,10 +401,13 @@ UNIVERSALLY FLATTERING CLOTHING:
 - True medium gray (neutral)
 - Denim blue (universally wearable)
 ```
+
 ---
+
 ## Phase 6: Wardrobe Color Coordination by Season
 
 ### Building a Wardrobe Around Your Season
+
 ```
 WARDROBE COLOR PLANNING TEMPLATE:
 
@@ -408,6 +436,7 @@ Choose patterns that combine your best colors:
 ```
 
 ### Season-Specific Wardrobe Capsule Colors
+
 ```
 SPRING CAPSULE COLORS:
 Base: Camel, warm cream, light warm gray
@@ -429,10 +458,13 @@ Base: Black, charcoal, navy, true white
 Build: Emerald, royal blue, burgundy, cherry red
 Pop: Fuchsia, cobalt, icy pink
 ```
+
 ---
+
 ## Phase 7: Color Psychology
 
 ### What Colors Communicate
+
 ```
 RED: Power, energy, passion, urgency
 - Wear for: Job interviews (power tie), first dates, presentations
@@ -479,10 +511,13 @@ BROWN: Stability, warmth, reliability, earthiness
 - Effect: Approachable, grounded
 - Pairs naturally with most colors
 ```
+
 ---
+
 ## Output Format
 
 When providing a color analysis, present it as:
+
 ```
 PERSONAL COLOR ANALYSIS
 Undertone: [Warm / Cool / Neutral]

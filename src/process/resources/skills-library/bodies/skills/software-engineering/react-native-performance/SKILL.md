@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile javascript optimization"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile javascript optimization'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React Native Performance
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about diagnosing slow frame rates, janky animations, or dropped frames in a React Native app
 - User wants to optimize JavaScript thread or UI thread performance in production or staging builds
 - User is profiling a React Native app and needs to interpret Hermes profiler, Systrace, or Flipper flame graphs
@@ -30,6 +32,7 @@ metadata:
 - User is experiencing memory pressure, OOM crashes, or excessive garbage collection pauses on Android or iOS
 
 **Do NOT use this skill when:**
+
 - User needs general React performance optimization for web -- JavaScript bundle splitting and SSR are covered in a web-specific skill
 - User is building a new React Native app from scratch and asking about project setup, navigation library selection, or folder structure -- use the react-native-architecture skill instead
 - User is asking about Expo-managed workflow limitations that require ejecting -- use the expo-ejection skill
@@ -196,7 +199,7 @@ The New Architecture eliminates the asynchronous JSON bridge, the single largest
 
 For each performance investigation and optimization engagement, produce a structured report in the following format:
 
-```
+````
 ## React Native Performance Report
 
 ### Baseline Metrics
@@ -232,23 +235,27 @@ For each performance investigation and optimization engagement, produce a struct
 // Before:
 // After:
 // Rationale:
-```
+````
 
 ### Post-Optimization Metrics
-| Metric                  | Before | After  | Delta    | Target Met |
-|-------------------------|--------|--------|----------|------------|
-| Cold Start TTI          | 4.2s   | 2.1s   | -2.1s    | ✅         |
-| JS FPS (idle scroll)    | 48 fps | 59 fps | +11 fps  | ✅         |
+
+| Metric               | Before | After  | Delta   | Target Met |
+| -------------------- | ------ | ------ | ------- | ---------- |
+| Cold Start TTI       | 4.2s   | 2.1s   | -2.1s   | ✅         |
+| JS FPS (idle scroll) | 48 fps | 59 fps | +11 fps | ✅         |
 
 ### Architecture Recommendation
+
 [One of: Old Architecture (maintain), New Architecture migration (plan), New Architecture migration (urgent)]
 Rationale: [specific reason based on bottleneck profile and RN version]
 
 ### Next Review Checkpoint
+
 Metric to watch: [specific metric]
 Threshold for escalation: [specific value]
 Review date: [timeline]
-```
+
+````
 
 ---
 
@@ -357,9 +364,10 @@ const ProductListScreen = () => {
     />
   );
 };
-```
+````
 
 **After:**
+
 ```javascript
 // selectors/productSelectors.js
 import { createSelector } from 'reselect';
@@ -367,7 +375,7 @@ import { createSelector } from 'reselect';
 // Memoized selector -- returns same array reference if products haven't changed
 export const selectProductIds = createSelector(
   (state) => state.products.items,
-  (items) => items.map((item) => item.id)  // return IDs only -- primitives, not objects
+  (items) => items.map((item) => item.id) // return IDs only -- primitives, not objects
 );
 
 export const selectProductById = (state, id) => state.products.itemsById[id];
@@ -418,7 +426,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 200,           // ← explicit height for getItemLayout and memory management
+    height: 200, // ← explicit height for getItemLayout and memory management
     borderRadius: 6,
   },
   title: { fontSize: 16, fontWeight: '600', marginTop: 8 },
@@ -453,15 +461,10 @@ const ProductListScreen = () => {
   // Selector returns array of IDs (primitives) -- same reference if store hasn't changed
   const productIds = useSelector(selectProductIds);
 
-  const handleAddToCart = useCallback(
-    (id) => dispatch(addToCart(id)),
-    [dispatch]
-  );
+  const handleAddToCart = useCallback((id) => dispatch(addToCart(id)), [dispatch]);
 
   const renderItem = useCallback(
-    ({ item: productId }) => (
-      <ProductCard productId={productId} onAddToCart={handleAddToCart} />
-    ),
+    ({ item: productId }) => <ProductCard productId={productId} onAddToCart={handleAddToCart} />,
     [handleAddToCart]
   );
 
@@ -478,15 +481,15 @@ const ProductListScreen = () => {
 
   return (
     <FlatList
-      data={productIds}                    // array of IDs, not objects
+      data={productIds} // array of IDs, not objects
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      getItemLayout={getItemLayout}        // eliminates measurement overhead
-      initialNumToRender={5}              // visible items without scroll
-      maxToRenderPerBatch={5}             // render 5 items per JS batch
-      windowSize={7}                      // 3 screens above + 3 below
-      updateCellsBatchingPeriod={80}      // slightly longer batch period on mid-range
-      removeClippedSubviews={true}        // safe here -- no nested overflow:hidden
+      getItemLayout={getItemLayout} // eliminates measurement overhead
+      initialNumToRender={5} // visible items without scroll
+      maxToRenderPerBatch={5} // render 5 items per JS batch
+      windowSize={7} // 3 screens above + 3 below
+      updateCellsBatchingPeriod={80} // slightly longer batch period on mid-range
+      removeClippedSubviews={true} // safe here -- no nested overflow:hidden
     />
   );
 };
@@ -502,6 +505,7 @@ cd ios && pod install
 ```
 
 FastImage's Glide (Android) and SDWebImage (iOS) backends handle:
+
 - Disk and memory LRU caching with configurable size limits
 - Automatic image downsampling to the rendered display size (critical for 4K product images displayed at 200px height)
 - Priority queuing so visible items load before off-screen prefetch items
@@ -510,11 +514,11 @@ Set the cache control to `immutable` for CDN-hosted product images with versione
 
 ### Post-Optimization Metrics
 
-| Metric               | Before  | After   | Delta    | Target Met |
-|----------------------|---------|---------|----------|------------|
-| JS FPS (scroll)      | 40 fps  | 59 fps  | +19 fps  | ✅         |
-| renderItem cost      | 26ms    | 3ms     | -23ms    | ✅         |
-| Memory (100 items)   | 210MB   | 145MB   | -65MB    | ✅         |
+| Metric             | Before | After  | Delta   | Target Met |
+| ------------------ | ------ | ------ | ------- | ---------- |
+| JS FPS (scroll)    | 40 fps | 59 fps | +19 fps | ✅         |
+| renderItem cost    | 26ms   | 3ms    | -23ms   | ✅         |
+| Memory (100 items) | 210MB  | 145MB  | -65MB   | ✅         |
 
 ### Architecture Recommendation
 

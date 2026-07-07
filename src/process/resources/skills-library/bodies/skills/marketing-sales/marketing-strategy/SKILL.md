@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing strategy planning analysis"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing strategy planning analysis'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Marketing Strategy
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user needs a structured, multi-horizon marketing strategy document that integrates audience definition, channel architecture, budget allocation, and performance measurement into a single coherent plan.
 
 **Use this skill when:**
+
 - The user asks to create a marketing strategy, marketing plan, or annual/quarterly marketing roadmap
 - The user needs to align marketing investments with specific business goals (revenue targets, user growth, market share)
 - The user wants to define and prioritize target segments and develop differentiated positioning for each
@@ -37,6 +39,7 @@ Use this skill when the user needs a structured, multi-horizon marketing strateg
 - The user is entering a new market or launching into a new customer segment and needs a strategic framework (not just a launch checklist)
 
 **Do NOT use this skill when:**
+
 - The user needs a time-bound launch plan for a specific product release -- use `go-to-market-strategy` instead, which covers launch sequencing, launch day activities, and pre/post-launch coordination
 - The user needs a brief for a single campaign (one ad campaign, one email campaign, one event) -- use `campaign-planning` instead
 - The user only wants a brand positioning statement, brand voice definition, or brand identity framework -- use `brand-positioning` instead
@@ -53,6 +56,7 @@ Use this skill when the user needs a structured, multi-horizon marketing strateg
 Do not begin drafting the strategy until you have clear answers on each of the following. If the user's prompt is missing critical information, ask targeted questions before proceeding. Insufficient input produces a generic, unusable strategy.
 
 **Required inputs:**
+
 - **Company/product description:** What it does, how it makes money, how long it has been in market
 - **Business objectives the marketing must support:** Revenue target, user/customer count, market share percentage, fundraising milestone -- marketing goals must trace directly to these
 - **Current state:** Existing customers, current monthly traffic, current leads per month, what marketing (if any) is already happening and its results
@@ -63,6 +67,7 @@ Do not begin drafting the strategy until you have clear answers on each of the f
 - **Team and execution capacity:** Number of marketers, in-house vs. agency, availability of design and engineering support
 
 **Soft inputs to probe if available:**
+
 - Competitive landscape: 2-3 named direct competitors and how customers currently solve the problem
 - Existing brand perception or customer research
 - Seasonal patterns or event-driven spikes relevant to the business
@@ -77,18 +82,21 @@ If the user provides a brief prompt with partial information (e.g., "create a ma
 This is the analytical foundation of the entire strategy. Do not skip or compress this step. Every channel decision and message downstream flows from the targeting and positioning work here.
 
 **Segmentation -- divide the addressable market into distinct groups:**
+
 - Use at least two segmentation dimensions. Firmographic (B2B: company size, industry, revenue band, headcount, geography) and behavioral (job-to-be-done, current solution being replaced, buying trigger) together produce actionable segments. Demographic alone (B2C: age, gender, income) is necessary but insufficient -- layer in psychographic (values, identity, risk tolerance) and behavioral (purchase frequency, use case, platform behavior).
 - For B2B, always identify both the economic buyer (who signs the contract) and the end user (who uses the product daily) -- they are often different people with different needs and require different messaging.
 - Name each segment with a concrete label, not a letter or number. "Architecture Firm Operations Manager" is useful. "Segment A" is not.
 - Estimate segment size where possible. For B2B: use industry data sources like US Census NAICS codes, LinkedIn Audience insights, or industry association membership figures to estimate the number of addressable firms. For B2C: use platform audience size tools, survey data, or published market research.
 
 **Targeting -- select 1-3 priority segments:**
+
 - Score each segment on three criteria: (1) Size and growth trajectory -- is it large enough and growing?, (2) Fit -- does the product solve the segment's problem better than alternatives?, (3) Accessibility -- can you reach them cost-effectively through available channels?
 - Select one primary segment as the 80% focus. Trying to serve three segments equally with a limited budget produces diluted messaging and poor results.
 - For early-stage companies or limited budgets (under $10K/month), recommend targeting a single segment exclusively for the first 6 months, then expanding.
 - Document explicitly why segments are deferred -- this prevents stakeholder pressure from diluting the focus later.
 
 **Positioning -- define how the product should be perceived by each targeted segment:**
+
 - Use the Geoffrey Moore positioning template as a structural guide: "For [target customer] who [has this problem], [product name] is a [category] that [primary benefit]. Unlike [alternative], [product] [key differentiator]."
 - Positioning is not a tagline -- it is an internal strategic statement that drives all messaging decisions. Do not confuse the two.
 - Each targeted segment may require a different positioning emphasis even if the product is identical. A project management tool might position on "compliance and audit trail" for enterprise buyers and "save 4 hours per week" for individual users.
@@ -101,6 +109,7 @@ This is the analytical foundation of the entire strategy. Do not skip or compres
 Standard SMART (Specific, Measurable, Achievable, Relevant, Time-bound) objectives, with an added C for **Cascading** -- each marketing objective must trace explicitly to a business objective.
 
 **Structure exactly 3-5 objectives covering the full funnel:**
+
 - **Awareness objective:** Reach metric (unique monthly website visitors from target segments, social reach, share of voice vs. competitors). Example baseline source: Google Analytics, SEMrush organic traffic data.
 - **Acquisition/demand objective:** Lead volume metric (marketing-qualified leads per month, free trial signups, demo requests). This is the primary demand generation metric.
 - **Conversion objective:** New customers or users per month, conversion rate from MQL to customer, revenue attributed to marketing.
@@ -108,6 +117,7 @@ Standard SMART (Specific, Measurable, Achievable, Relevant, Time-bound) objectiv
 - **Efficiency objective (optional but valuable for maturing businesses):** Customer acquisition cost (CAC), marketing-sourced pipeline as % of total pipeline, return on ad spend (ROAS).
 
 **Set baselines before setting targets:**
+
 - If the company has no data, use industry benchmarks as proxies. B2B SaaS conversion rates: 2-5% of website visitors start a trial, 15-25% of trials convert to paid. B2C e-commerce: 1-3% conversion rate from session to purchase, 15-25% email open rate.
 - Target growth rates should be ambitious but internally consistent. If you set a 3x traffic goal, you need a 3x lead goal only if conversion rate stays flat -- if you are also improving conversion rate, the relationship changes. Reconcile the math.
 
@@ -119,14 +129,15 @@ Channel selection is where most marketing strategies fail -- teams either spread
 
 **Map channels to the buyer journey stages:**
 
-| Journey Stage | B2B Primary Channels | B2C Primary Channels |
-|---------------|---------------------|---------------------|
-| Awareness | SEO/content, LinkedIn ads, podcast sponsorships, industry events, PR | Paid social (Meta, TikTok), influencer, SEO/content, PR, OOH |
-| Consideration | Webinars, comparison content, case studies, email nurture, retargeting | Email, retargeting, review sites (G2, Trustpilot), YouTube |
-| Decision | Free trial, demo, sales outreach, bottom-funnel paid search (brand + competitor keywords) | Discount offers, cart abandonment email, paid search (branded), live chat |
-| Retention | Customer success emails, in-app campaigns, community, customer newsletter, expansion offers | Loyalty program, post-purchase email flows, SMS, personalized recommendations |
+| Journey Stage | B2B Primary Channels                                                                        | B2C Primary Channels                                                          |
+| ------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Awareness     | SEO/content, LinkedIn ads, podcast sponsorships, industry events, PR                        | Paid social (Meta, TikTok), influencer, SEO/content, PR, OOH                  |
+| Consideration | Webinars, comparison content, case studies, email nurture, retargeting                      | Email, retargeting, review sites (G2, Trustpilot), YouTube                    |
+| Decision      | Free trial, demo, sales outreach, bottom-funnel paid search (brand + competitor keywords)   | Discount offers, cart abandonment email, paid search (branded), live chat     |
+| Retention     | Customer success emails, in-app campaigns, community, customer newsletter, expansion offers | Loyalty program, post-purchase email flows, SMS, personalized recommendations |
 
 **Channel selection decision rules:**
+
 - For B2B with ACV under $5,000: Inbound-led (content + SEO + paid search) is the primary engine. Sales outreach is a secondary motion.
 - For B2B with ACV $5,000-$50,000: Inbound + outbound hybrid. SDR-assisted demos, ABM for named accounts, community for bottom-up adoption.
 - For B2B with ACV above $50,000: Enterprise motion. Relationship-driven channels dominate -- events, executive roundtables, field marketing, ABM, and strategic partnerships.
@@ -134,10 +145,12 @@ Channel selection is where most marketing strategies fail -- teams either spread
 - For B2C with AOV above $200: Add paid search (high-intent) and retargeting. Longer consideration phase justifies nurture investment.
 
 **Specify every channel at the tactic level, not the channel level:**
+
 - "LinkedIn advertising" is not specific enough. "LinkedIn single image ads targeting Operations Managers at architecture firms with 10-50 employees, promoting a free project management template, driving to a dedicated landing page" is a channel tactic.
 - Each tactic needs: the specific format or mechanism, the audience it reaches, what it asks the audience to do (the conversion action), and the expected volume output.
 
 **Limit the channel set based on budget:**
+
 - Under $3K/month: Maximum 2-3 channels. Spread across more channels produces insufficient scale in any single channel.
 - $3K-$10K/month: 3-5 channels. At this range, paid search + one organic channel + email is a typical foundation.
 - $10K-$30K/month: 5-7 channels. Full funnel coverage becomes achievable. Add a retention channel and an experimentation line.
@@ -151,30 +164,35 @@ Budget allocation is a strategic decision, not an accounting exercise. Every all
 
 **Standard allocation frameworks by business stage:**
 
-*Early stage (pre-product-market fit, under 12 months old):*
+_Early stage (pre-product-market fit, under 12 months old):_
+
 - 50-60% toward 1-2 channels for testing and learning, not broad awareness
 - 20-30% toward content and organic infrastructure (compounding long-term asset)
 - 15% experimentation buffer
 - Avoid heavy paid advertising investment before conversion rates are known -- you will overpay to find product-market fit
 
-*Growth stage (PMF confirmed, scaling):*
+_Growth stage (PMF confirmed, scaling):_
+
 - 40-50% toward the 1-2 proven acquisition channels with positive ROI
 - 20-25% toward brand and awareness-building channels
 - 10-15% toward retention and expansion marketing
 - 10-15% experimentation on new channels
 
-*Mature/established:*
+_Mature/established:_
+
 - 30-40% toward performance/paid channels (defending and expanding market share)
 - 25-30% toward brand and content (maintaining category authority)
 - 15-20% toward customer marketing, community, and advocacy
 - 10-15% toward new market/segment experiments
 
 **Fixed vs. variable cost breakdown:**
+
 - Fixed costs (subscriptions, tools, agency retainers, headcount if included): Must be paid regardless of performance. List these explicitly. Common tools: marketing automation platform ($500-$2,000/month for HubSpot, Klaviyo, or Marketo depending on tier), SEO tools ($100-$400/month for Ahrefs or SEMrush), ad management tools ($200-$600/month), analytics ($0 for GA4, $250-$500/month for Mixpanel or Amplitude at starter tiers).
 - Variable costs (ad spend, content production per piece, event sponsorship fees): Scale up or down based on performance. Separate these clearly so the user knows what is controllable.
 - Always include a 10-15% experimentation line. This is non-negotiable -- without it, teams never test new channels and the strategy becomes stale within 6 months.
 
 **Calculate required efficiency metrics to validate the budget makes sense:**
+
 - If budget is $8,000/month and the goal is 100 new customers/month, that is a target CAC of $80. Is that consistent with the ACV? For a $1,200/year SaaS product, CAC of $80 gives a CAC:LTV ratio of roughly 1:15 -- excellent. For a $120/year product, $80 CAC is likely unworkable. Flag this math explicitly.
 - Payback period check: At what monthly budget level does the company break even on customer acquisition? If CAC payback exceeds 18 months, the acquisition channels need to be more efficient or the pricing model needs to change -- flag this as a strategic risk.
 
@@ -186,30 +204,35 @@ Measurement architecture determines whether the strategy improves over time or d
 
 **Layer the measurement system into three tiers:**
 
-*Tier 1 -- Business metrics (reviewed monthly, owned by leadership):*
+_Tier 1 -- Business metrics (reviewed monthly, owned by leadership):_
+
 - Revenue attributed to marketing (marketing-sourced pipeline, closed-won from marketing leads)
 - Customer acquisition cost (blended and by channel)
 - Marketing-influenced retention rate or NRR impact
 
-*Tier 2 -- Channel metrics (reviewed weekly, owned by channel managers):*
+_Tier 2 -- Channel metrics (reviewed weekly, owned by channel managers):_
+
 - Paid: ROAS, CPC, CTR, Quality Score, cost per MQL by campaign
 - Organic/SEO: Organic sessions, keyword ranking position for 10-20 target terms, domain authority trend
 - Email: Open rate (benchmark: 20-25% B2B, 15-20% B2C), click rate (benchmark: 2-4%), unsubscribe rate (flag if above 0.5%)
 - Content: Page sessions, time on page, scroll depth, conversion rate to next stage
 - Social: Reach, engagement rate, link clicks, follower growth rate
 
-*Tier 3 -- Operational metrics (reviewed weekly, owned by execution team):*
+_Tier 3 -- Operational metrics (reviewed weekly, owned by execution team):_
+
 - Content production: Posts published vs. planned, backlog status
 - Ad campaigns: Spend pacing vs. budget, impression share, frequency (if above 4x, creative fatigue risk)
 - Email: List growth rate, list hygiene (bounce rate below 2%)
 
 **Define optimization triggers explicitly:**
+
 - If paid channel ROAS falls below [threshold] for 3 consecutive weeks, pause that ad set and reallocate to the top-performing variant
 - If organic traffic growth is flat for 2 consecutive months, audit for technical SEO issues (crawlability, Core Web Vitals, index coverage) before producing more content
 - If email CTR falls below 1.5% over a 30-day period, run an A/B test on subject lines and CTA copy before continuing the same sequence
 - If lead-to-customer conversion rate drops more than 20% below baseline, investigate whether lead quality has degraded (audience targeting shift) or whether the sales/product handoff has broken
 
 **Set the review cadence and make it specific:**
+
 - Weekly (30 min): Paid spend pacing, top-performing content, any anomalies in conversion rates
 - Monthly (2-3 hours): Full funnel metrics review, channel performance vs. targets, budget reallocation decisions, upcoming content calendar approval
 - Quarterly (half-day): Strategic review -- are the objectives still the right ones? Has the competitive landscape shifted? Should a channel be sunset or added? Recalibrate targets if necessary.
@@ -221,6 +244,7 @@ Measurement architecture determines whether the strategy improves over time or d
 A strategy without a risk register is incomplete. Marketing strategies routinely fail not because the tactics were wrong but because critical dependencies were not surfaced.
 
 **Common risks to assess and document:**
+
 - **Attribution risk:** If the measurement stack is not set up (UTM parameters, GA4 goals, CRM integration), the strategy cannot be optimized. Identify what tracking infrastructure must be built before launch -- this is often a blocker.
 - **Content production bottleneck:** If the strategy depends on 4 blog posts per month and 2 case studies per quarter but the team has no dedicated writer, the strategy will underperform. Be explicit about execution requirements.
 - **Paid channel dependency risk:** If more than 50% of the budget is in a single paid channel (e.g., Google Ads), a policy change, account suspension, or auction dynamics shift could collapse the pipeline. Flag this concentration risk.
@@ -234,6 +258,7 @@ A strategy without a risk register is incomplete. Marketing strategies routinely
 Compile all outputs from Steps 1-7 into the structured format below. Order matters: context first, then the analytical foundation (STP), then objectives, then the execution plan (channels, budget), then measurement.
 
 Before finalizing, check internal consistency:
+
 - Do the channel tactics logically serve the target segments identified in STP?
 - Does the total budget math reconcile across the budget table?
 - Does the lead volume from the channel mix support the conversion objective in the goals table?
@@ -430,27 +455,35 @@ Klaviyo for email metrics. Note any gaps -- tools that need to be set up before 
 ## Edge Cases
 
 ### Very Small Budget (Under $2,500/month)
+
 Paid advertising at this budget level is rarely viable as a primary channel for B2B -- the minimum effective spend for Google Search in a competitive B2B category is typically $1,500-$2,500/month, and that leaves nothing for content or tools. Recommended approach: select one organic acquisition channel (SEO/content or community) and invest the majority of the budget there. Supplement with email marketing (low cost, high ROI). Use referral/word-of-mouth mechanics to amplify whatever organic reach is built. Set clear expectations: at under $2,500/month with no existing audience, an organic-only strategy will take 9-12 months to generate consistent pipeline. Flag this tradeoff explicitly and consider whether the user's business stage is appropriate for a formal marketing strategy at all -- sometimes the correct answer is "do 10 unscalable things to find product-market fit before formalizing a strategy."
 
 ### B2B With Sales Cycle Longer Than 6 Months (Enterprise, Complex or Regulated Industries)
+
 Enterprise marketing is fundamentally different from SMB marketing. The buyer journey involves 6-10 stakeholders on average (per Gartner B2B research), multi-stage approvals, security reviews, legal, and procurement. Channel implications: (a) Content must address different roles -- technical evaluators need different material than economic buyers. (b) Events and in-person relationship-building have disproportionate impact on enterprise deals -- allocate 20-30% of budget here. (c) Account-Based Marketing (ABM) is more efficient than broad demand generation -- define a target account list (TAL) of 50-200 named accounts and run coordinated campaigns across email, LinkedIn, paid display, and direct mail toward those specific accounts. (d) Marketing KPIs shift from lead volume to pipeline influence -- track marketing-influenced pipeline as % of total pipeline (target: 40-60% in a mature ABM motion). Do not use lead volume as the primary success metric.
 
 ### Brand New Company With No Existing Traffic, Brand, or Customer Base
+
 The absence of existing data is itself a data point -- it means all numbers in the strategy are assumptions based on benchmarks. The first 90 days should be treated as a measurement-building phase, not a revenue-driving phase. Prioritize: (a) Tracking infrastructure (GA4, UTM standards, CRM setup) before spending a dollar on acquisition. (b) Early customer development -- 20-30 conversations with target segment members before writing a word of content. (c) A single focused channel experiment (not 5 channels simultaneously) to establish a data baseline. Avoid brand awareness campaigns entirely at this stage -- they are impossible to measure and do not produce the learning needed to optimize. Revise the strategy at 90 days once real conversion data is available.
 
 ### User Only Wants Organic / No Paid Budget
+
 This is a legitimate constraint, not a limitation to apologize for. Organic strategies compound over time and produce defensible moats that paid strategies cannot replicate. Structure the strategy around the three pillars of sustainable organic growth: (1) SEO and content -- long-form content targeting high-intent keywords, structured so each piece captures a specific buyer query at a specific journey stage; aim for 8-12 well-optimized pieces before expecting meaningful traffic. (2) Community -- identify the 2-3 online communities where the target segment is already active (industry Slack groups, LinkedIn communities, Reddit, forums, industry association networks) and build a genuine presence through participation before promoting the product. (3) Referral and word-of-mouth mechanics -- build referral loops into the product experience itself (in-app sharing prompts, milestone emails that encourage social sharing). Set explicit timeline expectations in the strategy document: meaningful traffic in month 4-6, consistent pipeline in month 9-12, compounding returns in year 2+.
 
 ### E-Commerce / Direct-to-Consumer Business
+
 DTC marketing strategy differs structurally from B2B in three key ways: purchase cycles are compressed (hours to days, not weeks to months), emotional and identity-based positioning drives conversion more than feature/benefit messaging, and the retention economics are often more important than acquisition economics (repeat purchase rate and lifetime value are the numbers that determine whether the business is viable). Channel implications: (a) Paid social (Meta ads in particular) is typically the primary acquisition channel for DTC -- allocate 35-50% of total budget here. (b) Email and SMS flows are the highest-ROI retention channels -- abandon cart flow, post-purchase sequence, and reactivation flow are non-negotiable. (c) Influencer and UGC (user-generated content) strategies are often more cost-efficient than brand-produced creative for DTC. (d) The primary efficiency metric is ROAS (return on ad spend) per channel, not CAC -- most DTC operators target 3-5x ROAS on paid channels at scale. Track new customer ROAS and returning customer ROAS separately.
 
 ### Multiple Products Targeting Different Segments Simultaneously
+
 When a company sells multiple products or the same product to fundamentally different segments (e.g., both SMB and enterprise, or B2B and B2C), a single unified strategy will produce positioning conflicts and channel inefficiency. Recommended structure: create one unified budget and objective table, but build separate STP analyses and separate channel tactics for each product/segment combination. Flag where budgets compete for shared resources (e.g., a single company blog that must serve two audiences) and provide a decision framework for prioritization. Generally recommend: optimize for the segment with the highest LTV first, use the same infrastructure (website, email platform) for both, but produce separate content and ad creative for each.
 
 ### International or Multi-Market Strategy
+
 If the geographic scope extends beyond a single country, channel availability, cost structures, and audience behaviors differ significantly. Google Search dominates in the US, UK, and Australia, but Naver dominates in South Korea and Baidu in China. LinkedIn ad CPMs vary by country -- US and Western Europe are 3-5x more expensive than Southeast Asia or Latin America. Localization requirements add significant content cost -- machine translation is inadequate for professional B2B content; budget for native-speaker review at minimum. Recommended approach: prioritize a primary market for the first 6 months (typically the home market or the market with the clearest product-market fit signal), prove the channel model and unit economics, then apply the learned playbook to secondary markets with localization adjustments. Do not attempt simultaneous multi-market launches on limited budgets.
 
 ### Replatforming From One Marketing Tool Stack to Another (Mid-Strategy)
+
 If the user's existing marketing infrastructure is being migrated (e.g., switching from HubSpot to Salesforce Marketing Cloud, or from Mailchimp to Klaviyo), the strategy must account for a 30-90 day disruption period during which historical data is not available, email lists may have reduced deliverability (domain warming required), and attribution will have gaps. Recommendations: (a) Begin any marketing tool migration at least 60 days before a planned campaign launch, never mid-campaign. (b) Export all historical data from the old platform before decommissioning -- segment lists, campaign performance data, UTM histories. (c) Run the old and new platform in parallel for at least 30 days to validate data parity before full cutover. (d) Adjust monthly performance targets downward by 20-30% during the migration window to account for disruption.
 
 ---
@@ -488,18 +521,20 @@ If the user's existing marketing infrastructure is being migrated (e.g., switchi
 
 **Segmentation Criteria Used:** Firmographic (firm size by headcount, project volume); Behavioral (current tool being replaced -- spreadsheets vs. generic PM tools; buying trigger -- firm growth, project complexity, client compliance requirement)
 
-| Segment Name | Description | Economic Buyer | End User | Est. Addressable Size | Priority | Rationale |
-|-------------|-------------|---------------|---------|----------------------|----------|-----------|
-| Growing small architecture firms (5-25 staff) | Managing 15-40 concurrent projects; currently using Excel, Basecamp, or Asana; feeling the pain of scaling without architecture-specific workflows | Principal or Managing Partner | Project Architects and Project Managers | ~22,000 firms in the US (AIA 2023 census data) | #1 | Largest addressable segment; highest acute pain around scaling; self-serve buying motion fits solo sales capacity; word-of-mouth referrals confirm this is already the core user |
-| Mid-size firms (25-100 staff) | Multi-office, complex project portfolios; beginning to need formal audit trails for AIA contract compliance and owner reporting | Operations Director or COO | Project Managers, BIM coordinators | ~7,500 firms in the US | #2 | Higher ACV per firm; longer evaluation cycle but higher retention; accessible via professional association channels (AIA chapters, SMPS) |
-| Solo practitioners and 1-4 person studios | Managing 3-8 projects simultaneously; price-sensitive; often uses free tools | Owner/Architect | Owner/Architect (same person) | ~45,000 registered architects in small practices | Deferred | Low ACV relative to support cost; high churn risk; dilutes product positioning; revisit in Year 2 with a lower-tier pricing plan |
+| Segment Name                                  | Description                                                                                                                                        | Economic Buyer                | End User                                | Est. Addressable Size                            | Priority | Rationale                                                                                                                                                                        |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | --------------------------------------- | ------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Growing small architecture firms (5-25 staff) | Managing 15-40 concurrent projects; currently using Excel, Basecamp, or Asana; feeling the pain of scaling without architecture-specific workflows | Principal or Managing Partner | Project Architects and Project Managers | ~22,000 firms in the US (AIA 2023 census data)   | #1       | Largest addressable segment; highest acute pain around scaling; self-serve buying motion fits solo sales capacity; word-of-mouth referrals confirm this is already the core user |
+| Mid-size firms (25-100 staff)                 | Multi-office, complex project portfolios; beginning to need formal audit trails for AIA contract compliance and owner reporting                    | Operations Director or COO    | Project Managers, BIM coordinators      | ~7,500 firms in the US                           | #2       | Higher ACV per firm; longer evaluation cycle but higher retention; accessible via professional association channels (AIA chapters, SMPS)                                         |
+| Solo practitioners and 1-4 person studios     | Managing 3-8 projects simultaneously; price-sensitive; often uses free tools                                                                       | Owner/Architect               | Owner/Architect (same person)           | ~45,000 registered architects in small practices | Deferred | Low ACV relative to support cost; high churn risk; dilutes product positioning; revisit in Year 2 with a lower-tier pricing plan                                                 |
 
 **Positioning Statements:**
 
-*Primary Segment -- Growing Small Architecture Firms:*
+_Primary Segment -- Growing Small Architecture Firms:_
+
 > "For architecture firm principals managing a growing project load who are frustrated that generic project management tools like Asana and Basecamp don't understand how architecture projects actually work -- phases, drawing sets, RFIs, submittals, and owner meetings -- StructurePM is the project management platform built for architects that lets your team manage every project phase without customizing templates yourself. Unlike Asana or Monday.com, StructurePM comes pre-configured for the AIA project delivery workflow so your team is productive on Day 1."
 
-*Secondary Segment -- Mid-Size Firms:*
+_Secondary Segment -- Mid-Size Firms:_
+
 > "For operations directors at architecture firms with 25-100 staff who need real-time project health visibility across multiple principals and project managers, StructurePM is the firm-wide project intelligence platform that gives leadership the dashboards and reporting they need without requiring principals to change how they manage their own projects. Unlike Deltek or BST Global, StructurePM deploys in days, not months, and requires no implementation consultant."
 
 ---
@@ -508,7 +543,7 @@ If the user's existing marketing infrastructure is being migrated (e.g., switchi
 
 **Linking Logic:** 1,500 net new users in 12 months at an average of 8 users per firm = ~188 net new firms. At 25% trial-to-paid conversion, we need 750 trials over 12 months = ~63 trials/month. At 3% website-to-trial conversion, we need ~2,100 targeted visitors/month by Month 12 (building from ~300 today).
 
-| # | Objective | Funnel Stage | Metric | Tracking Source | Current Baseline | 12-Month Target | Month 6 Milestone |
-|---|----------|-------------|--------|----------------|-----------------|-----------------|-------------------|
-| 1 | Build organic search visibility among architects evaluating PM tools | Awareness | Monthly organic sessions from architecture + PM keywords | GA4 + Ahrefs | ~300/month | 3,500/month | 1,200/month |
-| 2 | Generate qualified trial signups from target segments | Acquisition | Free trial signups per month | GA4 goals +
+| #   | Objective                                                            | Funnel Stage | Metric                                                   | Tracking Source | Current Baseline | 12-Month Target | Month 6 Milestone |
+| --- | -------------------------------------------------------------------- | ------------ | -------------------------------------------------------- | --------------- | ---------------- | --------------- | ----------------- |
+| 1   | Build organic search visibility among architects evaluating PM tools | Awareness    | Monthly organic sessions from architecture + PM keywords | GA4 + Ahrefs    | ~300/month       | 3,500/month     | 1,200/month       |
+| 2   | Generate qualified trial signups from target segments                | Acquisition  | Free trial signups per month                             | GA4 goals +     |

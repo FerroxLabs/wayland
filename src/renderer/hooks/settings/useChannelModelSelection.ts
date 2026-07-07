@@ -3,7 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Message } from '@arco-design/web-react';
 import { channel } from '@/common/adapter/ipcBridge';
 import { ConfigStorage } from '@/common/config/storage';
-import type { ChannelAgentConfigKey, ChannelModelConfigKey, IProvider, TProviderWithModel } from '@/common/config/storage';
+import type {
+  ChannelAgentConfigKey,
+  ChannelModelConfigKey,
+  IProvider,
+  TProviderWithModel,
+} from '@/common/config/storage';
 import { useModelProviderList } from '@renderer/hooks/agent/useModelProviderList';
 import { useGeminiModelSelection } from '@renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
 import type { GeminiModelSelection } from '@renderer/pages/conversation/platforms/gemini/useGeminiModelSelection';
@@ -66,7 +71,9 @@ export const useChannelModelSelection = (configKey: ChannelModelConfigKey): Gemi
         await channel.syncChannelSettings
           .invoke({
             platform,
-            agent: (currentAgent as { backend: string; customAgentId?: string; name?: string }) || { backend: 'gemini' },
+            agent: (currentAgent as { backend: string; customAgentId?: string; name?: string }) || {
+              backend: 'gemini',
+            },
             model: modelRef,
           })
           .catch((err) => console.warn(`[useChannelModelSelection] syncChannelSettings failed for ${platform}:`, err));

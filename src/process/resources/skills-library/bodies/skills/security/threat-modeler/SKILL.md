@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security threat-modeling guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'security threat-modeling guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Threat Modeler
@@ -97,7 +97,7 @@ data_flows:
     source: Web Browser
     destination: Auth Service
     protocol: HTTPS (TLS 1.3)
-    data: "username, password"
+    data: 'username, password'
     classification: confidential
     trust_boundary_crossed: Internet -> DMZ -> Internal
     authentication: None (pre-auth flow)
@@ -107,7 +107,7 @@ data_flows:
     source: Auth Service
     # ... (condensed) ...
     protocol: HTTPS
-    data: "payment token, amount, currency"
+    data: 'payment token, amount, currency'
     classification: restricted (PCI)
     trust_boundary_crossed: Internal -> External
     authentication: API key (server-side)
@@ -121,7 +121,7 @@ STRIDE is a threat classification framework developed by Microsoft. Each letter 
 
 ```yaml
 S - Spoofing:
-  definition: "Pretending to be someone or something else"
+  definition: 'Pretending to be someone or something else'
   targets: Authentication mechanisms
   examples:
     - Forging authentication tokens
@@ -251,21 +251,21 @@ DREAD scores each threat on five dimensions (1-10 scale):
 ```yaml
 dread_scoring:
   D - Damage:
-    question: "How much damage could this cause?"
+    question: 'How much damage could this cause?'
     scale:
-      1-3: "Minor inconvenience"
-      4-6: "Significant data loss or service disruption"
-      7-9: "Major breach, regulatory impact"
-      10: "Complete system compromise"
+      1-3: 'Minor inconvenience'
+      4-6: 'Significant data loss or service disruption'
+      7-9: 'Major breach, regulatory impact'
+      10: 'Complete system compromise'
 
   R - Reproducibility:
-    question: "How easy is it to reproduce the attack?"
+    question: 'How easy is it to reproduce the attack?'
     scale:
-      1-3: "Requires specific conditions, timing, or insider access"
-      4-6: "Reproducible with some effort"
+      1-3: 'Requires specific conditions, timing, or insider access'
+      4-6: 'Reproducible with some effort'
       # ... (condensed) ...
-      7-9: "Easily found with automated scanning"
-      10: "Publicly known or obvious"
+      7-9: 'Easily found with automated scanning'
+      10: 'Publicly known or obvious'
 
 # Overall risk = average of all five scores
 # Priority: > 8 Critical, 6-8 High, 4-6 Medium, < 4 Low
@@ -300,25 +300,25 @@ threats:
 
 ```yaml
 api_threat_model:
-  asset: "REST API /api/v2/*"
+  asset: 'REST API /api/v2/*'
 
   threats:
     authentication:
       - broken_authentication:
-          description: "Missing or weak authentication on endpoints"
-          check: "Test each endpoint without auth token"
-          mitigation: "OAuth 2.0 + PKCE for all endpoints"
+          description: 'Missing or weak authentication on endpoints'
+          check: 'Test each endpoint without auth token'
+          mitigation: 'OAuth 2.0 + PKCE for all endpoints'
 
       - jwt_manipulation:
-          description: "Tampered JWT accepted by server"
-          check: "Modify claims, change algorithm, use expired tokens"
-          mitigation: "Strict JWT validation (algorithm allowlist, signature, expiry, issuer)"
-# ... (condensed) ...
+          description: 'Tampered JWT accepted by server'
+          check: 'Modify claims, change algorithm, use expired tokens'
+          mitigation: 'Strict JWT validation (algorithm allowlist, signature, expiry, issuer)'
+      # ... (condensed) ...
 
       - lack_of_rate_limiting:
-          description: "No rate limits enable abuse"
-          check: "Send 1000 requests rapidly"
-          mitigation: "Per-user and per-IP rate limiting"
+          description: 'No rate limits enable abuse'
+          check: 'Send 1000 requests rapidly'
+          mitigation: 'Per-user and per-IP rate limiting'
 ```
 
 ## Microservices Threat Modeling
@@ -350,13 +350,13 @@ microservices_threats:
 
 ### Tools
 
-| Tool | Approach | Best For |
-|------|----------|----------|
-| Microsoft Threat Modeling Tool | DFD-based, STRIDE | Windows/.NET applications |
-| OWASP Threat Dragon | DFD-based, open source | General web applications |
-| IriusRisk | Questionnaire + library | Enterprise, compliance-driven |
-| Threagile | Code-as-model (YAML) | Infrastructure/architecture |
-| pytm | Python-based DFD | Developer-friendly, CI integration |
+| Tool                           | Approach                | Best For                           |
+| ------------------------------ | ----------------------- | ---------------------------------- |
+| Microsoft Threat Modeling Tool | DFD-based, STRIDE       | Windows/.NET applications          |
+| OWASP Threat Dragon            | DFD-based, open source  | General web applications           |
+| IriusRisk                      | Questionnaire + library | Enterprise, compliance-driven      |
+| Threagile                      | Code-as-model (YAML)    | Infrastructure/architecture        |
+| pytm                           | Python-based DFD        | Developer-friendly, CI integration |
 
 ### Threat Model as Code (pytm)
 
@@ -396,6 +396,7 @@ tm.process()
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing threat modeler solutions
 - Reviewing or improving existing threat modeler approaches
 - Making architectural or implementation decisions about threat modeler
@@ -403,6 +404,7 @@ tm.process()
 - Troubleshooting threat modeler-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -413,21 +415,26 @@ tm.process()
 # Threat Modeler Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career salary-negotiation guide"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career salary-negotiation guide'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Salary Negotiator
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about salary negotiator
 - User needs guidance on salary negotiator topics
 - User wants a structured approach to salary negotiator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -40,10 +43,13 @@ metadata:
 8. **How strong is your position?** (other offers, unique skills, market demand)
 9. **What benefits are included or important to you?**
 10. **What is your timeline?** (do you have a deadline to respond)
+
 ---
+
 ## Step 1: Market Rate Research
 
 ### Research Sources
+
 ```
 SALARY RESEARCH CHECKLIST:
 
@@ -77,6 +83,7 @@ For each source, note:
 ```
 
 ### Calculating Your Market Value
+
 ```
 MARKET VALUE WORKSHEET:
 
@@ -101,10 +108,13 @@ YOUR ESTIMATED MARKET VALUE: ${{ADJUSTED_RANGE_LOW}} - ${{ADJUSTED_RANGE_HIGH}}
 YOUR TARGET: ${{TARGET}} (aim for 75th percentile or above)
 YOUR MINIMUM: ${{MINIMUM}} (below this, you walk away)
 ```
+
 ---
+
 ## Step 2: Total Compensation Analysis
 
 ### Total Compensation Worksheet
+
 ```
 TOTAL COMPENSATION COMPARISON:
 
@@ -152,10 +162,13 @@ OTHER BENEFITS:
 
 TOTAL ANNUAL VALUE:     ${{}}      ${{}}      ${{}}      ${{}}
 ```
+
 ---
+
 ## Step 3: Negotiation Script Templates
 
 ### Initial Response to an Offer
+
 ```
 SCRIPT: RECEIVING THE OFFER
 
@@ -174,6 +187,7 @@ RULES:
 ```
 
 ### Counter-Offer Script
+
 ```
 SCRIPT: THE COUNTER-OFFER
 
@@ -205,6 +219,7 @@ FOLLOW-UP LINES:
 ```
 
 ### Annual Raise Request Script
+
 ```
 SCRIPT: ANNUAL REVIEW NEGOTIATION
 
@@ -224,10 +239,13 @@ Specifically, I am requesting a salary increase to ${{TARGET}} based on:
 I am committed to {{COMPANY}} and excited about {{UPCOMING_PROJECT/GOAL}}.
 I believe this adjustment reflects my contributions and market value."
 ```
+
 ---
+
 ## Step 4: Counter-Offer Strategies
 
 ### Strategy Matrix
+
 ```
 NEGOTIATION STRATEGY BY SITUATION:
 
@@ -260,6 +278,7 @@ Risk tolerance: LOW-MODERATE -- but still negotiate (never accept without trying
 ```
 
 ### What to Negotiate Beyond Base Salary
+
 ```
 NEGOTIABLE ITEMS (in rough order of impact):
 
@@ -277,10 +296,13 @@ NEGOTIABLE ITEMS (in rough order of impact):
 12. EQUIPMENT -- Home office stipend, laptop choice
 13. SEVERANCE -- Negotiate a severance clause in your offer letter
 ```
+
 ---
+
 ## Step 5: Benefits Negotiation Deep Dives
 
 ### PTO Negotiation
+
 ```
 PTO NEGOTIATION SCRIPT:
 
@@ -298,6 +320,7 @@ same way.
 ```
 
 ### Equity Negotiation
+
 ```
 EQUITY QUESTIONS TO ASK:
 
@@ -320,6 +343,7 @@ signing equity grant to bridge the gap?"
 ```
 
 ### Remote Work Negotiation
+
 ```
 REMOTE WORK NEGOTIATION SCRIPT:
 
@@ -337,10 +361,13 @@ IF THEY PUSH BACK:
 {{X}} days remote for the first 90 days, and if my performance meets
 expectations, we continue that arrangement?"
 ```
+
 ---
+
 ## Step 6: Negotiation Psychology
 
 ### Key Principles
+
 ```
 NEGOTIATION PSYCHOLOGY:
 
@@ -384,10 +411,13 @@ NEGOTIATION PSYCHOLOGY:
 10. RECIPROCITY
     When they concede something, acknowledge it: "I appreciate you
 ```
+
 ---
+
 ## Step 7: When to Walk Away
 
 ### Walk-Away Analysis
+
 ```
 WALK-AWAY DECISION FRAMEWORK:
 
@@ -419,10 +449,13 @@ IMPORTANT:
 - Be respectful and professional
 - You may encounter these people again
 ```
+
 ---
+
 ## Step 8: Annual Review Preparation
 
 ### 90-Day Pre-Review Preparation
+
 ```
 ANNUAL REVIEW PREPARATION TIMELINE:
 
@@ -463,6 +496,7 @@ Evidence: {{EMAIL/METRIC/REPORT}}
 ```
 
 ### Raise Request Justification Template
+
 ```
 RAISE JUSTIFICATION DOCUMENT:
 
@@ -498,8 +532,11 @@ JUSTIFICATION:
    I am committed to {{COMPANY}} and excited about {{FUTURE_PROJECT}}.
    I would like my compensation to reflect the value I bring.
 ```
+
 ---
+
 ## Negotiation Do's and Don'ts Quick Reference
+
 ```
 DO:
 + Research thoroughly before any negotiation
@@ -521,9 +558,10 @@ DON'T:
 - Focus on personal needs instead of market value
 - skip that the negotiation sets the tone for your working relationship
 ```
----
-*This skill provides negotiation frameworks and strategies. Every negotiation situation is unique. Consider working with a career coach or mentor for high-stakes negotiations.*
 
+---
+
+_This skill provides negotiation frameworks and strategies. Every negotiation situation is unique. Consider working with a career coach or mentor for high-stakes negotiations._
 
 ## Output Format
 

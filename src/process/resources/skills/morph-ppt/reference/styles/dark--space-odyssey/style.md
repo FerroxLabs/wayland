@@ -23,8 +23,8 @@ An epic cosmic design featuring a planetary sphere with orbital rings, stars, an
 
 ## Typography
 
-| Element         | Font                  |
-| --------------- | --------------------- |
+| Element         | Font                              |
+| --------------- | --------------------------------- |
 | Title (Chinese) | PingFang SC (PingFang Simplified) |
 | Body (Chinese)  | PingFang SC                       |
 

@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing branding strategy planning"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing branding strategy planning'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Brand Positioning
 
 ## When to Use
@@ -34,6 +35,7 @@ Use this skill when the user needs to define, clarify, or differentiate how thei
 - The user wants to validate that their current messaging accurately reflects a defensible market position before investing in a campaign
 
 **Do NOT use this skill when:**
+
 - The user needs a full go-to-market plan with channel strategy, budget, and timelines -- use `marketing-strategy` instead
 - The user needs a customer-facing value proposition canvas that maps jobs, pains, and gains to product features -- use `value-proposition` instead
 - The user needs to write or refine the company's mission, vision, or purpose statement -- use `mission-vision-writing` instead
@@ -50,6 +52,7 @@ Use this skill when the user needs to define, clarify, or differentiate how thei
 Never begin producing positioning output without collecting the minimum viable inputs. Incomplete inputs produce generic positioning that does not survive contact with the market.
 
 Required inputs -- ask for any that are missing:
+
 - **Brand or product name** and whether it is a new brand, an existing brand, or a sub-brand within a larger portfolio
 - **Product category** -- how existing customers or prospects would file this offering in their mental model (e.g., "project management software," "premium dog food," "B2B accounting services")
 - **Target customer** -- a specific, segmented description, not "everyone who needs X." Push for job title, company size, revenue band, life stage, or behavioral characteristic that distinguishes this customer from the general population
@@ -98,9 +101,11 @@ The user's first answer about their differentiator is almost always too generic.
 Use the Geoffrey Moore-derived positioning formula as the structural foundation, then refine beyond the template to produce something that sounds human and specific.
 
 **The formula:**
+
 > For [specifically described target customer] who [specific need, problem, or desire], [brand name] is the [product/service category] that [primary benefit, expressed as an outcome]. Unlike [named competitor or class of alternatives], [brand] [specific differentiator stated as a fact, not a claim].
 
 Construction rules at this step:
+
 - The **target customer description** should be specific enough that a stranger could recognize whether or not they qualify. Avoid demographic labels alone; add a behavioral or situational qualifier
 - The **need or opportunity** clause should describe the customer's situation, not the product's features. "Who need to send email campaigns" is weak. "Who need to generate repeat revenue from past buyers without hiring a marketing manager" is specific and motivating
 - The **product category** must match how the customer categorizes the offering, not how the brand wishes to be categorized. Declaring yourself a "revenue operating system" when customers call you "reporting software" creates friction, not positioning
@@ -143,11 +148,13 @@ A positioning map (also called a perceptual map) visualizes where the brand sits
 Positioning is an internal strategy document. Brand voice is how positioning sounds when it reaches the outside world. Activation is where positioning shows up in customer-facing contexts. All three must be consistent.
 
 **Brand voice:**
+
 - Derive 3-5 voice attributes directly from the positioning, not from generic brand personality frameworks. If the positioning emphasizes "built for specialists," the voice should be expert and precise. If positioning emphasizes "accessible to non-technical users," the voice should be plain-language and encouraging
 - For each voice attribute, write a concrete "do this / not this" example using the brand's actual category language. Abstract adjectives like "approachable" are useless without examples
 - Specify voice adaptation rules by channel: how the voice shifts in register (formality) and length between a homepage headline, a LinkedIn post, a sales deck, a customer support email, and a technical blog post. The core positioning stays constant; the expression adapts
 
 **Activation deliverables:**
+
 - **2-3 tagline options**: short (3-8 words), rooted in the primary differentiator, usable across channels. Each variant should emphasize a different positioning angle to enable testing
 - **30-second elevator pitch**: written to be spoken aloud, not read. Maximum 75 words, no jargon, no compound sentences. Should pass the "parking lot test" -- if a salesperson said this to a prospect walking to their car, would it earn a follow-up question?
 - **Messaging by audience**: customers (outcome-first), investors (market size + defensibility), employees (mission + competitive identity), press (category claim + narrative hook). Each audience message must be consistent with the core positioning but emphasize the dimension that audience cares about most
@@ -402,14 +409,15 @@ For project managers and principals at small-to-midsize architecture firms who s
 
 ### Positioning Pillars
 
-| # | Pillar Name | Attribute | Supporting Evidence | Customer Importance | Competitive Strength |
-|---|-------------|-----------|---------------------|---------------------|----------------------|
-| 1 | Architecture-native language | Every field, report, and template uses AIA phase terminology (SD, DD, CD, CA) | Phase-specific templates ship with the platform; reports use the exact phase names in AIA B101 contracts | High | Strong -- generic tools require manual configuration; no major competitor does this out of the box |
-| 2 | Phase-specific project templates | Pre-built project structures for Schematic Design through Construction Administration | 8 phase templates built by licensed architects on the Fieldstone team; average setup time 12 minutes vs. 4 hours for generic tools | High | Strong -- Monograph focuses on billing; Newforma focuses on document management; neither owns this position |
-| 3 | Transparent, predictable pricing | $49/user/month, all features included, no seat minimums | Single pricing tier with no feature gates; firms can add project managers, associates, and principals without tier-jumping | Medium | Strong vs. Newforma (enterprise pricing, opaque contracts); Parity vs. generic tools |
-| 4 | Right-sized for small practices | Designed for 5-50 person firms, not enterprise AEC | No implementation consultant required; no minimum contract length; onboarding self-serve | High | Strong vs. Newforma; Parity vs. generic tools |
+| #   | Pillar Name                      | Attribute                                                                             | Supporting Evidence                                                                                                                | Customer Importance | Competitive Strength                                                                                        |
+| --- | -------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 1   | Architecture-native language     | Every field, report, and template uses AIA phase terminology (SD, DD, CD, CA)         | Phase-specific templates ship with the platform; reports use the exact phase names in AIA B101 contracts                           | High                | Strong -- generic tools require manual configuration; no major competitor does this out of the box          |
+| 2   | Phase-specific project templates | Pre-built project structures for Schematic Design through Construction Administration | 8 phase templates built by licensed architects on the Fieldstone team; average setup time 12 minutes vs. 4 hours for generic tools | High                | Strong -- Monograph focuses on billing; Newforma focuses on document management; neither owns this position |
+| 3   | Transparent, predictable pricing | $49/user/month, all features included, no seat minimums                               | Single pricing tier with no feature gates; firms can add project managers, associates, and principals without tier-jumping         | Medium              | Strong vs. Newforma (enterprise pricing, opaque contracts); Parity vs. generic tools                        |
+| 4   | Right-sized for small practices  | Designed for 5-50 person firms, not enterprise AEC                                    | No implementation consultant required; no minimum contract length; onboarding self-serve                                           | High                | Strong vs. Newforma; Parity vs. generic tools                                                               |
 
 **Pillar gaps (High Importance / Weak Strength -- investment needed):**
+
 - **Fee-to-phase financial tracking**: Architecture firms track fee consumption by phase, not just by task. Fieldstone currently lacks native fee-burn reporting. This is a product gap that weakens Pillar 1 -- the platform speaks AIA language in tasks but not yet in financials. Priority product investment: phase-fee tracking dashboard within 6-month roadmap.
 
 ---
@@ -421,14 +429,14 @@ For project managers and principals at small-to-midsize architecture firms who s
 **X-axis:** Setup friction -- Low friction (works immediately for architects) → High friction (requires significant configuration)
 **Y-axis:** Architecture depth -- Generic task management → Architecture-specific practice management
 
-| Brand | X-Axis (1=low friction, 10=high) | Y-Axis (1=generic, 10=architecture-specific) | Current Quadrant | Notes |
-|-------|----------------------------------|----------------------------------------------|-----------------|-------|
-| Fieldstone | 2 | 8 | Low friction + Architecture-specific | Target position -- claim this as owned territory |
-| Asana | 3 | 2 | Low friction + Generic | Easiest generic tool; architects use it but constantly work around it |
-| Monday.com | 4 | 2 | Moderate friction + Generic | More customizable than Asana but requires more configuration |
-| Notion | 5 | 1 | Moderate friction + Generic | Highly flexible but requires building architecture PM from scratch |
-| Monograph | 3 | 6 | Low friction + Architecture-specific | Strong on billing and fee tracking; weak on project/task management |
-| Newforma | 8 | 7 | High friction + Architecture-specific | Enterprise document management; large-firm focus; not designed for small practices |
+| Brand      | X-Axis (1=low friction, 10=high) | Y-Axis (1=generic, 10=architecture-specific) | Current Quadrant                      | Notes                                                                              |
+| ---------- | -------------------------------- | -------------------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
+| Fieldstone | 2                                | 8                                            | Low friction + Architecture-specific  | Target position -- claim this as owned territory                                   |
+| Asana      | 3                                | 2                                            | Low friction + Generic                | Easiest generic tool; architects use it but constantly work around it              |
+| Monday.com | 4                                | 2                                            | Moderate friction + Generic           | More customizable than Asana but requires more configuration                       |
+| Notion     | 5                                | 1                                            | Moderate friction + Generic           | Highly flexible but requires building architecture PM from scratch                 |
+| Monograph  | 3                                | 6                                            | Low friction + Architecture-specific  | Strong on billing and fee tracking; weak on project/task management                |
+| Newforma   | 8                                | 7                                            | High friction + Architecture-specific | Enterprise document management; large-firm focus; not designed for small practices |
 
 **White space:** Low setup friction combined with genuine architecture depth (top-left quadrant of the map) is unoccupied. Monograph approaches this position from the billing side; Newforma approaches it from the document management side. Neither offers the full practice management breadth Fieldstone targets. Customer quotes confirm demand for this combination: "I want something that works like Asana but knows what Construction Administration actually is."
 
@@ -440,16 +448,16 @@ For project managers and principals at small-to-midsize architecture firms who s
 
 ### Points of Parity vs. Points of Difference
 
-| Attribute | Classification | Notes |
-|-----------|---------------|-------|
-| Task assignment and tracking | Point of Parity -- must have | Every competitor has this; do not lead with it |
-| Team collaboration (comments, notifications) | Point of Parity -- must have | Table stakes; not differentiating |
-| Mobile access | Point of Parity -- must have | Required to compete; not a selling point |
-| AIA phase templates | Point of Difference -- owned | Primary differentiator; anchor all positioning here |
-| Architecture-language reporting | Point of Difference -- owned | Only platform with phase-native report terminology |
-| Right-sized for small firms (no implementation required) | Point of Difference -- earned | Stronger vs. Newforma; weaker vs. Asana (also simple) |
-| Fee-to-phase financial tracking | Point of Difference -- aspirational | Customers want it; Monograph is stronger here today; requires product investment |
-| Consultant coordination workflows | Point of Difference -- aspirational | AIA projects involve structural, MEP, civil consultants; dedicated workflows not yet built |
+| Attribute                                                | Classification                      | Notes                                                                                      |
+| -------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| Task assignment and tracking                             | Point of Parity -- must have        | Every competitor has this; do not lead with it                                             |
+| Team collaboration (comments, notifications)             | Point of Parity -- must have        | Table stakes; not differentiating                                                          |
+| Mobile access                                            | Point of Parity -- must have        | Required to compete; not a selling point                                                   |
+| AIA phase templates                                      | Point of Difference -- owned        | Primary differentiator; anchor all positioning here                                        |
+| Architecture-language reporting                          | Point of Difference -- owned        | Only platform with phase-native report terminology                                         |
+| Right-sized for small firms (no implementation required) | Point of Difference -- earned       | Stronger vs. Newforma; weaker vs. Asana (also simple)                                      |
+| Fee-to-phase financial tracking                          | Point of Difference -- aspirational | Customers want it; Monograph is stronger here today; requires product investment           |
+| Consultant coordination workflows                        | Point of Difference -- aspirational | AIA projects involve structural, MEP, civil consultants; dedicated workflows not yet built |
 
 ---
 
@@ -457,12 +465,12 @@ For project managers and principals at small-to-midsize architecture firms who s
 
 **Voice derived from positioning:** Because Fieldstone's positioning rests on deep understanding of architecture practice -- not technology features -- the voice must sound like it comes from inside the profession, not from a software company selling into it.
 
-| Attribute | Definition | Do This | Not This |
-|-----------|-----------|---------|----------|
-| Professionally fluent | Uses the language architects use without explaining it | "Your SD phase deliverables, consultant RFIs, and owner submittals -- tracked in one place." | "Manage all your project milestones and stakeholder communications in our intuitive platform." |
-| Respect for the craft | Acknowledges that architecture is a profession with real stakes, not just a workflow problem | "CA phase is where your design decisions meet site reality. Fieldstone keeps your punch list, RFIs, and submittals in one place so nothing falls through." | "Construction administration just got easier with our powerful task management features." |
-| Direct and un-hyped | States facts without superlatives or inflated claims | "Setup takes 12 minutes. Your first project is running before lunch." | "Our revolutionary platform transforms the way architecture firms operate." |
-| Quietly confident | Does not apologize for specialization or for not being everything to everyone | "Fieldstone is not for every firm. It is built specifically for architecture practices." | "Fieldstone is perfect for any project-based creative team or design-forward organization." |
+| Attribute             | Definition                                                                                   | Do This                                                                                                                                                    | Not This                                                                                       |
+| --------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Professionally fluent | Uses the language architects use without explaining it                                       | "Your SD phase deliverables, consultant RFIs, and owner submittals -- tracked in one place."                                                               | "Manage all your project milestones and stakeholder communications in our intuitive platform." |
+| Respect for the craft | Acknowledges that architecture is a profession with real stakes, not just a workflow problem | "CA phase is where your design decisions meet site reality. Fieldstone keeps your punch list, RFIs, and submittals in one place so nothing falls through." | "Construction administration just got easier with our powerful task management features."      |
+| Direct and un-hyped   | States facts without superlatives or inflated claims                                         | "Setup takes 12 minutes. Your first project is running before lunch."                                                                                      | "Our revolutionary platform transforms the way architecture firms operate."                    |
+| Quietly confident     | Does not apologize for specialization or for not being everything to everyone                | "Fieldstone is not for every firm. It is built specifically for architecture practices."                                                                   | "Fieldstone is perfect for any project-based creative team or design-forward organization."    |
 
 **Key phrases to use:** "AIA phases," "built for architects," "not for software teams," "the way your firm actually works," "SD through CA," "speak your language," "without configuration"
 **Phrases to avoid:** "powerful platform," "intuitive interface," "game-changing," "all-in-one solution," "seamlessly," "robust," "leverage," "unlock your potential"
@@ -481,6 +489,7 @@ For project managers and principals at small-to-midsize architecture firms who s
 ### Activation
 
 **Tagline options** (test with principal architects and project managers before committing):
+
 1. "Project management built for architecture, not software teams."
 2. "From SD to CA. Finally, software that speaks your language."
 3. "Architecture practice management. Nothing extra. Nothing missing."
@@ -490,23 +499,23 @@ For project managers and principals at small-to-midsize architecture firms who s
 
 **Messaging by audience:**
 
-| Audience | Lead Message | Supporting Point | Angle |
-|----------|-------------|-----------------|-------|
-| Project managers at architecture firms | You stop translating between how Asana works and how your firm works. Fieldstone runs on AIA phases natively. | Phase templates, RFI tracking, and consultant coordination are built in -- not bolted on | What's in it for me: time saved and professional tools |
-| Firm principals (economic buyers) | Fieldstone cuts project setup time by 80% and reduces the risk of missed CA deliverables. | Predictable $49/user/month pricing; no enterprise contract required | ROI and risk reduction |
-| Investors | We are the vertical SaaS leader for the 25,000 architecture firms in the US market that are systematically underserved by generic project management tools. | Architecture PM is a $1.2B total addressable market with no dominant vertical player below 50 employees | Market size + white space + no entrenched vertical incumbent |
-| Employees | We are building the tool that architecture practices have been asking for for 20 years and could not get from the generic software market. | Every feature we ship matters to a real design firm trying to build something that will stand for 100 years | Mission connection + craft respect |
-| Press | The $50M project management software market has no vertical winner for architecture -- yet. Fieldstone is the challenger building that position from the ground up, starting with the language the industry already uses. | Architecture is a $400B+ industry running on Asana and spreadsheets | Category creation narrative + underdog angle |
+| Audience                               | Lead Message                                                                                                                                                                                                              | Supporting Point                                                                                            | Angle                                                        |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Project managers at architecture firms | You stop translating between how Asana works and how your firm works. Fieldstone runs on AIA phases natively.                                                                                                             | Phase templates, RFI tracking, and consultant coordination are built in -- not bolted on                    | What's in it for me: time saved and professional tools       |
+| Firm principals (economic buyers)      | Fieldstone cuts project setup time by 80% and reduces the risk of missed CA deliverables.                                                                                                                                 | Predictable $49/user/month pricing; no enterprise contract required                                         | ROI and risk reduction                                       |
+| Investors                              | We are the vertical SaaS leader for the 25,000 architecture firms in the US market that are systematically underserved by generic project management tools.                                                               | Architecture PM is a $1.2B total addressable market with no dominant vertical player below 50 employees     | Market size + white space + no entrenched vertical incumbent |
+| Employees                              | We are building the tool that architecture practices have been asking for for 20 years and could not get from the generic software market.                                                                                | Every feature we ship matters to a real design firm trying to build something that will stand for 100 years | Mission connection + craft respect                           |
+| Press                                  | The $50M project management software market has no vertical winner for architecture -- yet. Fieldstone is the challenger building that position from the ground up, starting with the language the industry already uses. | Architecture is a $400B+ industry running on Asana and spreadsheets                                         | Category creation narrative + underdog angle                 |
 
 ---
 
 ### Positioning Health Check
 
-| Test | Pass Criteria | Status |
-|------|--------------|--------|
-| Specificity test | A stranger can identify whether or not they are the target customer | **Pass** -- "5-50 person architecture firm, project manager or principal" is unambiguous |
-| Customer language test | Benefit uses customer language, not internal marketing language | **Pass** -- "AIA phases," "SD through CA," "consultant RFIs" are pulled from customer quote verbatims |
-| Defensibility test | No direct competitor credibly claims the identical differentiator | **Pass** -- Monograph owns billing; Newforma owns enterprise document management; no competitor owns practice management with AIA-native language for small firms |
-| Falsifiability test | The differentiator is specific enough that a skeptic could demand proof | **Pass** -- "phase templates built on AIA B101 language, 12-minute setup" are specific and demonstrable |
-| Parking lot test | The elevator pitch earns a follow-up question from a qualified prospect | **Pass (conditional)** -- the phrase "12 minutes" and "no implementation consultant" typically generate the follow-up "how does the Revit integration work?" which confirms interest |
-| Internal alignment test | Sales, marketing, product, and leadership all recognize this as true | **Needs validation** -- the fee-to-phase gap (flagged in Pillar 4) means the product does not yet fully deliver on the financial depth the positioning implies; resolve before activating broadly |
+| Test                    | Pass Criteria                                                           | Status                                                                                                                                                                                            |
+| ----------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Specificity test        | A stranger can identify whether or not they are the target customer     | **Pass** -- "5-50 person architecture firm, project manager or principal" is unambiguous                                                                                                          |
+| Customer language test  | Benefit uses customer language, not internal marketing language         | **Pass** -- "AIA phases," "SD through CA," "consultant RFIs" are pulled from customer quote verbatims                                                                                             |
+| Defensibility test      | No direct competitor credibly claims the identical differentiator       | **Pass** -- Monograph owns billing; Newforma owns enterprise document management; no competitor owns practice management with AIA-native language for small firms                                 |
+| Falsifiability test     | The differentiator is specific enough that a skeptic could demand proof | **Pass** -- "phase templates built on AIA B101 language, 12-minute setup" are specific and demonstrable                                                                                           |
+| Parking lot test        | The elevator pitch earns a follow-up question from a qualified prospect | **Pass (conditional)** -- the phrase "12 minutes" and "no implementation consultant" typically generate the follow-up "how does the Revit integration work?" which confirms interest              |
+| Internal alignment test | Sales, marketing, product, and leadership all recognize this as true    | **Needs validation** -- the fee-to-phase gap (flagged in Pillar 4) means the product does not yet fully deliver on the financial depth the positioning implies; resolve before activating broadly |

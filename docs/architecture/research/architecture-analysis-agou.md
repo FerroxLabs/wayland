@@ -89,12 +89,12 @@ From the 28 files, **5 core abstractions** are extracted:
 
 **Two coexisting implementations:**
 
-| Dimension        | File Mailbox (`teammateMailbox.ts`)   | Memory Mailbox (`mailbox.ts`)                        |
-| ---------------- | ------------------------------------- | ---------------------------------------------------- |
-| Storage          | JSON files (`~/.claude/teams/...`)    | In-memory queue                                      |
-| Concurrency      | `proper-lockfile` file locking        | Synchronous JS (single-thread safe)                  |
-| Usage            | Cross-process (tmux) + in-process     | Candidate for in-process only (not used by Team)     |
-| Message types    | 13 structured protocol messages       | Generic Message                                      |
+| Dimension     | File Mailbox (`teammateMailbox.ts`) | Memory Mailbox (`mailbox.ts`)                    |
+| ------------- | ----------------------------------- | ------------------------------------------------ |
+| Storage       | JSON files (`~/.claude/teams/...`)  | In-memory queue                                  |
+| Concurrency   | `proper-lockfile` file locking      | Synchronous JS (single-thread safe)              |
+| Usage         | Cross-process (tmux) + in-process   | Candidate for in-process only (not used by Team) |
+| Message types | 13 structured protocol messages     | Generic Message                                  |
 
 `mailbox.ts` is a concise 73-line in-memory mailbox implementation (`send/poll/receive` + `waiters` pattern), but **Team mode does not actually use it**. All Teammate communication goes through the File Mailbox. This is an important finding - it means the in-process path shares a process but still communicates via file I/O.
 
@@ -256,34 +256,34 @@ Path A is an in-process-only optimization: it directly shares the Leader's React
 
 ### Tightly Coupled Modules (not portable, require rewrite)
 
-| Module                      | Coupled to                                                | Reason                                                                    |
-| --------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Module                      | Coupled to                                                | Reason                                                                                 |
+| --------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | `inProcessRunner.ts`        | `query()`, `AppState`, `ToolUseContext`, `Tool`           | The entire execution loop is built around Claude Code's API calls and state management |
-| `runAgent.ts`               | `query()`, `getSystemPrompt()`, `createSubagentContext()` | Core LLM invocation for the Agent                                         |
-| `leaderPermissionBridge.ts` | React `ToolUseConfirm` component                          | Directly manipulates the Leader UI's permission dialog queue              |
-| `agentSwarmsEnabled.ts`     | `GrowthBook` (feature flag)                               | Anthropic server-side feature switch                                      |
+| `runAgent.ts`               | `query()`, `getSystemPrompt()`, `createSubagentContext()` | Core LLM invocation for the Agent                                                      |
+| `leaderPermissionBridge.ts` | React `ToolUseConfirm` component                          | Directly manipulates the Leader UI's permission dialog queue                           |
+| `agentSwarmsEnabled.ts`     | `GrowthBook` (feature flag)                               | Anthropic server-side feature switch                                                   |
 
 ### Loosely Coupled Modules (portable, low migration cost)
 
-| Module                    | Porting effort | Notes                                                               |
-| ------------------------- | -------------- | ------------------------------------------------------------------- |
-| `teammateMailbox.ts`      | Very low       | Pure file I/O + JSON + `proper-lockfile`; nearly usable as-is      |
-| `mailbox.ts`              | Very low       | 73-line in-memory mailbox; fully generic                            |
-| `teammateContext.ts`      | Very low       | 97 lines; only uses `AsyncLocalStorage`; direct reuse              |
+| Module                    | Porting effort | Notes                                                                         |
+| ------------------------- | -------------- | ----------------------------------------------------------------------------- |
+| `teammateMailbox.ts`      | Very low       | Pure file I/O + JSON + `proper-lockfile`; nearly usable as-is                 |
+| `mailbox.ts`              | Very low       | 73-line in-memory mailbox; fully generic                                      |
+| `teammateContext.ts`      | Very low       | 97 lines; only uses `AsyncLocalStorage`; direct reuse                         |
 | `teammate.ts`             | Low            | Identity query functions; remove `dynamicTeamContext` and it's pure utilities |
-| `backends/types.ts`       | Low            | Interface definitions; no runtime dependencies                     |
-| `backends/TmuxBackend.ts` | Low            | Only depends on `tmux` CLI; can run independently                  |
-| `teamHelpers.ts`          | Low            | File operations + JSON; clean once the `git worktree` parts are removed |
-| `swarm/constants.ts`      | Very low       | Pure constant definitions                                          |
+| `backends/types.ts`       | Low            | Interface definitions; no runtime dependencies                                |
+| `backends/TmuxBackend.ts` | Low            | Only depends on `tmux` CLI; can run independently                             |
+| `teamHelpers.ts`          | Low            | File operations + JSON; clean once the `git worktree` parts are removed       |
+| `swarm/constants.ts`      | Very low       | Pure constant definitions                                                     |
 
 ### Moderately Coupled Modules
 
-| Module                         | Reason                                                              |
-| ------------------------------ | ------------------------------------------------------------------- |
-| `backends/InProcessBackend.ts` | Interface is clean, but implementation depends on `ToolUseContext`  |
+| Module                         | Reason                                                                                        |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| `backends/InProcessBackend.ts` | Interface is clean, but implementation depends on `ToolUseContext`                            |
 | `backends/registry.ts`         | Backend selection logic is reusable, but detection logic is bound to the terminal environment |
-| `spawnInProcess.ts`            | Creation and registration logic is clear, but `AppState` is bound   |
-| `permissionSync.ts`            | Mailbox path is reusable, but coupled to Claude Code's permission system |
+| `spawnInProcess.ts`            | Creation and registration logic is clear, but `AppState` is bound                             |
+| `permissionSync.ts`            | Mailbox path is reusable, but coupled to Claude Code's permission system                      |
 
 ---
 
@@ -328,14 +328,14 @@ aion-teams/
 
 ### 4.2 Technology Recommendations
 
-| Dimension        | Claude Code approach          | Aion recommendation          | Rationale                                                              |
-| ---------------- | ----------------------------- | ---------------------------- | ---------------------------------------------------------------------- |
-| Message bus      | File JSON + lockfile          | **Reuse file approach directly** | Already proven reliable; no need to introduce Redis/MQ and operational overhead |
-| Identity isolation | AsyncLocalStorage            | **Reuse directly**           | Standard Node.js approach; zero migration cost                        |
-| Agent execution  | `runAgent()` -> `query()`     | **Interface abstraction**    | Define an `AgentRuntime` interface backed by Aion's own LLM calls     |
-| State management | React `AppState`              | **Replace with standalone state** | If Aion is not React/Ink, use EventEmitter or a simple Store       |
-| Permission system | ToolUseConfirm + Mailbox     | **Implement Mailbox path only** | UI bridge is too coupled; Mailbox covers all cases first             |
-| Progress tracking | AppState.tasks               | **Custom TaskStore**         | Does not need React-rendering immutable updates                       |
+| Dimension          | Claude Code approach      | Aion recommendation               | Rationale                                                                       |
+| ------------------ | ------------------------- | --------------------------------- | ------------------------------------------------------------------------------- |
+| Message bus        | File JSON + lockfile      | **Reuse file approach directly**  | Already proven reliable; no need to introduce Redis/MQ and operational overhead |
+| Identity isolation | AsyncLocalStorage         | **Reuse directly**                | Standard Node.js approach; zero migration cost                                  |
+| Agent execution    | `runAgent()` -> `query()` | **Interface abstraction**         | Define an `AgentRuntime` interface backed by Aion's own LLM calls               |
+| State management   | React `AppState`          | **Replace with standalone state** | If Aion is not React/Ink, use EventEmitter or a simple Store                    |
+| Permission system  | ToolUseConfirm + Mailbox  | **Implement Mailbox path only**   | UI bridge is too coupled; Mailbox covers all cases first                        |
+| Progress tracking  | AppState.tasks            | **Custom TaskStore**              | Does not need React-rendering immutable updates                                 |
 
 ### 4.3 Recommended Core Interface Definitions
 
@@ -414,14 +414,14 @@ The report claims "60-65% can be reused directly." Here is a layer-by-layer asse
 
 ### Revised Assessment
 
-| Layer              | Report estimate | My estimate | Rationale                                              |
-| ------------------ | --------------- | ----------- | ------------------------------------------------------ |
-| Mailbox + Protocol | 70%             | **90%**     | Nearly copy-paste ready                                |
-| Identity           | 65%             | **95%**     | Standard AsyncLocalStorage; use directly               |
+| Layer              | Report estimate | My estimate | Rationale                                                            |
+| ------------------ | --------------- | ----------- | -------------------------------------------------------------------- |
+| Mailbox + Protocol | 70%             | **90%**     | Nearly copy-paste ready                                              |
+| Identity           | 65%             | **95%**     | Standard AsyncLocalStorage; use directly                             |
 | Backend interface  | 60%             | **85%**     | Interface definition is 100% usable; implementation needs adaptation |
-| Runner core        | 50%             | **30%**     | Deeply coupled to the Claude Code runtime              |
-| Permission         | 55%             | **40%**     | UI Bridge is not portable; Mailbox path is usable      |
-| Prompt engineering | N/A             | **20%**     | Must be fully rewritten for Aion's model               |
+| Runner core        | 50%             | **30%**     | Deeply coupled to the Claude Code runtime                            |
+| Permission         | 55%             | **40%**     | UI Bridge is not portable; Mailbox path is usable                    |
+| Prompt engineering | N/A             | **20%**     | Must be fully rewritten for Aion's model                             |
 
 **Overall replicability: ~55% weighted by lines of code; ~50% weighted by functional completeness.**
 
@@ -490,27 +490,27 @@ The report's 60-65% is reasonable if it only counts the "protocol layer + infras
 
 ## Appendix B: Key Source Line Number Index
 
-| Area                        | File                  | Lines     |
-| --------------------------- | --------------------- | --------- |
-| Poll interval               | inProcessRunner.ts    | 114, 697  |
-| Main loop entry             | inProcessRunner.ts    | 883-1534  |
-| Agent execution             | inProcessRunner.ts    | 1175-1203 |
-| Permission function         | inProcessRunner.ts    | 128-451   |
-| Mailbox write               | teammateMailbox.ts    | 134-192   |
-| Mailbox read                | teammateMailbox.ts    | 84-108    |
-| File lock config            | teammateMailbox.ts    | 35-41     |
-| Message type detection      | teammateMailbox.ts    | 1073-1095 |
-| AsyncLocalStorage           | teammateContext.ts    | 41        |
-| TeammateExecutor interface  | backends/types.ts     | 279-300   |
-| Backend selection           | backends/registry.ts  | 351-388   |
-| InProcess spawn             | spawnInProcess.ts     | 104-216   |
-| InProcess kill              | spawnInProcess.ts     | 227-328   |
-| runAgent AsyncGenerator     | runAgent.ts           | 248-329   |
-| query() call                | runAgent.ts           | 748-806   |
-| Team creation               | TeamCreateTool.ts     | 128-237   |
-| Send message routing        | SendMessageTool.ts    | 741-913   |
-| Feature flag                | agentSwarmsEnabled.ts | 24-44     |
-| Permission request builder  | permissionSync.ts     | 167-207   |
+| Area                       | File                  | Lines     |
+| -------------------------- | --------------------- | --------- |
+| Poll interval              | inProcessRunner.ts    | 114, 697  |
+| Main loop entry            | inProcessRunner.ts    | 883-1534  |
+| Agent execution            | inProcessRunner.ts    | 1175-1203 |
+| Permission function        | inProcessRunner.ts    | 128-451   |
+| Mailbox write              | teammateMailbox.ts    | 134-192   |
+| Mailbox read               | teammateMailbox.ts    | 84-108    |
+| File lock config           | teammateMailbox.ts    | 35-41     |
+| Message type detection     | teammateMailbox.ts    | 1073-1095 |
+| AsyncLocalStorage          | teammateContext.ts    | 41        |
+| TeammateExecutor interface | backends/types.ts     | 279-300   |
+| Backend selection          | backends/registry.ts  | 351-388   |
+| InProcess spawn            | spawnInProcess.ts     | 104-216   |
+| InProcess kill             | spawnInProcess.ts     | 227-328   |
+| runAgent AsyncGenerator    | runAgent.ts           | 248-329   |
+| query() call               | runAgent.ts           | 748-806   |
+| Team creation              | TeamCreateTool.ts     | 128-237   |
+| Send message routing       | SendMessageTool.ts    | 741-913   |
+| Feature flag               | agentSwarmsEnabled.ts | 24-44     |
+| Permission request builder | permissionSync.ts     | 167-207   |
 
 ---
 

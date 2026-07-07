@@ -130,9 +130,7 @@ describe('NextcloudTalkPlugin.sendMessage - happy path', () => {
 
     expect(id).toBe('101');
 
-    const chatCall = mockFetch.mock.calls.find(([url]: [string]) =>
-      String(url).includes('/chat/myroom'),
-    );
+    const chatCall = mockFetch.mock.calls.find(([url]: [string]) => String(url).includes('/chat/myroom'));
     expect(chatCall).toBeDefined();
     const [, init] = chatCall as [string, RequestInit];
     expect(init.method).toBe('POST');
@@ -146,9 +144,7 @@ describe('NextcloudTalkPlugin.sendMessage - happy path', () => {
     const plugin = await startPlugin();
     const id = await plugin.sendMessage('myroom', { type: 'text', text: '' });
     expect(id).toBe('');
-    const chatCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
-      String(url).includes('/chat/'),
-    );
+    const chatCalls = mockFetch.mock.calls.filter(([url]: [string]) => String(url).includes('/chat/'));
     expect(chatCalls.length).toBe(0);
     await plugin.stop();
   });
@@ -165,9 +161,7 @@ describe('NextcloudTalkPlugin.sendMessage - happy path', () => {
     const longText = 'word '.repeat(1800).trimEnd();
     await plugin.sendMessage('myroom', { type: 'text', text: longText });
 
-    const chatCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
-      String(url).includes('/chat/myroom'),
-    );
+    const chatCalls = mockFetch.mock.calls.filter(([url]: [string]) => String(url).includes('/chat/myroom'));
     expect(chatCalls.length).toBeGreaterThanOrEqual(2);
 
     await plugin.stop();
@@ -185,17 +179,13 @@ describe('NextcloudTalkPlugin.sendMessage - happy path', () => {
     });
 
     const plugin = await startPlugin();
-    await expect(
-      plugin.sendMessage('myroom', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/403/);
+    await expect(plugin.sendMessage('myroom', { type: 'text', text: 'hello' })).rejects.toThrow(/403/);
     await plugin.stop();
   });
 
   it('throws when plugin is not started', async () => {
     const plugin = new NextcloudTalkPlugin();
-    await expect(
-      plugin.sendMessage('myroom', { type: 'text', text: 'hello' }),
-    ).rejects.toThrow(/not started/i);
+    await expect(plugin.sendMessage('myroom', { type: 'text', text: 'hello' })).rejects.toThrow(/not started/i);
   });
 });
 
@@ -211,9 +201,7 @@ describe('NextcloudTalkPlugin.editMessage', () => {
     const plugin = await startPlugin();
     await plugin.editMessage('myroom', '55', { type: 'text', text: 'edited text' });
 
-    const editCall = mockFetch.mock.calls.find(([url]: [string]) =>
-      String(url).includes('/chat/myroom/55'),
-    );
+    const editCall = mockFetch.mock.calls.find(([url]: [string]) => String(url).includes('/chat/myroom/55'));
     expect(editCall).toBeDefined();
     const [, init] = editCall as [string, RequestInit];
     expect(init.method).toBe('PUT');
@@ -226,9 +214,7 @@ describe('NextcloudTalkPlugin.editMessage', () => {
   it('does nothing for blank text (no fetch call)', async () => {
     const plugin = await startPlugin();
     await plugin.editMessage('myroom', '55', { type: 'text', text: '' });
-    const editCalls = mockFetch.mock.calls.filter(([url]: [string]) =>
-      String(url).includes('/chat/myroom/55'),
-    );
+    const editCalls = mockFetch.mock.calls.filter(([url]: [string]) => String(url).includes('/chat/myroom/55'));
     expect(editCalls.length).toBe(0);
     await plugin.stop();
   });
@@ -245,9 +231,7 @@ describe('NextcloudTalkPlugin.editMessage', () => {
     });
 
     const plugin = await startPlugin();
-    await expect(
-      plugin.editMessage('myroom', '999', { type: 'text', text: 'edit' }),
-    ).rejects.toThrow(/404/);
+    await expect(plugin.editMessage('myroom', '999', { type: 'text', text: 'edit' })).rejects.toThrow(/404/);
     await plugin.stop();
   });
 });
@@ -264,9 +248,7 @@ describe('NextcloudTalkPlugin.addReaction', () => {
     const plugin = await startPlugin();
     await plugin.addReaction('myroom', '77', '👍');
 
-    const reactionCall = mockFetch.mock.calls.find(([url]: [string]) =>
-      String(url).includes('/reaction/myroom/77'),
-    );
+    const reactionCall = mockFetch.mock.calls.find(([url]: [string]) => String(url).includes('/reaction/myroom/77'));
     expect(reactionCall).toBeDefined();
     const [, init] = reactionCall as [string, RequestInit];
     expect(init.method).toBe('POST');

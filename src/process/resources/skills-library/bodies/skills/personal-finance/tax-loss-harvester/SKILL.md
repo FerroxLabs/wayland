@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing checklist guide step-by-step advanced automation planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'personal-finance investing checklist guide step-by-step advanced automation planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
 
 # Tax-Loss Harvesting Guide
@@ -24,15 +24,16 @@ You are a tax-aware investment educator who helps users understand how to use ta
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about tax loss harvester techniques or best practices
 - User needs guidance on tax loss harvester concepts
 - User wants to implement or improve their approach to tax loss harvester
 
 **Do NOT use when:**
+
 - The request falls outside the scope of tax loss harvester
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -440,7 +441,6 @@ HOW TO SET UP:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -462,7 +462,6 @@ When helping users with tax-loss harvesting, provide:
 7. **Year-end planning** -- Integration with annual tax planning
 8. **Disclaimer** -- Reiterate this is education, not tax or financial advice; consult a CPA
 
-
 ```template
 ## Tax Loss Harvester -- Structured Output
 
@@ -477,14 +476,12 @@ When helping users with tax-loss harvesting, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis planning strategy sales spreadsheets"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis planning strategy sales spreadsheets'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Revenue Forecasting
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to build a revenue forecast, sales projection, or revenue model for a specific business -- including early-stage startups, growth-stage companies, and established businesses planning for a new period
 - The user needs revenue projections for a fundraising round (Seed through Series C+), board deck, annual operating plan (AOP), or lender package -- all require documented assumptions and defensible methodology
 - The user wants a bottom-up revenue model broken down by customer segment, product tier, channel, or geography, rather than a single top-line number
@@ -28,6 +30,7 @@ metadata:
 - The user asks about cohort modeling, pipeline-weighted forecasting, churn-adjusted growth, or consumption-based revenue projection as specific techniques
 
 **Do NOT use this skill when:**
+
 - The user needs a complete three-statement financial model including income statement, balance sheet, and cash flow statement -- use `financial-model-structure` instead
 - The user wants to set, test, or optimize their pricing strategy, price tiers, or packaging -- use `pricing-strategy` instead
 - The user wants to analyze historical revenue, identify what drove past performance, or explain a variance versus prior periods -- use `pl-analysis` instead
@@ -346,6 +349,7 @@ Pipeline Value x Win Rate by Stage = Expected Closed Revenue
 ### Pre-Revenue or Seed-Stage Business (No Historical Data)
 
 When there is no revenue history, the forecast is entirely assumption-driven. Every number is Tier 3 or Tier 4. Handle this situation carefully:
+
 - Build from the go-to-market plan backward. If the user plans to hire 2 sales reps in Month 3, estimate their ramp time (typically 60--90 days for B2B SaaS AEs), their quota, and their expected attainment in ramp vs. fully ramped periods (commonly 50% attainment in months 1--3, 75% in months 4--6, 100% thereafter).
 - Source benchmarks from comparable companies at the same stage. For SaaS, sources include OpenView SaaS Benchmarks, Bessemer Venture Partners metrics, and KeyBanc SaaS Survey data -- describe the benchmark category rather than citing a URL.
 - Present a range, not a point estimate. Show what revenue would look like if the business hits the 25th, 50th, and 75th percentile of comparable company ramp curves.
@@ -355,6 +359,7 @@ When there is no revenue history, the forecast is entirely assumption-driven. Ev
 ### Highly Seasonal Business (Retail, E-Commerce, Travel, Tax, Education)
 
 Seasonality that is not modeled explicitly will cause the forecast to be systematically wrong in predictable ways:
+
 - Build a seasonal index using prior year monthly data if available. Seasonal index for a given month = (that month's revenue / annual average monthly revenue). A retailer might have a December index of 3.2x and a February index of 0.6x.
 - Apply the seasonal index to the base trend: Forecast month = (annual trend forecast / 12) x seasonal index.
 - If the business is growing, the seasonal pattern should be applied to the growing base, not the prior year absolute values. A business growing 30% YoY with a December peak will have a December that is 30% larger than last December in absolute terms.
@@ -364,6 +369,7 @@ Seasonality that is not modeled explicitly will cause the forecast to be systema
 ### Business Transitioning Between Pricing Models (One-Time to Recurring or Upfront to Usage-Based)
 
 This is one of the most dangerous forecasting scenarios because total revenue typically dips during the transition even when the business is healthy:
+
 - Model both old and new revenue streams as completely separate segments. The old model declines as fewer one-time purchases occur. The new model grows as recurring or consumption revenue builds.
 - Identify the crossover month (when recurring revenue exceeds the old model contribution). This is typically 12--24 months into the transition for an established business.
 - Show the J-curve explicitly: in months 1--6 of transition, total revenue may decline 15--30% from peak before recovering. This is expected and should be framed as planned, not as a sign of distress.
@@ -373,6 +379,7 @@ This is one of the most dangerous forecasting scenarios because total revenue ty
 ### Enterprise Sales Concentration Risk (Top 3--5 Customers Represent >40% of Revenue)
 
 Enterprise sales forecasts carry unique risks when a small number of large customers represent disproportionate revenue:
+
 - Model each enterprise customer individually for any customer representing more than 5% of total revenue. These are named accounts, not statistical averages.
 - For pipeline deals, use stage-specific win rates adjusted for deal-specific factors (incumbent vendor, relationship, competitive position). Do not apply generic win rates to individual large deals.
 - Run a revenue concentration analysis: what happens to the forecast if the largest customer churns, delays renewal, or reduces their contract size by 30%? Show this as a named risk scenario, not just a sensitivity variable.
@@ -382,6 +389,7 @@ Enterprise sales forecasts carry unique risks when a small number of large custo
 ### Usage-Based / Consumption Pricing with High Customer Variability
 
 Usage-based revenue forecasting is structurally different from seat-based SaaS because revenue per customer is not fixed:
+
 - Segment customers by usage cohort: Low (bottom quartile), Medium (middle 50%), High (top quartile). Each cohort has a different average monthly consumption and a different growth trajectory. High-usage customers often have faster consumption growth rates.
 - Apply a ramp curve to new customers. In month 1, a new customer typically uses 20--40% of their eventual steady-state consumption as they onboard and expand usage. Build a 3--6 month ramp factor into new customer revenue.
 - Churn in usage-based models is often "quiet" -- customers don't cancel, they simply reduce usage. Define a minimum usage threshold below which a customer is effectively churned, even if still technically active.
@@ -391,6 +399,7 @@ Usage-based revenue forecasting is structurally different from seat-based SaaS b
 ### Post-Acquisition Revenue Forecasting (M&A Integration)
 
 When the user is forecasting revenue for a combined entity following an acquisition:
+
 - Separate acquired revenue from organic revenue in every period. Investors and management need to understand the organic growth rate independently.
 - Model customer overlap carefully. If both companies serve similar customer segments, there will be some customer loss at renewal due to consolidation, product confusion, or competitor entry during the distraction of integration. Model a 5--15% elevated churn in the 6--12 months post-acquisition for the acquired book of business.
 - For the acquiree's revenue, reforecast from scratch using the acquiring company's methodology rather than simply extrapolating the target's historical growth rate. The target's growth rate was achieved under its own go-to-market motion, which may change materially under new ownership.
@@ -405,23 +414,25 @@ When the user is forecasting revenue for a combined entity following an acquisit
 ---
 
 ## Revenue Forecast: LegalTech SaaS
+
 ## Period: Month 1 through Month 24 (Year 1 Monthly / Year 2 Annual)
+
 ## Prepared for: Series A Fundraising Deck | Version: 1.0
 
 ---
 
 ### Forecast Parameters
 
-| Parameter | Value |
-|-----------|-------|
-| Primary methodology | Bottom-up (customer stock-flow model with upgrade tracking) |
-| Secondary methodology | Top-down sanity check on market share implied |
-| Time horizon | 24 months |
-| Granularity | Monthly Y1, Annual Y2 |
-| Revenue metric | Recognized MRR (monthly subscription, no annual contracts modeled) |
-| Purpose | Series A fundraising -- investor-facing |
-| Historical data available | 6+ months (improving churn trend over 6 months) |
-| Forecast confidence | Medium (improving trend well-documented; growth rate has limited history) |
+| Parameter                 | Value                                                                     |
+| ------------------------- | ------------------------------------------------------------------------- |
+| Primary methodology       | Bottom-up (customer stock-flow model with upgrade tracking)               |
+| Secondary methodology     | Top-down sanity check on market share implied                             |
+| Time horizon              | 24 months                                                                 |
+| Granularity               | Monthly Y1, Annual Y2                                                     |
+| Revenue metric            | Recognized MRR (monthly subscription, no annual contracts modeled)        |
+| Purpose                   | Series A fundraising -- investor-facing                                   |
+| Historical data available | 6+ months (improving churn trend over 6 months)                           |
+| Forecast confidence       | Medium (improving trend well-documented; growth rate has limited history) |
 
 ---
 
@@ -429,46 +440,49 @@ When the user is forecasting revenue for a combined entity following an acquisit
 
 **Business model:** B2B SaaS subscription -- two plan tiers with upgrade path
 
-| Segment | Current MRR | % of Total | Primary Growth Driver | Forecast Method |
-|---------|------------|-----------|----------------------|----------------|
-| Essentials ($79/mo) | $11,060 | 40% | New customer acquisition (14/mo) | Bottom-up stock-flow |
-| Professional ($229/mo) | $13,740 | 50% | New customer acquisition (8/mo) + upgrades from Essentials | Bottom-up stock-flow + upgrade layer |
-| Expansion (Essentials-to-Pro upgrades) | included above | 10% of total uplift | 4% monthly upgrade rate on Essentials base | Upgrade rate applied to Essentials EOM base |
-| **Total** | **$24,800** | **100%** | | |
+| Segment                                | Current MRR    | % of Total          | Primary Growth Driver                                      | Forecast Method                             |
+| -------------------------------------- | -------------- | ------------------- | ---------------------------------------------------------- | ------------------------------------------- |
+| Essentials ($79/mo)                    | $11,060        | 40%                 | New customer acquisition (14/mo)                           | Bottom-up stock-flow                        |
+| Professional ($229/mo)                 | $13,740        | 50%                 | New customer acquisition (8/mo) + upgrades from Essentials | Bottom-up stock-flow + upgrade layer        |
+| Expansion (Essentials-to-Pro upgrades) | included above | 10% of total uplift | 4% monthly upgrade rate on Essentials base                 | Upgrade rate applied to Essentials EOM base |
+| **Total**                              | **$24,800**    | **100%**            |                                                            |                                             |
 
-*Note: Expansion MRR from upgrades = Essentials EOM customers x 4% upgrade rate x ($229 - $79) = uplift per upgrading customer of $150/month*
+_Note: Expansion MRR from upgrades = Essentials EOM customers x 4% upgrade rate x ($229 - $79) = uplift per upgrading customer of $150/month_
 
 ---
 
 ### Driver Model
 
 **Essentials Segment:**
+
 - BOM Essentials + 14 new Essentials -- (BOM Essentials x 3.8% churn) -- (BOM Essentials x 4.0% upgrade) = EOM Essentials
 - Monthly Revenue = EOM Essentials x $79
 
 **Professional Segment:**
+
 - BOM Professional + 8 new Professional + (BOM Essentials x 4.0% upgrades) -- (BOM Professional x 3.8% churn) = EOM Professional
 - Monthly Revenue = EOM Professional x $229
 
 **Total MRR = Essentials Revenue + Professional Revenue**
 
-*Key mechanic: Essentials customers who upgrade become Professional customers. The upgrade rate simultaneously reduces the Essentials base and increases the Professional base.*
+_Key mechanic: Essentials customers who upgrade become Professional customers. The upgrade rate simultaneously reduces the Essentials base and increases the Professional base._
 
 ---
 
 ### Assumptions
 
-| Assumption | Current Value | Y1 Target | Y2 Target | Data Source | Source Tier | Confidence | Sensitivity |
-|------------|--------------|-----------|-----------|-------------|-------------|------------|-------------|
-| New Essentials customers/month | 14 | 14 → 18 (ramp H2) | 22 | 3-mo avg + planned ad spend increase | Tier 2 | Medium | **HIGH** |
-| New Professional customers/month | 8 | 8 → 10 (ramp H2) | 13 | 3-mo avg + planned ad spend increase | Tier 2 | Medium | **HIGH** |
-| Monthly churn (all plans) | 3.8% | 3.8% → 3.0% (ramp over 12mo) | 2.5% | 6-month improving trend (from 5.2%) | Tier 2 | Medium | **HIGH** |
-| Essentials-to-Professional upgrade rate | 4.0%/mo | 4.0% | 4.5% | 2-month observation | Tier 3 | Low-Medium | Medium |
-| Essentials ARPU | $79 | $79 | $79 | Pricing page (fixed) | Tier 1 | High | Low |
-| Professional ARPU | $229 | $229 | $229 | Pricing page (fixed) | Tier 1 | High | Low |
-| New customer mix (% Essentials) | 65% | 65% | 60% | 3-mo avg | Tier 2 | Medium | Medium |
+| Assumption                              | Current Value | Y1 Target                    | Y2 Target | Data Source                          | Source Tier | Confidence | Sensitivity |
+| --------------------------------------- | ------------- | ---------------------------- | --------- | ------------------------------------ | ----------- | ---------- | ----------- |
+| New Essentials customers/month          | 14            | 14 → 18 (ramp H2)            | 22        | 3-mo avg + planned ad spend increase | Tier 2      | Medium     | **HIGH**    |
+| New Professional customers/month        | 8             | 8 → 10 (ramp H2)             | 13        | 3-mo avg + planned ad spend increase | Tier 2      | Medium     | **HIGH**    |
+| Monthly churn (all plans)               | 3.8%          | 3.8% → 3.0% (ramp over 12mo) | 2.5%      | 6-month improving trend (from 5.2%)  | Tier 2      | Medium     | **HIGH**    |
+| Essentials-to-Professional upgrade rate | 4.0%/mo       | 4.0%                         | 4.5%      | 2-month observation                  | Tier 3      | Low-Medium | Medium      |
+| Essentials ARPU                         | $79           | $79                          | $79       | Pricing page (fixed)                 | Tier 1      | High       | Low         |
+| Professional ARPU                       | $229          | $229                         | $229      | Pricing page (fixed)                 | Tier 1      | High       | Low         |
+| New customer mix (% Essentials)         | 65%           | 65%                          | 60%       | 3-mo avg                             | Tier 2      | Medium     | Medium      |
 
 **Assumption Interdependencies:**
+
 - Churn improvement is correlated with onboarding investment. If the engineering resources fixing onboarding are redirected, churn improvement stalls.
 - Increasing paid acquisition (planned in H2 Y1) tends to increase early churn by 0.5--1.0% because paid traffic converts lower-intent customers. The acquisition ramp and churn improvement targets may partially offset each other.
 - Upgrade rate has only 2 months of data. Widen sensitivity band to ±50% on this assumption.
@@ -480,11 +494,11 @@ When the user is forecasting revenue for a combined entity following an acquisit
 Methodology note: Churn ramps linearly from 3.8% in M1 to 3.0% in M12. New customer acquisition ramps from 22/month (14 Ess + 8 Pro) in M1 to 28/month (18 Ess + 10 Pro) in M9, then holds.
 
 | Month | Ess. Customers | Ess. MRR | Pro. Customers | Pro. MRR | Total MRR | MoM Growth | Cumul. Rev. |
-|-------|---------------|---------|----------------|---------|-----------|------------|-------------|
-| Start | 140 | $11,060 | 60 | $13,740 | $24,800 | -- | -- |
-| M1 | 142 | $11,218 | 64 | $14,656 | $25,874 | +4.3% | $25,874 |
-| M2 | 143 | $11,297 | 68 | $15,572 | $26,869 | +3.8% | $52,743 |
-| M3 | 144 | $11,376 | 72 | $16,488 | $27,864 | +3.7% | $80,607 |
-| M4 | 145 | $11,455 | 76 | $17,404 | $28,859 | +3.6% | $109,466 |
-| M5 | 146 | $11,534 | 79 | $18,091 | $29,625 | +2.7% | $139,091 |
-| M6 | 147 | $11,613 | 83
+| ----- | -------------- | -------- | -------------- | -------- | --------- | ---------- | ----------- |
+| Start | 140            | $11,060  | 60             | $13,740  | $24,800   | --         | --          |
+| M1    | 142            | $11,218  | 64             | $14,656  | $25,874   | +4.3%      | $25,874     |
+| M2    | 143            | $11,297  | 68             | $15,572  | $26,869   | +3.8%      | $52,743     |
+| M3    | 144            | $11,376  | 72             | $16,488  | $27,864   | +3.7%      | $80,607     |
+| M4    | 145            | $11,455  | 76             | $17,404  | $28,859   | +3.6%      | $109,466    |
+| M5    | 146            | $11,534  | 79             | $18,091  | $29,625   | +2.7%      | $139,091    |
+| M6    | 147            | $11,613  | 83             |

@@ -5,13 +5,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-buying personal-finance planning"
-  category: "personal-finance"
-  subcategory: "major-purchases"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-buying personal-finance planning'
+  category: 'personal-finance'
+  subcategory: 'major-purchases'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Home Seller
@@ -19,7 +19,6 @@ metadata:
 > **Disclaimer:** This skill provides educational information about financial concepts and general guidance for personal financial planning. It does NOT constitute financial advice, investment recommendations, or tax guidance. Individual financial circumstances vary significantly, and the information provided should not be relied upon as a substitute for professional counsel. Always consult a qualified financial advisor, tax professional, or licensed financial planner before making financial decisions.
 
 ## When to Use
-
 
 ## Process
 
@@ -34,14 +33,15 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on home seller
 - User asks about home seller best practices or techniques
 - User wants a structured approach to home seller
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of home seller
-
 
 ## Questions to Ask First
 
@@ -63,6 +63,7 @@ metadata:
 ### Market Condition Assessment
 
 **Seller's Market Indicators:**
+
 - Homes selling in under 30 days on average
 - Multiple offers common on well-priced homes
 - Sale prices consistently at or above asking
@@ -70,6 +71,7 @@ metadata:
 - Low interest rates driving buyer demand
 
 **Buyer's Market Indicators:**
+
 - Average days on market exceeding 60+
 - Price reductions common
 - Sale prices below asking
@@ -77,6 +79,7 @@ metadata:
 - Rising interest rates or economic uncertainty
 
 **Balanced Market:**
+
 - 4-6 months of inventory
 - Homes selling within 30-60 days
 - Sale prices near asking price
@@ -84,12 +87,12 @@ metadata:
 
 ### Seasonal Considerations
 
-| Season | Pros | Cons |
-|--------|------|------|
-| Spring (Mar-May) | Highest buyer activity, best photos (greenery), families want to move before school | Most competition from other sellers |
-| Summer (Jun-Aug) | Still strong activity, longer days for showings | Vacation season reduces some buyer pool |
-| Fall (Sep-Nov) | Serious buyers, less competition | Smaller buyer pool, less daylight |
-| Winter (Dec-Feb) | Very serious buyers, minimal competition | Lowest buyer pool, holiday distractions, weather |
+| Season           | Pros                                                                                | Cons                                             |
+| ---------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Spring (Mar-May) | Highest buyer activity, best photos (greenery), families want to move before school | Most competition from other sellers              |
+| Summer (Jun-Aug) | Still strong activity, longer days for showings                                     | Vacation season reduces some buyer pool          |
+| Fall (Sep-Nov)   | Serious buyers, less competition                                                    | Smaller buyer pool, less daylight                |
+| Winter (Dec-Feb) | Very serious buyers, minimal competition                                            | Lowest buyer pool, holiday distractions, weather |
 
 ---
 
@@ -99,6 +102,7 @@ metadata:
 
 **Step 1: Identify Comparable Sales**
 Select 3-6 properties that match:
+
 - Sold within last 3-6 months
 - Within 0.5-1 mile radius (tighter in urban areas)
 - Similar square footage (within 10-15%)
@@ -108,17 +112,17 @@ Select 3-6 properties that match:
 
 **Step 2: Adjustment Calculations**
 
-| Feature | Typical Adjustment |
-|---------|-------------------|
-| Bedroom (extra/fewer) | +/- $5,000-$15,000 |
-| Bathroom (extra/fewer) | +/- $8,000-$20,000 |
-| Garage (per bay) | +/- $5,000-$15,000 |
-| Square footage | $50-$200/sq ft (varies by market) |
-| Pool | +$10,000-$30,000 (climate dependent) |
-| Updated kitchen | +$10,000-$40,000 |
-| Updated bathrooms | +$5,000-$20,000 |
-| Lot size difference | Varies significantly by market |
-| Condition (above/below average) | +/- 5-10% of value |
+| Feature                         | Typical Adjustment                   |
+| ------------------------------- | ------------------------------------ |
+| Bedroom (extra/fewer)           | +/- $5,000-$15,000                   |
+| Bathroom (extra/fewer)          | +/- $8,000-$20,000                   |
+| Garage (per bay)                | +/- $5,000-$15,000                   |
+| Square footage                  | $50-$200/sq ft (varies by market)    |
+| Pool                            | +$10,000-$30,000 (climate dependent) |
+| Updated kitchen                 | +$10,000-$40,000                     |
+| Updated bathrooms               | +$5,000-$20,000                      |
+| Lot size difference             | Varies significantly by market       |
+| Condition (above/below average) | +/- 5-10% of value                   |
 
 **Step 3: Price Positioning Strategy**
 
@@ -128,6 +132,7 @@ Select 3-6 properties that match:
 - **Round number psychology:** $399,900 vs $400,000 catches different search filters
 
 ### Pricing Mistakes to Avoid
+
 1. Pricing based on what you "need" rather than what the market supports
 2. Adding the full cost of renovations to your price (most renovations recover 50-80%)
 3. Pricing based on Zestimates or automated valuations alone
@@ -141,6 +146,7 @@ Select 3-6 properties that match:
 ### Home Preparation Checklist (4-6 Weeks Before Listing)
 
 **Exterior:**
+
 - [ ] Power wash siding, driveway, walkways
 - [ ] Fresh landscaping (mulch, flowers, trimmed hedges)
 - [ ] Paint or stain front door
@@ -152,6 +158,7 @@ Select 3-6 properties that match:
 - [ ] Stage front porch (new mat, potted plants, seating if space allows)
 
 **Interior - Decluttering:**
+
 - [ ] Remove 30-50% of items from every room
 - [ ] Clear all countertops (kitchen and bath)
 - [ ] Organize closets (remove half the contents -- buyers will look)
@@ -161,6 +168,7 @@ Select 3-6 properties that match:
 - [ ] Remove oversized furniture that makes rooms feel small
 
 **Interior - Cleaning and Repairs:**
+
 - [ ] Deep clean entire house (consider professional cleaning)
 - [ ] Clean or replace carpets
 - [ ] Touch up paint (neutral colors: greige, soft white, light gray)
@@ -191,6 +199,7 @@ Select 3-6 properties that match:
 ## Phase 4: Professional Photography and Marketing
 
 ### Photography Preparation
+
 - Schedule for a bright day with good natural light
 - Turn on all lights throughout the home
 - Open all blinds and curtains
@@ -202,6 +211,7 @@ Select 3-6 properties that match:
 ### Listing Description Framework
 
 **Structure for Effective Listings:**
+
 ```
 [Attention-grabbing opening line highlighting the best feature]
 [Property overview: beds/baths, square footage, lot size, style]
@@ -219,6 +229,7 @@ Select 3-6 properties that match:
 **Words to Avoid:** Must see, motivated seller, TLC needed, cozy (implies small), unique (implies unusual), potential (implies work needed).
 
 ### Marketing Channels Checklist
+
 - [ ] MLS listing with professional photos
 - [ ] Virtual tour or 3D walkthrough
 - [ ] Social media promotion (agent and personal networks)
@@ -236,6 +247,7 @@ Select 3-6 properties that match:
 ### Showing Preparation Routine
 
 **Before Every Showing (15-minute checklist):**
+
 - [ ] Turn on all lights
 - [ ] Open blinds and curtains
 - [ ] Set thermostat to comfortable temperature (68-72 degrees)
@@ -249,7 +261,9 @@ Select 3-6 properties that match:
 - [ ] Leave the property during the showing
 
 ### Feedback Collection
+
 After each showing, request feedback on:
+
 - Overall impression of the home
 - Price perception (too high, fair, good value)
 - Specific likes and dislikes
@@ -284,6 +298,7 @@ Net to Seller:      $________   $________   $________
 ```
 
 ### Evaluating Beyond Price
+
 - **Buyer's financial strength:** Cash offer > large down payment > minimum down payment
 - **Loan type risk:** Cash > conventional > VA > FHA (appraisal strictness)
 - **Contingencies:** Fewer contingencies = more certainty of closing
@@ -296,12 +311,14 @@ Net to Seller:      $________   $________   $________
 ## Phase 7: Negotiation Strategy
 
 ### Counter-Offer Options
+
 1. **Accept as-is:** Offer meets your goals
 2. **Full counter:** Adjust price, terms, or both
 3. **Multiple counter:** Counter to multiple buyers simultaneously
 4. **Reject:** Offer is too far from acceptable terms
 
 ### Negotiation Tactics
+
 - Counter at a specific number, not round numbers (signals research)
 - Do not reveal your bottom line or motivation to sell
 - Use deadlines to create urgency on counter-offers
@@ -310,7 +327,9 @@ Net to Seller:      $________   $________   $________
 - Keep emotion out of negotiations
 
 ### Post-Inspection Negotiation
+
 Common buyer requests after inspection:
+
 - Price reduction for repair costs
 - Seller to complete specific repairs before closing
 - Credit at closing for buyer to handle repairs
@@ -323,6 +342,7 @@ Common buyer requests after inspection:
 ## Phase 8: Closing From Seller Side
 
 ### Seller Closing Checklist
+
 - [ ] Respond promptly to title company requests
 - [ ] Provide any required disclosures (state-specific)
 - [ ] Complete agreed-upon repairs and provide receipts/documentation
@@ -336,20 +356,21 @@ Common buyer requests after inspection:
 
 ### Understanding Your Closing Costs (Seller Side)
 
-| Cost | Typical Amount |
-|------|---------------|
-| Agent commission (listing) | 2.5-3% of sale price |
-| Agent commission (buyer's) | 2.5-3% of sale price |
-| Title insurance (owner's policy) | $1,000-$3,000 |
-| Transfer taxes | Varies by state/county |
-| Attorney fees | $500-$1,500 (where required) |
-| Recording fees | $50-$250 |
-| Prorated property taxes | Varies |
-| HOA transfer fees | $200-$500 (if applicable) |
-| Mortgage payoff | Remaining balance + interest |
-| Any seller concessions | As negotiated |
+| Cost                             | Typical Amount               |
+| -------------------------------- | ---------------------------- |
+| Agent commission (listing)       | 2.5-3% of sale price         |
+| Agent commission (buyer's)       | 2.5-3% of sale price         |
+| Title insurance (owner's policy) | $1,000-$3,000                |
+| Transfer taxes                   | Varies by state/county       |
+| Attorney fees                    | $500-$1,500 (where required) |
+| Recording fees                   | $50-$250                     |
+| Prorated property taxes          | Varies                       |
+| HOA transfer fees                | $200-$500 (if applicable)    |
+| Mortgage payoff                  | Remaining balance + interest |
+| Any seller concessions           | As negotiated                |
 
 ### Net Proceeds Calculation
+
 ```
 Sale Price:                    $__________
 Less:
@@ -367,12 +388,14 @@ Less:
 ## Phase 9: Tax Implications
 
 ### Capital Gains Exclusion (Section 121)
+
 - **Single filer:** Exclude up to $250,000 in capital gains
 - **Married filing jointly:** Exclude up to $500,000 in capital gains
 - **Requirements:** Owned AND lived in the home as primary residence for at least 2 of the last 5 years
 - **Frequency:** Can use this exclusion once every 2 years
 
 ### Calculating Capital Gains
+
 ```
 Sale Price
 - Selling Costs (commissions, closing costs)
@@ -388,7 +411,9 @@ Capital Gain
 ```
 
 ### What Counts as Cost Basis Improvement
+
 Improvements that increase basis (keep records and receipts):
+
 - Additions (rooms, deck, garage, porch)
 - Major systems (HVAC, roof, plumbing, electrical)
 - Kitchen and bathroom renovations
@@ -397,6 +422,7 @@ Improvements that increase basis (keep records and receipts):
 - Security systems, built-in appliances
 
 What does NOT increase basis:
+
 - Routine maintenance and repairs
 - Painting (unless part of larger renovation)
 - Cleaning and general upkeep
@@ -439,7 +465,6 @@ ESTIMATED NET PROCEEDS:                $__________
 
 Always verify your net sheet calculations with your real estate agent and closing attorney or title company before making financial commitments based on expected proceeds.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -452,13 +477,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with home seller for a mid-size project."
 
 **Output:** A complete home seller framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

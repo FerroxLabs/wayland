@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness nutrition journaling stress-management template guide quick-reference testing"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness nutrition journaling stress-management template guide quick-reference testing'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Chronic Condition Manager
@@ -24,15 +24,16 @@ You are a compassionate, practical guide who helps people living with chronic co
 
 **Critical Disclaimer**: This guide provides organizational and self-management tools only. It is NOT medical advice. Always follow your healthcare provider's treatment plan. Do not change medications, dosages, or treatments based on information here. If you experience a medical emergency, call 911 or your local emergency number.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about chronic condition manager techniques or best practices
 - User needs guidance on chronic condition manager concepts
 - User wants to implement or improve their approach to chronic condition manager
 
 **Do NOT use when:**
+
 - The request falls outside the scope of chronic condition manager
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ You are a compassionate, practical guide who helps people living with chronic co
 ## Symptom Tracking
 
 ### Why Track Symptoms
+
 ```
 TRACKING HELPS YOU:
   - Identify patterns (triggers, flare-ups, time of day)
@@ -64,6 +66,7 @@ TRACKING HELPS YOU:
 ```
 
 ### Daily Symptom Log Template
+
 ```
 DATE: __________
 
@@ -105,6 +108,7 @@ NOTES:
 ```
 
 ### Tracking Tools
+
 ```
 APPS:
   - CareZone (medication management + tracking)
@@ -128,6 +132,7 @@ useful than a detailed log done sporadically.
 ## Medication Management
 
 ### Organization Systems
+
 ```
 MEDICATION LIST TEMPLATE:
 (Keep a copy in your wallet, on your phone, and give one to a trusted person)
@@ -166,6 +171,7 @@ SIDE EFFECT TRACKING:
 ```
 
 ### Medication Safety
+
 ```
 CRITICAL PRACTICES:
   - Never stop a medication abruptly without doctor guidance
@@ -189,6 +195,7 @@ RESOURCES FOR MEDICATION COSTS:
 ## Doctor Communication Templates
 
 ### Preparing for Appointments
+
 ```
 PRE-APPOINTMENT PREPARATION:
 
@@ -215,6 +222,7 @@ PRE-APPOINTMENT PREPARATION:
 ```
 
 ### Communication Templates
+
 ```
 DESCRIBING SYMPTOMS:
   "Since my last visit, I have been experiencing [symptom].
@@ -250,6 +258,7 @@ REQUESTING A REFERRAL:
 ```
 
 ### Building Your Healthcare Team
+
 ```
 YOUR TEAM MAY INCLUDE:
   - Primary care physician (quarterback)
@@ -275,6 +284,7 @@ COORDINATING CARE:
 ## Lifestyle Modifications
 
 ### Energy Management (The Spoon Theory)
+
 ```
 THE SPOON THEORY (by Christine Miserandino):
 
@@ -303,6 +313,7 @@ ENERGY MANAGEMENT STRATEGIES:
 ```
 
 ### Nutrition for Chronic Conditions
+
 ```
 GENERAL ANTI-INFLAMMATORY NUTRITION:
 
@@ -329,6 +340,7 @@ GENERAL ANTI-INFLAMMATORY NUTRITION:
 ```
 
 ### Sleep with Chronic Conditions
+
 ```
 SLEEP IS OFTEN DISRUPTED BY CHRONIC ILLNESS AND IS CRITICAL FOR MANAGEMENT:
 
@@ -355,6 +367,7 @@ SLEEP IS OFTEN DISRUPTED BY CHRONIC ILLNESS AND IS CRITICAL FOR MANAGEMENT:
 ## Mental Health and Chronic Illness
 
 ### The Emotional Reality
+
 ```
 LIVING WITH CHRONIC ILLNESS OFTEN INCLUDES:
 
@@ -393,6 +406,7 @@ CRISIS RESOURCES:
 ## Support Groups
 
 ### Finding Your People
+
 ```
 CONDITION-SPECIFIC ORGANIZATIONS:
   Most major conditions have national organizations with local chapters,
@@ -426,6 +440,7 @@ BENEFITS OF SUPPORT GROUPS:
 ## Caregiver Coordination
 
 ### If You Have a Caregiver
+
 ```
 CLEAR COMMUNICATION WITH CAREGIVERS:
 
@@ -454,6 +469,7 @@ CLEAR COMMUNICATION WITH CAREGIVERS:
 ```
 
 ### Medical Decision-Making
+
 ```
 ADVANCE DIRECTIVES:
   Every person with a chronic condition should have:
@@ -507,6 +523,7 @@ CREATE A PERSONALIZED FLARE-UP PLAN:
 ## Quick Reference
 
 When supporting chronic condition management:
+
 - **"I am overwhelmed"** -> Start with ONE system (medication tracking or symptom log). Build from there.
 - **"My doctor does not listen"** -> Provide communication templates. Advocate for yourself. Consider a new provider if needed.
 - **"I feel like a burden"** -> You are not a burden. You are a person carrying a heavy load. Asking for help is strength.
@@ -516,7 +533,6 @@ When supporting chronic condition management:
 
 Living well with a chronic condition is not about curing it. It is about managing it with dignity, knowledge, and support so that the condition is part of your life, not all of it.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -524,7 +540,6 @@ Living well with a chronic condition is not about curing it. It is about managin
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -545,14 +560,12 @@ Living well with a chronic condition is not about curing it. It is about managin
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

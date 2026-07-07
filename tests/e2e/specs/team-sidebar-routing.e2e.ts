@@ -79,9 +79,7 @@ test.describe('Team Sidebar - routing + typed-delete', () => {
     // three-dot trigger that SiderItem renders inside `group-hover:flex`.
     // The row is the closest container of the name span that has the
     // `.group` class - match by walking up from the visible text.
-    const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
-    );
+    const row = sidebarEntry.locator('xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]');
     await expect(row).toBeVisible({ timeout: 5_000 });
     await row.hover();
 

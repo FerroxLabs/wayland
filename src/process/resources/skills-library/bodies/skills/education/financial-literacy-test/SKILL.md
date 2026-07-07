@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment teaching template testing analysis planning investing"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment teaching template testing analysis planning investing'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Financial Literacy Test
@@ -22,15 +22,16 @@ You are a financial education specialist and literacy assessment facilitator. Yo
 
 **DISCLAIMER: This assessment is for educational purposes only. It evaluates financial knowledge and understanding, not financial fitness or investment readiness. It does not constitute financial advice, investment guidance, tax counsel, or insurance recommendations. Participants should consult qualified, licensed financial professionals (financial advisors, tax preparers, insurance agents) for personalized financial decisions. Laws and regulations vary by jurisdiction and change over time. No assessment can substitute for professional guidance tailored to individual circumstances.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about financial literacy test techniques or best practices
 - User needs guidance on financial literacy test concepts
 - User wants to implement or improve their approach to financial literacy test
 
 **Do NOT use when:**
+
 - The request falls outside the scope of financial literacy test
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -144,12 +145,12 @@ Collect before beginning:
 
 ### Section Scoring
 
-| Section | Questions | Max Score | Weight |
-|---------|-----------|-----------|--------|
-| Budgeting and Cash Flow | 1-6 | 30 | 25% |
-| Investing Fundamentals | 7-13 | 35 | 30% |
-| Tax Planning Awareness | 14-18 | 25 | 25% |
-| Insurance and Risk Protection | 19-24 | 30 | 20% |
+| Section                       | Questions | Max Score | Weight |
+| ----------------------------- | --------- | --------- | ------ |
+| Budgeting and Cash Flow       | 1-6       | 30        | 25%    |
+| Investing Fundamentals        | 7-13      | 35        | 30%    |
+| Tax Planning Awareness        | 14-18     | 25        | 25%    |
+| Insurance and Risk Protection | 19-24     | 30        | 20%    |
 
 **Section Percentage** = (Sum of Ratings / Max Score) x 100
 
@@ -157,13 +158,13 @@ Collect before beginning:
 
 ### Financial Literacy Levels
 
-| Score Range | Level | Description |
-|-------------|-------|-------------|
-| 0-20% | Foundational | Critical knowledge gaps that may lead to costly mistakes |
-| 21-40% | Basic | Some awareness but significant learning needed |
-| 41-60% | Intermediate | Reasonable understanding, ready to deepen knowledge |
-| 61-80% | Advanced | Strong foundation, refining optimization strategies |
-| 81-100% | Expert | Comprehensive understanding, could educate others |
+| Score Range | Level        | Description                                              |
+| ----------- | ------------ | -------------------------------------------------------- |
+| 0-20%       | Foundational | Critical knowledge gaps that may lead to costly mistakes |
+| 21-40%      | Basic        | Some awareness but significant learning needed           |
+| 41-60%      | Intermediate | Reasonable understanding, ready to deepen knowledge      |
+| 61-80%      | Advanced     | Strong foundation, refining optimization strategies      |
+| 81-100%     | Expert       | Comprehensive understanding, could educate others        |
 
 ## Results Interpretation
 
@@ -197,17 +198,18 @@ Compare the pre-assessment confidence rating with actual scores:
 
 ### Learning Priority Matrix
 
-| Score | Action | Timeline |
-|-------|--------|----------|
-| 0-20% | Foundational course or book in this area | Immediately |
-| 21-40% | Structured self-study with specific resources | Within 1 month |
-| 41-60% | Targeted reading on specific sub-topics | Within 3 months |
-| 61-80% | Advanced strategies and optimization | Ongoing |
-| 81-100% | Stay current, consider educating others | Annual review |
+| Score   | Action                                        | Timeline        |
+| ------- | --------------------------------------------- | --------------- |
+| 0-20%   | Foundational course or book in this area      | Immediately     |
+| 21-40%  | Structured self-study with specific resources | Within 1 month  |
+| 41-60%  | Targeted reading on specific sub-topics       | Within 3 months |
+| 61-80%  | Advanced strategies and optimization          | Ongoing         |
+| 81-100% | Stay current, consider educating others       | Annual review   |
 
 ### When to Seek Professional Help
 
 Recommend professional consultation when:
+
 - Tax situation involves multiple income sources, self-employment, or significant investments
 - Insurance needs are complex (business ownership, high net worth, special circumstances)
 - Investment portfolio exceeds personal knowledge comfort level
@@ -296,7 +298,6 @@ qualified financial professionals for all financial decisions.
 - Cultural and socioeconomic context matters. Access to financial tools and professional advice varies greatly. Recommend free resources (library books, community programs, government educational websites) alongside paid options.
 - Tax questions are jurisdiction-specific. Frame all tax knowledge as general concepts and emphasize that specific rules vary by location and change over time.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -304,7 +305,6 @@ qualified financial professionals for all financial decisions.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -325,14 +325,12 @@ qualified financial professionals for all financial decisions.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

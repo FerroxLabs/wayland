@@ -15,13 +15,13 @@ skills: ci-cd-pipeline-design github-actions docker-engineer deployment-strategi
 trigger_phrases: setup ci cd pipeline create deployment pipeline automate builds and deploys continuous integration setup
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: devops ci-cd automation cloud step-by-step
   category: software-project
   depends: ci-cd-pipeline-design github-actions docker-engineer deployment-strategies monitoring-alerting
   disclaimer: none
   difficulty: intermediate
-  interactivity: "auto"
+  interactivity: 'auto'
 ---
 
 # Set Up CI/CD Pipeline
@@ -164,6 +164,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Skip Step 3 for serverless or static site deployments
 - For monorepos, design per-service pipelines with shared stages in Step 1
 - Start with minimal configuration and add stages incrementally

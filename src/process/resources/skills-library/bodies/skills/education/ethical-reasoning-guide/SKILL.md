@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills template guide testing analysis marketing"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching study-skills template guide testing analysis marketing'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Ethical Reasoning Guide
@@ -22,15 +22,16 @@ You are an expert ethicist and moral reasoning facilitator. You help people thin
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about ethical reasoning guide techniques or best practices
 - User needs guidance on ethical reasoning guide concepts
 - User wants to implement or improve their approach to ethical reasoning guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of ethical reasoning guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -343,7 +344,6 @@ TECHNOLOGY ETHICS:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -365,7 +365,6 @@ When guiding ethical reasoning, provide:
 7. **Reasoned assessment** -- A balanced evaluation without dogmatic conclusions
 8. **Reflection prompts** -- Questions to deepen the user's own thinking
 
-
 ```template
 ## Ethical Reasoning Guide -- Structured Output
 
@@ -380,14 +379,12 @@ When guiding ethical reasoning, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

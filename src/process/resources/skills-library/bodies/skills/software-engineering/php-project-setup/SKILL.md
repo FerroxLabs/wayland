@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "php best-practices template"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'php best-practices template'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # PHP Project Setup
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to bootstrap a new PHP project from scratch and needs guidance on directory structure, dependency management, autoloading, and toolchain configuration
 - A user is migrating a legacy procedural PHP codebase toward a modern, composer-managed architecture with namespacing and PSR compliance
 - A user asks which PHP version to target, how to configure php.ini for production, or how to manage PHP extensions across environments
@@ -29,6 +31,7 @@ metadata:
 - A user needs to containerize a PHP application for local development with Docker and configure Nginx or Caddy with PHP-FPM
 
 **Do NOT use this skill when:**
+
 - The user is asking about a specific PHP framework's internal architecture -- use a dedicated Symfony, Laravel, or Slim skill instead
 - The user needs help debugging a runtime PHP error or exception -- that is a debugging skill, not a setup skill
 - The user is asking about PHP application performance optimization (OPcache tuning, query optimization) -- that belongs in a performance engineering skill
@@ -159,7 +162,7 @@ metadata:
 
 When responding to a PHP project setup request, structure the output as follows:
 
-```
+````
 ## PHP Project Setup Plan
 
 ### Context Summary
@@ -218,40 +221,46 @@ When responding to a PHP project setup request, structure the output as follows:
     "quality": ["@cs:check", "@analyse", "@test"]
   }
 }
-```
+````
 
 ---
 
 ### Tool Configuration Files
+
 [phpstan.neon.dist, .php-cs-fixer.dist.php, phpunit.xml.dist, rector.php -- each as a complete, ready-to-use file]
 
 ---
 
 ### Docker Setup
+
 [Dockerfile (multi-stage) and docker-compose.yml, both complete]
 
 ---
 
 ### CI Pipeline Configuration
+
 [Complete GitHub Actions or GitLab CI YAML]
 
 ---
 
 ### Decision Rationale
-| Decision | Choice Made | Alternatives Considered | Reason |
-|----------|-------------|------------------------|--------|
-| PHP version | 8.3 | 8.1, 8.2 | Latest stable, fibers + readonly classes available |
-| Test framework | PHPUnit 11 | Pest | Team familiarity, native PHPUnit 11 requires PHP 8.2+ |
-| Static analysis | PHPStan level 8 | Psalm, level 5 | Greenfield -- strict from day one |
-| Code style | PSR-12 + CS Fixer | PSR-2, per-project | Industry standard, auto-fixable |
+
+| Decision        | Choice Made       | Alternatives Considered | Reason                                                |
+| --------------- | ----------------- | ----------------------- | ----------------------------------------------------- |
+| PHP version     | 8.3               | 8.1, 8.2                | Latest stable, fibers + readonly classes available    |
+| Test framework  | PHPUnit 11        | Pest                    | Team familiarity, native PHPUnit 11 requires PHP 8.2+ |
+| Static analysis | PHPStan level 8   | Psalm, level 5          | Greenfield -- strict from day one                     |
+| Code style      | PSR-12 + CS Fixer | PSR-2, per-project      | Industry standard, auto-fixable                       |
 
 ---
 
 ### Next Steps (Ordered by Priority)
+
 1. [Specific, actionable step]
 2. [Specific, actionable step]
 3. [Specific, actionable step]
-```
+
+````
 
 ---
 
@@ -289,7 +298,8 @@ When introducing Composer and PSR-4 to a project that uses `require`/`include` c
   "classmap": ["legacy/"],
   "psr-4": { "Acme\\": "src/" }
 }
-```
+````
+
 Run `composer dump-autoload --optimize` after adding legacy class paths. Migrate classes to PSR-4 namespaces opportunistically -- when a class is touched for a feature or bug fix, move it to `src/` and add a backwards-compatible class alias with `class_alias()` if external code references it by the old name.
 
 ### Shared Hosting Without SSH or Composer Access
@@ -303,11 +313,13 @@ When building a library that must support PHP 8.1, 8.2, and 8.3, set `"php": ">=
 ### Monorepo with Multiple PHP Packages
 
 For a monorepo containing several related PHP packages (e.g., a core library, an HTTP adapter, and a console tool), use a tool like `symplify/monorepo-builder` to synchronize `composer.json` files and manage cross-package dependencies. Each package lives in `packages/package-name/` with its own `composer.json`. The root `composer.json` uses path repositories to link packages locally:
+
 ```json
 "repositories": [
   {"type": "path", "url": "packages/*"}
 ]
 ```
+
 Run tests for all packages from the root using a shared PHPUnit configuration, or use `monorepo-builder` to propagate test runs. Enforce that no package has circular dependencies by running a dependency graph analysis in CI.
 
 ### Projects Requiring FIPS-Compliant Cryptography
@@ -333,6 +345,7 @@ When the CI Composer cache key is based only on `composer.lock`, adding a new de
 ## PHP Project Setup Plan
 
 ### Context Summary
+
 - PHP version: 8.3.x
 - Runtime target: Docker on Kubernetes (PHP-FPM + Nginx sidecar)
 - Framework: None (micro-stack -- router + DI container)
@@ -660,7 +673,7 @@ services:
   web:
     image: nginx:1.26-alpine
     ports:
-      - "8080:80"
+      - '8080:80'
     volumes:
       - .:/var/www/api:cached
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
@@ -676,7 +689,7 @@ services:
     volumes:
       - pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app"]
+      test: ['CMD-SHELL', 'pg_isready -U app']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -834,16 +847,16 @@ analyse:
 
 ### Decision Rationale
 
-| Decision | Choice Made | Alternatives Considered | Reason |
-|---|---|---|---|
-| PHP version | 8.3 | 8.1, 8.2 | Latest stable; typed class constants, `json_validate()`, `readonly` classes |
-| Router | league/route | nikic/fast-route, Symfony Routing | PSR-15 middleware support, DI-friendly, minimal overhead |
-| DI container | PHP-DI 7 | Symfony DIC, Pimple | Autowiring by type hint, PHP config (not XML/YAML), well-maintained |
-| HTTP layer | Laminas Diactoros | nyholm/psr7, Guzzle PSR-7 | Full PSR-7/PSR-17 implementation, actively maintained |
-| Static analysis | PHPStan level 8 | Psalm, PHPStan level 5 | Greenfield project -- maximum strictness from day one |
-| Test framework | PHPUnit 11 | Pest | Team familiarity; PHPUnit 11 is required for PHP 8.2+ support |
-| Coverage driver | pcov | Xdebug | pcov has <5% overhead vs 30--50% for Xdebug; faster CI |
-| Docker base | php:8.3.6-fpm-alpine | Debian-based image | 80MB vs 450MB base; faster pulls in Kubernetes |
+| Decision        | Choice Made          | Alternatives Considered           | Reason                                                                      |
+| --------------- | -------------------- | --------------------------------- | --------------------------------------------------------------------------- |
+| PHP version     | 8.3                  | 8.1, 8.2                          | Latest stable; typed class constants, `json_validate()`, `readonly` classes |
+| Router          | league/route         | nikic/fast-route, Symfony Routing | PSR-15 middleware support, DI-friendly, minimal overhead                    |
+| DI container    | PHP-DI 7             | Symfony DIC, Pimple               | Autowiring by type hint, PHP config (not XML/YAML), well-maintained         |
+| HTTP layer      | Laminas Diactoros    | nyholm/psr7, Guzzle PSR-7         | Full PSR-7/PSR-17 implementation, actively maintained                       |
+| Static analysis | PHPStan level 8      | Psalm, PHPStan level 5            | Greenfield project -- maximum strictness from day one                       |
+| Test framework  | PHPUnit 11           | Pest                              | Team familiarity; PHPUnit 11 is required for PHP 8.2+ support               |
+| Coverage driver | pcov                 | Xdebug                            | pcov has <5% overhead vs 30--50% for Xdebug; faster CI                      |
+| Docker base     | php:8.3.6-fpm-alpine | Debian-based image                | 80MB vs 450MB base; faster pulls in Kubernetes                              |
 
 ---
 

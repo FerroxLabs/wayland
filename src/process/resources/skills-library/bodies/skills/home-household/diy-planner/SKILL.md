@@ -7,24 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance guide step-by-step"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance guide step-by-step'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # DIY Project Planner
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about diy planner
 - User needs guidance on diy planner topics
 - User wants a structured approach to diy planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -44,6 +47,7 @@ metadata:
 ## DIY vs. Hire a Professional Decision Framework
 
 ### The Decision Matrix
+
 ```
 DIY SUITABILITY ASSESSMENT:
 Rate each factor 1-5:
@@ -75,6 +79,7 @@ TOTAL: ___ / 25
 ```
 
 ### Always Hire a Professional For
+
 ```
 DO NOT DIY (safety and code reasons):
 [ ] Electrical panel work (service upgrade, new panel)
@@ -112,6 +117,7 @@ GREAT DIY PROJECTS (safe, learnable, satisfying):
 ## Project Planning Template
 
 ### Universal Project Plan
+
 ```
 DIY PROJECT PLAN
 PROJECT: _______________
@@ -184,6 +190,7 @@ STEP-BY-STEP PLAN:
 ## Common DIY Project Guides
 
 ### Project: Painting a Room
+
 ```
 PROJECT: Interior Room Painting
 Difficulty: Beginner
@@ -250,6 +257,7 @@ TIPS:
 ```
 
 ### Project: Installing Laminate/LVP Flooring
+
 ```
 PROJECT: Floating Floor Installation (Laminate or Luxury Vinyl Plank)
 Difficulty: Intermediate
@@ -308,6 +316,7 @@ COMMON MISTAKES TO AVOID:
 ```
 
 ### Project: Kitchen Backsplash
+
 ```
 PROJECT: Tile Backsplash Installation
 Difficulty: Intermediate
@@ -334,6 +343,7 @@ SIMPLIFIED ALTERNATIVE:
 ## Safety Precautions
 
 ### Critical Safety Rules
+
 ```
 UNIVERSAL DIY SAFETY RULES:
 BEFORE STARTING ANY PROJECT:
@@ -378,6 +388,7 @@ HAZARDOUS MATERIALS:
 ```
 
 ## Budget Estimation Guide
+
 ```
 TYPICAL PROJECT COST RANGES (DIY vs. Professional):
 Project                    | DIY Cost      | Pro Cost       | Savings
@@ -405,6 +416,7 @@ BUDGET TIPS:
 ```
 
 ## Tool Investment Guide
+
 ```
 ESSENTIAL DIY TOOL KIT (build over time):
 STARTER KIT ($100-200):
@@ -446,6 +458,7 @@ BUYING ADVICE:
 ```
 
 ## Project Execution Workflow
+
 ```
 DIY PROJECT EXECUTION:
 PHASE 1: RESEARCH (before spending any money)
@@ -488,6 +501,7 @@ PHASE 5: FINISH AND EVALUATE
 ## Output Format
 
 When planning a DIY project:
+
 ```
 PROJECT PLAN: [Project Name]
 FEASIBILITY:

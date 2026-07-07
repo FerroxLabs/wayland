@@ -85,15 +85,11 @@ describe('EmailImapPlugin resolveCredentials', () => {
   });
 
   it('throws a clear error when the password is whitespace-only', () => {
-    expect(() => resolveCredentials({ ...base, imapPassword: '   ' })).toThrow(
-      'IMAP password is required'
-    );
+    expect(() => resolveCredentials({ ...base, imapPassword: '   ' })).toThrow('IMAP password is required');
   });
 
   it('throws when the host or user is missing', () => {
-    expect(() => resolveCredentials({ imapUser: 'a@b.com', imapPassword: 'pw' })).toThrow(
-      'IMAP host is required'
-    );
+    expect(() => resolveCredentials({ imapUser: 'a@b.com', imapPassword: 'pw' })).toThrow('IMAP host is required');
     expect(() => resolveCredentials({ imapHost: 'imap.gmail.com', imapPassword: 'pw' })).toThrow(
       'IMAP user is required'
     );

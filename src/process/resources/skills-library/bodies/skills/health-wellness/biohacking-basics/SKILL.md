@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide step-by-step"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'health-wellness guide step-by-step'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'beginner'
 ---
 
 # Biohacking Basics
@@ -27,11 +27,13 @@ You are an expert in evidence-based self-optimization and human performance. You
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about biohacking basics
 - User needs guidance on biohacking basics topics
 - User wants a structured approach to biohacking basics
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -144,14 +146,14 @@ TIER 1: FOUNDATIONS (non-negotiable)
 
 ### Evidence Summary
 
-| Claimed Benefit | Evidence Level | Key Research |
-|----------------|---------------|--------------|
-| Increased alertness and mood | Strong | Norepinephrine release documented in multiple studies |
-| Reduced inflammation | Moderate | Cold water immersion shows reduced inflammatory markers post-exercise |
-| Improved cold tolerance | Strong | Brown fat activation with repeated exposure (Lichtenbelt et al.) |
-| Immune enhancement | Mixed | Some evidence for reduced sick days (Buijze et al. 2016), but not conclusive |
-| Fat loss / Metabolism boost | Weak-Moderate | Brown fat activation increases metabolism slightly; not a weight loss strategy alone |
-| Muscle recovery | Moderate | Useful post-intense exercise; may blunt muscle growth adaptations if used daily |
+| Claimed Benefit              | Evidence Level | Key Research                                                                         |
+| ---------------------------- | -------------- | ------------------------------------------------------------------------------------ |
+| Increased alertness and mood | Strong         | Norepinephrine release documented in multiple studies                                |
+| Reduced inflammation         | Moderate       | Cold water immersion shows reduced inflammatory markers post-exercise                |
+| Improved cold tolerance      | Strong         | Brown fat activation with repeated exposure (Lichtenbelt et al.)                     |
+| Immune enhancement           | Mixed          | Some evidence for reduced sick days (Buijze et al. 2016), but not conclusive         |
+| Fat loss / Metabolism boost  | Weak-Moderate  | Brown fat activation increases metabolism slightly; not a weight loss strategy alone |
+| Muscle recovery              | Moderate       | Useful post-intense exercise; may blunt muscle growth adaptations if used daily      |
 
 ### Cold Shower Protocol (Beginner)
 
@@ -192,12 +194,12 @@ SAFETY RULES:
 
 ### Ice Bath / Cold Plunge Protocol (Intermediate)
 
-| Parameter | Beginner | Intermediate | Advanced |
-|-----------|----------|-------------|----------|
-| Temperature | 60-68F (15-20C) | 50-59F (10-15C) | 38-50F (3-10C) |
-| Duration | 1-2 minutes | 2-5 minutes | 5-10 minutes |
-| Frequency | 2-3x/week | 3-5x/week | Daily |
-| Timing | Any time | Morning for alertness | Based on training cycle |
+| Parameter   | Beginner        | Intermediate          | Advanced                |
+| ----------- | --------------- | --------------------- | ----------------------- |
+| Temperature | 60-68F (15-20C) | 50-59F (10-15C)       | 38-50F (3-10C)          |
+| Duration    | 1-2 minutes     | 2-5 minutes           | 5-10 minutes            |
+| Frequency   | 2-3x/week       | 3-5x/week             | Daily                   |
+| Timing      | Any time        | Morning for alertness | Based on training cycle |
 
 **Post-exercise note:** Cold immersion within 4 hours of strength training may reduce muscle hypertrophy adaptations. Use cold exposure on rest days or after endurance work if muscle building is a priority.
 
@@ -242,12 +244,12 @@ NIGHTTIME:
 
 ### Light Therapy Devices Comparison
 
-| Device Type | Use Case | Lux Output | Price Range |
-|------------|----------|------------|-------------|
-| SAD light therapy box | Morning circadian reset, seasonal depression | 10,000 lux | $30-80 |
-| Dawn simulator alarm | Gradual wake-up, winter mornings | 200-500 lux | $30-100 |
-| Blue light blocking glasses | Evening screen use | N/A (blocking) | $10-40 |
-| Red light therapy panel | Skin health, recovery (emerging evidence) | N/A (specific nm) | $50-500 |
+| Device Type                 | Use Case                                     | Lux Output        | Price Range |
+| --------------------------- | -------------------------------------------- | ----------------- | ----------- |
+| SAD light therapy box       | Morning circadian reset, seasonal depression | 10,000 lux        | $30-80      |
+| Dawn simulator alarm        | Gradual wake-up, winter mornings             | 200-500 lux       | $30-100     |
+| Blue light blocking glasses | Evening screen use                           | N/A (blocking)    | $10-40      |
+| Red light therapy panel     | Skin health, recovery (emerging evidence)    | N/A (specific nm) | $50-500     |
 
 ---
 
@@ -384,18 +386,18 @@ Claimed benefit: _______________
 
 ### Common Supplements: Quick Reference
 
-| Supplement | Evidence | Common Dose | Key Notes |
-|-----------|----------|-------------|-----------|
-| Vitamin D3 | Strong (if deficient) | 1000-5000 IU/day | Test blood levels first (aim 40-60 ng/mL) |
-| Magnesium | Strong | 200-400mg glycinate/citrate | Most adults are sub-optimal |
-| Omega-3 (EPA/DHA) | Strong | 1-2g combined EPA+DHA | Triglyceride form preferred |
-| Creatine monohydrate | Strong | 3-5g/day | One of the most researched supplements |
-| Vitamin K2 (MK-7) | Moderate | 100-200mcg | Pair with D3 for calcium metabolism |
-| Ashwagandha | Moderate | 300-600mg KSM-66 | Stress reduction, cortisol modulation |
-| L-theanine | Moderate | 100-200mg | Calm focus, pairs with caffeine |
-| Melatonin | Moderate | 0.3-1mg | Jet lag, circadian shift (low dose) |
-| Rhodiola rosea | Moderate | 200-400mg | Fatigue resistance, adaptogen |
-| NAC (N-Acetyl Cysteine) | Moderate | 600-1200mg | Glutathione precursor, antioxidant |
+| Supplement              | Evidence              | Common Dose                 | Key Notes                                 |
+| ----------------------- | --------------------- | --------------------------- | ----------------------------------------- |
+| Vitamin D3              | Strong (if deficient) | 1000-5000 IU/day            | Test blood levels first (aim 40-60 ng/mL) |
+| Magnesium               | Strong                | 200-400mg glycinate/citrate | Most adults are sub-optimal               |
+| Omega-3 (EPA/DHA)       | Strong                | 1-2g combined EPA+DHA       | Triglyceride form preferred               |
+| Creatine monohydrate    | Strong                | 3-5g/day                    | One of the most researched supplements    |
+| Vitamin K2 (MK-7)       | Moderate              | 100-200mcg                  | Pair with D3 for calcium metabolism       |
+| Ashwagandha             | Moderate              | 300-600mg KSM-66            | Stress reduction, cortisol modulation     |
+| L-theanine              | Moderate              | 100-200mg                   | Calm focus, pairs with caffeine           |
+| Melatonin               | Moderate              | 0.3-1mg                     | Jet lag, circadian shift (low dose)       |
+| Rhodiola rosea          | Moderate              | 200-400mg                   | Fatigue resistance, adaptogen             |
+| NAC (N-Acetyl Cysteine) | Moderate              | 600-1200mg                  | Glutathione precursor, antioxidant        |
 
 ---
 
@@ -476,30 +478,30 @@ CONCLUSION:
 
 ### What to Track
 
-| Category | Metrics | Tools |
-|----------|---------|-------|
-| Sleep | Duration, HRV, subjective quality | Wearable, journal |
-| Energy | 1-10 rating at morning, midday, evening | Journal, app |
-| Focus | Deep work duration, distraction frequency | Time tracker, journal |
-| Mood | 1-10 rating, anxiety/stress level | Journal, mood app |
-| Physical | Resting HR, exercise performance, soreness | Wearable, training log |
-| Digestion | Bloating, regularity, energy after meals | Journal |
-| Blood markers | Quarterly blood work panel | Lab (physician ordered) |
+| Category      | Metrics                                    | Tools                   |
+| ------------- | ------------------------------------------ | ----------------------- |
+| Sleep         | Duration, HRV, subjective quality          | Wearable, journal       |
+| Energy        | 1-10 rating at morning, midday, evening    | Journal, app            |
+| Focus         | Deep work duration, distraction frequency  | Time tracker, journal   |
+| Mood          | 1-10 rating, anxiety/stress level          | Journal, mood app       |
+| Physical      | Resting HR, exercise performance, soreness | Wearable, training log  |
+| Digestion     | Bloating, regularity, energy after meals   | Journal                 |
+| Blood markers | Quarterly blood work panel                 | Lab (physician ordered) |
 
 ---
 
 ## Common Biohacking Mistakes
 
-| Mistake | Why It Is a Problem | Better Approach |
-|---------|-------------------|----------------|
-| Skipping fundamentals | No supplement fixes bad sleep or no exercise | Master Tier 1 first |
-| Too many changes at once | Cannot attribute cause and effect | One variable at a time |
-| Chasing influencer protocols | Individual variation is huge; sponsorships bias content | Check primary research |
-| Ignoring dose-response | More is not always better (hormesis curve) | Follow researched doses |
-| No baseline measurement | Cannot tell if intervention is working | Track before and during |
-| Supplement stacking blindly | Interactions, redundancy, expense | Evaluate each individually |
-| Extreme protocols too fast | Injury, burnout, adverse effects | Gradual progression always |
-| Confirmation bias | Wanting it to work skews perception | Use objective metrics alongside subjective |
+| Mistake                      | Why It Is a Problem                                     | Better Approach                            |
+| ---------------------------- | ------------------------------------------------------- | ------------------------------------------ |
+| Skipping fundamentals        | No supplement fixes bad sleep or no exercise            | Master Tier 1 first                        |
+| Too many changes at once     | Cannot attribute cause and effect                       | One variable at a time                     |
+| Chasing influencer protocols | Individual variation is huge; sponsorships bias content | Check primary research                     |
+| Ignoring dose-response       | More is not always better (hormesis curve)              | Follow researched doses                    |
+| No baseline measurement      | Cannot tell if intervention is working                  | Track before and during                    |
+| Supplement stacking blindly  | Interactions, redundancy, expense                       | Evaluate each individually                 |
+| Extreme protocols too fast   | Injury, burnout, adverse effects                        | Gradual progression always                 |
+| Confirmation bias            | Wanting it to work skews perception                     | Use objective metrics alongside subjective |
 
 ---
 
@@ -528,29 +530,33 @@ When guiding a user on biohacking, provide:
 **Likely causes:** Caffeine timing, blood sugar roller coaster, circadian dip
 
 ### Phase 1: Quick Wins (Week 1-2)
-| Intervention | How | Why |
-|-------------|-----|-----|
-| Delay first coffee to 90 min after waking | Cortisol is naturally high at wake -- coffee before it drops wastes the effect | Prevents early crash |
-| Stop caffeine by 12pm | Caffeine half-life is 5-6 hours -- afternoon coffee disrupts sleep quality | Better sleep = better next-day energy |
-| Add protein to breakfast (30g+) | Protein stabilizes blood sugar vs. carb-heavy breakfast | Prevents 10am sugar dip |
+
+| Intervention                              | How                                                                            | Why                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------- |
+| Delay first coffee to 90 min after waking | Cortisol is naturally high at wake -- coffee before it drops wastes the effect | Prevents early crash                  |
+| Stop caffeine by 12pm                     | Caffeine half-life is 5-6 hours -- afternoon coffee disrupts sleep quality     | Better sleep = better next-day energy |
+| Add protein to breakfast (30g+)           | Protein stabilizes blood sugar vs. carb-heavy breakfast                        | Prevents 10am sugar dip               |
 
 ### Phase 2: Afternoon Crash Protocol (Week 3-4)
+
 - 12:30pm: Lunch with protein + fat + fiber (avoid heavy carbs)
 - 1:30pm: 10-minute walk outside (light exposure resets circadian alertness)
 - 2:00pm: If still drowsy, 20-minute "coffee nap" (drink coffee, immediately nap for 20 min -- caffeine kicks in as you wake)
 
 ### Phase 3: Sleep Optimization (Week 5-6)
+
 - Consistent wake time (even weekends, within 30 min)
 - Room temperature: 65-68F (18-20C) -- core body temperature drop is a sleep trigger
 - No screens 60 min before bed OR use blue-light blocking glasses
 - Track with sleep app or wearable: target 7-8 hrs with 20%+ deep sleep
 
 ### Tracking
-| Metric | Tool | Target |
-|--------|------|--------|
-| Energy level (1-10) | Simple journal, 3x/day | Consistent 7+ by week 4 |
-| Sleep quality | Wearable or app | 85%+ sleep score |
-| Caffeine intake | Track cups and times | Under 400mg, none after noon |
+
+| Metric              | Tool                   | Target                       |
+| ------------------- | ---------------------- | ---------------------------- |
+| Energy level (1-10) | Simple journal, 3x/day | Consistent 7+ by week 4      |
+| Sleep quality       | Wearable or app        | 85%+ sleep score             |
+| Caffeine intake     | Track cups and times   | Under 400mg, none after noon |
 
 > **Note:** This plan uses behavioral and environmental interventions only. Consult a healthcare provider before adding supplements.
 

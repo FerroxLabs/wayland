@@ -11,19 +11,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance guide troubleshooting"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'home-maintenance guide troubleshooting'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # HVAC Maintenance
 
 ## When to Use
 
 **Use this skill when the user:**
+
 - Asks how often to replace or check their HVAC filter, or what filter type and MERV rating to buy
 - Wants a seasonal maintenance checklist for a furnace, central AC, heat pump, boiler, mini-split, or window unit
 - Asks about reducing heating or cooling bills through system maintenance rather than behavioral changes
@@ -35,6 +37,7 @@ metadata:
 - Is deciding between repairing an aging HVAC system versus replacing it
 
 **Do NOT use this skill when:**
+
 - The user has no heat during freezing temperatures or no cooling during dangerous heat -- this is an emergency; instruct them to call an HVAC contractor or their utility emergency line immediately and do not delay with a maintenance checklist (use `emergency-home-repair` if available)
 - The user smells rotten eggs or sulfur near the furnace -- this indicates a gas leak; instruct them to leave the house immediately, avoid using electrical switches, and call the gas utility or 911 from outside
 - The user needs a full annual home maintenance calendar covering plumbing, roofing, electrical, and landscaping (use `annual-home-maintenance`)
@@ -84,6 +87,7 @@ Filter maintenance is the single highest-impact DIY maintenance task. Build a sp
 Seasonal tasks prevent the most common and expensive failure modes. Organize by season and system type, and include only tasks within homeowner capability.
 
 **Spring tasks (March-April, before cooling season begins):**
+
 - Replace or check the air filter
 - Clear debris (leaves, grass clippings, seed pods) from around the outdoor condenser unit. Maintain 2 feet of clearance on all sides and 5 feet above. Do not mulch up to the unit.
 - Gently rinse condenser coil fins with a garden hose, spraying from inside the unit outward (removes buildup of cottonwood, dirt, and grass clippings). Never use a pressure washer -- fin damage reduces efficiency measurably. Never rinse an energized unit.
@@ -96,6 +100,7 @@ Seasonal tasks prevent the most common and expensive failure modes. Organize by 
 - Test the condensate overflow switch if present (typically a float switch in the secondary drain pan -- dribble water into the secondary pan to confirm it shuts the system off)
 
 **Fall tasks (September-October, before heating season begins):**
+
 - Replace or check the air filter
 - Test carbon monoxide detectors on every floor of the home -- HVAC season is when CO risk increases
 - Inspect the furnace flue/exhaust pipe for disconnections, rust holes, or bird/pest nests. B-vent (double-wall metal) pipes should be firmly connected with no gaps. PVC exhaust pipes for high-efficiency furnaces should be clear of debris at the exterior termination.
@@ -109,6 +114,7 @@ Seasonal tasks prevent the most common and expensive failure modes. Organize by 
 - Test the humidifier (if present): flow-through humidifiers need the water panel/evaporator pad replaced annually; drum humidifiers need the drum pad replaced and the reservoir cleaned of mineral scale
 
 **Heat pump -- additional fall/winter tasks:**
+
 - Confirm defrost cycle operation: during heating mode below 40°F, ice buildup on the outdoor unit is normal and should clear in 20-30 minute defrost cycles. If ice covers the entire unit for hours, the defrost board or reversing valve may be malfunctioning.
 - Ensure outdoor unit is elevated above typical snow accumulation level in northern climates
 - Never operate a heat pump in heating mode below its rated low-temperature threshold (standard heat pumps: minimum 25-30°F; cold-climate heat pumps: rated to -13°F or below)
@@ -119,6 +125,7 @@ Seasonal tasks prevent the most common and expensive failure modes. Organize by 
 Give the user a detailed checklist of what a professional HVAC tune-up should include so they can evaluate whether the work they paid for was thorough. This also helps users detect unscrupulous contractors who charge for tune-ups without performing them.
 
 **Heating tune-up (fall, approximately 1-1.5 hours on site):**
+
 - Inspect heat exchanger for cracks using inspection camera or chemical smoke test. A cracked heat exchanger allows combustion gases including carbon monoxide into the living space -- this is the most safety-critical check.
 - Check flue gas composition: CO levels in flue gas should be below 200 ppm (air-free); CO2 should be 8-10% for natural gas. Elevated CO in the flue indicates combustion problems.
 - Verify gas manifold pressure with a manometer: 3.5 inches WC for natural gas, 10-11 inches WC for propane
@@ -132,6 +139,7 @@ Give the user a detailed checklist of what a professional HVAC tune-up should in
 - Tighten all electrical connections
 
 **Cooling tune-up (spring, approximately 1-1.5 hours on site):**
+
 - Measure refrigerant charge: suction line pressure and temperature are used to determine superheat (for fixed orifice/piston metering devices) or subcooling (for TXV/EEV metering devices). For a standard R-410A system with a piston metering device, target superheat is typically 10-20°F. For TXV systems, target subcooling is typically 8-12°F. Low superheat or subcooling indicates overcharge; high values indicate undercharge.
 - Inspect for refrigerant leaks using electronic leak detector or UV dye method
 - Clean evaporator coil with no-rinse coil cleaner spray if coil is accessible and dirty
@@ -144,6 +152,7 @@ Give the user a detailed checklist of what a professional HVAC tune-up should in
 - Check blower wheel for buildup (a dirty blower wheel reduces airflow significantly -- each blade accumulates debris that disrupts airflow)
 
 **Professional service costs:**
+
 - Furnace tune-up: $80-150 (single stage), $120-180 (two-stage or modulating)
 - AC or heat pump tune-up: $100-180
 - Combined heating/cooling tune-up: $150-280
@@ -165,6 +174,7 @@ Quantify the financial impact of each maintenance action so the user understands
 When the user has a specific complaint, map symptoms to likely causes and triage as DIY versus professional.
 
 **Noise diagnostics:**
+
 - **Banging or booming at startup (gas furnace):** Delayed ignition -- gas is accumulating before igniting, causing a small explosion. This indicates dirty burners, low gas pressure, or a failing igniter. Call a professional. Do not ignore this -- it can crack the heat exchanger over time.
 - **Squealing from indoor unit:** Worn belt (older belt-drive blowers, increasingly rare) or failing blower motor bearing. Call a professional -- belts and bearings are serviceable.
 - **Squealing or grinding from outdoor unit:** Failing condenser fan motor bearing. Call a professional promptly -- a seized fan motor will overheat the compressor.
@@ -175,6 +185,7 @@ When the user has a specific complaint, map symptoms to likely causes and triage
 - **Gurgling in a boiler system:** Air trapped in the radiator loop. Bleed the affected radiators (see Edge Cases).
 
 **Performance diagnostics:**
+
 - **Not cooling adequately:** Check filter (clogged?), check that outdoor unit is clear of debris and running, check that all registers are open, check thermostat setting and batteries. If all are normal, call a professional -- low refrigerant charge or failing compressor is likely.
 - **Not heating adequately (gas furnace):** Check filter, check that all registers are open, check thermostat. If furnace is running but air feels barely warm, check the temperature rise (put a thermometer in a supply vent and a return vent -- should be 40-70°F warmer at supply). Insufficient rise often means restricted airflow; excessive rise often means a heat exchanger or gas pressure issue.
 - **Short-cycling (system turns on and off every few minutes):** Causes include a clogged filter causing the high-limit switch to trip, a refrigerant overcharge or undercharge causing the pressure switch to trip, a failing capacitor, or an oversized system. Replace the filter first; if short-cycling continues, call a professional.
@@ -341,6 +352,7 @@ Produce the following structured plan. Omit sections not applicable to the user'
 ## Edge Cases
 
 ### Case 1: Unknown System -- User Cannot Identify Their Equipment
+
 Some homeowners, particularly renters or new buyers, may not know what type of system they have or where the equipment is located.
 
 - Guide the user through identification systematically: (1) Is there a forced-air vent system with a thermostat? If yes, locate the indoor air handler or furnace cabinet (often in basement, utility closet, attic, or garage). (2) Is there a flue pipe (metal chimney or PVC pipe) exiting through the wall or roof near the mechanical unit? If yes, it is a furnace (gas or oil). (3) Does the outdoor unit run in winter? If yes, it is a heat pump. (4) Are there radiators or radiant floor panels? If yes, it is a boiler system. (5) Are there wall-mounted or ceiling cassette units in individual rooms? If yes, it is a mini-split.
@@ -348,6 +360,7 @@ Some homeowners, particularly renters or new buyers, may not know what type of s
 - Without system identification, provide only universal guidance: change or check the filter if one exists, keep clearances around outdoor equipment, test the system before each season, and schedule professional service.
 
 ### Case 2: No Filter Accessible or No Filter Present
+
 Running an HVAC system without a filter is a common neglect scenario that causes expensive damage.
 
 - Guide the user to locate the filter slot by tracing the largest duct from the indoor unit back to the largest vent, which is typically the return air grille. Filter slots are either at the return air grille or inside the furnace/air handler cabinet on the inlet side.
@@ -356,6 +369,7 @@ Running an HVAC system without a filter is a common neglect scenario that causes
 - Install a filter as soon as the slot is identified. Measure the existing filter frame for dimensions if a filter is found, or measure the filter slot opening. Order the closest standard size (standard sizes: 16x20x1, 16x25x1, 20x20x1, 20x25x1, 14x20x1).
 
 ### Case 3: Hot-Water Boiler System (No Air Filter)
+
 Boiler systems are fundamentally different from forced-air systems, and the entire maintenance approach changes.
 
 - No air filter to replace. The maintenance focuses on the water loop and heat distribution.
@@ -366,6 +380,7 @@ Boiler systems are fundamentally different from forced-air systems, and the enti
 - **Steam boiler (subset):** Steam boilers operate at 1-3 psi (much lower pressure than hot water). The water glass (sight glass) should show water at half-full when the boiler is cold. Steam boilers also require annual blowing down of the low-water cutoff float chamber to remove sediment.
 
 ### Case 4: Mini-Split Ductless System
+
 Mini-splits have unique maintenance requirements distinct from ducted forced-air systems.
 
 - **Indoor air handler filters:** Each indoor unit has a washable filter (typically a thin foam or mesh filter behind the front panel). Wash monthly during the cooling season and every 2-3 months during heating season. Open the front panel, slide out the filter, wash with warm water and mild soap, rinse, air dry completely, reinstall. If filters are neglected, the evaporator coil behind the filter accumulates a dense layer of biological growth (mold, mildew) that requires professional coil cleaning.
@@ -375,24 +390,26 @@ Mini-splits have unique maintenance requirements distinct from ducted forced-air
 - **Multi-zone systems:** If one zone loses performance while others work normally, the issue is most likely that zone's indoor unit (dirty coil, blocked drain, failing fan) rather than the outdoor unit or refrigerant charge.
 
 ### Case 5: System Making Unusual Noises -- Noise Diagnostic Pathway
+
 When a user leads with a noise complaint, prioritize the diagnostic before building a maintenance plan.
 
-| Noise | Likely Source | DIY Resolution? | Urgency |
-|-------|--------------|-----------------|---------|
-| Banging/boom at furnace startup | Delayed ignition -- gas accumulating | No -- call professional | High |
-| Squealing from indoor unit | Blower belt (old system) or motor bearing | No -- call professional | Moderate |
-| Grinding from outdoor unit | Condenser fan motor bearing | No -- call professional promptly | High |
-| Rattling from furnace cabinet | Loose access panel, loose screws | Yes -- inspect and tighten screws | Low |
-| Rattling from outdoor unit | Debris inside unit | Yes -- power off, remove debris | Low |
-| Hissing from refrigerant lines | Refrigerant leak | No -- call professional | High |
-| Continuous clicking (no ignition) | Igniter, gas valve, pressure switch | No -- call professional | Moderate |
-| Gurgling in boiler pipes | Air in hot-water loop | Yes -- bleed radiators | Low-Moderate |
-| Popping/banging from ductwork | Thermal expansion, undersized ducts | Partially -- duct reinforcement if recurring | Low |
-| Bubbling/gurgling from AC drain pan | Clogged condensate drain | Yes -- clear drain | Moderate |
+| Noise                               | Likely Source                             | DIY Resolution?                              | Urgency      |
+| ----------------------------------- | ----------------------------------------- | -------------------------------------------- | ------------ |
+| Banging/boom at furnace startup     | Delayed ignition -- gas accumulating      | No -- call professional                      | High         |
+| Squealing from indoor unit          | Blower belt (old system) or motor bearing | No -- call professional                      | Moderate     |
+| Grinding from outdoor unit          | Condenser fan motor bearing               | No -- call professional promptly             | High         |
+| Rattling from furnace cabinet       | Loose access panel, loose screws          | Yes -- inspect and tighten screws            | Low          |
+| Rattling from outdoor unit          | Debris inside unit                        | Yes -- power off, remove debris              | Low          |
+| Hissing from refrigerant lines      | Refrigerant leak                          | No -- call professional                      | High         |
+| Continuous clicking (no ignition)   | Igniter, gas valve, pressure switch       | No -- call professional                      | Moderate     |
+| Gurgling in boiler pipes            | Air in hot-water loop                     | Yes -- bleed radiators                       | Low-Moderate |
+| Popping/banging from ductwork       | Thermal expansion, undersized ducts       | Partially -- duct reinforcement if recurring | Low          |
+| Bubbling/gurgling from AC drain pan | Clogged condensate drain                  | Yes -- clear drain                           | Moderate     |
 
 For any noise involving potential gas leak, CO risk, or refrigerant hissing: do not proceed with DIY. Address safety first.
 
 ### Case 6: Very Old System (20+ Years)
+
 A different framing is required for systems at or past their expected service life.
 
 - **Expected lifespans:** Gas furnace 15-25 years; central AC 12-17 years; heat pump 12-15 years; hot-water boiler 15-30 years; steam boiler 25-50 years (cast iron sections); mini-split 12-20 years
@@ -403,6 +420,7 @@ A different framing is required for systems at or past their expected service li
 - **Maintenance advice for aging systems:** Maintain filters diligently to reduce strain on the blower, keep the condenser clean to reduce compressor strain, but do not invest in duct sealing or insulation upgrades if system replacement is imminent -- save that investment for post-replacement, when new equipment will benefit from the efficiency improvement.
 
 ### Case 7: Musty or Burning Smell From HVAC System
+
 Smell complaints require triage before maintenance guidance.
 
 - **Musty smell (mildew-like):** Almost always indicates biological growth on the evaporator coil or in the ductwork. Causes: (a) evaporator coil is dirty and the drain pan is holding water, allowing mold growth; (b) condensate drain is slow and the pan intermittently floods; (c) ductwork has been exposed to moisture from a leak, flood, or extreme condensation. Solution sequence: (1) Replace the air filter immediately. (2) Check and clear the condensate drain. (3) Schedule professional evaporator coil cleaning ($150-350). (4) If smell persists after coil cleaning, consider a professional duct inspection for moisture intrusion.
@@ -443,16 +461,18 @@ Because service history is unknown on a purchased home, the first priority is es
 
 ### Filter Schedule
 
-| Filter Type | Dimensions | Replace Interval | Cost per Filter | Annual Cost Estimate |
-|-------------|------------|-----------------|----------------|----------------------|
-| 1-inch disposable, MERV 11 | [Confirm your size -- likely 16x25x1 or 20x25x1] | Every 45 days | $12-20 | $97-163 |
+| Filter Type                | Dimensions                                       | Replace Interval | Cost per Filter | Annual Cost Estimate |
+| -------------------------- | ------------------------------------------------ | ---------------- | --------------- | -------------------- |
+| 1-inch disposable, MERV 11 | [Confirm your size -- likely 16x25x1 or 20x25x1] | Every 45 days    | $12-20          | $97-163              |
 
 **Rationale for these specifications:**
+
 - MERV 11 (not MERV 8): Your allergy sufferer needs MERV 11 minimum. MERV 11 captures particles as small as 1 micron, including pet dander, mold spores, and most pollen.
 - 45-day interval: Base 90-day interval, reduced by 30 days for two dogs (high dander and fur load), which brings this to approximately 45-60 days. Start at 45 days; after 2-3 replacements, examine the filter at 45 days -- if it is only moderately grey, you can extend to 55-60 days.
 - Do not use MERV 13+ in a standard 1-inch slot. The pressure drop is too high for most residential blowers and will reduce airflow, potentially causing the evaporator coil to ice over.
 
 **Filter replacement procedure:**
+
 1. Turn the thermostat to OFF (do not just lower the setpoint -- actually switch the system mode to off).
 2. Locate the filter at the return air grille or inside the furnace cabinet at the inlet side.
 3. Slide out the old filter and note the dimensions printed on the cardboard frame (e.g., 16x25x1). This is your exact filter size.
@@ -462,6 +482,7 @@ Because service history is unknown on a purchased home, the first priority is es
 7. Place the old filter directly into a trash bag and seal it -- this prevents captured pet dander from re-entering the air.
 
 **Warning signs during filter changes:**
+
 - Filter is soaking wet: indicates a condensate drain problem -- check and clear the drain pan and drain line before the next cooling season
 - Black mold visible on the filter or inside the filter slot: indicates biological growth in the ductwork or on the coil -- schedule professional coil inspection
 - No filter present at all: the evaporator coil and blower wheel likely need professional cleaning ($200-400) -- schedule this at your upcoming tune-up
@@ -471,4 +492,5 @@ Because service history is unknown on a purchased home, the first priority is es
 ### Seasonal DIY Maintenance Checklist
 
 #### Spring Startup (Target: Late March to April, Before First Hot Day)
-**Estimated total time: 45-
+
+\*\*Estimated total time: 45-

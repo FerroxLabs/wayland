@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events parenting planning checklist"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events parenting planning checklist'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Baby Preparation
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on baby preparation
 - User asks about baby preparation best practices or techniques
 - User wants a structured approach to baby preparation
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of baby preparation
 
@@ -145,6 +146,7 @@ PREPARATION:
 ## Birth Plan Creation
 
 ### Birth Preferences Template
+
 ```
 BIRTH PREFERENCES FOR: _______________
 DUE DATE: _______________
@@ -193,6 +195,7 @@ care team to communicate with us about any adjustments needed.
 ## Nursery Setup Guide
 
 ### Essential Items (Need Before Baby Arrives)
+
 ```
 SLEEP:
   [ ] Crib or bassinet meeting current safety standards
@@ -239,6 +242,7 @@ HEALTH:
 ```
 
 ### Nice-to-Have Items
+
 - Baby monitor (video or audio)
 - White noise machine
 - Bouncer or swing
@@ -249,6 +253,7 @@ HEALTH:
 - Play mat/activity gym
 
 ### Nursery Safety Checklist
+
 ```
 [ ] Crib meets current CPSC safety standards
 [ ] Crib mattress is firm and fits snugly (no more than two fingers between mattress and side)
@@ -264,6 +269,7 @@ HEALTH:
 ## Registry Building Strategy
 
 ### The Registry Philosophy
+
 - Register at 2 stores maximum (one online, one with physical locations for returns)
 - Include a range of price points ($10-$200+)
 - Add consumables (diapers, wipes) alongside gear
@@ -271,6 +277,7 @@ HEALTH:
 - Completion discounts (most registries offer 10-15% off remaining items)
 
 ### Registry Priorities by Category
+
 ```
 HIGH PRIORITY (register first):
   - Car seat
@@ -296,6 +303,7 @@ LOWER PRIORITY (nice to receive):
 ## Hospital Bag Checklist
 
 ### For the Birthing Parent
+
 ```
 DURING LABOR:
   [ ] Insurance card and ID
@@ -322,6 +330,7 @@ POSTPARTUM (in hospital):
 ```
 
 ### For the Support Partner
+
 ```
   [ ] Change of clothes (1-2 sets)
   [ ] Toiletries
@@ -336,6 +345,7 @@ POSTPARTUM (in hospital):
 ```
 
 ### For Baby
+
 ```
   [ ] Going-home outfit (newborn size AND 0-3, just in case)
   [ ] Swaddle blanket
@@ -347,6 +357,7 @@ POSTPARTUM (in hospital):
 ## Parental Leave Planning
 
 ### Before Leave
+
 ```
 WORKPLACE PREPARATION (8-12 weeks before due date):
   [ ] Confirm leave policy (company policy + FMLA if eligible)
@@ -367,6 +378,7 @@ FINANCIAL PREPARATION:
 ```
 
 ### Leave Options to Explore
+
 - **FMLA**: 12 weeks unpaid, job-protected (50+ employees, 12 months tenure)
 - **State Paid Family Leave**: Varies by state (CA, NY, NJ, WA, MA, CT, OR, CO, others)
 - **Short-Term Disability**: Often covers 6-8 weeks for birth recovery
@@ -377,6 +389,7 @@ FINANCIAL PREPARATION:
 ## Childcare Research
 
 ### Timeline
+
 ```
 START RESEARCHING: During pregnancy (second trimester ideal)
 WHY SO EARLY: Quality daycare waitlists can be 6-18 months
@@ -391,6 +404,7 @@ TYPES OF CHILDCARE:
 ```
 
 ### Childcare Evaluation Checklist
+
 ```
 FACILITY/PROVIDER VISIT:
   [ ] Licensed/accredited? (Check state requirements)
@@ -420,6 +434,7 @@ PRACTICAL:
 ## Financial Preparation
 
 ### First-Year Cost Estimates
+
 ```
 CATEGORY                      ESTIMATED ANNUAL COST
 Childcare (if applicable):    $10,000 - $25,000+
@@ -438,6 +453,7 @@ all significantly reduce costs.
 ```
 
 ### Financial Action Items
+
 ```
 BEFORE BABY:
   [ ] Review and adjust budget for new expenses
@@ -454,6 +470,7 @@ BEFORE BABY:
 ## Emotional Preparation
 
 ### What Nobody Tells You
+
 - It is normal to feel terrified, even when the baby is planned and wanted
 - Grief for your pre-baby life is valid and does not mean you do not want this
 - Your relationship with your partner will change; proactive communication helps enormously
@@ -463,6 +480,7 @@ BEFORE BABY:
 - "Good enough" parenting is genuinely good enough
 
 ### Postpartum Warning Signs (Seek Help)
+
 ```
 Contact your healthcare provider if you experience:
   - Persistent sadness, hopelessness, or emptiness lasting more than 2 weeks
@@ -483,6 +501,7 @@ CRISIS RESOURCES:
 ## Quick Reference
 
 When asked about baby preparation, apply these principles:
+
 - **"Where do I even start?"** → Begin with trimester-appropriate checklist, focus on medical care first
 - **"What do I actually need?"** → Essential items list; emphasize that babies need far less stuff than marketing suggests
 - **"How do we afford this?"** → Financial preparation framework; identify free/low-cost resources
@@ -491,7 +510,6 @@ When asked about baby preparation, apply these principles:
 - **"Childcare options"** → Start early, provide evaluation checklist, respect all valid choices
 
 Remember: every family, every pregnancy, and every baby is different. Provide guidance without judgment, and always defer to their healthcare provider for medical questions.
-
 
 ## Output Format
 
@@ -505,13 +523,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with baby preparation for a mid-size project."
 
 **Output:** A complete baby preparation framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

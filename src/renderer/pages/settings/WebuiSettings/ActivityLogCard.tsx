@@ -58,48 +58,44 @@ const ActivityLogCard: React.FC = () => {
   const visible = expanded ? events : events.slice(0, PREVIEW_COUNT);
 
   return (
-    <div className="px-[12px] md:px-[28px] py-14px bg-[var(--color-bg-2)] border border-solid border-[var(--color-border-2)] rd-12px">
-      <div className="flex items-center justify-between mb-12px">
-        <div className="text-14px font-500 text-t-primary">{t('settings.webui.activityLog.title')}</div>
-        <Button type="text" size="small" onClick={load}>
+    <div className='px-[12px] md:px-[28px] py-14px bg-[var(--color-bg-2)] border border-solid border-[var(--color-border-2)] rd-12px'>
+      <div className='flex items-center justify-between mb-12px'>
+        <div className='text-14px font-500 text-t-primary'>{t('settings.webui.activityLog.title')}</div>
+        <Button type='text' size='small' onClick={load}>
           {t('settings.webui.activityLog.refresh')}
         </Button>
       </div>
 
       {loading && (
-        <div className="flex justify-center py-12px">
+        <div className='flex justify-center py-12px'>
           <Spin />
         </div>
       )}
 
       {!loading && events.length === 0 && (
-        <div className="text-13px text-t-tertiary py-8px">{t('settings.webui.activityLog.empty')}</div>
+        <div className='text-13px text-t-tertiary py-8px'>{t('settings.webui.activityLog.empty')}</div>
       )}
 
       {!loading && visible.length > 0 && (
-        <div className="flex flex-col gap-4px">
+        <div className='flex flex-col gap-4px'>
           {visible.map((event) => (
             <div
               key={event.id}
-              className="flex items-start gap-10px px-10px py-8px rd-8px hover:bg-fill-1 transition-colors"
+              className='flex items-start gap-10px px-10px py-8px rd-8px hover:bg-fill-1 transition-colors'
             >
-              <span className="text-11px font-500 text-t-tertiary shrink-0 mt-1px w-100px truncate">
+              <span className='text-11px font-500 text-t-tertiary shrink-0 mt-1px w-100px truncate'>
                 {TYPE_LABELS[event.type] ?? event.type}
               </span>
-              <span className="flex-1 text-12px text-t-secondary truncate">{event.detail}</span>
-              <span className="text-11px text-t-tertiary shrink-0">{formatTime(event.ts)}</span>
+              <span className='flex-1 text-12px text-t-secondary truncate'>{event.detail}</span>
+              <span className='text-11px text-t-tertiary shrink-0'>{formatTime(event.ts)}</span>
             </div>
           ))}
         </div>
       )}
 
       {!loading && events.length > PREVIEW_COUNT && (
-        <div className="mt-8px">
-          <Button
-            type="text"
-            size="small"
-            onClick={() => setExpanded((e) => !e)}
-          >
+        <div className='mt-8px'>
+          <Button type='text' size='small' onClick={() => setExpanded((e) => !e)}>
             {expanded
               ? t('settings.webui.activityLog.showLess')
               : t('settings.webui.activityLog.viewAll', { count: events.length })}

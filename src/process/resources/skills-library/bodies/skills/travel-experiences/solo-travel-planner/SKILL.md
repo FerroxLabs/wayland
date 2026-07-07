@@ -14,13 +14,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel planning safety itinerary"
-  category: "travel-experiences"
-  subcategory: "trip-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel planning safety itinerary'
+  category: 'travel-experiences'
+  subcategory: 'trip-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Solo Travel Planner
@@ -28,6 +28,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks to plan a solo trip or travel alone
 - User wants safety-conscious travel planning for a single traveler
 - User asks about solo-friendly destinations, activities, or accommodations
@@ -36,6 +37,7 @@ metadata:
 - User wants social connection opportunities while traveling alone
 
 **Do NOT use when:**
+
 - User is traveling with others (use `trip-itinerary-builder` or `family-trip-planner`)
 - User wants only a general itinerary without solo-specific safety features (use `trip-itinerary-builder`)
 - User wants a travel budget (use `budget-travel-planner`)
@@ -210,13 +212,13 @@ metadata:
 
 ### Emergency Contacts Card
 
-| Contact                  | Number/Info                                    |
-|--------------------------|------------------------------------------------|
-| Local emergency          | 112 (all services)                             |
-| Nearest embassy/consulate| Check your country's embassy directory for Barcelona location |
-| Accommodation            | [To be filled after booking -- keep address and phone on paper and phone] |
-| Home check-in contact    | [User's designated contact]                    |
-| Travel insurance         | [Policy number -- carry a photo of your card]  |
+| Contact                   | Number/Info                                                               |
+| ------------------------- | ------------------------------------------------------------------------- |
+| Local emergency           | 112 (all services)                                                        |
+| Nearest embassy/consulate | Check your country's embassy directory for Barcelona location             |
+| Accommodation             | [To be filled after booking -- keep address and phone on paper and phone] |
+| Home check-in contact     | [User's designated contact]                                               |
+| Travel insurance          | [Policy number -- carry a photo of your card]                             |
 
 **Check-in protocol:** Daily text at 20:00 local time to home contact. Share live location during the day.
 
@@ -233,17 +235,18 @@ metadata:
 
 **Focus area:** Gothic Quarter and Born neighborhood
 
-| Time  | Activity                                     | Duration | Transit          | Solo notes                         |
-|-------|----------------------------------------------|----------|------------------|------------------------------------|
-| 12:00 | Check in, settle, neighborhood orientation walk | 60 min  | Walk             | Get your bearings, find nearby cafe|
-| 13:00 | Lunch -- Born neighborhood food market hall   | 60 min   | Walk, 5 min      | Market stalls, counter seating, casual -- no table-for-one awkwardness |
-| 14:15 | Gothic Quarter self-guided walk               | 90 min   | Walk, 10 min     | Cathedral square, narrow streets, Roman walls |
-| 15:45 | Coffee at a plaza cafe -- people-watching      | 30 min   | Walk, 5 min      | Outdoor cafe, bring a book or journal |
-| 16:30 | Group walking tour of Gothic Quarter          | 120 min  | Walk, 5 min      | **Social opportunity**: meet other travelers, tip-based |
-| 18:30 | Free time / rest at accommodation             | 90 min   | Walk              | Recharge before evening            |
-| 20:00 | Dinner -- Born neighborhood tapas bar         | 75 min   | Walk, 5 min      | Bar seating is standard for tapas -- solo is normal here |
+| Time  | Activity                                        | Duration | Transit      | Solo notes                                                             |
+| ----- | ----------------------------------------------- | -------- | ------------ | ---------------------------------------------------------------------- |
+| 12:00 | Check in, settle, neighborhood orientation walk | 60 min   | Walk         | Get your bearings, find nearby cafe                                    |
+| 13:00 | Lunch -- Born neighborhood food market hall     | 60 min   | Walk, 5 min  | Market stalls, counter seating, casual -- no table-for-one awkwardness |
+| 14:15 | Gothic Quarter self-guided walk                 | 90 min   | Walk, 10 min | Cathedral square, narrow streets, Roman walls                          |
+| 15:45 | Coffee at a plaza cafe -- people-watching       | 30 min   | Walk, 5 min  | Outdoor cafe, bring a book or journal                                  |
+| 16:30 | Group walking tour of Gothic Quarter            | 120 min  | Walk, 5 min  | **Social opportunity**: meet other travelers, tip-based                |
+| 18:30 | Free time / rest at accommodation               | 90 min   | Walk         | Recharge before evening                                                |
+| 20:00 | Dinner -- Born neighborhood tapas bar           | 75 min   | Walk, 5 min  | Bar seating is standard for tapas -- solo is normal here               |
 
 **Solo dining options today:**
+
 - Lunch: Market hall -- counter stalls, point-and-choose, no menu anxiety
 - Dinner: Tapas bar -- bar seating is the norm, order 3-4 small plates, casual
 
@@ -256,19 +259,20 @@ metadata:
 
 **Focus area:** Eixample
 
-| Time  | Activity                                     | Duration | Transit          | Solo notes                         |
-|-------|----------------------------------------------|----------|------------------|------------------------------------|
-| 09:00 | Breakfast near accommodation                  | 30 min   | Walk              | Cafe counter or hotel breakfast    |
-| 09:45 | Sagrada Familia visit                         | 90 min   | Metro, 15 min    | Book ahead: 7 days. Audio guide works perfectly solo |
-| 11:30 | Eixample neighborhood walk -- modernist facades | 60 min  | Walk              | Self-guided, photograph building details |
-| 12:30 | Casa Batllo or Casa Mila exterior and area     | 45 min   | Walk, 10 min     | Book interior visit ahead if desired |
-| 13:30 | Lunch -- Eixample local lunch counter          | 45 min   | Walk, 5 min      | Many restaurants offer "menu del dia" at counter |
-| 14:30 | Cooking class with market visit               | 180 min  | Metro, 10 min    | **Social opportunity**: group class, make a meal together |
-| 18:00 | Rest at accommodation                          | 90 min   | Metro, 15 min    |                                    |
-| 19:30 | Sunset walk at Bunkers del Carmel viewpoint    | 60 min   | Bus, 20 min      | Popular local hangout, bring a snack |
-| 21:00 | Dinner -- Gracia neighborhood small plates     | 75 min   | Walk, 15 min     | Lively area, bar seating available  |
+| Time  | Activity                                        | Duration | Transit       | Solo notes                                                |
+| ----- | ----------------------------------------------- | -------- | ------------- | --------------------------------------------------------- |
+| 09:00 | Breakfast near accommodation                    | 30 min   | Walk          | Cafe counter or hotel breakfast                           |
+| 09:45 | Sagrada Familia visit                           | 90 min   | Metro, 15 min | Book ahead: 7 days. Audio guide works perfectly solo      |
+| 11:30 | Eixample neighborhood walk -- modernist facades | 60 min   | Walk          | Self-guided, photograph building details                  |
+| 12:30 | Casa Batllo or Casa Mila exterior and area      | 45 min   | Walk, 10 min  | Book interior visit ahead if desired                      |
+| 13:30 | Lunch -- Eixample local lunch counter           | 45 min   | Walk, 5 min   | Many restaurants offer "menu del dia" at counter          |
+| 14:30 | Cooking class with market visit                 | 180 min  | Metro, 10 min | **Social opportunity**: group class, make a meal together |
+| 18:00 | Rest at accommodation                           | 90 min   | Metro, 15 min |                                                           |
+| 19:30 | Sunset walk at Bunkers del Carmel viewpoint     | 60 min   | Bus, 20 min   | Popular local hangout, bring a snack                      |
+| 21:00 | Dinner -- Gracia neighborhood small plates      | 75 min   | Walk, 15 min  | Lively area, bar seating available                        |
 
 **Solo dining options today:**
+
 - Breakfast: Cafe counter near accommodation
 - Lunch: "Menu del dia" counter at Eixample restaurant (set lunch, fast, solo-friendly)
 - Dinner: Gracia neighborhood -- vibrant evening atmosphere, comfortable for solo diners
@@ -282,19 +286,20 @@ metadata:
 
 **Focus area:** Barceloneta and Montjuic
 
-| Time  | Activity                                     | Duration | Transit          | Solo notes                         |
-|-------|----------------------------------------------|----------|------------------|------------------------------------|
-| 09:00 | Breakfast at accommodation                    | 30 min   | --                |                                    |
-| 09:45 | Barceloneta beach morning walk                | 45 min   | Metro, 10 min    | Daytime only for solo beach visits  |
-| 10:50 | Port area exploration and maritime museum area| 60 min   | Walk, 10 min     |                                    |
-| 12:00 | Food tour of Born or Barceloneta              | 150 min  | Walk, 5 min      | **Social opportunity**: group food tour, 6-12 people |
-| 14:30 | Montjuic cable car and gardens                | 90 min   | Metro + funicular, 20 min | Beautiful solo walk, photo opportunities |
-| 16:20 | National Art Museum area                       | 75 min   | Walk, 10 min     | Rooftop terrace has city views     |
-| 17:45 | Return to accommodation, rest                  | 90 min   | Metro, 15 min    |                                    |
-| 19:30 | Evening at accommodation social area or local bar | 90 min | Walk             | Hostel event or neighborhood wine bar |
-| 21:00 | Dinner -- neighborhood casual restaurant       | 60 min   | Walk, 5 min      |                                    |
+| Time  | Activity                                          | Duration | Transit                   | Solo notes                                           |
+| ----- | ------------------------------------------------- | -------- | ------------------------- | ---------------------------------------------------- |
+| 09:00 | Breakfast at accommodation                        | 30 min   | --                        |                                                      |
+| 09:45 | Barceloneta beach morning walk                    | 45 min   | Metro, 10 min             | Daytime only for solo beach visits                   |
+| 10:50 | Port area exploration and maritime museum area    | 60 min   | Walk, 10 min              |                                                      |
+| 12:00 | Food tour of Born or Barceloneta                  | 150 min  | Walk, 5 min               | **Social opportunity**: group food tour, 6-12 people |
+| 14:30 | Montjuic cable car and gardens                    | 90 min   | Metro + funicular, 20 min | Beautiful solo walk, photo opportunities             |
+| 16:20 | National Art Museum area                          | 75 min   | Walk, 10 min              | Rooftop terrace has city views                       |
+| 17:45 | Return to accommodation, rest                     | 90 min   | Metro, 15 min             |                                                      |
+| 19:30 | Evening at accommodation social area or local bar | 90 min   | Walk                      | Hostel event or neighborhood wine bar                |
+| 21:00 | Dinner -- neighborhood casual restaurant          | 60 min   | Walk, 5 min               |                                                      |
 
 **Solo dining options today:**
+
 - Lunch: Covered by food tour (social, communal)
 - Dinner: Casual neighborhood spot -- counter or small table, relaxed atmosphere
 
@@ -306,14 +311,14 @@ metadata:
 
 **Focus area:** Gracia neighborhood
 
-| Time  | Activity                                     | Duration | Transit          | Solo notes                         |
-|-------|----------------------------------------------|----------|------------------|------------------------------------|
-| 08:30 | Breakfast at a Gracia cafe                    | 40 min   | Walk or metro     | Last local breakfast               |
-| 09:30 | Gracia neighborhood market visit               | 45 min   | Walk, 5 min      | Local food market, buy snacks for travel |
-| 10:30 | Park Guell area visit                          | 75 min   | Walk, 15 min     | Book ahead: 3 days                 |
-| 12:00 | Last lunch -- Gracia tapas bar                 | 45 min   | Walk, 10 min     |                                    |
-| 13:00 | Return to accommodation, check out             | 30 min   | Metro, 10 min    | Luggage storage if needed          |
-| 13:45 | Depart for airport                             | --       | Airport bus, 35 min | Arrive 2 hours before flight     |
+| Time  | Activity                           | Duration | Transit             | Solo notes                               |
+| ----- | ---------------------------------- | -------- | ------------------- | ---------------------------------------- |
+| 08:30 | Breakfast at a Gracia cafe         | 40 min   | Walk or metro       | Last local breakfast                     |
+| 09:30 | Gracia neighborhood market visit   | 45 min   | Walk, 5 min         | Local food market, buy snacks for travel |
+| 10:30 | Park Guell area visit              | 75 min   | Walk, 15 min        | Book ahead: 3 days                       |
+| 12:00 | Last lunch -- Gracia tapas bar     | 45 min   | Walk, 10 min        |                                          |
+| 13:00 | Return to accommodation, check out | 30 min   | Metro, 10 min       | Luggage storage if needed                |
+| 13:45 | Depart for airport                 | --       | Airport bus, 35 min | Arrive 2 hours before flight             |
 
 **Check-in:** Text after arriving at airport
 
@@ -321,12 +326,12 @@ metadata:
 
 ### Social Connection Opportunities
 
-| Day | Activity                    | Type           | Booking needed |
-|-----|-----------------------------|----------------|----------------|
-| 1   | Group walking tour          | Group tour     | No (show up)   |
-| 2   | Cooking class with market   | Social dining  | Yes, 5 days ahead |
-| 3   | Food tour of Born area      | Group tour     | Yes, 3 days ahead |
-| 3   | Accommodation social event  | Informal       | No             |
+| Day | Activity                   | Type          | Booking needed    |
+| --- | -------------------------- | ------------- | ----------------- |
+| 1   | Group walking tour         | Group tour    | No (show up)      |
+| 2   | Cooking class with market  | Social dining | Yes, 5 days ahead |
+| 3   | Food tour of Born area     | Group tour    | Yes, 3 days ahead |
+| 3   | Accommodation social event | Informal      | No                |
 
 ### Solo Packing Additions
 

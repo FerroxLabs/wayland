@@ -92,7 +92,7 @@ function installFetchMock(): void {
         });
       }
       return new Response('', { status: 404 });
-    }),
+    })
   );
 }
 
@@ -178,7 +178,7 @@ describe('SignalPlugin.sendMessage', () => {
     await p.start();
 
     // Build a text that is just over 2× the chunk limit so it splits into 3.
-    const longText = ('word ').repeat(900).trim(); // ~4500 chars
+    const longText = 'word '.repeat(900).trim(); // ~4500 chars
     await p.sendMessage('+12125550100', { type: 'text', text: longText });
 
     // At least 2 send RPC posts expected (text was chunked).

@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care checklist template"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'elder-care checklist template'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Medication Management for Caregivers
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about organizing medications for an aging parent or family member
 - User wants to set up a medication tracking system or schedule
 - User needs templates for recording and managing prescriptions
@@ -36,6 +37,7 @@ metadata:
 - User wants to create a medication list for emergency use or physician visits
 
 **Do NOT use this skill when:**
+
 - User asks whether a specific medication should be taken or stopped (physician decision)
 - User asks about drug interactions or side effects (pharmacist or physician consultation)
 - User asks about medication dosing or adjusting doses (physician decision)
@@ -67,14 +69,14 @@ metadata:
 
 2. **Create the daily medication schedule.** Organize by administration time:
 
-   | Time | Medication | Dose | Instructions | Given By | Initials |
-   |------|-----------|------|-------------|----------|----------|
-   | 7:00 AM (with breakfast) | [Med A] | [X mg] | Take with food | | |
-   | 7:00 AM (with breakfast) | [Med B] | [X mg] | Swallow whole, do not crush | | |
-   | 12:00 PM (with lunch) | [Med C] | [X mg] | Take with full glass of water | | |
-   | 5:00 PM (with dinner) | [Med D] | [X mg] | Take with food | | |
-   | 9:00 PM (bedtime) | [Med E] | [X mg] | Take 30 minutes before bed | | |
-   | As needed | [Med F] | [X mg] | Maximum X times per day, minimum Y hours apart | | |
+   | Time                     | Medication | Dose   | Instructions                                   | Given By | Initials |
+   | ------------------------ | ---------- | ------ | ---------------------------------------------- | -------- | -------- |
+   | 7:00 AM (with breakfast) | [Med A]    | [X mg] | Take with food                                 |          |          |
+   | 7:00 AM (with breakfast) | [Med B]    | [X mg] | Swallow whole, do not crush                    |          |          |
+   | 12:00 PM (with lunch)    | [Med C]    | [X mg] | Take with full glass of water                  |          |          |
+   | 5:00 PM (with dinner)    | [Med D]    | [X mg] | Take with food                                 |          |          |
+   | 9:00 PM (bedtime)        | [Med E]    | [X mg] | Take 30 minutes before bed                     |          |          |
+   | As needed                | [Med F]    | [X mg] | Maximum X times per day, minimum Y hours apart |          |          |
 
    **Administration tracking:**
    - Check off each medication as given
@@ -148,9 +150,9 @@ metadata:
 
 6. **Set up the medication change log:**
 
-   | Date | Medication | Change | Ordered By | Reason | Effective Date | Caregivers Notified |
-   |------|-----------|--------|------------|--------|---------------|---------------------|
-   | [Date] | [Name] | Added/Removed/Dose changed | [Physician] | [Reason stated] | [When to start] | [Date and method] |
+   | Date   | Medication | Change                     | Ordered By  | Reason          | Effective Date  | Caregivers Notified |
+   | ------ | ---------- | -------------------------- | ----------- | --------------- | --------------- | ------------------- |
+   | [Date] | [Name]     | Added/Removed/Dose changed | [Physician] | [Reason stated] | [When to start] | [Date and method]   |
 
    This log creates a history that helps physicians understand the medication journey over time.
 
@@ -233,65 +235,68 @@ Updated by: [Name]
 ## Medication Management System for Mom
 
 ### Master Medication List
+
 Last updated: [Today's date]
 Updated by: [User's name]
 
-| # | Medication | Dose | Form | Freq | Time | Food | Prescriber | Pharmacy | Rx# | Refills | Next Refill |
-|---|-----------|------|------|------|------|------|------------|----------|-----|---------|-------------|
-| 1 | Lisinopril (Zestril) | 10mg | Tablet | 1x/day | 7:00 AM | No | Dr. [PCP] | [Pharmacy] | [#] | 3 | [Date] |
-| 2 | Metformin (Glucophage) | 500mg | Tablet | 2x/day | 7:00 AM, 5:00 PM | Yes | Dr. [PCP] | [Pharmacy] | [#] | 2 | [Date] |
-| 3 | Amlodipine (Norvasc) | 5mg | Tablet | 1x/day | 7:00 AM | No | Dr. [Cardio] | [Pharmacy] | [#] | 5 | [Date] |
-| 4 | Atorvastatin (Lipitor) | 20mg | Tablet | 1x/day | 9:00 PM | No | Dr. [Cardio] | [Pharmacy] | [#] | 4 | [Date] |
-| 5 | Levothyroxine (Synthroid) | 50mcg | Tablet | 1x/day | 6:30 AM | Empty stomach, 30 min before food | Dr. [Endo] | [Pharmacy] | [#] | 1 | [Date] |
-| 6 | Omeprazole (Prilosec) | 20mg | Capsule | 1x/day | 6:30 AM | 30 min before breakfast | Dr. [PCP] | [Pharmacy] | [#] | 0 | OVERDUE |
-| 7 | Vitamin D3 | 2000 IU | Tablet | 1x/day | 7:00 AM | Yes | Dr. [PCP] | OTC | N/A | N/A | Buy monthly |
-| 8 | Aspirin (low-dose) | 81mg | Tablet | 1x/day | 7:00 AM | Yes | Dr. [Cardio] | OTC | N/A | N/A | Buy monthly |
+| #   | Medication                | Dose    | Form    | Freq   | Time             | Food                              | Prescriber   | Pharmacy   | Rx# | Refills | Next Refill |
+| --- | ------------------------- | ------- | ------- | ------ | ---------------- | --------------------------------- | ------------ | ---------- | --- | ------- | ----------- |
+| 1   | Lisinopril (Zestril)      | 10mg    | Tablet  | 1x/day | 7:00 AM          | No                                | Dr. [PCP]    | [Pharmacy] | [#] | 3       | [Date]      |
+| 2   | Metformin (Glucophage)    | 500mg   | Tablet  | 2x/day | 7:00 AM, 5:00 PM | Yes                               | Dr. [PCP]    | [Pharmacy] | [#] | 2       | [Date]      |
+| 3   | Amlodipine (Norvasc)      | 5mg     | Tablet  | 1x/day | 7:00 AM          | No                                | Dr. [Cardio] | [Pharmacy] | [#] | 5       | [Date]      |
+| 4   | Atorvastatin (Lipitor)    | 20mg    | Tablet  | 1x/day | 9:00 PM          | No                                | Dr. [Cardio] | [Pharmacy] | [#] | 4       | [Date]      |
+| 5   | Levothyroxine (Synthroid) | 50mcg   | Tablet  | 1x/day | 6:30 AM          | Empty stomach, 30 min before food | Dr. [Endo]   | [Pharmacy] | [#] | 1       | [Date]      |
+| 6   | Omeprazole (Prilosec)     | 20mg    | Capsule | 1x/day | 6:30 AM          | 30 min before breakfast           | Dr. [PCP]    | [Pharmacy] | [#] | 0       | OVERDUE     |
+| 7   | Vitamin D3                | 2000 IU | Tablet  | 1x/day | 7:00 AM          | Yes                               | Dr. [PCP]    | OTC        | N/A | N/A     | Buy monthly |
+| 8   | Aspirin (low-dose)        | 81mg    | Tablet  | 1x/day | 7:00 AM          | Yes                               | Dr. [Cardio] | OTC        | N/A | N/A     | Buy monthly |
 
 ### Allergies and Adverse Reactions
-| Substance | Reaction | Severity | Date Identified |
-|-----------|----------|----------|-----------------|
-| Penicillin | Hives, facial swelling | Severe | [Year] |
-| Codeine | Nausea, vomiting | Moderate | [Year] |
+
+| Substance  | Reaction               | Severity | Date Identified |
+| ---------- | ---------------------- | -------- | --------------- |
+| Penicillin | Hives, facial swelling | Severe   | [Year]          |
+| Codeine    | Nausea, vomiting       | Moderate | [Year]          |
 
 ### Daily Administration Schedule
 
 **6:30 AM -- Empty Stomach (30 minutes before breakfast):**
 | Medication | Dose | Special Instructions | Given | Time | Initials |
 |-----------|------|---------------------|-------|------|----------|
-| Levothyroxine (Synthroid) | 50mcg | Empty stomach, full glass of water | [ ] | _:_ | ___ |
-| Omeprazole (Prilosec) | 20mg | Swallow whole, do not crush | [ ] | _:_ | ___ |
+| Levothyroxine (Synthroid) | 50mcg | Empty stomach, full glass of water | [ ] | _:_ | **_ |
+| Omeprazole (Prilosec) | 20mg | Swallow whole, do not crush | [ ] | _:_ | _** |
 
 **7:00 AM -- With Breakfast:**
 | Medication | Dose | Special Instructions | Given | Time | Initials |
 |-----------|------|---------------------|-------|------|----------|
-| Lisinopril | 10mg | | [ ] | _:_ | ___ |
-| Metformin | 500mg | Take with food to reduce stomach upset | [ ] | _:_ | ___ |
-| Amlodipine | 5mg | | [ ] | _:_ | ___ |
-| Vitamin D3 | 2000 IU | | [ ] | _:_ | ___ |
-| Aspirin 81mg | 81mg | Take with food | [ ] | _:_ | ___ |
+| Lisinopril | 10mg | | [ ] | _:_ | **_ |
+| Metformin | 500mg | Take with food to reduce stomach upset | [ ] | _:_ | _** |
+| Amlodipine | 5mg | | [ ] | _:_ | **_ |
+| Vitamin D3 | 2000 IU | | [ ] | _:_ | _** |
+| Aspirin 81mg | 81mg | Take with food | [ ] | _:_ | \_\_\_ |
 
 **5:00 PM -- With Dinner:**
 | Medication | Dose | Special Instructions | Given | Time | Initials |
 |-----------|------|---------------------|-------|------|----------|
-| Metformin | 500mg | Take with food | [ ] | _:_ | ___ |
+| Metformin | 500mg | Take with food | [ ] | _:_ | \_\_\_ |
 
 **9:00 PM -- Bedtime:**
 | Medication | Dose | Special Instructions | Given | Time | Initials |
 |-----------|------|---------------------|-------|------|----------|
-| Atorvastatin | 20mg | | [ ] | _:_ | ___ |
+| Atorvastatin | 20mg | | [ ] | _:_ | \_\_\_ |
 
 ### Refill Calendar
 
-| Medication | Next Refill | Refills Left | Action |
-|-----------|-------------|-------------|--------|
-| Omeprazole | **OVERDUE** | **0** | **Call Dr. [PCP] for new prescription immediately** |
-| Levothyroxine | [Date] | 1 | Schedule Dr. [Endo] appointment before next refill |
-| Metformin | [Date] | 2 | Set reminder 7 days before |
-| Lisinopril | [Date] | 3 | Set reminder 7 days before |
-| Amlodipine | [Date] | 5 | On track |
-| Atorvastatin | [Date] | 4 | On track |
+| Medication    | Next Refill | Refills Left | Action                                              |
+| ------------- | ----------- | ------------ | --------------------------------------------------- |
+| Omeprazole    | **OVERDUE** | **0**        | **Call Dr. [PCP] for new prescription immediately** |
+| Levothyroxine | [Date]      | 1            | Schedule Dr. [Endo] appointment before next refill  |
+| Metformin     | [Date]      | 2            | Set reminder 7 days before                          |
+| Lisinopril    | [Date]      | 3            | Set reminder 7 days before                          |
+| Amlodipine    | [Date]      | 5            | On track                                            |
+| Atorvastatin  | [Date]      | 4            | On track                                            |
 
 ### Immediate Action Items
+
 1. **Today:** Call Dr. [PCP] to request a new Omeprazole prescription (0 refills remaining)
 2. **Today:** Transfer all prescriptions to one pharmacy if currently using multiple (enables interaction checking)
 3. **This week:** Purchase a 7-day AM/PM pill organizer and fill it each Sunday evening
@@ -300,4 +305,5 @@ Updated by: [User's name]
 6. **Within 2 weeks:** Schedule appointment with Dr. [Endo] before the Levothyroxine prescription expires (only 1 refill left)
 
 ### Coordination Note for Three Prescribers
+
 Mom's PCP (Dr. [PCP]) should be designated as the medication review coordinator. Before appointments with Dr. [Cardio] or Dr. [Endo], bring the complete medication list. After any specialist changes a medication, call Dr. [PCP]'s office to inform them of the change.

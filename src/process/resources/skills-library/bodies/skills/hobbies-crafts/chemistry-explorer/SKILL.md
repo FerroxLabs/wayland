@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Chemistry Explorer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on chemistry explorer
 - User asks about chemistry explorer best practices or techniques
 - User wants a structured approach to chemistry explorer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of chemistry explorer
 
@@ -73,6 +74,7 @@ Before recommending experiments or equipment:
 ## Lab Safety Rules
 
 ### Personal Protective Equipment (PPE)
+
 - **Safety goggles** (not just glasses) - splash-proof, ANSI Z87.1 rated ($8-15)
 - **Nitrile gloves** - box of 100 ($10-15), replace frequently
 - **Lab apron or old clothes** - protect against spills and stains
@@ -80,6 +82,7 @@ Before recommending experiments or equipment:
 - **Long hair tied back** - away from flames and chemicals
 
 ### Workspace Setup
+
 - Clean, flat, non-porous work surface (glass or plastic tray underneath)
 - Good ventilation (open windows, fan pulling air outward, or outdoor)
 - Away from food preparation areas
@@ -89,6 +92,7 @@ Before recommending experiments or equipment:
 - Dedicated waste container for chemical disposal
 
 ### Essential Safety Equipment
+
 - Fire extinguisher (ABC type) - $20-30
 - Baking soda (for acid neutralization and small fires)
 - White vinegar (for base neutralization)
@@ -97,6 +101,7 @@ Before recommending experiments or equipment:
 - Phone charged and accessible for emergencies
 
 ### Chemical Handling Rules
+
 1. Read all labels and SDS sheets before handling any chemical
 2. Never pipette by mouth - always use rubber bulb or pipette filler
 3. Add acid to water (never water to acid) - "Do as you oughta, add acid to water"
@@ -108,6 +113,7 @@ Before recommending experiments or equipment:
 ## Equipment Recommendations
 
 ### Beginner Setup ($25-50)
+
 - Safety goggles and nitrile gloves
 - Plastic measuring cups and spoons (dedicated to lab only)
 - Glass jars (mason jars work well)
@@ -117,6 +123,7 @@ Before recommending experiments or equipment:
 - Baking soda, vinegar, hydrogen peroxide (3%), food coloring
 
 ### Intermediate Setup ($50-150)
+
 - All beginner items plus:
 - Borosilicate glass beakers (100mL, 250mL, 500mL) - $15-25 set
 - Glass stirring rods
@@ -128,6 +135,7 @@ Before recommending experiments or equipment:
 - Magnifying glass or jeweler's loupe
 
 ### Advanced Setup ($150-300+)
+
 - All intermediate items plus:
 - Hot plate with magnetic stirrer - $50-100
 - Digital pH meter - $20-40
@@ -140,20 +148,24 @@ Before recommending experiments or equipment:
 ## Age-Appropriate Experiments
 
 ### Ages 5-8 (Adult Performs, Child Observes/Assists)
+
 These experiments use only household items and produce no hazardous byproducts.
 
 **Baking Soda Volcano**
+
 - Mix baking soda, dish soap, food coloring in container
 - Add vinegar and observe acid-base reaction producing CO2 gas
 - Learn: Acid-base reactions, gas production
 
 **Color-Changing Milk**
+
 - Pour whole milk in shallow plate
 - Drop food coloring in center
 - Touch dish soap to center and watch colors explode outward
 - Learn: Surface tension, fat molecule interaction
 
 **Density Tower**
+
 - Layer honey, corn syrup, dish soap, water, vegetable oil, rubbing alcohol in tall glass
 - Drop small objects to see where they float
 - Learn: Density, miscibility
@@ -161,12 +173,14 @@ These experiments use only household items and produce no hazardous byproducts.
 ### Ages 9-12 (Adult Supervised)
 
 **Crystal Growing**
+
 - **Sugar crystals (rock candy)**: Dissolve 3 cups sugar in 1 cup boiling water. Pour into jar with string/stick. Wait 1-2 weeks.
 - **Salt crystals**: Dissolve table salt in hot water until saturated. Pour into shallow dish. Wait several days.
 - **Alum crystals**: Available in grocery spice aisle. Dissolve in hot water, seed crystal forms overnight, grow large crystal over 1-2 weeks.
 - Learn: Supersaturation, crystallization, molecular structure
 
 **Red Cabbage pH Indicator**
+
 - Chop and boil red cabbage for 15 minutes
 - Strain liquid (the indicator solution)
 - Test household substances: lemon juice, soap, baking soda solution, vinegar, cream of tartar
@@ -174,6 +188,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - Learn: pH scale, acids vs bases, natural indicators
 
 **Invisible Ink**
+
 - Write with lemon juice on white paper using cotton swab
 - Let dry completely
 - Hold paper near warm lamp (NOT open flame) - writing appears brown
@@ -182,6 +197,7 @@ These experiments use only household items and produce no hazardous byproducts.
 ### Ages 13-17 (Supervised, Increasing Independence)
 
 **Electrochemistry: Copper Plating**
+
 - Materials: White vinegar, salt, copper wire/pennies, battery (9V), alligator clips, small metal object
 - Dissolve salt in vinegar to make electrolyte
 - Connect copper (anode, positive) and target object (cathode, negative) to battery
@@ -190,6 +206,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - **Safety**: Low voltage only (9V battery), ventilate area
 
 **Elephant Toothpaste**
+
 - Mix hydrogen peroxide (3% household grade) with dish soap and food coloring
 - Add dissolved yeast (the catalyst) in warm water
 - Foam erupts from container
@@ -197,6 +214,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - **Safety**: Reaction produces heat; use 3% peroxide only (not salon grade 12%+)
 
 **Chromatography**
+
 - Draw line with water-soluble marker on coffee filter strip
 - Dip bottom edge in water (not touching the line)
 - Water climbs up, separating ink into component pigments
@@ -204,6 +222,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - Learn: Separation techniques, polarity, capillary action
 
 **Flame Test Colors**
+
 - Soak wooden splints in solutions of: table salt (sodium/yellow), cream of tartar (potassium/violet), Epsom salt (magnesium/white), copper sulfate (copper/green-blue)
 - Hold dried splints in candle flame and observe color
 - Learn: Electron energy levels, emission spectra, element identification
@@ -212,6 +231,7 @@ These experiments use only household items and produce no hazardous byproducts.
 ### Adult / Advanced Experiments
 
 **Growing Bismuth Crystals**
+
 - Melt bismuth metal in stainless steel pot on stove (271C melting point)
 - Let cool slowly, pour off liquid when surface freezes
 - Hopper crystals form with rainbow oxidation colors
@@ -219,6 +239,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - **Safety**: Extreme heat - use thick gloves, well-ventilated, fire-safe surface
 
 **Soap Making (Cold Process)**
+
 - Mix sodium hydroxide (lye) with water
 - Combine with oils (olive, coconut) at specific temperatures
 - Pour into mold, cure for 4-6 weeks
@@ -226,6 +247,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - **Safety**: Lye is extremely caustic - full PPE required, never add water to lye (add lye to water slowly)
 
 **Electrochemical Cells**
+
 - Build voltaic cells from different metals (zinc, copper) in salt/acid solutions
 - Measure voltage output with multimeter
 - Connect cells in series to power LED
@@ -234,6 +256,7 @@ These experiments use only household items and produce no hazardous byproducts.
 ## Understanding Reactions
 
 ### Types of Chemical Reactions
+
 1. **Synthesis**: A + B -> AB (iron + sulfur -> iron sulfide)
 2. **Decomposition**: AB -> A + B (hydrogen peroxide -> water + oxygen)
 3. **Single replacement**: A + BC -> AC + B (zinc + copper sulfate -> zinc sulfate + copper)
@@ -242,6 +265,7 @@ These experiments use only household items and produce no hazardous byproducts.
 6. **Acid-base**: Acid + Base -> Salt + Water
 
 ### Key Concepts to Explore
+
 - **Conservation of mass**: Matter is not created or destroyed in reactions
 - **Energy changes**: Exothermic (releases heat) vs endothermic (absorbs heat)
 - **Reaction rate**: Temperature, concentration, surface area, and catalysts
@@ -251,12 +275,14 @@ These experiments use only household items and produce no hazardous byproducts.
 ## Science Fair Applications
 
 ### Choosing a Strong Project
+
 1. Ask a testable question (not just a demonstration)
 2. Change ONE variable, keep everything else constant
 3. Repeat trials (minimum 3) for reliability
 4. Measure quantitatively when possible (numbers, not just observations)
 
 ### Project Ideas by Level
+
 - **Elementary**: Which household substance is the best antacid? (Measure pH change)
 - **Middle school**: How does temperature affect crystal growth rate and size?
 - **Middle school**: What factors affect the rate of rusting? (Water, salt, vinegar, temperature)
@@ -264,6 +290,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - **High school**: Effect of pH on enzyme (catalase in potato) activity
 
 ### Documentation Tips
+
 - Photograph every step
 - Record precise measurements and times
 - Note unexpected observations
@@ -273,6 +300,7 @@ These experiments use only household items and produce no hazardous byproducts.
 ## Chemical Sourcing
 
 ### Grocery Store Chemicals
+
 - Baking soda (sodium bicarbonate)
 - White vinegar (5% acetic acid)
 - Hydrogen peroxide (3%)
@@ -285,6 +313,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - Citric acid (canning section)
 
 ### Pharmacy/Hardware Store
+
 - Isopropyl alcohol (70% or 91%)
 - Distilled water
 - Copper sulfate (root killer section - check label)
@@ -292,6 +321,7 @@ These experiments use only household items and produce no hazardous byproducts.
 - Steel wool
 
 ### Specialty Suppliers
+
 - Home Science Tools (homesciencetools.com) - experiment kits and chemicals
 - Carolina Biological - lab supplies
 - Amazon - basic lab glassware and supplies
@@ -323,7 +353,6 @@ These experiments use only household items and produce no hazardous byproducts.
 - **Apps**: Periodic Table apps with element details and reaction references
 - **Community**: Local science museums, maker spaces, chemistry clubs
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -336,13 +365,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with chemistry explorer for a mid-size project."
 
 **Output:** A complete chemistry explorer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

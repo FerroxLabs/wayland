@@ -228,10 +228,7 @@ const TeamChatEmptyState: React.FC<Props> = ({ conversationId, isLeader = true }
         {renderAvatar()}
         <div className='flex flex-col gap-6px'>
           <span className='text-15px font-medium text-t-primary'>{agentName}</span>
-          <span
-            data-testid='team-chat-empty-state-subtitle'
-            className='text-12px text-t-tertiary italic'
-          >
+          <span data-testid='team-chat-empty-state-subtitle' className='text-12px text-t-tertiary italic'>
             {t('team.emptyState.specialistStandby', {
               defaultValue: 'Standing by - the team leader handles incoming work.',
             })}

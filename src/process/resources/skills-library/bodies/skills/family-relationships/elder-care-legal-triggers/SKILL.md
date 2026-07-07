@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "elder-care legal-literacy estate-planning"
-  category: "family-relationships"
-  subcategory: "caregiving"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'elder-care legal-literacy estate-planning'
+  category: 'family-relationships'
+  subcategory: 'caregiving'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Elder Care Legal Planning Triggers
@@ -29,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about when to set up power of attorney for an aging parent
 - User wants to know when legal planning becomes urgent for elder care
 - User asks about healthcare proxy, advance directives, or living wills
@@ -36,6 +37,7 @@ metadata:
 - User asks what legal documents are needed for aging parents
 
 **Do NOT use this skill when:**
+
 - User wants to draft specific legal documents (consult an elder law attorney)
 - User asks about interpreting specific laws or regulations (legal professional needed)
 - User needs advice on estate distribution or inheritance planning (estate attorney needed)
@@ -46,14 +48,14 @@ metadata:
 
 1. **Assess current planning status.** Determine what documents are already in place:
 
-   | Document | Status | Date Executed | Location | Attorney |
-   |----------|--------|---------------|----------|----------|
-   | Durable Power of Attorney (Financial) | In place / Not done / Unknown | [Date] | [Where stored] | [Name] |
-   | Healthcare Power of Attorney / Proxy | In place / Not done / Unknown | [Date] | [Where stored] | [Name] |
-   | Advance Directive / Living Will | In place / Not done / Unknown | [Date] | [Where stored] | [Name] |
-   | Last Will and Testament | In place / Not done / Unknown | [Date] | [Where stored] | [Name] |
-   | Trust (if applicable) | In place / Not done / N/A | [Date] | [Where stored] | [Name] |
-   | HIPAA Authorization | In place / Not done / Unknown | [Date] | [Where stored] | [Name] |
+   | Document                              | Status                        | Date Executed | Location       | Attorney |
+   | ------------------------------------- | ----------------------------- | ------------- | -------------- | -------- |
+   | Durable Power of Attorney (Financial) | In place / Not done / Unknown | [Date]        | [Where stored] | [Name]   |
+   | Healthcare Power of Attorney / Proxy  | In place / Not done / Unknown | [Date]        | [Where stored] | [Name]   |
+   | Advance Directive / Living Will       | In place / Not done / Unknown | [Date]        | [Where stored] | [Name]   |
+   | Last Will and Testament               | In place / Not done / Unknown | [Date]        | [Where stored] | [Name]   |
+   | Trust (if applicable)                 | In place / Not done / N/A     | [Date]        | [Where stored] | [Name]   |
+   | HIPAA Authorization                   | In place / Not done / Unknown | [Date]        | [Where stored] | [Name]   |
 
 2. **Explain each document at a high level.** What it does (not how to draft it):
 
@@ -233,18 +235,19 @@ A diagnosis of early-stage Alzheimer's means legal capacity is currently intact 
 
 ### Current Document Status
 
-| Document | Status | Needs Action | Urgency |
-|----------|--------|-------------|---------|
-| Durable POA (Financial) | NOT IN PLACE | YES -- no one can manage finances if he becomes unable | CRITICAL |
-| Healthcare POA / Proxy | NOT IN PLACE | YES -- no designated medical decision-maker | CRITICAL |
-| Advance Directive | NOT IN PLACE | YES -- end-of-life wishes not documented | CRITICAL |
-| HIPAA Authorization | NOT IN PLACE | YES -- family cannot access medical records | HIGH |
-| Will | UNKNOWN | Verify -- assets need a distribution plan | HIGH |
-| Trust | NOT IN PLACE | Discuss with attorney -- may be appropriate given diagnosis | MODERATE |
+| Document                | Status       | Needs Action                                                | Urgency  |
+| ----------------------- | ------------ | ----------------------------------------------------------- | -------- |
+| Durable POA (Financial) | NOT IN PLACE | YES -- no one can manage finances if he becomes unable      | CRITICAL |
+| Healthcare POA / Proxy  | NOT IN PLACE | YES -- no designated medical decision-maker                 | CRITICAL |
+| Advance Directive       | NOT IN PLACE | YES -- end-of-life wishes not documented                    | CRITICAL |
+| HIPAA Authorization     | NOT IN PLACE | YES -- family cannot access medical records                 | HIGH     |
+| Will                    | UNKNOWN      | Verify -- assets need a distribution plan                   | HIGH     |
+| Trust                   | NOT IN PLACE | Discuss with attorney -- may be appropriate given diagnosis | MODERATE |
 
 ### Action Plan
 
 **This Week (Days 1-7):**
+
 1. Have a conversation with your dad about his wishes -- while he can clearly express them:
    - Who does he want to manage his finances if he cannot?
    - Who does he want to make medical decisions for him?
@@ -254,11 +257,13 @@ A diagnosis of early-stage Alzheimer's means legal capacity is currently intact 
 3. Begin researching elder law attorneys in his area (see referral sources below)
 
 **Weeks 2-3:**
+
 1. Schedule an initial consultation with an elder law attorney
 2. Bring: his preferences from the conversation above, the financial inventory, family contact information for all potential agents, and his Alzheimer's diagnosis documentation
 3. Discuss with the attorney: POA, healthcare proxy, advance directive, HIPAA authorization, will review/creation, and whether a trust is appropriate given the diagnosis
 
 **Weeks 3-6:**
+
 1. Attorney drafts all documents
 2. Schedule a signing meeting -- your dad must demonstrate understanding of what he is signing (the attorney will assess capacity at signing)
 3. All documents witnessed and notarized per your jurisdiction's requirements
@@ -266,21 +271,22 @@ A diagnosis of early-stage Alzheimer's means legal capacity is currently intact 
 
 ### Document Distribution Plan
 
-| Document | Recipient | Purpose |
-|----------|-----------|---------|
-| Durable POA (original) | Secure storage (safe, safe deposit box) | Master copy |
-| Durable POA (copy) | Financial agent (designated family member) | Authority to act |
-| Durable POA (copy) | Each financial institution | On file for future transactions |
-| Healthcare POA (copy) | Healthcare proxy (designated family member) | Authority to make medical decisions |
-| Healthcare POA (copy) | Primary care physician | Medical record |
-| Healthcare POA (copy) | Neurologist managing Alzheimer's care | Medical record |
-| Advance Directive (copy) | Healthcare proxy | Reference for decision-making |
-| Advance Directive (copy) | Primary care physician | Medical record |
-| Advance Directive (copy) | State registry (if available) | Accessible to hospitals |
-| HIPAA Authorization | Each healthcare provider | Authorization for family communication |
-| HIPAA Authorization (copy) | Each named family member | Proof of access rights |
+| Document                   | Recipient                                   | Purpose                                |
+| -------------------------- | ------------------------------------------- | -------------------------------------- |
+| Durable POA (original)     | Secure storage (safe, safe deposit box)     | Master copy                            |
+| Durable POA (copy)         | Financial agent (designated family member)  | Authority to act                       |
+| Durable POA (copy)         | Each financial institution                  | On file for future transactions        |
+| Healthcare POA (copy)      | Healthcare proxy (designated family member) | Authority to make medical decisions    |
+| Healthcare POA (copy)      | Primary care physician                      | Medical record                         |
+| Healthcare POA (copy)      | Neurologist managing Alzheimer's care       | Medical record                         |
+| Advance Directive (copy)   | Healthcare proxy                            | Reference for decision-making          |
+| Advance Directive (copy)   | Primary care physician                      | Medical record                         |
+| Advance Directive (copy)   | State registry (if available)               | Accessible to hospitals                |
+| HIPAA Authorization        | Each healthcare provider                    | Authorization for family communication |
+| HIPAA Authorization (copy) | Each named family member                    | Proof of access rights                 |
 
 ### Key Conversations to Have Now
+
 - [ ] Ask Dad who he trusts most to handle financial decisions
 - [ ] Ask Dad who he trusts most to make medical decisions (can be same or different person)
 - [ ] Ask Dad about his end-of-life care preferences (resuscitation, life support, artificial nutrition)
@@ -288,6 +294,7 @@ A diagnosis of early-stage Alzheimer's means legal capacity is currently intact 
 - [ ] Discuss with siblings: who will serve in each role, backup agents if primary cannot serve
 
 ### Finding an Attorney
+
 - **Type needed:** Elder law attorney (specializes in aging-related legal issues)
 - **How to find:**
   - Local bar association lawyer referral service
@@ -297,9 +304,11 @@ A diagnosis of early-stage Alzheimer's means legal capacity is currently intact 
 - **If finances are limited:** Contact local legal aid society for seniors, law school elder law clinic, or state bar pro bono program
 
 ### Critical Timeline Warning
+
 With an Alzheimer's diagnosis, the capacity to sign legal documents will not improve. Every week of delay increases the risk that capacity will be questioned at signing. If your dad reaches a point where he cannot understand what he is signing, the only option is court-appointed guardianship -- which typically costs thousands of dollars in legal fees, takes months, and becomes a matter of public record. Acting now is significantly less expensive, faster, and preserves your dad's autonomy.
 
 ### Review Schedule
+
 - First review: 6 months after documents are executed (check that all documents are distributed and filed)
 - Ongoing: Review annually or whenever his condition changes significantly
 - Update triggers: change in designated agents' availability, significant change in financial assets, move to a different state

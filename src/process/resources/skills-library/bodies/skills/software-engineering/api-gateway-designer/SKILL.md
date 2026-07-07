@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns guide"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns guide'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # API Gateway Designer
@@ -23,6 +23,7 @@ You are an expert API Gateway Designer who architects the front door to distribu
 ## API Gateway Fundamentals
 
 ### What is an API Gateway?
+
 ```
 An API gateway is a single entry point for all client requests to a
 microservices backend. It acts as a reverse proxy that routes requests
@@ -42,6 +43,7 @@ Client → API Gateway (auth, rate limit, logging, routing) → Service A
 ```
 
 ### Gateway Responsibilities
+
 ```
 Core:
 - Request routing (which service handles this request?)
@@ -65,6 +67,7 @@ Extended:
 ## Gateway Patterns
 
 ### 1. Edge Gateway (API Gateway)
+
 ```
 ┌────────┐     ┌──────────────┐     ┌──────────┐
 │External│────>│ Edge Gateway │────>│ Service A│
@@ -78,6 +81,7 @@ Examples: AWS API Gateway, Kong, Apigee
 ```
 
 ### 2. Backend for Frontend (BFF)
+
 ```
 ┌──────────┐     ┌──────────────┐
 │Mobile App│────>│ Mobile BFF   │───→ Services
@@ -98,6 +102,7 @@ Examples: AWS API Gateway, Kong, Apigee
 ```
 
 ### 3. Service Mesh Gateway (Internal)
+
 ```
 ┌──────────┐     ┌──────────┐
 │Service A │────>│ Sidecar  │───→ mesh ───→ Sidecar → Service B
@@ -113,6 +118,7 @@ Not a traditional "API Gateway" but handles similar concerns internally
 ## Request Routing
 
 ### Routing Strategies
+
 ```
 1. Path-Based Routing:
    /api/users/*     → User Service
@@ -133,6 +139,7 @@ Not a traditional "API Gateway" but handles similar concerns internally
 ```
 
 ### Route Configuration Example
+
 ```yaml
 routes:
   - name: user-service
@@ -155,6 +162,7 @@ routes:
 ## Authentication and Authorization
 
 ### Authentication at the Gateway
+
 ```
 Flow:
 1. Client sends request with credentials (JWT, API key, OAuth token)
@@ -175,6 +183,7 @@ Direct client-to-service communication must be blocked (network policy).
 ```
 
 ### Auth Patterns at the Gateway
+
 ```
 1. JWT Validation:
    - Gateway validates JWT signature (no backend call needed)
@@ -197,6 +206,7 @@ Mobile apps → OAuth2 with refresh tokens
 ## Rate Limiting
 
 ### Rate Limiting Strategies
+
 ```
 1. Fixed Window:
    Count requests in fixed time windows (e.g., per minute).
@@ -217,6 +227,7 @@ Mobile apps → OAuth2 with refresh tokens
 ```
 
 ### Rate Limit Configuration
+
 ```
 Dimensions:
 - Per user (authenticated requests)
@@ -237,6 +248,7 @@ Retry-After: 30                 (seconds to wait when rate limited)
 ```
 
 ### Distributed Rate Limiting
+
 ```
 Challenge: Multiple gateway instances need shared rate limit state.
 
@@ -259,6 +271,7 @@ Solutions:
 ## Request/Response Transformation
 
 ### Common Transformations
+
 ```
 1. Header Manipulation:
    Add: X-Request-Id, X-Correlation-Id, X-Forwarded-For
@@ -281,6 +294,7 @@ Solutions:
 ## Response Aggregation (API Composition)
 
 ### Pattern
+
 ```
 Client needs data from multiple services.
 Without aggregation: Client makes 3+ API calls.
@@ -301,6 +315,7 @@ Gateway:
 ```
 
 ### Aggregation Error Handling
+
 ```
 Strategy: Partial Response with Degradation
 
@@ -323,6 +338,7 @@ Response when notification service is down:
 ## Circuit Breaking
 
 ### Circuit Breaker at the Gateway
+
 ```
 States:
 CLOSED (normal): Requests pass through normally.
@@ -345,6 +361,7 @@ HALF-OPEN (testing): Allow a limited number of test requests through.
 ## Gateway Selection Guide
 
 ### Comparison Matrix
+
 ```
 ┌──────────────────┬────────┬────────┬────────┬──────────┬──────────┐
 │ Feature          │ Kong   │ Envoy  │ AWS    │ Apigee   │ Nginx    │
@@ -365,6 +382,7 @@ HALF-OPEN (testing): Allow a limited number of test requests through.
 ```
 
 ### Selection Decision Tree
+
 ```
 Cloud-native, serverless? → AWS API Gateway / GCP API Gateway
 Need full API management (portal, analytics)? → Kong / Apigee
@@ -378,6 +396,7 @@ Enterprise with support contract? → Kong Enterprise / Apigee / Nginx Plus
 ## API Versioning at the Gateway
 
 ### Versioning Strategies
+
 ```
 1. URL Path Versioning:
    /api/v1/users
@@ -442,6 +461,7 @@ gateway:
 ## Quick Decision Guide
 
 When asked about API gateways:
+
 - **"Do I need an API gateway?"** → Yes if you have 3+ services and external clients. Maybe not for 1-2 services.
 - **"Which gateway should I use?"** → Use the selection decision tree based on deployment model and needs
 - **"How to handle auth at the gateway?"** → JWT validation for external, mTLS for internal
@@ -452,6 +472,7 @@ When asked about API gateways:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing api gateway designer solutions
 - Reviewing or improving existing api gateway designer approaches
 - Making architectural or implementation decisions about api gateway designer
@@ -459,6 +480,7 @@ When asked about API gateways:
 - Troubleshooting api gateway designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -469,21 +491,26 @@ When asked about API gateways:
 # Api Gateway Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

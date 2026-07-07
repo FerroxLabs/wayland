@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research planning checklist"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel research planning checklist'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Airfare Search Strategy
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when the user's primary need is finding the lowest available fare
 - User needs a structured search timeline: when to start, how often to check, when to commit
 
 **Do NOT use this skill when:**
+
 - The user needs a full trip itinerary built out -- use `trip-itinerary-builder` instead
 - The user is asking about optimizing travel day logistics, airport connections, or layover navigation -- use `travel-day-optimizer`
 - The user's primary question is about maximizing points, miles, or credit card rewards for flights -- use `travel-rewards-optimizer`
@@ -430,13 +432,13 @@ Occasionally a user will report seeing an unusually low fare (e.g., $200 round-t
 
 ### Price Anchor
 
-| Metric | Value |
-|--------|-------|
-| Current baseline fare (today's observed price, mid-December) | $820-950 per person |
-| Historical average for ORD-TYO late March | $850-1,050 per person round-trip |
-| Target price (strong deal -- book immediately) | $750 or below (approx. 15-20% below average) |
-| Acceptable price (reasonable deal) | $750-900 per person |
-| Maximum price (book before exceeding this) | $1,000 per person (your budget ceiling) |
+| Metric                                                       | Value                                        |
+| ------------------------------------------------------------ | -------------------------------------------- |
+| Current baseline fare (today's observed price, mid-December) | $820-950 per person                          |
+| Historical average for ORD-TYO late March                    | $850-1,050 per person round-trip             |
+| Target price (strong deal -- book immediately)               | $750 or below (approx. 15-20% below average) |
+| Acceptable price (reasonable deal)                           | $750-900 per person                          |
+| Maximum price (book before exceeding this)                   | $1,000 per person (your budget ceiling)      |
 
 **Seasonal context:** Late March for Chicago-Tokyo is shaped by two overlapping forces. US spring break begins around March 22, which increases demand from this end. Japan's cherry blossom season peaks late March to early April, making this one of the highest-demand inbound periods for Japan. This combination means fares for the March 22-April 5 window are at seasonal peak. Fares for March 15-22 are meaningfully lower. Your ±5 days of flexibility is extremely valuable here -- shifting the departure to March 17-19 and the return to March 31-April 2 could place your travel in a significantly cheaper pricing band.
 
@@ -444,24 +446,24 @@ Occasionally a user will report seeing an unusually low fare (e.g., $200 round-t
 
 ### Booking Window Timeline
 
-| Phase | Dates | Weeks to Departure | Action | Expected Fare Behavior |
-|-------|-------|-------------------|--------|------------------------|
-| Early monitor (now) | Dec 15 -- Jan 15 | 14-18 weeks | Set all alerts. Check current fares to establish anchor. Do not book yet unless target fare appears. | Fares are present but typically not at competitive best this far out. However, a strong promotional fare now is worth taking. |
-| Active search window | Jan 15 -- Feb 28 | 8-14 weeks | Search every 2-3 days. Act within 24 hours of seeing target fare. | Best deal density for transpacific typically falls in this window. |
-| Closing window | Mar 1 -- Mar 15 | 5-8 weeks | Daily monitoring. Book immediately if fare is at or below $900. | Prices trending upward. Any fare at $900 or below should be booked same day. |
-| Book regardless | Mar 15 -- Mar 22 | 3-5 weeks | Book at best available price. Do not continue to wait. | Rapid price escalation, cherry blossom demand peaking. |
-| Last resort | After Mar 22 | Under 3 weeks | Apply last-minute transpacific tactics. Prices are near-maximum. | $1,100-1,400+ likely. Apply all flexibility tactics before booking. |
+| Phase                | Dates            | Weeks to Departure | Action                                                                                               | Expected Fare Behavior                                                                                                        |
+| -------------------- | ---------------- | ------------------ | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Early monitor (now)  | Dec 15 -- Jan 15 | 14-18 weeks        | Set all alerts. Check current fares to establish anchor. Do not book yet unless target fare appears. | Fares are present but typically not at competitive best this far out. However, a strong promotional fare now is worth taking. |
+| Active search window | Jan 15 -- Feb 28 | 8-14 weeks         | Search every 2-3 days. Act within 24 hours of seeing target fare.                                    | Best deal density for transpacific typically falls in this window.                                                            |
+| Closing window       | Mar 1 -- Mar 15  | 5-8 weeks          | Daily monitoring. Book immediately if fare is at or below $900.                                      | Prices trending upward. Any fare at $900 or below should be booked same day.                                                  |
+| Book regardless      | Mar 15 -- Mar 22 | 3-5 weeks          | Book at best available price. Do not continue to wait.                                               | Rapid price escalation, cherry blossom demand peaking.                                                                        |
+| Last resort          | After Mar 22     | Under 3 weeks      | Apply last-minute transpacific tactics. Prices are near-maximum.                                     | $1,100-1,400+ likely. Apply all flexibility tactics before booking.                                                           |
 
 ---
 
 ### Fare Alert Setup
 
-| Alert # | Route | Dates Covered | Price Threshold | Purpose |
-|---------|-------|---------------|-----------------|---------|
-| Alert 1 | ORD to NRT | Mar 17 -- Apr 2 (±5-day window) | $750 | Primary target -- strong deal, book immediately |
-| Alert 2 | ORD to NRT | Mar 17 -- Apr 2 | $900 | Monitor closely -- acceptable deal |
-| Alert 3 | ORD to HND | Mar 17 -- Apr 2 | $750 | Haneda alternative (closer to central Tokyo, may have different fare) |
-| Alert 4 | ORD to NRT | Mar 12 -- Mar 22 (slightly earlier departure) | $700 | Checks pre-spring-break pricing band |
+| Alert # | Route      | Dates Covered                                 | Price Threshold | Purpose                                                               |
+| ------- | ---------- | --------------------------------------------- | --------------- | --------------------------------------------------------------------- |
+| Alert 1 | ORD to NRT | Mar 17 -- Apr 2 (±5-day window)               | $750            | Primary target -- strong deal, book immediately                       |
+| Alert 2 | ORD to NRT | Mar 17 -- Apr 2                               | $900            | Monitor closely -- acceptable deal                                    |
+| Alert 3 | ORD to HND | Mar 17 -- Apr 2                               | $750            | Haneda alternative (closer to central Tokyo, may have different fare) |
+| Alert 4 | ORD to NRT | Mar 12 -- Mar 22 (slightly earlier departure) | $700            | Checks pre-spring-break pricing band                                  |
 
 **Alert guidance:** When any alert fires, open a private browsing session immediately, verify the fare, and be prepared to book the same day. Transpacific promotional fares at the target price do not persist for days -- inventory at those fare buckets is limited (often 4-8 seats).
 
@@ -469,15 +471,15 @@ Occasionally a user will report seeing an unusually low fare (e.g., $200 round-t
 
 ### Flexibility Savings Analysis
 
-| Tactic | Applicable? | Estimated Savings/Person | How to Capture |
-|--------|-------------|--------------------------|----------------|
-| Depart March 17-19 (before spring break surge) vs. March 22+ | Yes -- 5-day flexibility allows this | $100-250 | Search March 17 and March 18 departures separately; compare to March 22 |
-| Return April 1-3 instead of April 5+ | Yes | $50-100 | Avoids full cherry blossom peak extension; search April 1-3 return |
-| Fly into Haneda (HND) instead of Narita (NRT) | Yes | $0-80 fare savings | HND is closer to central Tokyo -- 30-40 min vs. 60-90 min, reducing ground transport cost. Net advantage: HND is preferred even at equal fare. |
-| Accept 1 stop via a US West Coast hub (LAX, SFO, SEA) | Yes -- if tolerant of 16-20 hr total travel | $50-150 | Filter for 1-stop itineraries. Note: ORD nonstop to NRT does not exist -- all routings have at least one connection or are technically a "direct" with hub. Most ORD-TYO itineraries already connect via a West Coast hub. |
-| Depart Tuesday or Wednesday vs. Friday or Sunday | Yes | $40-100 | Check midweek departures in the same week. Tuesday is typically cheapest transpacific departure day. |
-| Shift entire trip to March 12-26 (fully pre-spring break, pre-cherry blossom peak) | Only if user can shift 5+ days earlier | $200-350 | March 12-18 travel is meaningfully cheaper than March 22+ for this destination |
-| Split into two one-way tickets (ORD-TYO outbound, TYO-ORD return on different carrier) | Possible | $0-100 net | Check outbound and return pricing separately. Useful only if one direction has a strong carrier-specific sale. Note: no interline protection on separate tickets. |
+| Tactic                                                                                 | Applicable?                                 | Estimated Savings/Person | How to Capture                                                                                                                                                                                                             |
+| -------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Depart March 17-19 (before spring break surge) vs. March 22+                           | Yes -- 5-day flexibility allows this        | $100-250                 | Search March 17 and March 18 departures separately; compare to March 22                                                                                                                                                    |
+| Return April 1-3 instead of April 5+                                                   | Yes                                         | $50-100                  | Avoids full cherry blossom peak extension; search April 1-3 return                                                                                                                                                         |
+| Fly into Haneda (HND) instead of Narita (NRT)                                          | Yes                                         | $0-80 fare savings       | HND is closer to central Tokyo -- 30-40 min vs. 60-90 min, reducing ground transport cost. Net advantage: HND is preferred even at equal fare.                                                                             |
+| Accept 1 stop via a US West Coast hub (LAX, SFO, SEA)                                  | Yes -- if tolerant of 16-20 hr total travel | $50-150                  | Filter for 1-stop itineraries. Note: ORD nonstop to NRT does not exist -- all routings have at least one connection or are technically a "direct" with hub. Most ORD-TYO itineraries already connect via a West Coast hub. |
+| Depart Tuesday or Wednesday vs. Friday or Sunday                                       | Yes                                         | $40-100                  | Check midweek departures in the same week. Tuesday is typically cheapest transpacific departure day.                                                                                                                       |
+| Shift entire trip to March 12-26 (fully pre-spring break, pre-cherry blossom peak)     | Only if user can shift 5+ days earlier      | $200-350                 | March 12-18 travel is meaningfully cheaper than March 22+ for this destination                                                                                                                                             |
+| Split into two one-way tickets (ORD-TYO outbound, TYO-ORD return on different carrier) | Possible                                    | $0-100 net               | Check outbound and return pricing separately. Useful only if one direction has a strong carrier-specific sale. Note: no interline protection on separate tickets.                                                          |
 
 **Highest-impact tactic for your trip:** Departing March 17-19 instead of March 22+ is likely worth $100-250 per person and keeps you within your stated ±5 day flexibility. Combined with a midweek (Tuesday) departure, this single shift could reduce your fare by $150-300 and drop you comfortably within the $750-850 target range.
 
@@ -485,15 +487,15 @@ Occasionally a user will report seeing an unusually low fare (e.g., $200 round-t
 
 ### Booking Decision Framework
 
-| Observed Fare | Weeks Remaining | Decision | Reasoning |
-|---------------|-----------------|----------|-----------|
-| Below $750 | Any | Book immediately | Below historical average for this route and season. Probability of a lower fare for late March cherry blossom season is very low. |
-| $750-900 | 8+ weeks | Book within 48 hours | This is a reasonable-to-good fare for this specific travel window. Cherry blossom season routinely pushes fares above $1,000+. |
-| $750-900 | 5-8 weeks | Book same day | Closing window. This fare is likely close to the lowest you will see. |
-| $900-1,000 | 5+ weeks | Apply flexibility tactics (date shift, alternate Tokyo airport, midweek departure), then book | Above midpoint but within budget. Use the March 17-19 date shift tactic first. |
-| $900-1,000 | Under 5 weeks | Book now | Inside the booking window where transpacific fares reliably rise. |
-| Above $1,000 | Any | Shift departure to March 15-19 window first | Your dates are straddling a significant pricing boundary. A 3-5 day shift forward likely brings fare below $1,000. |
-| Fare jumped $150+ in one week | Any | Book within 24-48 hours | Demand surge, likely cherry blossom tourism momentum. Prices will continue to accelerate. |
+| Observed Fare                 | Weeks Remaining | Decision                                                                                      | Reasoning                                                                                                                         |
+| ----------------------------- | --------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Below $750                    | Any             | Book immediately                                                                              | Below historical average for this route and season. Probability of a lower fare for late March cherry blossom season is very low. |
+| $750-900                      | 8+ weeks        | Book within 48 hours                                                                          | This is a reasonable-to-good fare for this specific travel window. Cherry blossom season routinely pushes fares above $1,000+.    |
+| $750-900                      | 5-8 weeks       | Book same day                                                                                 | Closing window. This fare is likely close to the lowest you will see.                                                             |
+| $900-1,000                    | 5+ weeks        | Apply flexibility tactics (date shift, alternate Tokyo airport, midweek departure), then book | Above midpoint but within budget. Use the March 17-19 date shift tactic first.                                                    |
+| $900-1,000                    | Under 5 weeks   | Book now                                                                                      | Inside the booking window where transpacific fares reliably rise.                                                                 |
+| Above $1,000                  | Any             | Shift departure to March 15-19 window first                                                   | Your dates are straddling a significant pricing boundary. A 3-5 day shift forward likely brings fare below $1,000.                |
+| Fare jumped $150+ in one week | Any             | Book within 24-48 hours                                                                       | Demand surge, likely cherry blossom tourism momentum. Prices will continue to accelerate.                                         |
 
 ---
 
@@ -501,14 +503,14 @@ Occasionally a user will report seeing an unusually low fare (e.g., $200 round-t
 
 Since you are carry-on only, baggage fees drop out of this comparison, which significantly simplifies it. The main variables are base fare, seat selection, and change policy.
 
-| Option | Carrier Type | Base Fare | Carry-On | Seat Selection | Change Policy | **True Cost (1 traveler)** |
-|--------|-------------|-----------|----------|----------------|---------------|---------------------------|
-| Legacy carrier nonstop* (ORD via West Coast hub to NRT) | Full-service | $820 | Included | $0-30 (complimentary on most full-service carriers in economy) | Change fee $0-200 depending on fare bucket | **$820-850** |
-| Legacy carrier on mid-tier fare bucket | Full-service | $720 | Included | $0-30 | Change fee $150-200 | **$720-750** |
-| Basic Economy variant | Full-service restricted | $650 | Included (international usually) | No selection -- random seat assigned | Non-changeable, non-refundable | **$650** (but zero flexibility -- if plans change, you lose the ticket) |
-| Low-cost carrier (limited transpacific service) | LCC | $580-680 | May require check if personal item only | $15-30 | Minimal -- typically credit only | **$610-720** + verify carry-on policy carefully |
+| Option                                                   | Carrier Type            | Base Fare | Carry-On                                | Seat Selection                                                 | Change Policy                              | **True Cost (1 traveler)**                                              |
+| -------------------------------------------------------- | ----------------------- | --------- | --------------------------------------- | -------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------- |
+| Legacy carrier nonstop\* (ORD via West Coast hub to NRT) | Full-service            | $820      | Included                                | $0-30 (complimentary on most full-service carriers in economy) | Change fee $0-200 depending on fare bucket | **$820-850**                                                            |
+| Legacy carrier on mid-tier fare bucket                   | Full-service            | $720      | Included                                | $0-30                                                          | Change fee $150-200                        | **$720-750**                                                            |
+| Basic Economy variant                                    | Full-service restricted | $650      | Included (international usually)        | No selection -- random seat assigned                           | Non-changeable, non-refundable             | **$650** (but zero flexibility -- if plans change, you lose the ticket) |
+| Low-cost carrier (limited transpacific service)          | LCC                     | $580-680  | May require check if personal item only | $15-30                                                         | Minimal -- typically credit only           | **$610-720** + verify carry-on policy carefully                         |
 
-*Note: All ORD-TYO routings involve at least one connection via a US West Coast hub (LAX, SFO, SEA, ORD direct to NRT does not currently operate as a nonstop with most carriers). This is expected for the route -- it is not a disadvantage.
+\*Note: All ORD-TYO routings involve at least one connection via a US West Coast hub (LAX, SFO, SEA, ORD direct to NRT does not currently operate as a nonstop with most carriers). This is expected for the route -- it is not a disadvantage.
 
 **Recommendation:** The mid-tier legacy carrier fare at $720-750 provides the best balance of price, change flexibility, and included carry-on. Basic Economy saves $70-100 but costs you all flexibility -- for a solo transpacific trip, the change fee insurance is worth $70. Verify whether the carrier you select includes seat selection at no charge in standard economy for international routes (many do).
 
@@ -518,8 +520,8 @@ Since you are carry-on only, baggage fees drop out of this comparison, which sig
 
 ### Dated Action Plan
 
-| Calendar Date | Weeks to Departure | Action Required |
-|---------------|--------------------|-----------------|
-| December 15 (today) | ~15 weeks | Set all four fare alerts (see alert table). Note current baseline fare of $850-950. Begin weekly checks. |
-| December 22-31 | ~14 weeks | Holiday period -- fare checking is lower priority. Confirm alerts are active. |
-| January 6 | ~12 weeks | First active check. Compare to December baseline.
+| Calendar Date       | Weeks to Departure | Action Required                                                                                          |
+| ------------------- | ------------------ | -------------------------------------------------------------------------------------------------------- |
+| December 15 (today) | ~15 weeks          | Set all four fare alerts (see alert table). Note current baseline fare of $850-950. Begin weekly checks. |
+| December 22-31      | ~14 weeks          | Holiday period -- fare checking is lower priority. Confirm alerts are active.                            |
+| January 6           | ~12 weeks          | First active check. Compare to December baseline.                                                        |

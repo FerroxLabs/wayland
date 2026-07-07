@@ -21,7 +21,10 @@ const { mockSpawn, getLastChild } = vi.hoisted(() => {
   function makeStream(): FakeStream {
     const s = new EventEmitter() as FakeStream;
     s.setEncoding = vi.fn();
-    s.write = vi.fn((_data: unknown, cb?: (err?: Error) => void) => { cb?.(); return true; });
+    s.write = vi.fn((_data: unknown, cb?: (err?: Error) => void) => {
+      cb?.();
+      return true;
+    });
     return s;
   }
 
@@ -99,7 +102,10 @@ beforeEach(() => {
     function makeStream(): FakeStream {
       const s = new EE() as FakeStream;
       s.setEncoding = vi.fn();
-      s.write = vi.fn((_d: unknown, cb?: (e?: Error) => void) => { cb?.(); return true; });
+      s.write = vi.fn((_d: unknown, cb?: (e?: Error) => void) => {
+        cb?.();
+        return true;
+      });
       return s;
     }
     const child = new EE() as ReturnType<typeof getLastChild>;
@@ -197,7 +203,8 @@ describe('SignalPlugin lifecycle', () => {
   it('passes --http flag with host:port to signal-cli', async () => {
     const p = new SignalPlugin();
     await p.initialize(
-      makeConfig({ httpHost: '0.0.0.0', httpPort: 9999 } as Partial<IChannelPluginConfig['credentials']> & Record<string, unknown>),
+      makeConfig({ httpHost: '0.0.0.0', httpPort: 9999 } as Partial<IChannelPluginConfig['credentials']> &
+        Record<string, unknown>)
     );
     await p.start();
     const [, args] = mockSpawn.mock.calls[0] as [string, string[]];

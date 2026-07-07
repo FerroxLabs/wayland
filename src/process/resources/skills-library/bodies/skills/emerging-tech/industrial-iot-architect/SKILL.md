@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "advanced iot python api-design cloud analysis planning networking"
-  category: "emerging-tech"
-  subcategory: "embedded-iot"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'advanced iot python api-design cloud analysis planning networking'
+  category: 'emerging-tech'
+  subcategory: 'embedded-iot'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Industrial IoT Architect
@@ -22,15 +22,16 @@ You are an expert Industrial IoT architect with deep experience designing system
 
 > **IMPORTANT DISCLAIMER:** Industrial systems can affect physical safety. Designs must comply with relevant safety standards (IEC 61508, IEC 62443) and be reviewed by qualified safety engineers. This skill provides architectural guidance, not safety certification.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about industrial iot architect techniques or best practices
 - User needs guidance on industrial iot architect concepts
 - User wants to implement or improve their approach to industrial iot architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of industrial iot architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -241,12 +242,12 @@ class VibrationAnalyzer:
 
 ### Maintenance Decision Framework
 
-| Condition Indicator | Normal Range | Warning | Critical | Action |
-|-------------------|-------------|---------|----------|--------|
-| Vibration RMS | < 4.5 mm/s | 4.5-11.2 | > 11.2 | ISO 10816 classes |
-| Temperature rise | < 20C above ambient | 20-40C | > 40C | Check bearing/lubrication |
-| Current draw | +/- 10% baseline | +/- 20% | > 30% deviation | Check mechanical load |
-| Ultrasound (dB) | Baseline +/- 8 dB | +8-16 dB | > +16 dB | Bearing/leak detection |
+| Condition Indicator | Normal Range        | Warning  | Critical        | Action                    |
+| ------------------- | ------------------- | -------- | --------------- | ------------------------- |
+| Vibration RMS       | < 4.5 mm/s          | 4.5-11.2 | > 11.2          | ISO 10816 classes         |
+| Temperature rise    | < 20C above ambient | 20-40C   | > 40C           | Check bearing/lubrication |
+| Current draw        | +/- 10% baseline    | +/- 20%  | > 30% deviation | Check mechanical load     |
+| Ultrasound (dB)     | Baseline +/- 8 dB   | +8-16 dB | > +16 dB        | Bearing/leak detection    |
 
 ---
 
@@ -408,13 +409,13 @@ Internet ←→ [Firewall] ←→ Enterprise (L5)
 
 ### Data Hierarchy and Retention
 
-| Data Type | Resolution | Retention | Storage | Purpose |
-|-----------|-----------|-----------|---------|---------|
-| Raw vibration | 10 kHz | 24 hours | Edge SSD | Real-time analysis |
-| Aggregated metrics | 1 second | 30 days | Edge InfluxDB | Operations dashboard |
-| Minute averages | 1 minute | 1 year | Cloud TimescaleDB | Trend analysis |
-| Hourly summaries | 1 hour | 5 years | Cloud cold storage | Historical reporting |
-| Event/alarm logs | On event | 10 years | Cloud database | Compliance, audit |
+| Data Type          | Resolution | Retention | Storage            | Purpose              |
+| ------------------ | ---------- | --------- | ------------------ | -------------------- |
+| Raw vibration      | 10 kHz     | 24 hours  | Edge SSD           | Real-time analysis   |
+| Aggregated metrics | 1 second   | 30 days   | Edge InfluxDB      | Operations dashboard |
+| Minute averages    | 1 minute   | 1 year    | Cloud TimescaleDB  | Trend analysis       |
+| Hourly summaries   | 1 hour     | 5 years   | Cloud cold storage | Historical reporting |
+| Event/alarm logs   | On event   | 10 years  | Cloud database     | Compliance, audit    |
 
 ### Data Compression Strategy
 
@@ -435,29 +436,32 @@ Cloud egress cost (AWS): $0.09/GB
 ## Implementation Roadmap
 
 ### Phase 1: Connectivity (Weeks 1-4)
+
 - Deploy edge gateway with OPC-UA client
 - Connect to 3-5 pilot machines
 - Establish secure cloud connectivity
 - Build basic monitoring dashboard
 
 ### Phase 2: Analytics (Weeks 5-8)
+
 - Deploy time-series database
 - Implement threshold-based alerting
 - Build historical trend views
 - Train initial anomaly detection models
 
 ### Phase 3: Predictive (Weeks 9-16)
+
 - Add vibration/thermal sensors to critical assets
 - Train predictive models on historical failure data
 - Implement maintenance work order integration
 - Calculate ROI from prevented downtime
 
 ### Phase 4: Scale (Weeks 17-24)
+
 - Roll out to remaining production lines
 - Implement digital twin for process simulation
 - Add energy monitoring and optimization
 - Expand to multi-site deployment
-
 
 ## Process
 
@@ -466,7 +470,6 @@ Cloud egress cost (AWS): $0.09/GB
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -487,14 +490,12 @@ Cloud egress cost (AWS): $0.09/GB
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

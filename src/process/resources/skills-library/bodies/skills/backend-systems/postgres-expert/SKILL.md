@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "database sql backend"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'database sql backend'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # PostgreSQL Expert
@@ -41,6 +41,7 @@ CREATE INDEX idx_orders_covering ON orders (customer_id)
 ```
 
 **Decision criteria for B-tree:**
+
 - Use when queries involve `=`, `<`, `>`, `BETWEEN`, `IN`, `IS NULL`
 - Place highest-selectivity columns first in composite indexes
 - Use partial indexes when queries always filter on a constant predicate
@@ -64,6 +65,7 @@ CREATE INDEX idx_fts ON documents USING gin (to_tsvector('english', body));
 ```
 
 **GIN tuning:**
+
 - `gin_pending_list_limit`: Controls fastupdate buffer size (default 4MB). Increase for write-heavy workloads, decrease for read-heavy.
 - `maintenance_work_mem`: Increase during GIN index creation for faster builds.
 
@@ -98,6 +100,7 @@ CREATE INDEX idx_events_time_brin ON events USING brin (created_at)
 ```
 
 **When to use BRIN:**
+
 - Table is physically sorted by the indexed column (correlation > 0.9)
 - Table is large (millions of rows)
 - You need a tiny index footprint
@@ -287,6 +290,7 @@ query_timeout = 30
 ```
 
 **Pool modes:**
+
 - `session`: Client keeps server connection for entire session. Use for apps that use session-level features (prepared statements, temp tables, LISTEN/NOTIFY).
 - `transaction`: Connection returned after each transaction. Best for web applications. Cannot use session-level features.
 - `statement`: Connection returned after each statement. Most aggressive. No multi-statement transactions.
@@ -484,6 +488,7 @@ parallel_tuple_cost = 0.01
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing postgres expert solutions
 - Reviewing or improving existing postgres expert approaches
 - Making architectural or implementation decisions about postgres expert
@@ -491,6 +496,7 @@ parallel_tuple_cost = 0.01
 - Troubleshooting postgres expert-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -501,21 +507,26 @@ parallel_tuple_cost = 0.01
 # Postgres Expert Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

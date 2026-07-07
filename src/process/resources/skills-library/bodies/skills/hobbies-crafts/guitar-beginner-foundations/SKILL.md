@@ -12,19 +12,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly step-by-step guide"
-  category: "hobbies-crafts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly step-by-step guide'
+  category: 'hobbies-crafts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Guitar Beginner Foundations
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user explicitly states they have never played guitar before and wants to start learning
 - A user asks how to play open chord shapes -- specifically G, C, D, Em, or Am -- and shows no evidence of intermediate knowledge
 - A user asks "how do I hold a guitar," "where do I put my fingers," or "how do I strum" with no prior context suggesting they already know the basics
@@ -34,6 +36,7 @@ metadata:
 - A user wants to know what gear they need to begin playing guitar
 
 **Do NOT use this skill when:**
+
 - The user asks about barre chords (F major, B minor, movable chord shapes) -- these are intermediate technique requiring wrist mechanics not covered here
 - The user wants lead guitar, soloing, pentatonic scales, or single-note melodic playing -- refer to a lead guitar or scales skill
 - The user needs music theory beyond "this is a G chord" -- for understanding why chords are built the way they are, use `music-theory-fundamentals`
@@ -171,13 +174,13 @@ Fingers: Middle on A/fret 2, Ring on D/fret 2
 Strum: All 6 strings
 
   Fret:  1    2    3
-  e  |----|----|----| 
-  B  |----|----|----| 
-  G  |----|----|----| 
-  D  |----|--R-|----| 
-  A  |----|--M-|----| 
-  E  |----|----|----| 
-  
+  e  |----|----|----|
+  B  |----|----|----|
+  G  |----|----|----|
+  D  |----|--R-|----|
+  A  |----|--M-|----|
+  E  |----|----|----|
+
   Count: 1 + 2 + 3 + 4
 
 **Am (A minor) -- Learn second**
@@ -185,36 +188,36 @@ Fingers: Index on B/fret 1, Middle on D/fret 2, Ring on G/fret 2
 Strum: A through high e (skip low E)
 
   Fret:  1    2    3
-  e  |----|----|----| 
-  B  |-I--|----|----| 
-  G  |----|--R-|----| 
-  D  |----|--M-|----| 
+  e  |----|----|----|
+  B  |-I--|----|----|
+  G  |----|--R-|----|
+  D  |----|--M-|----|
   A  |----|----|----| O
-  E  | X  |----|----| 
+  E  | X  |----|----|
 
 **D (D major) -- Learn third**
 Fingers: Index on G/fret 2, Middle on e/fret 2, Ring on B/fret 3
 Strum: D through high e only (skip low E and A)
 
   Fret:  1    2    3
-  e  |----|--M-|----| 
-  B  |----|----|-R--| 
-  G  |----|--I-|----| 
+  e  |----|--M-|----|
+  B  |----|----|-R--|
+  G  |----|--I-|----|
   D  |----|----|----| O
-  A  | X  |----|----| 
-  E  | X  |----|----| 
+  A  | X  |----|----|
+  E  | X  |----|----|
 
 **G (G major) -- Learn fourth**
 Fingers: Index on A/fret 2, Middle on E/fret 3, Ring on e/fret 3
 Strum: All 6 strings
 
   Fret:  1    2    3
-  e  |----|----|-R--| 
-  B  |----|----|----| 
-  G  |----|----|----| 
-  D  |----|----|----| 
-  A  |----|--I-|----| 
-  E  |----|----|-M--| 
+  e  |----|----|-R--|
+  B  |----|----|----|
+  G  |----|----|----|
+  D  |----|----|----|
+  A  |----|--I-|----|
+  E  |----|----|-M--|
 
 **C (C major) -- Learn fifth**
 Fingers: Index on B/fret 1, Middle on D/fret 2, Ring on A/fret 3
@@ -222,11 +225,11 @@ Strum: A through high e (skip low E)
 
   Fret:  1    2    3
   e  |----|----|----| O
-  B  |-I--|----|----| 
-  G  |----|----|----| 
-  D  |----|--M-|----| 
-  A  |----|----|-R--| 
-  E  | X  |----|----| 
+  B  |-I--|----|----|
+  G  |----|----|----|
+  D  |----|--M-|----|
+  A  |----|----|-R--|
+  E  | X  |----|----|
 
 ---
 
@@ -326,27 +329,35 @@ Bass note reference: Em = low E | Am = A | D = D | G = low E | C = A
 ## Edge Cases
 
 ### Left-Handed Players
+
 Mirror every chord diagram horizontally. For a left-handed player, the guitar is typically strung with low E at the top of the diagram and the strumming hand is the right hand. Strongly recommend purchasing a left-handed guitar rather than attempting to restring a right-handed instrument. Restringing a right-handed guitar for left-handed playing alters the nut slot widths (which are cut for specific string gauges in a specific order) and may require a luthier's adjustment. If the user has already been playing a right-handed guitar left-handed (some famous players did), that approach is valid but note that the nut may need professional filing for optimal string action.
 
 ### Children or Players with Very Small Hands
+
 Recommend a 3/4 size guitar (scale length approximately 580mm versus the standard 648mm). Defer the G and C chords until the child can form Em and Am cleanly -- G and C require stretches that small hands cannot make comfortably. Reduce session duration to 10 minutes maximum. The D chord's compact shape actually works reasonably well for small hands. Standard open chord shapes on a full-size guitar become achievable for most children between ages 9 and 11 depending on hand size.
 
 ### Nylon-String (Classical) Guitar
+
 Nylon strings are significantly gentler on fingertips and require less fretting pressure. However, the neck is notably wider (approximately 52mm at the nut versus 43mm for steel-string) which makes chord shapes harder to reach for small hands. The action on classical guitars is often set higher than steel-string acoustics. Chord shapes and techniques are identical, but the wider neck means fingers must stretch further to avoid touching adjacent strings. Strumming mechanics differ slightly -- classical tradition uses fingers rather than a pick, but for pop/folk purposes a pick works fine.
 
 ### No Guitar Yet and Limited Budget
+
 Provide specific guidance: entry-level acoustic steel-string guitars in the $100 to $200 range (from established retailers) are adequate for learning. Avoid guitars priced below $80 -- instruments in that range frequently have action set so high (strings 5mm or more from the fretboard at the 12th fret) that fretting requires excessive force, and this discourages beginners before they have a fair chance to learn. If budget is genuinely below $80, a used guitar from a music shop is a far better option than a new guitar at that price point. A factory setup (a basic adjustment by a guitar technician, approximately $30 to $50) on any budget guitar dramatically improves playability and is worth the cost.
 
 ### Prior Ukulele Experience
+
 A ukulele player has already internalized chord shapes conceptually and understands the relationship between finger placement and pitch. Guitar's top four strings (D, G, B, e) have a direct relationship to ukulele's open strings (G, C, E, A) when a guitar capo is placed at the 5th fret. The player can likely skip Level 1 all-downstroke strumming and start at Level 2. Introduce all five chords in the first session rather than spreading them out. The primary challenge for ukulele players is adjusting to two additional strings and longer neck scale.
 
 ### User Wants a Specific Song Immediately
+
 Identify whether the named song uses only open chords from the taught five (G, C, D, Em, Am). If yes, provide the chord sequence for that song directly, note any non-standard chords, and map it to the appropriate progression in the Output Format. If the song requires barre chords (F, Bm, B, F#m, C#m, etc.), explain that the song's barre chords require an intermediate technique not yet covered, and offer two solutions: (1) find an open-chord capo arrangement that achieves the same key using only open chords, or (2) suggest a different song that uses the same emotional feel and progression type using only open chords. Do not simply refuse -- always offer a playable alternative path.
 
 ### User Reports Rapid Frustration or Considers Quitting Within the First Week
+
 The most common reasons are: fingertip pain (normal, expected, temporary), buzzing chords (technique adjustment needed, not permanent), inability to switch chords in time (requires days not hours), or unrealistic expectations set by online content showing rapid progress. Address each specifically rather than offering generic encouragement. Fingertip pain resolves in 2 to 3 weeks with consistent playing. Chord buzzing is a technique problem with a specific fix. Chord switching requires at minimum 7 to 10 days of focused drilling before feeling natural. If the user's guitar is the problem (high action, poor setup), naming that as a solvable hardware issue rather than a skill failure is often what allows them to continue.
 
 ### User Has Prior Piano Experience
+
 Piano players already understand pitch relationships, rhythm, and the concept of playing chords. They will learn chord shapes faster but may struggle with fretting technique more than a complete non-musician who has no bad habits. Piano posture (flat fingers) is the opposite of correct guitar fretting posture (arched, on fingertips). Emphasize the arch and fingertip placement rules more forcefully for piano players, as their muscle memory works against them here. They can use their rhythm knowledge to skip the counting instruction and move faster through strumming patterns.
 
 ---
@@ -360,6 +371,7 @@ Piano players already understand pitch relationships, rhythm, and the concept of
 ## Guitar Beginner Foundation Plan
 
 ### Your Setup
+
 - Guitar type: Acoustic steel-string
 - Practice time: 20 minutes per day
 - Primary goal: Campfire songs with friends (chord-based strumming)
@@ -368,20 +380,22 @@ Piano players already understand pitch relationships, rhythm, and the concept of
 ---
 
 ### Gear Checklist
-| Item                   | Purpose                                    | Priority  | Notes                                      |
-|------------------------|--------------------------------------------|-----------|--------------------------------------------|
-| Guitar (in tune)       | Core instrument                            | Required  | Tune before every single practice session  |
-| Clip-on tuner          | Standard tuning: E A D G B e               | Required  | Or use a free tuner app on your phone      |
-| Medium picks (0.7mm)   | Strumming -- thicker gives more control    | Required  | Buy at least 5 -- you will lose them       |
-| Metronome app          | Build and verify steady tempo              | Required  | Free apps work perfectly                   |
-| Capo                   | Change key to match your singing voice     | Optional  | Useful around week 5+                      |
-| Guitar strap           | Stand or walk around while playing         | Optional  | Useful for campfire situations specifically|
+
+| Item                 | Purpose                                 | Priority | Notes                                       |
+| -------------------- | --------------------------------------- | -------- | ------------------------------------------- |
+| Guitar (in tune)     | Core instrument                         | Required | Tune before every single practice session   |
+| Clip-on tuner        | Standard tuning: E A D G B e            | Required | Or use a free tuner app on your phone       |
+| Medium picks (0.7mm) | Strumming -- thicker gives more control | Required | Buy at least 5 -- you will lose them        |
+| Metronome app        | Build and verify steady tempo           | Required | Free apps work perfectly                    |
+| Capo                 | Change key to match your singing voice  | Optional | Useful around week 5+                       |
+| Guitar strap         | Stand or walk around while playing      | Optional | Useful for campfire situations specifically |
 
 **Before your first practice:** Tune your guitar. Every string must be at the correct pitch (E A D G B e, low to high). Even a new guitar from a store will go out of tune during shipping. An out-of-tune guitar makes correct chords sound wrong, which is demoralizing and misleading. Use a clip-on tuner or a free tuner app.
 
 ---
 
 ### String Name Reference
+
 ```
 Thickest string (lowest pitch): Low E  -- also called the 6th string
                                      A  -- also called the 5th string
@@ -416,6 +430,7 @@ Memory aid: "Eddie Ate Dynamite, Good Bye Eddie"
 **Em (E minor) -- Start here, Day 1**
 Fingers: Middle finger on A string, fret 2 | Ring finger on D string, fret 2
 Strum: All 6 strings
+
 ```
   Fret:  1    2    3
   e  |----|----|----| (open -- strum it)
@@ -425,6 +440,7 @@ Strum: All 6 strings
   A  |----|--M-|----| (middle finger, fret 2)
   E  |----|----|----| (open -- strum it)
 ```
+
 Why start here: Only two fingers. Both sit at the same fret on adjacent strings -- no stretching. You strum every string, so no skipping required. This is the easiest chord on guitar.
 
 ---
@@ -432,6 +448,7 @@ Why start here: Only two fingers. Both sit at the same fret on adjacent strings 
 **Am (A minor) -- Learn next, Day 1 or Day 2**
 Fingers: Index on B string fret 1 | Middle on D string fret 2 | Ring on G string fret 2
 Strum: A string down through high e (skip the low E string)
+
 ```
   Fret:  1    2    3
   e  |----|----|----| (open -- strum it)
@@ -441,6 +458,7 @@ Strum: A string down through high e (skip the low E string)
   A  |----|----|----| (open -- strum it)
   E  | X  |----|----| (do NOT strum)
 ```
+
 Key notice: Your middle and ring fingers from Em stay on the same fret numbers. You are just adding your index finger on B string fret 1. This is the easiest chord transition on guitar.
 
 ---
@@ -448,6 +466,7 @@ Key notice: Your middle and ring fingers from Em stay on the same fret numbers. 
 **D (D major) -- Days 2 to 3**
 Fingers: Index on G string fret 2 | Middle on high e string fret 2 | Ring on B string fret 3
 Strum: D string down through high e (skip low E and A strings)
+
 ```
   Fret:  1    2    3
   e  |----|--M-|----| (middle finger, fret 2)
@@ -457,6 +476,7 @@ Strum: D string down through high e (skip low E and A strings)
   A  | X  |----|----| (do NOT strum)
   E  | X  |----|----| (do NOT strum)
 ```
+
 Common mistake: The ring finger accidentally touches and mutes the high e string. Exaggerate the curl of your ring finger so its tip only contacts the B string and nothing else. Check by plucking the high e string alone after forming the chord.
 
 ---
@@ -464,6 +484,7 @@ Common mistake: The ring finger accidentally touches and mutes the high e string
 **G (G major) -- Days 3 to 4**
 Fingers: Middle on low E string fret 3 | Index on A string fret 2 | Ring on high e string fret 3
 Strum: All 6 strings
+
 ```
   Fret:  1    2    3
   e  |----|----|-R--| (ring finger, fret 3)
@@ -473,6 +494,7 @@ Strum: All 6 strings
   A  |----|--I-|----| (index finger, fret 2)
   E  |----|----|-M--| (middle finger, fret 3)
 ```
+
 Note on G: Some instructors teach G with the pinky on high e instead of ring finger. Either version is correct. Using ring finger here sets up the G-to-C transition well.
 
 ---
@@ -480,6 +502,7 @@ Note on G: Some instructors teach G with the pinky on high e instead of ring fin
 **C (C major) -- Days 4 to 5**
 Fingers: Index on B string fret 1 | Middle on D string fret 2 | Ring on A string fret 3
 Strum: A string down through high e (skip low E)
+
 ```
   Fret:  1    2    3
   e  |----|----|----| (open -- strum it)
@@ -489,24 +512,26 @@ Strum: A string down through high e (skip low E)
   A  |----|----|-R--| (ring finger, fret 3)
   E  | X  |----|----| (do NOT strum)
 ```
+
 Most common mistake: The index finger at fret 1 on B string accidentally leans and mutes the open high e string above it. The index finger tip must be angled so it only contacts the B string. Check by plucking the high e string alone after forming the chord.
 
 ---
 
 ### Chord Switching Guide
 
-| Transition  | Difficulty  | Specific technique                                              |
-|-------------|-------------|-----------------------------------------------------------------|
-| Em --> Am   | Very Easy   | Keep middle and ring where they are; add index to B/fret 1     |
-| Am --> Em   | Very Easy   | Lift only the index finger                                      |
-| Am --> D    | Hard        | Lift all three fingers; rebuild D shape on top strings          |
-| D --> G     | Medium-Hard | Lift all three; middle and ring travel to low E and high e     |
-| G --> C     | Medium      | Index pivots from A to B; middle shifts from none to D; ring shifts from e to A |
-| C --> D     | Hard        | Full rebuild; ring moves from A fret 3 to B fret 3             |
-| G --> D     | Easy        | Middle and ring lift; index stays in fret 2 zone               |
-| G --> Em    | Easy        | Lift middle from low E; index lifts; middle goes to A fret 2, ring goes to D fret 2 |
+| Transition | Difficulty  | Specific technique                                                                  |
+| ---------- | ----------- | ----------------------------------------------------------------------------------- |
+| Em --> Am  | Very Easy   | Keep middle and ring where they are; add index to B/fret 1                          |
+| Am --> Em  | Very Easy   | Lift only the index finger                                                          |
+| Am --> D   | Hard        | Lift all three fingers; rebuild D shape on top strings                              |
+| D --> G    | Medium-Hard | Lift all three; middle and ring travel to low E and high e                          |
+| G --> C    | Medium      | Index pivots from A to B; middle shifts from none to D; ring shifts from e to A     |
+| C --> D    | Hard        | Full rebuild; ring moves from A fret 3 to B fret 3                                  |
+| G --> D    | Easy        | Middle and ring lift; index stays in fret 2 zone                                    |
+| G --> Em   | Easy        | Lift middle from low E; index lifts; middle goes to A fret 2, ring goes to D fret 2 |
 
 **One-Minute Changes Drill:** Set a timer for 60 seconds. Switch between one chord pair (e.g., Em and Am) as many times as possible. Count only clean switches (both chords must ring clearly, no buzzing). Record your number. Do this drill daily. A realistic progression:
+
 - Day 1: 6 to 8 clean switches per minute
 - Day 5: 12 to 15 clean switches per minute
 - Day 10: 18 to 25 clean switches

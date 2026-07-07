@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design branding guide"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design branding guide'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Brand Identity Designer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on brand identity designer
 - User asks about brand identity designer best practices or techniques
 - User wants a structured approach to brand identity designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of brand identity designer
 
@@ -60,6 +61,7 @@ Before providing brand identity guidance:
 ## Brand Discovery Workshop
 
 ### Purpose
+
 The discovery workshop aligns all stakeholders on the brand's strategic foundation before any visual design begins. Designing without this alignment leads to subjective feedback, endless revisions, and identities that do not resonate.
 
 ### Workshop Exercises
@@ -69,6 +71,7 @@ Provide a list of 40-50 attribute words (innovative, traditional, playful, serio
 
 **Audience Persona Exercise**:
 Build 2-3 detailed audience personas:
+
 - Name, age, occupation, location
 - Goals, challenges, frustrations
 - How they discover and interact with brands in this category
@@ -80,21 +83,25 @@ Plot competitors on two axes that matter to the brand (e.g., traditional vs mode
 
 **Brand Voice and Tone**:
 Define how the brand communicates:
+
 - **Voice** (consistent personality): Professional, conversational, authoritative, playful, warm, edgy
 - **Tone** (adjusts by context): The voice stays the same, but the tone shifts. A playful brand is still playful in a customer complaint response, but with more empathy.
 
 **"This, Not That" Exercise**:
 Create pairs of contrasting descriptors:
+
 - "We are approachable, not casual"
 - "We are innovative, not gimmicky"
 - "We are premium, not pretentious"
-This creates nuance that prevents the brand from being misinterpreted.
+  This creates nuance that prevents the brand from being misinterpreted.
 
 **Aspirational Brands**:
 Ask stakeholders to name 3-5 brands (from any industry) that they admire. Discuss what specifically they admire (visual identity, customer experience, messaging, reputation). This reveals aesthetic and strategic preferences.
 
 ### Workshop Output
+
 Document the workshop results in a Brand Strategy Brief:
+
 - Brand purpose/mission statement
 - Core values (3-5)
 - Brand attributes (5-7 adjective descriptors)
@@ -109,9 +116,11 @@ This document is the design brief. All visual decisions should trace back to it.
 ## Moodboard Creation
 
 ### What a Moodboard Communicates
+
 A moodboard translates the verbal brand strategy into a visual direction. It is a curated collection of images, textures, colors, typography, and visual references that capture the intended feeling of the brand.
 
 ### Building a Moodboard
+
 1. **Gather broadly**: Collect 50-100 images from various sources (Pinterest, Behance, photography sites, nature, architecture, fashion, art, product design)
 2. **Filter ruthlessly**: Narrow to 15-25 images that collectively tell a cohesive visual story
 3. **Organize by theme**: Group images that represent color, texture, typography feel, imagery style, and mood
@@ -119,6 +128,7 @@ A moodboard translates the verbal brand strategy into a visual direction. It is 
 5. **Add annotations**: Brief notes explaining why specific images are included and what they represent
 
 ### Presenting the Moodboard
+
 - Present 2-3 moodboard directions that represent different visual approaches to the same brand strategy
 - Each direction should feel distinctly different while still aligning with the brand attributes
 - Ask the client: "Which direction feels most like your brand?" not "Which do you like best?" (preference vs. strategic fit)
@@ -127,6 +137,7 @@ A moodboard translates the verbal brand strategy into a visual direction. It is 
 ## Logo Suite
 
 ### What a Logo Suite Contains
+
 A professional brand identity requires multiple logo versions:
 
 **Primary logo**: The preferred, most complete version. Typically a combination mark (symbol + wordmark) or a wordmark with a tagline.
@@ -140,6 +151,7 @@ A professional brand identity requires multiple logo versions:
 **Symbol only**: The brand mark without text. Used when the brand is well-known enough to be recognized by the symbol alone, or for repeat applications (pattern, watermark).
 
 ### Logo Design Process
+
 1. Research and discovery (covered above)
 2. Concept sketching: generate 30-50 rough ideas on paper
 3. Digital development: refine 5-8 concepts in vector
@@ -149,7 +161,9 @@ A professional brand identity requires multiple logo versions:
 7. Finalization: all logo versions, all color variations, all file formats
 
 ### Logo Quality Criteria
+
 The logo must be:
+
 - **Distinctive**: Recognizable and different from competitors
 - **Simple**: Memorable at a glance. Can you draw it from memory?
 - **Scalable**: Legible from a favicon (16px) to a billboard
@@ -160,6 +174,7 @@ The logo must be:
 ## Typography System
 
 ### Selecting Brand Typefaces
+
 A brand typically needs 2-3 typefaces:
 
 **Primary typeface**: Used for headings, titles, and prominent brand communications. Should strongly reflect the brand personality.
@@ -169,12 +184,15 @@ A brand typically needs 2-3 typefaces:
 **Accent typeface** (optional): Used sparingly for special applications (pull quotes, callouts, social media graphics). Adds character without overuse.
 
 ### Typeface Pairing Principles
+
 - **Contrast**: Pair typefaces that are clearly different (serif heading + sans-serif body, or bold geometric + elegant script). Similar typefaces create confusion.
 - **Shared qualities**: Despite contrast, paired typefaces should share something subtle (similar x-height, similar stroke width, similar proportions).
 - **Hierarchy clarity**: The heading typeface should look distinctly different from the body typeface at any size.
 
 ### Typography Specifications
+
 Define specific usage rules:
+
 - **Heading hierarchy**: H1 (size, weight, spacing), H2, H3, H4
 - **Body text**: Size, line height (1.4-1.6x), paragraph spacing
 - **Captions and labels**: Smaller size, possibly different weight
@@ -183,6 +201,7 @@ Define specific usage rules:
 - **Case rules**: When to use title case, sentence case, all caps, or small caps
 
 ### Licensing
+
 - Verify that typeface licenses cover all intended uses (web, desktop, app, social media, print)
 - Google Fonts provides free, open-source fonts with broad licensing
 - Adobe Fonts are included with Creative Cloud subscriptions
@@ -206,7 +225,9 @@ Black, white, and grays (warm or cool depending on the brand). Used for text, ba
 Success (green), warning (yellow/orange), error (red), information (blue). These may align with brand colors but must meet contrast and recognition standards.
 
 ### Color Specifications
+
 For each color, provide:
+
 - **Pantone**: For spot-color printing (business cards, packaging, signage)
 - **CMYK**: For four-color process printing (brochures, posters)
 - **RGB**: For digital screens
@@ -214,7 +235,9 @@ For each color, provide:
 - **HSL**: Helpful for developers working with CSS
 
 ### Color Proportions
+
 Define how much of each color should appear in typical brand applications:
+
 - The 60-30-10 rule: 60% primary/neutral, 30% secondary, 10% accent
 - Dominant color creates the overall feeling. Accent color draws attention to key elements.
 - Document specific use cases: "Primary blue is used for headers and primary CTAs. Secondary green is used for positive actions and success states. Neutral gray is used for body text and dividers."
@@ -222,7 +245,9 @@ Define how much of each color should appear in typical brand applications:
 ## Imagery and Photography Direction
 
 ### Photography Style
+
 Define the visual characteristics of brand photography:
+
 - **Subject matter**: People, products, environments, abstract, or a mix
 - **Composition**: Rule of thirds, centered, asymmetrical, close-up, wide, overhead
 - **Lighting**: Natural, studio, warm, cool, high contrast, soft and diffused
@@ -231,7 +256,9 @@ Define the visual characteristics of brand photography:
 - **Mood**: Energetic, calm, intimate, grand, playful, serious
 
 ### Illustration Style (if applicable)
+
 If the brand uses illustration:
+
 - Line weight and style (thick outlines, fine lines, no outlines)
 - Color palette for illustrations (full brand palette, limited palette, monochrome)
 - Level of detail (minimal/iconic, moderate, detailed/realistic)
@@ -239,6 +266,7 @@ If the brand uses illustration:
 - Texture treatment (flat, textured, gradient)
 
 ### Iconography
+
 - Define icon style: outlined, filled, duotone, flat
 - Stroke weight consistency (match to typography weight)
 - Corner radius (rounded or sharp)
@@ -248,15 +276,18 @@ If the brand uses illustration:
 ## Brand Guidelines Document
 
 ### Structure
+
 A comprehensive brand guidelines document includes:
 
 **Section 1: Brand Foundation**
+
 - Brand story and mission
 - Core values
 - Brand personality attributes
 - Voice and tone guidelines
 
 **Section 2: Logo**
+
 - Primary logo with clear space and minimum size
 - All logo variations (secondary, submark, wordmark, symbol)
 - Color versions (full color, one-color, black, white, grayscale)
@@ -264,24 +295,28 @@ A comprehensive brand guidelines document includes:
 - Misuse examples (what not to do)
 
 **Section 3: Color**
+
 - Full color palette with all specifications
 - Color proportions and usage guidelines
 - Accessibility compliance notes
 - Color combinations to use and avoid
 
 **Section 4: Typography**
+
 - Typeface selections with license information
 - Type hierarchy (H1 through body text, captions, labels)
 - Specific size, weight, line-height, and spacing for each level
 - Type layout examples
 
 **Section 5: Imagery**
+
 - Photography style guide with examples
 - Illustration style (if applicable)
 - Iconography specifications
 - Image treatment and overlay guidelines
 
 **Section 6: Applications**
+
 - Business cards
 - Letterhead and envelopes
 - Email signatures
@@ -293,9 +328,11 @@ A comprehensive brand guidelines document includes:
 - Packaging (if applicable)
 
 **Section 7: Do's and Don'ts**
+
 - Visual examples of correct and incorrect usage for every element
 
 ### Guidelines Format
+
 - PDF: The most common delivery format. Interactive PDFs with linked navigation.
 - Web-based: Hosted on a platform like Frontify, Zeroheight, or a custom website. Easier to update and access.
 - Figma: Increasingly common for digital brands. Designers can access components directly.
@@ -303,6 +340,7 @@ A comprehensive brand guidelines document includes:
 ## Deliverables Checklist
 
 ### Complete Brand Identity Package
+
 - [ ] Brand strategy brief / discovery documentation
 - [ ] Moodboard(s)
 - [ ] Primary logo (vector: AI, SVG, EPS, PDF; raster: PNG, JPG at multiple sizes)
@@ -324,17 +362,20 @@ A comprehensive brand guidelines document includes:
 - [ ] Pattern or texture files (if applicable)
 
 ### File Organization
+
 Deliver everything in an organized folder structure with clear naming conventions. Include a README or guide explaining the folder structure.
 
 ## Pricing Brand Identity Work
 
 ### Scope-Based Pricing
+
 - **Logo only**: $500-$5,000 (logo design, basic variations, file delivery)
 - **Core identity** (logo + colors + typography): $2,000-$10,000
 - **Full brand identity** (discovery + logo + full system + guidelines): $5,000-$50,000
 - **Enterprise rebrand** (strategy + identity + applications + rollout): $50,000-$500,000+
 
 ### Factors Affecting Price
+
 - Depth of discovery and research
 - Number of concepts and revision rounds
 - Scope of the visual system (logo only vs. full identity)
@@ -345,11 +386,11 @@ Deliver everything in an organized folder structure with clear naming convention
 - Your experience and market positioning
 
 ### Payment Structure
+
 - 40-50% deposit before work begins
 - 25-30% after concept direction approval
 - 20-30% upon final delivery
 - All payments before final file delivery
-
 
 ## Output Format
 
@@ -363,13 +404,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with brand identity designer for a mid-size project."
 
 **Output:** A complete brand identity designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

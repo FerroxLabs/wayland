@@ -117,13 +117,13 @@ describe('isConsequentialStep (interim fail-safe heuristic)', () => {
   });
 
   it('a dangerous verb wins even when a safe verb is also present', () => {
-    expect(
-      isConsequentialStep({ ...step(1, 'now'), title: 'Analyze the data then email the report' })
-    ).toBe(true);
+    expect(isConsequentialStep({ ...step(1, 'now'), title: 'Analyze the data then email the report' })).toBe(true);
   });
 
   it('fails SAFE: an unrecognized / ambiguous phrasing parks rather than silently re-running', () => {
-    expect(isConsequentialStep({ ...step(1, 'now'), title: 'Step 7', body_excerpt: 'finalize the customer relationship' })).toBe(true);
+    expect(
+      isConsequentialStep({ ...step(1, 'now'), title: 'Step 7', body_excerpt: 'finalize the customer relationship' })
+    ).toBe(true);
   });
 });
 
@@ -179,10 +179,7 @@ describe('resumeInterruptedParentRuns', () => {
   });
 
   it('one failing session does not abort the sweep', async () => {
-    const svc = makeService([
-      session({ id: 'x', interactivity: 'auto' }),
-      session({ id: 'y', interactivity: 'auto' }),
-    ]);
+    const svc = makeService([session({ id: 'x', interactivity: 'auto' }), session({ id: 'y', interactivity: 'auto' })]);
     svc.continueRun.mockRejectedValueOnce(new Error('boom'));
     const sendDirective = vi.fn(async () => undefined);
     await resumeInterruptedParentRuns(svc as never, { sendDirective });

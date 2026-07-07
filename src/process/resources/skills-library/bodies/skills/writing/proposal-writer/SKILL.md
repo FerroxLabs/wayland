@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing report"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'writing content-marketing report'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Proposal Writer
@@ -23,6 +23,7 @@ You are an expert Technical Proposal Writer who creates persuasive, well-structu
 ## Proposal Philosophy
 
 ### Core Principles
+
 ```
 1. LEAD WITH THE PROBLEM: Don't start with your solution. Start with the
    reader's pain. They need to feel understood before they trust your approach.
@@ -44,6 +45,7 @@ You are an expert Technical Proposal Writer who creates persuasive, well-structu
 ## Proposal Structure
 
 ### Standard Proposal Outline
+
 ```
 1. Cover Page
 2. Executive Summary (1 page)
@@ -60,6 +62,7 @@ You are an expert Technical Proposal Writer who creates persuasive, well-structu
 ```
 
 ### Proposal Length Guide
+
 ```
 Small project (<$50K):     5-10 pages
 Medium project ($50-250K): 15-25 pages
@@ -72,6 +75,7 @@ Rule: Every page must earn its place. Long does not equal thorough.
 ## Executive Summary
 
 ### Structure (1 Page Maximum)
+
 ```
 Paragraph 1: THE SITUATION
 [Client name] is facing [specific challenge]. This challenge affects
@@ -100,6 +104,7 @@ we can deliver this project on time and within budget.
 ```
 
 ### Executive Summary Example
+
 ```
 EXECUTIVE SUMMARY
 
@@ -135,6 +140,7 @@ has 15 years of experience in high-performance web systems.
 ## Problem Statement
 
 ### Writing the Problem Statement
+
 ```
 Structure:
 1. Current situation (what exists today)
@@ -165,6 +171,7 @@ making it critical to begin within [timeframe].
 ```
 
 ### Quantifying the Problem
+
 ```
 Always translate technical problems into business impact:
 
@@ -183,6 +190,7 @@ Quantification Approaches:
 ## Technical Approach
 
 ### Technical Approach Section Structure
+
 ```
 1. Architecture Overview
    [High-level diagram of the proposed solution]
@@ -215,6 +223,7 @@ Quantification Approaches:
 ```
 
 ### Technology Justification Template
+
 ```
 TECHNOLOGY CHOICE: [Technology Name]
 
@@ -236,6 +245,7 @@ Risk mitigation:
 ## Project Timeline
 
 ### Timeline Presentation
+
 ```
 Phase-Based Timeline:
 
@@ -265,6 +275,7 @@ Key Assumptions:
 ```
 
 ### Timeline Visualization
+
 ```
 Week:  1  2  3  4  5  6  7  8  9  10  11  12  13  14
        ├──────────┤
@@ -289,6 +300,7 @@ Milestones:
 ## Team and Qualifications
 
 ### Team Section Structure
+
 ```
 PROPOSED TEAM:
 
@@ -324,6 +336,7 @@ CASE STUDIES: (include 2-3 relevant examples)
 ## Risk Assessment
 
 ### Risk Section Template
+
 ```
 RISK ASSESSMENT AND MITIGATION
 
@@ -357,6 +370,7 @@ challenges. This is invoiced only if utilized, with prior client approval.
 ## Pricing Strategies
 
 ### Pricing Models
+
 ```
 1. Fixed Price:
    Total: $320,000
@@ -391,6 +405,7 @@ challenges. This is invoiced only if utilized, with prior client approval.
 ```
 
 ### Pricing Presentation
+
 ```
 INVESTMENT SUMMARY
 
@@ -424,6 +439,7 @@ First-year ROI: 650%
 ## Competitive Differentiation
 
 ### Differentiation Strategies
+
 ```
 1. Domain Expertise:
    "We have completed 15 e-commerce performance projects in the last 3 years."
@@ -459,6 +475,7 @@ First-year ROI: 650%
 ## Review Process
 
 ### Internal Review Checklist
+
 ```
 Before Submitting the Proposal:
 
@@ -489,6 +506,7 @@ Strategic Review:
 ```
 
 ### Common Proposal Mistakes
+
 ```
 1. Leading with your company, not the client's problem
 2. Too much technical jargon for the audience
@@ -505,6 +523,7 @@ Strategic Review:
 ## Quick Decision Guide
 
 When asked about proposals:
+
 - **"Help me write a proposal"** → Start with the standard outline, focus on executive summary
 - **"How to price this project?"** → Choose pricing model based on scope clarity, present with ROI
 - **"How to stand out?"** → Competitive differentiation section with specific evidence
@@ -515,6 +534,7 @@ When asked about proposals:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing proposal writer solutions
 - Reviewing or improving existing proposal writer approaches
 - Making architectural or implementation decisions about proposal writer
@@ -522,6 +542,7 @@ When asked about proposals:
 - Troubleshooting proposal writer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -532,21 +553,26 @@ When asked about proposals:
 # Proposal Writer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

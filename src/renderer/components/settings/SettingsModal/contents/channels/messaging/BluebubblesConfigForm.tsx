@@ -61,10 +61,7 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
   const handleTestAndEnable = useCallback(async () => {
     if (!serverUrl.trim() || !password.trim()) {
       Message.warning(
-        t(
-          'settings.channels.bluebubbles.credentials.bothRequired',
-          'Server URL and password are required',
-        ),
+        t('settings.channels.bluebubbles.credentials.bothRequired', 'Server URL and password are required')
       );
       return;
     }
@@ -83,8 +80,7 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.bluebubbles.connectionFailed', 'Connection failed'),
+          testResult.data?.error ?? t('settings.channels.bluebubbles.connectionFailed', 'Connection failed')
         );
         return;
       }
@@ -92,8 +88,8 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
       Message.success(
         t(
           'settings.channels.bluebubbles.connectionSuccess',
-          `Connected to ${testResult.data.botUsername ?? 'BlueBubbles server'}`,
-        ),
+          `Connected to ${testResult.data.botUsername ?? 'BlueBubbles server'}`
+        )
       );
 
       const enableResult = await channel.enablePlugin.invoke({
@@ -105,18 +101,13 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
       });
 
       if (enableResult.success) {
-        Message.success(
-          t('settings.channels.bluebubbles.pluginEnabled', 'BlueBubbles plugin enabled'),
-        );
+        Message.success(t('settings.channels.bluebubbles.pluginEnabled', 'BlueBubbles plugin enabled'));
         const statusResult = await channel.getPluginStatus.invoke();
         if (statusResult.success && statusResult.data) {
           onStatusChange?.(statusResult.data.find((p) => p.type === 'bluebubbles') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ??
-            t('settings.channels.bluebubbles.enableFailed', 'Failed to enable plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.bluebubbles.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error: unknown) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -132,7 +123,7 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
           type='warning'
           content={t(
             'settings.channels.bluebubbles.accountLockWarning',
-            'Saving new credentials will replace the existing BlueBubbles server connection.',
+            'Saving new credentials will replace the existing BlueBubbles server connection.'
           )}
         />
       )}
@@ -141,7 +132,7 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
         label={t('settings.channels.bluebubbles.credentials.serverUrl.label', 'Server URL')}
         description={t(
           'settings.channels.bluebubbles.credentials.serverUrl.help',
-          'URL of your BlueBubbles server (the Mac running BlueBubbles Server.app). Find under Connection settings in the BB Server app. For LAN: http://192.168.1.100:1234. For remote access, use a tunnel (ngrok, Cloudflare Tunnel, Tailscale).',
+          'URL of your BlueBubbles server (the Mac running BlueBubbles Server.app). Find under Connection settings in the BB Server app. For LAN: http://192.168.1.100:1234. For remote access, use a tunnel (ngrok, Cloudflare Tunnel, Tailscale).'
         )}
         required
       >
@@ -150,7 +141,7 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
           onChange={setServerUrl}
           placeholder={t(
             'settings.channels.bluebubbles.credentials.serverUrl.placeholder',
-            'http://192.168.1.100:1234',
+            'http://192.168.1.100:1234'
           )}
           style={{ width: 320 }}
         />
@@ -160,7 +151,7 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
         label={t('settings.channels.bluebubbles.credentials.password.label', 'Server Password')}
         description={t(
           'settings.channels.bluebubbles.credentials.password.help',
-          'Password set in the BlueBubbles Server app under Settings.',
+          'Password set in the BlueBubbles Server app under Settings.'
         )}
         required
       >
@@ -169,7 +160,7 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
           onChange={setPassword}
           placeholder={t(
             'settings.channels.bluebubbles.credentials.password.placeholder',
-            'Your BlueBubbles server password',
+            'Your BlueBubbles server password'
           )}
           visibilityToggle
           style={{ width: 320 }}
@@ -182,7 +173,6 @@ const BluebubblesConfigForm: React.FC<BluebubblesConfigFormProps> = ({
         </Button>
       </div>
       <ChannelAgentModelSelector platform='bluebubbles' modelSelection={modelSelection} />
-
     </div>
   );
 };

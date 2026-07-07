@@ -12,14 +12,15 @@ description: >-
   funnel skill can answer; use the dedicated single-stage skill instead.
 license: Apache-2.0
 type: workflow
-skills: "sales-icp market-funnel funnels-offer-pricing funnels-lead-magnet funnels-tripwire funnels-offer funnels-continuity funnels-ascension-ladder"
+skills: 'sales-icp market-funnel funnels-offer-pricing funnels-lead-magnet funnels-tripwire funnels-offer funnels-continuity funnels-ascension-ladder'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing funnels architecture ascension-ladder step-by-step direct-response
   category: marketing
-  depends: "sales-icp market-funnel funnels-offer-pricing funnels-lead-magnet funnels-tripwire funnels-offer funnels-continuity funnels-ascension-ladder"
+  depends: 'sales-icp market-funnel funnels-offer-pricing funnels-lead-magnet funnels-tripwire funnels-offer funnels-continuity funnels-ascension-ladder'
 ---
+
 # Full Funnel Design
 
 **Estimated time:** 30-40 minutes

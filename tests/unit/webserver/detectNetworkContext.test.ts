@@ -61,7 +61,9 @@ describe('detectNetworkContext', () => {
   });
 
   it('hostnameIsStable is false for an IPv4 literal, localhost, and missing host', () => {
-    expect(detectNetworkContext(makeReq({ hostname: '192.168.1.5', peer: '192.168.1.5' })).hostnameIsStable).toBe(false);
+    expect(detectNetworkContext(makeReq({ hostname: '192.168.1.5', peer: '192.168.1.5' })).hostnameIsStable).toBe(
+      false
+    );
     expect(detectNetworkContext(makeReq({ hostname: 'localhost', peer: '127.0.0.1' })).hostnameIsStable).toBe(false);
     expect(detectNetworkContext(makeReq({ hostname: '127.0.0.1', peer: '127.0.0.1' })).hostnameIsStable).toBe(false);
     expect(detectNetworkContext(makeReq({ hostname: undefined, peer: '203.0.113.5' })).hostnameIsStable).toBe(false);
@@ -69,7 +71,9 @@ describe('detectNetworkContext', () => {
 
   it('hostnameIsStable is false for an IPv6 literal host', () => {
     expect(detectNetworkContext(makeReq({ hostname: '::1', peer: '::1' })).hostnameIsStable).toBe(false);
-    expect(detectNetworkContext(makeReq({ hostname: '2001:db8::1', peer: '2001:db8::1' })).hostnameIsStable).toBe(false);
+    expect(detectNetworkContext(makeReq({ hostname: '2001:db8::1', peer: '2001:db8::1' })).hostnameIsStable).toBe(
+      false
+    );
   });
 
   it('reachedVia=loopback for a loopback peer', () => {
@@ -101,15 +105,15 @@ describe('detectNetworkContext', () => {
   it('passkeyEligible = isHttps && hostnameIsStable (vendor-neutral)', () => {
     process.env.WAYLAND_HTTPS = 'true';
     // HTTPS + stable hostname, public peer -> still eligible (NOT gated on Tailscale).
-    expect(detectNetworkContext(makeReq({ hostname: 'wayland.example.com', peer: '203.0.113.5' })).passkeyEligible).toBe(
-      true
-    );
+    expect(
+      detectNetworkContext(makeReq({ hostname: 'wayland.example.com', peer: '203.0.113.5' })).passkeyEligible
+    ).toBe(true);
   });
 
   it('passkeyEligible is false without HTTPS even on a stable hostname', () => {
-    expect(detectNetworkContext(makeReq({ hostname: 'wayland.example.com', peer: '203.0.113.5' })).passkeyEligible).toBe(
-      false
-    );
+    expect(
+      detectNetworkContext(makeReq({ hostname: 'wayland.example.com', peer: '203.0.113.5' })).passkeyEligible
+    ).toBe(false);
   });
 
   it('passkeyEligible is false on HTTPS with an IP-literal host', () => {

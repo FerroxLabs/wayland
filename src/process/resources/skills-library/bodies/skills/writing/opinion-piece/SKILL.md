@@ -10,14 +10,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "blog-post writing guide"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'blog-post writing guide'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Opinion Piece Writing
 
 ## When to Use
@@ -25,6 +26,7 @@ metadata:
 Use this skill when the user explicitly wants to argue, advocate, or persuade -- not inform, explain, or entertain neutrally.
 
 **Trigger scenarios where this skill applies:**
+
 - The user wants to argue a specific position on an industry trend, business practice, social behavior, or professional norm -- for example, "write a piece arguing remote work is permanently changing office real estate" or "I want to argue that product managers have too much power in most tech companies"
 - The user asks for an editorial, op-ed, or thought leadership article intended for publication in a newsletter, trade publication, corporate blog, or professional platform like Substack or Medium
 - The user has a contrarian position they want to defend against mainstream consensus -- the piece needs to earn credibility by confronting the consensus directly, not sidestepping it
@@ -33,6 +35,7 @@ Use this skill when the user explicitly wants to argue, advocate, or persuade --
 - The user asks for a persuasive piece for internal audiences -- a memo arguing for a budget decision, a case for a new policy, or an argument for changing an organizational practice -- where the same argumentative structure applies even if the format differs
 
 **Do NOT use this skill when:**
+
 - The user wants a balanced, neutral informational post that explains multiple perspectives without taking a position -- use `blog-post-writing` instead
 - The user wants a listicle format ("7 reasons why...") even if the list argues a point -- use `listicle-writing`, which handles enumerated persuasion differently
 - The user wants scholarly argumentation with citations, footnotes, and a formal literature review -- use `academic-argument` instead
@@ -186,13 +189,13 @@ After drafting, review the complete piece against a specific checklist before de
 
 **Length guidelines by context:**
 
-| Publication Context | Target Word Count | Pillar Count | Counterargument Length |
-|---|---|---|---|
-| Trade publication op-ed | 800--1,000 words | 2 pillars | 1 paragraph |
-| Newsletter / Substack essay | 1,200--2,000 words | 3 pillars | 2 paragraphs |
-| Corporate thought leadership blog | 900--1,400 words | 2--3 pillars | 1--2 paragraphs |
-| Internal memo / policy argument | 500--800 words | 2 pillars | 1 paragraph |
-| Long-form magazine piece | 2,000--3,500 words | 3--4 pillars | 2--3 paragraphs |
+| Publication Context               | Target Word Count  | Pillar Count | Counterargument Length |
+| --------------------------------- | ------------------ | ------------ | ---------------------- |
+| Trade publication op-ed           | 800--1,000 words   | 2 pillars    | 1 paragraph            |
+| Newsletter / Substack essay       | 1,200--2,000 words | 3 pillars    | 2 paragraphs           |
+| Corporate thought leadership blog | 900--1,400 words   | 2--3 pillars | 1--2 paragraphs        |
+| Internal memo / policy argument   | 500--800 words     | 2 pillars    | 1 paragraph            |
+| Long-form magazine piece          | 2,000--3,500 words | 3--4 pillars | 2--3 paragraphs        |
 
 ---
 
@@ -227,24 +230,31 @@ After drafting, review the complete piece against a specific checklist before de
 ## Edge Cases
 
 ### The User Has a Position but No Evidence
+
 Ask the user to explain their reasoning -- what experiences, observations, or logic led them to the position. Practitioner-based observation is valid evidence in opinion writing, but it must be stated as such ("In five years of managing distributed teams, I have seen this pattern consistently") rather than asserted as universal fact. If the user has neither evidence nor reasoning, do not proceed with the opinion piece format. Instead, help them either (a) research the topic until they can support the claim, or (b) reframe as a "question worth examining" essay that explores a problem without declaring a resolution -- and note explicitly that the `blog-post-writing` skill is more appropriate until they have evidence.
 
 ### The User Wants an Extremely Contrarian or Provocative Take
+
 Contrarian pieces carry higher credibility risk because the burden of proof is reversed -- the author must not only support their claim but also explain why the mainstream view, which has presumably accumulated supporting evidence, is wrong. For these pieces: (a) expand the counterargument section to 2-3 paragraphs to demonstrate deep familiarity with the mainstream position; (b) identify precisely where the author's evidence differs from the consensus -- is it newer data, a different framing of the same data, or a different values weighting?; (c) avoid rhetorical contrarianism (arguing the opposite of consensus because it sounds interesting) and ensure the position is one the author can genuinely defend under challenge.
 
 ### The User Wants to "Argue Both Sides"
+
 This is not an opinion piece. An op-ed that gives equal weight to two positions is a compare-and-contrast essay with no editorial function. Ask the user: "If you had to bet on one of these positions being closer to correct, which one?" Use their answer to write the opinion piece. If the user genuinely cannot choose, redirect to `blog-post-writing` with a balanced framing. Do not write a false-balance opinion piece -- it persuades no one and teaches nothing.
 
 ### The Topic Is Politically, Socially, or Ethically Sensitive
+
 Do not soften the argument -- that would defeat the purpose. Instead: (a) distinguish between empirical claims (what is true) and values claims (what matters more) -- each requires different evidence; (b) ensure every empirical claim is grounded in verifiable data, and every values claim is explicitly labeled as a values position rather than an empirical one; (c) apply extra scrutiny to the counterargument section -- politically sensitive topics tend to have strong, well-developed opposing arguments that have been made by thoughtful people for a long time. Those arguments deserve more than one paragraph.
 
 ### The User Provides a Draft That Buries the Thesis
+
 This is the most common structural problem in opinion writing. Authors frequently write toward their thesis rather than from it -- they present context, background, and evidence before stating what they actually think. Identify the thesis sentence (often in the second-to-last or last paragraph of the draft), move it to within the first three sentences of the piece, and then reconstruct the opening paragraph around it. The existing opening material is usually not wasted -- it typically functions better as a body section's context paragraph or as evidence rather than as an introduction.
 
 ### The User Needs a Specific Word Count That Does Not Match Standard Formats
+
 Compress or expand the evidence architecture to fit: under 600 words, use one evidence pillar and one short counterargument paragraph, with the opening and closing doing more argumentative work; 600-900 words, use two pillars and one counterargument paragraph; 900-1,400 words, use two strong pillars and two counterargument paragraphs; 1,400+ words, add a third pillar or expand each section. Never cut the counterargument section to save space -- it is not optional. If space is critically constrained, cut from the evidence body sections rather than from the opening, counterargument, or closing.
 
 ### The User Wants to Write in Someone Else's Voice (Ghostwriting)
+
 Request a writing sample of at least 300 words from the named author. Extract: (1) average sentence length, (2) frequency of first-person statements, (3) vocabulary register, (4) use of rhetorical questions (many or none?), (5) whether they tend to state or imply conclusions, and (6) characteristic transition patterns. Write to match these markers. Do not impose a generic "executive voice" or "thought leader voice" -- these are generic defaults that erase individual voice markers. The ghostwritten piece should be indistinguishable from something the named author produced themselves.
 
 ---

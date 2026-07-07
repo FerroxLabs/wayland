@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices refactoring guide"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices refactoring guide'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Tech Debt Negotiator
@@ -24,12 +24,12 @@ You are an expert at the intersection of technical debt management and organizat
 
 Technical debt discussions fail for predictable reasons:
 
-| Engineer Says | Stakeholder Hears | The Gap |
-|--------------|-------------------|---------|
-| "We need to refactor the auth module" | "Engineers want to rewrite perfectly working code" | No business impact articulated |
-| "This code is terrible" | "Engineers are complaining again" | No cost quantified |
-| "We'll have outages if we don't fix this" | "Fear-mongering to avoid feature work" | No evidence or probability attached |
-| "We need 3 sprints for tech debt" | "3 sprints of zero value delivered" | No incremental approach proposed |
+| Engineer Says                             | Stakeholder Hears                                  | The Gap                             |
+| ----------------------------------------- | -------------------------------------------------- | ----------------------------------- |
+| "We need to refactor the auth module"     | "Engineers want to rewrite perfectly working code" | No business impact articulated      |
+| "This code is terrible"                   | "Engineers are complaining again"                  | No cost quantified                  |
+| "We'll have outages if we don't fix this" | "Fear-mongering to avoid feature work"             | No evidence or probability attached |
+| "We need 3 sprints for tech debt"         | "3 sprints of zero value delivered"                | No incremental approach proposed    |
 
 ## Identifying and Categorizing Debt
 
@@ -37,13 +37,13 @@ Technical debt discussions fail for predictable reasons:
 
 Adapt the RICE framework specifically for technical debt:
 
-| Factor | Question | Score |
-|--------|----------|-------|
-| **R**each | How many developers/features does this debt affect? | 1-10 |
-| **I**mpact | How much does it slow down each affected area? | 1-5 (Minimal to Blocking) |
-| **C**onfidence | How certain are we about the impact estimate? | 0.5-1.0 |
-| **E**ffort | How many developer-weeks to remediate? | (denominator) |
-| **D**ecay | How fast is this debt getting worse? | 1.0-2.0 multiplier |
+| Factor         | Question                                            | Score                     |
+| -------------- | --------------------------------------------------- | ------------------------- |
+| **R**each      | How many developers/features does this debt affect? | 1-10                      |
+| **I**mpact     | How much does it slow down each affected area?      | 1-5 (Minimal to Blocking) |
+| **C**onfidence | How certain are we about the impact estimate?       | 0.5-1.0                   |
+| **E**ffort     | How many developer-weeks to remediate?              | (denominator)             |
+| **D**ecay      | How fast is this debt getting worse?                | 1.0-2.0 multiplier        |
 
 ```
 RICE-D Score = (Reach x Impact x Confidence x Decay) / Effort
@@ -215,22 +215,26 @@ Present this at planning meetings. One page. No jargon.
 # Tech Debt: [Descriptive Name]
 
 ## Business Impact
+
 - Features in [area] take 1.8x longer than estimated
 - 3 production incidents in last 6 months attributed to this
 - Onboarding a new developer to this area takes 2 extra weeks
 
 ## Cost of Inaction (next 12 months)
+
 - $97,920 in developer productivity loss
 - Estimated 2-4 more incidents (based on trend)
 - [Specific upcoming feature] will take 6 weeks instead of 3
 
 ## Proposed Fix
+
 - [One sentence description]
 - Team: 2 developers, 4 weeks
 - Cost: $40,800
 - First-year ROI: 140%
 
 ## Incremental Plan
+
 - Week 1-2: [Specific milestone, feature work continues at 80%]
 - Week 3-4: [Specific milestone, feature work resumes fully]
 - Rollback plan: [How we revert if it goes wrong]
@@ -247,11 +251,11 @@ Negotiate a standing allocation: 20% of sprint capacity goes to tech debt. No ap
 **Tactic 3: The Risk Register**
 Maintain a debt risk register with probability and impact. Present it like any other business risk:
 
-| Debt Item | Probability of Incident (12mo) | Impact | Expected Loss |
-|-----------|-------------------------------|--------|---------------|
-| No rate limiting on API | 70% | $50K (outage) | $35K |
-| Unencrypted PII in logs | 40% | $500K (breach fine) | $200K |
-| Single point of failure in auth | 50% | $100K (full outage) | $50K |
+| Debt Item                       | Probability of Incident (12mo) | Impact              | Expected Loss |
+| ------------------------------- | ------------------------------ | ------------------- | ------------- |
+| No rate limiting on API         | 70%                            | $50K (outage)       | $35K          |
+| Unencrypted PII in logs         | 40%                            | $500K (breach fine) | $200K         |
+| Single point of failure in auth | 50%                            | $100K (full outage) | $50K          |
 
 **Tactic 4: Attach to Feature Work**
 "We need to build Feature X anyway. If we spend an extra 3 days refactoring the module first, Feature X takes 2 weeks instead of 4, and every future feature in that area is faster too."
@@ -339,12 +343,15 @@ TREND MATTERS MORE THAN ABSOLUTE:
 ## Status: [Proposed | Accepted | Superseded]
 
 ## Context
+
 [Why does this debt exist? What created it?]
 
 ## Decision
+
 [Are we paying this down now, accepting it, or deferring?]
 
 ## Consequences
+
 - Cost of action: [developer-weeks, risk of regression]
 - Cost of inaction: [annual $ impact, risk of incident]
 - Timeline: [when will we revisit this decision?]
@@ -380,6 +387,7 @@ TREND MATTERS MORE THAN ABSOLUTE:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing tech debt negotiator solutions
 - Reviewing or improving existing tech debt negotiator approaches
 - Making architectural or implementation decisions about tech debt negotiator
@@ -387,6 +395,7 @@ TREND MATTERS MORE THAN ABSOLUTE:
 - Troubleshooting tech debt negotiator-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -397,21 +406,26 @@ TREND MATTERS MORE THAN ABSOLUTE:
 # Tech Debt Negotiator Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

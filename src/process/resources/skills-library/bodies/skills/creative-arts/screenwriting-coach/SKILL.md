@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing editing guide"
-  category: "creative-arts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing editing guide'
+  category: 'creative-arts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Screenwriting Coach
@@ -25,11 +25,13 @@ Your tone is direct and encouraging. You understand that screenwriting is both a
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about screenwriting coach
 - User needs guidance on screenwriting coach topics
 - User wants a structured approach to screenwriting coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -53,6 +55,7 @@ Before coaching, establish the creative context:
 Screenplays follow a strict format. Deviating signals amateur status to readers.
 
 **Page layout:**
+
 - Courier 12pt font (or Courier Prime)
 - 1.5" left margin, 1" right margin
 - 1" top and bottom margins
@@ -105,15 +108,15 @@ wearing a suit that costs more than Sarah's rent.
 
 ### Format Elements
 
-| Element | Format Rule |
-|---------|------------|
-| Scene heading (slugline) | ALL CAPS: INT./EXT. LOCATION - TIME |
-| Action/description | Full margin width, present tense, lean prose |
-| Character name | Centered, ALL CAPS (first appearance only gets description) |
-| Dialogue | Centered, narrower margins than action |
-| Parenthetical | Centered, in parentheses, below character name, used sparingly |
-| Transition | Right-aligned (CUT TO:, FADE OUT, etc.) - use sparingly in modern scripts |
-| Sounds/SFX | CAPITALIZE significant sounds in action lines |
+| Element                  | Format Rule                                                               |
+| ------------------------ | ------------------------------------------------------------------------- |
+| Scene heading (slugline) | ALL CAPS: INT./EXT. LOCATION - TIME                                       |
+| Action/description       | Full margin width, present tense, lean prose                              |
+| Character name           | Centered, ALL CAPS (first appearance only gets description)               |
+| Dialogue                 | Centered, narrower margins than action                                    |
+| Parenthetical            | Centered, in parentheses, below character name, used sparingly            |
+| Transition               | Right-aligned (CUT TO:, FADE OUT, etc.) - use sparingly in modern scripts |
+| Sounds/SFX               | CAPITALIZE significant sounds in action lines                             |
 
 ### Format Software
 
@@ -164,23 +167,23 @@ Beyond the basic three-act structure, many screenwriters use a more granular bea
 
 Here is a practical beat-sheet approach for a 110-page screenplay:
 
-| Beat | Approx. Page | Purpose |
-|------|------|-------------|
-| Opening Image | 1 | A visual that establishes the protagonist's world before change |
-| Theme Introduction | 5 | A moment that hints at the story's central message or question |
-| Setup | 1-10 | Introduce the hero, their world, their flaws, and what is at stake |
-| Inciting Incident | 10-12 | The event that disrupts the status quo and launches the story |
-| Resistance / Debate | 12-25 | The hero hesitates, resists, or prepares for what is ahead |
-| Act I Turning Point | 25 | The hero commits to the new situation; no going back |
-| Subplot Launch | 30 | A secondary storyline begins (often a relationship that carries the theme) |
-| Exploration | 30-55 | The story delivers on its central premise; the audience sees what they came for |
-| Midpoint Shift | 55 | A major revelation or reversal that raises the stakes; false victory or false defeat |
-| Escalating Pressure | 55-75 | External threats and internal doubts intensify; allies may falter |
-| Low Point | 75 | The protagonist's lowest moment; a significant loss or failure |
-| Reflection | 75-85 | The hero processes defeat and synthesizes a new understanding |
-| Act II Turning Point | 85 | Armed with new insight, the hero commits to a final plan |
-| Climax and Resolution | 85-110 | The hero applies what they have learned; conflicts are resolved |
-| Closing Image | 110 | A visual that mirrors the opening, showing transformation |
+| Beat                  | Approx. Page | Purpose                                                                              |
+| --------------------- | ------------ | ------------------------------------------------------------------------------------ |
+| Opening Image         | 1            | A visual that establishes the protagonist's world before change                      |
+| Theme Introduction    | 5            | A moment that hints at the story's central message or question                       |
+| Setup                 | 1-10         | Introduce the hero, their world, their flaws, and what is at stake                   |
+| Inciting Incident     | 10-12        | The event that disrupts the status quo and launches the story                        |
+| Resistance / Debate   | 12-25        | The hero hesitates, resists, or prepares for what is ahead                           |
+| Act I Turning Point   | 25           | The hero commits to the new situation; no going back                                 |
+| Subplot Launch        | 30           | A secondary storyline begins (often a relationship that carries the theme)           |
+| Exploration           | 30-55        | The story delivers on its central premise; the audience sees what they came for      |
+| Midpoint Shift        | 55           | A major revelation or reversal that raises the stakes; false victory or false defeat |
+| Escalating Pressure   | 55-75        | External threats and internal doubts intensify; allies may falter                    |
+| Low Point             | 75           | The protagonist's lowest moment; a significant loss or failure                       |
+| Reflection            | 75-85        | The hero processes defeat and synthesizes a new understanding                        |
+| Act II Turning Point  | 85           | Armed with new insight, the hero commits to a final plan                             |
+| Climax and Resolution | 85-110       | The hero applies what they have learned; conflicts are resolved                      |
+| Closing Image         | 110          | A visual that mirrors the opening, showing transformation                            |
 
 ## Character Introduction
 
@@ -202,6 +205,7 @@ The first time a character appears, their name is in ALL CAPS with a brief, vivi
 ### Protagonist Essentials
 
 Every protagonist needs:
+
 - **A clear external goal** (what they want)
 - **A clear internal need** (what they need to learn/change)
 - **A flaw** that gets in their way
@@ -213,6 +217,7 @@ Every protagonist needs:
 ### Screen Dialogue vs. Real Speech
 
 Screen dialogue is heightened reality. It sounds natural but is actually:
+
 - More concise (no filler, no pleasantries unless they serve character)
 - More purposeful (every line advances plot or reveals character)
 - More distinctive (each character should sound different)
@@ -223,6 +228,7 @@ Screen dialogue is heightened reality. It sounds natural but is actually:
 The best screen dialogue operates on two levels: what's being said and what's really being communicated.
 
 **On-the-nose (bad):**
+
 ```
           SARAH
     I'm angry at you for lying to me
@@ -230,6 +236,7 @@ The best screen dialogue operates on two levels: what's being said and what's re
 ```
 
 **With subtext (good):**
+
 ```
           SARAH
     How was the conference?
@@ -274,6 +281,7 @@ The surface conversation is about a business trip. The real conversation is abou
 ### The Cold Open
 
 Starting a screenplay (especially a TV pilot) with a compelling scene before the title card:
+
 - Establish tone immediately
 - Create a question the audience needs answered
 - Show the show's "engine" in miniature
@@ -284,6 +292,7 @@ Starting a screenplay (especially a TV pilot) with a compelling scene before the
 ### The Pilot's Job
 
 A pilot must accomplish more than a typical episode:
+
 1. **Introduce the world and its rules**
 2. **Introduce the main characters and their dynamics**
 3. **Establish the show's central engine** (what generates stories week after week)
@@ -316,6 +325,7 @@ A logline is one or two sentences that capture the essential concept of your scr
 **Template:** "When [inciting incident], a [specific protagonist description] must [goal/action] before [stakes/deadline], or [consequence]."
 
 **Elements of a strong logline:**
+
 - **An active protagonist** with a defining characteristic
 - **Inciting incident** that starts the story
 - **A clear goal or mission**
@@ -332,6 +342,7 @@ A logline is one or two sentences that capture the essential concept of your scr
 ### Logline Testing
 
 Ask yourself:
+
 - Would I watch this movie based on this logline alone?
 - Is the protagonist's goal clear?
 - Can I feel the genre?
@@ -377,6 +388,7 @@ For every scene, the protagonist should want something specific. If they don't, 
 ## Response Guidelines
 
 When coaching a screenwriter:
+
 - Ask to see their logline or concept before giving structural advice
 - Give feedback in terms of audience experience: "At this point, the audience would feel..."
 - Reference produced films as examples - screenwriters learn by watching
@@ -384,7 +396,6 @@ When coaching a screenwriter:
 - Prioritize structure notes over dialogue notes in early drafts
 - Encourage them to read professional scripts (IMSDB, Script Slug, studio FYC sites)
 - Remind them: the first draft is about getting the story down; the rewrite is where it gets good
-
 
 ## Output Format
 

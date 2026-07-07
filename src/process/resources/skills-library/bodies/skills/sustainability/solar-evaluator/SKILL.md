@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability energy-efficiency guide"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability energy-efficiency guide'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Solar Energy Evaluator
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about solar evaluator
 - User needs guidance on solar evaluator topics
 - User wants a structured approach to solar evaluator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -90,14 +92,14 @@ Roof Space Needed: ~18 sq ft per panel x 18 panels = ~324 sq ft
 
 ### Peak Sun Hours by Region (US Averages)
 
-| Region | Peak Sun Hours | Example Cities |
-|--------|---------------|----------------|
-| Southwest | 5.5-7.0 | Phoenix, Las Vegas, Albuquerque |
-| Southeast | 4.5-5.5 | Miami, Atlanta, Charlotte |
-| Midwest | 4.0-5.0 | Kansas City, Indianapolis, St. Louis |
-| Northeast | 3.5-4.5 | New York, Boston, Philadelphia |
-| Northwest | 3.5-4.5 | Seattle, Portland (lower in winter) |
-| Mountain | 5.0-6.0 | Denver, Salt Lake City |
+| Region    | Peak Sun Hours | Example Cities                       |
+| --------- | -------------- | ------------------------------------ |
+| Southwest | 5.5-7.0        | Phoenix, Las Vegas, Albuquerque      |
+| Southeast | 4.5-5.5        | Miami, Atlanta, Charlotte            |
+| Midwest   | 4.0-5.0        | Kansas City, Indianapolis, St. Louis |
+| Northeast | 3.5-4.5        | New York, Boston, Philadelphia       |
+| Northwest | 3.5-4.5        | Seattle, Portland (lower in winter)  |
+| Mountain  | 5.0-6.0        | Denver, Salt Lake City               |
 
 **Use NREL's PVWatts Calculator (pvwatts.nrel.gov) for precise local data.**
 
@@ -107,20 +109,21 @@ Roof Space Needed: ~18 sq ft per panel x 18 panels = ~324 sq ft
 
 ### Roof Evaluation Checklist
 
-| Factor | Ideal | Acceptable | Problematic |
-|--------|-------|-----------|-------------|
-| Age | Under 10 years old | 10-15 years (may need replacement first) | Over 20 years (replace before installing solar) |
-| Condition | No damage, leaks, or wear | Minor wear, no active leaks | Active leaks, missing shingles, sagging |
-| Material | Composite shingle, metal, tile | Flat/membrane roof | Wood shake (fire risk), slate (fragile) |
-| Direction | South-facing | Southwest or southeast | North-facing (poor production in Northern Hemisphere) |
-| Pitch | 15-40 degrees | 0-15 or 40-60 degrees | Very steep (>60 degrees) |
-| Shading | No shading 9AM-3PM | Minor shading (1-2 hours) | Significant shading (>3 hours) |
-| Structural | Can support ~2.5 lbs/sq ft additional load | Needs verification | Cannot support additional weight |
-| Obstructions | Large unbroken roof area | Vents, skylights (can work around) | Many dormers, complex roof geometry |
+| Factor       | Ideal                                      | Acceptable                               | Problematic                                           |
+| ------------ | ------------------------------------------ | ---------------------------------------- | ----------------------------------------------------- |
+| Age          | Under 10 years old                         | 10-15 years (may need replacement first) | Over 20 years (replace before installing solar)       |
+| Condition    | No damage, leaks, or wear                  | Minor wear, no active leaks              | Active leaks, missing shingles, sagging               |
+| Material     | Composite shingle, metal, tile             | Flat/membrane roof                       | Wood shake (fire risk), slate (fragile)               |
+| Direction    | South-facing                               | Southwest or southeast                   | North-facing (poor production in Northern Hemisphere) |
+| Pitch        | 15-40 degrees                              | 0-15 or 40-60 degrees                    | Very steep (>60 degrees)                              |
+| Shading      | No shading 9AM-3PM                         | Minor shading (1-2 hours)                | Significant shading (>3 hours)                        |
+| Structural   | Can support ~2.5 lbs/sq ft additional load | Needs verification                       | Cannot support additional weight                      |
+| Obstructions | Large unbroken roof area                   | Vents, skylights (can work around)       | Many dormers, complex roof geometry                   |
 
 ### Shading Analysis
 
 **Tools for shading assessment:**
+
 - Google Project Sunroof (google.com/get/sunroof) -- free, satellite-based
 - Solar installer site visit with shade analysis tool (SunEye, Solmetric)
 - PVWatts calculator with shading adjustments
@@ -188,12 +191,12 @@ Simple Payback Period:
 
 ### Typical Financial Benchmarks
 
-| Metric | Good | Average | Poor |
-|--------|------|---------|------|
-| Payback period | Under 7 years | 7-12 years | Over 12 years |
-| 25-year savings | Over $30,000 | $15,000-$30,000 | Under $15,000 |
-| Year 1 savings | Over $1,500 | $800-$1,500 | Under $800 |
-| Cost per watt (before incentives) | Under $2.75 | $2.75-$3.50 | Over $3.50 |
+| Metric                            | Good          | Average         | Poor          |
+| --------------------------------- | ------------- | --------------- | ------------- |
+| Payback period                    | Under 7 years | 7-12 years      | Over 12 years |
+| 25-year savings                   | Over $30,000  | $15,000-$30,000 | Under $15,000 |
+| Year 1 savings                    | Over $1,500   | $800-$1,500     | Under $800    |
+| Cost per watt (before incentives) | Under $2.75   | $2.75-$3.50     | Over $3.50    |
 
 ---
 
@@ -212,6 +215,7 @@ When your solar panels produce more electricity than you are using, the excess i
 **Time-of-Use (TOU) Net Metering:** Credits vary based on when you export (more valuable during peak hours, less during off-peak).
 
 ### Questions to Ask Your Utility
+
 - Do you offer net metering?
 - At what rate are credits calculated?
 - Do credits roll over month to month? Do they expire?
@@ -226,14 +230,15 @@ When your solar panels produce more electricity than you are using, the excess i
 
 ### Federal Investment Tax Credit (ITC)
 
-| Year | Credit Rate | Notes |
-|------|------------|-------|
-| 2022-2032 | 30% | Inflation Reduction Act extended and increased |
-| 2033 | 26% | Step-down begins |
-| 2034 | 22% | Further reduction |
-| 2035+ | 0% (residential) | May be extended by future legislation |
+| Year      | Credit Rate      | Notes                                          |
+| --------- | ---------------- | ---------------------------------------------- |
+| 2022-2032 | 30%              | Inflation Reduction Act extended and increased |
+| 2033      | 26%              | Step-down begins                               |
+| 2034      | 22%              | Further reduction                              |
+| 2035+     | 0% (residential) | May be extended by future legislation          |
 
 **Requirements:**
+
 - Must own the system (not lease)
 - Must have sufficient tax liability to use the credit
 - Credit can be carried forward to future tax years
@@ -242,6 +247,7 @@ When your solar panels produce more electricity than you are using, the excess i
 ### State and Local Incentives
 
 **Common state-level incentives:**
+
 - State tax credits (additional percentage or fixed amount)
 - Property tax exemptions (solar does not increase property tax assessment)
 - Sales tax exemptions (no sales tax on solar equipment)
@@ -251,12 +257,14 @@ When your solar panels produce more electricity than you are using, the excess i
 - Low-interest loan programs
 
 **Finding incentives in your area:**
+
 - DSIRE database (dsireusa.org) -- comprehensive database of incentives by state
 - EnergySage (energysage.com) -- incentive calculator
 - Your state's energy office website
 - Your utility company's website
 
 ### SRECs (Solar Renewable Energy Certificates)
+
 In some states, solar system owners earn SRECs based on electricity production. These certificates can be sold on a market. One SREC = 1,000 kWh (1 MWh) of solar production.
 
 **States with active SREC markets:** New Jersey, Massachusetts, Pennsylvania, Maryland, Washington DC, Illinois, Ohio (partial list -- check current status).
@@ -314,11 +322,11 @@ References Checked: Y / N         Y / N         Y / N
 
 ### Inverter Types Comparison
 
-| Type | Pros | Cons | Best For |
-|------|------|------|----------|
-| String inverter | Lowest cost, proven technology | One shaded panel affects entire string | Unshaded roofs, simple layouts |
-| Microinverters | Panel-level optimization, better for shading | Higher cost, more components | Shaded roofs, complex layouts |
-| Power optimizers + string inverter | Panel-level optimization, central inverter monitoring | Moderate cost, added complexity | Mixed shading, multiple orientations |
+| Type                               | Pros                                                  | Cons                                   | Best For                             |
+| ---------------------------------- | ----------------------------------------------------- | -------------------------------------- | ------------------------------------ |
+| String inverter                    | Lowest cost, proven technology                        | One shaded panel affects entire string | Unshaded roofs, simple layouts       |
+| Microinverters                     | Panel-level optimization, better for shading          | Higher cost, more components           | Shaded roofs, complex layouts        |
+| Power optimizers + string inverter | Panel-level optimization, central inverter monitoring | Moderate cost, added complexity        | Mixed shading, multiple orientations |
 
 ---
 
@@ -327,6 +335,7 @@ References Checked: Y / N         Y / N         Y / N
 ### When Battery Storage Makes Sense
 
 **Good reasons to add batteries:**
+
 - Time-of-use rate structure (charge during cheap/solar hours, use during expensive peak hours)
 - Poor net metering policy (low export rate)
 - Frequent power outages
@@ -334,18 +343,19 @@ References Checked: Y / N         Y / N         Y / N
 - Off-grid applications
 
 **When batteries may NOT make financial sense:**
+
 - Full retail net metering available (the grid acts as your battery for free)
 - Reliable grid with rare outages
 - Limited budget (panels first, batteries can be added later)
 
 ### Battery Comparison
 
-| Metric | Tesla Powerwall | Enphase IQ | LG RESU | Generac PWRcell |
-|--------|----------------|-----------|---------|-----------------|
-| Capacity | 13.5 kWh | 3.36-10.08 kWh (modular) | 9.6-16 kWh | 9-18 kWh (modular) |
-| Power Output | 5 kW continuous | Varies by config | 5-7 kW | 4.5-9 kW |
-| Warranty | 10 years | 10-15 years | 10 years | 10 years |
-| Approximate Cost (installed) | $12,000-$16,000 | $10,000-$20,000 | $10,000-$14,000 | $12,000-$20,000 |
+| Metric                       | Tesla Powerwall | Enphase IQ               | LG RESU         | Generac PWRcell    |
+| ---------------------------- | --------------- | ------------------------ | --------------- | ------------------ |
+| Capacity                     | 13.5 kWh        | 3.36-10.08 kWh (modular) | 9.6-16 kWh      | 9-18 kWh (modular) |
+| Power Output                 | 5 kW continuous | Varies by config         | 5-7 kW          | 4.5-9 kW           |
+| Warranty                     | 10 years        | 10-15 years              | 10 years        | 10 years           |
+| Approximate Cost (installed) | $12,000-$16,000 | $10,000-$20,000          | $10,000-$14,000 | $12,000-$20,000    |
 
 **Note:** Battery prices and specifications change frequently. Verify current pricing with installers.
 
@@ -372,29 +382,32 @@ Example: 4 kWh/day essential load x 2 days backup = 8 kWh minimum
 
 ### Comparison of Financing Methods
 
-| Method | Ownership | Upfront Cost | Monthly Cost | ITC Eligible | Best For |
-|--------|-----------|-------------|-------------|-------------|----------|
-| Cash purchase | You own | Full cost | $0 | Yes | Maximum long-term savings |
-| Solar loan | You own | $0-low | Loan payment | Yes | Good credit, want ownership |
-| Home equity loan/HELOC | You own | $0 | Loan payment | Yes (interest may be deductible) | Significant home equity |
-| Solar lease | Company owns | $0 | Monthly lease | No (company claims) | Low/no upfront, lower savings |
-| PPA (Power Purchase Agreement) | Company owns | $0 | Per kWh rate | No (company claims) | Low/no upfront, predictable cost |
+| Method                         | Ownership    | Upfront Cost | Monthly Cost  | ITC Eligible                     | Best For                         |
+| ------------------------------ | ------------ | ------------ | ------------- | -------------------------------- | -------------------------------- |
+| Cash purchase                  | You own      | Full cost    | $0            | Yes                              | Maximum long-term savings        |
+| Solar loan                     | You own      | $0-low       | Loan payment  | Yes                              | Good credit, want ownership      |
+| Home equity loan/HELOC         | You own      | $0           | Loan payment  | Yes (interest may be deductible) | Significant home equity          |
+| Solar lease                    | Company owns | $0           | Monthly lease | No (company claims)              | Low/no upfront, lower savings    |
+| PPA (Power Purchase Agreement) | Company owns | $0           | Per kWh rate  | No (company claims)              | Low/no upfront, predictable cost |
 
 ### Financial Decision Framework
 
 **If you can afford to buy (cash or loan): BUY.**
+
 - You receive the federal ITC and all incentives
 - You own the system and the increased home value
 - Maximum lifetime financial benefit
 - No escalation clauses or contract complications
 
 **If cash purchase is not possible:**
+
 - Solar loan is the next best option (you still get ITC)
 - Ensure the loan payment is less than your current electric bill savings
 - Avoid balloon payments or variable rate loans
 - Compare at least 3 lenders
 
 **Lease/PPA is better than nothing, but understand:**
+
 - You do not own the system
 - Savings are typically 10-30% of current bill (vs. 50-100% with ownership)
 - Escalation clauses may increase payments annually
@@ -407,16 +420,17 @@ Example: 4 kWh/day essential load x 2 days backup = 8 kWh minimum
 
 ### Solar System Maintenance Schedule
 
-| Task | Frequency | DIY or Professional | Cost |
-|------|-----------|-------------------|------|
-| Visual inspection (look for damage, debris) | Monthly | DIY | Free |
-| Monitor production (via app or inverter) | Weekly/monthly | DIY | Free |
-| Panel cleaning (if needed) | 1-2x per year | DIY or professional | $0-$300 |
-| Professional inspection | Every 3-5 years | Professional | $150-$300 |
-| Inverter replacement | Every 10-15 years (string) | Professional | $1,000-$2,500 |
-| Tree trimming (for shading prevention) | As needed | Professional | Varies |
+| Task                                        | Frequency                  | DIY or Professional | Cost          |
+| ------------------------------------------- | -------------------------- | ------------------- | ------------- |
+| Visual inspection (look for damage, debris) | Monthly                    | DIY                 | Free          |
+| Monitor production (via app or inverter)    | Weekly/monthly             | DIY                 | Free          |
+| Panel cleaning (if needed)                  | 1-2x per year              | DIY or professional | $0-$300       |
+| Professional inspection                     | Every 3-5 years            | Professional        | $150-$300     |
+| Inverter replacement                        | Every 10-15 years (string) | Professional        | $1,000-$2,500 |
+| Tree trimming (for shading prevention)      | As needed                  | Professional        | Varies        |
 
 ### Monitoring Your System
+
 - Most modern systems include monitoring apps
 - Check daily/weekly production against expected output
 - Sudden drops in production may indicate a problem
@@ -424,13 +438,13 @@ Example: 4 kWh/day essential load x 2 days backup = 8 kWh minimum
 - Report anomalies to your installer (usually covered under warranty)
 
 ### Panel Longevity
+
 - Most panels are warranted for 25-30 years
 - Panels degrade approximately 0.3-0.5% per year
 - After 25 years, expect ~85-90% of original production
 - Many panels continue producing well beyond warranty period
 
 Solar is a long-term investment. Take the time to analyze your specific situation thoroughly, get multiple quotes, and understand all the financial implications before committing. When the numbers work, solar provides decades of clean energy and significant savings.
-
 
 ## Output Format
 

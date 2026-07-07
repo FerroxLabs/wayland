@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy entrepreneurship guide checklist"
-  category: "legal-civic"
-  subcategory: "business-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'legal-literacy entrepreneurship guide checklist'
+  category: 'legal-civic'
+  subcategory: 'business-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Business Entity Comparison
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you. Tax thresholds, filing fees, and compliance requirements referenced in this skill are current as of the skill's creation date and must be independently verified.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user is in the early stages of starting a business and needs to understand what entity structure options exist before they speak with a professional
 - A user wants to compare LLC vs. corporation and understand the actual mechanical differences in liability treatment, taxation, and compliance burden
 - A user has heard terms like "S-Corp election," "pass-through taxation," or "piercing the corporate veil" and wants to understand what they mean in practice
@@ -33,6 +35,7 @@ metadata:
 - A user has been advised by an accountant to "consider an S-Corp" and wants to understand what that actually means before agreeing
 
 **Do NOT use when:**
+
 - The user wants to actually file formation documents -- this requires state-specific forms, current fees, and procedural knowledge that a professional or state agency portal should handle (use a state-specific formation resource or refer to the Secretary of State's website)
 - The user needs tax preparation, estimated tax calculations, or wants to know their actual payroll tax savings -- these require their specific financials and a licensed CPA or enrolled agent
 - The user wants a definitive recommendation on which entity is "right" for them -- this skill produces an informed framework, not a conclusion; always refer to an attorney and tax professional for the actual decision
@@ -63,6 +66,7 @@ Before generating any comparison, collect the following information. Each variab
 Present each entity type with its actual mechanical operation, not just labels. The goal is to give the user enough understanding to hold a productive professional conversation.
 
 **Sole Proprietorship**
+
 - No state filing is required. The business and the owner are the same legal person. This is the default status when any individual does business without forming an entity.
 - All business income flows to Schedule C of the owner's Form 1040. Net Schedule C income is subject to self-employment (SE) tax at 15.3% on the first $160,200 (2023 threshold, adjusted annually for inflation) and 2.9% above that, in addition to regular income tax. The owner may deduct half of SE tax paid as an above-the-line deduction.
 - **Liability:** There is no legal separation between the owner's business and personal assets. A client who sues the business can reach the owner's personal bank accounts, home equity, and other assets. There is no "veil" to pierce because none exists.
@@ -71,6 +75,7 @@ Present each entity type with its actual mechanical operation, not just labels. 
 - **When it is appropriate:** Very early stage businesses testing viability; extremely low-risk, low-revenue activities (arts and crafts sales, babysitting); situations where simplicity outweighs protection. Most business attorneys do not recommend this structure for any business with meaningful revenue or client-facing professional risk.
 
 **General Partnership**
+
 - Exists by default when two or more people operate a business together without forming an entity. No filing required.
 - **Liability:** Joint and several -- every partner is fully and personally liable not only for their own actions but for the actions of any other partner taken in the ordinary course of business. If Partner A makes a negligent business decision that costs a client $500,000, Partner B's personal assets are equally at risk. This is the most dangerous default structure in business law.
 - **Taxation:** The partnership files an informational return on IRS Form 1065 and issues Schedule K-1 to each partner, who reports their distributive share on their personal return. Self-employment tax applies to each partner's share of net income.
@@ -79,6 +84,7 @@ Present each entity type with its actual mechanical operation, not just labels. 
 - **Recommendation context:** General partnerships are rarely advisable in modern practice. The unlimited mutual liability makes this structure an accidental trap for business partners who simply start working together without formalizing. The standard professional recommendation is to form an LLC instead, which provides the same flexible tax treatment with liability protection.
 
 **Limited Liability Company (LLC)**
+
 - The LLC is a statutory entity created by state law. Every state has an LLC act, but the rules vary. The LLC is the most popular small business entity in the U.S. because it combines liability protection, tax flexibility, and relatively low compliance burden.
 - **Liability protection -- the corporate veil:** Members' personal assets are generally shielded from LLC debts and judgments. However, the veil has conditions. Courts will "pierce the corporate veil" and hold members personally liable if: (a) the member personally guaranteed a loan or obligation; (b) the member commingled personal and business funds (using the same bank account, paying personal expenses from the business account); (c) the LLC was inadequately capitalized for the risks of its business; (d) the LLC was used to commit fraud; or (e) in some jurisdictions, the member treated the LLC as their alter ego (no separate records, no operating agreement observed). Maintaining veil protection requires a separate business bank account, EIN, consistent use of the LLC name in contracts and invoices, and observing the Operating Agreement.
 - **Taxation -- the default rules:** A single-member LLC is a "disregarded entity" for federal tax purposes -- it files as a sole proprietorship on Schedule C (or Schedule E for rental income). A multi-member LLC is taxed as a partnership -- it files Form 1065 and issues K-1s. In both cases, all net income passes through to the members and is subject to self-employment tax.
@@ -88,6 +94,7 @@ Present each entity type with its actual mechanical operation, not just labels. 
 - **Best for:** Most small businesses with 1-20 owners, solo service providers wanting liability protection, real estate holding, businesses with moderate complexity. The LLC is the correct default recommendation to evaluate first for most small business scenarios.
 
 **S-Corporation (S-Corp)**
+
 - The S-Corp is not a separate entity type -- it is a federal income tax election available to either a corporation or an LLC. The entity is formed as a standard corporation (by filing Articles of Incorporation) or as an LLC, and then the S-Corp election is made by filing IRS Form 2553, which must be signed by all shareholders/members and submitted by March 15 of the tax year for which the election is to apply (or within 75 days of formation for new entities).
 - **The payroll tax savings mechanism:** The core S-Corp benefit is the ability to split business income into two components: (1) a W-2 salary to the owner-employee, subject to FICA payroll taxes (Social Security 6.2% + Medicare 1.45% = 7.65% employee side; employer matches, so total cost is 15.3% up to the Social Security wage base), and (2) distributions from the entity, which are not subject to self-employment tax or FICA. A sole proprietor or default-taxed LLC member pays SE tax (15.3%) on all net business income. An S-Corp owner pays FICA only on the salary portion.
 - **The "reasonable salary" requirement:** The IRS requires that owner-employees of an S-Corp pay themselves a "reasonable" or "reasonable and necessary" salary before taking distributions. The IRS has successfully challenged S-Corps that paid minimal salaries to avoid payroll tax. The reasonable salary is determined by what the market would pay for that role -- documented through industry wage data (Bureau of Labor Statistics data, comparable job postings, RCReports or similar tools that CPAs use). Underpaying on salary to maximize distributions is an audit risk.
@@ -96,6 +103,7 @@ Present each entity type with its actual mechanical operation, not just labels. 
 - **Best for:** Profitable service businesses with a single owner or small number of owners, businesses generating $80,000-$500,000+ in net income where the owner works in the business and can justify a reasonable salary, and businesses that do not need complex equity structures.
 
 **C-Corporation**
+
 - A C-Corp is a fully separate legal entity with its own perpetual existence, owned by shareholders, managed by a board of directors, and operated by officers. It is the oldest and most legally developed corporate form in the U.S. and the foundation of modern capital markets.
 - **Liability:** Strong entity-level liability protection. Shareholders, directors, and officers are generally not personally liable for corporate debts or obligations. Exceptions include personal guarantees, "alter ego" liability in cases of corporate formality failures, and director/officer liability for specific statutory violations (payroll tax withholding, certain securities law violations).
 - **Taxation -- double taxation:** The C-Corp files Form 1120 and pays federal corporate income tax at a flat 21% rate (as of the Tax Cuts and Jobs Act of 2017; subject to legislative change). When the corporation distributes profits to shareholders as dividends, those dividends are taxed again on the shareholder's personal return at qualified dividend rates (0%, 15%, or 20% depending on income level). This double layer of taxation is the primary ongoing disadvantage.
@@ -107,6 +115,7 @@ Present each entity type with its actual mechanical operation, not just labels. 
 - **Best for:** Businesses seeking venture capital or angel investment, technology startups with equity compensation plans, businesses planning an IPO, businesses with significant retained earnings to reinvest, and companies where QSBS eligibility is valuable.
 
 **Professional Corporation (PC) / Professional LLC (PLLC)**
+
 - Many states require licensed professionals -- physicians, attorneys, CPAs, architects, engineers, therapists, real estate brokers -- to form a specialized entity type rather than a standard LLC or C-Corp. This varies by state and by profession.
 - A PLLC operates similarly to a standard LLC for tax and liability purposes but typically limits ownership to licensed professionals in the relevant field and is subject to the licensing board's oversight.
 - A Professional Corporation (PC) is similar to a standard corporation but may carry professional liability that passes through to the licensed professional who committed the malpractice (in some states, the PC does not fully shield professionals from their own malpractice).
@@ -127,6 +136,7 @@ After presenting the entity types, identify which 2-3 factors are most material 
 Produce a comparison table that shows only the entity types that are actually relevant to the user's situation. Do not include C-Corp in the comparison for a solo freelancer with no investor plans -- it adds noise, not value. The table should have state-specific cost information when the user has provided their state.
 
 Include in the table:
+
 - Personal liability protection (None / Yes / Yes-with-conditions)
 - Formation cost (dollar amounts specific to their state)
 - Annual compliance cost (dollar amounts, broken into state fees + accounting + payroll if applicable)
@@ -151,6 +161,7 @@ This illustration is the most valuable thing you can provide for users at this i
 ### Step 6: Address State-Specific Nuances
 
 For the state the user provides, note:
+
 - Current filing fee for LLC and corporation (verify these are accurate; note they change)
 - Annual report fee
 - Whether the state imposes a minimum franchise tax or gross receipts tax on LLCs (California $800, Massachusetts $500, Tennessee franchise/excise tax based on net worth or income, New Hampshire business profits tax, Texas margin tax for businesses over $1.18M gross receipts)
@@ -161,6 +172,7 @@ For the state the user provides, note:
 ### Step 7: Produce the Professional Consultation Preparation Package
 
 This is the output section with the highest practical value for the user. Produce:
+
 - A structured list of questions for a business attorney, organized by topic
 - A structured list of questions for a CPA or tax professional, organized by topic
 - A checklist of documents and information to bring to those consultations
@@ -468,27 +480,27 @@ California warrants its own edge case because its LLC rules are materially more 
 
 ### Your Situation Summary
 
-| Factor | Your Details |
-|--------|-------------|
-| Business type | Software architecture consulting |
-| Owner structure | Two partners -- 60% / 40% ownership split |
-| Expected annual gross revenue | ~$250,000 |
-| Expected annual net income | ~$180,000 (split between two owners) |
-| Employees planned | No |
-| Outside investment planned | Not currently; possible future |
-| Formation state | Texas |
-| Licensed profession | No |
-| Investment timeline | Exploring for future |
+| Factor                        | Your Details                              |
+| ----------------------------- | ----------------------------------------- |
+| Business type                 | Software architecture consulting          |
+| Owner structure               | Two partners -- 60% / 40% ownership split |
+| Expected annual gross revenue | ~$250,000                                 |
+| Expected annual net income    | ~$180,000 (split between two owners)      |
+| Employees planned             | No                                        |
+| Outside investment planned    | Not currently; possible future            |
+| Formation state               | Texas                                     |
+| Licensed profession           | No                                        |
+| Investment timeline           | Exploring for future                      |
 
 ---
 
 ### Entity Comparison Table: Entities Relevant to This Situation
 
-| Factor | General Partnership | Multi-Member LLC (Default) | LLC with S-Corp Election | Delaware C-Corp |
-|--------|--------------------|--------------------------|--------------------------|--------------------|
-| Personal liability protection | None -- joint and several | Yes -- veil protection | Yes -- veil protection | Yes -- strongest |
-| Formation cost (Texas) | $0 | ~$300 state filing fee | ~$300 + IRS Form 2553 | ~$89 (Delaware) + ~$750 Texas foreign registration |
-| Annual Texas fees | None | ~$0 Texas annual report (franchise tax threshold) | ~$0 + payroll processing | ~$400 Delaware franchise + ~$[TX] |
-| Annual accounting cost (est.) | $1,000-$2,500 | $1,500-$3,000 | $3,000-$5,000 (adds payroll + 1120-S) | $4,000-$7,000+ |
-| Total estimated year-1 cost | ~$1,000-$2,500 | ~$1,800-$3,300 | ~$3,300-$5,300 | ~$5,200-$9,000+ |
-| Federal tax treatment | Pass-through (Form 1065) | Pass-through (Form 1065 + K-1s) | Salary + distributions per owner | Corporate tax + divid
+| Factor                        | General Partnership       | Multi-Member LLC (Default)                        | LLC with S-Corp Election              | Delaware C-Corp                                    |
+| ----------------------------- | ------------------------- | ------------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
+| Personal liability protection | None -- joint and several | Yes -- veil protection                            | Yes -- veil protection                | Yes -- strongest                                   |
+| Formation cost (Texas)        | $0                        | ~$300 state filing fee                            | ~$300 + IRS Form 2553                 | ~$89 (Delaware) + ~$750 Texas foreign registration |
+| Annual Texas fees             | None                      | ~$0 Texas annual report (franchise tax threshold) | ~$0 + payroll processing              | ~$400 Delaware franchise + ~$[TX]                  |
+| Annual accounting cost (est.) | $1,000-$2,500             | $1,500-$3,000                                     | $3,000-$5,000 (adds payroll + 1120-S) | $4,000-$7,000+                                     |
+| Total estimated year-1 cost   | ~$1,000-$2,500            | ~$1,800-$3,300                                    | ~$3,300-$5,300                        | ~$5,200-$9,000+                                    |
+| Federal tax treatment         | Pass-through (Form 1065)  | Pass-through (Form 1065 + K-1s)                   | Salary + distributions per owner      | Corporate tax + divid                              |

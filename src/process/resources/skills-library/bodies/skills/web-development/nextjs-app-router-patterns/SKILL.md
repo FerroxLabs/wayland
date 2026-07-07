@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "typescript frameworks web-development backend"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'typescript frameworks web-development backend'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Next.js App Router Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is building or migrating a Next.js 13+ application using the App Router (`app/` directory) and needs guidance on file conventions, data fetching patterns, or rendering strategies
 - User asks about React Server Components (RSC), Server Actions, Streaming, or Suspense boundaries in the context of Next.js
 - User wants to implement type-safe route definitions, layout hierarchies, parallel routes, or intercepting routes
@@ -29,6 +31,7 @@ metadata:
 - User wants to migrate from the Pages Router to the App Router incrementally
 
 **Do NOT use this skill when:**
+
 - User is working exclusively with the Next.js Pages Router (`pages/` directory) -- use a Pages Router patterns skill instead
 - User needs general React patterns without Next.js involvement -- use a React component patterns skill
 - User is asking about Next.js deployment infrastructure (Docker, Kubernetes, Vercel-specific CDN configs) -- use a deployment skill
@@ -129,12 +132,13 @@ The App Router has a four-layer cache system. Misunderstanding it causes the mos
 - **Router Cache (client-side, in-memory):** The browser caches rendered Server Component payloads for already-visited routes. Duration: 30 seconds for dynamic routes, 5 minutes for static routes in Next.js 14+. This causes the "my mutation didn't update the UI" bug -- always call `router.refresh()` or use `revalidatePath()` in Server Actions after mutations.
 
 **Tag-based revalidation** is the most scalable invalidation strategy. Tag fetches at data-fetch time, then invalidate by tag when data changes:
+
 ```typescript
 // In data fetch
 fetch('/api/products', { next: { tags: ['products', `product-${id}`] } });
 // In Server Action or API route after mutation
-revalidateTag('products');         // invalidates all products
-revalidateTag(`product-${id}`);    // invalidates one product
+revalidateTag('products'); // invalidates all products
+revalidateTag(`product-${id}`); // invalidates one product
 ```
 
 ### 6. Handle Loading, Error, and Not-Found States
@@ -256,6 +260,7 @@ When responding to a user about App Router patterns, structure the output as fol
 5. **ALWAYS provide a `loading.tsx` file for every route segment that performs data fetching.** Without `loading.tsx`, Next.js does not stream anything to the browser until the entire segment finishes rendering. A 500ms database query means 500ms of blank screen. `loading.tsx` reduces perceived latency to near-zero.
 
 6. **NEVER expose database connection strings, API secret keys, or private environment variables to Client Components.** Only environment variables prefixed with `NEXT_PUBLIC_` are safe to use in Client Components. All secret configuration must remain in Server Components, Route Handlers, or Server Actions. Use `server-only` package to enforce this at compile time:
+
    ```typescript
    import 'server-only'; // throw build error if imported by client code
    ```
@@ -265,6 +270,7 @@ When responding to a user about App Router patterns, structure the output as fol
 8. **NEVER create a Route Handler (`route.ts`) for data that can be fetched directly in a Server Component.** Route Handlers add a network round-trip, a new caching layer to reason about, and additional attack surface. They are correct for webhooks, OAuth callbacks, file downloads, and responses consumed by external systems -- not for your own UI's data needs.
 
 9. **ALWAYS colocate component files with the route segment that owns them unless they are genuinely shared.** The App Router allows non-page files (components, hooks, utilities) to live inside the `app/` directory without becoming routes -- only `page.tsx`, `layout.tsx`, `route.ts`, and convention files are routable. Use this to colocate private components:
+
    ```
    app/dashboard/
      page.tsx
@@ -272,6 +278,7 @@ When responding to a user about App Router patterns, structure the output as fol
        DashboardChart.tsx    ← private to this segment
        MetricCard.tsx        ← private to this segment
    ```
+
    Components shared across multiple segments live in `components/` at the root level.
 
 10. **NEVER ignore TypeScript errors in App Router convention files by casting to `any`.** The `params` object, `searchParams`, Server Action arguments, and `generateMetadata` return types all have strict definitions. If TypeScript reports an error on these, the code has a real structural problem -- do not silence it with a cast. Fix the underlying type mismatch or consult the Next.js type definitions in `next/dist/shared/lib/router/utils/route-regex.d.ts`.
@@ -281,22 +288,27 @@ When responding to a user about App Router patterns, structure the output as fol
 ## Edge Cases
 
 ### Migrating from Pages Router While Running Both Simultaneously
+
 Next.js supports running `pages/` and `app/` directories side by side. During migration, the same route must not exist in both directories -- Next.js throws a build error for conflicts. Strategy: migrate route-by-route, starting with static marketing pages (easiest) and ending with heavily interactive pages (hardest). Shared components used by both routers must be Client Components or plain React components in `components/` -- they cannot use Server Component features like direct database access while still being imported by Pages Router files. Use `next/compat/router` for shared hooks that work in both contexts. Expect migration to take 2-8 weeks for a medium-sized application.
 
 ### Server Actions Failing Silently on Validation Errors
+
 A common pattern mistake: Server Actions that `throw new Error(...)` on validation failure. Thrown errors are caught by the nearest `error.tsx`, which shows a full page error screen -- catastrophic for a form submission. Instead, Server Actions should return discriminated union objects:
+
 ```typescript
-type ActionResult =
-  | { success: true; data: User }
-  | { success: false; error: { field: string; message: string }[] };
+type ActionResult = { success: true; data: User } | { success: false; error: { field: string; message: string }[] };
 ```
+
 The Client Component calling the action reads the result and displays field-level errors inline. Only throw for truly exceptional conditions (database connection failure, unexpected server error).
 
 ### Parallel Routes with Intercepting Routes (Modal Patterns)
+
 Implementing a modal that shows a photo when clicked (remaining on the list page) while also supporting a direct URL to that photo as a full page -- the Instagram-style pattern -- requires combining parallel routes and intercepting routes. The `@modal` slot renders the intercepted route as a modal; direct navigation renders the full page. This pattern breaks when the user hard-refreshes on the modal URL because the intercepting route only activates during client navigation. The full page at `app/photos/[id]/page.tsx` must always exist as a fallback. Also provide a `default.tsx` in `@modal` returning `null` so non-modal states do not crash from an unmatched slot.
 
 ### Large Bundle Sizes from Accidental Client-Side Imports
+
 When a heavy library (a PDF renderer, a chart library, a rich text editor) is imported inside a file that has `'use client'`, it joins the client JavaScript bundle and bloats every user's download. The solution is dynamic imports with `ssr: false`:
+
 ```typescript
 import dynamic from 'next/dynamic';
 const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
@@ -304,15 +316,19 @@ const PDFViewer = dynamic(() => import('@/components/PDFViewer'), {
   loading: () => <div>Loading document...</div>,
 });
 ```
+
 Use `next-bundle-analyzer` (configure via `ANALYZE=true next build`) to audit bundle composition. Any single chunk exceeding 200KB warrants investigation. Aim for initial JavaScript below 80KB for the first meaningful paint.
 
 ### Authentication Token Refresh in Middleware
+
 When using JWT-based authentication where tokens expire (typically every 15 minutes), middleware must handle token refresh transparently. The naive approach -- refreshing in middleware on every request -- creates a thundering herd on the auth server. Correct pattern: check if the access token expires within the next 60 seconds (grace period), refresh only then, and write the new token back to the response cookies with `response.cookies.set()`. Use a mutex pattern (storing a refresh-in-progress flag in KV storage like Redis or Upstash) to prevent simultaneous refresh requests from multiple edge workers creating duplicate tokens.
 
 ### Streaming Hydration Mismatches
+
 When a Server Component streams HTML that contains dynamic content (dates, user locale, random values), React's hydration pass on the client can produce a mismatch if the client renders a different value than the server did. This throws a hydration error that falls back to client-side rendering, defeating the streaming benefit. Solutions: (1) Use `suppressHydrationWarning={true}` on elements where mismatch is expected (timestamps) and update them in `useEffect`. (2) Pass locale and timezone to the server as a cookie so the server and client agree on formatting. (3) Never use `Math.random()` or `Date.now()` directly in rendered output -- derive them from stable server-side data.
 
 ### Route Handler Rate Limiting on Edge Runtime
+
 Route Handlers deployed to the Edge Runtime cannot use `node:crypto` (for HMAC signature validation) or native Node.js modules. They also cannot maintain in-memory state between requests. For rate limiting, use an external store: Upstash Redis with the `@upstash/ratelimit` package is the standard solution for Edge-compatible rate limiting. Configure a sliding window algorithm with a limit appropriate to the endpoint (10 requests/second for public APIs, 2 requests/second for authentication endpoints). Return `429 Too Many Requests` with a `Retry-After` header calculated from the rate limit window.
 
 ---
@@ -327,12 +343,12 @@ Route Handlers deployed to the Edge Runtime cannot use `node:crypto` (for HMAC s
 
 ### Route Analysis
 
-| Route | Rendering Mode | Rationale | Revalidation |
-|-------|----------------|-----------|--------------|
-| `/products` | Dynamic | `searchParams` (filters) make it request-time | `no-store` for filters; ISR fallback `revalidate: 300` for base list |
-| `/products/[slug]` | Static ISR | SEO-critical, product data changes infrequently | `revalidateTag: product-{slug}` on update |
-| `/cart` | Dynamic | User-specific, must read session | `cache: 'no-store'` |
-| `/api/cart` | Route Handler | Mutation endpoint consumed by client | N/A -- mutation |
+| Route              | Rendering Mode | Rationale                                       | Revalidation                                                         |
+| ------------------ | -------------- | ----------------------------------------------- | -------------------------------------------------------------------- |
+| `/products`        | Dynamic        | `searchParams` (filters) make it request-time   | `no-store` for filters; ISR fallback `revalidate: 300` for base list |
+| `/products/[slug]` | Static ISR     | SEO-critical, product data changes infrequently | `revalidateTag: product-{slug}` on update                            |
+| `/cart`            | Dynamic        | User-specific, must read session                | `cache: 'no-store'`                                                  |
+| `/api/cart`        | Route Handler  | Mutation endpoint consumed by client            | N/A -- mutation                                                      |
 
 ### Project Structure
 
@@ -578,9 +594,7 @@ const addToCartSchema = z.object({
   quantity: z.coerce.number().int().min(1).max(99),
 });
 
-type CartActionResult =
-  | { success: true; cartItemCount: number }
-  | { success: false; error: string };
+type CartActionResult = { success: true; cartItemCount: number } | { success: false; error: string };
 
 export async function addToCart(formData: FormData): Promise<CartActionResult> {
   const session = await getSession(cookies());
@@ -666,12 +680,12 @@ export function AddToCartButton({ productId }: { productId: string }) {
 
 ### Caching Configuration Summary
 
-| Data | Strategy | Rationale |
-|------|----------|-----------|
-| Product list | `cache: 'no-store'` (filtered) | Filters change per request |
-| Product detail | `revalidate: 600` + `revalidateTag` | ISR for SEO, tag invalidation on update |
-| Product reviews | `revalidate: 300` | Moderate freshness, not critical path |
-| Cart data | `revalidateTag: cart-{userId}` | Invalidated on every cart mutation |
+| Data            | Strategy                            | Rationale                               |
+| --------------- | ----------------------------------- | --------------------------------------- |
+| Product list    | `cache: 'no-store'` (filtered)      | Filters change per request              |
+| Product detail  | `revalidate: 600` + `revalidateTag` | ISR for SEO, tag invalidation on update |
+| Product reviews | `revalidate: 300`                   | Moderate freshness, not critical path   |
+| Cart data       | `revalidateTag: cart-{userId}`      | Invalidated on every cart mutation      |
 
 ### Required Files Checklist
 

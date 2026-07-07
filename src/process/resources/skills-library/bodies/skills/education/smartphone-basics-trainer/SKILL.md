@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills beginner-friendly automation networking safety photography performing-arts"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'teaching study-skills beginner-friendly automation networking safety photography performing-arts'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Smartphone Basics Trainer
 
 You are a patient, knowledgeable smartphone trainer helping someone become comfortable and confident with their phone. Explain everything in clear, simple language. Never assume prior knowledge. Use visual descriptions ("the gear-shaped icon," "the button in the top-right corner") to help the person find what you are describing. Celebrate progress and normalize confusion. Everyone learns at their own pace.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about smartphone basics trainer techniques or best practices
 - User needs guidance on smartphone basics trainer concepts
 - User wants to implement or improve their approach to smartphone basics trainer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of smartphone basics trainer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -47,23 +48,27 @@ You are a patient, knowledgeable smartphone trainer helping someone become comfo
 ### The Parts of Your Phone
 
 **The screen (front):**
+
 - This is the large flat area you tap and swipe on
 - When the screen is dark, your phone is "asleep" but still on
 - To wake it up: press the side button once (iPhone) or the power button (Android)
 
 **Side button / Power button:**
+
 - On iPhone: the button on the right side
 - On Android: usually on the right side, sometimes at the top
 - Short press: wake up or put to sleep
 - Long press: turn the phone completely off (a menu will appear)
 
 **Volume buttons:**
+
 - On the left side of most phones
 - Top button: louder
 - Bottom button: quieter
 - You can press these during a phone call to adjust the call volume
 
 **Charging port:**
+
 - The small slot on the bottom of the phone
 - Plug your charging cable in here
 - The cable only fits one way; do not force it
@@ -73,6 +78,7 @@ You are a patient, knowledgeable smartphone trainer helping someone become comfo
 When you unlock your phone, you see the Home Screen. Think of it as your phone's front desk.
 
 **What you will see:**
+
 - **App icons**: Small pictures that represent programs you can use. Tap one to open it.
 - **The time and date**: Usually at the top of the screen
 - **Battery indicator**: Shows how much charge is left (top-right corner)
@@ -82,22 +88,27 @@ When you unlock your phone, you see the Home Screen. Think of it as your phone's
 ### Basic Gestures (How to Touch the Screen)
 
 **Tap**: Touch the screen once quickly with your fingertip, then lift
+
 - Use this to: Open apps, press buttons, select items
 - Tip: Use the pad of your finger, not your fingernail
 
 **Swipe**: Touch the screen and slide your finger in one direction
+
 - Swipe up from the bottom: Go to the Home Screen
 - Swipe left or right: Move between Home Screen pages
 - Swipe down from the top: See notifications
 
 **Scroll**: Touch the screen and slide your finger up or down
+
 - Use this to: Move through long pages, like reading a website
 - The content moves in the opposite direction of your finger
 
 **Pinch**: Place two fingers on the screen and move them apart (zoom in) or together (zoom out)
+
 - Use this to: Make text or photos bigger or smaller
 
 **Press and hold (long press)**: Touch and keep your finger on something for 2-3 seconds
+
 - Use this to: See extra options, move apps around, select text
 
 ### Practice Exercise: Basic Navigation
@@ -120,6 +131,7 @@ If any step did not work, that is completely normal. Try again, and remember tha
 If the text on your phone is too small to read comfortably:
 
 **On iPhone:**
+
 1. Open the Settings app (gear icon)
 2. Tap "Display & Brightness"
 3. Tap "Text Size"
@@ -127,6 +139,7 @@ If the text on your phone is too small to read comfortably:
 5. You will see the text above the slider change size as you adjust
 
 **On Android:**
+
 1. Open the Settings app (gear icon)
 2. Tap "Display"
 3. Tap "Font size" or "Display size"
@@ -138,6 +151,7 @@ If the text on your phone is too small to read comfortably:
 If you cannot see the screen well, especially outdoors:
 
 **On both iPhone and Android:**
+
 1. Swipe down from the top-right corner of the screen
 2. Look for a brightness slider (a sun icon or a bar with a sun symbol)
 3. Drag it to the right to make the screen brighter
@@ -147,13 +161,16 @@ If you cannot see the screen well, especially outdoors:
 ### Adjusting the Volume
 
 **Ringer volume (for calls and alerts):**
+
 - Use the volume buttons on the side of your phone when you are NOT on a call
 - On iPhone: The small switch above the volume buttons silences the ringer (orange means silent)
 
 **Call volume:**
+
 - Use the volume buttons while you are on a phone call
 
 **Media volume (for videos and music):**
+
 - Use the volume buttons while a video or music is playing
 
 ### Setting Up Wi-Fi
@@ -161,6 +178,7 @@ If you cannot see the screen well, especially outdoors:
 Wi-Fi connects your phone to the internet through your home router. Using Wi-Fi saves your cellular data and is often faster.
 
 **On iPhone:**
+
 1. Open Settings
 2. Tap "Wi-Fi"
 3. Make sure the switch at the top is green (on)
@@ -169,6 +187,7 @@ Wi-Fi connects your phone to the internet through your home router. Using Wi-Fi 
 6. A blue checkmark appears next to your network when connected
 
 **On Android:**
+
 1. Open Settings
 2. Tap "Network & Internet" or "Connections"
 3. Tap "Wi-Fi"
@@ -205,6 +224,7 @@ While on a call, you will see buttons on the screen:
 ### Answering a Call
 
 When someone calls you:
+
 - **If your phone is locked**: Swipe the green button to the right (or swipe up on some phones)
 - **If your phone is unlocked**: Tap the green "Accept" button
 - **To decline**: Tap the red "Decline" button or press the side button twice
@@ -248,6 +268,7 @@ When someone calls you:
 5. You will hear a shutter sound (or see a flash on screen). The photo is saved automatically.
 
 **Tips for better photos:**
+
 - Make sure there is enough light (photos near windows or outdoors look best)
 - Hold the phone steady, or rest your elbows on a table
 - Tap on the screen where the subject is to make sure it is in focus
@@ -266,18 +287,22 @@ When someone calls you:
 ### If You Have Vision Challenges
 
 **Make everything larger:**
+
 - Settings > Display & Brightness > Text Size (iPhone)
 - Settings > Display > Font size and Display size (Android)
 
 **Bold text:**
+
 - Settings > Display & Brightness > Bold Text (iPhone)
 - Settings > Display > Bold text (Android, varies by brand)
 
 **Magnifier (use your phone as a magnifying glass):**
+
 - iPhone: Settings > Accessibility > Magnifier > turn on. Then triple-click the side button to use it.
 - Android: Settings > Accessibility > Magnification > turn on. Then triple-tap the screen.
 
 **Screen reader (the phone reads everything aloud):**
+
 - iPhone: Settings > Accessibility > VoiceOver
 - Android: Settings > Accessibility > TalkBack
 - Note: Screen readers change how you interact with the phone. It is best to have someone help you learn this feature.
@@ -285,29 +310,35 @@ When someone calls you:
 ### If You Have Hearing Challenges
 
 **Make calls louder:**
+
 - Use the volume-up button during calls
 - Consider using speakerphone (tap "Speaker" during a call)
 
 **Flash alerts (the camera flash blinks when you get a notification):**
+
 - iPhone: Settings > Accessibility > Audio/Visual > LED Flash for Alerts
 - Android: Settings > Accessibility > Flash notification
 
 **Hearing aid compatibility:**
+
 - iPhone: Settings > Accessibility > Hearing Devices
 - Android: Settings > Accessibility > Hearing aids
 
 ### If You Have Dexterity Challenges
 
 **Touch accommodations (adjust how the screen responds to your touch):**
+
 - iPhone: Settings > Accessibility > Touch > Touch Accommodations
 - Android: Settings > Accessibility > Touch & hold delay
 
 **Voice control (control your phone by speaking):**
+
 - iPhone: Say "Hey Siri" followed by what you want to do
 - Android: Say "Hey Google" followed by what you want to do
 - Examples: "Call [name]," "Send a text to [name]," "Open the camera"
 
 **AssistiveTouch (iPhone) / Accessibility menu (Android):**
+
 - Creates an on-screen button with common actions so you do not need to use physical buttons
 
 ## Staying Safe
@@ -317,6 +348,7 @@ When someone calls you:
 Always keep your phone locked so others cannot access your information:
 
 **Set up a passcode:**
+
 - iPhone: Settings > Face ID & Passcode (or Touch ID & Passcode)
 - Android: Settings > Security > Screen lock
 - Choose a 6-digit number you can remember
@@ -357,7 +389,6 @@ Learning to use a smartphone takes time, and that is perfectly fine. Here are so
 - Practice a little bit each day rather than long sessions
 - Write down steps for things you do often until they become second nature
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -365,7 +396,6 @@ Learning to use a smartphone takes time, and that is perfectly fine. Here are so
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -386,14 +416,12 @@ Learning to use a smartphone takes time, and that is perfectly fine. Here are so
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

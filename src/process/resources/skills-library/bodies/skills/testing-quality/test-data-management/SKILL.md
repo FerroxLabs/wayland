@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing automation database"
-  category: "testing-quality"
-  subcategory: "testing-quality"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing automation database'
+  category: 'testing-quality'
+  subcategory: 'testing-quality'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Test Data Management
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to generate, seed, or manage test data for unit, integration, or end-to-end tests
 - User wants to avoid brittle tests caused by hardcoded IDs, stale fixture files, or shared mutable state between tests
 - User needs to decide between factory-based generation, fixture files, anonymized production snapshots, or synthetic data synthesis for a specific project
@@ -31,6 +33,7 @@ metadata:
 - User asks about test data versioning, migration alignment, or keeping fixtures in sync with schema changes
 
 **Do NOT use this skill when:**
+
 - User needs help writing assertions or choosing a test framework -- see the test-writing or test-framework-selection skills
 - User is asking about performance/load test data volume generation at scale (tens of millions of rows) -- that requires load-testing-specific tooling guidance
 - User wants to mock HTTP APIs or external service responses -- see the service-mocking or API-contract-testing skills
@@ -225,27 +228,35 @@ Factory design recommendations:
 ## Edge Cases
 
 ### Tests That Use Transactions Internally
+
 Some application code under test explicitly commits transactions (bulk import jobs, payment processors, multi-step workflows with savepoints). Wrapping these tests in a transaction for rollback isolation does not work because the inner commits become permanent. Handle this by switching these specific tests to schema-per-worker isolation or container-per-test isolation. Mark them with a test tag (e.g., `@pytest.mark.uses_transactions` or `#:uses_real_transaction`) and configure your test runner to use the appropriate isolation strategy for tagged tests only. This avoids the performance cost of stronger isolation for the entire suite.
 
 ### Polymorphic Associations and Complex Join Tables
+
 In schemas with polymorphic associations (a `comments` table with `commentable_type` and `commentable_id` columns pointing to multiple entity types), factories must explicitly set the polymorphic type field. Factories that rely on ORM introspection to auto-detect the type will fail when the foreign record type is not the default. Create a factory trait for each polymorphic target type. For join tables with composite primary keys (many-to-many with extra attributes), create dedicated join-table factories rather than relying on association helpers in the parent factory -- association helpers frequently create duplicate join records that violate unique constraints when the same parent factory is called multiple times in a test.
 
 ### Circular Foreign Key Dependencies
-Some schemas have circular references: `employees` has `manager_id` pointing to `employees`, or `documents` has `parent_document_id`. Factories for self-referential entities must handle the root/leaf case explicitly. Create a base factory that sets the self-referential field to `nil` (valid root record), then a trait that creates a parent record first and assigns the ID. Never create infinite chains -- always bound the depth.  When circular references span two tables (table A has FK to B, B has FK to A), use deferred constraint checking (`SET CONSTRAINTS ALL DEFERRED` in PostgreSQL) within the factory setup transaction to insert both records before validating FK integrity.
+
+Some schemas have circular references: `employees` has `manager_id` pointing to `employees`, or `documents` has `parent_document_id`. Factories for self-referential entities must handle the root/leaf case explicitly. Create a base factory that sets the self-referential field to `nil` (valid root record), then a trait that creates a parent record first and assigns the ID. Never create infinite chains -- always bound the depth. When circular references span two tables (table A has FK to B, B has FK to A), use deferred constraint checking (`SET CONSTRAINTS ALL DEFERRED` in PostgreSQL) within the factory setup transaction to insert both records before validating FK integrity.
 
 ### Anonymization of Free-Text Fields with Structured Content
+
 Free-text fields (user bios, order notes, support ticket descriptions) may contain PII embedded in unstructured text: "Call me at 555-1234" or "My name is Jane Smith." Simple column-level anonymization misses this. Apply a secondary scan using regex patterns for common PII formats (phone number patterns, email patterns, SSN patterns, common name patterns from a name dictionary) and replace matches with placeholder tokens. For higher-fidelity requirements, use a named-entity recognition (NER) model to detect PII in free text before substituting. Accept that this process is imperfect -- document the residual risk in your data classification registry and ensure anonymized free-text fields are never exposed in developer-facing UIs without warning banners.
 
 ### Microservices with Cross-Service Test Data Dependencies
+
 In a microservices architecture, service A's tests may need data that conceptually lives in service B (e.g., the Order service needs valid Customer IDs from the Customer service). Avoid calling service B's real API in service A's tests -- this creates a brittle inter-service test dependency. Instead: define a shared test data contract (a JSON schema or Pact provider state) that specifies what Customer records service A expects to exist. In service A's tests, use factory-generated stub records with IDs drawn from a reserved test ID range (e.g., UUIDs starting with `00000000-test-`) that are known to both services. In service B's contract tests, assert that these reserved IDs exist or can be created on demand via a provider state setup endpoint.
 
 ### Time-Sensitive Data and Clock-Dependent Logic
+
 Tests that exercise logic sensitive to time (expiring tokens, scheduling windows, SLA deadlines, age calculations) must control the system clock rather than creating data relative to `DateTime.now`. Using real time in test data setup means a test that passes at 11:55 PM fails after midnight when the date rolls over. Use a clock-injection library: `freezegun` (Python), `timecop` (Ruby), `jest.useFakeTimers()` (JavaScript), `java.time.Clock` injection (Java). Set the frozen time before factory invocation so all `created_at`, `expires_at`, and `scheduled_at` fields are computed relative to the frozen anchor. Reset the clock in teardown.
 
 ### Large Reference Data Sets Required by Tests
+
 Some domains require extensive reference data to be present before any domain records can be created -- a healthcare app might need 10,000 ICD-10 diagnostic codes, a logistics app might need 50,000 postal codes. Loading this via factories per test is prohibitively slow. Load reference data exactly once per test suite run using a `session`-scoped setup fixture (pytest: `scope="session"`, RSpec: `before(:suite)`, Jest: `globalSetup`). Use snapshot/restore isolation at the test-class level so reference data is never modified by tests. If reference data must be writable in some tests (testing code that updates reference tables), create a separate test suite for those cases with full teardown after each test in that suite, isolated from the main suite run.
 
 ### Flaky Tests Caused by Sequence and UUID Collision
+
 In high-volume test suites with thousands of factory invocations per run, sequence-based unique fields can collide if sequences are not properly reset between runs or if multiple processes share sequence state. In PostgreSQL, use `ALTER SEQUENCE seq_name RESTART WITH 1` in the setup hook. For UUID-keyed tables, generate UUIDs deterministically using the test name as a namespace seed (UUID v5 in RFC 4122) rather than random UUIDs (UUID v4). This makes test data reproducible across runs and enables exact snapshot comparison. Verify uniqueness constraint violations are caught immediately by configuring the ORM to raise exceptions on duplicate key errors rather than silently returning nil.
 
 ---
@@ -259,6 +270,7 @@ In high-volume test suites with thousands of factory invocations per run, sequen
 ## Test Data Management Assessment
 
 ### Context Summary
+
 - Project type: Django REST API
 - Database: PostgreSQL 14
 - Test framework: pytest + pytest-xdist (4 workers)
@@ -283,12 +295,12 @@ The failure modes you are describing are both symptoms of **missing worker isola
 
 ### Isolation Strategy Decision
 
-| Strategy               | Fits This Context  | Trade-off                                                                 |
-|------------------------|--------------------|---------------------------------------------------------------------------|
+| Strategy               | Fits This Context  | Trade-off                                                                       |
+| ---------------------- | ------------------ | ------------------------------------------------------------------------------- |
 | Transactional rollback | Partial            | Works for single-worker; does not work with pytest-xdist's worker process model |
-| Schema-per-worker      | Yes                | 4 schemas, each fully isolated; 50--200ms setup overhead per worker      |
-| Snapshot/restore       | Possible secondary | Good for reference data loaded from JSON fixtures; not primary isolation  |
-| Container-per-run      | Yes                | Cleanest but adds 5--10s per CI run; worth it if schema-per-worker is complex |
+| Schema-per-worker      | Yes                | 4 schemas, each fully isolated; 50--200ms setup overhead per worker             |
+| Snapshot/restore       | Possible secondary | Good for reference data loaded from JSON fixtures; not primary isolation        |
+| Container-per-run      | Yes                | Cleanest but adds 5--10s per CI run; worth it if schema-per-worker is complex   |
 
 **Recommended isolation strategy:** Schema-per-worker using `pytest-django` with a custom database setup hook.
 
@@ -318,7 +330,7 @@ def django_db_setup(worker_id, django_test_environment, django_db_blocker):
     worker_id is 'master' when not running in parallel.
     """
     from django.test.utils import setup_test_database
-    
+
     if worker_id == "master":
         schema_name = "test_main"
     else:
@@ -330,11 +342,11 @@ def django_db_setup(worker_id, django_test_environment, django_db_blocker):
             cursor.execute(f"DROP SCHEMA IF EXISTS {schema_name} CASCADE")
             cursor.execute(f"CREATE SCHEMA {schema_name}")
             cursor.execute(f"SET search_path TO {schema_name}, public")
-        
+
         # Apply all migrations to this worker's schema
         from django.core.management import call_command
         call_command("migrate", "--run-syncdb", verbosity=0)
-        
+
         # Load reference data fixtures (country codes, enums, etc.) once per worker
         call_command("loaddata", "reference_data.json", verbosity=0)
 
@@ -347,6 +359,7 @@ def django_db_setup(worker_id, django_test_environment, django_db_blocker):
 ```
 
 Add to `pytest.ini`:
+
 ```ini
 [pytest]
 DJANGO_SETTINGS_MODULE = myproject.settings.test
@@ -360,6 +373,7 @@ Disable `--reuse-db` during the migration to schema-per-worker. Re-enable after 
 #### Step 2: Replace JSON Fixture Files with factory_boy Factories
 
 Install factory_boy:
+
 ```
 pip install factory-boy
 ```
@@ -526,6 +540,7 @@ class TestOrderAPI:
 ```
 
 Key changes:
+
 - No hardcoded IDs -- the test references `order.pk` which is whatever the database assigns
 - Each test creates its own data and owns its cleanup (via transactional rollback in `@pytest.mark.django_db`)
 - The test creates exactly the data it cares about -- the `paid` trait sets status without requiring the test to know which fields a paid order requires
@@ -567,7 +582,7 @@ pytest tests/api/test_orders.py -n 4 --count=10  # requires pytest-repeat
 
 # 4. Verify no test data persists between runs
 pytest tests/ -n 4 && \
-  psql $TEST_DB_URL -c "SELECT count(*) FROM test_worker_0.orders" 
+  psql $TEST_DB_URL -c "SELECT count(*) FROM test_worker_0.orders"
   # Should return 0 if teardown is working
 ```
 
@@ -595,6 +610,7 @@ pytest tests/ -n 4 && \
 ### Expected Outcome
 
 After implementing these changes:
+
 - Duplicate key errors: eliminated (each worker operates in its own schema with its own sequences)
 - Record not found errors: eliminated (each test creates and owns its data; no cross-test dependencies)
 - Test suite speed: 4-worker parallel execution should reduce CI time by 2.5--3.5x (accounting for setup overhead and I/O contention)

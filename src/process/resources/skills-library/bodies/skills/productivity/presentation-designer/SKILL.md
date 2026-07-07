@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks checklist template guide beginner-friendly automation analysis"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'time-management frameworks checklist template guide beginner-friendly automation analysis'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Presentation Designer
 
 You are an expert in presentation design and delivery who helps users create presentations that achieve their purpose - whether that is informing, persuading, teaching, or inspiring. You understand that most presentations fail not because of bad content but because of poor structure, cluttered slides, and speaker-centered (rather than audience-centered) design. You help users build presentations from the audience backward.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about presentation designer techniques or best practices
 - User needs guidance on presentation designer concepts
 - User wants to implement or improve their approach to presentation designer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of presentation designer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -60,13 +61,13 @@ PHASE 3: DELIVER    - Present with presence, pacing, and audience connection
 
 ## Source Methodology Comparison
 
-| Approach | Best For | Key Insight | Limitation |
-|----------|----------|-------------|------------|
-| Assertion-Evidence (Alley) | Technical and scientific presentations | Each slide should make ONE assertion with visual evidence; eliminate bullet points | Designed for technical content; requires effort to create visual evidence |
-| Minto Pyramid Principle | Executive communication; persuasive business presentations | Start with the answer/recommendation; then provide supporting arguments; then data | Top-down structure assumes audience wants the conclusion first; less suited for teaching |
-| PechaKucha (Klein Dytham) | Creative presentations; enforced brevity; time-constrained | 20 slides, 20 seconds each (6:40 total); constraints breed creativity and focus | Very rigid format; not suitable for complex or interactive presentations |
-| Presentation Zen (Reynolds) | Any visual presentation; design principles | Simplicity, restraint, naturalness; slides are a visual backdrop, not a document | Design-focused; less guidance on argument structure and persuasion |
-| Resonate (Duarte) | Persuasive and inspirational presentations | Structure presentations like stories with "what is" vs "what could be" contrast | Requires strong storytelling skills; complex methodology for simple presentations |
+| Approach                    | Best For                                                   | Key Insight                                                                        | Limitation                                                                               |
+| --------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Assertion-Evidence (Alley)  | Technical and scientific presentations                     | Each slide should make ONE assertion with visual evidence; eliminate bullet points | Designed for technical content; requires effort to create visual evidence                |
+| Minto Pyramid Principle     | Executive communication; persuasive business presentations | Start with the answer/recommendation; then provide supporting arguments; then data | Top-down structure assumes audience wants the conclusion first; less suited for teaching |
+| PechaKucha (Klein Dytham)   | Creative presentations; enforced brevity; time-constrained | 20 slides, 20 seconds each (6:40 total); constraints breed creativity and focus    | Very rigid format; not suitable for complex or interactive presentations                 |
+| Presentation Zen (Reynolds) | Any visual presentation; design principles                 | Simplicity, restraint, naturalness; slides are a visual backdrop, not a document   | Design-focused; less guidance on argument structure and persuasion                       |
+| Resonate (Duarte)           | Persuasive and inspirational presentations                 | Structure presentations like stories with "what is" vs "what could be" contrast    | Requires strong storytelling skills; complex methodology for simple presentations        |
 
 ## Phase 1: Architect - Structure the Argument
 
@@ -191,6 +192,7 @@ The speaker provides context and narration; the slide reinforces visually.
 ### Presentation Zen Design Principles
 
 **Simplicity:**
+
 ```
 - One idea per slide
 - Maximum 6 words in the title (aim for a full-sentence assertion)
@@ -200,6 +202,7 @@ The speaker provides context and narration; the slide reinforces visually.
 ```
 
 **Visual Hierarchy:**
+
 ```
 - The most important thing should be the most visually prominent
 - Use size, color, and position to guide the eye
@@ -208,6 +211,7 @@ The speaker provides context and narration; the slide reinforces visually.
 ```
 
 **Image Use:**
+
 ```
 - Full-bleed, high-quality images (not stock photo cliches)
 - Images should evoke emotion or illustrate a concept
@@ -358,15 +362,15 @@ AFTER THE PRESENTATION:
 
 ### Common Presentation Mistakes
 
-| Mistake | Why It Happens | Fix |
-|---------|---------------|-----|
-| Death by bullet points | Default template; writing a document not a presentation | Assertion-evidence model; one idea per slide |
-| Reading the slides aloud | Slides contain too much text; unprepared | Slides are visual aids, not scripts; know your content |
-| No clear structure | Content dumping; no argument design | Use Minto Pyramid or Duarte structure before making slides |
-| Opening with background/agenda | Convention; "easing in" | Start with your strongest hook; agenda wastes prime attention |
-| Too many slides or too few | Not planning for time | 1-2 minutes per slide; plan slide count from total time |
-| No call to action | skipped; assumed it was obvious | Always end with what you want the audience to DO |
-| Not rehearsing | Time pressure; overconfidence | Rehearse at least 3 times; first rehearsal reveals 80% of problems |
+| Mistake                        | Why It Happens                                          | Fix                                                                |
+| ------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------ |
+| Death by bullet points         | Default template; writing a document not a presentation | Assertion-evidence model; one idea per slide                       |
+| Reading the slides aloud       | Slides contain too much text; unprepared                | Slides are visual aids, not scripts; know your content             |
+| No clear structure             | Content dumping; no argument design                     | Use Minto Pyramid or Duarte structure before making slides         |
+| Opening with background/agenda | Convention; "easing in"                                 | Start with your strongest hook; agenda wastes prime attention      |
+| Too many slides or too few     | Not planning for time                                   | 1-2 minutes per slide; plan slide count from total time            |
+| No call to action              | skipped; assumed it was obvious                         | Always end with what you want the audience to DO                   |
+| Not rehearsing                 | Time pressure; overconfidence                           | Rehearse at least 3 times; first rehearsal reveals 80% of problems |
 
 ## Further Reading
 
@@ -380,7 +384,6 @@ For deeper exploration of the source methodologies:
 
 The Slide Architecture System combines structural rigor with visual elegance and delivery presence, giving you a complete framework for presentations that achieve their purpose.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -388,7 +391,6 @@ The Slide Architecture System combines structural rigor with visual elegance and
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -409,14 +411,12 @@ The Slide Architecture System combines structural rigor with visual elegance and
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

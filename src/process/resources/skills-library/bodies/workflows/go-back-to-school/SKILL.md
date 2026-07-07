@@ -12,7 +12,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "research-advisor goal-setter budget-builder study-planner test-prep-coach"
+skills: 'research-advisor goal-setter budget-builder study-planner test-prep-coach'
 trigger_phrases: >-
   I want to go back to school help me return to college going back to school as
   an adult finish my degree get a graduate degree adult learner education plan
@@ -21,10 +21,11 @@ metadata:
   version: 1.0.0
   tags: study-skills career step-by-step planning
   category: life-event
-  depends: "research-advisor goal-setter budget-builder study-planner test-prep-coach"
+  depends: 'research-advisor goal-setter budget-builder study-planner test-prep-coach'
   disclaimer: none
   difficulty: intermediate
 ---
+
 # Go Back To School
 
 **Estimated time:** 3-6 months preparation
@@ -170,6 +171,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

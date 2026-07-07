@@ -29,11 +29,7 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import type { Root, Node, Parent } from 'mdast';
-import type {
-  AskRecord,
-  StepStatus,
-  WorkflowMarker,
-} from '@/common/types/workflowTypes';
+import type { AskRecord, StepStatus, WorkflowMarker } from '@/common/types/workflowTypes';
 
 // Public types
 
@@ -61,16 +57,13 @@ export type FinalizeResult = {
   finalOutput: string;
 };
 
-export type ValidateMarkerResult =
-  | WorkflowMarker
-  | { invalid: true; reason: string };
+export type ValidateMarkerResult = WorkflowMarker | { invalid: true; reason: string };
 
 export type ComplianceResult = { ratio: number; mode: 'auto' | 'manual' };
 
 // Regexes (SPEC §7.5)
 
-const STEP_MARKER_RE =
-  /^<step\s+n="?(\d+)"?\s+status="?(now|done|skipped|errored)"?\s*\/?>$/;
+const STEP_MARKER_RE = /^<step\s+n="?(\d+)"?\s+status="?(now|done|skipped|errored)"?\s*\/?>$/;
 const ASK_MARKER_RE = /^<ask\s+([^>]*?)>([\s\S]+?)<\/ask>$/;
 const ASK_ATTR_RE = /(\w+)\s*=\s*"([^"]*)"/g;
 const VALID_ASK_TYPES = new Set(['text', 'number', 'choice', 'boolean', 'rating']);
@@ -91,10 +84,7 @@ export function createParserState(): StreamParseState {
 
 // Phase 2: validate a candidate marker string
 
-export function validateMarker(
-  raw: string,
-  totalSteps: number,
-): ValidateMarkerResult {
+export function validateMarker(raw: string, totalSteps: number): ValidateMarkerResult {
   const trimmed = raw.trim();
 
   const stepMatch = trimmed.match(STEP_MARKER_RE);
@@ -125,10 +115,7 @@ function parseAskMarker(attrs: string, question: string): ValidateMarkerResult {
   if (!type || !VALID_ASK_TYPES.has(type)) {
     return { invalid: true, reason: `ask type "${type ?? ''}" not recognized` };
   }
-  const ask: Omit<
-    AskRecord,
-    'id' | 'step_n' | 'asked_at' | 'answer' | 'answered_at'
-  > = {
+  const ask: Omit<AskRecord, 'id' | 'step_n' | 'asked_at' | 'answer' | 'answered_at'> = {
     question: question.trim(),
     type: type as AskRecord['type'],
     options: attrMap.options ? attrMap.options.split(',').map((s) => s.trim()) : null,
@@ -140,11 +127,7 @@ function parseAskMarker(attrs: string, question: string): ValidateMarkerResult {
 
 // Phase 1: streaming chunk processor
 
-export function processChunk(
-  state: StreamParseState,
-  chunk: string,
-  totalSteps: number,
-): ProcessChunkResult {
+export function processChunk(state: StreamParseState, chunk: string, totalSteps: number): ProcessChunkResult {
   const source = state.pendingTagFragment + chunk;
   state.pendingTagFragment = '';
   state.buffer += chunk;
@@ -171,10 +154,7 @@ export function processChunk(
       continue;
     }
 
-    if (
-      source[i] === '<' &&
-      (source.startsWith('<step', i) || source.startsWith('<ask', i))
-    ) {
+    if (source[i] === '<' && (source.startsWith('<step', i) || source.startsWith('<ask', i))) {
       const isAsk = source.startsWith('<ask', i);
       const closer = isAsk ? '</ask>' : '>';
       const closeIdx = source.indexOf(closer, i + (isAsk ? 4 : 5));
@@ -270,11 +250,7 @@ function offsetInCodeRange(offset: number, ranges: Array<[number, number]>): boo
  * markers that the markdown parser splits across multiple AST nodes
  * (e.g. an `<ask>` becomes html-text-html siblings).
  */
-function scanFullSource(
-  source: string,
-  codeRanges: Array<[number, number]>,
-  hits: AstMarkerHit[],
-): void {
+function scanFullSource(source: string, codeRanges: Array<[number, number]>, hits: AstMarkerHit[]): void {
   MARKER_SCAN_RE.lastIndex = 0;
   let m: RegExpExecArray | null;
   while ((m = MARKER_SCAN_RE.exec(source)) !== null) {
@@ -289,7 +265,6 @@ function scanFullSource(
     });
   }
 }
-
 
 function markersEqual(a: WorkflowMarker, b: WorkflowMarker): boolean {
   if (a.kind === 'step' && b.kind === 'step') {
@@ -307,11 +282,7 @@ function removeFirst(haystack: string, needle: string): string {
   return haystack.slice(0, idx) + haystack.slice(idx + needle.length);
 }
 
-export function finalize(
-  state: StreamParseState,
-  totalSteps: number,
-  fullMessageMarkdown: string,
-): FinalizeResult {
+export function finalize(state: StreamParseState, totalSteps: number, fullMessageMarkdown: string): FinalizeResult {
   if (state.pendingTagFragment) {
     state.output += state.pendingTagFragment;
     state.buffer += state.pendingTagFragment;
@@ -357,11 +328,7 @@ export function finalize(
 
     const validated = validateMarker(hit.raw, totalSteps);
     if ('invalid' in validated) {
-      if (
-        !state.invalidMarkers.some(
-          (im) => im.raw === hit.raw || im.raw === hit.rawSource,
-        )
-      ) {
+      if (!state.invalidMarkers.some((im) => im.raw === hit.raw || im.raw === hit.rawSource)) {
         state.invalidMarkers.push({ raw: hit.raw, reason: validated.reason });
       }
       continue;
@@ -387,10 +354,7 @@ export function finalize(
 
 // Compliance counter (SPEC §8.3)
 
-export function computeCompliance(
-  state: StreamParseState,
-  totalMessages: number,
-): ComplianceResult {
+export function computeCompliance(state: StreamParseState, totalMessages: number): ComplianceResult {
   if (totalMessages <= 0) return { ratio: 0, mode: 'auto' };
   const valid = state.emittedMarkers.length;
   const ratio = valid / totalMessages;

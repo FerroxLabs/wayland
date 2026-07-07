@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design template planning"
-  category: "design-creative"
-  subcategory: "graphic-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design template planning'
+  category: 'design-creative'
+  subcategory: 'graphic-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Layout Principles
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user describes a layout that "feels off," "looks cluttered," "lacks focus," or "seems unbalanced" and needs a structured diagnostic with specific corrective measurements
 - The user shares a design description, screenshot, wireframe, or spec and wants grid alignment verified against column counts, gutters, and margins
 - The user asks how to distribute visual weight across a page -- improving hierarchy between headlines, subheads, body text, images, and CTAs
@@ -30,6 +32,7 @@ metadata:
 - The user asks about layout concepts in the abstract -- explaining proximity, alignment, repetition, contrast, enclosure, flow -- with practical application instructions
 
 **Do NOT use when:**
+
 - The user wants to wireframe a new page from scratch with no existing layout to evaluate -- use `wireframe-specification` instead, which handles content structure and interaction flow
 - The user wants to define responsive breakpoints, fluid grid behavior, or viewport-dependent layout changes -- use `responsive-layout-design` instead, which handles breakpoint logic and content reflow
 - The user's primary problem is font choice, type scale, line-height, or kerning -- use `typography-system` instead, though this skill may reference type size as part of hierarchy analysis
@@ -61,6 +64,7 @@ If no information is provided at all, open with a set of diagnostic questions ra
 Different layout archetypes have different grid norms. Before auditing, identify which archetype applies:
 
 **Marketing / landing page**
+
 - Standard: 12-column grid, 1200px or 1440px max-width container
 - Gutter: 24-32px between columns
 - Margins: 80-120px left/right on desktop (or equivalent percentage: 6-8% each side)
@@ -68,6 +72,7 @@ Different layout archetypes have different grid norms. Before auditing, identify
 - Scan pattern: Z-pattern (minimal text) or modified F-pattern (longer pages)
 
 **Editorial / article / long-form content**
+
 - Standard: 12-column grid, body text confined to 6-8 central columns (approximately 60-75 characters per line -- the optimal measure)
 - Gutter: 24px
 - Margins: Wide (the 4 outer columns become margin space, 30-35% of total width)
@@ -75,24 +80,28 @@ Different layout archetypes have different grid norms. Before auditing, identify
 - Baseline grid: 8px base (line-height multiples snap to 8px increments)
 
 **Dashboard / data-dense UI**
+
 - Standard: Modular grid (columns + rows), 8-column or 12-column, 16-24px gutters
 - Margins: 16-24px (space is constrained, margins compress)
 - Hierarchy mode: Multiple focal points allowed -- one per panel. Use weight and color to differentiate, not size.
 - Scan pattern: F-pattern for primary metrics (top row gets highest attention)
 
 **Card / gallery grid**
+
 - Standard: Modular grid, typically 2-4 columns depending on card complexity
 - Gutters: Consistent across all cards (16-24px)
 - Hierarchy: No single dominant element -- all cards are L2. Hero card (if present) spans 2 columns to create L1.
 - White space: Outer gutter ≥ inner gutter (cards breathe more at the edge than between each other)
 
 **Presentation slide**
+
 - Standard: 1920×1080px (16:9) or 1280×720px
 - Grid: 12-column or simple 3-column. No margins narrower than 80px.
 - Hierarchy: Each slide should have ONE message as L1. Supporting visuals are L2. Everything else is L3 or omitted.
 - Reading distance: 2-6 meters typical. Minimum body text 20-24px. Hierarchy gaps must be larger than on screens.
 
 **Print (A4/Letter/tabloid)**
+
 - Canvas: A4 = 210×297mm. US Letter = 215.9×279.4mm.
 - Bleed: 3mm on all edges (content that extends to physical edge must bleed past it)
 - Safe zone: 5mm inside trim line for critical content
@@ -106,12 +115,14 @@ Different layout archetypes have different grid norms. Before auditing, identify
 Evaluate whether elements sit on the established grid. Work through each check systematically:
 
 **Column alignment checks:**
+
 - Do element left edges snap to column left edges or gutter right edges? No element should be offset by an arbitrary number. Every horizontal position should be explainable by the grid.
 - Do element widths span whole column units (1 col, 2 cols, 3 cols) rather than fractional widths?
 - Are there elements that need to span the full width for conceptual reasons (nav bars, dividers, hero backgrounds) that are correctly set to bleed or full-container width?
 - Are gutters consistent? The space between column 1 and column 2 must equal the space between column 5 and column 6. Any inconsistency breaks the grid's reliability.
 
 **Margin checks:**
+
 - Left margin must equal right margin in symmetric layouts (the default). Asymmetric margins are intentional design choices and must serve a clear purpose.
 - Top margin consistency: First element below the header must have the same top margin on every page/screen.
 - Nested margin rule: When elements are inside a container (card, modal, panel), the inner padding forms a secondary grid. This inner padding must also be a multiple of the base unit.
@@ -144,12 +155,14 @@ Visual hierarchy is the deliberate arrangement of elements to create a ranked re
 7. **Motion** -- The most powerful attractor in digital contexts. Any moving element will capture attention before any static element at the same visual weight. Use motion only to direct attention to the most critical element.
 
 **Hierarchy tier definitions:**
+
 - **L1 (Dominant):** Exactly one element per page or screen. The first thing every viewer sees. Typically the primary headline or hero image.
 - **L2 (Supporting):** 2-5 elements that provide context for L1. Section headings, feature icons, key statistics, the primary CTA.
 - **L3 (Content body):** The main information mass. Body text, card content, list items.
 - **L4 (Recessive):** Navigation, labels, metadata, footnotes, legal text. Should register but not compete.
 
 **Hierarchy failure modes to check for:**
+
 - **No L1:** Multiple elements at the same visual weight -- the eye has no entry point. Fix by increasing one element's size, weight, or contrast.
 - **Competing L1s:** Two or more elements at L1 weight. Flag each and recommend which to demote.
 - **Collapsed hierarchy:** Only two tiers exist (big and everything else). L2 and L3 elements blend together. Fix by introducing a middle tier through size or weight adjustments.
@@ -163,14 +176,15 @@ White space is not emptiness -- it is the spatial relationship that groups relat
 
 **The three-tier spacing system:**
 
-| Tier | Name | Function | Digital Range | Print Range |
-|------|------|----------|---------------|-------------|
-| Micro | Within-component | Padding inside buttons, labels, cards; space between icon and text | 4-16px | 1-4mm |
-| Meso | Between-component | Gap between cards, form fields, list items, inline elements | 16-48px | 4-12mm |
-| Macro | Between-section | Separation between major page sections, content blocks | 48-128px | 12-30mm |
+| Tier  | Name              | Function                                                           | Digital Range | Print Range |
+| ----- | ----------------- | ------------------------------------------------------------------ | ------------- | ----------- |
+| Micro | Within-component  | Padding inside buttons, labels, cards; space between icon and text | 4-16px        | 1-4mm       |
+| Meso  | Between-component | Gap between cards, form fields, list items, inline elements        | 16-48px       | 4-12mm      |
+| Macro | Between-section   | Separation between major page sections, content blocks             | 48-128px      | 12-30mm     |
 
 **The inviolable spacing ratio rule:**
 Macro white space MUST be larger than meso white space, which MUST be larger than micro white space. Specifically:
+
 - Meso ≥ 2× micro (if micro is 8px, meso minimum is 16px)
 - Macro ≥ 2× meso (if meso is 24px, macro minimum is 48px)
 - If these ratios are violated anywhere on the layout, elements will appear to belong to wrong groups.
@@ -207,15 +221,16 @@ The perceived center of a rectangle is approximately 10% above the geometric cen
 
 **Eye-tracking scan patterns:**
 
-*Z-pattern:* Used when text density is low and visuals dominate. The eye enters at top-left, sweeps to top-right, drops diagonally to bottom-left, then sweeps to bottom-right. Design the layout so L1 is at top-left (or top-center), the primary CTA is at top-right or bottom-right.
+_Z-pattern:_ Used when text density is low and visuals dominate. The eye enters at top-left, sweeps to top-right, drops diagonally to bottom-left, then sweeps to bottom-right. Design the layout so L1 is at top-left (or top-center), the primary CTA is at top-right or bottom-right.
 
-*F-pattern:* Used when text density is high (articles, list pages, search results). The eye makes a strong horizontal sweep across the top (catches headlines), a shorter horizontal sweep below (catches subheads), then drops straight down the left edge (scanning for lead words). Place the most important information at the top horizontal band or the left edge. Avoid placing CTAs in the right half of the lower content area -- eye-tracking studies show those positions have poor fixation rates.
+_F-pattern:_ Used when text density is high (articles, list pages, search results). The eye makes a strong horizontal sweep across the top (catches headlines), a shorter horizontal sweep below (catches subheads), then drops straight down the left edge (scanning for lead words). Place the most important information at the top horizontal band or the left edge. Avoid placing CTAs in the right half of the lower content area -- eye-tracking studies show those positions have poor fixation rates.
 
-*Gutenberg diagram:* For layouts with evenly distributed elements (not clearly left-to-right), the eye moves from the top-left "primary optical area" to the bottom-right "terminal area." The top-right and bottom-left areas are "fallow" -- low attention. Reserve fallow areas for supporting content, not key actions.
+_Gutenberg diagram:_ For layouts with evenly distributed elements (not clearly left-to-right), the eye moves from the top-left "primary optical area" to the bottom-right "terminal area." The top-right and bottom-left areas are "fallow" -- low attention. Reserve fallow areas for supporting content, not key actions.
 
-*Circular flow:* For single-screen or splash layouts with a centered composition, the eye moves clockwise from the dominant element. Support this by arranging supporting elements clockwise around the focal point.
+_Circular flow:_ For single-screen or splash layouts with a centered composition, the eye moves clockwise from the dominant element. Support this by arranging supporting elements clockwise around the focal point.
 
 **Focal point failure modes:**
+
 - **No clear focal point:** Every element is sized and weighted similarly. Fix: increase L1's size by at least 2× relative to L2.
 - **Competing focal points:** Two elements have similar visual weight at L1 level. Fix: demote one by reducing size (to 0.7× of L1), reducing contrast (lighten the color), or increasing surrounding content density to reduce its isolation.
 - **Focal point leads nowhere:** The eye finds the focal point but has no logical path to the primary action. Fix: position the CTA below or to the right of the focal point, within the natural eye-flow path.
@@ -235,6 +250,7 @@ Different elements on each side that have equivalent but not identical visual we
 
 **Visual weight calculation (approximate):**
 Assign relative weight values to major elements to check balance. A useful heuristic:
+
 - Full-color photograph, 400×400px: weight 8
 - Bold headline, 48px, full width: weight 6
 - White space 200×400px area: weight 1
@@ -247,6 +263,7 @@ Sum the approximate weight on each side of the central axis. If the ratio exceed
 Elements radiate from a central point. Rare in conventional layouts. Appropriate for certain infographic, icon cluster, or hero section treatments.
 
 **Balance assessment questions:**
+
 - Does the layout feel stable or does it feel like it wants to tip?
 - Is any quadrant empty enough to feel like a void?
 - Does the above-fold section feel heavier or lighter than below-fold?
@@ -264,6 +281,7 @@ Each recommendation must follow this structure:
 5. **Expected outcome:** What will visually improve as a result?
 
 Prioritize recommendations in this order:
+
 1. Hierarchy violations (L1 is wrong or absent) -- these cause the most confusion
 2. Focal point misalignment -- affects immediate first impression
 3. Major white space violations (macro ≤ meso) -- causes sections to blur together
@@ -421,27 +439,35 @@ Rating key: ★★★★★ Excellent | ★★★★☆ Good | ★★★☆☆ A
 ## Edge Cases
 
 ### No Existing Layout -- User Wants Principles Applied from Scratch
+
 If the user has content but no layout, this skill becomes a **layout blueprint** mode rather than an audit mode. Define the appropriate grid for their content type and dimensions, assign hierarchy tiers to each content element they list (matching intended reading order to visual weight recommendations), specify all three tiers of white space, and identify which scan pattern to design for. Output a Layout Blueprint rather than a Layout Analysis. Note that for a full wireframe with interaction annotations, the user should proceed to `wireframe-specification` after receiving the blueprint.
 
 ### Data-Dense Dashboard or Admin Panel
+
 Standard white space ratios compress significantly. Micro: 4-8px (use 4px base unit instead of 8px for these layouts). Meso: 8-16px. Macro: 24-40px. The 2:1 ratio rule still applies -- maintain relative proportion even though absolute values are smaller. Hierarchy shifts from size-dominant to color-and-weight-dominant because vertical space is limited and multiple panels have equivalent importance. Multiple L1 focal points are acceptable when each is contained within a visually enclosed panel (a card with a border or background fill that creates enclosure). F-pattern applies: top row of metrics receives the most attention. Place the most critical KPIs in the first row, leftmost position.
 
 ### Single-Element or Hero-Only Layouts (Splash Screens, Covers, Billboards)
+
 The single element IS the focal point by definition -- the analysis shifts entirely to evaluating placement, white space ratio, and relationship to the frame. Target content-to-white-space ratio: 25-40% content, 60-75% white space for maximum impact (tight content-to-frame ratios feel suffocating on splash screens). Evaluate the element's position against rule of thirds (preferred) or optical center. Check whether the element is sized proportionally to the frame -- the element should not exceed 60% of the shorter canvas dimension. For billboard/OOH signage viewed at 30+ meters: minimum stroke weight 4pt equivalent, high contrast required (minimum 5:1 at full resolution), and the focal element should occupy 40-60% of the frame to remain readable at distance.
 
 ### Print Layout with Bleed and Safe Zones
+
 Three boundaries must be defined: bleed edge (design extends 3mm past trim), trim line (physical cut line), safe zone (5mm inside trim -- no critical content outside this boundary). Text that crosses the trim line must be justified by design intent, not accident. Evaluate hierarchy in terms of above-fold defined as the top half of the printed page (the upper half receives significantly more attention when print is displayed on a shelf or folded). Baseline grid is critical in print: use a consistent leading value (e.g., 12pt leading) and snap all text blocks to multiples of this leading value for cross-column alignment.
 
 ### Intentionally Rule-Breaking Creative Layouts (Editorial, Portfolio, Campaign)
+
 Do not apply standard grid audit rules mechanically. Instead, evaluate whether the rule-breaking is: (a) consistent -- the same rule is broken in the same way throughout, creating a system; (b) purposeful -- the break creates tension, movement, or emphasis that serves the design intent; (c) controlled -- the breaks are surrounded by structure that provides a reference point for the eye. An intentional break only reads as intentional if at least 60% of the layout is conventionally structured. If everything is breaking rules, nothing feels like a rule break -- it just looks chaotic. Recommend introducing at least one consistent structural anchor (a persistent margin, a baseline grid, a repeated element size) to make the rule-breaking legible as intentional.
 
 ### Mixed-Medium Layouts (Web Page That Also Prints)
+
 CSS print stylesheets address some issues, but layout principles must be evaluated for both contexts separately. In digital mode: fluid behavior, scrolling, interaction states. In print mode: fixed canvas, no scroll, bleed/safe zone rules apply. Document both assessments. Key differences: digital macro spacing (64-96px) will appear as vast empty space in print (20-30mm equivalent); reduce proportionally. Typography that is 16px on screen may be 12pt in print -- verify both are readable in their respective contexts. Color mode shift (RGB to CMYK) can change contrast ratios; flag any text/background combinations where CMYK shift might drop below 4.5:1.
 
 ### Responsive Layout -- Multiple Breakpoints in Scope
+
 This skill applies to single-viewport static layout analysis only. If the user needs to evaluate layout across breakpoints, the evaluation should be run separately for each major breakpoint (desktop 1440px, tablet 768px, mobile 375px). Common issues at breakpoints: hierarchy inversions (what is L1 at desktop becomes L3 when columns stack on mobile); white space ratio collapses (macro spacing set in px becomes disproportionately large on small screens -- prefer rem or viewport-relative units); grid collapses that create unintended focal point shifts. For full responsive layout design guidance, refer the user to `responsive-layout-design`.
 
 ### User Provides Only a Problem Description with No Visual Reference
+
 When no visual is provided, the analysis must be structured as a **diagnostic interview + conditional recommendation.** Ask targeted questions: what is the canvas size? How many major sections? What is the approximate column count being used? What is the approximate size of the headline versus body text? Is there a clear hero/focal element? Use the answers to construct the most likely layout state and produce a conditional analysis ("If your section gaps are approximately 24-32px, the macro/meso ratio is likely violated -- here is the fix"). Explicitly label all assumptions and invite correction. Do not produce a high-confidence analysis from a vague description.
 
 ---
@@ -455,6 +481,7 @@ When no visual is provided, the analysis must be structured as a **diagnostic in
 ## Layout Analysis: SaaS Product Landing Page
 
 ### Context
+
 - **Content type:** Marketing / SaaS landing page
 - **Dimensions:** 1440px wide, full-length scrollable
 - **Grid system in use:** Unknown -- 12-column assumed based on three-equal-column feature section
@@ -463,23 +490,26 @@ When no visual is provided, the analysis must be structured as a **diagnostic in
 ---
 
 ### Overall Assessment
-| Principle         | Rating | Status      | Key Finding                                                     |
-|-------------------|--------|-------------|-----------------------------------------------------------------|
-| Grid alignment    | ★★★☆☆  | Adequate    | Assumed 12-col grid may be in use, but no confirmation; verify |
-| Visual hierarchy  | ★★☆☆☆  | Poor        | No L1 established -- every section has equivalent visual weight |
-| White space       | ★★☆☆☆  | Poor        | Likely macro = meso violation causing sections to blur together |
-| Focal point       | ★★☆☆☆  | Poor        | Hero CTA is visually weak; no dominant focal entry point        |
-| Visual balance    | ★★★☆☆  | Adequate    | Three-column structures are likely balanced; hero unclear       |
+
+| Principle        | Rating | Status   | Key Finding                                                     |
+| ---------------- | ------ | -------- | --------------------------------------------------------------- |
+| Grid alignment   | ★★★☆☆  | Adequate | Assumed 12-col grid may be in use, but no confirmation; verify  |
+| Visual hierarchy | ★★☆☆☆  | Poor     | No L1 established -- every section has equivalent visual weight |
+| White space      | ★★☆☆☆  | Poor     | Likely macro = meso violation causing sections to blur together |
+| Focal point      | ★★☆☆☆  | Poor     | Hero CTA is visually weak; no dominant focal entry point        |
+| Visual balance   | ★★★☆☆  | Adequate | Three-column structures are likely balanced; hero unclear       |
 
 ---
 
 ### What Works Well
+
 - The three-column feature section (icon / title / text) and three-card testimonials section are a structurally sound modular grid approach -- this creates good horizontal rhythm and reduces the amount of work needed in those sections.
 - A clear sequential narrative exists in the content order (hero -> proof -> features -> social validation -> pricing -> conversion) -- the content strategy is sound. The layout problem is execution, not structure.
 
 ---
 
 ### Grid Analysis
+
 - **Current grid:** Likely 12-column based on three equal-column sections. Gutter and margin widths unknown. Assumed: 24px gutters, 120px margins.
 - **Base unit:** Unknown -- recommend establishing 8px as base unit throughout
 - **Recommended grid:** 12-column at 1200px max-width container (centered in 1440px canvas), 24px gutters, 120px left/right margins (8.3% of 1440px). This centers the content comfortably and leaves sufficient breathing room on the 1440px canvas.
@@ -491,6 +521,7 @@ When no visual is provided, the analysis must be structured as a **diagnostic in
 ---
 
 ### Hierarchy Analysis
+
 - **Intended L1:** Hero section headline -- this is the primary value proposition and the first message the visitor should receive
 - **Current L1:** Likely nothing -- the hero headline, section headings, and testimonial headings are probably at similar visual weights, creating the "everything feels the same" symptom described
 - **Hierarchy tiers as they likely exist:**
@@ -511,20 +542,21 @@ When no visual is provided, the analysis must be structured as a **diagnostic in
 ---
 
 ### White Space Analysis
-| Tier   | Location                                  | Current (est.) | Target   | Status |
-|--------|-------------------------------------------|----------------|----------|--------|
-| Micro  | Button: internal padding (top/bottom)     | ~10px          | 16px     | Fix    |
-| Micro  | Button: internal padding (left/right)     | ~16px          | 32px     | Fix    |
-| Micro  | Feature card: icon to title gap           | ~8px           | 8px      | OK     |
-| Micro  | Feature card: title to body gap           | ~8px           | 12px     | Fix    |
-| Meso   | Between feature columns (gutter)          | ~24px          | 24px     | OK     |
-| Meso   | Between testimonial cards                 | ~24px          | 24px     | OK     |
-| Meso   | Between pricing tier cards                | ~24px          | 24px     | OK     |
-| Macro  | Hero to social proof bar                  | ~32px (est.)   | 64px     | Fix    |
-| Macro  | Social proof bar to features section      | ~32px (est.)   | 80px     | Fix    |
-| Macro  | Features to testimonials                  | ~32px (est.)   | 80px     | Fix    |
-| Macro  | Testimonials to pricing                   | ~32px (est.)   | 96px     | Fix    |
-| Macro  | Pricing to footer                         | ~32px (est.)   | 64px     | Fix    |
+
+| Tier  | Location                              | Current (est.) | Target | Status |
+| ----- | ------------------------------------- | -------------- | ------ | ------ |
+| Micro | Button: internal padding (top/bottom) | ~10px          | 16px   | Fix    |
+| Micro | Button: internal padding (left/right) | ~16px          | 32px   | Fix    |
+| Micro | Feature card: icon to title gap       | ~8px           | 8px    | OK     |
+| Micro | Feature card: title to body gap       | ~8px           | 12px   | Fix    |
+| Meso  | Between feature columns (gutter)      | ~24px          | 24px   | OK     |
+| Meso  | Between testimonial cards             | ~24px          | 24px   | OK     |
+| Meso  | Between pricing tier cards            | ~24px          | 24px   | OK     |
+| Macro | Hero to social proof bar              | ~32px (est.)   | 64px   | Fix    |
+| Macro | Social proof bar to features section  | ~32px (est.)   | 80px   | Fix    |
+| Macro | Features to testimonials              | ~32px (est.)   | 80px   | Fix    |
+| Macro | Testimonials to pricing               | ~32px (est.)   | 96px   | Fix    |
+| Macro | Pricing to footer                     | ~32px (est.)   | 64px   | Fix    |
 
 - **Ratio status:** Estimated macro (32px) : meso (24px) = 1.33:1 -- severely below the 2:1 minimum. This is the primary cause of sections blending together.
 - **Proximity violation:** The social proof logo bar at 32px from the hero and 32px from the features section appears to float ambiguously between both. Increasing the gap above the features section to 80px and reducing the gap above the social proof bar to 48px will "attach" the proof bar to the hero, reinforcing the credibility-building narrative before the features.
@@ -536,6 +568,7 @@ When no visual is provided, the analysis must be structured as a **diagnostic in
 ---
 
 ### Focal Point Analysis
+
 - **Recommended scan pattern:** Z-pattern -- this is a low-text-density marketing page with visual hierarchy expected to guide from hero to CTA without deep reading
 - **Current focal point:** Likely the hero section center area, but no single element within the hero dominates; the headline, subtext, and button are at similar visual weights within the hero
 - **Recommended focal point position:** Hero headline, positioned at the rule-of-thirds intersection -- 33% from the top of the hero section, 33% from the left edge of the content container (approximately 400px from left of the 1200px grid). On a hero that is approximately 700px tall, this places the headline top edge at approximately 233px from the hero section top.
@@ -551,6 +584,7 @@ When no visual is provided, the analysis must be structured as a **diagnostic in
 ---
 
 ### Balance Analysis
+
 - **Balance type:** Symmetric (three-column structures in features, testimonials, and pricing create a symmetric vertical axis)
 - **Left-right weight ratio:** Approximately 1:1 in middle sections (symmetric column layouts). Hero balance unknown -- depends on whether there is a hero image on the right (common two-column hero) or a centered single-column hero.
 - **Above/below fold weight distribution:** If the hero section is full-viewport-height, the above-fold content is a single element (the hero) with high visual weight concentrated in a small area. Below-fold content is distributed across more sections and more elements. This is an acceptable top-heavy distribution for a landing page.
@@ -560,12 +594,12 @@ When no visual is provided, the analysis must be structured as a **diagnostic in
 
 ### Prioritized Recommendations
 
-| # | Element                          | Change                                               | Principle        | Exact Measurement                                      | Impact |
-|---|----------------------------------|------------------------------------------------------|------------------|--------------------------------------------------------|--------|
-| 1 | Hero headline                    | Increase size and weight to establish L1             | Visual hierarchy | 64-72px, weight 800 (creates 2.5:1 ratio vs 28px L2)  | High   |
-| 2 | All section gaps                 | Increase macro spacing to 2× meso minimum            | White space      | 80px between mid-sections, 96px before pricing, 48px hero-to-proof-bar | High   |
-| 3 | Hero CTA button                  | Increase padding and apply high-contrast fill        | Focal point      | 16px / 32px padding; fill at 4.5:1+ contrast ratio vs. button text | High   |
-| 4 | Hero headline position           | Move to rule-of-thirds upper-left intersection       | Focal point      | 33% from hero top (approx. 233px in 700px hero), 33% from left of 1200px grid | High   |
-| 5 | Section headings                 | Standardize to 28-32px, weight 700 to establish L2   | Visual hierarchy | 28px maximum -- must remain below 50% of L1 (64px)    | Medium |
-| 6 | Feature card title to body gap   | Increase from ~8px to 12px                           | White space      | 12px (on 4px sub-grid -- acceptable for micro-spacing)  | Medium |
-| 7 | Social proof logo bar gap        
+| #   | Element                        | Change                                             | Principle        | Exact Measurement                                                             | Impact |
+| --- | ------------------------------ | -------------------------------------------------- | ---------------- | ----------------------------------------------------------------------------- | ------ |
+| 1   | Hero headline                  | Increase size and weight to establish L1           | Visual hierarchy | 64-72px, weight 800 (creates 2.5:1 ratio vs 28px L2)                          | High   |
+| 2   | All section gaps               | Increase macro spacing to 2× meso minimum          | White space      | 80px between mid-sections, 96px before pricing, 48px hero-to-proof-bar        | High   |
+| 3   | Hero CTA button                | Increase padding and apply high-contrast fill      | Focal point      | 16px / 32px padding; fill at 4.5:1+ contrast ratio vs. button text            | High   |
+| 4   | Hero headline position         | Move to rule-of-thirds upper-left intersection     | Focal point      | 33% from hero top (approx. 233px in 700px hero), 33% from left of 1200px grid | High   |
+| 5   | Section headings               | Standardize to 28-32px, weight 700 to establish L2 | Visual hierarchy | 28px maximum -- must remain below 50% of L1 (64px)                            | Medium |
+| 6   | Feature card title to body gap | Increase from ~8px to 12px                         | White space      | 12px (on 4px sub-grid -- acceptable for micro-spacing)                        | Medium |
+| 7   | Social proof logo bar gap      |

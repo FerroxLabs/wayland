@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices guide step-by-step"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices guide step-by-step'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Regex Master
@@ -23,133 +23,155 @@ You are an expert in regular expressions. Craft precise, performant, and readabl
 ## Regex Syntax Quick Reference
 
 ### Character Classes
-| Pattern | Matches | Example |
-|---------|---------|---------|
-| `.` | Any character except newline | `a.c` matches `abc`, `a1c` |
-| `\d` | Digit `[0-9]` | `\d{3}` matches `123` |
-| `\D` | Non-digit `[^0-9]` | `\D+` matches `abc` |
-| `\w` | Word character `[a-zA-Z0-9_]` | `\w+` matches `hello_1` |
-| `\W` | Non-word character | `\W` matches `@`, ` ` |
-| `\s` | Whitespace `[ \t\n\r\f\v]` | `\s+` matches spaces/tabs |
-| `\S` | Non-whitespace | `\S+` matches `hello` |
-| `[abc]` | Any of a, b, c | `[aeiou]` matches vowels |
-| `[^abc]` | Not a, b, or c | `[^0-9]` matches non-digits |
-| `[a-z]` | Range a through z | `[A-Za-z]` matches letters |
+
+| Pattern  | Matches                       | Example                     |
+| -------- | ----------------------------- | --------------------------- |
+| `.`      | Any character except newline  | `a.c` matches `abc`, `a1c`  |
+| `\d`     | Digit `[0-9]`                 | `\d{3}` matches `123`       |
+| `\D`     | Non-digit `[^0-9]`            | `\D+` matches `abc`         |
+| `\w`     | Word character `[a-zA-Z0-9_]` | `\w+` matches `hello_1`     |
+| `\W`     | Non-word character            | `\W` matches `@`, ` `       |
+| `\s`     | Whitespace `[ \t\n\r\f\v]`    | `\s+` matches spaces/tabs   |
+| `\S`     | Non-whitespace                | `\S+` matches `hello`       |
+| `[abc]`  | Any of a, b, c                | `[aeiou]` matches vowels    |
+| `[^abc]` | Not a, b, or c                | `[^0-9]` matches non-digits |
+| `[a-z]`  | Range a through z             | `[A-Za-z]` matches letters  |
 
 ### Quantifiers
-| Pattern | Meaning | Greedy | Lazy |
-|---------|---------|--------|------|
-| `*` | 0 or more | `.*` | `.*?` |
-| `+` | 1 or more | `.+` | `.+?` |
-| `?` | 0 or 1 | `a?` | `a??` |
-| `{n}` | Exactly n | `\d{3}` | N/A |
-| `{n,}` | n or more | `\d{3,}` | `\d{3,}?` |
+
+| Pattern | Meaning         | Greedy    | Lazy       |
+| ------- | --------------- | --------- | ---------- |
+| `*`     | 0 or more       | `.*`      | `.*?`      |
+| `+`     | 1 or more       | `.+`      | `.+?`      |
+| `?`     | 0 or 1          | `a?`      | `a??`      |
+| `{n}`   | Exactly n       | `\d{3}`   | N/A        |
+| `{n,}`  | n or more       | `\d{3,}`  | `\d{3,}?`  |
 | `{n,m}` | Between n and m | `\d{3,5}` | `\d{3,5}?` |
 
 ### Anchors
-| Pattern | Matches |
-|---------|---------|
-| `^` | Start of string (or line with `m` flag) |
-| `$` | End of string (or line with `m` flag) |
-| `\b` | Word boundary |
-| `\B` | Non-word boundary |
+
+| Pattern | Matches                                 |
+| ------- | --------------------------------------- |
+| `^`     | Start of string (or line with `m` flag) |
+| `$`     | End of string (or line with `m` flag)   |
+| `\b`    | Word boundary                           |
+| `\B`    | Non-word boundary                       |
 
 ### Groups and Alternation
-| Pattern | Meaning |
-|---------|---------|
-| `(abc)` | Capturing group |
-| `(?:abc)` | Non-capturing group |
-| `(?P<name>abc)` | Named group (Python) |
-| `(?<name>abc)` | Named group (JS, .NET, Java) |
-| `a\|b` | Alternation (a or b) |
-| `\1` | Backreference to group 1 |
+
+| Pattern         | Meaning                      |
+| --------------- | ---------------------------- |
+| `(abc)`         | Capturing group              |
+| `(?:abc)`       | Non-capturing group          |
+| `(?P<name>abc)` | Named group (Python)         |
+| `(?<name>abc)`  | Named group (JS, .NET, Java) |
+| `a\|b`          | Alternation (a or b)         |
+| `\1`            | Backreference to group 1     |
 
 ### Lookaround Assertions
-| Pattern | Name | Meaning |
-|---------|------|---------|
-| `(?=abc)` | Positive lookahead | Followed by `abc` |
-| `(?!abc)` | Negative lookahead | NOT followed by `abc` |
-| `(?<=abc)` | Positive lookbehind | Preceded by `abc` |
+
+| Pattern    | Name                | Meaning               |
+| ---------- | ------------------- | --------------------- |
+| `(?=abc)`  | Positive lookahead  | Followed by `abc`     |
+| `(?!abc)`  | Negative lookahead  | NOT followed by `abc` |
+| `(?<=abc)` | Positive lookbehind | Preceded by `abc`     |
 | `(?<!abc)` | Negative lookbehind | NOT preceded by `abc` |
 
 Lookarounds are zero-width: they assert a condition but do not consume characters.
 
 ### Flags
-| Flag | Meaning |
-|------|---------|
-| `i` | Case-insensitive |
-| `g` | Global (find all matches) |
-| `m` | Multiline (`^`/`$` match line boundaries) |
-| `s` | Dotall (`.` matches newline) |
-| `u` | Unicode mode |
-| `x` | Extended (allow whitespace and comments) |
+
+| Flag | Meaning                                   |
+| ---- | ----------------------------------------- |
+| `i`  | Case-insensitive                          |
+| `g`  | Global (find all matches)                 |
+| `m`  | Multiline (`^`/`$` match line boundaries) |
+| `s`  | Dotall (`.` matches newline)              |
+| `u`  | Unicode mode                              |
+| `x`  | Extended (allow whitespace and comments)  |
 
 ## Common Patterns
 
 ### Email (Practical, Not RFC 5322)
+
 ```regex
 ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 ```
+
 Note: A truly RFC-compliant email regex is over 6,000 characters. For validation, use a library. For basic matching, the above is sufficient.
 
 ### URL
+
 ```regex
 https?://(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)
 ```
 
 ### IPv4 Address
+
 ```regex
 \b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b
 ```
 
 ### IPv6 Address (Simplified)
+
 ```regex
 (?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}
 ```
 
 ### Date (YYYY-MM-DD)
+
 ```regex
 \d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])
 ```
+
 Note: This validates format only, not semantic correctness (e.g., Feb 30 would match).
 
 ### Time (HH:MM:SS, 24-hour)
+
 ```regex
 (?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d
 ```
 
 ### Phone Number (US)
+
 ```regex
 (?:\+1[-.\s]?)?\(?[2-9]\d{2}\)?[-.\s]?\d{3}[-.\s]?\d{4}
 ```
 
 ### UUID (v4)
+
 ```regex
 [0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}
 ```
 
 ### Semantic Version
+
 ```regex
 (?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?
 ```
 
 ### Password Strength (Min 8 chars, upper, lower, digit, special)
+
 ```regex
 ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$
 ```
 
 ### Slug (URL-safe string)
+
 ```regex
 ^[a-z0-9]+(?:-[a-z0-9]+)*$
 ```
 
 ### HTML Tag (Simple, Not for Parsing)
+
 ```regex
 </?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>
 ```
+
 Warning: Do not use regex to parse HTML. Use a DOM parser. Regex is suitable only for simple extraction tasks.
 
 ### CSV Field (Handling Quoted Fields)
+
 ```regex
 (?:^|,)(?:"([^"]*(?:""[^"]*)*)"|([^,]*))
 ```
@@ -161,17 +183,21 @@ Warning: Do not use regex to parse HTML. Use a DOM parser. Regex is suitable onl
 Regex engines using backtracking (most languages) can exhibit exponential behavior on certain patterns.
 
 **Dangerous pattern**:
+
 ```regex
 (a+)+b
 ```
+
 On input `aaaaaaaaaaaaaaaaac`, the engine tries every possible way to partition the `a`s among the nested groups before failing. This is O(2^n).
 
 **Detection rules**:
+
 1. Nested quantifiers: `(a+)+`, `(a*)*`, `(a+)*`
 2. Overlapping alternatives: `(a|a)+`
 3. Quantified groups with optional overlap: `(\w+\s*)+`
 
 **Fixes**:
+
 - Use atomic groups `(?>...)` or possessive quantifiers `a++` (where supported).
 - Restructure the pattern to eliminate ambiguity.
 - Use a regex engine with linear-time guarantees (RE2, Rust's `regex` crate).
@@ -199,14 +225,14 @@ for line in lines:
 
 ### Regex Engine Types
 
-| Engine | Type | Backtracking | Language |
-|--------|------|-------------|---------|
-| PCRE | NFA + backtracking | Yes | PHP, R |
-| V8 | NFA + backtracking | Yes | JavaScript |
-| Python `re` | NFA + backtracking | Yes | Python |
-| Java `Pattern` | NFA + backtracking | Yes | Java |
-| RE2 | DFA (Thompson NFA) | No | Go, C++ |
-| Rust `regex` | DFA (Thompson NFA) | No | Rust |
+| Engine         | Type               | Backtracking | Language   |
+| -------------- | ------------------ | ------------ | ---------- |
+| PCRE           | NFA + backtracking | Yes          | PHP, R     |
+| V8             | NFA + backtracking | Yes          | JavaScript |
+| Python `re`    | NFA + backtracking | Yes          | Python     |
+| Java `Pattern` | NFA + backtracking | Yes          | Java       |
+| RE2            | DFA (Thompson NFA) | No           | Go, C++    |
+| Rust `regex`   | DFA (Thompson NFA) | No           | Rust       |
 
 DFA engines guarantee linear time but do not support backreferences or lookaround.
 
@@ -215,6 +241,7 @@ DFA engines guarantee linear time but do not support backreferences or lookaroun
 Use named groups for readability and maintenance.
 
 ### Python
+
 ```python
 import re
 pattern = r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})'
@@ -224,14 +251,16 @@ print(match.group('month'))  # 01
 ```
 
 ### JavaScript
+
 ```javascript
 const pattern = /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
 const match = '2024-01-15'.match(pattern);
-console.log(match.groups.year);   // 2024
-console.log(match.groups.month);  // 01
+console.log(match.groups.year); // 2024
+console.log(match.groups.month); // 01
 ```
 
 ### Java
+
 ```java
 Pattern pattern = Pattern.compile("(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})");
 Matcher matcher = pattern.matcher("2024-01-15");
@@ -243,24 +272,28 @@ if (matcher.matches()) {
 ## Language-Specific Regex Flavors
 
 ### JavaScript Specifics
+
 - No lookbehind in older engines (available in ES2018+).
 - Named groups with `(?<name>...)` syntax (ES2018+).
 - `\d` does NOT match Unicode digits. Use `\p{Nd}` with `u` flag.
 - `String.prototype.matchAll()` for iterating all matches.
 
 ### Python Specifics
+
 - Use raw strings `r'...'` to avoid double-escaping.
 - `re.VERBOSE` (`re.X`) flag allows comments and whitespace.
 - `re.findall()` returns list; `re.finditer()` returns iterator.
 - `re` module caches compiled patterns (last ~512).
 
 ### Java Specifics
+
 - Double-escape backslashes: `\\d` not `\d`.
 - `Pattern.COMMENTS` flag for verbose patterns.
 - Possessive quantifiers supported: `a++`, `a*+`.
 - `Matcher.find()` for searching (not anchored to start).
 
 ### Go Specifics
+
 - Uses RE2 engine (no backtracking, guaranteed linear time).
 - No lookahead/lookbehind.
 - No backreferences.
@@ -269,6 +302,7 @@ if (matcher.matches()) {
 ## Testing Strategies
 
 ### Test Matrix for Regex
+
 For every regex pattern, test:
 
 1. **Exact matches**: Input that should match fully.
@@ -280,6 +314,7 @@ For every regex pattern, test:
 7. **Performance**: Long input that could trigger backtracking.
 
 ### Test Example
+
 ```python
 import re
 import pytest
@@ -305,12 +340,14 @@ def test_phone_pattern(input, expected):
 ```
 
 ### Regex Debugging Tools
+
 - **regex101.com**: Interactive regex tester with explanation and debugger.
 - **regexr.com**: Visual regex tool with community patterns.
 - **Debuggex**: Visual regex railroad diagrams.
 - Use verbose mode (`x` flag) for complex patterns with inline comments.
 
 ### Verbose Regex Example
+
 ```python
 DATE_PATTERN = re.compile(r"""
     (?P<year>\d{4})       # Year: 4 digits
@@ -351,6 +388,7 @@ DATE = re.compile(f'^{YEAR}{SEP}{MONTH}{SEP}{DAY}$')
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing regex master solutions
 - Reviewing or improving existing regex master approaches
 - Making architectural or implementation decisions about regex master
@@ -358,6 +396,7 @@ DATE = re.compile(f'^{YEAR}{SEP}{MONTH}{SEP}{DAY}$')
 - Troubleshooting regex master-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -368,21 +407,26 @@ DATE = re.compile(f'^{YEAR}{SEP}{MONTH}{SEP}{DAY}$')
 # Regex Master Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

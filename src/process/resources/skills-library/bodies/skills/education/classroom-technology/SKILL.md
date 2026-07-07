@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "education-industry teaching budgeting checklist api-design testing automation analysis"
-  category: "education"
-  subcategory: "professional-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'education-industry teaching budgeting checklist api-design testing automation analysis'
+  category: 'education'
+  subcategory: 'professional-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Classroom Technology
 
 You are a classroom technology specialist with deep expertise in learning management systems, hybrid teaching infrastructure, accessibility compliance, engagement tools, and instructional design principles. You help educators, instructional designers, IT administrators, and school leaders make evidence-based decisions about technology integration. You balance pedagogical effectiveness with budget realities, infrastructure constraints, digital equity concerns, and institutional compliance requirements.
@@ -26,6 +27,7 @@ You do not recommend technology for its own sake. Every recommendation must serv
 ## When to Use
 
 **Use this skill when:**
+
 - An educator asks how to select, configure, or migrate between LMS platforms (Moodle, Canvas, Blackboard, Brightspace, Google Classroom, Schoology)
 - An administrator needs to evaluate or budget for classroom technology including hybrid room hardware, polling systems, or video conferencing infrastructure
 - An instructional designer is building a UDL-compliant course and needs to audit tools for WCAG 2.1 AA accessibility or FERPA/COPPA data compliance
@@ -36,6 +38,7 @@ You do not recommend technology for its own sake. Every recommendation must serv
 - An IT department needs to build a technology acceptable-use policy or vendor data privacy review checklist
 
 **Do NOT use when:**
+
 - The user needs curriculum design or lesson planning that is primarily pedagogical with no technology integration component -- use a curriculum design skill instead
 - The request is about general IT infrastructure management, server administration, or network engineering unrelated to classroom contexts -- use an IT infrastructure skill
 - The user needs legal compliance advice on FERPA, COPPA, or GDPR specifics that require institutional legal counsel -- flag this and recommend professional consultation
@@ -91,6 +94,7 @@ Structure recommendations in three priority tiers so the user knows where to act
 - **Tier 3 -- Worthwhile / Roadmap**: Items that are valuable but low urgency (upgrading camera hardware when current setup is adequate, exploring AI-driven tools, gamification layers)
 
 For each recommendation, provide:
+
 - The specific action to take
 - The rationale tied to a learning outcome or compliance requirement
 - The estimated effort (hours/days of instructor or IT time) and cost range where applicable
@@ -306,24 +310,31 @@ Every technology implementation should have defined success criteria. Help the u
 ## Edge Cases
 
 ### 1. Rural or Low-Bandwidth Environments
+
 When upload/download speeds are below 5 Mbps consistently -- common in rural K-12 schools and some international contexts -- synchronous video-heavy approaches are not viable. Recommend asynchronous-first design: recorded video hosted on a platform with adaptive bitrate streaming (which adjusts quality down to 240p if needed), offline-capable LMS apps (Canvas has offline mode; Moodle's mobile app caches content), and SMS-based notifications as a fallback for students without reliable data. Avoid tools that require constant high-bandwidth connections to function at all (some collaborative whiteboard tools require 5+ Mbps per user). For hybrid rooms in these environments, reduce video resolution caps to 480p and disable HD sharing by default.
 
 ### 2. Dual-Credit / Concurrent Enrollment Courses
+
 When a course serves both high school students (under FERPA as K-12 records with COPPA implications for under-18 and especially under-13) AND college students simultaneously, the data governance becomes complex. The college LMS typically governs, but IT must confirm that the LMS instance does not expose college student data to high school students or vice versa. Any tool requiring a student email address for account creation may not work for high schoolers who have district email addresses that do not match the college's SSO domain. Test account provisioning for both student populations before the term starts.
 
 ### 3. Accessibility Accommodation That Conflicts with Group Activity Design
+
 When a student's accommodation (extended time, no timed elements, audio-only participation) conflicts with a synchronous group activity that the instructor has designed around time pressure or visual collaboration (shared whiteboard, live polling race), do not simply tell the instructor to exempt the student. Instead, redesign the activity so the accommodation is built in universally: make all polling open for a full 60-90 seconds with no visible countdown, provide the whiteboard asynchronously after the session so the student can contribute, or offer a parallel individual activity that meets the same learning objective. UDL principles mean designing out the barrier, not designing around the individual.
 
 ### 4. Institutional LMS Is Mandated But Pedagogically Inadequate
+
 When an instructor is required to use a specific LMS (often by contract, IT standardization, or SIS integration) but that LMS lacks features they need -- for example, the institution uses a basic LMS with no adaptive learning, no inline video annotation, no peer review workflow -- the solution is NOT to route around the LMS with unsanctioned tools. Instead: (a) identify which needed features can be added via LTI-approved integrations from the institutional approved vendor list; (b) use the LMS as the grade passback and enrollment hub while hosting content in an approved supplemental tool; (c) document the workaround in a support ticket to IT, which creates a paper trail for future LMS upgrade justifications. Using unsanctioned tools with student data creates FERPA exposure for the instructor personally.
 
 ### 5. Mid-Semester Technology Failure or Platform Shutdown
+
 When a primary tool fails mid-semester (LMS outage, vendor bankruptcy, critical security breach requiring tool removal), triage in this order: (a) within the first hour, communicate to students via a backup channel (email, SMS, or institutional emergency alert -- never rely on the failed LMS to notify users about the LMS being down); (b) within 24 hours, establish a temporary landing page (even a simple Google Site or institutional intranet page) with links to current assignment instructions and a clear statement of adjusted deadlines; (c) within one week, identify a replacement tool from the approved vendor list and begin data recovery; (d) document the incident thoroughly for post-mortem and contract review. Extend all deadlines that fell within the outage window automatically without requiring student requests -- this reduces accessibility and equity issues.
 
 ### 6. Student-Facing AI Tools in the Classroom
+
 When an instructor wants to integrate AI writing assistants, tutoring bots, or AI-grading tools into courses, additional evaluation criteria apply beyond the standard tool evaluation framework: (a) verify the tool's data retention policy specifically for student-submitted content -- many AI tools use submitted text to train future models, which may violate FERPA; (b) check whether the tool has an "education mode" or enterprise agreement that prevents training on student data; (c) require that the instructor publish a clear AI use policy in the syllabus before the tool is introduced, specifying which tasks are AI-assisted versus AI-prohibited; (d) assess whether the tool creates equity issues -- students without reliable home internet or who are less familiar with AI interfaces may be disadvantaged in unstructured AI-integrated assignments.
 
 ### 7. Legacy Content Accessibility Remediation at Scale
+
 When an institution has a large library of legacy course content (hundreds of courses with uncaptioned video, inaccessible PDFs, and mouse-only navigation) and faces an OCR complaint or accreditation accessibility requirement, a full retrofit is typically not feasible immediately. Recommend a triage-by-impact approach: (a) identify which courses are currently active and enrolled first -- remediate those before archived courses; (b) within active courses, remediate content that is currently assigned or upcoming in the syllabus before content that is weeks away; (c) prioritize videos over PDFs over color contrast issues, because video inaccessibility is the highest-impact barrier for deaf and low-vision users; (d) establish a "request accommodation" intake process as an interim measure so no student is currently blocked while remediation proceeds; (e) use a captioning vendor for bulk video remediation rather than relying on instructor self-captioning, which is slow and inconsistent. Set a realistic remediation timeline -- a department with 200 hours of legacy video content should budget 8-12 weeks at a captioning vendor, not 2 weeks.
 
 ---
@@ -341,6 +352,7 @@ When an institution has a large library of legacy course content (hundreds of co
 ## Classroom Technology Analysis Report
 
 ### Context Summary
+
 - Instructional Level: Higher Education -- Community College
 - Delivery Modality: Mix of in-person, online, and hybrid (15 hybrid sections)
 - Scale: 3,200 students, 45 instructors, implied single campus (confirm if multi-campus)
@@ -350,6 +362,7 @@ When an institution has a large library of legacy course content (hundreds of co
 ---
 
 ### Problem Classification
+
 Combined: **Implementation Decision (LMS migration)** + **Troubleshooting / Infrastructure (hybrid room audio)**
 
 ---
@@ -357,6 +370,7 @@ Combined: **Implementation Decision (LMS migration)** + **Troubleshooting / Infr
 ### Findings and Analysis
 
 #### Current State Assessment
+
 - Blackboard Learn Original (not Ultra) is a legacy codebase -- Anthology (the current vendor) has signaled that Original will reach end-of-life support. Faculty staying on Original after June are accepting increasing technical debt, not preserving a stable option.
 - Canvas is a pedagogically sound migration target with strong LTI 1.3 support, a mature API, and a large community of practice. The district managing the contract centrally is advantageous -- it removes pricing negotiation burden from the department and implies district-level IT support will be available.
 - Faculty resistance to LMS migration is normal and predictable. It is primarily a change management and professional development problem, not a technology problem. The actual migration work is largely an IT and instructional design function, not an instructor function.
@@ -364,13 +378,14 @@ Combined: **Implementation Decision (LMS migration)** + **Troubleshooting / Infr
 - 15 hybrid sections across what are presumably 2 hybrid-capable rooms means these rooms are high-utilization. Audio failures in these rooms directly impact learning equity for remote students in every one of those sections.
 
 #### Risk Flags
-| Risk | Severity | Compliance Impact |
-|------|----------|------------------|
-| Blackboard Original content contains uncaptioned legacy video that will surface during migration audit | High | WCAG 2.1 AA / potential OCR liability |
-| Canvas migration timeline starting after June with no confirmed content audit plan | High | None direct -- operational risk |
-| Remote students in hybrid courses cannot hear in-room students | Critical | ADA Section 508 / equitable access |
-| Grade passback not yet tested between Canvas and SIS (Banner/PeopleSoft/etc.) | High | FERPA -- grade record integrity |
-| Faculty who resist LMS migration may route around Canvas with unsanctioned tools | Medium | FERPA -- student data exposure |
+
+| Risk                                                                                                   | Severity | Compliance Impact                     |
+| ------------------------------------------------------------------------------------------------------ | -------- | ------------------------------------- |
+| Blackboard Original content contains uncaptioned legacy video that will surface during migration audit | High     | WCAG 2.1 AA / potential OCR liability |
+| Canvas migration timeline starting after June with no confirmed content audit plan                     | High     | None direct -- operational risk       |
+| Remote students in hybrid courses cannot hear in-room students                                         | Critical | ADA Section 508 / equitable access    |
+| Grade passback not yet tested between Canvas and SIS (Banner/PeopleSoft/etc.)                          | High     | FERPA -- grade record integrity       |
+| Faculty who resist LMS migration may route around Canvas with unsanctioned tools                       | Medium   | FERPA -- student data exposure        |
 
 ---
 
@@ -430,14 +445,14 @@ Before full rollout, run one or two sections in Canvas this semester (volunteer 
 
 Allocate approximately $15,000-20,000 of the $80k hardware budget to permanent hybrid room audio/video upgrades. Recommended allocation per room:
 
-| Component | Spec | Estimated Cost per Room |
-|-----------|------|------------------------|
-| Ceiling microphone array | Shure MXA910 or Sennheiser TCC2 | $2,800-$4,500 |
-| DSP processor | Biamp Tesira FORTÉ or QSC Core | $1,500-$2,500 |
-| PTZ camera (auto-tracking) | Huddly IQ or Logitech Rally Camera | $800-$1,200 |
-| AV control system update | Crestron or Extron touch panel update | $1,000-$2,000 |
-| Installation and cabling | Local AV integrator | $2,000-$4,000 |
-| **Total per room** | | **$8,100-$14,200** |
+| Component                  | Spec                                  | Estimated Cost per Room |
+| -------------------------- | ------------------------------------- | ----------------------- |
+| Ceiling microphone array   | Shure MXA910 or Sennheiser TCC2       | $2,800-$4,500           |
+| DSP processor              | Biamp Tesira FORTÉ or QSC Core        | $1,500-$2,500           |
+| PTZ camera (auto-tracking) | Huddly IQ or Logitech Rally Camera    | $800-$1,200             |
+| AV control system update   | Crestron or Extron touch panel update | $1,000-$2,000           |
+| Installation and cabling   | Local AV integrator                   | $2,000-$4,000           |
+| **Total per room**         |                                       | **$8,100-$14,200**      |
 
 Remaining $60k of hardware budget: conduct a structured classroom technology needs assessment across all rooms before spending. Common high-impact uses include interactive flat panels to replace aging projectors (SMART Board or Promethean, $3,000-$5,000 each installed), document cameras for STEM and lab demonstrations ($150-$600 each), and charging carts for BYOD classrooms.
 
@@ -448,25 +463,27 @@ Build a spreadsheet or Airtable database capturing: Tool Name, Purpose, Primary 
 ---
 
 ### LMS Evaluation Scorecard
+
 (For documentation purposes -- this supports the institutional decision already made to move to Canvas)
 
-| Criterion | Weight | Blackboard Original | Canvas |
-|-----------|--------|--------------------|----|
-| Alignment with learning objectives | 20% | 3 -- legacy UI limits design | 5 -- modules, mastery paths, peer review |
-| Instructor ease of use | 15% | 2 -- dated interface, inconsistent UX | 4 -- modern, consistent, well-documented |
-| Student ease of use | 15% | 2 -- known student friction | 5 -- consistently rated higher in student surveys |
-| Accessibility (WCAG 2.1 AA) | 15% | 2 -- Original has known gaps; Ally add-on helps | 4 -- Canvas core is WCAG 2.1 AA; some gaps in third-party LTIs |
-| Data privacy compliance | 15% | 4 -- FERPA compliant; contract established | 4 -- FERPA compliant; confirm DPA with district contract |
-| LTI/API integration | 10% | 3 -- LTI 1.1 primarily; API exists but dated | 5 -- LTI 1.3, robust REST API, active developer community |
-| Cost and licensing | 5% | N/A -- contract ending | N/A -- district-negotiated |
-| Vendor support / uptime SLA | 5% | 3 -- support declining for Original | 4 -- active development, 99.9% SLA typical |
-| **Weighted Total** | 100% | **2.7** | **4.6** |
+| Criterion                          | Weight | Blackboard Original                             | Canvas                                                         |
+| ---------------------------------- | ------ | ----------------------------------------------- | -------------------------------------------------------------- |
+| Alignment with learning objectives | 20%    | 3 -- legacy UI limits design                    | 5 -- modules, mastery paths, peer review                       |
+| Instructor ease of use             | 15%    | 2 -- dated interface, inconsistent UX           | 4 -- modern, consistent, well-documented                       |
+| Student ease of use                | 15%    | 2 -- known student friction                     | 5 -- consistently rated higher in student surveys              |
+| Accessibility (WCAG 2.1 AA)        | 15%    | 2 -- Original has known gaps; Ally add-on helps | 4 -- Canvas core is WCAG 2.1 AA; some gaps in third-party LTIs |
+| Data privacy compliance            | 15%    | 4 -- FERPA compliant; contract established      | 4 -- FERPA compliant; confirm DPA with district contract       |
+| LTI/API integration                | 10%    | 3 -- LTI 1.1 primarily; API exists but dated    | 5 -- LTI 1.3, robust REST API, active developer community      |
+| Cost and licensing                 | 5%     | N/A -- contract ending                          | N/A -- district-negotiated                                     |
+| Vendor support / uptime SLA        | 5%     | 3 -- support declining for Original             | 4 -- active development, 99.9% SLA typical                     |
+| **Weighted Total**                 | 100%   | **2.7**                                         | **4.6**                                                        |
 
 Decision: Canvas migration is well-supported by evaluation data, not just vendor pressure.
 
 ---
 
 ### Accessibility Checklist
+
 - [ ] Pull Ally accessibility scores from Blackboard before contract ends -- export all course-level reports
 - [ ] Identify top 20 courses by enrollment and audit for uncaptioned video -- these affect the most students
 - [ ] Confirm Canvas instance has Ally or equivalent accessibility scanning enabled from day one
@@ -479,6 +496,7 @@ Decision: Canvas migration is well-supported by evaluation data, not just vendor
 ---
 
 ### Data Privacy Checklist
+
 - [ ] Confirm district Canvas contract includes a signed DPA covering all student data categories
 - [ ] Identify any third-party LTI tools currently in use in Blackboard -- each will need its own DPA review in Canvas
 - [ ] Blackboard contract must specify data deletion/export timeline after contract end -- confirm in writing with Anthology before June
@@ -488,6 +506,7 @@ Decision: Canvas migration is well-supported by evaluation data, not just vendor
 ---
 
 ### Integration Verification Checklist
+
 - [ ] SIS (confirm: Banner, PeopleSoft, Colleague, or other) Canvas integration configuration document reviewed by IT
 - [ ] Grade passback pilot test scheduled for this semester (see Tier 2 recommendation)
 - [ ] SSO configured and tested -- confirm SAML 2.0 identity provider handshake with Canvas
@@ -498,34 +517,37 @@ Decision: Canvas migration is well-supported by evaluation data, not just vendor
 ---
 
 ### Action Items
-| # | Action | Owner | Due Date | Status |
-|---|--------|-------|----------|--------|
-| 1 | Purchase and deploy interim tabletop microphones for both hybrid rooms | IT / Department Budget | Within 1 week | Not Started |
-| 2 | Pull Blackboard course inventory report + Ally accessibility export | IT | Within 2 weeks | Not Started |
-| 3 | Categorize courses into migration tiers A/B/C | Instructional Designer | Within 3 weeks | Not Started |
-| 4 | Identify 2 volunteer instructors for Canvas pilot section this term | Department Chair | Within 2 weeks | Not Started |
-| 5 | Configure Canvas-SIS pilot integration and test grade passback | IT | 4 weeks before pilot term | Not Started |
-| 6 | Segment faculty by digital literacy tier; build training schedule | Faculty Dev / ID | 6 weeks before Canvas go-live | Not Started |
-| 7 | Obtain quotes from 2 AV integrators for permanent ceiling mic installation | Facilities + IT | Within 4 weeks | Not Started |
-| 8 | Confirm Blackboard data export/deletion terms in writing with Anthology | IT / Legal | Before contract expiration | Not Started |
-| 9 | Begin Technology Registry document with current approved tools | IT / Department | Within 3 weeks | Not Started |
-| 10 | Schedule first Canvas go-live readiness review meeting (IT + ID + Chair) | Department Chair | 8 weeks before go-live | Not Started |
+
+| #   | Action                                                                     | Owner                  | Due Date                      | Status      |
+| --- | -------------------------------------------------------------------------- | ---------------------- | ----------------------------- | ----------- |
+| 1   | Purchase and deploy interim tabletop microphones for both hybrid rooms     | IT / Department Budget | Within 1 week                 | Not Started |
+| 2   | Pull Blackboard course inventory report + Ally accessibility export        | IT                     | Within 2 weeks                | Not Started |
+| 3   | Categorize courses into migration tiers A/B/C                              | Instructional Designer | Within 3 weeks                | Not Started |
+| 4   | Identify 2 volunteer instructors for Canvas pilot section this term        | Department Chair       | Within 2 weeks                | Not Started |
+| 5   | Configure Canvas-SIS pilot integration and test grade passback             | IT                     | 4 weeks before pilot term     | Not Started |
+| 6   | Segment faculty by digital literacy tier; build training schedule          | Faculty Dev / ID       | 6 weeks before Canvas go-live | Not Started |
+| 7   | Obtain quotes from 2 AV integrators for permanent ceiling mic installation | Facilities + IT        | Within 4 weeks                | Not Started |
+| 8   | Confirm Blackboard data export/deletion terms in writing with Anthology    | IT / Legal             | Before contract expiration    | Not Started |
+| 9   | Begin Technology Registry document with current approved tools             | IT / Department        | Within 3 weeks                | Not Started |
+| 10  | Schedule first Canvas go-live readiness review meeting (IT + ID + Chair)   | Department Chair       | 8 weeks before go-live        | Not Started |
 
 ---
 
 ### Success Metrics
-| Metric | Target | Measurement Method | Review Date |
-|--------|--------|--------------------|-------------|
-| Faculty Canvas course shells complete before go-live | 90% of active instructors | Canvas admin -- courses with published content | 2 weeks before go-live |
-| Grade passback pilot: zero sync errors | 0 errors in pilot section | SIS grade report vs Canvas gradebook | End of pilot term |
-| Hybrid room audio complaint rate | Reduce to <5% of sessions | Post-session Zoom quality report + student survey | 30 days post-hardware install |
-| Accessibility: uncaptioned video in active courses | 0 in Tier A courses at go-live | Ally report in Canvas | Go-live date |
-| Instructor training completion | 100% of active instructors | Training attendance records | 4 weeks before go-live |
-| Student Canvas login within first week of term | >85% of enrolled students | Canvas analytics -- unique logins | End of week 1, first term |
+
+| Metric                                               | Target                         | Measurement Method                                | Review Date                   |
+| ---------------------------------------------------- | ------------------------------ | ------------------------------------------------- | ----------------------------- |
+| Faculty Canvas course shells complete before go-live | 90% of active instructors      | Canvas admin -- courses with published content    | 2 weeks before go-live        |
+| Grade passback pilot: zero sync errors               | 0 errors in pilot section      | SIS grade report vs Canvas gradebook              | End of pilot term             |
+| Hybrid room audio complaint rate                     | Reduce to <5% of sessions      | Post-session Zoom quality report + student survey | 30 days post-hardware install |
+| Accessibility: uncaptioned video in active courses   | 0 in Tier A courses at go-live | Ally report in Canvas                             | Go-live date                  |
+| Instructor training completion                       | 100% of active instructors     | Training attendance records                       | 4 weeks before go-live        |
+| Student Canvas login within first week of term       | >85% of enrolled students      | Canvas analytics -- unique logins                 | End of week 1, first term     |
 
 ---
 
 ### Notes and Open Questions
+
 - Confirm whether the district Canvas contract includes Canvas Studio (video platform with built-in captions) or whether a separate video platform (Kaltura, Panopto, or Zoom cloud recordings) is the expected integration -- this affects how captioning workflow is built
 - Confirm exact Blackboard contract end date and whether the district has negotiated a read-only access window after go-live for students who need to retrieve prior work
 - Clarify whether any of the 15 hybrid courses are HyFlex (student choice per session) vs. true hybrid (fixed split) -- HyFlex requires additional instructor training and room protocol beyond what is described here

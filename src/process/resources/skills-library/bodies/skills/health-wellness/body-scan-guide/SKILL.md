@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness mental-wellness breathing journaling stress-management template guide beginner-friendly"
-  category: "health-wellness"
-  subcategory: "mental-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness mental-wellness breathing journaling stress-management template guide beginner-friendly'
+  category: 'health-wellness'
+  subcategory: 'mental-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Body Scan Guide
@@ -24,15 +24,16 @@ You are a body scan meditation specialist who guides individuals through systema
 
 > **Safety Note**: Body-focused practices can surface difficult emotions or physical memories, particularly for individuals with trauma histories, chronic pain, body dysmorphia, or eating disorders. Always offer the option to skip any body region, open eyes, or stop the practice entirely. If leading groups, be trained in trauma-sensitive approaches. Body scan is not a substitute for medical treatment of pain or physical conditions.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about body scan guide techniques or best practices
 - User needs guidance on body scan guide concepts
 - User wants to implement or improve their approach to body scan guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of body scan guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -59,13 +60,13 @@ You are a body scan meditation specialist who guides individuals through systema
 
 ### How It Differs from Progressive Muscle Relaxation (PMR)
 
-| Body Scan | Progressive Muscle Relaxation |
-|-----------|------------------------------|
-| Observe sensations without changing them | Deliberately tense and release muscles |
-| Awareness-based | Action-based |
-| Subtle, receptive attention | Active muscular engagement |
-| Can be done in any position | Typically requires ability to tense muscles |
-| Teaches acceptance of what is | Teaches contrast between tension and relaxation |
+| Body Scan                                | Progressive Muscle Relaxation                   |
+| ---------------------------------------- | ----------------------------------------------- |
+| Observe sensations without changing them | Deliberately tense and release muscles          |
+| Awareness-based                          | Action-based                                    |
+| Subtle, receptive attention              | Active muscular engagement                      |
+| Can be done in any position              | Typically requires ability to tense muscles     |
+| Teaches acceptance of what is            | Teaches contrast between tension and relaxation |
 
 Both are valuable. Body scan is more meditative; PMR is more physically active. They can be combined.
 
@@ -385,20 +386,20 @@ A tension map helps you identify your body's habitual patterns of holding stress
 #### Tension Map Template
 
 | Body Region | Mon | Tue | Wed | Thu | Fri | Sat | Sun | Notes |
-|------------|-----|-----|-----|-----|-----|-----|-----|-------|
-| Head/Scalp | | | | | | | | |
-| Forehead | | | | | | | | |
-| Eyes | | | | | | | | |
-| Jaw | | | | | | | | |
-| Neck | | | | | | | | |
-| Shoulders | | | | | | | | |
-| Upper back | | | | | | | | |
-| Lower back | | | | | | | | |
-| Chest | | | | | | | | |
-| Abdomen | | | | | | | | |
-| Hips | | | | | | | | |
-| Hands | | | | | | | | |
-| Legs | | | | | | | | |
+| ----------- | --- | --- | --- | --- | --- | --- | --- | ----- |
+| Head/Scalp  |     |     |     |     |     |     |     |       |
+| Forehead    |     |     |     |     |     |     |     |       |
+| Eyes        |     |     |     |     |     |     |     |       |
+| Jaw         |     |     |     |     |     |     |     |       |
+| Neck        |     |     |     |     |     |     |     |       |
+| Shoulders   |     |     |     |     |     |     |     |       |
+| Upper back  |     |     |     |     |     |     |     |       |
+| Lower back  |     |     |     |     |     |     |     |       |
+| Chest       |     |     |     |     |     |     |     |       |
+| Abdomen     |     |     |     |     |     |     |     |       |
+| Hips        |     |     |     |     |     |     |     |       |
+| Hands       |     |     |     |     |     |     |     |       |
+| Legs        |     |     |     |     |     |     |     |       |
 
 #### Using Your Tension Map
 
@@ -464,47 +465,56 @@ A tension map helps you identify your body's habitual patterns of holding stress
 ## Quick Body Scan Variations
 
 ### 30-Second Emergency Scan
+
 Focus on three areas only: jaw, shoulders, hands. Notice tension, exhale, soften. Done.
 
 ### 3-Minute Check-In
+
 Scan four zones: head and neck, torso, arms and hands, legs and feet. Spend 30 seconds on each, plus 30 seconds for settling in and 30 for closing.
 
 ### 5-Minute Morning Scan
+
 Full sequence at a brisk pace (5-8 seconds per region). Sets body awareness for the day.
 
 ### 10-Minute Standard Scan
+
 Full sequence at a moderate pace. Good daily practice length.
 
 ### 20-Minute Deep Scan
+
 Full sequence with extended pauses and detailed attention. Weekly deep practice.
 
 ### 45-Minute Extended Scan
+
 Detailed attention to every sub-region, extended silence, and whole-body integration. Retreat-level practice.
 
 ## Building a Practice
 
 ### Week 1-2: Foundation
+
 - One 10-minute body scan daily (use a recording or script)
 - Notice patterns but do not try to change anything
 - Journal briefly after: What did you notice?
 
 ### Week 3-4: Awareness Building
+
 - Continue daily body scan
 - Add 3 brief tension check-ins throughout the day (30 seconds each)
 - Begin your tension map
 
 ### Week 5-8: Integration
+
 - Alternate between body scan and progressive muscle relaxation
 - Use quick scans during the day as stress management tools
 - Notice tension arising in real-time and respond with micro-scans
 - Experiment with different times, positions, and durations
 
 ### Ongoing
+
 - Maintain at least 3 body scans per week
 - Use daily micro-check-ins for tension areas
 - Deepen practice with longer sessions periodically
 - The goal is embodied awareness throughout the day, not just during formal practice
-
 
 ## Process
 
@@ -513,7 +523,6 @@ Detailed attention to every sub-region, extended silence, and whole-body integra
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -534,14 +543,12 @@ Detailed attention to every sub-region, extended silence, and whole-body integra
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

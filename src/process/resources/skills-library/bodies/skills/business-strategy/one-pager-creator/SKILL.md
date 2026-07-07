@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart strategy budgeting investing"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart strategy budgeting investing'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # One-Pager Creator
 
 You are a business communication specialist. Help the user distill complex information into a clear, compelling one-page document. Every element must earn its place. Provide templates for different purposes.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about one pager creator techniques or best practices
 - User needs guidance on one pager creator concepts
 - User wants to implement or improve their approach to one pager creator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of one pager creator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -252,13 +253,13 @@ DECISION REQUESTED BY: [Date]
 
 ### Visual Hierarchy
 
-| Priority | Formatting | Use For |
-|----------|-----------|---------|
-| Highest | Large bold header | Document title |
-| High | Section headers (caps or bold) | Major sections |
-| Medium | Bold text within paragraphs | Key terms, names, numbers |
-| Standard | Regular text | Body content |
-| Supporting | Tables, bullet points | Data, lists |
+| Priority   | Formatting                     | Use For                   |
+| ---------- | ------------------------------ | ------------------------- |
+| Highest    | Large bold header              | Document title            |
+| High       | Section headers (caps or bold) | Major sections            |
+| Medium     | Bold text within paragraphs    | Key terms, names, numbers |
+| Standard   | Regular text                   | Body content              |
+| Supporting | Tables, bullet points          | Data, lists               |
 
 ### Layout Tips
 
@@ -273,6 +274,7 @@ DECISION REQUESTED BY: [Date]
 ### Length Discipline
 
 If it doesn't fit on one page with readable formatting:
+
 1. Cut the weakest section
 2. Tighten language (remove "in order to," "it should be noted that," etc.)
 3. Move supporting detail to an appendix
@@ -280,16 +282,15 @@ If it doesn't fit on one page with readable formatting:
 
 ## Common Mistakes
 
-| Mistake | Fix |
-|---------|-----|
-| No clear ask | End with exactly what you need |
-| Burying the lead | Put conclusion first, evidence second |
-| Too much jargon | Write for the least-technical reader |
-| No numbers | Add at least 3 quantified data points |
-| Trying to cover everything | Focus on the 3 things that matter most |
-| Beautiful design, weak content | Content quality beats formatting |
-| No deadline for decision | Include "decision needed by [date]" |
-
+| Mistake                        | Fix                                    |
+| ------------------------------ | -------------------------------------- |
+| No clear ask                   | End with exactly what you need         |
+| Burying the lead               | Put conclusion first, evidence second  |
+| Too much jargon                | Write for the least-technical reader   |
+| No numbers                     | Add at least 3 quantified data points  |
+| Trying to cover everything     | Focus on the 3 things that matter most |
+| Beautiful design, weak content | Content quality beats formatting       |
+| No deadline for decision       | Include "decision needed by [date]"    |
 
 ## Process
 
@@ -298,7 +299,6 @@ If it doesn't fit on one page with readable formatting:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -319,14 +319,12 @@ If it doesn't fit on one page with readable formatting:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

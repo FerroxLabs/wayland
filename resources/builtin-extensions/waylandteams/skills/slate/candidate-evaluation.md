@@ -8,19 +8,19 @@ User has a signed-off outcome doc from `role-design.md` and is about to intervie
 
 Seven moves.
 
-**1. Convert the outcome doc into a scorecard.** Each outcome becomes a measurable signal. *"Trial-to-paid from 4% to 8%"* becomes *"has the candidate run a conversion experiment that moved a number, and can they describe it, the result, and what they'd do differently?"* Three to five signals — match the outcome count.
+**1. Convert the outcome doc into a scorecard.** Each outcome becomes a measurable signal. _"Trial-to-paid from 4% to 8%"_ becomes _"has the candidate run a conversion experiment that moved a number, and can they describe it, the result, and what they'd do differently?"_ Three to five signals — match the outcome count.
 
 **2. Design the loop, one signal per stage.** Default loop, in order:
 
 - **Screen call (30 min).** Does the track record match the seat? Specific outcomes owned, specific results, specific years. If they can't name a result, screen fails.
 - **Work sample (60-90 min).** A scoped version of the actual work — focused, time-boxed, ideally live. The most predictive stage and the one founders skip most.
-- **Domain deep-dive (60 min).** Hiring manager walks through past projects. *"What did you decide and what did your manager decide? What broke? What did you do?"*
+- **Domain deep-dive (60 min).** Hiring manager walks through past projects. _"What did you decide and what did your manager decide? What broke? What did you do?"_
 - **Cross-functional interview (45 min).** A peer from a dependent seat. Measures: can this candidate work with the people they'll work with?
 - **References (2-3 calls, 30 min each).** Hiring manager runs them, not HR. Specific questions about what the candidate did, didn't do, and what their next manager should know.
 
-Four stages suffices for mid-level seats. For senior seats, add a strategy/judgment stage with an ambiguous question — the signal is *how they think*, not what they answer.
+Four stages suffices for mid-level seats. For senior seats, add a strategy/judgment stage with an ambiguous question — the signal is _how they think_, not what they answer.
 
-**3. Score on evidence, not feeling.** Each stage produces a written score against the named signal: strong yes / yes / lean no / no. One paragraph of evidence — the specific thing the candidate did or said. *"I liked them"* isn't a score. *"Named three experiments, two with concrete results and one failure; specific about what they'd do differently"* is.
+**3. Score on evidence, not feeling.** Each stage produces a written score against the named signal: strong yes / yes / lean no / no. One paragraph of evidence — the specific thing the candidate did or said. _"I liked them"_ isn't a score. _"Named three experiments, two with concrete results and one failure; specific about what they'd do differently"_ is.
 
 **4. Run references like an investigation.** Two or three calls with people the candidate actually worked with — direct manager and one peer. Hiring manager calls, not HR. Five questions:
 
@@ -56,6 +56,6 @@ A reference who can't answer specifics — or refuses to name a struggle — is 
 
 ## Before / after
 
-**Before:** *Five interviews, all rapport. Everyone says yes. Hire arrives, can't do the work, leaves at month five. Founder says "they interviewed so well."*
+**Before:** _Five interviews, all rapport. Everyone says yes. Hire arrives, can't do the work, leaves at month five. Founder says "they interviewed so well."_
 
-**After:** *Four-stage loop with a 90-minute work sample. Three of four scorers say yes with evidence; one lean-no on the strategy stage with a named reason. Team re-runs that signal in a follow-up. Yes becomes strong yes on evidence. Hire ships against the outcome doc by month four.*
+**After:** _Four-stage loop with a 90-minute work sample. Three of four scorers say yes with evidence; one lean-no on the strategy stage with a named reason. Team re-runs that signal in a follow-up. Yes becomes strong yes on evidence. Hire ships against the outcome doc by month four._

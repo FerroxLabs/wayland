@@ -15,19 +15,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel checklist step-by-step guide"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'travel checklist step-by-step guide'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Airport Navigation Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks how to navigate an unfamiliar airport, find their gate, or understand the departure sequence from arriving at the terminal to boarding the plane
 - A user wants to know how early to arrive at the airport for a domestic, international, or connecting flight -- including specific timing for their situation
 - A user needs a step-by-step security screening preparation checklist, including what to remove, what is allowed in carry-on, and how expedited programs change the process
@@ -39,6 +41,7 @@ metadata:
 - A user asks about re-clearing security at a layover airport, inter-terminal shuttles, or airside vs. landside transfers
 
 **Do NOT use when:**
+
 - The user wants to book or compare flights, find low fares, or evaluate routing options -- use a travel booking or flight-search skill
 - The user wants a full multi-day trip itinerary with accommodation, activities, and logistics -- use `trip-itinerary-builder`
 - The user wants to evaluate airport lounge access, Priority Pass benefits, or premium check-in perks -- use a travel benefits or lounge-access skill
@@ -76,18 +79,18 @@ Apply the following base times, then apply every applicable modifier. The final 
 
 **Base times (measured before scheduled departure):**
 
-| Scenario | Base arrival window |
-|---|---|
-| Domestic, carry-on only, already checked in online | 75 minutes |
-| Domestic, carry-on only, needs airport check-in | 90 minutes |
-| Domestic, checking bags, already checked in online | 105 minutes |
-| Domestic, checking bags, needs airport check-in | 120 minutes |
-| Transborder (e.g., US-Canada), carry-on only | 120 minutes |
-| Transborder, checking bags | 150 minutes |
-| International, carry-on only, already checked in online | 150 minutes |
-| International, carry-on only, needs airport check-in | 180 minutes |
-| International, checking bags, already checked in online | 180 minutes |
-| International, checking bags, needs airport check-in | 180-210 minutes |
+| Scenario                                                | Base arrival window |
+| ------------------------------------------------------- | ------------------- |
+| Domestic, carry-on only, already checked in online      | 75 minutes          |
+| Domestic, carry-on only, needs airport check-in         | 90 minutes          |
+| Domestic, checking bags, already checked in online      | 105 minutes         |
+| Domestic, checking bags, needs airport check-in         | 120 minutes         |
+| Transborder (e.g., US-Canada), carry-on only            | 120 minutes         |
+| Transborder, checking bags                              | 150 minutes         |
+| International, carry-on only, already checked in online | 150 minutes         |
+| International, carry-on only, needs airport check-in    | 180 minutes         |
+| International, checking bags, already checked in online | 180 minutes         |
+| International, checking bags, needs airport check-in    | 180-210 minutes     |
 
 **Add the following modifiers (cumulative):**
 
@@ -100,6 +103,7 @@ Apply the following base times, then apply every applicable modifier. The final 
 - **Red-eye or pre-dawn departure (before 05:00):** Subtract 15-20 minutes for reduced crowds, but add a note to verify that check-in counters and bag drop open at least 90 minutes before departure for that airline
 
 **Minimum hard floors -- never recommend less than:**
+
 - 90 minutes for any domestic flight, any circumstances
 - 120 minutes for any international flight, any circumstances
 
@@ -112,6 +116,7 @@ Use the recommended arrival time as the anchor and calculate forward to departur
 **Sequence components and standard duration ranges:**
 
 **Arrival and orientation (8-15 minutes):**
+
 - Enter the terminal and locate the airline-specific departure information screens (FIDS -- Flight Information Display Systems)
 - Confirm flight status: on time, delayed, gate assigned or TBD
 - Identify the correct check-in zone by airline (international airports often use zones A through G; domestic airports often use numbered check-in islands)
@@ -119,6 +124,7 @@ Use the recommended arrival time as the anchor and calculate forward to departur
 - Note restroom location near check-in for use before queuing
 
 **Check-in and bag drop (10-35 minutes depending on method and queue):**
+
 - Online check-in complete, carry-on only: skip to security -- 0 minutes at desk
 - Online check-in complete, checking bags: bag-drop lane only -- 10-15 minutes
 - Self-service kiosk check-in: 10-20 minutes including kiosk interaction and bag drop
@@ -128,6 +134,7 @@ Use the recommended arrival time as the anchor and calculate forward to departur
 - If checking oversized items (ski bags, surfboard bags, bicycles): go to the oversized baggage counter, which is almost always separate from main check-in, often at the end of the check-in hall or near a dedicated door
 
 **Security screening (15-50 minutes depending on airport, time, and program):**
+
 - Standard domestic security (TSA, no PreCheck): 20-40 minutes at major hubs during peak
 - TSA PreCheck: 5-15 minutes
 - CLEAR + TSA PreCheck: 5-10 minutes (CLEAR handles biometric identity verification; PreCheck handles the dedicated lane -- they stack for fastest passage)
@@ -135,6 +142,7 @@ Use the recommended arrival time as the anchor and calculate forward to departur
 - Preparation begins before reaching the bin counter -- the more preparation done in the queue, the faster the bin loading process
 
 **Walking time to gate (5-25 minutes depending on airport size):**
+
 - Small regional airports (under 20 gates): 5 minutes
 - Medium airports (20-60 gates, single concourse): 8-15 minutes
 - Large hub airports with single terminal (ATL, DFW concourse D): 10-20 minutes
@@ -142,11 +150,13 @@ Use the recommended arrival time as the anchor and calculate forward to departur
 - Gates at the far end of a long concourse (LAX's TBIT, JFK T4, LHR T3): 10-20 minutes of walking after passing security
 
 **Gate area time (minimum 20 minutes before boarding; 30-45 minutes recommended):**
+
 - Boarding typically opens 30-40 minutes before departure for domestic, 40-50 minutes for international
 - Gate doors typically close 10-15 minutes before departure for domestic, 15-20 minutes for international
 - Use this time for: restroom (go 15-20 minutes before boarding begins, not after it starts), food and water (obtain before boarding begins -- on-board service is not guaranteed on short flights), device charging (gate area outlets or USB stations), confirming gate on the departure screen
 
 **Boarding sequence (15-40 minutes total from group 1 to doors close):**
+
 - Most airlines board in a defined sequence: pre-boarding (wheelchair, families with young children, active military on some airlines), then elite frequent flyer tiers (top-tier first), then business/first class, then economy by zone or group number
 - Zone 1 / Group 1: called approximately 35 minutes before departure
 - Middle zones: approximately 25-30 minutes before departure
@@ -160,6 +170,7 @@ Use the recommended arrival time as the anchor and calculate forward to departur
 The checklist differs significantly based on the traveler's screening program. Always distinguish between standard and expedited lanes.
 
 **Standard screening checklist (no PreCheck or equivalent):**
+
 - Laptop and tablets (larger than a paperback book) removed from bag and placed in a separate bin, flat
 - All other electronics (e-readers, cameras, portable batteries larger than 100Wh) removed from bag
 - Liquids bag: all liquids, aerosols, gels, creams, and pastes in containers of 100ml/3.4oz or less, all fitting inside a single clear, resealable, one-liter (quart-sized) plastic bag, presented separately in a bin. One bag per person.
@@ -171,6 +182,7 @@ The checklist differs significantly based on the traveler's screening program. A
 - If carrying a CPAP machine: remove from bag and place in its own bin (exempt from electronic device rules, treated like a medical device)
 
 **TSA PreCheck lane checklist (US domestic and participating airports):**
+
 - Laptop stays in the bag -- no removal required
 - Liquids bag stays in the bag -- no removal required
 - Shoes stay on
@@ -179,11 +191,13 @@ The checklist differs significantly based on the traveler's screening program. A
 - Empty pockets of metal: keys and coins go in the bag
 
 **CLEAR-equipped airports:**
+
 - CLEAR uses iris scan or fingerprint to verify identity biometrically at a CLEAR pod before the security lane
 - CLEAR members skip the document check queue and go directly to the TSA screening lane (and PreCheck lane if enrolled in both)
 - The physical screening process is otherwise identical to PreCheck or standard, depending on enrollment
 
 **Medical items and exemptions:**
+
 - Liquid medications exceeding 100ml are allowed in "reasonable quantities" for the flight -- declare them separately at the start of the screening process, before placing items in bins
 - Insulin pumps and insulin do not need to be removed from the body, but the traveler should inform the TSO (transportation security officer) before going through the scanner; body scanner can detect the device; the TSO will conduct a hand inspection
 - Pacemakers and implanted metal devices: inform the TSO before the scanner -- a hand wand or pat-down will be used instead of the body scanner
@@ -196,30 +210,35 @@ The checklist differs significantly based on the traveler's screening program. A
 Classify the connection into one of four types and apply the corresponding procedure:
 
 **Type 1 -- Airside, same terminal, same airline:**
+
 - Deplaning to connecting gate with no security re-check
 - Walk from arrival gate to departure gate within the same secure area
 - Minimum recommended connection time: 35 minutes domestic, 45 minutes international
 - If connection is 35-60 minutes: flag as tight, advise sitting near the front of the plane on the inbound leg, have carry-on positioned for fast deboarding
 
 **Type 2 -- Airside, different concourse or terminal, same airport, no re-screening:**
+
 - Walk or take intra-airport transit (shuttle bus, underground train, moving walkway) between concourses within the secure zone
 - Examples: ATL underground train between concourses (3-5 min), DFW SkyLink train between terminals (4-8 min), ORD underground walkway between B and C gates (5-8 min walking)
 - Minimum recommended connection time: 50 minutes domestic, 60 minutes international
 - Check whether the transit runs at the connection time (especially for early morning flights -- ATL trains run continuously, but smaller shuttle buses have gaps)
 
 **Type 3 -- Landside, different terminal, same airport, requires re-screening:**
+
 - Passenger must exit the secure area, transit between terminals by bus or train, and re-clear security
 - Examples: JFK AirTrain between terminals (8-15 min ride plus wait), LHR inter-terminal bus (10-15 min), LAX between domestic and TBIT (bus transfer 10-20 min)
 - Minimum recommended connection time: 90 minutes domestic, 120 minutes international
 - Add full security preparation time for the second screening
 
 **Type 4 -- International to international or international to domestic with immigration and customs:**
+
 - Passenger must clear passport control (immigration), collect checked bags, clear customs, re-check bags with the airline, and re-clear security
 - This is required whenever connecting through a country as the first point of entry (e.g., connecting through Toronto from Europe to a US city -- US CBP preclearance is at YYZ, so the passenger clears US customs in Toronto, not the US)
 - Minimum recommended connection time: 120 minutes absolute minimum; 150-180 minutes strongly preferred for first-time travelers
 - Immigration queues during peak arrival banks at major hubs (JFK 12:00-17:00, LHR 07:00-10:00, AMS 07:00-11:00) can be 30-60 minutes alone
 
 **For all connection types, provide:**
+
 - Step-by-step transit instructions for the specific airports mentioned
 - The decision threshold: if connection time is below the minimum recommended for that type, explicitly flag it as "tight" or "high risk" and provide the missed-connection response protocol
 - A note on where to find the connecting gate (all airports have FIDS screens throughout; connecting flight info is also on the boarding pass)
@@ -231,22 +250,26 @@ Classify the connection into one of four types and apply the corresponding proce
 Every navigation plan must include this section. Use specific action sequences, not general advice.
 
 **Scenario: Flight is delayed**
+
 - If delay is under 30 minutes: no action needed; monitor the departure screen
 - If delay is 30-90 minutes: check for gate change; if connecting flight is affected, go to the airline's gate agent and ask them to note the connection in the system
 - If delay exceeds 90 minutes or the connection becomes impossible: go to the airline service desk (not the gate agent -- the desk has more rebooking authority); bring all booking documents; ask for rebooking on the next available flight
 
 **Scenario: Missed connection (regardless of cause)**
+
 - Go immediately to the airline's transfer desk or service desk in the connecting airport -- do not go to departures, do not re-clear security
 - For connections missed due to the inbound airline's delay (their fault): rebooking is at no charge; accommodation and meal vouchers are required under EU261 (EU departures or EU airlines on any route), DOT guidelines (US), and most airline contracts of carriage on long delays
 - For connections missed due to the traveler's own delay (e.g., arrived at gate late): rebooking is at the airline's discretion; a standby fee may apply; travel insurance with "missed connection" coverage can reimburse reasonable costs
 - Always ask explicitly: "Is my checked bag being transferred to the new flight automatically?" If the answer is uncertain, ask the desk to tag the bag to the new flight number
 
 **Scenario: Lost or forgotten boarding pass**
+
 - Go to the nearest airline check-in counter or service desk with a government-issued photo ID and the booking reference
 - If using a mobile boarding pass and the phone has died: request a reprint; most airlines can reprint from their system using name + booking reference; no fee applies
 - If security has already been cleared and the boarding pass was lost airside: the gate agent can scan the booking reference from the airline's system; ID is required
 
 **Scenario: Checked bag not at arrival carousel**
+
 - Do not leave the baggage claim area before filing a report
 - Go to the airline's baggage service office (located in the baggage claim hall -- all major airlines have a desk)
 - File a Property Irregularity Report (PIR); receive a reference number; provide a delivery address if the bag will be forwarded
@@ -260,6 +283,7 @@ Every navigation plan must include this section. Use specific action sequences, 
 Apply the correct profile adaptations from this list:
 
 **First-time flyer:**
+
 - Expand every step with explanatory context -- do not assume knowledge of FIDS screens, bin procedures, or gate numbering systems
 - Explain what to say at the check-in counter (airline staff will guide -- it is a conversation, not a test)
 - Explain what the security scanner sounds mean (a beep means stop and wait; a TSO will guide the next steps -- it is not alarming)
@@ -267,12 +291,14 @@ Apply the correct profile adaptations from this list:
 - Recommend arriving at the early end of the arrival window
 
 **Traveling with children under 12:**
+
 - Most airlines allow pre-boarding for families with children under 2 (lap infant) or under a certain age (varies: Delta and United allow "families with children needing extra time" -- check with the gate agent)
 - Family lanes at security: TSA has designated family lanes at most major airports -- children under 12 do not need to remove shoes under TSA rules
 - Pack a dedicated "security access" pocket in the carry-on: liquids bag and laptop should be extractable in 30 seconds without unpacking the full bag
 - Bring extra snacks and entertainment in the under-seat bag (not in the overhead bin) -- access to overhead bin is impossible during taxi and early flight
 
 **Traveler requiring wheelchair or mobility assistance:**
+
 - Contact the airline at least 48 hours before the flight; some airlines recommend 72 hours
 - At the airport, go to the check-in counter and identify the need; a wheelchair escort service will be assigned; the escort navigates check-in, security, and gate access
 - Security for wheelchair users: the wheelchair itself will be screened; the traveler receives a pat-down instead of walking through the scanner; the TSO will explain each step
@@ -280,6 +306,7 @@ Apply the correct profile adaptations from this list:
 - At the gate, inform the gate agent of any need for jetway assistance or a jet bridge vs. stairs boarding
 
 **Traveler with anxiety about flying or airports:**
+
 - Specificity is the primary anxiety-reduction tool -- provide every step in advance so nothing is a surprise
 - Normalize common experiences: security alarms from forgotten items in pockets are routine and resolved in under 2 minutes; gate changes happen in approximately 10-15% of flights and are shown on screens; boarding delays are common and do not indicate mechanical problems
 - Recommend a specific calming technique for the gate wait: the 4-7-8 breathing pattern (inhale 4 counts, hold 7 counts, exhale 8 counts) is clinically documented as reducing acute anxiety
@@ -423,6 +450,7 @@ Exemptions for this traveler:
 Flag this at the top of the connection plan section in bold: **"TIGHT CONNECTION -- RISK OF MISS."**
 
 Provide a dedicated expedited transfer plan:
+
 - On the inbound flight, select or request a seat as close to Row 1 as possible (or the first row of economy if premium is not available) -- every row equates to roughly 1 minute of deboarding time at major hub aircraft sizes
 - When the inbound plane is taxiing, ask a flight attendant to contact the gate agent at the connecting terminal to notify them of the connection -- most airlines have a "connecting flight notification" procedure for passengers with under-60-minute connections
 - When the seatbelt sign turns off, stand and retrieve your bag before most passengers -- this is time-sensitive
@@ -452,6 +480,7 @@ Add a dedicated passport control section between the security and gate sections 
 ### Airport requiring re-screening at a second terminal
 
 Several major airports require passengers to exit the secure zone and re-clear security when moving between terminals during a connection:
+
 - JFK: AirTrain connects terminals; passengers arriving in T1 connecting to T7 (not linked airside) must exit, take AirTrain, and re-clear security -- approximately 25-35 minutes total
 - LAX: Terminals 1-8 and TBIT are not fully connected airside; some cross-terminal connections require landside bus and re-screening -- approximately 30-45 minutes total
 - LHR: Terminals 1-5 are not all airside-connected; T3 to T5 requires bus transfer and re-screening -- approximately 30-40 minutes
@@ -505,6 +534,7 @@ When this applies, add full security preparation time to the connection window, 
 ### Recommended Airport Arrival Time: 11:00 (2 hours 15 minutes before departure)
 
 **Calculation breakdown:**
+
 - Base time: 105 minutes (domestic, checking bags, already checked in online)
 - Modifier: +30 minutes (peak summer travel -- ORD is one of the busiest US airports; summer Friday/Saturday bag-drop queues at United are known to run 20-30 minutes)
 - PreCheck modifier: -0 minutes applied to arrival time (PreCheck shortens security time to approximately 10-15 minutes, which was already partially reflected in the base time; arrival time is set conservatively because bag drop is the rate-limiting step, not security)
@@ -516,20 +546,20 @@ When this applies, add full security preparation time to the connection window, 
 
 ### Step-by-Step Airport Sequence
 
-| Step | Clock Time | Action | Duration | Key Notes |
-|------|------------|--------|----------|-----------|
-| 1 | 11:00 | Arrive at ORD. United departs from Terminal 1 (Concourses B and C). Enter via Terminal 1 sign from departures curb or garage. | 8 min | Locate the FIDS (departure screens) -- confirm your flight is "ON TIME" and note the gate. United at ORD uses Concourses B and C. |
-| 2 | 11:08 | United bag drop -- United check-in hall, Terminal 1 | 20 min | You are already checked in. Go to the bag drop / checked baggage line (not the full check-in queue). Have your mobile boarding pass and government-issued ID accessible. Tag your bag, receive the luggage receipt -- photograph it and keep a digital copy. |
-| 3 | 11:28 | Walk to TSA PreCheck lane, Terminal 1 | 5 min | PreCheck lanes at ORD T1 are clearly marked. Confirm your boarding pass shows "TSA PRE" in the header -- if it doesn't, you must use the standard lane, which has longer waits. |
-| 4 | 11:33 | TSA PreCheck screening | 12 min | See PreCheck checklist below. At ORD Terminal 1, PreCheck is efficient on weekday midmornings. |
-| 5 | 11:45 | Clear security -- re-confirm belongings | 3 min | Verify: phone, boarding pass accessible, bag zipped. Belt and shoes stay on (PreCheck). |
-| 6 | 11:48 | Walk to gate (Concourse B or C) | 12 min | ORD Terminal 1 connects Concourses B and C via an underground walkway with moving sidewalks and light displays -- this is expected, not a wrong turn. Check the FIDS at the concourse entrance to confirm your gate. |
-| 7 | 12:00 | Arrive at gate area | -- | Confirm the gate screen shows your flight number UA [XXXX] to Denver (DEN) at 13:15. If the gate has changed since bag drop, the screen will show the new gate. |
-| 8 | 12:00 -- 12:40 | Gate time: food, water, charging, restroom | 40 min | There are several food options in both ORD concourses airside. Buy water now -- the Denver flight will have beverage service, but on-board service may be limited on a full aircraft. Gate power outlets are available at most ORD B/C gates. |
-| 9 | 12:35 | Use restroom -- before boarding starts | -- | Do this before boarding is called, not after. Once the gate area line forms, restrooms become harder to access quickly. |
-| 10 | 12:40 | Boarding begins -- United Group 1 (elite) | -- | Listen for boarding announcements. Your boarding group is printed on your mobile boarding pass (swipe to full boarding pass view). United boards in the sequence: pre-boarding, then Premier elite tiers, then Business/First, then Economy groups 1 through 5. |
-| 11 | ~12:50 | Your boarding group called | -- | Approach the gate scanner with mobile boarding pass visible and phone brightness turned up. Gate scanner reads the QR code. Move through promptly. |
-| 12 | 13:15 | Scheduled departure | -- | Gate closes approximately 10 minutes before departure (13:05). Do not be in the restroom or at a food counter after 12:55. |
+| Step | Clock Time     | Action                                                                                                                        | Duration | Key Notes                                                                                                                                                                                                                                                       |
+| ---- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | 11:00          | Arrive at ORD. United departs from Terminal 1 (Concourses B and C). Enter via Terminal 1 sign from departures curb or garage. | 8 min    | Locate the FIDS (departure screens) -- confirm your flight is "ON TIME" and note the gate. United at ORD uses Concourses B and C.                                                                                                                               |
+| 2    | 11:08          | United bag drop -- United check-in hall, Terminal 1                                                                           | 20 min   | You are already checked in. Go to the bag drop / checked baggage line (not the full check-in queue). Have your mobile boarding pass and government-issued ID accessible. Tag your bag, receive the luggage receipt -- photograph it and keep a digital copy.    |
+| 3    | 11:28          | Walk to TSA PreCheck lane, Terminal 1                                                                                         | 5 min    | PreCheck lanes at ORD T1 are clearly marked. Confirm your boarding pass shows "TSA PRE" in the header -- if it doesn't, you must use the standard lane, which has longer waits.                                                                                 |
+| 4    | 11:33          | TSA PreCheck screening                                                                                                        | 12 min   | See PreCheck checklist below. At ORD Terminal 1, PreCheck is efficient on weekday midmornings.                                                                                                                                                                  |
+| 5    | 11:45          | Clear security -- re-confirm belongings                                                                                       | 3 min    | Verify: phone, boarding pass accessible, bag zipped. Belt and shoes stay on (PreCheck).                                                                                                                                                                         |
+| 6    | 11:48          | Walk to gate (Concourse B or C)                                                                                               | 12 min   | ORD Terminal 1 connects Concourses B and C via an underground walkway with moving sidewalks and light displays -- this is expected, not a wrong turn. Check the FIDS at the concourse entrance to confirm your gate.                                            |
+| 7    | 12:00          | Arrive at gate area                                                                                                           | --       | Confirm the gate screen shows your flight number UA [XXXX] to Denver (DEN) at 13:15. If the gate has changed since bag drop, the screen will show the new gate.                                                                                                 |
+| 8    | 12:00 -- 12:40 | Gate time: food, water, charging, restroom                                                                                    | 40 min   | There are several food options in both ORD concourses airside. Buy water now -- the Denver flight will have beverage service, but on-board service may be limited on a full aircraft. Gate power outlets are available at most ORD B/C gates.                   |
+| 9    | 12:35          | Use restroom -- before boarding starts                                                                                        | --       | Do this before boarding is called, not after. Once the gate area line forms, restrooms become harder to access quickly.                                                                                                                                         |
+| 10   | 12:40          | Boarding begins -- United Group 1 (elite)                                                                                     | --       | Listen for boarding announcements. Your boarding group is printed on your mobile boarding pass (swipe to full boarding pass view). United boards in the sequence: pre-boarding, then Premier elite tiers, then Business/First, then Economy groups 1 through 5. |
+| 11   | ~12:50         | Your boarding group called                                                                                                    | --       | Approach the gate scanner with mobile boarding pass visible and phone brightness turned up. Gate scanner reads the QR code. Move through promptly.                                                                                                              |
+| 12   | 13:15          | Scheduled departure                                                                                                           | --       | Gate closes approximately 10 minutes before departure (13:05). Do not be in the restroom or at a food counter after 12:55.                                                                                                                                      |
 
 ---
 
@@ -538,6 +568,7 @@ When this applies, add full security preparation time to the connection window, 
 **TSA PreCheck lane -- streamlined process**
 
 Because you have PreCheck, your screening is significantly simplified:
+
 - [ ] **Laptop stays in your bag** -- no removal required
 - [ ] **Liquids bag stays in your bag** -- no removal required
 - [ ] **Belt stays on** -- no removal required
@@ -578,4 +609,4 @@ None applicable for this itinerary.
 1. Do not leave the baggage claim hall at DEN without filing a report
 2. United's baggage service office is located adjacent to the carousel area at DEN -- look for the United baggage desk
 3. File a Property Irregularity Report (PIR) and receive a reference number -- photograph or screenshot this
-4
+   4

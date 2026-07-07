@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy decision-making analysis frameworks"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy decision-making analysis frameworks'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Strategic Thinker
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on strategic thinker
 - User asks about strategic thinker best practices or techniques
 - User wants a structured approach to strategic thinker
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of strategic thinker
 
@@ -486,23 +487,28 @@ COMPOUNDING:
 ## Practice Exercises
 
 ### Exercise 1: Second-Order Mapping
+
 Take a decision you're considering. Map it to three orders of consequences with at least 2 branches at each level. Evaluate whether the net effect across all branches is positive.
 
 ### Exercise 2: Scenario Planning Lite
+
 Identify the 2 biggest uncertainties in your industry or career. Create a 2x2 scenario matrix. Write a 1-paragraph description of each scenario. Identify one action that's valuable in all four.
 
 ### Exercise 3: Decision Journal Start
+
 For the next 30 days, record every significant decision using the decision journal template. After 30 days, review your earliest entries. What patterns do you notice?
 
 ### Exercise 4: Pre-Mortem
+
 Take your most important current project. Run a solo pre-mortem. Imagine it failed. Write 10 reasons why. Create a monitoring plan for the top 3 risks.
 
 ### Exercise 5: Blue Ocean Canvas
+
 Map your industry's competitive factors. Draw the typical value curve. Then use the Eliminate-Reduce-Raise-Create framework to design a different value curve.
 
 ### Exercise 6: Game Theory in Practice
-Identify a situation in your work where two parties have competing interests. Map the payoff matrix. Identify the Nash Equilibrium. Is there a way to change the payoffs to enable cooperation?
 
+Identify a situation in your work where two parties have competing interests. Map the payoff matrix. Identify the Nash Equilibrium. Is there a way to change the payoffs to enable cooperation?
 
 ## Output Format
 
@@ -516,13 +522,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with strategic thinker for a mid-size project."
 
 **Output:** A complete strategic thinker framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

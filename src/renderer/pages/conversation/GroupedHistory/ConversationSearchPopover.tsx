@@ -483,16 +483,10 @@ const ConversationSearchPopover: React.FC<ConversationSearchPopoverProps> = ({
         >
           {fullWidth ? (
             <span className='w-20px h-20px flex items-center justify-center shrink-0'>
-              <Search size={18}
-                className='block leading-none'
-                style={{ lineHeight: 0 }}
-              />
+              <Search size={18} className='block leading-none' style={{ lineHeight: 0 }} />
             </span>
           ) : (
-            <Search size={18}
-              className='block leading-none shrink-0'
-              style={{ lineHeight: 0 }}
-            />
+            <Search size={18} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
           )}
           {fullWidth && label ? (
             <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px'>{label}</span>

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "budgeting personal-finance expenses savings"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'budgeting personal-finance expenses savings'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'beginner'
 ---
+
 # Fifty Thirty Twenty Budget
 
 > **Disclaimer:** This skill provides educational information about personal finance concepts and general budgeting guidance. It does NOT constitute financial advice, tax advice, investment recommendations, or legal counsel. Individual financial circumstances vary significantly. Always consult a qualified financial advisor, CPA, or licensed financial planner before making significant financial decisions.
@@ -24,6 +25,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks about the 50/30/20 rule, percentage-based budgeting, or how to divide their income into spending categories
 - The user wants to know whether their current spending allocation is healthy without building a line-by-line budget from scratch
 - The user is new to budgeting and wants the simplest defensible framework to start with
@@ -34,6 +36,7 @@ metadata:
 - The user is preparing for a financial goal (paying off debt, building an emergency fund, saving for a house) and wants to understand how much they should be redirecting from wants to savings
 
 **Do NOT use when:**
+
 - The user wants to assign every dollar to a specific named category or envelope -- use the `zero-based-budget` skill instead
 - The user has highly variable or irregular income (freelancers, commissioned salespeople, gig workers with swinging monthly earnings) -- use the `variable-income-budget` skill instead, since basing allocations on an inconsistent income figure will produce unreliable targets
 - The user is building their very first budget with no prior record of their spending -- use the `first-budget` skill to establish a baseline before applying a framework
@@ -69,6 +72,7 @@ metadata:
 Work through the user's complete expense list and assign each item to one of the three buckets. Use these classification rules precisely, because the most common budgeting mistakes happen at categorization boundaries.
 
 **Needs (survival and contractual obligations):**
+
 - Housing: rent, mortgage principal and interest, renters insurance (legally or contractually required coverage), property tax if paid directly, HOA fees if mandatory
 - Utilities: electricity, gas, water/sewer, trash. Basic internet (the lowest tier that enables remote work or essential household function). Basic mobile phone plan (not the device payment -- see below)
 - Groceries: all food purchased for preparation at home. This includes grocery delivery fees for home-food orders. Does NOT include restaurant delivery even if the app is the same.
@@ -79,6 +83,7 @@ Work through the user's complete expense list and assign each item to one of the
 - Basic clothing replacement for work (not fashion purchases -- a new pair of work shoes when the old ones are destroyed is a need; a third pair of sneakers is a want)
 
 **Wants (quality of life improvements above survival baseline):**
+
 - All dining out, takeout, food delivery from restaurants, coffee shop purchases -- these are always wants, regardless of how the user frames them
 - Entertainment: streaming subscriptions, cable/satellite, gaming, concerts, movies, sporting events, hobbies
 - Gym memberships, fitness apps, sports leagues
@@ -92,6 +97,7 @@ Work through the user's complete expense list and assign each item to one of the
 - Personal care beyond basics: salon treatments, spa, premium cosmetics
 
 **Savings/Debt Repayment (building future security and eliminating debt above minimums):**
+
 - Emergency fund contributions (target: 3 months of essential expenses for stable employment, 6 months for variable income or single-income households)
 - Extra debt payments above required minimums (the most financially impactful item in most users' 20% bucket)
 - Employer-sponsored retirement contributions: 401k, 403b, SIMPLE IRA -- whether pre-tax or Roth
@@ -125,6 +131,7 @@ Work through the user's complete expense list and assign each item to one of the
 Every user's situation should be evaluated for framework fit. The 50/30/20 rule was designed for a middle-income earner in a moderate cost-of-living area. It does not fit everyone, and pretending it does produces demotivating results.
 
 **When to flag framework mismatch and adapt:**
+
 - Needs consuming 55--65% of income: adapt to 55/25/20 or 60/20/20, and focus on preserving the 20% savings target as non-negotiable.
 - Needs consuming 65%+ of income: the framework may not be appropriate. Acknowledge this directly. Note that the 20% savings target should be preserved at a minimum even if wants must be cut to near zero. If needs alone consume more than 80% of income, the priority is income growth, not optimization of spending ratios.
 - Very high income (take-home above $10,000/month): the 30% wants bucket produces a very large dollar amount ($3,000+). This is fine if the user is also meeting savings goals, but the framework has diminishing value. Suggest the user consider a reverse-budget approach where savings goals are funded first and the remainder is discretionary.
@@ -343,6 +350,7 @@ Do not attempt to apply the framework as though the life change has not occurred
 
 **Monthly After-Tax Income:** $4,100 (take-home)
 **Pre-Tax Payroll Deductions:**
+
 - Health insurance: $400/month (benefit, not in budget base)
 - 401k contribution: $300/month (counts toward your savings bucket)
 - Employer 401k match: $150/month (50% match on your $300 -- this is free money)
@@ -353,29 +361,31 @@ Do not attempt to apply the framework as though the life change has not occurred
 ---
 
 ### Allocation Targets
-| Bucket            | Target % | Target Amount |
-|-------------------|----------|---------------|
-| Needs             | 50%      | $2,050        |
-| Wants             | 30%      | $1,230        |
-| Savings/Debt      | 20%      | $820          |
-| **Total**         | **100%** | **$4,100**    |
+
+| Bucket       | Target % | Target Amount |
+| ------------ | -------- | ------------- |
+| Needs        | 50%      | $2,050        |
+| Wants        | 30%      | $1,230        |
+| Savings/Debt | 20%      | $820          |
+| **Total**    | **100%** | **$4,100**    |
 
 ---
 
 ### Needs (Target: 50% = $2,050)
-| Expense                  | Monthly Amount | Category Note                                |
-|--------------------------|----------------|----------------------------------------------|
-| Rent                     | $1,450         | Housing -- 35.4% of income alone             |
-| Electricity              | $90            | Utility                                      |
-| Gas (heating/cooking)    | $45            | Utility                                      |
-| Water                    | $30            | Utility                                      |
-| Internet                 | $75            | Basic tier -- at or near need threshold      |
-| Groceries                | $380           | Home food only                               |
-| Car payment              | $285           | Auto loan minimum                            |
-| Car insurance            | $110           | Required coverage                            |
-| Gas for car              | $95            | Essential transportation fuel                |
-| Student loan minimum     | $220           | Contractual minimum                          |
-| **Needs Total**          | **$2,780**     | **67.8% of income**                          |
+
+| Expense               | Monthly Amount | Category Note                           |
+| --------------------- | -------------- | --------------------------------------- |
+| Rent                  | $1,450         | Housing -- 35.4% of income alone        |
+| Electricity           | $90            | Utility                                 |
+| Gas (heating/cooking) | $45            | Utility                                 |
+| Water                 | $30            | Utility                                 |
+| Internet              | $75            | Basic tier -- at or near need threshold |
+| Groceries             | $380           | Home food only                          |
+| Car payment           | $285           | Auto loan minimum                       |
+| Car insurance         | $110           | Required coverage                       |
+| Gas for car           | $95            | Essential transportation fuel           |
+| Student loan minimum  | $220           | Contractual minimum                     |
+| **Needs Total**       | **$2,780**     | **67.8% of income**                     |
 
 **Needs Status:** Over target by $730 (17.8 percentage points above the 50% target)
 **Primary Driver:** Housing at $1,450 (35.4% of income). Student loan minimum at $220 (5.4%) and groceries at $380 (9.3%) are secondary contributors.
@@ -383,46 +393,49 @@ Do not attempt to apply the framework as though the life change has not occurred
 ---
 
 ### Wants (Target: 30% = $1,230)
-| Expense                   | Monthly Amount | Category Note                               |
-|---------------------------|----------------|---------------------------------------------|
-| Dining out / takeout      | $320           | All food outside home = Want                |
-| Weekend entertainment     | $180           | Events, activities                          |
-| Clothing / shopping       | $150           | Non-essential purchases                     |
-| Amazon purchases          | $75            | Discretionary purchases (see note below)    |
-| Gym membership            | $45            | Fitness -- not required for survival        |
-| Netflix                   | $18            | Streaming entertainment                     |
-| Hulu                      | $18            | Streaming entertainment                     |
-| Spotify                   | $12            | Music subscription                          |
-| **Wants Total**           | **$818**       | **19.9% of income**                         |
+
+| Expense               | Monthly Amount | Category Note                            |
+| --------------------- | -------------- | ---------------------------------------- |
+| Dining out / takeout  | $320           | All food outside home = Want             |
+| Weekend entertainment | $180           | Events, activities                       |
+| Clothing / shopping   | $150           | Non-essential purchases                  |
+| Amazon purchases      | $75            | Discretionary purchases (see note below) |
+| Gym membership        | $45            | Fitness -- not required for survival     |
+| Netflix               | $18            | Streaming entertainment                  |
+| Hulu                  | $18            | Streaming entertainment                  |
+| Spotify               | $12            | Music subscription                       |
+| **Wants Total**       | **$818**       | **19.9% of income**                      |
 
 **Wants Status:** Under target by $412 (10.1 percentage points below the 30% target)
 
-*Note on Amazon: $75/month in Amazon purchases is categorized as a Want unless specific items are essential replacements. If some Amazon purchases are household supplies or need-level items, reclassify those specifically. The default assumption for discretionary Amazon spend is Want.*
+_Note on Amazon: $75/month in Amazon purchases is categorized as a Want unless specific items are essential replacements. If some Amazon purchases are household supplies or need-level items, reclassify those specifically. The default assumption for discretionary Amazon spend is Want._
 
 ---
 
 ### Savings & Debt Repayment (Target: 20% = $820)
-| Category                       | Monthly Amount | Notes                                               |
-|--------------------------------|----------------|-----------------------------------------------------|
-| 401k contribution (pre-tax)    | $300           | Already deducted from paycheck                      |
-| Employer 401k match            | $150           | 50% match -- free money, always capture this        |
-| Savings transfer               | $150           | General savings account                             |
-| Extra debt payments            | $0             | No extra payments above student loan minimum        |
-| Emergency fund contributions   | $0             | Not explicitly funded (see recommendations)         |
-| **Savings Total**              | **$600**       | **14.6% of income** (including pre-tax + take-home) |
+
+| Category                     | Monthly Amount | Notes                                               |
+| ---------------------------- | -------------- | --------------------------------------------------- |
+| 401k contribution (pre-tax)  | $300           | Already deducted from paycheck                      |
+| Employer 401k match          | $150           | 50% match -- free money, always capture this        |
+| Savings transfer             | $150           | General savings account                             |
+| Extra debt payments          | $0             | No extra payments above student loan minimum        |
+| Emergency fund contributions | $0             | Not explicitly funded (see recommendations)         |
+| **Savings Total**            | **$600**       | **14.6% of income** (including pre-tax + take-home) |
 
 **Savings Status:** Under target by $220 (5.4 percentage points below the 20% target)
 
 ---
 
 ### Budget Scorecard
-| Bucket          | Target $  | Actual $  | Actual % | Difference | Status              |
-|-----------------|-----------|-----------|----------|------------|---------------------|
-| Needs           | $2,050    | $2,780    | 67.8%    | +$730      | ⚠ Over              |
-| Wants           | $1,230    | $818      | 19.9%    | -$412      | Under               |
-| Savings/Debt    | $820      | $600      | 14.6%    | -$220      | Under               |
-| **Unallocated** | **$0**    | **-$98**  | **--**   | **--**     | **⚠ Budget Gap**    |
-| **Total**       | **$4,100** | **$4,198**| **102.4%**| **--**    | **See note below**  |
+
+| Bucket          | Target $   | Actual $   | Actual %   | Difference | Status             |
+| --------------- | ---------- | ---------- | ---------- | ---------- | ------------------ |
+| Needs           | $2,050     | $2,780     | 67.8%      | +$730      | ⚠ Over             |
+| Wants           | $1,230     | $818       | 19.9%      | -$412      | Under              |
+| Savings/Debt    | $820       | $600       | 14.6%      | -$220      | Under              |
+| **Unallocated** | **$0**     | **-$98**   | **--**     | **--**     | **⚠ Budget Gap**   |
+| **Total**       | **$4,100** | **$4,198** | **102.4%** | **--**     | **See note below** |
 
 **⚠ Important -- Budget Gap Identified:** Your reported expenses ($4,198) actually exceed your take-home income ($4,100) by **$98/month.** This means you are either dipping into savings, using credit, or there are rounding/estimation errors in your expense numbers. This is the core reason you feel like you are always broke -- your budget is technically in deficit before any savings goals are addressed. This must be resolved first.
 
@@ -444,6 +457,7 @@ Cancel one streaming service (keep Netflix or Hulu, not both): $18/month freed
 
 **Priority 2 -- Redirect $220/month to savings to reach 20% target:**
 Your savings bucket is $220 short of the 20% target ($820). You are already capturing the employer 401k match (excellent -- this is the right first move). The $150 savings transfer is a good habit. To close the gap, direct the $88 freed from Priority 1 toward savings, and find an additional $132/month from wants reduction.
+
 - Reduce entertainment from $180 to $100: saves $80/month
 - Reduce clothing/shopping from $150 to $100: saves $50/month
 - Total additional monthly savings available: $218/month
@@ -461,20 +475,21 @@ Your student loan minimum of $220/month is a need. Once your emergency fund is e
 
 ### Projected Budget After Priority 1 and 2 Recommendations
 
-| Bucket       | Current % | Projected % | Change  |
-|--------------|-----------|-------------|---------|
-| Needs        | 67.8%     | 67.8%       | --      |
-| Wants        | 19.9%     | 14.6%       | -5.3%   |
-| Savings/Debt | 14.6%     | 20.0%       | +5.4%   |
-| Unallocated  | -2.4%     | 0%          | +2.4%   |
+| Bucket       | Current % | Projected % | Change |
+| ------------ | --------- | ----------- | ------ |
+| Needs        | 67.8%     | 67.8%       | --     |
+| Wants        | 19.9%     | 14.6%       | -5.3%  |
+| Savings/Debt | 14.6%     | 20.0%       | +5.4%  |
+| Unallocated  | -2.4%     | 0%          | +2.4%  |
 
-*Implementing Priorities 1 and 2 does not reduce your needs (most are fixed) but eliminates the deficit, brings wants down to a lean but functional level, and gets savings to target.*
+_Implementing Priorities 1 and 2 does not reduce your needs (most are fixed) but eliminates the deficit, brings wants down to a lean but functional level, and gets savings to target._
 
 ---
 
 ### Savings Priority Sequence
 
 Work through these in order:
+
 1. ✅ **Capture full employer 401k match** -- you are already doing this ($150/month free money). Do not reduce your 401k contribution below the match threshold under any circumstances.
 2. [ ] **Emergency fund to $2,780** (1 month of essential expenses) -- currently unknown; establish this as the active goal for your $150/month transfer plus recovered funds from recommendations above.
 3. [ ] **Emergency fund to $8,340** (3 months) -- after 1-month target is reached.
@@ -484,6 +499,7 @@ Work through these in order:
 ---
 
 ### Next Steps
+
 - [ ] **This week:** Export 60 days of bank and credit card transaction history and categorize every transaction to verify that the $4,198 in expenses is accurate -- identify where the extra $98/month is actually going.
 - [ ] **This week:** Cancel one of the two streaming services you use less (saves $18/month immediately).
 - [ ] **This month:** Reduce dining out to $250 and entertainment to $100 and track adherence.

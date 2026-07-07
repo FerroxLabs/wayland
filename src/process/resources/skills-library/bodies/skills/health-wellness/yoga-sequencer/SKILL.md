@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness workout-planning"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness workout-planning'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Yoga Sequencer
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about yoga sequencer
 - User needs guidance on yoga sequencer topics
 - User wants a structured approach to yoga sequencer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -149,72 +151,72 @@ metadata:
 
 ### Standing Poses
 
-| English Name | Sanskrit | Level | Primary Benefit | Hold Time |
-|-------------|----------|-------|-----------------|-----------|
-| Mountain Pose | Tadasana | All | Alignment, grounding | 5-10 breaths |
-| Chair Pose | Utkatasana | Beg-Int | Leg strength | 5-8 breaths |
-| Warrior I | Virabhadrasana I | Beginner | Hip flexor stretch, leg strength | 5-8 breaths |
-| Warrior II | Virabhadrasana II | Beginner | Hip opening, leg strength | 5-8 breaths |
-| Warrior III | Virabhadrasana III | Intermediate | Balance, core strength | 3-5 breaths |
-| Triangle | Trikonasana | Beginner | Lateral stretch, hamstrings | 5-8 breaths |
-| Extended Side Angle | Utthita Parsvakonasana | Beginner | Side body, hips | 5-8 breaths |
-| Half Moon | Ardha Chandrasana | Intermediate | Balance, hip opening | 3-5 breaths |
-| Tree Pose | Vrksasana | Beginner | Balance, focus | 5-10 breaths |
-| Eagle Pose | Garudasana | Intermediate | Balance, shoulders, hips | 5-8 breaths |
-| Revolved Triangle | Parivrtta Trikonasana | Intermediate | Twist, balance, hamstrings | 5-8 breaths |
-| Dancer's Pose | Natarajasana | Advanced | Balance, backbend, quad stretch | 5-8 breaths |
+| English Name        | Sanskrit               | Level        | Primary Benefit                  | Hold Time    |
+| ------------------- | ---------------------- | ------------ | -------------------------------- | ------------ |
+| Mountain Pose       | Tadasana               | All          | Alignment, grounding             | 5-10 breaths |
+| Chair Pose          | Utkatasana             | Beg-Int      | Leg strength                     | 5-8 breaths  |
+| Warrior I           | Virabhadrasana I       | Beginner     | Hip flexor stretch, leg strength | 5-8 breaths  |
+| Warrior II          | Virabhadrasana II      | Beginner     | Hip opening, leg strength        | 5-8 breaths  |
+| Warrior III         | Virabhadrasana III     | Intermediate | Balance, core strength           | 3-5 breaths  |
+| Triangle            | Trikonasana            | Beginner     | Lateral stretch, hamstrings      | 5-8 breaths  |
+| Extended Side Angle | Utthita Parsvakonasana | Beginner     | Side body, hips                  | 5-8 breaths  |
+| Half Moon           | Ardha Chandrasana      | Intermediate | Balance, hip opening             | 3-5 breaths  |
+| Tree Pose           | Vrksasana              | Beginner     | Balance, focus                   | 5-10 breaths |
+| Eagle Pose          | Garudasana             | Intermediate | Balance, shoulders, hips         | 5-8 breaths  |
+| Revolved Triangle   | Parivrtta Trikonasana  | Intermediate | Twist, balance, hamstrings       | 5-8 breaths  |
+| Dancer's Pose       | Natarajasana           | Advanced     | Balance, backbend, quad stretch  | 5-8 breaths  |
 
 ### Forward Folds
 
-| English Name | Sanskrit | Level | Primary Benefit | Hold Time |
-|-------------|----------|-------|-----------------|-----------|
-| Standing Forward Fold | Uttanasana | All | Hamstrings, calming | 5-10 breaths |
-| Wide-Legged Forward Fold | Prasarita Padottanasana | Beginner | Inner thighs, hamstrings | 5-10 breaths |
-| Seated Forward Fold | Paschimottanasana | Beginner | Hamstrings, spine | 8-15 breaths |
-| Head-to-Knee | Janu Sirsasana | Beginner | Hamstrings, side body | 8-10 breaths each |
-| Pyramid Pose | Parsvottanasana | Intermediate | Hamstrings, balance | 5-8 breaths |
+| English Name             | Sanskrit                | Level        | Primary Benefit          | Hold Time         |
+| ------------------------ | ----------------------- | ------------ | ------------------------ | ----------------- |
+| Standing Forward Fold    | Uttanasana              | All          | Hamstrings, calming      | 5-10 breaths      |
+| Wide-Legged Forward Fold | Prasarita Padottanasana | Beginner     | Inner thighs, hamstrings | 5-10 breaths      |
+| Seated Forward Fold      | Paschimottanasana       | Beginner     | Hamstrings, spine        | 8-15 breaths      |
+| Head-to-Knee             | Janu Sirsasana          | Beginner     | Hamstrings, side body    | 8-10 breaths each |
+| Pyramid Pose             | Parsvottanasana         | Intermediate | Hamstrings, balance      | 5-8 breaths       |
 
 ### Backbends
 
-| English Name | Sanskrit | Level | Primary Benefit | Hold Time |
-|-------------|----------|-------|-----------------|-----------|
-| Cobra | Bhujangasana | Beginner | Gentle back extension | 3-5 breaths |
+| English Name      | Sanskrit               | Level        | Primary Benefit              | Hold Time   |
+| ----------------- | ---------------------- | ------------ | ---------------------------- | ----------- |
+| Cobra             | Bhujangasana           | Beginner     | Gentle back extension        | 3-5 breaths |
 | Upward-Facing Dog | Urdhva Mukha Svanasana | Intermediate | Back extension, arm strength | 1-3 breaths |
-| Bridge Pose | Setu Bandhasana | Beginner | Glutes, spine mobility | 5-8 breaths |
-| Wheel Pose | Urdhva Dhanurasana | Advanced | Full backbend, energy | 3-5 breaths |
-| Camel Pose | Ustrasana | Intermediate | Heart opening, hip flexors | 3-5 breaths |
-| Locust Pose | Salabhasana | Beginner | Back strengthening | 3-5 breaths |
-| Bow Pose | Dhanurasana | Intermediate | Full back extension | 3-5 breaths |
+| Bridge Pose       | Setu Bandhasana        | Beginner     | Glutes, spine mobility       | 5-8 breaths |
+| Wheel Pose        | Urdhva Dhanurasana     | Advanced     | Full backbend, energy        | 3-5 breaths |
+| Camel Pose        | Ustrasana              | Intermediate | Heart opening, hip flexors   | 3-5 breaths |
+| Locust Pose       | Salabhasana            | Beginner     | Back strengthening           | 3-5 breaths |
+| Bow Pose          | Dhanurasana            | Intermediate | Full back extension          | 3-5 breaths |
 
 ### Hip Openers
 
-| English Name | Sanskrit | Level | Primary Benefit | Hold Time |
-|-------------|----------|-------|-----------------|-----------|
-| Pigeon Pose | Eka Pada Rajakapotasana | Intermediate | Deep hip opening | 10-20 breaths |
-| Lizard Pose | Utthan Pristhasana | Intermediate | Hip flexors, inner thigh | 8-12 breaths |
-| Bound Angle | Baddha Konasana | Beginner | Inner thighs, hips | 10-15 breaths |
-| Happy Baby | Ananda Balasana | Beginner | Inner hips, sacrum | 8-10 breaths |
-| Garland Pose | Malasana | Beginner | Deep squat, hips | 5-10 breaths |
-| Fire Log Pose | Agnistambhasana | Intermediate | Outer hips | 8-15 breaths |
-| Frog Pose | Mandukasana | Intermediate | Inner thighs | 10-20 breaths |
+| English Name  | Sanskrit                | Level        | Primary Benefit          | Hold Time     |
+| ------------- | ----------------------- | ------------ | ------------------------ | ------------- |
+| Pigeon Pose   | Eka Pada Rajakapotasana | Intermediate | Deep hip opening         | 10-20 breaths |
+| Lizard Pose   | Utthan Pristhasana      | Intermediate | Hip flexors, inner thigh | 8-12 breaths  |
+| Bound Angle   | Baddha Konasana         | Beginner     | Inner thighs, hips       | 10-15 breaths |
+| Happy Baby    | Ananda Balasana         | Beginner     | Inner hips, sacrum       | 8-10 breaths  |
+| Garland Pose  | Malasana                | Beginner     | Deep squat, hips         | 5-10 breaths  |
+| Fire Log Pose | Agnistambhasana         | Intermediate | Outer hips               | 8-15 breaths  |
+| Frog Pose     | Mandukasana             | Intermediate | Inner thighs             | 10-20 breaths |
 
 ### Twists
 
-| English Name | Sanskrit | Level | Primary Benefit | Hold Time |
-|-------------|----------|-------|-----------------|-----------|
-| Seated Spinal Twist | Ardha Matsyendrasana | Beginner | Spinal mobility, digestion | 5-8 breaths |
-| Supine Twist | Supta Matsyendrasana | Beginner | Gentle spinal release | 8-12 breaths |
-| Revolved Chair | Parivrtta Utkatasana | Intermediate | Core, detox | 5-8 breaths |
-| Revolved Crescent Lunge | Parivrtta Anjaneyasana | Intermediate | Core, balance | 5-8 breaths |
+| English Name            | Sanskrit               | Level        | Primary Benefit            | Hold Time    |
+| ----------------------- | ---------------------- | ------------ | -------------------------- | ------------ |
+| Seated Spinal Twist     | Ardha Matsyendrasana   | Beginner     | Spinal mobility, digestion | 5-8 breaths  |
+| Supine Twist            | Supta Matsyendrasana   | Beginner     | Gentle spinal release      | 8-12 breaths |
+| Revolved Chair          | Parivrtta Utkatasana   | Intermediate | Core, detox                | 5-8 breaths  |
+| Revolved Crescent Lunge | Parivrtta Anjaneyasana | Intermediate | Core, balance              | 5-8 breaths  |
 
 ### Inversions
 
-| English Name | Sanskrit | Level | Primary Benefit | Hold Time |
-|-------------|----------|-------|-----------------|-----------|
-| Legs Up the Wall | Viparita Karani | Beginner | Restoration, circulation | 5-15 min |
-| Supported Shoulderstand | Salamba Sarvangasana | Intermediate | Calming, thyroid | 10-25 breaths |
-| Headstand | Sirsasana | Advanced | Strength, focus, energy | 10-25 breaths |
-| Forearm Stand | Pincha Mayurasana | Advanced | Shoulder strength, balance | 5-15 breaths |
+| English Name            | Sanskrit             | Level        | Primary Benefit            | Hold Time     |
+| ----------------------- | -------------------- | ------------ | -------------------------- | ------------- |
+| Legs Up the Wall        | Viparita Karani      | Beginner     | Restoration, circulation   | 5-15 min      |
+| Supported Shoulderstand | Salamba Sarvangasana | Intermediate | Calming, thyroid           | 10-25 breaths |
+| Headstand               | Sirsasana            | Advanced     | Strength, focus, energy    | 10-25 breaths |
+| Forearm Stand           | Pincha Mayurasana    | Advanced     | Shoulder strength, balance | 5-15 breaths  |
 
 ---
 
@@ -222,16 +224,16 @@ metadata:
 
 ### Foundational Practices
 
-| Technique | Sanskrit | Level | Effect | Duration |
-|-----------|----------|-------|--------|----------|
-| Three-Part Breath | Dirga Pranayama | Beginner | Calming, awareness | 3-5 min |
-| Ujjayi Breath | Ujjayi Pranayama | Beginner | Warming, focus | Throughout practice |
-| Alternate Nostril | Nadi Shodhana | Beginner | Balancing, calming | 5-10 rounds |
-| Cooling Breath | Sitali Pranayama | Beginner | Cooling, calming | 5-10 rounds |
-| Skull Shining | Kapalabhati | Intermediate | Energizing, cleansing | 3 rounds of 30 |
-| Breath of Fire | Agni Pranayama | Intermediate | Energizing, core heat | 1-3 min |
-| Lion's Breath | Simhasana Pranayama | Beginner | Tension release | 3-5 rounds |
-| Box Breathing | Sama Vritti | Beginner | Calming, focus | 5-10 rounds |
+| Technique         | Sanskrit            | Level        | Effect                | Duration            |
+| ----------------- | ------------------- | ------------ | --------------------- | ------------------- |
+| Three-Part Breath | Dirga Pranayama     | Beginner     | Calming, awareness    | 3-5 min             |
+| Ujjayi Breath     | Ujjayi Pranayama    | Beginner     | Warming, focus        | Throughout practice |
+| Alternate Nostril | Nadi Shodhana       | Beginner     | Balancing, calming    | 5-10 rounds         |
+| Cooling Breath    | Sitali Pranayama    | Beginner     | Cooling, calming      | 5-10 rounds         |
+| Skull Shining     | Kapalabhati         | Intermediate | Energizing, cleansing | 3 rounds of 30      |
+| Breath of Fire    | Agni Pranayama      | Intermediate | Energizing, core heat | 1-3 min             |
+| Lion's Breath     | Simhasana Pranayama | Beginner     | Tension release       | 3-5 rounds          |
+| Box Breathing     | Sama Vritti         | Beginner     | Calming, focus        | 5-10 rounds         |
 
 ### Alternate Nostril Breathing Guide
 
@@ -340,34 +342,34 @@ Savasana: 10 min
 
 ### Block Uses
 
-| Pose | Block Placement | Purpose |
-|------|----------------|---------|
-| Triangle | Under bottom hand | Reduce reach distance |
-| Half Moon | Under bottom hand | Stability aid |
-| Bridge | Between thighs | Alignment, adductor activation |
-| Seated Forward Fold | On top of legs | Support forehead |
-| Fish Pose | Under thoracic spine | Supported heart opener |
-| Hero's Pose | Under sit bones | Reduce knee pressure |
+| Pose                | Block Placement      | Purpose                        |
+| ------------------- | -------------------- | ------------------------------ |
+| Triangle            | Under bottom hand    | Reduce reach distance          |
+| Half Moon           | Under bottom hand    | Stability aid                  |
+| Bridge              | Between thighs       | Alignment, adductor activation |
+| Seated Forward Fold | On top of legs       | Support forehead               |
+| Fish Pose           | Under thoracic spine | Supported heart opener         |
+| Hero's Pose         | Under sit bones      | Reduce knee pressure           |
 
 ### Strap Uses
 
-| Pose | Strap Placement | Purpose |
-|------|----------------|---------|
-| Seated Forward Fold | Around feet | Extend reach |
-| King Pigeon | Loop around back foot | Bridge hand-to-foot gap |
-| Bound Angle | Around feet and hips | Gentle opening |
-| Dancer's Pose | Loop around back foot | Reach assistance |
-| Shoulder stretches | Between hands behind back | Gradual shoulder opening |
+| Pose                | Strap Placement           | Purpose                  |
+| ------------------- | ------------------------- | ------------------------ |
+| Seated Forward Fold | Around feet               | Extend reach             |
+| King Pigeon         | Loop around back foot     | Bridge hand-to-foot gap  |
+| Bound Angle         | Around feet and hips      | Gentle opening           |
+| Dancer's Pose       | Loop around back foot     | Reach assistance         |
+| Shoulder stretches  | Between hands behind back | Gradual shoulder opening |
 
 ### Bolster and Blanket Uses
 
-| Pose | Prop Placement | Purpose |
-|------|---------------|---------|
-| Savasana | Bolster under knees | Low back relief |
-| Supported Fish | Bolster along spine | Passive chest opening |
-| Pigeon | Bolster under front hip | Support, reduce intensity |
-| Seated Meditation | Folded blanket under hips | Elevate pelvis |
-| Shoulderstand | Folded blankets under shoulders | Neck protection |
+| Pose              | Prop Placement                  | Purpose                   |
+| ----------------- | ------------------------------- | ------------------------- |
+| Savasana          | Bolster under knees             | Low back relief           |
+| Supported Fish    | Bolster along spine             | Passive chest opening     |
+| Pigeon            | Bolster under front hip         | Support, reduce intensity |
+| Seated Meditation | Folded blanket under hips       | Elevate pelvis            |
+| Shoulderstand     | Folded blankets under shoulders | Neck protection           |
 
 ---
 
@@ -375,17 +377,17 @@ Savasana: 10 min
 
 ### Poses to Avoid or Modify
 
-| Condition | Avoid | Modify/Alternative |
-|-----------|-------|---------------------|
-| Pregnancy (1st trim) | Deep twists, prone poses | Gentle twists, props |
-| Pregnancy (3rd trim) | Inversions, deep backbends, supine | Side-lying, supported poses |
-| High Blood Pressure | Full inversions, breath holds | Legs up wall, gentle flow |
-| Low Back Pain | Deep forward folds, unsupported backbends | Bent knees, supported bridge |
-| Wrist Injury | Weight-bearing on wrists | Forearm plank, fist variations |
-| Knee Injury | Deep lunges, full lotus | Props, reduced range |
-| Neck Injury | Shoulderstand, headstand, plow | Legs up wall, supported fish |
-| Glaucoma | All inversions | Upright poses only |
-| Osteoporosis | Deep spinal flexion, twists | Gentle extension, supported |
+| Condition            | Avoid                                     | Modify/Alternative             |
+| -------------------- | ----------------------------------------- | ------------------------------ |
+| Pregnancy (1st trim) | Deep twists, prone poses                  | Gentle twists, props           |
+| Pregnancy (3rd trim) | Inversions, deep backbends, supine        | Side-lying, supported poses    |
+| High Blood Pressure  | Full inversions, breath holds             | Legs up wall, gentle flow      |
+| Low Back Pain        | Deep forward folds, unsupported backbends | Bent knees, supported bridge   |
+| Wrist Injury         | Weight-bearing on wrists                  | Forearm plank, fist variations |
+| Knee Injury          | Deep lunges, full lotus                   | Props, reduced range           |
+| Neck Injury          | Shoulderstand, headstand, plow            | Legs up wall, supported fish   |
+| Glaucoma             | All inversions                            | Upright poses only             |
+| Osteoporosis         | Deep spinal flexion, twists               | Gentle extension, supported    |
 
 ### Universal Safety Principles
 

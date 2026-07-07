@@ -37,10 +37,7 @@ import {
 } from '@process/services/workflow/autonomousWatchdog';
 import { handleParentWorkflowTurn } from '@process/services/workflow/parentTurnDriver';
 import { resumeInterruptedParentRuns } from '@process/services/workflow/resumeRuns';
-import {
-  sweepStalledParentRuns,
-  PARENT_WATCHDOG_INTERVAL_MS,
-} from '@process/services/workflow/parentWatchdog';
+import { sweepStalledParentRuns, PARENT_WATCHDOG_INTERVAL_MS } from '@process/services/workflow/parentWatchdog';
 import { setWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';

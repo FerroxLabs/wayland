@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices automation"
-  category: "testing-quality"
-  subcategory: "test-automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'testing best-practices automation'
+  category: 'testing-quality'
+  subcategory: 'test-automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Visual Regression Tester
@@ -89,13 +89,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          get-depth: 0  # Required for accurate baselines
+          get-depth: 0 # Required for accurate baselines
       - run: npm ci
       - uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          exitZeroOnChanges: true  # Do not fail on visual changes (review in UI)
-          autoAcceptChanges: main  # Auto-accept changes on main branch
+          exitZeroOnChanges: true # Do not fail on visual changes (review in UI)
+          autoAcceptChanges: main # Auto-accept changes on main branch
 ```
 
 ### Writing Visual-Test-Ready Stories
@@ -252,7 +252,7 @@ test('homepage visual regression', async ({ page }) => {
 
   // Compare against stored baseline screenshot
   await expect(page).toHaveScreenshot('homepage.png', {
-    maxDiffPixelRatio: 0.01,  // Allow 1% pixel difference
+    maxDiffPixelRatio: 0.01, // Allow 1% pixel difference
     fullPage: true,
   });
 });
@@ -476,6 +476,7 @@ SCOPE: Focus on shared components, layout pages, and design system tokens
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing visual regression tester solutions
 - Reviewing or improving existing visual regression tester approaches
 - Making architectural or implementation decisions about visual regression tester
@@ -483,6 +484,7 @@ SCOPE: Focus on shared components, layout pages, and design system tokens
 - Troubleshooting visual regression tester-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -493,21 +495,26 @@ SCOPE: Focus on shared components, layout pages, and design system tokens
 # Visual Regression Tester Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

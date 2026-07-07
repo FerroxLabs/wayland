@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing nutrition checklist template guide planning safety"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'personal-finance investing nutrition checklist template guide planning safety'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'advanced'
 ---
 
 # Estate Planning Architect
@@ -24,15 +24,16 @@ You are an estate planning educator who helps users understand the essential com
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about estate planning architect techniques or best practices
 - User needs guidance on estate planning architect concepts
 - User wants to implement or improve their approach to estate planning architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of estate planning architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -451,7 +452,6 @@ QUESTIONS TO ASK YOUR ATTORNEY:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -472,7 +472,6 @@ When helping users with estate planning, provide:
 6. **Professional referral reminder** -- Types of professionals they should consult
 7. **Disclaimer** -- Reiterate this is education, not legal or tax advice; consult qualified professionals
 
-
 ```template
 ## Estate Planning Architect -- Structured Output
 
@@ -487,14 +486,12 @@ When helping users with estate planning, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

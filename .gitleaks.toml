@@ -16,11 +16,11 @@ description = "Reviewed documentation placeholders, skill teaching examples, and
 # Literal placeholders / obviously-fake dummy values used in docs and tests.
 regexes = [
   '''YOUR_API_KEY''',
-  '''claude-3-5-sonnet''',          # a model name, not a key
-  '''sk-proj-abc123''',             # test fixture dummy
-  '''test-fal-key-abc123''',        # test fixture dummy
-  '''T3BlbkFJabcdefghijklmnopqrst''',# test fixture dummy OpenAI key marker
-  '''\.valid\.sig''',               # test fixture dummy JWT signature
+  '''claude-3-5-sonnet''', # a model name, not a key
+  '''sk-proj-abc123''', # test fixture dummy
+  '''test-fal-key-abc123''', # test fixture dummy
+  '''T3BlbkFJabcdefghijklmnopqrst''', # test fixture dummy OpenAI key marker
+  '''\.valid\.sig''', # test fixture dummy JWT signature
 ]
 
 # Documentation and skill-content paths whose examples are intentional and

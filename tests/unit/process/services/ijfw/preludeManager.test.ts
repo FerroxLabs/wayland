@@ -14,10 +14,7 @@ vi.mock('electron-log', () => ({
 }));
 
 // eslint-disable-next-line import/first
-import {
-  applyPreludeForStatus,
-  discoverTargets,
-} from '@process/services/ijfw/preludeManager';
+import { applyPreludeForStatus, discoverTargets } from '@process/services/ijfw/preludeManager';
 
 const MARK_START = '<!-- IJFW-PRELUDE-START -->';
 const MARK_END = '<!-- IJFW-PRELUDE-END -->';
@@ -43,9 +40,7 @@ describe('ijfw/preludeManager', () => {
     it('writes the active block when status is installed_current and markers exist', async () => {
       const file = path.join(dir, 'CLAUDE.md');
       fs.writeFileSync(file, `Header\n${MARK_START}\nold content\n${MARK_END}\nFooter\n`);
-      await applyPreludeForStatus('installed_current', [
-        { projectDir: dir, files: ['CLAUDE.md'] },
-      ]);
+      await applyPreludeForStatus('installed_current', [{ projectDir: dir, files: ['CLAUDE.md'] }]);
       const updated = fs.readFileSync(file, 'utf-8');
       expect(updated).toContain(MARK_START);
       expect(updated).toContain(ACTIVE_LINE);
@@ -58,9 +53,7 @@ describe('ijfw/preludeManager', () => {
     it('writes the active block when status is installed_empty', async () => {
       const file = path.join(dir, 'AGENTS.md');
       fs.writeFileSync(file, `${MARK_START}\nstale\n${MARK_END}`);
-      await applyPreludeForStatus('installed_empty', [
-        { projectDir: dir, files: ['AGENTS.md'] },
-      ]);
+      await applyPreludeForStatus('installed_empty', [{ projectDir: dir, files: ['AGENTS.md'] }]);
       const updated = fs.readFileSync(file, 'utf-8');
       expect(updated).toContain(ACTIVE_LINE);
       expect(updated).not.toContain(DISABLED_LINE);
@@ -69,9 +62,7 @@ describe('ijfw/preludeManager', () => {
     it('writes the disabled notice when status is uninstalled', async () => {
       const file = path.join(dir, 'CLAUDE.md');
       fs.writeFileSync(file, `Header\n${MARK_START}\nactive content\n${MARK_END}\nFooter\n`);
-      await applyPreludeForStatus('uninstalled', [
-        { projectDir: dir, files: ['CLAUDE.md'] },
-      ]);
+      await applyPreludeForStatus('uninstalled', [{ projectDir: dir, files: ['CLAUDE.md'] }]);
       const updated = fs.readFileSync(file, 'utf-8');
       expect(updated).toContain(DISABLED_LINE);
       expect(updated).not.toContain(ACTIVE_LINE);
@@ -83,17 +74,13 @@ describe('ijfw/preludeManager', () => {
       const file = path.join(dir, 'CLAUDE.md');
       const original = 'No markers anywhere here.\n';
       fs.writeFileSync(file, original);
-      await applyPreludeForStatus('installed_current', [
-        { projectDir: dir, files: ['CLAUDE.md'] },
-      ]);
+      await applyPreludeForStatus('installed_current', [{ projectDir: dir, files: ['CLAUDE.md'] }]);
       expect(fs.readFileSync(file, 'utf-8')).toBe(original);
     });
 
     it('silently skips files that do not exist', async () => {
       // No file written - should not throw.
-      await applyPreludeForStatus('installed_current', [
-        { projectDir: dir, files: ['CLAUDE.md', 'AGENTS.md'] },
-      ]);
+      await applyPreludeForStatus('installed_current', [{ projectDir: dir, files: ['CLAUDE.md', 'AGENTS.md'] }]);
     });
 
     it('preserves surrounding content exactly on enable transition', async () => {
@@ -101,9 +88,7 @@ describe('ijfw/preludeManager', () => {
       const before = '# Title\n\nSome text\n';
       const after = '\n## Section 2\nMore text';
       fs.writeFileSync(file, `${before}${MARK_START}\nold\n${MARK_END}${after}`);
-      await applyPreludeForStatus('installed_current', [
-        { projectDir: dir, files: ['CLAUDE.md'] },
-      ]);
+      await applyPreludeForStatus('installed_current', [{ projectDir: dir, files: ['CLAUDE.md'] }]);
       const updated = fs.readFileSync(file, 'utf-8');
       expect(updated.startsWith(before)).toBe(true);
       expect(updated.endsWith(after)).toBe(true);
@@ -112,13 +97,9 @@ describe('ijfw/preludeManager', () => {
     it('is idempotent: re-applying installed_current does not change content', async () => {
       const file = path.join(dir, 'CLAUDE.md');
       fs.writeFileSync(file, `${MARK_START}\nold\n${MARK_END}`);
-      await applyPreludeForStatus('installed_current', [
-        { projectDir: dir, files: ['CLAUDE.md'] },
-      ]);
+      await applyPreludeForStatus('installed_current', [{ projectDir: dir, files: ['CLAUDE.md'] }]);
       const firstPass = fs.readFileSync(file, 'utf-8');
-      await applyPreludeForStatus('installed_current', [
-        { projectDir: dir, files: ['CLAUDE.md'] },
-      ]);
+      await applyPreludeForStatus('installed_current', [{ projectDir: dir, files: ['CLAUDE.md'] }]);
       const secondPass = fs.readFileSync(file, 'utf-8');
       expect(secondPass).toBe(firstPass);
     });
@@ -140,7 +121,7 @@ describe('ijfw/preludeManager', () => {
       fs.writeFileSync(path.join(dir, 'AGENTS.md'), 'no');
       const targets = await discoverTargets([dir]);
       expect(targets).toHaveLength(1);
-      expect(targets[0].files.sort()).toEqual(['CLAUDE.md', 'GEMINI.md']);
+      expect(targets[0].files.toSorted()).toEqual(['CLAUDE.md', 'GEMINI.md']);
     });
 
     it('returns an empty array when no project has marker files', async () => {

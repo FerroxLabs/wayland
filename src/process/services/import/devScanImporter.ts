@@ -137,7 +137,9 @@ function buildFrontmatter(fields: Record<string, string | string[] | number>): s
     if (Array.isArray(val)) {
       lines.push(`${key}: [${val.map((v) => String(v)).join(', ')}]`);
     } else {
-      const escaped = String(val).replace(/[\r\n]+/g, ' ').slice(0, 500);
+      const escaped = String(val)
+        .replace(/[\r\n]+/g, ' ')
+        .slice(0, 500);
       lines.push(`${key}: ${escaped}`);
     }
   }
@@ -151,10 +153,9 @@ function buildFrontmatter(fields: Record<string, string | string[] | number>): s
  */
 export async function runDevScanImport(
   paths: string[],
-  opts?: { ijfwMemoryDir?: string },
+  opts?: { ijfwMemoryDir?: string }
 ): Promise<DevScanImportResult> {
-  const targetMemDir =
-    opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
+  const targetMemDir = opts?.ijfwMemoryDir ?? path.join(os.homedir(), '.ijfw', 'memory');
   const result: DevScanImportResult = { imported: 0, skipped: 0, projectsFound: 0, errors: [] };
 
   try {

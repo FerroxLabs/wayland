@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "career writing template"
-  category: "career-development"
-  subcategory: "career-growth"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'career writing template'
+  category: 'career-development'
+  subcategory: 'career-growth'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Workplace Conversation Prep
 
 ## When to Use
@@ -28,6 +29,7 @@ metadata:
 Use this skill when the user needs to prepare for a specific, upcoming difficult conversation at work -- one where the stakes are high enough that improvising would risk the relationship, the outcome, or the user's standing.
 
 **Trigger scenarios -- use this skill when:**
+
 - The user needs to deliver constructive feedback to a peer or direct report about a behavioral pattern (repeated lateness, poor communication, quality issues, missing commitments) and wants to do so without damaging the working relationship
 - The user is experiencing ongoing conflict or tension with a colleague and needs to address it directly -- including passive-aggressive behavior, credit-stealing, exclusion from decisions, or interpersonal friction that has accumulated over multiple incidents
 - The user needs to set a boundary with a manager or teammate -- around after-hours availability, scope additions, workload imbalance, or how they are spoken to -- and wants language that is firm without being adversarial
@@ -38,6 +40,7 @@ Use this skill when the user needs to prepare for a specific, upcoming difficult
 - The user asks "how do I bring this up" or "what do I say when" about any sensitive work topic where social stakes, power dynamics, or emotional volatility are present
 
 **Do NOT use this skill when:**
+
 - The user is preparing to negotiate salary, compensation, or a promotion offer -- use `salary-negotiation-script`, which addresses BATNA, anchoring, and compensation research frameworks
 - The user is preparing for a formal performance review conversation where HR documentation, rating calibration, or improvement plans are involved -- use `performance-review-prep`
 - The user wants to reach out to a mentor or build a new professional relationship -- use `mentorship-outreach`
@@ -69,26 +72,31 @@ If the user cannot answer some of these questions, help them identify the gaps -
 Not all difficult conversations have the same architecture. Identify the primary type, then the subtype, because each has a distinct opening move and structural logic.
 
 **Type 1: Feedback Delivery**
+
 - Subtype A -- Single incident: A specific, recent event that must be addressed before it becomes a pattern
 - Subtype B -- Behavioral pattern: A recurring dynamic that has been observed multiple times
 - Subtype C -- Upward feedback: The user is sharing concerns with someone senior to them
 
 **Type 2: Conflict Resolution**
+
 - Subtype A -- Active disagreement: A known, live dispute where both parties are aware of the tension
 - Subtype B -- Simmering tension: Unspoken friction neither party has named, which is now affecting work quality
 - Subtype C -- Values or working style clash: Differences in how each party approaches work that are causing friction
 
 **Type 3: Boundary Setting**
+
 - Subtype A -- Workload/scope boundaries: Pushing back on tasks being added without capacity conversation
 - Subtype B -- Availability boundaries: Setting limits on after-hours contact, response time expectations
 - Subtype C -- Behavioral boundaries: Addressing how the other person speaks to or treats the user
 
 **Type 4: Accountability**
+
 - Subtype A -- First conversation: First time addressing a specific pattern
 - Subtype B -- Follow-up conversation: Pattern has been raised before with no improvement
 - Subtype C -- Escalation-adjacent: One more incident will require formal escalation; the user is issuing a final informal warning
 
 **Type 5: Saying No / Pushing Back**
+
 - Subtype A -- Saying no to new scope: Declining an additional assignment while explaining capacity
 - Subtype B -- Pushing back on a decision: Disagreeing with a direction while respecting authority
 - Subtype C -- Flagging unsustainability: Communicating that current expectations are not maintainable
@@ -103,6 +111,7 @@ The opening statement is the highest-leverage part of the script. If the opening
 
 **Framework 1: Situation-Behavior-Impact (SBI) -- for Feedback Delivery**
 Structure: "In [situation], when you [specific observable behavior], the impact was [concrete effect on work, team, or user]."
+
 - Situation = the specific context (not a generalization): "During last Tuesday's client call" not "always during client calls"
 - Behavior = observable, factual, non-interpretive: "you cut off the client twice" not "you were rude"
 - Impact = concrete and real: "the client emailed me afterward to ask if everything was okay with the team"
@@ -110,29 +119,34 @@ Structure: "In [situation], when you [specific observable behavior], the impact 
 
 **Framework 2: Shared Interest Opening -- for Conflict Resolution**
 Structure: "We both care about [shared goal]. I want to talk about [dynamic that is getting in the way of it] so we can figure this out together."
+
 - The shared interest must be real and specific, not generic ("we both want the project to succeed")
 - Naming a shared goal before naming the problem reduces perceived threat
 - The phrase "figure this out together" signals partnership, not prosecution
 
 **Framework 3: Constraint-First Opening -- for Boundary Setting**
 Structure: "I want to set some expectations about [topic] so we're both working from the same understanding."
+
 - "Expectations" is less charged than "limits" or "rules" in most workplace cultures
 - This opening does not require the other person to have done anything wrong -- it is framed as proactive alignment, not reaction to a violation
 - For behavioral boundary violations (e.g., being talked over in meetings): "There's something I'd like to address with you privately because I want us to have a good working relationship."
 
 **Framework 4: Understanding-First Opening -- for Saying No / Pushing Back**
 Structure: "I know [acknowledge the legitimate importance of the request]. I want to be honest with you about [the capacity or scope constraint] so we can figure out the best way forward."
+
 - Acknowledging importance before naming the constraint prevents the no from feeling dismissive
 - "Be honest with you" signals transparency and respect, not obstruction
 - Never start with the word "No" -- start with acknowledgment, end with the constraint, offer a path
 
 **Framework 5: Impact-on-Work Opening -- for Upward Feedback**
 Structure: "I want to share something with you because it's affecting my ability to do my best work, and I believe you'd want to know."
+
 - This framing removes judgment from the manager's character and anchors the feedback in outcomes
 - "I believe you'd want to know" pre-empts defensiveness by invoking the manager's identity as a good leader
 - Never lead with "your behavior" or "what you did" when giving upward feedback -- always lead with the downstream effect on the user's work
 
 **Operational rules for all openings:**
+
 - Maximum 45 words of spoken text -- time this at under 30 seconds of speaking pace
 - Request permission when possible: "Do you have 10 minutes?" signals respect and ensures the other person is in a receiving state
 - Never open with "I just wanted to..." -- the word "just" minimizes the conversation's importance and signals anxiety
@@ -146,6 +160,7 @@ Structure: "I want to share something with you because it's affecting my ability
 For every conversation type, there are four universal response archetypes. Each requires a distinct response technique, not just a different phrase.
 
 **Branch A: Defensive / Pushback ("That's not accurate / I didn't do that / You're exaggerating")**
+
 - Response technique: The Acknowledge-Anchor-Advance method
   - Acknowledge: validate that their perspective is real, not that their facts are correct ("I hear that it doesn't feel that way from your side")
   - Anchor: return to the concrete observation you opened with, without escalating ("What I observed was [specific incident again], and I'm sharing the impact it had on me specifically")
@@ -154,6 +169,7 @@ For every conversation type, there are four universal response archetypes. Each 
 - Secondary escalation if defensiveness increases: name the dynamic directly ("I notice we're stuck on whether this happened. I'm not trying to build a case against you. I'm trying to solve a problem that's affecting my work.")
 
 **Branch B: Emotional / Upset ("I can't believe you think that / This is really hurtful / I feel attacked")**
+
 - Response technique: The Validate-Stabilize-Continue method
   - Validate: name the emotion without judgment ("I can see this is landing hard, and that makes sense")
   - Stabilize: offer a genuine pause option ("If you'd like a few minutes, I'm absolutely okay with that")
@@ -162,6 +178,7 @@ For every conversation type, there are four universal response archetypes. Each 
 - If someone cries: go quiet, offer water or a moment, do not rush, do not apologize for raising the topic
 
 **Branch C: Deflection / Redirect ("What about when you... / The real problem is... / Management is to blame for this")**
+
 - Response technique: The Acknowledge-Bracket-Redirect method
   - Acknowledge: validate that the deflected point may have merit ("That's a fair point and worth discussing")
   - Bracket: explicitly defer the deflection ("I want to make sure we give that the attention it deserves -- separately")
@@ -169,6 +186,7 @@ For every conversation type, there are four universal response archetypes. Each 
 - Do this maximum twice. If the person deflects a third time, name the pattern: "I notice we keep moving away from [original topic]. I want to understand if there's something about it that feels difficult to address directly."
 
 **Branch D: Agreement / Acceptance ("You're right / I didn't realize / I'm sorry about that")**
+
 - Response technique: The Receive-Clarify-Commit method
   - Receive: accept the acknowledgment without gushing ("I appreciate that, it means a lot that you're hearing me")
   - Clarify: translate the agreement into a specific behavior change, because vague agreement evaporates ("Can I ask what that would look like going forward?")
@@ -192,6 +210,7 @@ De-escalation is a physical and linguistic practice. Script specific phrases AND
 6. **Exit gracefully:** "I can see we're not in the right place for this today. Let's schedule 30 minutes this week when we can both be fresh." -- Use as last resort before a conversation becomes damaging.
 
 **Physical de-escalation for the user:**
+
 - Slow the pace of speech -- anxiety speeds speech, which signals alarm to the other person
 - Lower the vocal register slightly -- higher pitch under stress reads as aggression or panic
 - Keep posture open: no crossed arms, lean slightly forward to signal engagement not confrontation
@@ -222,16 +241,19 @@ Script a closing that: (a) thanks the person for the conversation without conced
 Before finalizing the script, evaluate three risk factors that affect how the script should be calibrated:
 
 **Risk Factor 1: Power asymmetry**
+
 - Speaking upward (to a manager or senior leader): reduce directness by 15-20%, increase "impact on my work" framing, never name the behavior as a character issue, always include a solution offer
 - Speaking laterally (peer): standard assertiveness, shared-interest framing
 - Speaking downward (to a direct report): increase directness by 10%, include specific behavioral expectations, document more carefully for performance management continuity
 
 **Risk Factor 2: Prior relationship quality**
+
 - Strong relationship: can be more direct, less setup required, recovery from awkwardness is faster
 - Neutral relationship: invest more in opening rapport before naming the issue
 - Damaged or strained relationship: lead with the desire to repair ("I want us to work well together and that's why I'm bringing this up"), expect more defensiveness, pace the conversation slower
 
 **Risk Factor 3: Organizational culture**
+
 - High-feedback cultures (tech startups, consulting, performance-driven teams): direct feedback is expected and valued; script can be sharper
 - Low-conflict cultures (traditional corporate, certain public sector, family-owned businesses): indirect opening is required, face-saving must be built into every response branch
 - High-hierarchy cultures: never challenge authority directly; always frame as seeking guidance, not delivering judgment
@@ -241,6 +263,7 @@ Before finalizing the script, evaluate three risk factors that affect how the sc
 ### Step 8: Assemble the Full Script and Rehearsal Notes
 
 Compile all components into the Output Format template. Then add:
+
 - A **30-second rehearsal note**: the user should read the opening statement aloud at least twice before the conversation. Mouth-to-ear rehearsal catches phrasing that reads fine but sounds stilted when spoken.
 - A **trigger phrase list**: 3-5 phrases the user should avoid saying, with replacements. For example: replace "I feel like you always..." with "In the last [specific timeframe], I've noticed..."
 - A **timing note**: conversations of this type should be allocated 20-30 minutes and should not be scheduled as the last item before a hard deadline (lunch, end of day, before a major meeting), because if the conversation runs long or ends badly, neither party should have to immediately perform in a high-stakes context.
@@ -563,15 +586,19 @@ Sometimes the user comes to this skill after a conversation has already escalate
 ### Response Branch A: Defensive / Pushback
 
 **What Jordan is likely to say:**
+
 > "I hadn't realized that was happening. Some of those conversations move fast -- I can't always loop everyone in in real time."
 
 **Your response (Acknowledge-Anchor-Advance):**
+
 > "I completely understand -- I know things move quickly and there's no way you can be in every conversation. I'm not expecting to be consulted on every small thing. What makes a real difference is being included when the decision affects my scope, timeline, or deliverables directly. Could we put a standing rule in place: if a decision will change what I'm building or when I need to deliver it, I get a heads up before it's finalized? Even a quick Slack before the decision is made would give me what I need."
 
 **If Jordan escalates to dismissing the issue:**
+
 > "I hear you, and I recognize you're juggling a lot. The reason I'm bringing it up is that each time this happens, I lose time recovering from the change instead of executing on it. It's not about process for its own sake -- it's about my ability to do good work for the team. Is there a way we can build something simple that prevents this from falling through the cracks?"
 
 **If Jordan implies the user should have been more proactive in attending meetings:**
+
 > "That's a fair point, and I want to be in those conversations -- I just don't always know which ones to attend. Would it help if we identified a standing set of meeting types that I should be on by default? That way it doesn't fall on either of us to remember case by case."
 
 ---
@@ -579,15 +606,19 @@ Sometimes the user comes to this skill after a conversation has already escalate
 ### Response Branch B: Emotional / Upset
 
 **What Jordan is likely to say or do:**
+
 > "I'm really sorry -- I can't believe I've been doing that. I've been so overwhelmed I clearly haven't been thinking about how this is landing."
 
 **Your response (Validate-Stabilize-Continue):**
+
 > "I appreciate you saying that, and I want you to know I'm not bringing this up to add to your plate. I'm bringing it up because I know you care about how the work goes, and I wanted to give us both a chance to fix it before it becomes a bigger problem. I think a small structural change would solve it completely."
 
 **If Jordan needs time:**
+
 > "We don't have to solve the whole thing right now. If it helps to think on it and come back to me with a proposal, I'm completely fine scheduling 15 minutes later this week to lock in the specifics."
 
 **What NOT to say:**
+
 - Do not say: "Oh, it's not a big deal, don't worry about it" -- this concedes the point and the conversation was just for nothing
 - Do not say: "I totally understand, you're so busy" -- this lets Jordan off the hook and signals that the behavior is acceptable
 
@@ -596,12 +627,15 @@ Sometimes the user comes to this skill after a conversation has already escalate
 ### Response Branch C: Deflection / Redirect
 
 **What Jordan is likely to say:**
+
 > "The real issue is that our team communication process is broken overall -- this isn't just about you, it's everyone."
 
 **Your response (Acknowledge-Bracket-Redirect):**
+
 > "You might be right that it's a broader team communication issue -- and if that's the case, it's worth addressing for the whole team. I'd love to be part of that conversation. For right now though, can we solve the piece that's in front of me? Even if we fix the bigger process later, I'd like to leave today with an agreement about how project decisions get to me specifically."
 
 **If Jordan deflects a second time:**
+
 > "I notice we keep landing on the bigger systemic question, which is a real one. I want to make sure I'm not leaving today without something concrete. Can we spend two minutes on the specific ask -- inclusion in decisions about my projects -- and then I'll flag the broader process question for our next team meeting?"
 
 ---
@@ -609,30 +643,34 @@ Sometimes the user comes to this skill after a conversation has already escalate
 ### Response Branch D: Agreement / Acceptance
 
 **What Jordan is likely to say:**
+
 > "You're absolutely right, this is something I should have caught. What would actually be helpful for you?"
 
 **Your response (Receive-Clarify-Commit):**
+
 > "I really appreciate that, Jordan. The most useful thing would be: for any decision that changes my project's scope, timeline, or deliverables, I get a message or a quick invite before the decision is finalized -- not after. It doesn't have to be a formal meeting. A Slack DM with 'heads up, we're thinking about doing X' is all I need. Does that work? And can we plan to check in on this in a month to see if the pattern has changed?"
 
 ---
 
 ### De-Escalation Toolkit
 
-| Situation | Technique | Exact Words to Use |
-|-----------|-----------|-------------------|
-| Jordan becomes defensive about being a bad manager | Acknowledge-without-concede | "I'm not saying this reflects badly on you -- I think it's a gap in the system, not a personal failure. I just wanted to bring it to your attention." |
-| Jordan goes quiet or seems to shut down | Validate and offer pause | "I can see this is a lot to take in. We don't have to resolve everything right now -- I just wanted to surface it. Do you want to think on it and come back to me?" |
-| Jordan raises other team members' issues as a redirect | Acknowledge-Bracket-Redirect | "Those are worth discussing too. For today, can we just focus on the project decision piece? I'll bring the rest to our next 1:1." |
-| You feel yourself becoming apologetic or backing off | Self-regulate | [Take one breath] "I want to make sure I'm being clear -- this has had a real impact on my work, and I want us to solve it together." |
-| The conversation circles without resolution | Name the dynamic | "I feel like we might be dancing around the solution. Let me try to make the ask really specific: [restate the single, concrete request]." |
-| Jordan says "let's follow up" without committing | Secure the commitment | "I want to make sure we land on something concrete before we close out. Can we agree on [specific solution] and I'll send a summary after this?" |
+| Situation                                              | Technique                    | Exact Words to Use                                                                                                                                                  |
+| ------------------------------------------------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Jordan becomes defensive about being a bad manager     | Acknowledge-without-concede  | "I'm not saying this reflects badly on you -- I think it's a gap in the system, not a personal failure. I just wanted to bring it to your attention."               |
+| Jordan goes quiet or seems to shut down                | Validate and offer pause     | "I can see this is a lot to take in. We don't have to resolve everything right now -- I just wanted to surface it. Do you want to think on it and come back to me?" |
+| Jordan raises other team members' issues as a redirect | Acknowledge-Bracket-Redirect | "Those are worth discussing too. For today, can we just focus on the project decision piece? I'll bring the rest to our next 1:1."                                  |
+| You feel yourself becoming apologetic or backing off   | Self-regulate                | [Take one breath] "I want to make sure I'm being clear -- this has had a real impact on my work, and I want us to solve it together."                               |
+| The conversation circles without resolution            | Name the dynamic             | "I feel like we might be dancing around the solution. Let me try to make the ask really specific: [restate the single, concrete request]."                          |
+| Jordan says "let's follow up" without committing       | Secure the commitment        | "I want to make sure we land on something concrete before we close out. Can we agree on [specific solution] and I'll send a summary after this?"                    |
 
 ---
 
 ### Closing the Conversation
 
 **If full agreement is reached:**
+
 > "This is really helpful, Jordan. To make sure I've got it right: going forward, for any decision that changes my project scope, timeline, or deliverables, you'll flag it to me before it's finalized -- and I'll make sure I'm attending [standing meeting] so I'm in the room. I'll send a quick summary after this so we both have it. I appreciate you hearing me out."
 
 **If partial agreement is reached:**
+
 > "It sounds like we're aligned that I should be in the loop on project decisions. Let's finalize the exact mechanism -- standing invite, DM protocol, or something else -- by end of week. Can I send you a quick email tonight with two options so you can pick what works best for you? I'll follow up if I

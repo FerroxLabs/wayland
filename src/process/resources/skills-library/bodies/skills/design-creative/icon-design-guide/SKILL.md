@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "design template checklist"
-  category: "design-creative"
-  subcategory: "graphic-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'design template checklist'
+  category: 'design-creative'
+  subcategory: 'graphic-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Icon Design Guide
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks to design a UI icon set for a web, mobile, or desktop product and needs consistent visual parameters defined before any drawing begins
 - The user wants to create an icon style guide or visual specification document that other designers or developers can follow to maintain consistency across a product suite
 - The user needs to audit an existing icon set for inconsistencies -- stroke weight drift, perspective mismatches, misaligned optical centers -- and wants a corrected specification
@@ -30,6 +32,7 @@ metadata:
 - The user wants metaphor selection guidance for abstract concepts that resist literal depiction (security, collaboration, performance, intelligence)
 
 **Do NOT use when:**
+
 - The user wants to design a logo or wordmark (use `logo-design-brief` -- logos require entirely different alignment, negative space, and reproduction rules)
 - The user wants to build a full design system including color tokens, typography scales, spacing, and component libraries (use `design-system-foundations` -- icon specification is a component of that larger system)
 - The user wants to generate icons using AI image generation tools (use an AI image generation skill -- the output format and process differ entirely)
@@ -71,7 +74,7 @@ The grid is the non-negotiable foundation. Every proportion, alignment, and size
 Stroke and fill rules are the most frequently violated aspect of icon sets. A set that starts with 2px strokes but drifts to 1.5px by icon #25 looks unprofessional even when the metaphors are well-chosen.
 
 - **Stroke weight by grid size:** These are the standard professional recommendations. 16px grid: 1px stroke (1.5px is technically valid but creates very heavy icons). 20px grid: 1.5px stroke. 24px grid: 1.5px or 2px stroke. 32px grid: 2px stroke. 48px grid: 2px or 2.5px stroke. The rule is that stroke weight as a percentage of grid size should fall between 6-8% for most UI icons. At 24px, 1.5px = 6.25%, 2px = 8.3%. Both are valid; choose based on desired visual weight.
-- **Stroke cap style:** Round caps add 0.5 * stroke-weight length to each open path end. This means a horizontal line drawn from x=4 to x=20 with a 2px round cap will visually extend to x=3 and x=21. Account for this when aligning elements near the live area edge. Use round caps for friendly, approachable interfaces. Use butt caps for technical, precise, or utilitarian interfaces. Square caps are rarely used in modern icon design -- they behave like butt caps in optical positioning but extend like round caps in length, creating alignment confusion.
+- **Stroke cap style:** Round caps add 0.5 \* stroke-weight length to each open path end. This means a horizontal line drawn from x=4 to x=20 with a 2px round cap will visually extend to x=3 and x=21. Account for this when aligning elements near the live area edge. Use round caps for friendly, approachable interfaces. Use butt caps for technical, precise, or utilitarian interfaces. Square caps are rarely used in modern icon design -- they behave like butt caps in optical positioning but extend like round caps in length, creating alignment confusion.
 - **Stroke join style:** Round joins are consistent with round caps -- use them together. Miter joins create sharp points at corners; the miter limit controls when sharp joins automatically convert to bevel joins (the default miter limit in most drawing tools is 4). For a 2px stroke with miter joins, very acute angles (below 30 degrees) will convert to bevels automatically. This is acceptable but must be tested at the smallest render size.
 - **Filled icon rules:** For solid/filled icons, optical weight must be managed manually because the rasterizer does not automatically balance visual mass. A filled circle and a filled square at the same pixel dimensions will not appear the same weight -- the square will look heavier. Filled icons should use the same keyline system as outlined icons so a filled "notification bell" and a filled "settings gear" appear equal in visual weight even if their bounding boxes differ slightly. Minimum counter space (gaps inside filled shapes, like the interior of a letter form or the center of a target icon) must be at least 2px at the design grid size.
 - **Duotone specification:** Duotone icons use a base shape plus a secondary accent shape. The secondary shape is typically the same primary color at 16-25% opacity, or a literal second color from the brand palette. The critical rule: the icon must be fully legible with the secondary layer removed entirely. Secondary shapes add depth and brand expression -- they cannot carry meaning that the primary layer does not already convey.
@@ -363,6 +366,7 @@ Status badge icons: Often displayed at 8-10px inside a colored badge (a green ci
 ## Icon Design Guide: ProjectFlow SaaS
 
 ### Overview
+
 - **Icon count:** ~40 icons across 5 categories (Navigation, Actions, Objects, Status, Data)
 - **Primary grid size:** 24x24px
 - **Style:** Outlined (stroke-based) for default state; filled for active/selected states
@@ -374,36 +378,39 @@ Status badge icons: Often displayed at 8-10px inside a colored badge (a green ci
 ---
 
 ### Grid Specification
-| Property              | Value         | Notes                                                           |
-|-----------------------|---------------|-----------------------------------------------------------------|
-| Canvas size           | 24x24px       | Base design grid for all primary icons                         |
-| Live area             | 20x20px       | 2px padding on each side                                       |
-| Padding               | 2px each side | Ensures icons never touch canvas edge; aids optical alignment   |
-| Keyline: circle       | 20px diameter | Circular/symmetric icons (avatar, loading spinner, status dot)  |
-| Keyline: square       | 18x18px       | Object icons (folder, document, calendar, checkbox)             |
-| Keyline: portrait     | 18x20px       | Tall icons (person/member, filter panel, notification bell)     |
-| Keyline: landscape    | 20x18px       | Wide icons (toolbar actions, media controls, horizontal arrows) |
-| Internal grid unit    | 2px           | All internal spacing snaps to 2px multiples                     |
+
+| Property           | Value         | Notes                                                           |
+| ------------------ | ------------- | --------------------------------------------------------------- |
+| Canvas size        | 24x24px       | Base design grid for all primary icons                          |
+| Live area          | 20x20px       | 2px padding on each side                                        |
+| Padding            | 2px each side | Ensures icons never touch canvas edge; aids optical alignment   |
+| Keyline: circle    | 20px diameter | Circular/symmetric icons (avatar, loading spinner, status dot)  |
+| Keyline: square    | 18x18px       | Object icons (folder, document, calendar, checkbox)             |
+| Keyline: portrait  | 18x20px       | Tall icons (person/member, filter panel, notification bell)     |
+| Keyline: landscape | 20x18px       | Wide icons (toolbar actions, media controls, horizontal arrows) |
+| Internal grid unit | 2px           | All internal spacing snaps to 2px multiples                     |
 
 ---
 
 ### Stroke and Fill Specification
-| Property               | Value     | Notes                                                            |
-|------------------------|-----------|------------------------------------------------------------------|
-| Stroke weight          | 1.5px     | Consistent across all 40 icons at the 24px grid                 |
-| Stroke cap             | Round     | Professional without being playful; consistent with rounded UI   |
-| Stroke join            | Round     | Matches round caps; prevents sharp miter artifacts at joints     |
-| Miter limit            | 4         | Fallback only; round joins supersede in practice                 |
-| Exterior corner radius | 2px       | References `radius-sm` design token; consistent with UI controls |
-| Interior corner radius | 0.5px     | Calculated: 2px exterior minus 1.5px stroke weight              |
-| Minimum feature size   | 2px       | Smallest detail at 24px grid (e.g., badge dot, gap in dashes)   |
-| Minimum counter space  | 2px       | Gap between parallel strokes or enclosed open shapes             |
-| Fill opacity (duotone) | N/A       | Not used in this set; filled variants use 100% opacity solid fill|
-| Color reference        | `currentColor` | All strokes/fills inherit CSS text color; no hardcoded hex   |
+
+| Property               | Value          | Notes                                                             |
+| ---------------------- | -------------- | ----------------------------------------------------------------- |
+| Stroke weight          | 1.5px          | Consistent across all 40 icons at the 24px grid                   |
+| Stroke cap             | Round          | Professional without being playful; consistent with rounded UI    |
+| Stroke join            | Round          | Matches round caps; prevents sharp miter artifacts at joints      |
+| Miter limit            | 4              | Fallback only; round joins supersede in practice                  |
+| Exterior corner radius | 2px            | References `radius-sm` design token; consistent with UI controls  |
+| Interior corner radius | 0.5px          | Calculated: 2px exterior minus 1.5px stroke weight                |
+| Minimum feature size   | 2px            | Smallest detail at 24px grid (e.g., badge dot, gap in dashes)     |
+| Minimum counter space  | 2px            | Gap between parallel strokes or enclosed open shapes              |
+| Fill opacity (duotone) | N/A            | Not used in this set; filled variants use 100% opacity solid fill |
+| Color reference        | `currentColor` | All strokes/fills inherit CSS text color; no hardcoded hex        |
 
 ---
 
 ### Style Rules
+
 1. Stroke weight is 1.5px at 24px canvas with round caps and round joins -- no individual icon may deviate from this. If an icon reads as too light (overly thin metaphor), the icon design must be revised to use a denser form, not a heavier stroke.
 2. Every icon is optically centered using the appropriate keyline. A folder icon (boxy) is built to the 18x18px square keyline; an avatar/person icon (taller than wide) is built to the 18x20px portrait keyline. Keyline selection must be documented per icon in the metaphor guide.
 3. No icon contains more than 3 enclosed shapes at the 24px grid. Complexity beyond 3 enclosed shapes will not survive the 16px simplification step and signals an over-complex metaphor.
@@ -414,6 +421,7 @@ Status badge icons: Often displayed at 8-10px inside a colored badge (a green ci
 ---
 
 ### Perspective and Orientation
+
 - **Projection:** Flat 2D -- no perspective, no drop shadows, no gradients, no 3D depth cues
 - **Directional icons:** Face right for LTR layouts (arrow-right, forward, send, export, expand). RTL mirroring per the annotation column in the Metaphor Guide.
 - **Object orientation:** Face-on for all planar objects (documents, folders, calendar pages). Canonical 45-degree upper-right angle for tool metaphors (pencil, wrench, ruler). No arbitrary angles.
@@ -422,52 +430,53 @@ Status badge icons: Often displayed at 8-10px inside a colored badge (a green ci
 ---
 
 ### Metaphor Guide
-| Concept           | Keyline    | Metaphor Type   | Icon Description                                      | RTL Mirror? | Distinguish From          |
-|-------------------|------------|-----------------|-------------------------------------------------------|-------------|---------------------------|
-| Home / Dashboard  | Square     | Concrete        | Simple house outline, pitched roof, no chimney        | No          | -- |
-| Projects          | Portrait   | Concrete        | Stacked layers / three rectangles staggered            | No          | Documents (single page)   |
-| Tasks / To-do     | Square     | Concrete        | Checkbox with checkmark (rounded corners, 2px radius) | No          | Checkmark-only (no box)   |
-| Calendar          | Square     | Concrete        | Rect with top tab bar and 2x2 dot grid interior       | No          | Clock (circular)          |
-| Notifications     | Portrait   | Concrete        | Bell shape with small horizontal base bar             | No          | Alert triangle (status)   |
-| Settings          | Circle     | Conventional    | 6-tooth gear, centered on circle keyline              | No          | Preferences (same icon)   |
-| Search            | Landscape  | Concrete        | Magnifying glass, circle left + handle extending lower-right 45° | No | Filter (funnel) |
-| Filter            | Portrait   | Concrete        | Downward-narrowing funnel/triangle with 3 horizontal lines | No    | Sort (up/down arrows)     |
-| Sort              | Portrait   | Concrete        | Two vertical arrows pointing opposite directions      | Yes         | Filter (funnel)           |
-| Add / Create      | Circle     | Conventional    | Plus sign, optionally in circle for action clarity    | No          | Expand (different context)|
-| Edit              | Landscape  | Concrete        | Pencil at 45° upper-right angle                       | Yes         | Write (same icon, document context) |
-| Delete / Remove   | Square     | Concrete        | Trash can, open lid variant for delete action         | No          | Archive (box with down arrow) |
-| Archive           | Landscape  | Concrete        | Open box with downward arrow entering it              | No          | Delete (trash can)        |
-| Close / Dismiss   | Square     | Conventional    | X mark, two lines crossed at 45°                     | No          | Delete (trash can context)|
-| Save              | Square     | Conventional    | Floppy disk outline (established digital convention)  | No          | Download (arrow downward) |
-| Download          | Portrait   | Concrete        | Downward arrow with horizontal base line beneath      | No          | Save (floppy disk)        |
-| Upload            | Portrait   | Concrete        | Upward arrow with horizontal base line beneath        | No          | Export (box + arrow)      |
-| Export            | Landscape  | Concrete        | Box outline with arrow pointing right-upward out of it | Yes        | Share (arrow-up for mobile), Upload |
-| Share             | Portrait   | Conventional    | Node + two branching lines (network share icon)       | No          | Export (box + arrow)      |
-| Member / User     | Portrait   | Concrete        | Head circle + shoulder arc, gender-neutral silhouette | No          | Team (multiple people)    |
-| Team              | Landscape  | Concrete        | Two person silhouettes overlapping slightly           | Yes         | Member (single person)    |
-| Message / Comment | Landscape  | Concrete        | Speech bubble with tail at lower-left                 | Yes         | Email (envelope)          |
-| Email / Inbox     | Landscape  | Concrete        | Envelope outline, flap closed                         | No          | Message (speech bubble)   |
-| Attachment        | Portrait   | Concrete        | Paperclip, single loop with descending stem           | No          | Link (chain links)        |
-| Link              | Landscape  | Concrete        | Two chain links connected horizontally                | No          | Attachment (paperclip)    |
-| Duplicate / Copy  | Square     | Concrete        | Two overlapping rectangles, top-right offset          | No          | Paste (clipboard)         |
-| Move              | Square     | Abstract        | Four-directional arrow (cross with arrowheads)        | No          | Drag handle (dots)        |
-| Drag Handle       | Portrait   | Conventional    | Six dots in 2x3 grid                                  | No          | More options (three dots) |
-| More Options      | Portrait   | Conventional    | Three horizontal dots (web convention)                | No          | Drag handle (six dots)    |
-| Status: Success   | Circle     | Conventional    | Filled circle + white checkmark interior              | No          | Task complete (checkbox)  |
-| Status: Error     | Circle     | Conventional    | Filled circle + white X interior                      | No          | Close button (standalone X)|
-| Status: Warning   | Landscape  | Conventional    | Triangle with exclamation mark interior               | No          | Error (circle)            |
-| Status: Info      | Circle     | Conventional    | Filled circle + white lowercase "i" interior          | No          | Notification (bell)       |
-| Status: In Progress | Circle   | Conventional    | Partial circle arc (loading/progress indicator style) | No          | Loading spinner (animated)|
-| Collapse / Chevron Down | Landscape | Conventional | V-shape pointing downward, 1.5px stroke           | No          | Expand (opposite direction)|
-| Expand / Chevron Right  | Portrait  | Conventional | V-shape pointing right                            | Yes         | Forward arrow (with stem) |
-| Overflow / Ellipsis | Landscape | Conventional  | Three horizontal dots, same as More Options           | --          | Duplicate of More Options -- same icon |
-| Document / File   | Portrait   | Concrete        | Rect with folded upper-right corner                   | No          | Project (stacked layers)  |
-| Folder            | Landscape  | Concrete        | Folder shape with rounded tab at upper-left           | No          | Project (stacked layers)  |
-| Priority / Flag   | Portrait   | Concrete        | Flag on a vertical pole                               | Yes         | Bookmark (no pole)        |
-| Bookmark          | Portrait   | Concrete        | Pennant/ribbon shape with V notch at bottom           | No          | Flag (has pole)           |
+
+| Concept                 | Keyline   | Metaphor Type | Icon Description                                                 | RTL Mirror? | Distinguish From                       |
+| ----------------------- | --------- | ------------- | ---------------------------------------------------------------- | ----------- | -------------------------------------- |
+| Home / Dashboard        | Square    | Concrete      | Simple house outline, pitched roof, no chimney                   | No          | --                                     |
+| Projects                | Portrait  | Concrete      | Stacked layers / three rectangles staggered                      | No          | Documents (single page)                |
+| Tasks / To-do           | Square    | Concrete      | Checkbox with checkmark (rounded corners, 2px radius)            | No          | Checkmark-only (no box)                |
+| Calendar                | Square    | Concrete      | Rect with top tab bar and 2x2 dot grid interior                  | No          | Clock (circular)                       |
+| Notifications           | Portrait  | Concrete      | Bell shape with small horizontal base bar                        | No          | Alert triangle (status)                |
+| Settings                | Circle    | Conventional  | 6-tooth gear, centered on circle keyline                         | No          | Preferences (same icon)                |
+| Search                  | Landscape | Concrete      | Magnifying glass, circle left + handle extending lower-right 45° | No          | Filter (funnel)                        |
+| Filter                  | Portrait  | Concrete      | Downward-narrowing funnel/triangle with 3 horizontal lines       | No          | Sort (up/down arrows)                  |
+| Sort                    | Portrait  | Concrete      | Two vertical arrows pointing opposite directions                 | Yes         | Filter (funnel)                        |
+| Add / Create            | Circle    | Conventional  | Plus sign, optionally in circle for action clarity               | No          | Expand (different context)             |
+| Edit                    | Landscape | Concrete      | Pencil at 45° upper-right angle                                  | Yes         | Write (same icon, document context)    |
+| Delete / Remove         | Square    | Concrete      | Trash can, open lid variant for delete action                    | No          | Archive (box with down arrow)          |
+| Archive                 | Landscape | Concrete      | Open box with downward arrow entering it                         | No          | Delete (trash can)                     |
+| Close / Dismiss         | Square    | Conventional  | X mark, two lines crossed at 45°                                 | No          | Delete (trash can context)             |
+| Save                    | Square    | Conventional  | Floppy disk outline (established digital convention)             | No          | Download (arrow downward)              |
+| Download                | Portrait  | Concrete      | Downward arrow with horizontal base line beneath                 | No          | Save (floppy disk)                     |
+| Upload                  | Portrait  | Concrete      | Upward arrow with horizontal base line beneath                   | No          | Export (box + arrow)                   |
+| Export                  | Landscape | Concrete      | Box outline with arrow pointing right-upward out of it           | Yes         | Share (arrow-up for mobile), Upload    |
+| Share                   | Portrait  | Conventional  | Node + two branching lines (network share icon)                  | No          | Export (box + arrow)                   |
+| Member / User           | Portrait  | Concrete      | Head circle + shoulder arc, gender-neutral silhouette            | No          | Team (multiple people)                 |
+| Team                    | Landscape | Concrete      | Two person silhouettes overlapping slightly                      | Yes         | Member (single person)                 |
+| Message / Comment       | Landscape | Concrete      | Speech bubble with tail at lower-left                            | Yes         | Email (envelope)                       |
+| Email / Inbox           | Landscape | Concrete      | Envelope outline, flap closed                                    | No          | Message (speech bubble)                |
+| Attachment              | Portrait  | Concrete      | Paperclip, single loop with descending stem                      | No          | Link (chain links)                     |
+| Link                    | Landscape | Concrete      | Two chain links connected horizontally                           | No          | Attachment (paperclip)                 |
+| Duplicate / Copy        | Square    | Concrete      | Two overlapping rectangles, top-right offset                     | No          | Paste (clipboard)                      |
+| Move                    | Square    | Abstract      | Four-directional arrow (cross with arrowheads)                   | No          | Drag handle (dots)                     |
+| Drag Handle             | Portrait  | Conventional  | Six dots in 2x3 grid                                             | No          | More options (three dots)              |
+| More Options            | Portrait  | Conventional  | Three horizontal dots (web convention)                           | No          | Drag handle (six dots)                 |
+| Status: Success         | Circle    | Conventional  | Filled circle + white checkmark interior                         | No          | Task complete (checkbox)               |
+| Status: Error           | Circle    | Conventional  | Filled circle + white X interior                                 | No          | Close button (standalone X)            |
+| Status: Warning         | Landscape | Conventional  | Triangle with exclamation mark interior                          | No          | Error (circle)                         |
+| Status: Info            | Circle    | Conventional  | Filled circle + white lowercase "i" interior                     | No          | Notification (bell)                    |
+| Status: In Progress     | Circle    | Conventional  | Partial circle arc (loading/progress indicator style)            | No          | Loading spinner (animated)             |
+| Collapse / Chevron Down | Landscape | Conventional  | V-shape pointing downward, 1.5px stroke                          | No          | Expand (opposite direction)            |
+| Expand / Chevron Right  | Portrait  | Conventional  | V-shape pointing right                                           | Yes         | Forward arrow (with stem)              |
+| Overflow / Ellipsis     | Landscape | Conventional  | Three horizontal dots, same as More Options                      | --          | Duplicate of More Options -- same icon |
+| Document / File         | Portrait  | Concrete      | Rect with folded upper-right corner                              | No          | Project (stacked layers)               |
+| Folder                  | Landscape | Concrete      | Folder shape with rounded tab at upper-left                      | No          | Project (stacked layers)               |
+| Priority / Flag         | Portrait  | Concrete      | Flag on a vertical pole                                          | Yes         | Bookmark (no pole)                     |
+| Bookmark                | Portrait  | Concrete      | Pennant/ribbon shape with V notch at bottom                      | No          | Flag (has pole)                        |
 
 ---
 
 ### Size Variants
 
-| Size   | Canvas  | Live Area | Stroke | Ext.
+| Size | Canvas | Live Area | Stroke | Ext.

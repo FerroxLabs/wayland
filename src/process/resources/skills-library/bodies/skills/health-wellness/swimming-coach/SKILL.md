@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness step-by-step"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness step-by-step'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Swimming Coach
@@ -23,11 +23,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about swimming coach
 - User needs guidance on swimming coach topics
 - User wants a structured approach to swimming coach
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -195,53 +197,53 @@ COMMON ERRORS:
 
 ### Freestyle Drills
 
-| Drill | Focus | Description |
-|-------|-------|-------------|
-| Catch-Up | Timing | One arm stays extended until other hand touches it |
-| Fingertip Drag | Recovery | Drag fingertips along water surface during recovery |
-| Fist Drill | Feel for water | Swim with closed fists to develop forearm catch |
-| 6-3-6 | Rotation | 6 kicks on side, 3 strokes, 6 kicks on other side |
-| Single Arm | Balance | Swim using one arm, other at side or extended |
-| Tarzan | Head position | Swim with head up, eyes forward (exaggerates drag) |
+| Drill          | Focus          | Description                                         |
+| -------------- | -------------- | --------------------------------------------------- |
+| Catch-Up       | Timing         | One arm stays extended until other hand touches it  |
+| Fingertip Drag | Recovery       | Drag fingertips along water surface during recovery |
+| Fist Drill     | Feel for water | Swim with closed fists to develop forearm catch     |
+| 6-3-6          | Rotation       | 6 kicks on side, 3 strokes, 6 kicks on other side   |
+| Single Arm     | Balance        | Swim using one arm, other at side or extended       |
+| Tarzan         | Head position  | Swim with head up, eyes forward (exaggerates drag)  |
 
 ### Backstroke Drills
 
-| Drill | Focus | Description |
-|-------|-------|-------------|
-| Single Arm | Rotation | One arm backstroke, other arm at side |
-| 6-3-6 | Body position | 6 kicks on side, 3 strokes, switch sides |
-| Double Arm | Pull power | Both arms pull simultaneously |
-| Spin Drill | Turnover | Fast, short strokes focusing on tempo |
+| Drill      | Focus         | Description                              |
+| ---------- | ------------- | ---------------------------------------- |
+| Single Arm | Rotation      | One arm backstroke, other arm at side    |
+| 6-3-6      | Body position | 6 kicks on side, 3 strokes, switch sides |
+| Double Arm | Pull power    | Both arms pull simultaneously            |
+| Spin Drill | Turnover      | Fast, short strokes focusing on tempo    |
 
 ### Breaststroke Drills
 
-| Drill | Focus | Description |
-|-------|-------|-------------|
-| Kick with Board | Kick technique | Isolate and perfect the whip kick |
-| Pull with Buoy | Arm technique | Isolate arm pull with pull buoy between legs |
-| 2-Kick 1-Pull | Glide and timing | Two kicks per arm stroke, emphasize glide |
-| Breaststroke Arms + Fly Kick | Timing | Develops undulation and body wave |
+| Drill                        | Focus            | Description                                  |
+| ---------------------------- | ---------------- | -------------------------------------------- |
+| Kick with Board              | Kick technique   | Isolate and perfect the whip kick            |
+| Pull with Buoy               | Arm technique    | Isolate arm pull with pull buoy between legs |
+| 2-Kick 1-Pull                | Glide and timing | Two kicks per arm stroke, emphasize glide    |
+| Breaststroke Arms + Fly Kick | Timing           | Develops undulation and body wave            |
 
 ### Butterfly Drills
 
-| Drill | Focus | Description |
-|-------|-------|-------------|
-| Body Dolphins | Undulation | Arms at sides, dolphin kick on surface |
-| Single Arm Fly | Coordination | One arm butterfly, other arm extended |
-| 3-3-3 | Building | 3 strokes right arm, 3 left arm, 3 full fly |
-| Underwater Dolphins | Power | Streamlined dolphin kick off each wall |
+| Drill               | Focus        | Description                                 |
+| ------------------- | ------------ | ------------------------------------------- |
+| Body Dolphins       | Undulation   | Arms at sides, dolphin kick on surface      |
+| Single Arm Fly      | Coordination | One arm butterfly, other arm extended       |
+| 3-3-3               | Building     | 3 strokes right arm, 3 left arm, 3 full fly |
+| Underwater Dolphins | Power        | Streamlined dolphin kick off each wall      |
 
 ---
 
 ## Training Zones for Swimming
 
-| Zone | Name | Effort | Pace Relative to Best | Purpose |
-|------|------|--------|----------------------|---------|
-| 1 | Recovery | Very easy | +20-30 sec/100 | Active recovery |
-| 2 | Endurance | Comfortable | +10-15 sec/100 | Aerobic base |
-| 3 | Threshold | Moderate-hard | +5-8 sec/100 | Lactate threshold |
-| 4 | VO2max | Hard | +2-4 sec/100 | Aerobic capacity |
-| 5 | Sprint | All-out | Best pace or faster | Speed and power |
+| Zone | Name      | Effort        | Pace Relative to Best | Purpose           |
+| ---- | --------- | ------------- | --------------------- | ----------------- |
+| 1    | Recovery  | Very easy     | +20-30 sec/100        | Active recovery   |
+| 2    | Endurance | Comfortable   | +10-15 sec/100        | Aerobic base      |
+| 3    | Threshold | Moderate-hard | +5-8 sec/100          | Lactate threshold |
+| 4    | VO2max    | Hard          | +2-4 sec/100          | Aerobic capacity  |
+| 5    | Sprint    | All-out       | Best pace or faster   | Speed and power   |
 
 ---
 
@@ -324,16 +326,16 @@ Total: 1,700
 
 ### Key Differences
 
-| Factor | Pool | Open Water |
-|--------|------|-----------|
-| Navigation | Lane lines, black line | Sighting required |
-| Turns | Walls every 25/50 | No walls, continuous |
-| Conditions | Controlled, calm | Waves, current, chop |
-| Temperature | Regulated (78-82F) | Variable (50-85F) |
-| Depth | Known, shallow end | Variable, often deep |
-| Visibility | Clear | Limited to none |
-| Safety | Lifeguards, edges | Self-reliance, buddy system |
-| Drafting | Not a factor | Strategic advantage |
+| Factor      | Pool                   | Open Water                  |
+| ----------- | ---------------------- | --------------------------- |
+| Navigation  | Lane lines, black line | Sighting required           |
+| Turns       | Walls every 25/50      | No walls, continuous        |
+| Conditions  | Controlled, calm       | Waves, current, chop        |
+| Temperature | Regulated (78-82F)     | Variable (50-85F)           |
+| Depth       | Known, shallow end     | Variable, often deep        |
+| Visibility  | Clear                  | Limited to none             |
+| Safety      | Lifeguards, edges      | Self-reliance, buddy system |
+| Drafting    | Not a factor           | Strategic advantage         |
 
 ### Open Water Safety Essentials
 
@@ -375,28 +377,28 @@ Always warm up gradually after cold water swimming
 
 ## Swimming Equipment Guide
 
-| Equipment | Purpose | When to Use |
-|-----------|---------|------------|
-| Kickboard | Isolate kick technique | Kick sets, warm-up |
-| Pull buoy | Isolate arm pull, improve body position | Pull sets, technique focus |
-| Hand paddles | Build strength, exaggerate catch | Main sets (intermediate+) |
-| Fins (short) | Develop kick, body position, speed | Drills, kick sets |
-| Fins (long) | Dolphin kick, underwater work | Butterfly and underwaters |
-| Center snorkel | Focus on stroke without breathing | Drill work, technique |
-| Tempo trainer | Pace control, stroke rate | All training levels |
-| Swim buoy | Open water visibility and safety | Every open water swim |
+| Equipment      | Purpose                                 | When to Use                |
+| -------------- | --------------------------------------- | -------------------------- |
+| Kickboard      | Isolate kick technique                  | Kick sets, warm-up         |
+| Pull buoy      | Isolate arm pull, improve body position | Pull sets, technique focus |
+| Hand paddles   | Build strength, exaggerate catch        | Main sets (intermediate+)  |
+| Fins (short)   | Develop kick, body position, speed      | Drills, kick sets          |
+| Fins (long)    | Dolphin kick, underwater work           | Butterfly and underwaters  |
+| Center snorkel | Focus on stroke without breathing       | Drill work, technique      |
+| Tempo trainer  | Pace control, stroke rate               | All training levels        |
+| Swim buoy      | Open water visibility and safety        | Every open water swim      |
 
 ---
 
 ## Common Swimming Injuries and Prevention
 
-| Injury | Cause | Prevention |
-|--------|-------|------------|
-| Swimmer's shoulder | Overuse, poor technique | Strengthen rotator cuff, correct hand entry |
-| Knee pain (breaststroke) | Whip kick strain | Proper kick technique, limit breaststroke volume |
-| Lower back pain | Poor body position, excessive undulation | Core strengthening, streamline work |
-| Neck strain | Head position errors | Neutral head position drills |
-| Ear infections | Water exposure | Ear drops after swimming, dry ears thoroughly |
+| Injury                   | Cause                                    | Prevention                                       |
+| ------------------------ | ---------------------------------------- | ------------------------------------------------ |
+| Swimmer's shoulder       | Overuse, poor technique                  | Strengthen rotator cuff, correct hand entry      |
+| Knee pain (breaststroke) | Whip kick strain                         | Proper kick technique, limit breaststroke volume |
+| Lower back pain          | Poor body position, excessive undulation | Core strengthening, streamline work              |
+| Neck strain              | Head position errors                     | Neutral head position drills                     |
+| Ear infections           | Water exposure                           | Ear drops after swimming, dry ears thoroughly    |
 
 ### Dryland Exercises for Swimmers
 

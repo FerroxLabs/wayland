@@ -13,12 +13,12 @@ steps:
   - id: credentials
     title: Paste your AWS access key + secret
     estSeconds: 240
-    externalAction: { label: "Open AWS IAM console", url: "https://console.aws.amazon.com/iam" }
+    externalAction: { label: 'Open AWS IAM console', url: 'https://console.aws.amazon.com/iam' }
     inputs:
-      - { name: AWS_ACCESS_KEY_ID, label: "Access key ID" }
-      - { name: AWS_SECRET_ACCESS_KEY, label: "Secret access key", secret: true }
-      - { name: AWS_REGION, label: "Default region", default: "us-east-1" }
-      - { name: AWS_SESSION_TOKEN, label: "Session token (optional, for STS/SSO)", secret: true }
+      - { name: AWS_ACCESS_KEY_ID, label: 'Access key ID' }
+      - { name: AWS_SECRET_ACCESS_KEY, label: 'Secret access key', secret: true }
+      - { name: AWS_REGION, label: 'Default region', default: 'us-east-1' }
+      - { name: AWS_SESSION_TOKEN, label: 'Session token (optional, for STS/SSO)', secret: true }
     warning: |
       Never paste **root account** credentials. Create a dedicated IAM user
       with only the policies you need, and prefer short-lived STS credentials

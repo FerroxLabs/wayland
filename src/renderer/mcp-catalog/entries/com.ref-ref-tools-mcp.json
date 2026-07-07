@@ -18,15 +18,8 @@
   ],
   "x-wayland": {
     "tier": "worker",
-    "categories": [
-      "developer",
-      "search"
-    ],
-    "tags": [
-      "ref",
-      "docs",
-      "documentation"
-    ],
+    "categories": ["developer", "search"],
+    "tags": ["ref", "docs", "documentation"],
     "maintainerType": "official",
     "license": "Proprietary",
     "verifiedAt": "2026-06-13",
@@ -49,11 +42,7 @@
       "estimatedMinutes": 2,
       "stepCount": 2
     },
-    "platforms": [
-      "macos",
-      "windows",
-      "linux"
-    ],
+    "platforms": ["macos", "windows", "linux"],
     "minWaylandVersion": "0.9.0"
   }
 }

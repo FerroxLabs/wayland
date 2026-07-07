@@ -12,14 +12,15 @@ description: >-
   skill can answer.
 license: Apache-2.0
 type: workflow
-skills: "hr-comp-band"
+skills: 'hr-comp-band'
 metadata:
   author: wayland
   version: 1.0.0
   tags: hr compensation comp-band hiring step-by-step planning
   category: hr
-  depends: "hr-comp-band"
+  depends: 'hr-comp-band'
 ---
+
 # Build a Comp Band
 
 **Estimated time:** 20-30 minutes

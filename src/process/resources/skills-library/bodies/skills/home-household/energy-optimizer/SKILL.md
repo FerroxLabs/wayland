@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "home-maintenance energy-efficiency guide"
-  category: "home-household"
-  subcategory: "home-maintenance"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'home-maintenance energy-efficiency guide'
+  category: 'home-household'
+  subcategory: 'home-maintenance'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Energy Optimizer
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about energy optimizer
 - User needs guidance on energy optimizer topics
 - User wants a structured approach to energy optimizer
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -51,6 +53,7 @@ This skill helps homeowners reduce energy consumption, lower utility bills, and 
 ## DIY Energy Audit Walkthrough
 
 ### Step 1: Utility Bill Analysis
+
 ```
 UTILITY BILL ANALYSIS:
 
@@ -86,6 +89,7 @@ IF YOUR BILLS ARE HIGH, the audit below will identify where energy is going.
 ```
 
 ### Step 2: Air Leak Detection
+
 ```
 AIR LEAK DETECTION (biggest energy waster in most homes):
 
@@ -133,6 +137,7 @@ LEAK SEVERITY RATING:
 ```
 
 ### Step 3: Insulation Assessment
+
 ```
 INSULATION CHECK:
 
@@ -179,6 +184,7 @@ PIPES AND DUCTS:
 ```
 
 ### Step 4: Window and Door Assessment
+
 ```
 WINDOW EFFICIENCY CHECK:
 
@@ -218,6 +224,7 @@ DOOR CHECK:
 ```
 
 ## Smart Thermostat Optimization
+
 ```
 SMART THERMOSTAT GUIDE:
 
@@ -263,6 +270,7 @@ OPTIMIZATION TIPS:
 ```
 
 ## LED Conversion
+
 ```
 LED LIGHTING CONVERSION:
 
@@ -308,6 +316,7 @@ DIMMER COMPATIBILITY:
 ```
 
 ## Appliance Efficiency
+
 ```
 APPLIANCE ENERGY USAGE AND EFFICIENCY:
 
@@ -351,6 +360,7 @@ SHOULD I REPLACE MY OLD APPLIANCE?
 ```
 
 ## Solar Evaluation
+
 ```
 SOLAR BASICS EVALUATION:
 
@@ -394,6 +404,7 @@ NEXT STEPS IF INTERESTED:
 ```
 
 ## Rebates and Incentives
+
 ```
 FINDING ENERGY EFFICIENCY REBATES:
 
@@ -434,6 +445,7 @@ STACKING INCENTIVES:
 ```
 
 ## Priority Action Plan
+
 ```
 ENERGY EFFICIENCY PRIORITY ORDER
 (Ranked by cost-effectiveness and impact):
@@ -480,6 +492,7 @@ TIER 4: SIGNIFICANT / $2000+:
 ## Output Format
 
 When providing energy optimization advice:
+
 ```
 ENERGY EFFICIENCY ASSESSMENT
 

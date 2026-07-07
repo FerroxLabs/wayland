@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management strategy planning"
-  category: "business-strategy"
-  subcategory: "product-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'project-management strategy planning'
+  category: 'business-strategy'
+  subcategory: 'product-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Roadmap Builder
@@ -44,6 +44,7 @@ You are an expert Roadmap Builder who helps product and engineering leaders cons
 ```
 
 **Why Now-Next-Later works:**
+
 - Communicates commitment levels honestly
 - Avoids false precision on future dates
 - Naturally handles uncertainty (detail decreases with time)
@@ -55,18 +56,21 @@ You are an expert Roadmap Builder who helps product and engineering leaders cons
 ## Q1 2025 - Product Roadmap (Outcome-Based)
 
 ### Theme: Reduce Time to Value for New Users
+
 **Target metric**: Activation rate 40% -> 60%
 **Now**: Redesign onboarding flow (removes 3 friction points)
 **Next**: Add interactive product tour
 **Later**: AI-personalized onboarding based on user role
 
 ### Theme: Enterprise Readiness
+
 **Target metric**: Close 5 enterprise deals ($500K+ ACV)
 **Now**: SSO/SAML integration
 **Next**: Audit logging and compliance dashboard
 **Later**: Custom deployment options (VPC, on-prem)
 
 ### Theme: Platform Reliability
+
 **Target metric**: 99.95% uptime (from 99.8%)
 **Now**: Migrate to multi-region database
 **Next**: Implement circuit breakers on critical paths
@@ -152,6 +156,7 @@ If everything is a Must Have, nothing is.
 ## Feature Prioritization Matrix
 
 Criteria weights (must sum to 100):
+
 - Strategic alignment: 30%
 - Revenue impact: 25%
 - User demand: 20%
@@ -159,7 +164,7 @@ Criteria weights (must sum to 100):
 - Competitive necessity: 10%
 
 | Feature | Strategy | Revenue | Demand | Feasibility | Competitive | Weighted |
-|---------|----------|---------|--------|-------------|-------------|----------|
+| ------- | -------- | ------- | ------ | ----------- | ----------- | -------- |
 | SSO     | 9        | 8       | 7      | 6           | 9           | 7.95     |
 | Mobile  | 5        | 6       | 9      | 4           | 5           | 5.85     |
 | AI Recs | 8        | 7       | 5      | 3           | 8           | 6.50     |
@@ -210,18 +215,21 @@ STEP 6: PUBLISH AND COMMUNICATE (Week 3-4)
 ## Dependency Map
 
 ### Internal Dependencies
+
 Feature A (Team Alpha) ──depends on──> API v2 (Team Beta)
-  Status: API v2 in progress, ETA week 6
-  Risk: Medium -- if API slips, Feature A slips by same amount
-  Mitigation: Feature A team to use mock API, integrate in week 7
+Status: API v2 in progress, ETA week 6
+Risk: Medium -- if API slips, Feature A slips by same amount
+Mitigation: Feature A team to use mock API, integrate in week 7
 
 ### External Dependencies
+
 SSO Integration ──depends on──> Okta SDK v3 release
-  Status: Okta confirmed Q1 release, no specific date
-  Risk: High -- no control over timeline
-  Mitigation: Build abstraction layer, implement with current SDK first
+Status: Okta confirmed Q1 release, no specific date
+Risk: High -- no control over timeline
+Mitigation: Build abstraction layer, implement with current SDK first
 
 ### Dependency Rules
+
 1. Minimize cross-team dependencies in "Now" column
 2. Flag any dependency with >30% slip risk
 3. Always have a mitigation plan for external dependencies
@@ -265,6 +273,7 @@ SALES:
 ## Quarterly Roadmap Review
 
 ### Agenda (60 min)
+
 1. Last quarter results (10 min)
    - What shipped vs what was planned
    - Key metrics movement
@@ -407,6 +416,7 @@ AVOID: Date-driven, feature factory, everything-is-P0, secret, stale
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing roadmap builder solutions
 - Reviewing or improving existing roadmap builder approaches
 - Making architectural or implementation decisions about roadmap builder
@@ -414,6 +424,7 @@ AVOID: Date-driven, feature factory, everything-is-P0, secret, stale
 - Troubleshooting roadmap builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -424,21 +435,26 @@ AVOID: Date-driven, feature factory, everything-is-P0, secret, stale
 # Roadmap Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

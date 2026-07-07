@@ -13,13 +13,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning template checklist step-by-step"
-  category: "business-strategy"
-  subcategory: "operations"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning template checklist step-by-step'
+  category: 'business-strategy'
+  subcategory: 'operations'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # SOP Creation
@@ -237,16 +237,16 @@ metadata:
 
 ## Standard Operating Procedure: Weekly Inventory Count
 
-| Field | Details |
-|-------|---------|
-| **SOP Number** | OPS-001 |
-| **Effective Date** | [Current date] |
-| **Revision** | 1.0 |
-| **Author** | [Name, Operations Manager] |
-| **Approver** | [Name, Regional Manager] |
-| **Department** | Store Operations |
-| **Review Schedule** | Annual or after process change |
-| **Next Review Date** | [Date + 12 months] |
+| Field                | Details                        |
+| -------------------- | ------------------------------ |
+| **SOP Number**       | OPS-001                        |
+| **Effective Date**   | [Current date]                 |
+| **Revision**         | 1.0                            |
+| **Author**           | [Name, Operations Manager]     |
+| **Approver**         | [Name, Regional Manager]       |
+| **Department**       | Store Operations               |
+| **Review Schedule**  | Annual or after process change |
+| **Next Review Date** | [Date + 12 months]             |
 
 ---
 
@@ -300,6 +300,6 @@ Enter physical counts into the inventory system. The system calculates the varia
 
 ### 10. Revision History
 
-| Rev | Date | Author | Description of Change |
-|-----|------|--------|--------------------|
-| 1.0 | [Current date] | [Author] | Initial release |
+| Rev | Date           | Author   | Description of Change |
+| --- | -------------- | -------- | --------------------- |
+| 1.0 | [Current date] | [Author] | Initial release       |

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science sql guide"
-  category: "data-engineering"
-  subcategory: "pipelines-etl"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science sql guide'
+  category: 'data-engineering'
+  subcategory: 'pipelines-etl'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # SQL Master
@@ -180,11 +180,11 @@ WHERE o.order_date > '2024-01-01';
 
 ### Join Strategy Selection (Internal Optimizer Logic)
 
-| Join Type | Best When | Cost |
-|-----------|-----------|------|
-| Nested Loop | Small outer table, indexed inner | O(n * m) worst, O(n * log m) with index |
-| Hash Join | No useful indexes, equality joins | O(n + m) but needs memory |
-| Merge Join | Both inputs sorted or indexable | O(n + m) but needs sorting |
+| Join Type   | Best When                         | Cost                                    |
+| ----------- | --------------------------------- | --------------------------------------- |
+| Nested Loop | Small outer table, indexed inner  | O(n _ m) worst, O(n _ log m) with index |
+| Hash Join   | No useful indexes, equality joins | O(n + m) but needs memory               |
+| Merge Join  | Both inputs sorted or indexable   | O(n + m) but needs sorting              |
 
 ### Statistics and Cardinality
 
@@ -370,7 +370,7 @@ $$;
 
 ### The Deadly Seven
 
-1. **SELECT ***: Fetches unnecessary columns, defeats covering indexes, increases I/O
+1. **SELECT \***: Fetches unnecessary columns, defeats covering indexes, increases I/O
 2. **N+1 queries**: Loop issuing one query per row instead of a single JOIN or IN clause
 3. **Functions in WHERE on indexed columns**: `WHERE YEAR(created_at) = 2024` cannot use index; use `WHERE created_at >= '2024-01-01' AND created_at < '2025-01-01'`
 4. **Implicit type conversions**: `WHERE varchar_col = 12345` forces full scan; match types explicitly
@@ -475,6 +475,7 @@ When approaching a SQL problem:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing sql master solutions
 - Reviewing or improving existing sql master approaches
 - Making architectural or implementation decisions about sql master
@@ -482,6 +483,7 @@ When approaching a SQL problem:
 - Troubleshooting sql master-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -492,21 +494,26 @@ When approaching a SQL problem:
 # Sql Master Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

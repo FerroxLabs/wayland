@@ -9,19 +9,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "social-media writing content-marketing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'social-media writing content-marketing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Twitter/X Thread Writing
 
 ## When to Use
 
 Use this skill when:
+
 - The user explicitly requests a Twitter thread, X thread, or tweetstorm on any topic
 - The user wants to break down a complex idea, argument, or story into sequenced tweet-sized segments that build on each other
 - The user wants to establish authority or grow an audience by sharing expertise in a structured, readable format
@@ -31,6 +33,7 @@ Use this skill when:
 - The user wants to repurpose a blog post, newsletter section, or talk outline into a Twitter-native format
 
 Do NOT use this skill when:
+
 - The user wants a LinkedIn post -- use `linkedin-post` instead (LinkedIn rewards different structure, longer paragraphs, and a professional framing that differs fundamentally from Twitter's voice)
 - The user wants a LinkedIn article -- use `linkedin-article` instead (3,000+ words, SEO formatting, and academic sourcing conventions are incompatible with this format)
 - The user wants a blog post -- use `blog-post-writing` instead (threads are not blog posts compressed into tweets; they serve a different structural and reader-attention model)
@@ -98,6 +101,7 @@ Tweet 1 is the only tweet that appears in the Twitter timeline before the reader
 - **The provocative question:** "Why do the most productive people you know keep terrible to-do lists?" -- works when the question is specific enough that the reader does not already know the answer.
 
 **Hook anti-patterns to eliminate:**
+
 - "Thread:" or "A thread on X:" -- wastes characters and signals that the writer has nothing urgent to say
 - "I've been thinking about X lately and wanted to share some thoughts" -- zero tension, zero reason to read
 - Starting with a definition ("Cognitive load is the mental effort...") -- sounds like a textbook, not a person
@@ -111,6 +115,7 @@ Tweet 1 is the only tweet that appears in the Twitter timeline before the reader
 Write one sentence per tweet describing what that tweet will accomplish -- not what it will say. This is the thread outline. Each sentence should be a function, not content:
 
 Example outline for a 10-tweet thread:
+
 - Tweet 1: Hook -- create tension with a counterintuitive claim about hiring
 - Tweet 2: Validate the reader's experience -- they have felt this problem
 - Tweet 3: Name the root cause that most people misdiagnose
@@ -305,7 +310,7 @@ If the user insists on a single long thread, deliver it but annotate each tweet 
 
 ### The User Wants to Include External Links
 
-Link placement is a strategic decision, not just a formatting choice. Twitter's algorithm measures "dwell time" on the platform. A link in tweet 1 sends readers away immediately, which signals to the algorithm that the content did not hold attention. For organic reach, place all links in the final tweet or in a dedicated tweet near the end labeled clearly ("Resources and further reading:"). 
+Link placement is a strategic decision, not just a formatting choice. Twitter's algorithm measures "dwell time" on the platform. A link in tweet 1 sends readers away immediately, which signals to the algorithm that the content did not hold attention. For organic reach, place all links in the final tweet or in a dedicated tweet near the end labeled clearly ("Resources and further reading:").
 
 Exception: if the thread is explicitly a promotional thread (the user is promoting their product, newsletter, or event), the link trade-off is acceptable because the goal is conversions, not algorithmic reach. In that case, place the link in both a mid-thread tweet and the final tweet for maximum exposure, but note to the user that this choice optimizes for clicks, not for reach.
 

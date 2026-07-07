@@ -7,20 +7,19 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness guide step-by-step"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness guide step-by-step'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Gender-Specific Health Awareness
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
 
->
 > - Personalized screening schedules
 > - Interpretation of symptoms
 > - Treatment decisions
@@ -31,11 +30,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about womens mens health
 - User needs guidance on womens mens health topics
 - User wants a structured approach to womens mens health
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -194,6 +195,7 @@ Always discuss your family history with your healthcare provider.
 ### Women's Health by Decade
 
 **Ages 20s:**
+
 - Establishing healthy habits (nutrition, exercise, sleep)
 - Menstrual health awareness and cycle tracking
 - Contraception decisions
@@ -202,6 +204,7 @@ Always discuss your family history with your healthcare provider.
 - Skin protection (sunscreen, skin cancer prevention)
 
 **Ages 30s:**
+
 - Fertility awareness and family planning
 - Pregnancy-related health (if applicable)
 - Thyroid health monitoring
@@ -210,6 +213,7 @@ Always discuss your family history with your healthcare provider.
 - Maintaining bone-building through weight-bearing exercise
 
 **Ages 40s:**
+
 - Perimenopause awareness (can begin in early-to-mid 40s)
 - Breast health and mammography
 - Cardiovascular risk increases
@@ -218,6 +222,7 @@ Always discuss your family history with your healthcare provider.
 - Maintaining muscle mass (sarcopenia prevention)
 
 **Ages 50s:**
+
 - Menopause transition and management
 - Bone health becomes critical (accelerated bone loss post-menopause)
 - Heart disease risk increases significantly
@@ -226,6 +231,7 @@ Always discuss your family history with your healthcare provider.
 - Cognitive health maintenance
 
 **Ages 60s+:**
+
 - Osteoporosis screening and management
 - Heart disease (leading cause of death in women)
 - Cancer screenings continuation
@@ -237,6 +243,7 @@ Always discuss your family history with your healthcare provider.
 ### Men's Health by Decade
 
 **Ages 20s:**
+
 - Establishing healthy habits
 - Testicular health awareness
 - Mental health (men less likely to seek help - normalize this)
@@ -245,6 +252,7 @@ Always discuss your family history with your healthcare provider.
 - Skin protection
 
 **Ages 30s:**
+
 - Cardiovascular health foundation (diet, exercise, not smoking)
 - Stress management and work-life balance
 - Weight management (metabolism begins to slow)
@@ -253,6 +261,7 @@ Always discuss your family history with your healthcare provider.
 - Maintaining regular medical checkups (men underutilize healthcare)
 
 **Ages 40s:**
+
 - Heart health becomes critical (risk increases significantly)
 - Colorectal cancer screening begins
 - Diabetes risk increases
@@ -262,6 +271,7 @@ Always discuss your family history with your healthcare provider.
 - Sleep apnea awareness
 
 **Ages 50s:**
+
 - Prostate health discussion with doctor
 - Heart disease prevention intensifies
 - Metabolic syndrome awareness
@@ -271,6 +281,7 @@ Always discuss your family history with your healthcare provider.
 - Maintaining muscle mass and physical activity
 
 **Ages 60s+:**
+
 - Prostate health monitoring
 - Heart disease management
 - Cancer screening continuation
@@ -292,6 +303,7 @@ Always discuss your family history with your healthcare provider.
 | Thyroid (T3/T4) | Metabolism, energy, temperature regulation | Weight changes, fatigue, hair changes, mood |
 
 **Menstrual Cycle Basics:**
+
 ```
 MENSTRUAL CYCLE PHASES (average 28-day cycle)
 ================================================
@@ -306,6 +318,7 @@ extremely painful, or absent (when not pregnant)
 ```
 
 **Perimenopause and Menopause:**
+
 - Perimenopause: Transition period, can last 4-8 years (typically starts in 40s)
 - Menopause: Defined as 12 consecutive months without a period (average age 51)
 - Post-menopause: After menopause; increased risk for osteoporosis and heart disease
@@ -323,6 +336,7 @@ extremely painful, or absent (when not pregnant)
 | Cortisol | Stress response, metabolism, immune function | Fatigue (low), weight gain and anxiety (high) |
 
 **Testosterone and Aging:**
+
 - Testosterone levels peak in late teens/early 20s
 - Gradual decline of approximately 1-2% per year after age 30
 - "Andropause" or "late-onset hypogonadism" is more gradual than menopause
@@ -331,6 +345,7 @@ extremely painful, or absent (when not pregnant)
 - Testosterone replacement therapy requires careful medical evaluation
 
 **When to Discuss Testosterone with Your Doctor:**
+
 - Persistent fatigue not explained by other causes
 - Significant decrease in libido
 - Erectile dysfunction
@@ -342,6 +357,7 @@ extremely painful, or absent (when not pregnant)
 ## Reproductive Health Awareness
 
 ### Women's Reproductive Health
+
 - **Annual well-woman exam:** Discuss with your OB/GYN or primary care provider
 - **Contraception:** Many options available; discuss with provider to find best fit
 - **Fertility awareness:** General fertility begins declining in early 30s, more rapidly after 35
@@ -350,6 +366,7 @@ extremely painful, or absent (when not pregnant)
 - **Breast awareness:** Know what is normal for you; report changes to your doctor
 
 ### Men's Reproductive Health
+
 - **Testicular awareness:** Know what is normal; report changes, lumps, or pain
 - **Prostate health:** Discuss screening timeline with your doctor
 - **Fertility:** Generally maintained longer than in women, but quality declines with age
@@ -405,13 +422,13 @@ LIFESTYLE:
 
 ### Key Differences Between Women and Men
 
-| Factor | Women | Men |
-|--------|-------|-----|
-| Age of onset | Typically 10 years later than men | Earlier onset (risk rises after 45) |
-| Symptoms of heart attack | May be "atypical" - fatigue, nausea, back/jaw pain, shortness of breath | More often "classic" - chest pain/pressure, left arm pain |
-| Risk factors | All standard risks + pregnancy complications, autoimmune diseases, menopause | All standard risks + earlier family history threshold |
-| Awareness | Women's heart disease often underdiagnosed | Generally better recognized |
-| Leading cause of death | #1 for women (kills more women than all cancers combined) | #1 for men |
+| Factor                   | Women                                                                        | Men                                                       |
+| ------------------------ | ---------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Age of onset             | Typically 10 years later than men                                            | Earlier onset (risk rises after 45)                       |
+| Symptoms of heart attack | May be "atypical" - fatigue, nausea, back/jaw pain, shortness of breath      | More often "classic" - chest pain/pressure, left arm pain |
+| Risk factors             | All standard risks + pregnancy complications, autoimmune diseases, menopause | All standard risks + earlier family history threshold     |
+| Awareness                | Women's heart disease often underdiagnosed                                   | Generally better recognized                               |
+| Leading cause of death   | #1 for women (kills more women than all cancers combined)                    | #1 for men                                                |
 
 ### Heart Attack Warning Signs
 
@@ -481,13 +498,13 @@ Discuss these with your healthcare provider at your next visit.
 
 ### Common Barriers and Solutions
 
-| Barrier | Solution |
-|---------|----------|
-| "I feel fine, why see a doctor?" | Many conditions have no symptoms until advanced. Screening catches them early when most treatable. |
-| "I can't afford it" | Community health centers offer sliding-scale fees. Many screenings are covered by insurance with no copay under the ACA. |
-| "I don't have time" | Schedule annual exams like any other important appointment. Many screenings take under 30 minutes. |
-| "I'm scared of what they'll find" | Early detection saves lives. Not knowing doesn't protect you. |
-| "I don't have a doctor" | Start with a community health center, or ask your insurance for in-network providers. Telehealth is also an option. |
+| Barrier                              | Solution                                                                                                                  |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| "I feel fine, why see a doctor?"     | Many conditions have no symptoms until advanced. Screening catches them early when most treatable.                        |
+| "I can't afford it"                  | Community health centers offer sliding-scale fees. Many screenings are covered by insurance with no copay under the ACA.  |
+| "I don't have time"                  | Schedule annual exams like any other important appointment. Many screenings take under 30 minutes.                        |
+| "I'm scared of what they'll find"    | Early detection saves lives. Not knowing doesn't protect you.                                                             |
+| "I don't have a doctor"              | Start with a community health center, or ask your insurance for in-network providers. Telehealth is also an option.       |
 | "Men don't need to go to the doctor" | Men die younger on average partly due to underutilization of healthcare. Regular checkups are a strength, not a weakness. |
 
 ### Building a Preventive Health Routine
@@ -518,7 +535,6 @@ Questions for my next doctor visit:
   2. _______________________________________________
   3. _______________________________________________
 ```
-
 
 ## Output Format
 

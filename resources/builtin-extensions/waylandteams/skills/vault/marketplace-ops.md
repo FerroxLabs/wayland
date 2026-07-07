@@ -19,9 +19,9 @@ Trigger phrases:
 
 **1. Confirm the marketplace fit.** Not every product belongs on every marketplace.
 
-- *Category demand.* Use platform search-volume tools (Amazon Brand Analytics; Etsy search trends). Shallow demand cannot be saved by ads.
-- *Margin tolerance.* Fees (referral + fulfillment + ads) typically consume 30-45% of revenue. If gross margin goes negative under that load, name it as a brand-awareness channel, not a profit channel.
-- *Brand protection.* Some marketplaces invite resellers and counterfeits. Factor in Brand Registry / authorized-seller programs before launch.
+- _Category demand._ Use platform search-volume tools (Amazon Brand Analytics; Etsy search trends). Shallow demand cannot be saved by ads.
+- _Margin tolerance._ Fees (referral + fulfillment + ads) typically consume 30-45% of revenue. If gross margin goes negative under that load, name it as a brand-awareness channel, not a profit channel.
+- _Brand protection._ Some marketplaces invite resellers and counterfeits. Factor in Brand Registry / authorized-seller programs before launch.
 
 **2. Build the listing for marketplace search, not a brand site.** A listing is a search result first.
 
@@ -35,8 +35,8 @@ Trigger phrases:
 
 **4. Run ads as a launch ladder, then a defense layer.**
 
-- *Launch ladder:* aggressive Sponsored Products on exact-match buyer keywords for 60-90 days to manufacture sales velocity and review accumulation. High ACoS acceptable — name the threshold and exit criteria.
-- *Defense layer:* once organic ranking is earned, ads defend against competitor brand-bidding, capture incremental category traffic, protect the buy box. Tighten ACoS to ROAS that supports next-sale unit economics, not just ad-attributed.
+- _Launch ladder:_ aggressive Sponsored Products on exact-match buyer keywords for 60-90 days to manufacture sales velocity and review accumulation. High ACoS acceptable — name the threshold and exit criteria.
+- _Defense layer:_ once organic ranking is earned, ads defend against competitor brand-bidding, capture incremental category traffic, protect the buy box. Tighten ACoS to ROAS that supports next-sale unit economics, not just ad-attributed.
 
 **5. Run a weekly listing-health cadence.** Mondays: suppressed listings, buy-box share, inventory days-on-hand, review velocity, rating drift, ad pacing, hijacker scan. Monthly: catalog audit, image refresh, A+ updates, price-test review.
 
@@ -63,7 +63,9 @@ Trigger phrases:
 **Brief:** "Should we launch our SKU on Amazon?"
 
 **Before** (vague go/no-go):
-> *Amazon is huge — launch and see what happens.*
+
+> _Amazon is huge — launch and see what happens._
 
 **After** (fit-first, 2026-05-16):
-> *Step one: pull Brand Analytics on the top three category keywords; confirm monthly volume above threshold and a top-10 SERP not dominated by entrenched private label. Step two: model unit economics with 15% referral + FBA + 25% launch-ACoS — if margin survives, proceed; if negative, name Amazon as brand-awareness, not profit. Step three: 90-day plan — weeks 1-2 listing build (title + 7 images + A+ + 250-word Rufus-friendly description), week 3 FBA inventory, week 4 launch on three exact-match keywords + Vine for first 30 reviews. Measure: organic rank for primary keyword by day 60, review count by day 90, ACoS below category median by day 120.*
+
+> _Step one: pull Brand Analytics on the top three category keywords; confirm monthly volume above threshold and a top-10 SERP not dominated by entrenched private label. Step two: model unit economics with 15% referral + FBA + 25% launch-ACoS — if margin survives, proceed; if negative, name Amazon as brand-awareness, not profit. Step three: 90-day plan — weeks 1-2 listing build (title + 7 images + A+ + 250-word Rufus-friendly description), week 3 FBA inventory, week 4 launch on three exact-match keywords + Vine for first 30 reviews. Measure: organic rank for primary keyword by day 60, review count by day 90, ACoS below category median by day 120._

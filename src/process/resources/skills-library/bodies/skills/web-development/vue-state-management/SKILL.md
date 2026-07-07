@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript frameworks frontend design-patterns"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript frameworks frontend design-patterns'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Vue State Management
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is choosing between Pinia, Vuex 4, Composables + `provide`/`inject`, or local component state for a Vue 3 (or Vue 2 + Composition API) project and needs a principled recommendation
 - User has an existing Vuex 3/4 store that is growing unwieldy (god stores, circular action dependencies, deeply nested module namespacing) and needs a migration or refactor path
 - User is implementing cross-component state that outlives any single component's lifecycle -- shopping carts, authentication state, multi-step form wizards, real-time WebSocket data
@@ -30,6 +32,7 @@ metadata:
 - User needs SSR-safe state management in Nuxt 3 or a custom Vue SSR setup
 
 **Do NOT use this skill when:**
+
 - User needs React state management -- use the react-state-management skill instead
 - User is asking about Vue component props/emits patterns for parent-child communication -- that is covered by the vue-component-communication skill
 - User needs server state caching strategies specifically (TanStack Query for Vue, Apollo Client) -- those warrant their own skill with query/mutation lifecycle focus
@@ -135,10 +138,11 @@ Apply performance and observability patterns before shipping.
 
 When responding to a user, structure the output as follows based on what they need:
 
-```markdown
+````markdown
 ## State Management Recommendation: [Project/Feature Name]
 
 ### Diagnosis
+
 **State category:** [Local UI / Shared UI / Domain / Server/Async / Form]
 **Scope:** [Component-local / Feature-scoped / App-global]
 **Selected tool:** [ref/reactive / provide-inject composable / Pinia Setup Store / Pinia Options Store / Vuex 4 module]
@@ -148,15 +152,15 @@ When responding to a user, structure the output as follows based on what they ne
 
 ### Architecture Decision Matrix
 
-| Criterion                  | provide/inject | Pinia Setup Store | Pinia Options Store | Vuex 4 Module |
-|---------------------------|---------------|-------------------|---------------------|---------------|
-| TypeScript ergonomics     | Excellent     | Excellent         | Good                | Fair          |
-| DevTools support          | Partial       | Full              | Full                | Full          |
-| SSR safety                | Manual        | Built-in          | Built-in            | Built-in      |
-| Learning curve            | Low           | Medium            | Low                 | Medium        |
-| Boilerplate               | Minimal       | Low               | Medium              | High          |
-| Plugin ecosystem          | None          | Rich              | Rich                | Moderate      |
-| Recommended for project   | [Yes/No]      | [Yes/No]          | [Yes/No]            | [Yes/No]      |
+| Criterion               | provide/inject | Pinia Setup Store | Pinia Options Store | Vuex 4 Module |
+| ----------------------- | -------------- | ----------------- | ------------------- | ------------- |
+| TypeScript ergonomics   | Excellent      | Excellent         | Good                | Fair          |
+| DevTools support        | Partial        | Full              | Full                | Full          |
+| SSR safety              | Manual         | Built-in          | Built-in            | Built-in      |
+| Learning curve          | Low            | Medium            | Low                 | Medium        |
+| Boilerplate             | Minimal        | Low               | Medium              | High          |
+| Plugin ecosystem        | None           | Rich              | Rich                | Moderate      |
+| Recommended for project | [Yes/No]       | [Yes/No]          | [Yes/No]            | [Yes/No]      |
 
 ---
 
@@ -165,11 +169,13 @@ When responding to a user, structure the output as follows based on what they ne
 **File:** `src/stores/[domain].ts`
 **Store ID:** `'[domain]'`
 **State shape:**
+
 ```ts
 interface [Domain]State {
   // List all state properties with types
 }
 ```
+````
 
 ---
 
@@ -198,10 +204,12 @@ interface [Domain]State {
 ---
 
 ### Known Risks and Mitigations
-| Risk | Likelihood | Mitigation |
-|------|-----------|------------|
+
+| Risk            | Likelihood   | Mitigation        |
+| --------------- | ------------ | ----------------- |
 | [specific risk] | High/Med/Low | [specific action] |
-```
+
+````
 
 ---
 
@@ -354,150 +362,129 @@ export interface CartState {
   promoError: string | null
   isValidatingPromo: boolean
 }
-```
+````
 
 ```ts
 // src/stores/cart.ts
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
-import type { CartItem, PromoCode } from '@/types/cart'
-import { validatePromoCode, updateCartItemQuantity } from '@/api/cart'
+import { ref, computed } from 'vue';
+import { defineStore } from 'pinia';
+import type { CartItem, PromoCode } from '@/types/cart';
+import { validatePromoCode, updateCartItemQuantity } from '@/api/cart';
 
 export const useCartStore = defineStore(
   'cart',
   () => {
     // ── State ─────────────────────────────────────────────────────────────
-    const items = ref<CartItem[]>([])
-    const promoCode = ref<PromoCode | null>(null)
-    const promoError = ref<string | null>(null)
-    const isValidatingPromo = ref(false)
+    const items = ref<CartItem[]>([]);
+    const promoCode = ref<PromoCode | null>(null);
+    const promoError = ref<string | null>(null);
+    const isValidatingPromo = ref(false);
 
     // Per-item loading state: productId+variantId composite key -> boolean
     // Using a Map avoids O(n) array scans and keeps the ref surface minimal
-    const itemLoadingStates = ref<Map<string, boolean>>(new Map())
+    const itemLoadingStates = ref<Map<string, boolean>>(new Map());
 
     // ── Private helpers ───────────────────────────────────────────────────
-    const itemKey = (productId: string, variantId: string) =>
-      `${productId}::${variantId}`
+    const itemKey = (productId: string, variantId: string) => `${productId}::${variantId}`;
 
     const initialState = () => ({
       items: [] as CartItem[],
       promoCode: null as PromoCode | null,
       promoError: null as string | null,
-    })
+    });
 
     // ── Getters ───────────────────────────────────────────────────────────
-    const subtotalCents = computed(() =>
-      items.value.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-    )
+    const subtotalCents = computed(() => items.value.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0));
 
     const discountCents = computed(() => {
-      if (!promoCode.value) return 0
-      const promo = promoCode.value
-      if (subtotalCents.value < promo.minimumOrderCents) return 0
+      if (!promoCode.value) return 0;
+      const promo = promoCode.value;
+      if (subtotalCents.value < promo.minimumOrderCents) return 0;
       if (promo.discountType === 'percentage') {
-        return Math.round(subtotalCents.value * (promo.discountValue / 100))
+        return Math.round(subtotalCents.value * (promo.discountValue / 100));
       }
-      return Math.min(promo.discountValue, subtotalCents.value)
-    })
+      return Math.min(promo.discountValue, subtotalCents.value);
+    });
 
-    const totalCents = computed(() =>
-      Math.max(0, subtotalCents.value - discountCents.value)
-    )
+    const totalCents = computed(() => Math.max(0, subtotalCents.value - discountCents.value));
 
-    const itemCount = computed(() =>
-      items.value.reduce((sum, item) => sum + item.quantity, 0)
-    )
+    const itemCount = computed(() => items.value.reduce((sum, item) => sum + item.quantity, 0));
 
     const isItemLoading = computed(
       () => (productId: string, variantId: string) =>
         itemLoadingStates.value.get(itemKey(productId, variantId)) ?? false
-    )
+    );
 
-    const isCartEmpty = computed(() => items.value.length === 0)
+    const isCartEmpty = computed(() => items.value.length === 0);
 
     // ── Actions ───────────────────────────────────────────────────────────
     function addItem(item: CartItem): void {
-      const existing = items.value.find(
-        (i) => i.productId === item.productId && i.variantId === item.variantId
-      )
+      const existing = items.value.find((i) => i.productId === item.productId && i.variantId === item.variantId);
       if (existing) {
-        const newQty = Math.min(
-          existing.quantity + item.quantity,
-          existing.maxQuantity
-        )
-        existing.quantity = newQty
+        const newQty = Math.min(existing.quantity + item.quantity, existing.maxQuantity);
+        existing.quantity = newQty;
       } else {
-        items.value.push({ ...item })
+        items.value.push({ ...item });
       }
     }
 
     function removeItem(productId: string, variantId: string): void {
-      const index = items.value.findIndex(
-        (i) => i.productId === productId && i.variantId === variantId
-      )
-      if (index !== -1) items.value.splice(index, 1)
+      const index = items.value.findIndex((i) => i.productId === productId && i.variantId === variantId);
+      if (index !== -1) items.value.splice(index, 1);
     }
 
-    async function updateQuantity(
-      productId: string,
-      variantId: string,
-      newQuantity: number
-    ): Promise<void> {
-      const key = itemKey(productId, variantId)
-      const item = items.value.find(
-        (i) => i.productId === productId && i.variantId === variantId
-      )
-      if (!item) return
+    async function updateQuantity(productId: string, variantId: string, newQuantity: number): Promise<void> {
+      const key = itemKey(productId, variantId);
+      const item = items.value.find((i) => i.productId === productId && i.variantId === variantId);
+      if (!item) return;
       if (newQuantity < 1) {
-        removeItem(productId, variantId)
-        return
+        removeItem(productId, variantId);
+        return;
       }
-      if (newQuantity > item.maxQuantity) return
+      if (newQuantity > item.maxQuantity) return;
 
       // Optimistic update
-      const previousQuantity = item.quantity
-      item.quantity = newQuantity
-      itemLoadingStates.value.set(key, true)
+      const previousQuantity = item.quantity;
+      item.quantity = newQuantity;
+      itemLoadingStates.value.set(key, true);
 
       try {
-        await updateCartItemQuantity({ productId, variantId, quantity: newQuantity })
+        await updateCartItemQuantity({ productId, variantId, quantity: newQuantity });
       } catch (err) {
         // Roll back on failure
-        item.quantity = previousQuantity
-        console.error('[CartStore] updateQuantity failed, rolled back', err)
+        item.quantity = previousQuantity;
+        console.error('[CartStore] updateQuantity failed, rolled back', err);
       } finally {
-        itemLoadingStates.value.set(key, false)
+        itemLoadingStates.value.set(key, false);
       }
     }
 
     async function applyPromoCode(code: string): Promise<void> {
-      promoError.value = null
-      isValidatingPromo.value = true
+      promoError.value = null;
+      isValidatingPromo.value = true;
 
       try {
-        const validated = await validatePromoCode(code, subtotalCents.value)
-        promoCode.value = validated
+        const validated = await validatePromoCode(code, subtotalCents.value);
+        promoCode.value = validated;
       } catch (err: unknown) {
-        promoCode.value = null
-        promoError.value =
-          err instanceof Error ? err.message : 'Invalid promo code'
+        promoCode.value = null;
+        promoError.value = err instanceof Error ? err.message : 'Invalid promo code';
       } finally {
-        isValidatingPromo.value = false
+        isValidatingPromo.value = false;
       }
     }
 
     function removePromoCode(): void {
-      promoCode.value = null
-      promoError.value = null
+      promoCode.value = null;
+      promoError.value = null;
     }
 
     function $reset(): void {
-      const initial = initialState()
-      items.value = initial.items
-      promoCode.value = initial.promoCode
-      promoError.value = initial.promoError
-      itemLoadingStates.value.clear()
+      const initial = initialState();
+      items.value = initial.items;
+      promoCode.value = initial.promoCode;
+      promoError.value = initial.promoError;
+      itemLoadingStates.value.clear();
     }
 
     return {
@@ -520,7 +507,7 @@ export const useCartStore = defineStore(
       applyPromoCode,
       removePromoCode,
       $reset,
-    }
+    };
   },
   {
     // pinia-plugin-persistedstate config
@@ -530,7 +517,7 @@ export const useCartStore = defineStore(
       paths: ['items', 'promoCode'],
     },
   }
-)
+);
 ```
 
 ---
@@ -540,27 +527,25 @@ export const useCartStore = defineStore(
 ```vue
 <!-- src/components/CartLineItem.vue -->
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { useCartStore } from '@/stores/cart'
-import type { CartItem } from '@/types/cart'
+import { storeToRefs } from 'pinia';
+import { useCartStore } from '@/stores/cart';
+import type { CartItem } from '@/types/cart';
 
-const props = defineProps<{ item: CartItem }>()
+const props = defineProps<{ item: CartItem }>();
 
-const cartStore = useCartStore()
+const cartStore = useCartStore();
 
 // storeToRefs preserves reactivity for state and getters
-const { isItemLoading } = storeToRefs(cartStore)
+const { isItemLoading } = storeToRefs(cartStore);
 
 // Actions are plain functions -- no storeToRefs needed
-const { updateQuantity, removeItem } = cartStore
+const { updateQuantity, removeItem } = cartStore;
 
-const isLoading = computed(() =>
-  isItemLoading.value(props.item.productId, props.item.variantId)
-)
+const isLoading = computed(() => isItemLoading.value(props.item.productId, props.item.variantId));
 
 function onQuantityChange(event: Event) {
-  const qty = Number((event.target as HTMLInputElement).value)
-  updateQuantity(props.item.productId, props.item.variantId, qty)
+  const qty = Number((event.target as HTMLInputElement).value);
+  updateQuantity(props.item.productId, props.item.variantId, qty);
 }
 </script>
 
@@ -576,10 +561,8 @@ function onQuantityChange(event: Event) {
       :disabled="isLoading"
       @change="onQuantityChange"
     />
-    <span class="price">{{ (item.unitPrice * item.quantity / 100).toFixed(2) }}</span>
-    <button :disabled="isLoading" @click="removeItem(item.productId, item.variantId)">
-      Remove
-    </button>
+    <span class="price">{{ ((item.unitPrice * item.quantity) / 100).toFixed(2) }}</span>
+    <button :disabled="isLoading" @click="removeItem(item.productId, item.variantId)">Remove</button>
     <span v-if="isLoading" class="spinner" aria-label="Updating quantity..." />
   </div>
 </template>
@@ -591,15 +574,15 @@ function onQuantityChange(event: Event) {
 
 ```ts
 // src/stores/__tests__/cart.spec.ts
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-import { useCartStore } from '../cart'
-import * as cartApi from '@/api/cart'
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { setActivePinia, createPinia } from 'pinia';
+import { useCartStore } from '../cart';
+import * as cartApi from '@/api/cart';
 
 vi.mock('@/api/cart', () => ({
   validatePromoCode: vi.fn(),
   updateCartItemQuantity: vi.fn(),
-}))
+}));
 
 const mockItem = {
   productId: 'prod-1',
@@ -609,64 +592,62 @@ const mockItem = {
   unitPrice: 2999, // $29.99
   quantity: 1,
   maxQuantity: 5,
-}
+};
 
 describe('useCartStore', () => {
   beforeEach(() => {
     // Fresh Pinia instance prevents state leakage between tests
-    setActivePinia(createPinia())
-    vi.clearAllMocks()
-  })
+    setActivePinia(createPinia());
+    vi.clearAllMocks();
+  });
 
   it('adds an item to the cart', () => {
-    const store = useCartStore()
-    store.addItem(mockItem)
-    expect(store.items).toHaveLength(1)
-    expect(store.itemCount).toBe(1)
-  })
+    const store = useCartStore();
+    store.addItem(mockItem);
+    expect(store.items).toHaveLength(1);
+    expect(store.itemCount).toBe(1);
+  });
 
   it('merges duplicate items instead of adding a second entry', () => {
-    const store = useCartStore()
-    store.addItem(mockItem)
-    store.addItem({ ...mockItem, quantity: 2 })
-    expect(store.items).toHaveLength(1)
-    expect(store.items[0].quantity).toBe(3)
-  })
+    const store = useCartStore();
+    store.addItem(mockItem);
+    store.addItem({ ...mockItem, quantity: 2 });
+    expect(store.items).toHaveLength(1);
+    expect(store.items[0].quantity).toBe(3);
+  });
 
   it('respects maxQuantity when merging', () => {
-    const store = useCartStore()
-    store.addItem({ ...mockItem, quantity: 4 })
-    store.addItem({ ...mockItem, quantity: 3 }) // would be 7, max is 5
-    expect(store.items[0].quantity).toBe(5)
-  })
+    const store = useCartStore();
+    store.addItem({ ...mockItem, quantity: 4 });
+    store.addItem({ ...mockItem, quantity: 3 }); // would be 7, max is 5
+    expect(store.items[0].quantity).toBe(5);
+  });
 
   it('calculates subtotal correctly', () => {
-    const store = useCartStore()
-    store.addItem({ ...mockItem, quantity: 2 }) // 2 * 2999 = 5998
-    expect(store.subtotalCents).toBe(5998)
-  })
+    const store = useCartStore();
+    store.addItem({ ...mockItem, quantity: 2 }); // 2 * 2999 = 5998
+    expect(store.subtotalCents).toBe(5998);
+  });
 
   it('rolls back quantity on API failure', async () => {
-    vi.mocked(cartApi.updateCartItemQuantity).mockRejectedValue(
-      new Error('Network error')
-    )
-    const store = useCartStore()
-    store.addItem(mockItem) // quantity: 1
-    await store.updateQuantity('prod-1', 'var-sm', 3)
+    vi.mocked(cartApi.updateCartItemQuantity).mockRejectedValue(new Error('Network error'));
+    const store = useCartStore();
+    store.addItem(mockItem); // quantity: 1
+    await store.updateQuantity('prod-1', 'var-sm', 3);
     // Should roll back to original quantity 1
-    expect(store.items[0].quantity).toBe(1)
-  })
+    expect(store.items[0].quantity).toBe(1);
+  });
 
   it('sets and clears per-item loading state during updateQuantity', async () => {
-    vi.mocked(cartApi.updateCartItemQuantity).mockResolvedValue(undefined)
-    const store = useCartStore()
-    store.addItem(mockItem)
+    vi.mocked(cartApi.updateCartItemQuantity).mockResolvedValue(undefined);
+    const store = useCartStore();
+    store.addItem(mockItem);
 
-    const promise = store.updateQuantity('prod-1', 'var-sm', 2)
-    expect(store.isItemLoading('prod-1', 'var-sm')).toBe(true)
-    await promise
-    expect(store.isItemLoading('prod-1', 'var-sm')).toBe(false)
-  })
+    const promise = store.updateQuantity('prod-1', 'var-sm', 2);
+    expect(store.isItemLoading('prod-1', 'var-sm')).toBe(true);
+    await promise;
+    expect(store.isItemLoading('prod-1', 'var-sm')).toBe(false);
+  });
 
   it('applies a percentage promo code correctly', async () => {
     vi.mocked(cartApi.validatePromoCode).mockResolvedValue({
@@ -674,43 +655,41 @@ describe('useCartStore', () => {
       discountType: 'percentage',
       discountValue: 10,
       minimumOrderCents: 0,
-    })
-    const store = useCartStore()
-    store.addItem({ ...mockItem, quantity: 1 }) // $29.99
-    await store.applyPromoCode('SAVE10')
-    expect(store.discountCents).toBe(300) // 10% of 2999 = 299.9 -> 300
-    expect(store.totalCents).toBe(2699)
-  })
+    });
+    const store = useCartStore();
+    store.addItem({ ...mockItem, quantity: 1 }); // $29.99
+    await store.applyPromoCode('SAVE10');
+    expect(store.discountCents).toBe(300); // 10% of 2999 = 299.9 -> 300
+    expect(store.totalCents).toBe(2699);
+  });
 
   it('sets promoError on invalid promo code', async () => {
-    vi.mocked(cartApi.validatePromoCode).mockRejectedValue(
-      new Error('Code expired')
-    )
-    const store = useCartStore()
-    await store.applyPromoCode('EXPIRED')
-    expect(store.promoCode).toBeNull()
-    expect(store.promoError).toBe('Code expired')
-  })
+    vi.mocked(cartApi.validatePromoCode).mockRejectedValue(new Error('Code expired'));
+    const store = useCartStore();
+    await store.applyPromoCode('EXPIRED');
+    expect(store.promoCode).toBeNull();
+    expect(store.promoError).toBe('Code expired');
+  });
 
   it('resets all state via $reset', () => {
-    const store = useCartStore()
-    store.addItem(mockItem)
-    store.$reset()
-    expect(store.items).toHaveLength(0)
-    expect(store.promoCode).toBeNull()
-    expect(store.totalCents).toBe(0)
-  })
-})
+    const store = useCartStore();
+    store.addItem(mockItem);
+    store.$reset();
+    expect(store.items).toHaveLength(0);
+    expect(store.promoCode).toBeNull();
+    expect(store.totalCents).toBe(0);
+  });
+});
 ```
 
 ---
 
 #### Known Risks and Mitigations
 
-| Risk | Likelihood | Mitigation |
-|------|-----------|------------|
-| `itemLoadingStates` Map is not persisted -- on refresh, all loading states correctly reset | Low (intended) | Document that loading state is ephemeral by design |
-| Stale `maxQuantity` after stock changes | Medium | Refresh cart from API on checkout page mount, compare stock vs stored `maxQuantity` |
-| Promo code still applied after cart items are removed that push subtotal below minimum | Medium | Add a `watchEffect` in the promo getter that returns 0 discount when `subtotalCents < promo.minimumOrderCents`; already handled in `discountCents` getter |
-| `localStorage` state desync if cart schema changes between deployments | High | Version the persisted key: `key: 'cart-v2'`. On mismatch, `$reset()` and migrate gracefully |
-| Two tabs simultaneously updating the same item quantity produce conflicting local states | Low-Medium | Use server-authoritative state on checkout page: fetch fresh cart from API before rendering payment step |
+| Risk                                                                                       | Likelihood     | Mitigation                                                                                                                                                |
+| ------------------------------------------------------------------------------------------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `itemLoadingStates` Map is not persisted -- on refresh, all loading states correctly reset | Low (intended) | Document that loading state is ephemeral by design                                                                                                        |
+| Stale `maxQuantity` after stock changes                                                    | Medium         | Refresh cart from API on checkout page mount, compare stock vs stored `maxQuantity`                                                                       |
+| Promo code still applied after cart items are removed that push subtotal below minimum     | Medium         | Add a `watchEffect` in the promo getter that returns 0 discount when `subtotalCents < promo.minimumOrderCents`; already handled in `discountCents` getter |
+| `localStorage` state desync if cart schema changes between deployments                     | High           | Version the persisted key: `key: 'cart-v2'`. On mismatch, `$reset()` and migrate gracefully                                                               |
+| Two tabs simultaneously updating the same item quantity produce conflicting local states   | Low-Medium     | Use server-authoritative state on checkout page: fetch fresh cart from API before rendering payment step                                                  |

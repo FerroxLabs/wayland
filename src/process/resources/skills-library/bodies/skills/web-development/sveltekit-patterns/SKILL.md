@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript frameworks web-development backend"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript frameworks web-development backend'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # SvelteKit Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks how to structure data loading in SvelteKit using `+page.server.ts`, `+page.ts`, or `+layout.server.ts` and needs to understand the difference between server-only and universal loaders
 - The user wants to implement form actions, progressive enhancement, or server-side mutations without building a separate REST API layer
 - The user needs guidance on SvelteKit's file-based routing system -- including route groups, optional parameters, rest parameters, and parallel route loading
@@ -29,6 +31,7 @@ metadata:
 - The user needs to implement real-time features, optimistic UI updates, or complex client-side state that interacts with SvelteKit's store system
 
 **Do NOT use this skill when:**
+
 - The user is asking about general Svelte component patterns unrelated to routing, loading, or the SvelteKit framework -- check the Svelte component patterns skill instead
 - The user needs help with a different meta-framework (Next.js, Nuxt, Remix, Astro) -- those have different mental models and distinct skills
 - The user wants to set up a REST or GraphQL API without any UI layer -- that is a backend API design problem, not a SvelteKit routing concern
@@ -66,6 +69,7 @@ SvelteKit supports four rendering strategies and the correct pattern depends ent
 - **Edge rendering** -- deploy with an edge adapter (Cloudflare Workers, Vercel Edge); code runs in V8 isolates without Node.js APIs
 
 Ask or infer the rendering strategy from context:
+
 - Marketing or documentation sites → SSG with prerendering
 - Authenticated dashboards → SSR with server-only load functions
 - High-throughput read APIs with user-specific data → SSR + edge adapter + aggressive caching
@@ -92,6 +96,7 @@ Does the data require credentials, secrets, or database access?
 ```
 
 Key rules for load functions:
+
 - Server `load` functions receive `{ params, url, locals, cookies, fetch, setHeaders, parent }` -- never `request` (that is for actions and `+server.ts`)
 - The `fetch` provided to `load` functions is special -- it forwards cookies, deduplicates requests, and works correctly with relative URLs
 - `parent()` retrieves the return value of the nearest parent layout's `load` function -- use it to access session data without re-fetching
@@ -114,6 +119,7 @@ Is the mutation triggered by a form submission (or can it be modeled as one)?
 ```
 
 Form action patterns:
+
 - Default action: `export const actions = { default: async ({ request, locals, cookies }) => {} }`
 - Named actions: `export const actions = { create: async (...) => {}, update: async (...) => {}, delete: async (...) => {} }`
 - Access form data with `const data = await request.formData(); const value = data.get('fieldname') as string`
@@ -122,6 +128,7 @@ Form action patterns:
 - Use `use:enhance` from `$app/forms` to progressively enhance forms -- the callback receives `{ formElement, formData, action, cancel, submitter }` before submission and returns an async function that receives `{ result, update }` after
 
 Progressive enhancement with custom behavior:
+
 ```typescript
 import { enhance } from '$app/forms';
 import { applyAction } from '$app/forms';
@@ -146,6 +153,7 @@ function submitHandler() {
 Authentication in SvelteKit belongs in `hooks.server.ts`, not in individual load functions. The correct pattern:
 
 **Step 1 -- Validate session in the handle hook:**
+
 ```typescript
 // src/hooks.server.ts
 import type { Handle } from '@sveltejs/kit';
@@ -167,6 +175,7 @@ export const handle = sequence(auth);
 ```
 
 **Step 2 -- Declare locals type in `app.d.ts`:**
+
 ```typescript
 declare global {
   namespace App {
@@ -182,6 +191,7 @@ declare global {
 ```
 
 **Step 3 -- Access locals in layout load function to populate PageData:**
+
 ```typescript
 // src/routes/+layout.server.ts
 export async function load({ locals }) {
@@ -190,6 +200,7 @@ export async function load({ locals }) {
 ```
 
 **Step 4 -- Protect routes in load functions:**
+
 ```typescript
 // src/routes/(protected)/+layout.server.ts
 import { redirect } from '@sveltejs/kit';
@@ -210,41 +221,47 @@ Use route groups `(protected)` and `(public)` to separate layouts without affect
 SvelteKit's performance model has several distinct optimization levers:
 
 **Streaming with `defer`-style patterns:**
+
 ```typescript
 // +page.server.ts
 export async function load({ fetch }) {
   // Critical data -- awaited immediately
   const user = await getUser();
-  
+
   // Deferred data -- returned as a Promise, streamed to client
   const recommendations = getRecommendations(user.id); // NOT awaited
-  
+
   return {
     user,
-    streamed: { recommendations }
+    streamed: { recommendations },
   };
 }
 ```
+
 In the template, use `{#await data.streamed.recommendations}` blocks to show loading states while the promise resolves.
 
 **HTTP cache headers via `setHeaders`:**
+
 ```typescript
 export async function load({ setHeaders }) {
   setHeaders({
-    'cache-control': 'max-age=60, stale-while-revalidate=3600'
+    'cache-control': 'max-age=60, stale-while-revalidate=3600',
   });
   // ...
 }
 ```
+
 Only available in server load functions; ignored in universal load functions during client-side navigation.
 
 **Invalidation patterns:**
+
 - `invalidate('app:user')` -- invalidate any load functions that called `depends('app:user')`
 - `invalidateAll()` -- re-run all load functions for the current page (expensive, use sparingly)
 - `goto(url, { invalidateAll: true })` -- navigate and invalidate
 - Prefer targeted `depends` + `invalidate` over `invalidateAll`
 
 **Preloading:**
+
 - Add `data-sveltekit-preload-data="hover"` to links for hover-triggered prefetching
 - Use `preloadData(url)` programmatically from `$app/navigation` for complex prefetch scenarios
 - Set `preload` in `svelte.config.js` under `kit.preload` to control which asset types are preloaded
@@ -256,6 +273,7 @@ Only available in server load functions; ignored in universal load functions dur
 For projects beyond a handful of routes, apply these organizational patterns:
 
 **Route groups for layout isolation:**
+
 ```
 src/routes/
   (marketing)/          # Public marketing pages with minimal layout
@@ -273,6 +291,7 @@ src/routes/
 ```
 
 **Shared load utilities:**
+
 ```typescript
 // src/lib/server/data.ts -- server-only, never imported in client code
 export async function requireUser(locals: App.Locals) {
@@ -282,12 +301,14 @@ export async function requireUser(locals: App.Locals) {
 ```
 
 **Type-safe `$lib` imports:**
+
 - `$lib` maps to `src/lib` -- use it for all shared code
 - `$lib/server/` -- server-only modules; SvelteKit enforces this; importing from client code throws a build error
 - `$lib/components/` -- shared Svelte components
 - `$lib/utils/` -- shared pure utilities safe for both environments
 
 **Configuration in `svelte.config.js`:**
+
 ```javascript
 import adapter from '@sveltejs/adapter-auto';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
@@ -297,12 +318,12 @@ export default {
   kit: {
     adapter: adapter(),
     alias: {
-      '$components': 'src/components',
-      '$server': 'src/lib/server'
+      $components: 'src/components',
+      $server: 'src/lib/server',
     },
     csrf: { checkOrigin: true },
-    env: { publicPrefix: 'PUBLIC_' }
-  }
+    env: { publicPrefix: 'PUBLIC_' },
+  },
 };
 ```
 
@@ -313,6 +334,7 @@ export default {
 SvelteKit-specific testing patterns:
 
 **Unit testing load functions with Vitest:**
+
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
 import { load } from './+page.server';
@@ -323,7 +345,7 @@ describe('page load', () => {
       locals: { user: null },
       params: {},
       url: new URL('http://localhost/dashboard'),
-      cookies: { get: vi.fn() }
+      cookies: { get: vi.fn() },
     };
     await expect(load(event as any)).rejects.toMatchObject({ status: 302 });
   });
@@ -331,11 +353,13 @@ describe('page load', () => {
 ```
 
 **Integration testing with Playwright:**
+
 - Use `@playwright/test` with SvelteKit's dev server; `npm create playwright` scaffolds the setup
 - Test form submissions end-to-end including validation errors and redirect behavior
 - Test with JavaScript disabled to verify progressive enhancement works correctly
 
 **Type safety:**
+
 - Use the generated `PageData`, `PageServerLoad`, `LayoutServerLoad`, `Actions` types from `./$types` -- these are auto-generated by the SvelteKit compiler per route
 - Never manually type load function return values; rely on inference from the generated types
 
@@ -441,18 +465,19 @@ export const actions = {
   upload: async ({ request }) => {
     const formData = await request.formData();
     const file = formData.get('avatar') as File;
-    
+
     if (!(file instanceof File) || file.size === 0) {
       return fail(400, { error: 'No file provided' });
     }
-    
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB limit
       return fail(400, { error: 'File too large' });
     }
-    
+
     const buffer = Buffer.from(await file.arrayBuffer());
     await saveFile(buffer, file.name, file.type);
-  }
+  },
 };
 ```
 
@@ -489,10 +514,10 @@ When a `+page.svelte` uses browser-only APIs (localStorage, window, document) in
 ```svelte
 <script>
   import { browser } from '$app/environment';
-  
+
   // WRONG -- runs during SSR, window is undefined
   let theme = window?.localStorage.getItem('theme') ?? 'light';
-  
+
   // CORRECT -- deferred to browser only
   let theme = 'light'; // safe default for SSR
   onMount(() => {
@@ -510,6 +535,7 @@ Use `browser` from `$app/environment` for conditional execution. For initial ren
 When a Svelte component that is not a page (e.g., a modal dialog or a sidebar component) needs to submit data, it cannot use a page's form actions directly because form actions are scoped to the route that contains them. The options are:
 
 **Option 1 -- Fetch to a `+server.ts` API route:**
+
 ```typescript
 // src/routes/api/comments/+server.ts
 export async function POST({ request, locals }) {
@@ -532,13 +558,13 @@ Never put authentication logic in `+server.ts` routes redundantly when `hooks.se
 
 ### 6. Adapter Selection for Edge Cases
 
-| Deployment Target | Adapter | Key Constraints |
-|---|---|---|
-| Vercel (serverless) | `@sveltejs/adapter-vercel` | 10s default timeout; use `export const config = { runtime: 'edge' }` per route for V8 isolates |
-| Cloudflare Workers | `@sveltejs/adapter-cloudflare` | No Node.js APIs; use `platform.env` for KV/D1; 128MB memory limit |
-| Static hosting (Netlify CDN, S3) | `@sveltejs/adapter-static` | All routes must be prerenderable; no server load functions at runtime |
-| Self-hosted Node.js | `@sveltejs/adapter-node` | Full Node.js access; must configure reverse proxy for HTTPS |
-| Auto-detect | `@sveltejs/adapter-auto` | Detects Vercel/Netlify/Cloudflare at build time; falls back to Node |
+| Deployment Target                | Adapter                        | Key Constraints                                                                                |
+| -------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Vercel (serverless)              | `@sveltejs/adapter-vercel`     | 10s default timeout; use `export const config = { runtime: 'edge' }` per route for V8 isolates |
+| Cloudflare Workers               | `@sveltejs/adapter-cloudflare` | No Node.js APIs; use `platform.env` for KV/D1; 128MB memory limit                              |
+| Static hosting (Netlify CDN, S3) | `@sveltejs/adapter-static`     | All routes must be prerenderable; no server load functions at runtime                          |
+| Self-hosted Node.js              | `@sveltejs/adapter-node`       | Full Node.js access; must configure reverse proxy for HTTPS                                    |
+| Auto-detect                      | `@sveltejs/adapter-auto`       | Detects Vercel/Netlify/Cloudflare at build time; falls back to Node                            |
 
 When targeting Cloudflare Workers, the `platform` object is injected into `event.platform` -- access Cloudflare-specific bindings like `event.platform.env.MY_KV` only in server load functions and `+server.ts` files. Declare the type in `app.d.ts` under `App.Platform`.
 
@@ -553,13 +579,14 @@ SvelteKit's `cookies.set()` API defaults to `path: '/'` and `httpOnly: true`, bu
 event.cookies.set('session', token, {
   path: '/',
   httpOnly: true,
-  secure: !dev,          // HTTPS only in production
-  sameSite: 'lax',       // 'strict' breaks OAuth redirects from other domains
-  maxAge: 60 * 60 * 24 * 30  // 30 days in seconds
+  secure: !dev, // HTTPS only in production
+  sameSite: 'lax', // 'strict' breaks OAuth redirects from other domains
+  maxAge: 60 * 60 * 24 * 30, // 30 days in seconds
 });
 ```
 
 For multi-subdomain auth (e.g., `app.example.com` and `admin.example.com` sharing a session):
+
 - Set `domain: '.example.com'` on the cookie
 - Ensure the session validation in `hooks.server.ts` works across subdomains
 - Note that `sameSite: 'strict'` will block the cookie when redirecting back from an OAuth provider -- always use `'lax'` for authentication cookies
@@ -575,6 +602,7 @@ For multi-subdomain auth (e.g., `app.example.com` and `admin.example.com` sharin
 **Output:**
 
 ### Context Assessment
+
 - Rendering strategy: SSR (authenticated dashboard with user-specific data)
 - Architectural layer: Loading (server load for project list) + Mutation (form action for creation) + Progressive Enhancement (optimistic list update)
 - Authentication required: Yes -- session validated in `hooks.server.ts`, enforced in layout
@@ -680,7 +708,7 @@ export const actions: Actions = {
       return fail(400, {
         name,
         description,
-        error: 'Project name must be at least 2 characters.'
+        error: 'Project name must be at least 2 characters.',
       });
     }
 
@@ -688,28 +716,28 @@ export const actions: Actions = {
       return fail(400, {
         name,
         description,
-        error: 'Project name must be 100 characters or fewer.'
+        error: 'Project name must be 100 characters or fewer.',
       });
     }
 
     const existing = await getProjectsByUser(locals.user!.id);
-    if (existing.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+    if (existing.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
       return fail(409, {
         name,
         description,
-        error: 'A project with that name already exists.'
+        error: 'A project with that name already exists.',
       });
     }
 
     const project = await createProject({
       name,
       description,
-      ownerId: locals.user!.id
+      ownerId: locals.user!.id,
     });
 
     // Return the new project data so the client can append it optimistically
     return { success: true, project };
-  }
+  },
 };
 ```
 
@@ -810,12 +838,12 @@ export const actions: Actions = {
 
 ### Trade-offs
 
-| Concern | This Approach | Alternative |
-|---|---|---|
-| Optimistic update | Append to local `projects` array on success | Call `invalidateAll()` -- simpler but causes full re-load |
-| Auth enforcement | Route group layout load function | Per-page auth check -- duplicates logic, easy to forget |
-| Form errors | `fail()` return + `form` prop binding | Separate API route + client fetch -- more complex, loses progressive enhancement |
-| Type safety | `PageServerLoad`, `Actions`, `PageData` from `./$types` | Manual types -- diverge from actual return shapes silently |
+| Concern           | This Approach                                           | Alternative                                                                      |
+| ----------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Optimistic update | Append to local `projects` array on success             | Call `invalidateAll()` -- simpler but causes full re-load                        |
+| Auth enforcement  | Route group layout load function                        | Per-page auth check -- duplicates logic, easy to forget                          |
+| Form errors       | `fail()` return + `form` prop binding                   | Separate API route + client fetch -- more complex, loses progressive enhancement |
+| Type safety       | `PageServerLoad`, `Actions`, `PageData` from `./$types` | Manual types -- diverge from actual return shapes silently                       |
 
 ---
 

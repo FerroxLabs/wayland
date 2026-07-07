@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript backend optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript backend optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Node.js Async Patterns
 
 ## When to Use
 
 **Use this skill when the user asks about:**
+
 - `async/await` syntax, patterns, and anti-patterns in Node.js -- including sequential vs. parallel execution, top-level await, and async IIFE patterns
 - Promise composition -- `Promise.all`, `Promise.allSettled`, `Promise.race`, `Promise.any`, chaining, and custom combinators
 - The Node.js event loop model -- phases (timers, pending callbacks, idle/prepare, poll, check, close), microtask queues, `process.nextTick` vs `queueMicrotask`, and tick starvation
@@ -31,6 +33,7 @@ metadata:
 - `AsyncLocalStorage` and async context propagation
 
 **Do NOT use this skill when the user asks about:**
+
 - General JavaScript language features not specific to Node.js async -- use `javascript-idioms` instead (covers closures, prototypes, destructuring, optional chaining)
 - Handling async errors, `unhandledRejection`, domain modules, or structured error propagation patterns -- use `nodejs-error-handling` instead
 - CPU profiling, flame graphs, memory leak detection, garbage collection tuning, or benchmarking async code -- use `nodejs-performance` instead
@@ -137,7 +140,7 @@ Request-scoped context should flow through async call chains without manual thre
 
 When responding to a user's async pattern question, produce output in this structure:
 
-```
+````
 ## Async Pattern Analysis
 
 ### Problem Classification
@@ -171,7 +174,7 @@ When responding to a user's async pattern question, produce output in this struc
 // Node.js [version]+ required
 
 [Complete, production-ready code example with error handling]
-```
+````
 
 ### Pitfalls to Avoid
 
@@ -183,7 +186,8 @@ When responding to a user's async pattern question, produce output in this struc
 
 - [How to test this specific pattern]
 - [What edge cases to test]
-```
+
+````
 
 ---
 
@@ -249,11 +253,12 @@ try {
   controller.abort(); // cancel remaining operations
   throw err;
 }
-```
+````
 
 ### Worker Thread Module Loading and Warm-Up
 
 Worker threads run in a fresh V8 context and must re-load and re-JIT all required modules. For workers that import large dependencies (e.g., image processing libraries, ML inference runtimes), the cold start can be 200--2000ms. Mitigate by:
+
 - Pre-creating the worker pool at application startup, not at first use
 - Sending a warm-up message that forces JIT compilation of hot code paths
 - Using `workerData` to pass initialization config rather than sending it as the first task message
@@ -279,20 +284,21 @@ A recursive async pattern that schedules new microtasks before completing (e.g.,
 ## Async Pattern Analysis
 
 ### Problem Classification
+
 - **Category:** I/O-bound parallel with concurrency cap + streaming output
 - **Node.js Versions Supported:** 18+ (for `stream/promises`, `AbortSignal.timeout`, async iteration)
 - **Key Constraint:** API rate limit (100 req/s) and connection limit (20 concurrent) prevent naive `Promise.all`; data volume (50k records) prevents full in-memory buffering
 
 ### Pattern Decision Matrix
 
-| Pattern | Use When | Avoid When | Overhead |
-|---------|----------|------------|----------|
-| `Promise.all` over all 50k | all could run concurrently | rate/connection limited | catastrophic here |
-| Sequential `for...of` | simplest, no concurrency | throughput too low (1 req at a time) | none but slow |
-| `p-limit` (concurrency cap) | cap at 20 concurrent | time-rate limiting also needed | minimal |
-| `p-throttle` (rate cap) | cap at 100/s | connection limit also needed | minimal |
-| Combined semaphore + throttle | both connection and rate limits apply | neither applies | minimal |
-| Readable stream → Transform → Writable | 50k rows, can't buffer all in memory | small dataset, buffering fine | low |
+| Pattern                                | Use When                              | Avoid When                           | Overhead          |
+| -------------------------------------- | ------------------------------------- | ------------------------------------ | ----------------- |
+| `Promise.all` over all 50k             | all could run concurrently            | rate/connection limited              | catastrophic here |
+| Sequential `for...of`                  | simplest, no concurrency              | throughput too low (1 req at a time) | none but slow     |
+| `p-limit` (concurrency cap)            | cap at 20 concurrent                  | time-rate limiting also needed       | minimal           |
+| `p-throttle` (rate cap)                | cap at 100/s                          | connection limit also needed         | minimal           |
+| Combined semaphore + throttle          | both connection and rate limits apply | neither applies                      | minimal           |
+| Readable stream → Transform → Writable | 50k rows, can't buffer all in memory  | small dataset, buffering fine        | low               |
 
 ### Recommended Implementation
 
@@ -313,9 +319,9 @@ import { createWriteStream } from 'node:fs';
 import pLimit from 'p-limit';
 import pThrottle from 'p-throttle';
 
-const CONCURRENCY_LIMIT = 20;   // max simultaneous open API connections
-const RATE_LIMIT = 100;          // max API calls per second
-const RATE_INTERVAL = 1000;      // 1 second window in ms
+const CONCURRENCY_LIMIT = 20; // max simultaneous open API connections
+const RATE_LIMIT = 100; // max API calls per second
+const RATE_INTERVAL = 1000; // 1 second window in ms
 
 // Compose both limits: a call must acquire a concurrency slot AND
 // pass the throttle before firing.
@@ -325,10 +331,7 @@ const throttledFetch = pThrottle({
   limit: RATE_LIMIT,
   interval: RATE_INTERVAL,
 })(async (userId, signal) => {
-  const response = await fetch(
-    `https://api.example.com/enrich/${userId}`,
-    { signal }
-  );
+  const response = await fetch(`https://api.example.com/enrich/${userId}`, { signal });
   if (!response.ok) {
     throw new Error(`API error ${response.status} for user ${userId}`);
   }
@@ -356,14 +359,14 @@ class EnrichmentTransform extends Transform {
     }
 
     const enrichPromise = enrichUser(record, this.signal)
-      .then(enriched => {
+      .then((enriched) => {
         const result = { ...record, ...enriched, enrichedAt: new Date().toISOString() };
         // Push as newline-delimited JSON
         if (!this.push(JSON.stringify(result) + '\n')) {
           // Backpressure: downstream is full, but Transform handles this via objectMode
         }
       })
-      .catch(err => {
+      .catch((err) => {
         // Decide: fail the whole pipeline, or log and skip?
         // Here: log and skip to maximize partial success
         console.error(`Failed to enrich user ${record.id}:`, err.message);
@@ -424,11 +427,7 @@ async function runEnrichmentPipeline(db) {
   console.time('enrichment-pipeline');
 
   try {
-    await asyncPipeline(
-      sourceStream,
-      enrichTransform,
-      outputStream
-    );
+    await asyncPipeline(sourceStream, enrichTransform, outputStream);
     console.timeEnd('enrichment-pipeline');
     console.log('Pipeline complete');
   } catch (err) {

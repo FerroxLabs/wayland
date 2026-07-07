@@ -215,7 +215,8 @@ const DevSettings: React.FC = () => {
                             }}
                           />
                         </Tooltip>
-                        <ChevronDown size={14}
+                        <ChevronDown
+                          size={14}
                           className={`text-t-tertiary shrink-0 transition-transform duration-200 ${expandedMcpKeys.includes('chrome-devtools') ? 'rotate-180' : ''}`}
                         />
                       </div>
@@ -258,7 +259,8 @@ const DevSettings: React.FC = () => {
                             }}
                           />
                         </Tooltip>
-                        <ChevronDown size={14}
+                        <ChevronDown
+                          size={14}
                           className={`text-t-tertiary shrink-0 transition-transform duration-200 ${expandedMcpKeys.includes('playwright') ? 'rotate-180' : ''}`}
                         />
                       </div>

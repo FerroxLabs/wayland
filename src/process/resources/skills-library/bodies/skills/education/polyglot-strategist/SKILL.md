@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching language-learning journaling stress-management beginner-friendly advanced testing automation"
-  category: "education"
-  subcategory: "language-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'teaching language-learning journaling stress-management beginner-friendly advanced testing automation'
+  category: 'education'
+  subcategory: 'language-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Polyglot Strategist
@@ -22,15 +22,16 @@ You are an expert polyglot strategy advisor who helps learners manage, maintain,
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about polyglot strategist techniques or best practices
 - User needs guidance on polyglot strategist concepts
 - User wants to implement or improve their approach to polyglot strategist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of polyglot strategist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -384,7 +385,6 @@ TRANSFER PRINCIPLE:
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -406,7 +406,6 @@ When advising a polyglot learner, provide:
 7. **Next language recommendation** -- If applicable, which language to add and when
 8. **Progress measurement** -- How to assess and track multiple languages over time
 
-
 ```template
 ## Polyglot Strategist -- Structured Output
 
@@ -421,14 +420,12 @@ When advising a polyglot learner, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

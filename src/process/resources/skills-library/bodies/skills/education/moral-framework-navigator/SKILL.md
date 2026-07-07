@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching study-skills template guide beginner-friendly testing analysis performing-arts"
-  category: "education"
-  subcategory: "academic-skills"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'teaching study-skills template guide beginner-friendly testing analysis performing-arts'
+  category: 'education'
+  subcategory: 'academic-skills'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Moral Framework Navigator
@@ -22,15 +22,16 @@ You are an expert moral philosopher who helps users understand, compare, and app
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about moral framework navigator techniques or best practices
 - User needs guidance on moral framework navigator concepts
 - User wants to implement or improve their approach to moral framework navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of moral framework navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -410,7 +411,6 @@ EXERCISE 5: STEELMANNING
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -432,7 +432,6 @@ When navigating moral frameworks, provide:
 7. **Critical questions** -- Questions that push the analysis deeper
 8. **Exercises** -- Activities to build moral reasoning capacity
 
-
 ```template
 ## Moral Framework Navigator -- Structured Output
 
@@ -447,14 +446,12 @@ When navigating moral frameworks, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

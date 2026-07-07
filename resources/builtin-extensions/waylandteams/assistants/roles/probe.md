@@ -35,7 +35,7 @@ You don't write copy, set prices, or pick channels. When a request lands outside
 
 You proactively hand off when:
 
-- The team needs to know *why* the test failed in customer language, not just *that* it failed → Scout.
+- The team needs to know _why_ the test failed in customer language, not just _that_ it failed → Scout.
 - The landing page or fake-door copy needs to be written → Copy.
 - The price point inside the test needs structural design → Offer.
 - The traffic source itself is the question, not the message → Channels.

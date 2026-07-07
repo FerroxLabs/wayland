@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning nutrition"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning nutrition'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Nutrition Label Analyzer
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about nutrition label reader
 - User needs guidance on nutrition label reader topics
 - User wants a structured approach to nutrition label reader
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -261,29 +263,29 @@ the product is likely very high in sugar overall.
 
 ### Common Additive Categories
 
-| Additive Type | Purpose | Examples | Concern Level |
-|--------------|---------|---------|--------------|
-| Preservatives | Extend shelf life | BHA, BHT, sodium benzoate, sodium nitrite | Some controversy; generally recognized as safe |
-| Artificial colors | Visual appeal | Red 40, Yellow 5, Blue 1 | Some linked to hyperactivity in sensitive children |
-| Artificial sweeteners | Sugar-free sweetness | Aspartame, sucralose, acesulfame-K | Generally recognized as safe; debate ongoing |
-| Emulsifiers | Blend oil and water | Lecithin, mono/diglycerides, polysorbate 80 | Generally safe; some gut health research |
-| Thickeners | Texture | Xanthan gum, guar gum, carrageenan | Generally safe; carrageenan debated |
-| Flavor enhancers | Boost flavor | MSG (monosodium glutamate), yeast extract | MSG is safe for most people despite reputation |
-| Natural flavors | Flavoring | "Natural flavors" (broad category) | Legal definition is broad; not always "natural" |
+| Additive Type         | Purpose              | Examples                                    | Concern Level                                      |
+| --------------------- | -------------------- | ------------------------------------------- | -------------------------------------------------- |
+| Preservatives         | Extend shelf life    | BHA, BHT, sodium benzoate, sodium nitrite   | Some controversy; generally recognized as safe     |
+| Artificial colors     | Visual appeal        | Red 40, Yellow 5, Blue 1                    | Some linked to hyperactivity in sensitive children |
+| Artificial sweeteners | Sugar-free sweetness | Aspartame, sucralose, acesulfame-K          | Generally recognized as safe; debate ongoing       |
+| Emulsifiers           | Blend oil and water  | Lecithin, mono/diglycerides, polysorbate 80 | Generally safe; some gut health research           |
+| Thickeners            | Texture              | Xanthan gum, guar gum, carrageenan          | Generally safe; carrageenan debated                |
+| Flavor enhancers      | Boost flavor         | MSG (monosodium glutamate), yeast extract   | MSG is safe for most people despite reputation     |
+| Natural flavors       | Flavoring            | "Natural flavors" (broad category)          | Legal definition is broad; not always "natural"    |
 
 ## Serving Size Tricks to Watch For
 
 ### Common Deceptive Practices
 
-| Product | Serving Size on Label | What You Actually Eat | Real Numbers |
-|---------|---------------------|---------------------|-------------|
-| 20 oz soda | 12 oz (1.67 servings) | All 20 oz | Label: 140 cal, Reality: 233 cal |
-| Ramen noodles | Half package | Whole package | Label: 190 cal, Reality: 380 cal |
-| "Personal" pizza | 1/3 pizza | Whole pizza | Label: 300 cal, Reality: 900 cal |
-| Muffin | 1/2 muffin | Whole muffin | Label: 200 cal, Reality: 400 cal |
-| Pint of ice cream | 2/3 cup (3 servings) | Half or all of pint | Label: 230 cal, Reality: 690+ cal |
-| Cookie package | 2 cookies | 4-5 cookies | Double or triple label values |
-| Spray oil | 1/4 second spray (0.25g) | 1-2 seconds | Label: 0 cal, Reality: 10-20 cal |
+| Product           | Serving Size on Label    | What You Actually Eat | Real Numbers                      |
+| ----------------- | ------------------------ | --------------------- | --------------------------------- |
+| 20 oz soda        | 12 oz (1.67 servings)    | All 20 oz             | Label: 140 cal, Reality: 233 cal  |
+| Ramen noodles     | Half package             | Whole package         | Label: 190 cal, Reality: 380 cal  |
+| "Personal" pizza  | 1/3 pizza                | Whole pizza           | Label: 300 cal, Reality: 900 cal  |
+| Muffin            | 1/2 muffin               | Whole muffin          | Label: 200 cal, Reality: 400 cal  |
+| Pint of ice cream | 2/3 cup (3 servings)     | Half or all of pint   | Label: 230 cal, Reality: 690+ cal |
+| Cookie package    | 2 cookies                | 4-5 cookies           | Double or triple label values     |
+| Spray oil         | 1/4 second spray (0.25g) | 1-2 seconds           | Label: 0 cal, Reality: 10-20 cal  |
 
 ### "0" Labeling Loopholes
 
@@ -335,16 +337,16 @@ CLAIM TYPES (FDA Categories)
 
 ### Regulated Nutrient Content Claims
 
-| Claim | FDA Definition |
-|-------|---------------|
-| "Free" (fat-free, sugar-free) | Less than 0.5g per serving |
-| "Low" (low-fat, low-sodium) | Fat: less than 3g; Sodium: less than 140mg; Calories: less than 40 per serving |
-| "Reduced" | At least 25% less than the reference product |
-| "Light/Lite" | 1/3 fewer calories or 50% less fat than reference |
-| "Good source of" | 10-19% Daily Value per serving |
-| "Excellent source of" / "High in" | 20% or more Daily Value per serving |
-| "Lean" (meat/poultry) | Less than 10g fat, 4.5g saturated fat, 95mg cholesterol per serving |
-| "Organic" | USDA certified; 95%+ organic ingredients |
+| Claim                             | FDA Definition                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------ |
+| "Free" (fat-free, sugar-free)     | Less than 0.5g per serving                                                     |
+| "Low" (low-fat, low-sodium)       | Fat: less than 3g; Sodium: less than 140mg; Calories: less than 40 per serving |
+| "Reduced"                         | At least 25% less than the reference product                                   |
+| "Light/Lite"                      | 1/3 fewer calories or 50% less fat than reference                              |
+| "Good source of"                  | 10-19% Daily Value per serving                                                 |
+| "Excellent source of" / "High in" | 20% or more Daily Value per serving                                            |
+| "Lean" (meat/poultry)             | Less than 10g fat, 4.5g saturated fat, 95mg cholesterol per serving            |
+| "Organic"                         | USDA certified; 95%+ organic ingredients                                       |
 
 ### Marketing Terms That Mean Nothing (not regulated)
 
@@ -485,7 +487,6 @@ FOR LIFE-THREATENING ALLERGIES:
   5% DV or less = LOW (good for things to limit, bad for nutrients you need)
   20% DV or more = HIGH (bad for things to limit, good for nutrients you need)
 ```
-
 
 ## Output Format
 

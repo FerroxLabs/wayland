@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "project-management planning checklist"
-  category: "productivity"
-  subcategory: "project-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'project-management planning checklist'
+  category: 'productivity'
+  subcategory: 'project-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Milestone Planning
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user has a defined project goal and needs to decompose it into a structured sequence of phases with concrete deliverables -- for example, launching a product, completing a certification, building a software feature set, or executing a marketing campaign
 - The user explicitly asks for a milestone plan, project timeline, phase breakdown, or delivery schedule
 - The user wants to understand what must happen before something else can start -- they are asking about sequencing, dependencies, or "what comes first"
@@ -29,6 +31,7 @@ metadata:
 - The user is resuming a stalled project and needs to replan from the current state forward
 
 **Do NOT use when:**
+
 - The user needs a full project kickoff document with scope statements, stakeholder matrices, RACI charts, or budget planning -- use `project-kickoff` instead
 - The user is scheduling tasks for a single day or week -- use `daily-planning` or `weekly-planning` instead
 - The user needs a formal risk register with probability scoring, impact matrices, and mitigation owners -- use `risk-assessment` instead
@@ -148,22 +151,24 @@ Before delivering the plan, run these quality checks:
 ### Dependency Map
 
 ```
+
 Legend: --> = Finish-to-Start dependency | [CP] = Critical Path
 
 [Start]
-  |
-  v
+|
+v
 M1: [Name] [CP]
-  |         \
-  v          v
-M2: [Name]  M3: [Name]
-[CP]         (float: X wks)
-  |          /
-  v         /
+| \
+ v v
+M2: [Name] M3: [Name]
+[CP] (float: X wks)
+| /
+v /
 M4: [Name] [CP]
-  |
-  v
+|
+v
 [End: Project Complete]
+
 ```
 
 ---
@@ -286,28 +291,29 @@ Assign owners to milestones, not just to tasks. One person should be accountable
 ## Milestone Plan: Personal Finance Beginner Online Course
 
 ### Project Parameters
-| Parameter | Value |
-|-----------|-------|
-| Final deliverable | Published online course on a course platform, with 8-10 video modules, one downloadable worksheet per module, and a functioning enrollment and payment flow |
-| Target completion | 17 weeks (4 months) from project start |
-| Available effort | 10 hours/week (solo creator) |
-| Total estimated effort | 163 hours (after buffers) |
-| Minimum calendar duration | 16.3 weeks (rounds to 17 weeks) |
-| Timeline feasibility | Fits target -- margin of approximately 0.7 weeks (5 days); tight but achievable if no milestone slips significantly |
+
+| Parameter                 | Value                                                                                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Final deliverable         | Published online course on a course platform, with 8-10 video modules, one downloadable worksheet per module, and a functioning enrollment and payment flow |
+| Target completion         | 17 weeks (4 months) from project start                                                                                                                      |
+| Available effort          | 10 hours/week (solo creator)                                                                                                                                |
+| Total estimated effort    | 163 hours (after buffers)                                                                                                                                   |
+| Minimum calendar duration | 16.3 weeks (rounds to 17 weeks)                                                                                                                             |
+| Timeline feasibility      | Fits target -- margin of approximately 0.7 weeks (5 days); tight but achievable if no milestone slips significantly                                         |
 
 ---
 
 ### Milestone Sequence
 
-| # | Milestone Name | Deliverable/Artifact | Effort (hrs, raw) | Buffer Applied | Effort (hrs, buffered) | Calendar Duration | Start | End | Dependencies | Critical Path |
-|---|----------------|---------------------|------------------|----------------|----------------------|------------------|-------|-----|-------------|---------------|
-| M1 | Course Outline Finalized | Module outline document: 8-10 modules, each with learning objectives, key topics, and one worksheet concept | 10 | None | 10 | 1 week | Week 1 | Week 1 | None | Yes |
-| M2 | All Scripts Written | 8-10 completed video scripts (estimated 1,500-2,500 words each), saved as individual script files | 45 | None | 45 | 4.5 weeks | Week 2 | Week 6 | M1 | Yes |
-| M3 | All Worksheets Created | 8-10 designed worksheet PDFs, one per module, matched to script content | 20 | None | 20 | 2 weeks | Week 2 | Week 3 | M1 | No |
-| M4 | Raw Video Recorded | Raw video files for all 8-10 modules, recorded with consistent audio and lighting setup | 30 | 1.5x (novel -- first time recording a course) | 45 | 4.5 weeks | Week 7 | Week 11 | M2 | Yes |
-| M5 | Course Platform Configured | Fully configured course platform: enrollment page live, payment gateway tested, module structure built, placeholder content uploaded | 12 | 1.5x (novel -- first time using platform) | 18 | 1.8 weeks | Week 2 | Week 4 | M1 | No |
-| M6 | Videos Edited and Finalized | Edited video files for all modules: cuts, captions, intro/outro, and audio levels normalized | 35 | 1.5x (novel -- first time editing course video at this volume) | 52.5 | 5.25 weeks | Week 12 | Week 17 | M4 | Yes |
-| M7 | Course Content Uploaded | All videos and worksheets uploaded to platform, module descriptions written, preview video live | 8 | None | 8 | 0.8 weeks | Week 17 | Week 17 | M5, M6, M3 | Yes |
+| #   | Milestone Name              | Deliverable/Artifact                                                                                                                 | Effort (hrs, raw) | Buffer Applied                                                 | Effort (hrs, buffered) | Calendar Duration | Start   | End     | Dependencies | Critical Path |
+| --- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | -------------------------------------------------------------- | ---------------------- | ----------------- | ------- | ------- | ------------ | ------------- |
+| M1  | Course Outline Finalized    | Module outline document: 8-10 modules, each with learning objectives, key topics, and one worksheet concept                          | 10                | None                                                           | 10                     | 1 week            | Week 1  | Week 1  | None         | Yes           |
+| M2  | All Scripts Written         | 8-10 completed video scripts (estimated 1,500-2,500 words each), saved as individual script files                                    | 45                | None                                                           | 45                     | 4.5 weeks         | Week 2  | Week 6  | M1           | Yes           |
+| M3  | All Worksheets Created      | 8-10 designed worksheet PDFs, one per module, matched to script content                                                              | 20                | None                                                           | 20                     | 2 weeks           | Week 2  | Week 3  | M1           | No            |
+| M4  | Raw Video Recorded          | Raw video files for all 8-10 modules, recorded with consistent audio and lighting setup                                              | 30                | 1.5x (novel -- first time recording a course)                  | 45                     | 4.5 weeks         | Week 7  | Week 11 | M2           | Yes           |
+| M5  | Course Platform Configured  | Fully configured course platform: enrollment page live, payment gateway tested, module structure built, placeholder content uploaded | 12                | 1.5x (novel -- first time using platform)                      | 18                     | 1.8 weeks         | Week 2  | Week 4  | M1           | No            |
+| M6  | Videos Edited and Finalized | Edited video files for all modules: cuts, captions, intro/outro, and audio levels normalized                                         | 35                | 1.5x (novel -- first time editing course video at this volume) | 52.5                   | 5.25 weeks        | Week 12 | Week 17 | M4           | Yes           |
+| M7  | Course Content Uploaded     | All videos and worksheets uploaded to platform, module descriptions written, preview video live                                      | 8                 | None                                                           | 8                      | 0.8 weeks         | Week 17 | Week 17 | M5, M6, M3   | Yes           |
 
 **Total buffered effort:** 198.5 hours
 **Revised minimum calendar duration:** 19.85 weeks
@@ -372,10 +378,10 @@ M7: Course Content Uploaded [CP]
 
 ### Float and Parallel Opportunities
 
-| Milestone | Total Float | Can Run Alongside | Scheduling Flexibility |
-|-----------|-------------|------------------|----------------------|
-| M3 (Worksheets Created) | ~13 weeks | M2, M4, M6 | Can start Week 2, must complete by Week 16; highly flexible; ideal to schedule during low-intensity scripting weeks |
-| M5 (Platform Configured) | ~13 weeks | M2, M3, M4 | Can start as early as Week 2, must complete by Week 16; recommend completing by Week 8 to allow time for troubleshooting payment/enrollment issues well before launch |
+| Milestone                | Total Float | Can Run Alongside | Scheduling Flexibility                                                                                                                                                |
+| ------------------------ | ----------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M3 (Worksheets Created)  | ~13 weeks   | M2, M4, M6        | Can start Week 2, must complete by Week 16; highly flexible; ideal to schedule during low-intensity scripting weeks                                                   |
+| M5 (Platform Configured) | ~13 weeks   | M2, M3, M4        | Can start as early as Week 2, must complete by Week 16; recommend completing by Week 8 to allow time for troubleshooting payment/enrollment issues well before launch |
 
 **Parallelism note:** M3 and M5 can both run alongside M2. Strategically, the best use of these parallel slots is: complete M5 early (Weeks 2-4) while scripting is in flow, and spread worksheet creation (M3) across Weeks 2-6 by building each worksheet immediately after its corresponding script is drafted. This "rolling" approach to M3 is not reflected in the milestone table (which shows it as a single block) but is a valid execution pattern that reduces late-stage compression.
 
@@ -383,27 +389,27 @@ M7: Course Content Uploaded [CP]
 
 ### Completion Criteria
 
-| # | Milestone | Done When (observable condition) | Deliverable | Review Action | Owner |
-|---|-----------|----------------------------------|-------------|--------------|-------|
-| M1 | Course Outline Finalized | All 8-10 modules are listed with: (a) a one-sentence learning objective, (b) 3-5 key topic bullets, (c) one worksheet concept name -- with no placeholder entries | course-outline.docx (or equivalent) | Self-review: read the outline start to finish and confirm a beginner could follow the progression; no module is "TBD" | Creator |
-| M2 | All Scripts Written | Every module has a complete script with: (a) an opening hook, (b) all teaching content, (c) a call-to-action or summary close; scripts are between 1,200 and 2,800 words each; no script contains "[insert example here]" or similar placeholders | Individual script files, one per module, named by module number | Self-review: read each script aloud; if any section takes longer than 30 minutes to record naturally, it needs splitting | Creator |
-| M3 | All Worksheets Created | One PDF worksheet exists for every module in the outline; each worksheet has: (a) a title matching the module name, (b) at least 3 exercises or fill-in-the-blank sections, (c) a consistent visual template | PDF files, one per module (e.g., Module-01-Worksheet.pdf) | Self-review: complete one worksheet as if you are a student; if any question is ambiguous or unanswerable from the module content alone, revise | Creator |
-| M4 | Raw Video Recorded | Raw video files exist for all modules; each recording (a) has clean audio with no background noise spikes, (b) is recorded in a single consistent background/lighting setup, (c) contains the complete script content (partial recordings do not count); total recorded content is 40-80 minutes across all modules | Raw .mp4 or equivalent files, one per module | Review: play first 2 minutes and last 2 minutes of each raw file to confirm no cut-off recording exists; check audio with headphones on at least 3 random modules | Creator |
-| M5 | Course Platform Configured | Platform account is live with: (a) all module slots created in correct order, (b) enrollment page with a complete course description and placeholder pricing, (c) payment gateway connected and a $1 test transaction successfully processed, (d) at least one test student account has enrolled and accessed a module | Platform URL (live link) and test enrollment confirmation email | Test: create a new browser incognito session, enroll as a test student, complete the payment, and access at least one module | Creator |
-| M6 | Videos Edited and Finalized | Edited video files exist for all modules with: (a) all significant stumbles and long pauses removed, (b) consistent intro and outro segments added, (c) captions added (auto-generated is acceptable if reviewed for accuracy), (d) audio normalized to -14 LUFS (standard for online video); no module has a dead-air segment longer than 3 seconds | Edited .mp4 files, one per module, stored in a clearly named export folder | Review: watch 5 minutes of the middle of the longest module at 1x speed; if any caption is wrong enough to confuse a viewer, flag for correction before marking complete | Creator |
-| M7 | Course Content Uploaded | All video and worksheet files are live on the platform; each module has: (a) the edited video uploaded and playable, (b) the corresponding worksheet attached as a downloadable file, (c) a module description of at least 50 words, (d) the course preview video is set to public; enrollment is open with final pricing | Course listing URL (publicly accessible) | Final test: enroll a friend or trusted contact as a free test student; ask them to access Module 1, download the worksheet, and report any errors | Creator |
+| #   | Milestone                   | Done When (observable condition)                                                                                                                                                                                                                                                                                                                     | Deliverable                                                                | Review Action                                                                                                                                                            | Owner   |
+| --- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| M1  | Course Outline Finalized    | All 8-10 modules are listed with: (a) a one-sentence learning objective, (b) 3-5 key topic bullets, (c) one worksheet concept name -- with no placeholder entries                                                                                                                                                                                    | course-outline.docx (or equivalent)                                        | Self-review: read the outline start to finish and confirm a beginner could follow the progression; no module is "TBD"                                                    | Creator |
+| M2  | All Scripts Written         | Every module has a complete script with: (a) an opening hook, (b) all teaching content, (c) a call-to-action or summary close; scripts are between 1,200 and 2,800 words each; no script contains "[insert example here]" or similar placeholders                                                                                                    | Individual script files, one per module, named by module number            | Self-review: read each script aloud; if any section takes longer than 30 minutes to record naturally, it needs splitting                                                 | Creator |
+| M3  | All Worksheets Created      | One PDF worksheet exists for every module in the outline; each worksheet has: (a) a title matching the module name, (b) at least 3 exercises or fill-in-the-blank sections, (c) a consistent visual template                                                                                                                                         | PDF files, one per module (e.g., Module-01-Worksheet.pdf)                  | Self-review: complete one worksheet as if you are a student; if any question is ambiguous or unanswerable from the module content alone, revise                          | Creator |
+| M4  | Raw Video Recorded          | Raw video files exist for all modules; each recording (a) has clean audio with no background noise spikes, (b) is recorded in a single consistent background/lighting setup, (c) contains the complete script content (partial recordings do not count); total recorded content is 40-80 minutes across all modules                                  | Raw .mp4 or equivalent files, one per module                               | Review: play first 2 minutes and last 2 minutes of each raw file to confirm no cut-off recording exists; check audio with headphones on at least 3 random modules        | Creator |
+| M5  | Course Platform Configured  | Platform account is live with: (a) all module slots created in correct order, (b) enrollment page with a complete course description and placeholder pricing, (c) payment gateway connected and a $1 test transaction successfully processed, (d) at least one test student account has enrolled and accessed a module                               | Platform URL (live link) and test enrollment confirmation email            | Test: create a new browser incognito session, enroll as a test student, complete the payment, and access at least one module                                             | Creator |
+| M6  | Videos Edited and Finalized | Edited video files exist for all modules with: (a) all significant stumbles and long pauses removed, (b) consistent intro and outro segments added, (c) captions added (auto-generated is acceptable if reviewed for accuracy), (d) audio normalized to -14 LUFS (standard for online video); no module has a dead-air segment longer than 3 seconds | Edited .mp4 files, one per module, stored in a clearly named export folder | Review: watch 5 minutes of the middle of the longest module at 1x speed; if any caption is wrong enough to confuse a viewer, flag for correction before marking complete | Creator |
+| M7  | Course Content Uploaded     | All video and worksheet files are live on the platform; each module has: (a) the edited video uploaded and playable, (b) the corresponding worksheet attached as a downloadable file, (c) a module description of at least 50 words, (d) the course preview video is set to public; enrollment is open with final pricing                            | Course listing URL (publicly accessible)                                   | Final test: enroll a friend or trusted contact as a free test student; ask them to access Module 1, download the worksheet, and report any errors                        | Creator |
 
 ---
 
 ### Buffer and Contingency Summary
 
-| Category | Applied To | Multiplier | Raw Hours | Buffered Hours | Hours Added |
-|----------|-----------|-----------|----------|---------------|------------|
-| Novelty buffer | M4 (Recording) | 1.5x | 30 | 45 | +15 |
-| Novelty buffer | M5 (Platform) | 1.5x | 12 | 18 | +6 |
-| Novelty buffer | M6 (Editing) | 1.5x | 35 | 52.5 | +17.5 |
-| No buffer | M1, M2, M3, M7 | 1.0x | 93 | 93 | 0 |
-| **Total** | | | **170 hrs** | **208.5 hrs** | **+38.5 hrs** |
+| Category       | Applied To     | Multiplier | Raw Hours   | Buffered Hours | Hours Added   |
+| -------------- | -------------- | ---------- | ----------- | -------------- | ------------- |
+| Novelty buffer | M4 (Recording) | 1.5x       | 30          | 45             | +15           |
+| Novelty buffer | M5 (Platform)  | 1.5x       | 12          | 18             | +6            |
+| Novelty buffer | M6 (Editing)   | 1.5x       | 35          | 52.5           | +17.5         |
+| No buffer      | M1, M2, M3, M7 | 1.0x       | 93          | 93             | 0             |
+| **Total**      |                |            | **170 hrs** | **208.5 hrs**  | **+38.5 hrs** |
 
 **Note:** M5 novelty buffer not shown in original milestone table (was listed as 18 hours). Total recalculated above.
 
@@ -419,6 +425,7 @@ Option 3 -- Reduce course scope from 10 modules to 8 modules:
 Removing 2 modules reduces M2 (scripts) by approximately 9 hours and M3 (worksheets) by 4 hours, M4 (recording) by 6 hours, and M6 (editing) by 7 hours -- approximately 26 hours saved, reducing the timeline by 2-2.5 weeks. An 8-module course is a complete and valid product; this is not a significant quality reduction.
 
 **Contingency triggers:**
+
 - If M2 (scripts) is not complete by Week 7 (1 week late), begin evaluating Option 3 (8-module scope) immediately -- do not wait to see if the delay can be recovered
 - If M4 (recording) is not complete by Week 12 (1 week late), add 2 hours/week for the remainder of the project to compress M6
 - If any milestone is tracking 25% over its estimated duration at its midpoint, flag the specific milestone in a weekly review and adjust remaining estimates accordingly
@@ -427,10 +434,10 @@ Removing 2 modules reduces M2 (scripts) by approximately 9 hours and M3 (workshe
 
 ### Assumptions and Risks
 
-| # | Assumption/Risk | Type | Impact if Wrong | Mitigation |
-|---|----------------|------|----------------|-----------|
-| 1 | Creator has a quiet recording environment with acceptable baseline audio quality using existing equipment | Assumption | If equipment is inadequate, M4 duration could double; audio problems discovered in editing create M4 reshoots that cascade into M6 | Test record one full module in Week 7 before committing to the recording schedule; identify audio issues before all scripts are locked |
-| 2 | Course platform choice is already decided; no platform evaluation phase is included | Assumption | Platform selection and learning curve could add 5-10 hours if the creator is still deciding | Decide on the platform before Week 2; recommended platforms for solo creators include Teachable, Podia, and Thinkific for their enrollment/payment integration |
-| 3 | Creator has sufficient personal finance domain knowledge to script without extensive external research | Assumption | Heavy research needs during M2 could add 15-20 hours to scripting, compressing or eliminating M2 float | Validate this assumption during M1: if more than 20% of module topics require significant new research, flag it at the outline stage and add 15 hours to M2 |
-| 4 | No external reviewers, co-instructors, or business partners need to approve content | Assumption | Any required external review adds 1-3 weeks of wait time and converts M2 or M6 into milestones with external dependencies | If an external reviewer is needed, insert a milestone "Content Reviewed and Approved" between M2 and M4, add 1.25x external dependency buffer, and recalculate the critical path |
-| 5 | Video editing will be performed by the creator using consumer editing software | Risk | Professional video editing is a skill with a steep learning curve; a first-time editor using software like DaVinci Resolve, CapCut, or iMovie may spend more than the buffered 52.5 hours | Consider outsourcing editing for the first course iteration if the creator has no prior editing experience; a freelance editor for a 10-module course typically costs $300-$800 and could save 30+ hours |
+| #   | Assumption/Risk                                                                                           | Type       | Impact if Wrong                                                                                                                                                                           | Mitigation                                                                                                                                                                                               |
+| --- | --------------------------------------------------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Creator has a quiet recording environment with acceptable baseline audio quality using existing equipment | Assumption | If equipment is inadequate, M4 duration could double; audio problems discovered in editing create M4 reshoots that cascade into M6                                                        | Test record one full module in Week 7 before committing to the recording schedule; identify audio issues before all scripts are locked                                                                   |
+| 2   | Course platform choice is already decided; no platform evaluation phase is included                       | Assumption | Platform selection and learning curve could add 5-10 hours if the creator is still deciding                                                                                               | Decide on the platform before Week 2; recommended platforms for solo creators include Teachable, Podia, and Thinkific for their enrollment/payment integration                                           |
+| 3   | Creator has sufficient personal finance domain knowledge to script without extensive external research    | Assumption | Heavy research needs during M2 could add 15-20 hours to scripting, compressing or eliminating M2 float                                                                                    | Validate this assumption during M1: if more than 20% of module topics require significant new research, flag it at the outline stage and add 15 hours to M2                                              |
+| 4   | No external reviewers, co-instructors, or business partners need to approve content                       | Assumption | Any required external review adds 1-3 weeks of wait time and converts M2 or M6 into milestones with external dependencies                                                                 | If an external reviewer is needed, insert a milestone "Content Reviewed and Approved" between M2 and M4, add 1.25x external dependency buffer, and recalculate the critical path                         |
+| 5   | Video editing will be performed by the creator using consumer editing software                            | Risk       | Professional video editing is a skill with a steep learning curve; a first-time editor using software like DaVinci Resolve, CapCut, or iMovie may spend more than the buffered 52.5 hours | Consider outsourcing editing for the first course iteration if the creator has no prior editing experience; a freelance editor for a 10-module course typically costs $300-$800 and could save 30+ hours |

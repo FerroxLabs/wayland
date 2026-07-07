@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cooking meal-planning step-by-step"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'cooking meal-planning step-by-step'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Weekly Meal Planner
@@ -21,11 +21,13 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about meal planner
 - User needs guidance on meal planner topics
 - User wants a structured approach to meal planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -212,17 +214,17 @@ COOKING ORDER (for efficiency):
 
 ### Batch Cooking Storage Guide
 
-| Item | Fridge (days) | Freezer (months) | Storage Tip |
-|------|--------------|------------------|-------------|
-| Cooked chicken | 3-4 days | 2-3 months | Slice or shred before storing |
-| Cooked ground meat | 3-4 days | 2-3 months | Cool completely before storing |
-| Cooked grains | 4-5 days | 2-3 months | Add splash of water when reheating |
-| Roasted vegetables | 3-4 days | 1-2 months | May soften; best fresh |
-| Cooked beans | 4-5 days | 3-4 months | Store in cooking liquid |
-| Soups and stews | 4-5 days | 3-4 months | Leave room for expansion in freezer |
-| Sauces | 5-7 days | 3-6 months | Glass jars or freezer bags |
-| Hard-boiled eggs | 7 days | Do not freeze | Peel or unpeeled |
-| Cut raw vegetables | 3-5 days | Varies | Store in water (carrots, celery) |
+| Item               | Fridge (days) | Freezer (months) | Storage Tip                         |
+| ------------------ | ------------- | ---------------- | ----------------------------------- |
+| Cooked chicken     | 3-4 days      | 2-3 months       | Slice or shred before storing       |
+| Cooked ground meat | 3-4 days      | 2-3 months       | Cool completely before storing      |
+| Cooked grains      | 4-5 days      | 2-3 months       | Add splash of water when reheating  |
+| Roasted vegetables | 3-4 days      | 1-2 months       | May soften; best fresh              |
+| Cooked beans       | 4-5 days      | 3-4 months       | Store in cooking liquid             |
+| Soups and stews    | 4-5 days      | 3-4 months       | Leave room for expansion in freezer |
+| Sauces             | 5-7 days      | 3-6 months       | Glass jars or freezer bags          |
+| Hard-boiled eggs   | 7 days        | Do not freeze    | Peel or unpeeled                    |
+| Cut raw vegetables | 3-5 days      | Varies           | Store in water (carrots, celery)    |
 
 ## Balanced Meal Composition
 
@@ -250,6 +252,7 @@ BALANCED PLATE TEMPLATE
 ### Quick Balanced Meal Ideas by Category
 
 **15-Minute Meals (Busy Weeknights):**
+
 1. Stir-fry with pre-cut vegetables + protein + rice (from batch)
 2. Grain bowl with batch-cooked components + fresh toppings
 3. Quesadillas with beans, cheese, pre-cooked chicken, salsa
@@ -259,6 +262,7 @@ BALANCED PLATE TEMPLATE
 7. Soup from the freezer + crusty bread + side salad
 
 **30-Minute Meals (Standard Weeknights):**
+
 1. One-pan chicken with roasted vegetables
 2. Fish tacos with slaw and avocado
 3. Pasta primavera with seasonal vegetables
@@ -268,6 +272,7 @@ BALANCED PLATE TEMPLATE
 7. Chicken Caesar salad with homemade dressing
 
 **Weekend Meals (More Time Available):**
+
 1. Homemade pizza with whole wheat dough
 2. Slow-braised short ribs or pot roast
 3. Homemade soup or stew (big batch for freezing)
@@ -280,13 +285,13 @@ BALANCED PLATE TEMPLATE
 
 ### Portion Guide by Age
 
-| Age Group | Protein | Grains | Vegetables | Fruit |
-|-----------|---------|--------|------------|-------|
-| Toddler (2-3) | 2 oz | 3 oz eq | 1 cup | 1 cup |
-| Child (4-8) | 4 oz | 5 oz eq | 1.5 cups | 1-1.5 cups |
-| Tween (9-13) | 5 oz | 5-6 oz eq | 2-2.5 cups | 1.5 cups |
-| Teen (14-18) | 5-6.5 oz | 6-8 oz eq | 2.5-3 cups | 1.5-2 cups |
-| Adult | 5-6.5 oz | 6-8 oz eq | 2.5-3 cups | 1.5-2 cups |
+| Age Group     | Protein  | Grains    | Vegetables | Fruit      |
+| ------------- | -------- | --------- | ---------- | ---------- |
+| Toddler (2-3) | 2 oz     | 3 oz eq   | 1 cup      | 1 cup      |
+| Child (4-8)   | 4 oz     | 5 oz eq   | 1.5 cups   | 1-1.5 cups |
+| Tween (9-13)  | 5 oz     | 5-6 oz eq | 2-2.5 cups | 1.5 cups   |
+| Teen (14-18)  | 5-6.5 oz | 6-8 oz eq | 2.5-3 cups | 1.5-2 cups |
+| Adult         | 5-6.5 oz | 6-8 oz eq | 2.5-3 cups | 1.5-2 cups |
 
 ### Scaling for Families
 
@@ -309,18 +314,19 @@ Recipe serves 4 adults? Multiply all ingredients by:
 
 ### Planned Leftovers (Cook Once, Eat Twice)
 
-| Cook on Day 1 | Transform on Day 2 |
-|---------------|-------------------|
-| Roast chicken | Chicken salad, chicken tacos, chicken soup |
-| Grilled steak | Steak salad, steak sandwich, beef fried rice |
-| Baked salmon | Salmon cakes, salmon pasta, salmon grain bowl |
-| Pot of chili | Chili cheese fries, chili-stuffed peppers, chili mac |
-| Roasted vegetables | Frittata filling, wrap filling, pasta toss, grain bowl |
-| Big pot of rice | Fried rice, rice bowls, stuffed peppers, rice pudding |
-| Slow-cooker pork | Tacos, sandwiches, pork fried rice, pork ramen |
-| Large batch of beans | Burritos, soup, dip/hummus, salad topping |
+| Cook on Day 1        | Transform on Day 2                                     |
+| -------------------- | ------------------------------------------------------ |
+| Roast chicken        | Chicken salad, chicken tacos, chicken soup             |
+| Grilled steak        | Steak salad, steak sandwich, beef fried rice           |
+| Baked salmon         | Salmon cakes, salmon pasta, salmon grain bowl          |
+| Pot of chili         | Chili cheese fries, chili-stuffed peppers, chili mac   |
+| Roasted vegetables   | Frittata filling, wrap filling, pasta toss, grain bowl |
+| Big pot of rice      | Fried rice, rice bowls, stuffed peppers, rice pudding  |
+| Slow-cooker pork     | Tacos, sandwiches, pork fried rice, pork ramen         |
+| Large batch of beans | Burritos, soup, dip/hummus, salad topping              |
 
 ### Leftover Safety Rules
+
 - Refrigerate within 2 hours of cooking
 - Use within 3-4 days
 - Reheat to 165F (74C) internally
@@ -344,6 +350,7 @@ Apples, pears, squash (butternut, acorn, delicata), sweet potatoes, Brussels spr
 Citrus (oranges, grapefruit, lemons), root vegetables (turnips, parsnips, carrots), kale, cabbage, potatoes, onions, celery root, pomegranates
 
 ### Why Cook Seasonally
+
 - **Cheaper:** In-season produce costs less
 - **Better tasting:** Harvested at peak ripeness
 - **More nutritious:** Shorter time from harvest to table
@@ -406,6 +413,7 @@ BUDGET: $___
 ```
 
 ### Shopping List Building Process
+
 1. List all ingredients from the meal plan
 2. Check pantry, fridge, and freezer for what you already have
 3. Cross off items you have
@@ -434,16 +442,17 @@ Work backward from serving time.
 
 ### Make-Ahead Levels
 
-| Level | What to Prep Ahead | Time Saved |
-|-------|-------------------|-----------|
-| Level 1 | Wash and chop vegetables | 10-15 min/meal |
-| Level 2 | Cook grains and proteins | 20-30 min/meal |
+| Level   | What to Prep Ahead                     | Time Saved     |
+| ------- | -------------------------------------- | -------------- |
+| Level 1 | Wash and chop vegetables               | 10-15 min/meal |
+| Level 2 | Cook grains and proteins               | 20-30 min/meal |
 | Level 3 | Make complete meals, store in portions | 30-45 min/meal |
 | Level 4 | Freeze complete meals for future weeks | Max time saved |
 
 ## Budget Meal Planning Tips
 
 ### Cost-Saving Strategies
+
 1. **Plan before shopping** - The list prevents impulse buying
 2. **Buy in bulk** - Rice, beans, oats, frozen vegetables
 3. **Use store brands** - Often 20-40% cheaper, same quality
@@ -456,6 +465,7 @@ Work backward from serving time.
 10. **Check unit prices** - Bigger is not always cheaper per unit
 
 ### Budget Meal Ideas (under $3 per serving)
+
 - Bean and rice bowls with salsa and avocado
 - Pasta with homemade marinara and vegetables
 - Lentil soup with crusty bread
@@ -466,7 +476,6 @@ Work backward from serving time.
 - Chickpea curry with rice
 - Minestrone soup
 - Homemade chili with cornbread
-
 
 ## Output Format
 

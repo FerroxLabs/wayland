@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ruby frameworks backend"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ruby frameworks backend'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Ruby Rails Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about structuring Rails services, query objects, form objects, presenters, or decorators
 - User wants to reduce fat models or fat controllers by extracting business logic into dedicated objects
 - User needs to implement background job patterns, event-driven architecture, or pub/sub within a Rails app
@@ -29,6 +31,7 @@ metadata:
 - User wants to implement multi-tenancy, soft deletes, auditing, or state machine patterns in Rails
 
 **Do NOT use this skill when:**
+
 - User needs help with Rails API design or REST/GraphQL endpoint structure -- check the api-design skill in the backend subcategory
 - User is asking about Rails performance tuning or N+1 query elimination -- check the database-query-optimization skill
 - User needs frontend architecture patterns (Stimulus, Hotwire, ViewComponent composition) -- check the frontend-rails skill
@@ -143,7 +146,7 @@ Each pattern has a specific testing strategy:
 
 When advising a user on a Rails pattern, structure output as follows:
 
-```
+````
 ## Pattern Recommendation: [Pattern Name]
 
 ### Problem Diagnosed
@@ -159,7 +162,7 @@ When advising a user on a Rails pattern, structure output as follows:
 ```ruby
 # File: app/services/[namespace]/[name]_service.rb
 # [Complete, runnable code -- not pseudocode]
-```
+````
 
 ### Usage in Controller
 
@@ -176,16 +179,19 @@ When advising a user on a Rails pattern, structure output as follows:
 ```
 
 ### Trade-offs
-| Concern           | This Pattern     | Alternative              |
-|-------------------|------------------|--------------------------|
-| Testability       | High -- isolated unit | Lower -- requires AR   |
-| Complexity        | Moderate         | Low (fat model)          |
-| Team familiarity  | Requires ramp-up | Familiar Rails idiom     |
-| LOC overhead      | ~30 lines/service| 0 (inline in model)      |
+
+| Concern          | This Pattern          | Alternative          |
+| ---------------- | --------------------- | -------------------- |
+| Testability      | High -- isolated unit | Lower -- requires AR |
+| Complexity       | Moderate              | Low (fat model)      |
+| Team familiarity | Requires ramp-up      | Familiar Rails idiom |
+| LOC overhead     | ~30 lines/service     | 0 (inline in model)  |
 
 ### When to Revisit
+
 [Specific signal that means this pattern is no longer the right fit]
-```
+
+````
 
 ---
 
@@ -350,7 +356,7 @@ module Orders
     end
   end
 end
-```
+````
 
 ---
 
@@ -511,14 +517,14 @@ end
 
 ### Trade-offs
 
-| Concern | Service Object + Events | Original Fat Model |
-|---|---|---|
-| Testability | High -- Stripe is stubbed, no DB needed for unit | Low -- requires real AR, callbacks fire unexpectedly |
-| Controller LOC | 18 lines | 40+ lines |
-| Side effect visibility | Explicit in initializer | Hidden in callback chain |
-| Onboarding clarity | Read service to understand flow | Must trace callbacks across file |
-| Complexity overhead | ~80 LOC across 3 new files | 0 new files (accumulates in place) |
-| Transaction safety | Explicit rollback on payment failure | Depends on callback order |
+| Concern                | Service Object + Events                          | Original Fat Model                                   |
+| ---------------------- | ------------------------------------------------ | ---------------------------------------------------- |
+| Testability            | High -- Stripe is stubbed, no DB needed for unit | Low -- requires real AR, callbacks fire unexpectedly |
+| Controller LOC         | 18 lines                                         | 40+ lines                                            |
+| Side effect visibility | Explicit in initializer                          | Hidden in callback chain                             |
+| Onboarding clarity     | Read service to understand flow                  | Must trace callbacks across file                     |
+| Complexity overhead    | ~80 LOC across 3 new files                       | 0 new files (accumulates in place)                   |
+| Transaction safety     | Explicit rollback on payment failure             | Depends on callback order                            |
 
 ---
 

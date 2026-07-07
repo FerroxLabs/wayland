@@ -37,7 +37,15 @@ import type { ProviderRepository } from '@process/providers/storage/ProviderRepo
 const OLLAMA: ProviderId = 'ollama-local';
 
 function ollamaModel(id: string): CatalogModel {
-  return { id, providerId: OLLAMA, displayName: id, family: id.split(':')[0] || id, kind: 'text', enriched: false, tags: ['chat'] };
+  return {
+    id,
+    providerId: OLLAMA,
+    displayName: id,
+    family: id.split(':')[0] || id,
+    kind: 'text',
+    enriched: false,
+    tags: ['chat'],
+  };
 }
 
 /** A repo fake exposing exactly the methods `mirrorConnectOrRekey` reads. */

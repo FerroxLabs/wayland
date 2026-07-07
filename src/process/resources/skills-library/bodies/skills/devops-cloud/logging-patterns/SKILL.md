@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops debugging best-practices"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops debugging best-practices'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Logging Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing or implementing a structured logging strategy for a new or existing application and needs guidance on log levels, formats, and output destinations
 - User is debugging a production incident and needs to understand what logging instrumentation would have made the problem diagnosable faster
 - User wants to implement distributed tracing correlation across microservices using trace IDs and span IDs in log entries
@@ -30,6 +32,7 @@ metadata:
 - User needs to implement context propagation -- carrying request IDs, user IDs, or tenant IDs through async call chains
 
 **Do NOT use this skill when:**
+
 - User needs help with metrics collection (histograms, counters, gauges) -- use the metrics-and-alerting skill
 - User needs help configuring distributed tracing infrastructure (Jaeger, Zipkin, Tempo) itself -- use the distributed-tracing skill
 - User is asking about log-based security information and event management (SIEM) integrations -- use the security-monitoring skill
@@ -115,6 +118,7 @@ Context propagation -- threading request-scoped data through the entire call cha
 - Clear the context at the end of each request to prevent context leaking between requests in thread pool environments. In Java MDC: call `MDC.clear()` in a finally block or servlet filter cleanup.
 
 **Example middleware pattern (Node.js):**
+
 ```javascript
 // At the entry point of every HTTP request:
 const store = new Map();
@@ -189,15 +193,15 @@ For each logging pattern recommendation, produce the following structured output
 
 ### Logging Strategy Summary
 
-| Dimension | Decision | Rationale |
-|-----------|----------|-----------|
-| Log format | Structured JSON | Machine-parseable, enables field-based queries |
-| Minimum prod level | INFO | DEBUG disabled, ERROR+WARN+INFO emitted |
-| Sensitive data | Allowlist approach | Blocks unknown fields by default |
-| Context propagation | AsyncLocalStorage / MDC | Automatic injection, no per-call threading |
-| Sampling strategy | Head-based 10%, 100% errors | Balances cost with observability |
-| Output destination | stdout to container runtime | Decoupled from collection infrastructure |
-| Volume estimate | ~X MB/hour per instance | Based on RPS and average entry size |
+| Dimension           | Decision                    | Rationale                                      |
+| ------------------- | --------------------------- | ---------------------------------------------- |
+| Log format          | Structured JSON             | Machine-parseable, enables field-based queries |
+| Minimum prod level  | INFO                        | DEBUG disabled, ERROR+WARN+INFO emitted        |
+| Sensitive data      | Allowlist approach          | Blocks unknown fields by default               |
+| Context propagation | AsyncLocalStorage / MDC     | Automatic injection, no per-call threading     |
+| Sampling strategy   | Head-based 10%, 100% errors | Balances cost with observability               |
+| Output destination  | stdout to container runtime | Decoupled from collection infrastructure       |
+| Volume estimate     | ~X MB/hour per instance     | Based on RPS and average entry size            |
 
 ---
 
@@ -245,13 +249,13 @@ Including:
 
 ### Sensitive Data Redaction Rules
 
-| Category | Pattern | Replacement |
-|----------|---------|-------------|
-| API keys / tokens | `(token\|key\|secret\|password)[\s:=]+\S+` | `[REDACTED]` |
-| Credit card PAN | `\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b` | `****-****-****-XXXX` |
-| Email addresses | `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}` | `[EMAIL REDACTED]` |
-| SSN (US) | `\b\d{3}-\d{2}-\d{4}\b` | `[SSN REDACTED]` |
-| Bearer tokens | `Bearer\s+[A-Za-z0-9\-._~+/]+=*` | `Bearer [REDACTED]` |
+| Category          | Pattern                                          | Replacement           |
+| ----------------- | ------------------------------------------------ | --------------------- |
+| API keys / tokens | `(token\|key\|secret\|password)[\s:=]+\S+`       | `[REDACTED]`          |
+| Credit card PAN   | `\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b`        | `****-****-****-XXXX` |
+| Email addresses   | `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}` | `[EMAIL REDACTED]`    |
+| SSN (US)          | `\b\d{3}-\d{2}-\d{4}\b`                          | `[SSN REDACTED]`      |
+| Bearer tokens     | `Bearer\s+[A-Za-z0-9\-._~+/]+=*`                 | `Bearer [REDACTED]`   |
 
 ---
 
@@ -335,9 +339,10 @@ Third-party libraries and frameworks often emit DEBUG or INFO log entries at ext
 **Output:**
 
 **Context Assessment:**
+
 - 500 RPS, payment domain (PCI-DSS compliance required), Kubernetes deployment, external dependencies (Postgres, payment gateway)
 - Critical requirements: PCI-DSS compliance (no card data in logs), trace correlation with payment gateway calls, latency visibility on all external calls, structured logs to stdout for Kubernetes
-- Volume estimate: 500 RPS * ~3 log entries/request * 500 bytes avg = 750KB/s = 63GB/day raw. After 20% sampling of successful payments + 100% error logging + gzip: ~4GB/day. Manageable.
+- Volume estimate: 500 RPS _ ~3 log entries/request _ 500 bytes avg = 750KB/s = 63GB/day raw. After 20% sampling of successful payments + 100% error logging + gzip: ~4GB/day. Manageable.
 
 ---
 
@@ -417,7 +422,7 @@ export function requestContextMiddleware(req, res, next) {
   // Accept trace ID from upstream gateway (W3C traceparent) or generate new
   const traceparent = req.headers['traceparent'];
   const traceId = traceparent
-    ? traceparent.split('-')[1]           // Extract trace-id from W3C format
+    ? traceparent.split('-')[1] // Extract trace-id from W3C format
     : crypto.randomUUID().replace(/-/g, '');
 
   store.set('request_id', req.headers['x-request-id'] ?? crypto.randomUUID());
@@ -441,33 +446,39 @@ export async function authorizePayment(payload) {
   const operationId = crypto.randomUUID();
 
   // Log intent, not data -- never log payload contents for payment operations
-  logger.info({
-    event: 'payment_authorization_started',
-    operation_id: operationId,
-    amount_cents: payload.amount_cents,       // Amount is safe to log
-    currency: payload.currency,               // Currency is safe to log
-    payment_method_type: payload.method_type, // "card", "ach" -- not card details
-    // Never log: card_number, cvv, card_holder_name, billing_address
-  }, 'Payment authorization started');
+  logger.info(
+    {
+      event: 'payment_authorization_started',
+      operation_id: operationId,
+      amount_cents: payload.amount_cents, // Amount is safe to log
+      currency: payload.currency, // Currency is safe to log
+      payment_method_type: payload.method_type, // "card", "ach" -- not card details
+      // Never log: card_number, cvv, card_holder_name, billing_address
+    },
+    'Payment authorization started'
+  );
 
   try {
     const response = await gatewayClient.authorize(payload);
     const durationMs = Date.now() - startMs;
 
-    logger.info({
-      event: 'payment_authorization_succeeded',
-      operation_id: operationId,
-      gateway_transaction_id: response.transaction_id,
-      authorization_code: response.auth_code,
-      amount_cents: payload.amount_cents,
-      currency: payload.currency,
-      duration_ms: durationMs,
-      http: {
-        status_code: response.status,
+    logger.info(
+      {
+        event: 'payment_authorization_succeeded',
+        operation_id: operationId,
+        gateway_transaction_id: response.transaction_id,
+        authorization_code: response.auth_code,
+        amount_cents: payload.amount_cents,
+        currency: payload.currency,
         duration_ms: durationMs,
-        destination: 'payment-gateway',
+        http: {
+          status_code: response.status,
+          duration_ms: durationMs,
+          destination: 'payment-gateway',
+        },
       },
-    }, 'Payment authorization succeeded');
+      'Payment authorization succeeded'
+    );
 
     return response;
   } catch (error) {
@@ -480,25 +491,28 @@ export async function authorizePayment(payload) {
     // Gateway errors are ERROR -- infrastructure failure requiring attention
     const logMethod = isClientError ? 'warn' : 'error';
 
-    logger[logMethod]({
-      event: 'payment_authorization_failed',
-      operation_id: operationId,
-      amount_cents: payload.amount_cents,
-      currency: payload.currency,
-      duration_ms: durationMs,
-      error: {
-        type: error.constructor.name,
-        code: error.code,
-        message: error.message,
-        // Stack trace only for unexpected errors (not card declines)
-        stack: isClientError ? undefined : error.stack,
-      },
-      http: {
-        status_code: error.statusCode ?? 0,
+    logger[logMethod](
+      {
+        event: 'payment_authorization_failed',
+        operation_id: operationId,
+        amount_cents: payload.amount_cents,
+        currency: payload.currency,
         duration_ms: durationMs,
-        destination: 'payment-gateway',
+        error: {
+          type: error.constructor.name,
+          code: error.code,
+          message: error.message,
+          // Stack trace only for unexpected errors (not card declines)
+          stack: isClientError ? undefined : error.stack,
+        },
+        http: {
+          status_code: error.statusCode ?? 0,
+          duration_ms: durationMs,
+          destination: 'payment-gateway',
+        },
       },
-    }, isClientError ? 'Payment declined by gateway' : 'Payment gateway error');
+      isClientError ? 'Payment declined by gateway' : 'Payment gateway error'
+    );
 
     throw error;
   }
@@ -511,20 +525,23 @@ export async function authorizePayment(payload) {
 
 ```javascript
 // server.js -- emit structured startup log before accepting requests
-logger.info({
-  event: 'service_started',
-  config: {
-    port: process.env.PORT ?? 3000,
-    log_level: process.env.LOG_LEVEL ?? 'info',
-    db_pool_size: parseInt(process.env.DB_POOL_SIZE ?? '10'),
-    payment_gateway_url: process.env.GATEWAY_URL, // URL is safe, not credentials
-    feature_flags: {
-      new_retry_logic: process.env.FF_NEW_RETRY === 'true',
-      enhanced_fraud_check: process.env.FF_FRAUD_CHECK === 'true',
+logger.info(
+  {
+    event: 'service_started',
+    config: {
+      port: process.env.PORT ?? 3000,
+      log_level: process.env.LOG_LEVEL ?? 'info',
+      db_pool_size: parseInt(process.env.DB_POOL_SIZE ?? '10'),
+      payment_gateway_url: process.env.GATEWAY_URL, // URL is safe, not credentials
+      feature_flags: {
+        new_retry_logic: process.env.FF_NEW_RETRY === 'true',
+        enhanced_fraud_check: process.env.FF_FRAUD_CHECK === 'true',
+      },
     },
+    startup_duration_ms: Date.now() - processStartTime,
   },
-  startup_duration_ms: Date.now() - processStartTime,
-}, 'Payment processor service started');
+  'Payment processor service started'
+);
 ```
 
 ---
@@ -532,22 +549,40 @@ logger.info({
 **Resulting Log Entry (example production output):**
 
 ```json
-{"timestamp":"2024-03-15T14:23:45.123Z","level":"INFO","service":"payment-processor","version":"2.4.1","environment":"production","message":"Payment authorization succeeded","request_id":"01HV2X3KQJG9Y8MFNPWZ4BSDQ","trace_id":"4bf92f3577b34da6a3ce929d0e0e4736","tenant_id":"tenant_acme","event":"payment_authorization_succeeded","operation_id":"550e8400-e29b-41d4-a716-446655440000","gateway_transaction_id":"txn_3P2kX","authorization_code":"AUTH_OK","amount_cents":4999,"currency":"USD","duration_ms":187,"http":{"status_code":200,"duration_ms":187,"destination":"payment-gateway"}}
+{
+  "timestamp": "2024-03-15T14:23:45.123Z",
+  "level": "INFO",
+  "service": "payment-processor",
+  "version": "2.4.1",
+  "environment": "production",
+  "message": "Payment authorization succeeded",
+  "request_id": "01HV2X3KQJG9Y8MFNPWZ4BSDQ",
+  "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "tenant_id": "tenant_acme",
+  "event": "payment_authorization_succeeded",
+  "operation_id": "550e8400-e29b-41d4-a716-446655440000",
+  "gateway_transaction_id": "txn_3P2kX",
+  "authorization_code": "AUTH_OK",
+  "amount_cents": 4999,
+  "currency": "USD",
+  "duration_ms": 187,
+  "http": { "status_code": 200, "duration_ms": 187, "destination": "payment-gateway" }
+}
 ```
 
 ---
 
 **Logging Strategy Summary for This Service:**
 
-| Dimension | Decision | Rationale |
-|-----------|----------|-----------|
-| Log format | NDJSON via Pino | Single line per entry, Kubernetes compatible, 5x faster than Winston |
-| Minimum prod level | INFO | DEBUG disabled; toggle via `/admin/log-level` endpoint during incidents |
-| PCI compliance | Pino `redact` option + field allowlist | Automated, not reliant on developer discipline |
-| Context propagation | AsyncLocalStorage in HTTP middleware | Automatic injection, zero per-call overhead |
-| Sampling | 100% (at 500 RPS, volume is manageable) | Re-evaluate if service scales to >5K RPS |
-| Output destination | stdout (Kubernetes runtime) | Fluent Bit DaemonSet ships to aggregator |
-| Sensitive data policy | Amount/currency safe; card data never logged | PCI-DSS requirement, enforced in redact config |
-| Card decline events | WARN level | Expected business outcome, not infrastructure failure |
-| Gateway errors | ERROR level | Requires on-call engineer attention |
-| Volume estimate | ~4GB/day compressed | 500 RPS * 3 entries * 500 bytes * 86,400s / 5 gzip ratio |
+| Dimension             | Decision                                     | Rationale                                                               |
+| --------------------- | -------------------------------------------- | ----------------------------------------------------------------------- |
+| Log format            | NDJSON via Pino                              | Single line per entry, Kubernetes compatible, 5x faster than Winston    |
+| Minimum prod level    | INFO                                         | DEBUG disabled; toggle via `/admin/log-level` endpoint during incidents |
+| PCI compliance        | Pino `redact` option + field allowlist       | Automated, not reliant on developer discipline                          |
+| Context propagation   | AsyncLocalStorage in HTTP middleware         | Automatic injection, zero per-call overhead                             |
+| Sampling              | 100% (at 500 RPS, volume is manageable)      | Re-evaluate if service scales to >5K RPS                                |
+| Output destination    | stdout (Kubernetes runtime)                  | Fluent Bit DaemonSet ships to aggregator                                |
+| Sensitive data policy | Amount/currency safe; card data never logged | PCI-DSS requirement, enforced in redact config                          |
+| Card decline events   | WARN level                                   | Expected business outcome, not infrastructure failure                   |
+| Gateway errors        | ERROR level                                  | Requires on-call engineer attention                                     |
+| Volume estimate       | ~4GB/day compressed                          | 500 RPS _ 3 entries _ 500 bytes \* 86,400s / 5 gzip ratio               |

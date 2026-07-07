@@ -53,17 +53,12 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
 
   const handleTestAndEnable = async () => {
     if (!botToken.trim()) {
-      Message.warning(
-        t('settings.channels.slack.credentials.botToken.required', 'Please enter a bot token'),
-      );
+      Message.warning(t('settings.channels.slack.credentials.botToken.required', 'Please enter a bot token'));
       return;
     }
     if (transport === 'socket' && !appToken.trim()) {
       Message.warning(
-        t(
-          'settings.channels.slack.credentials.appToken.required',
-          'Socket Mode requires an app-level token',
-        ),
+        t('settings.channels.slack.credentials.appToken.required', 'Socket Mode requires an app-level token')
       );
       return;
     }
@@ -71,8 +66,8 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
       Message.warning(
         t(
           'settings.channels.slack.credentials.signingSecret.required',
-          'Events API transport requires a signing secret',
-        ),
+          'Events API transport requires a signing secret'
+        )
       );
       return;
     }
@@ -85,14 +80,12 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
       });
 
       if (!testResult.success || !testResult.data?.success) {
-        Message.error(
-          testResult.data?.error ?? t('settings.channels.slack.connectionFailed', 'Connection failed'),
-        );
+        Message.error(testResult.data?.error ?? t('settings.channels.slack.connectionFailed', 'Connection failed'));
         return;
       }
 
       Message.success(
-        t('settings.channels.slack.connectionSuccess', `Connected! Bot: @${testResult.data.botUsername ?? 'unknown'}`),
+        t('settings.channels.slack.connectionSuccess', `Connected! Bot: @${testResult.data.botUsername ?? 'unknown'}`)
       );
 
       const enableResult = await channel.enablePlugin.invoke({
@@ -129,7 +122,7 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
           <span className='text-12px'>
             {t(
               'settings.channels.slack.replaceWarning',
-              'Connecting a new Slack workspace will replace your existing one.',
+              'Connecting a new Slack workspace will replace your existing one.'
             )}
           </span>
         </div>
@@ -139,7 +132,7 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
         label={t('settings.channels.slack.credentials.transport.label', 'Transport')}
         description={t(
           'settings.channels.slack.credentials.transport.help',
-          'Socket Mode opens an outbound WebSocket Slack initiates - no public URL needed. Events API uses an inbound HTTPS webhook verified with a signing secret.',
+          'Socket Mode opens an outbound WebSocket Slack initiates - no public URL needed. Events API uses an inbound HTTPS webhook verified with a signing secret.'
         )}
       >
         <Radio.Group
@@ -154,12 +147,8 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
           }}
           type='button'
         >
-          <Radio value='socket'>
-            {t('settings.channels.slack.credentials.transport.socket', 'Socket Mode')}
-          </Radio>
-          <Radio value='events'>
-            {t('settings.channels.slack.credentials.transport.events', 'Events API')}
-          </Radio>
+          <Radio value='socket'>{t('settings.channels.slack.credentials.transport.socket', 'Socket Mode')}</Radio>
+          <Radio value='events'>{t('settings.channels.slack.credentials.transport.events', 'Events API')}</Radio>
         </Radio.Group>
       </PreferenceRow>
 
@@ -167,7 +156,7 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
         label={t('settings.channels.slack.credentials.botToken.label', 'Bot Token')}
         description={t(
           'settings.channels.slack.credentials.botToken.help',
-          'OAuth & Permissions → Bot User OAuth Token. Starts with "xoxb-".',
+          'OAuth & Permissions → Bot User OAuth Token. Starts with "xoxb-".'
         )}
       >
         <Input.Password
@@ -176,10 +165,7 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
           placeholder={
             hasExistingBot
               ? '••••••••••••••••'
-              : t(
-                  'settings.channels.slack.credentials.botToken.placeholder',
-                  'xoxb-...your-bot-token...',
-                )
+              : t('settings.channels.slack.credentials.botToken.placeholder', 'xoxb-...your-bot-token...')
           }
           style={{ width: 280 }}
           visibilityToggle
@@ -191,16 +177,13 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
           label={t('settings.channels.slack.credentials.appToken.label', 'App-Level Token')}
           description={t(
             'settings.channels.slack.credentials.appToken.help',
-            'Required for Socket Mode. Basic Information → App-Level Tokens → Generate Token and Scopes with connections:write. Starts with "xapp-".',
+            'Required for Socket Mode. Basic Information → App-Level Tokens → Generate Token and Scopes with connections:write. Starts with "xapp-".'
           )}
         >
           <Input.Password
             value={appToken}
             onChange={setAppToken}
-            placeholder={t(
-              'settings.channels.slack.credentials.appToken.placeholder',
-              'xapp-...your-app-token...',
-            )}
+            placeholder={t('settings.channels.slack.credentials.appToken.placeholder', 'xapp-...your-app-token...')}
             style={{ width: 280 }}
             visibilityToggle
           />
@@ -212,7 +195,7 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
           label={t('settings.channels.slack.credentials.signingSecret.label', 'Signing Secret')}
           description={t(
             'settings.channels.slack.credentials.signingSecret.help',
-            'Required for Events API. Basic Information → App Credentials → Signing Secret. Used to verify the X-Slack-Signature HMAC on every webhook delivery.',
+            'Required for Events API. Basic Information → App Credentials → Signing Secret. Used to verify the X-Slack-Signature HMAC on every webhook delivery.'
           )}
         >
           <Input.Password
@@ -220,7 +203,7 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
             onChange={setSigningSecret}
             placeholder={t(
               'settings.channels.slack.credentials.signingSecret.placeholder',
-              '32-character hex signing secret',
+              '32-character hex signing secret'
             )}
             style={{ width: 280 }}
             visibilityToggle
@@ -234,7 +217,6 @@ const SlackConfigForm: React.FC<SlackConfigFormProps> = ({ pluginStatus, modelSe
         </Button>
       </div>
       <ChannelAgentModelSelector platform='slack' modelSelection={modelSelection} />
-
     </div>
   );
 };

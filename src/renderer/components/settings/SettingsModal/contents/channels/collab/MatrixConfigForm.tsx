@@ -51,29 +51,18 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
   const handleTestAndEnable = async () => {
     if (!homeserverUrl.trim()) {
       Message.warning(
-        t(
-          'settings.channels.matrix.credentials.homeserverUrl.required',
-          'Please enter a homeserver URL',
-        ),
+        t('settings.channels.matrix.credentials.homeserverUrl.required', 'Please enter a homeserver URL')
       );
       return;
     }
     if (!userId.trim()) {
       Message.warning(
-        t(
-          'settings.channels.matrix.credentials.userId.required',
-          'Please enter a Matrix user ID (mxid)',
-        ),
+        t('settings.channels.matrix.credentials.userId.required', 'Please enter a Matrix user ID (mxid)')
       );
       return;
     }
     if (!accessToken.trim()) {
-      Message.warning(
-        t(
-          'settings.channels.matrix.credentials.accessToken.required',
-          'Please enter an access token',
-        ),
-      );
+      Message.warning(t('settings.channels.matrix.credentials.accessToken.required', 'Please enter an access token'));
       return;
     }
 
@@ -92,8 +81,7 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
 
       if (!testResult.success || !testResult.data?.success) {
         Message.error(
-          testResult.data?.error ??
-            t('settings.channels.matrix.connectionFailed', 'Matrix connection failed'),
+          testResult.data?.error ?? t('settings.channels.matrix.connectionFailed', 'Matrix connection failed')
         );
         return;
       }
@@ -116,9 +104,7 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
           onStatusChange(statusResult.data.find((p) => p.type === 'matrix') ?? null);
         }
       } else {
-        Message.error(
-          enableResult.msg ?? t('settings.channels.matrix.enableFailed', 'Failed to enable plugin'),
-        );
+        Message.error(enableResult.msg ?? t('settings.channels.matrix.enableFailed', 'Failed to enable plugin'));
       }
     } catch (error) {
       Message.error(error instanceof Error ? error.message : String(error));
@@ -135,29 +121,23 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
           <span className='text-12px'>
             {t(
               'settings.channels.matrix.replaceWarning',
-              'Connecting a new Matrix account will replace your existing one.',
+              'Connecting a new Matrix account will replace your existing one.'
             )}
           </span>
         </div>
       )}
 
       <PreferenceRow
-        label={t(
-          'settings.channels.matrix.credentials.homeserverUrl.label',
-          'Homeserver URL',
-        )}
+        label={t('settings.channels.matrix.credentials.homeserverUrl.label', 'Homeserver URL')}
         description={t(
           'settings.channels.matrix.credentials.homeserverUrl.help',
-          'HTTPS base URL of your Matrix homeserver. Use https://matrix.org for the public flagship server.',
+          'HTTPS base URL of your Matrix homeserver. Use https://matrix.org for the public flagship server.'
         )}
       >
         <Input
           value={homeserverUrl}
           onChange={setHomeserverUrl}
-          placeholder={t(
-            'settings.channels.matrix.credentials.homeserverUrl.placeholder',
-            'https://matrix.org',
-          )}
+          placeholder={t('settings.channels.matrix.credentials.homeserverUrl.placeholder', 'https://matrix.org')}
           style={{ width: 280 }}
         />
       </PreferenceRow>
@@ -166,16 +146,13 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
         label={t('settings.channels.matrix.credentials.userId.label', 'User ID (mxid)')}
         description={t(
           'settings.channels.matrix.credentials.userId.help',
-          'Full Matrix ID including the server suffix, e.g. @bot:matrix.org.',
+          'Full Matrix ID including the server suffix, e.g. @bot:matrix.org.'
         )}
       >
         <Input
           value={userId}
           onChange={setUserId}
-          placeholder={t(
-            'settings.channels.matrix.credentials.userId.placeholder',
-            '@bot:matrix.org',
-          )}
+          placeholder={t('settings.channels.matrix.credentials.userId.placeholder', '@bot:matrix.org')}
           style={{ width: 280 }}
         />
       </PreferenceRow>
@@ -184,7 +161,7 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
         label={t('settings.channels.matrix.credentials.accessToken.label', 'Access Token')}
         description={t(
           'settings.channels.matrix.credentials.accessToken.help',
-          'Long-lived access token. Element: All settings → Help & About → Access Token. Or use a dedicated bot account.',
+          'Long-lived access token. Element: All settings → Help & About → Access Token. Or use a dedicated bot account.'
         )}
       >
         <Input.Password
@@ -193,10 +170,7 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
           placeholder={
             hasExisting
               ? '••••••••••••••••'
-              : t(
-                  'settings.channels.matrix.credentials.accessToken.placeholder',
-                  'syt_...your-matrix-access-token...',
-                )
+              : t('settings.channels.matrix.credentials.accessToken.placeholder', 'syt_...your-matrix-access-token...')
           }
           style={{ width: 280 }}
           visibilityToggle
@@ -206,7 +180,7 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
       <div className='text-12px text-t-tertiary'>
         {t(
           'settings.channels.matrix.accessTokenHowTo',
-          'How to get an access token: see https://t2bot.io/docs/access_tokens/ or your homeserver settings.',
+          'How to get an access token: see https://t2bot.io/docs/access_tokens/ or your homeserver settings.'
         )}
       </div>
 
@@ -216,7 +190,6 @@ const MatrixConfigForm: React.FC<MatrixConfigFormProps> = ({ pluginStatus, model
         </Button>
       </div>
       <ChannelAgentModelSelector platform='matrix' modelSelection={modelSelection} />
-
     </div>
   );
 };

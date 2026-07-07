@@ -12,14 +12,15 @@ description: >-
   audit skill can answer without the full stage-by-stage diagnosis.
 license: Apache-2.0
 type: workflow
-skills: "funnels-architecture-audit funnels-offer-audit"
+skills: 'funnels-architecture-audit funnels-offer-audit'
 metadata:
   author: wayland
   version: 1.0.0
   tags: marketing funnels audit diagnostics step-by-step optimization
   category: marketing
-  depends: "funnels-architecture-audit funnels-offer-audit"
+  depends: 'funnels-architecture-audit funnels-offer-audit'
 ---
+
 # Funnel Audit
 
 **Estimated time:** 20-30 minutes

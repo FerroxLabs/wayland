@@ -13,14 +13,15 @@ description: >-
   full investor-update workflow), and do NOT treat this as a scheduled routine.
 license: Apache-2.0
 type: workflow
-skills: "finance-report pitch-investor-email"
+skills: 'finance-report pitch-investor-email'
 metadata:
   author: wayland
   version: 1.0.0
   tags: pitch investor-update reporting metrics batch deterministic
   category: marketing
-  depends: "finance-report pitch-investor-email"
+  depends: 'finance-report pitch-investor-email'
 ---
+
 # Batch Investor Update Prep
 
 **Estimated time:** about 60 seconds

@@ -83,9 +83,7 @@ const OnboardingEmptyState: React.FC = () => {
         <h2 className='text-24px font-semibold text-t-primary leading-32px m-0 text-center'>
           {t('memory.empty.title')}
         </h2>
-        <p className='text-14px text-t-secondary leading-22px m-0 text-center'>
-          {t('memory.empty.subtitle')}
-        </p>
+        <p className='text-14px text-t-secondary leading-22px m-0 text-center'>{t('memory.empty.subtitle')}</p>
         <Input.TextArea
           ref={textareaRef}
           value={value}

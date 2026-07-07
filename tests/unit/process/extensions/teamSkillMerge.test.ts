@@ -19,20 +19,13 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { readFile as fsReadFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import path from 'path';
-import {
-  loadTeamSkills,
-  __resetTeamSkillMergeForTests,
-} from '@process/extensions/data/bundle-vendored/teamSkillMerge';
+import { loadTeamSkills, __resetTeamSkillMergeForTests } from '@process/extensions/data/bundle-vendored/teamSkillMerge';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 
 function makeBundle(entries: unknown): string {
   const root = mkdtempSync(path.join(tmpdir(), 'team-skill-fixture-'));
   mkdirSync(path.join(root, 'contributes'), { recursive: true });
-  writeFileSync(
-    path.join(root, 'contributes', 'skills.json'),
-    JSON.stringify(entries),
-    'utf-8',
-  );
+  writeFileSync(path.join(root, 'contributes', 'skills.json'), JSON.stringify(entries), 'utf-8');
   return root;
 }
 
@@ -77,10 +70,7 @@ describe('loadTeamSkills', () => {
     const teamEntries = (await lib.list({ source: 'team' })).filter((e) => e.type === 'skill');
 
     expect(teamEntries).toHaveLength(2);
-    expect(teamEntries.map((e) => e.name).sort()).toEqual([
-      'beacon-channel-strategy',
-      'research-jtbd-interviews',
-    ]);
+    expect(teamEntries.map((e) => e.name).toSorted()).toEqual(['beacon-channel-strategy', 'research-jtbd-interviews']);
     expect(teamEntries[0].sourceLabel).toBe('Wayland Teams');
     expect(teamEntries[0].metadata.tags).toEqual([]);
   });
@@ -110,11 +100,7 @@ describe('loadTeamSkills', () => {
       { name: 'sales-discovery-call', description: 'd', file: 'skills/sales/discovery-call.md' },
     ]);
     mkdirSync(path.join(bundleRoot, 'skills', 'sales'), { recursive: true });
-    writeFileSync(
-      path.join(bundleRoot, 'skills', 'sales', 'discovery-call.md'),
-      '# discovery call',
-      'utf-8',
-    );
+    writeFileSync(path.join(bundleRoot, 'skills', 'sales', 'discovery-call.md'), '# discovery call', 'utf-8');
 
     loadTeamSkills({ bundleRoot });
 

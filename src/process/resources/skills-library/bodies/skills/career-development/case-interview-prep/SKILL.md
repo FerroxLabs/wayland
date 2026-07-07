@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "interview-prep career template"
-  category: "career-development"
-  subcategory: "interview-preparation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'interview-prep career template'
+  category: 'career-development'
+  subcategory: 'interview-preparation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Case Interview Prep
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when the user explicitly needs help with structured case intervie
 - User is a career changer (engineer, doctor, lawyer) who is new to consulting and needs to learn structured business problem-solving from scratch
 
 **Do NOT use when:**
+
 - User needs behavioral interview preparation ("Tell me about a time you led a team") -- use `behavioral-interview-prep` instead
 - User needs technical coding interview preparation (LeetCode-style problems, system design) -- use `technical-interview-prep` instead
 - User wants to predict specific interview questions at a target firm -- use `interview-question-anticipator` instead
@@ -66,6 +68,7 @@ Ask directly: "What firm and round are you preparing for? What types of cases ha
 Every consulting case -- regardless of type, firm, or industry -- follows the same four-phase structure. The phases differ in content but not sequence. The timing guidance below is for a standard 25-minute interviewer-led case:
 
 **Phase 1 -- Clarify (2-4 minutes)**
+
 - Restate the case prompt in your own words to confirm you understood the problem correctly. This is not just politeness -- it catches misunderstandings before you waste time on the wrong analysis.
 - Ask 2-3 targeted clarifying questions. Good clarifying questions reduce ambiguity about scope (geography, business unit, timeframe), the definition of success (profit? market share? strategic positioning?), and whether constraints exist (budget cap, no acquisitions, specific timeline).
 - Avoid asking questions whose answers you could reasonably assume or that are irrelevant to your initial framework. Asking "What is the company's mission statement?" is a red flag.
@@ -73,6 +76,7 @@ Every consulting case -- regardless of type, firm, or industry -- follows the sa
 - For McKinsey's problem-solving interview (PSI/PEI format): the clarification phase is shorter and the interviewer will push you toward structured hypothesis-driven thinking immediately.
 
 **Phase 2 -- Structure (3-5 minutes)**
+
 - Request 30-60 seconds to structure your approach. Say exactly that: "Let me take 30 seconds to organize my thoughts before I present a framework."
 - Build a MECE (mutually exclusive, collectively exhaustive) framework with exactly 3-4 top-level branches. Fewer than 3 signals underdevelopment; more than 4 signals inability to prioritize.
 - Never name a canned framework (Porter's Five Forces, SWOT, BCG Growth-Share Matrix) as your primary structure. Interviewers know these models; using them by name signals you memorized rather than thought. Instead, derive branches directly from the case logic. A market entry case might have branches of "market attractiveness," "competitive dynamics," "company fit," and "financial viability" -- that happens to resemble Porter partly, but it is built from the question.
@@ -80,6 +84,7 @@ Every consulting case -- regardless of type, firm, or industry -- follows the sa
 - For BCG/Bain interviewee-led cases: you control the pacing and must proactively move between branches. For McKinsey PSI cases: the interviewer may redirect you mid-analysis, so your framework needs to be flexible enough to pivot.
 
 **Phase 3 -- Analyze (15-20 minutes)**
+
 - Work through each framework branch systematically, but stay adaptive. If data from Branch 1 strongly implicates Branch 2, say so: "The volume decline we just found makes me want to prioritize the competitive dynamics branch next rather than cost structure."
 - At every node where you need data, ask for it specifically: "Do we have data on how operating margin has trended over the past three years?" Not: "Can you tell me more about the financials?"
 - Perform all calculations out loud. Round aggressively to numbers divisible by common factors. Convert $47.3M to $50M; convert 22.7% to ~23% then round to 25% if needed. State your rounding explicitly: "I will call that 25% to keep the math clean -- that gives us approximately $125M."
@@ -88,6 +93,7 @@ Every consulting case -- regardless of type, firm, or industry -- follows the sa
 - In profitability cases, always complete the full profit bridge before recommending fixes. Candidates who skip to solutions before quantifying the problem look junior.
 
 **Phase 4 -- Recommend (2-3 minutes)**
+
 - Open with a direct, confident recommendation. Never hedge at the top: "I recommend [specific action]" not "Based on what we have seen, it might be worth considering..."
 - Support the recommendation with exactly three reasons drawn from your analysis. The three-reason structure signals consulting communication discipline.
 - Acknowledge the single most important risk and name a concrete mitigation action.
@@ -105,11 +111,13 @@ Present the relevant framework for the user's target case type. Each framework b
 The profit decline has two possible sources: revenue or cost. Work through each systematically before diagnosing.
 
 Revenue = Price x Volume (x Mix, if the business has multiple product lines)
+
 - Price: Has average selling price or realized price changed? Is there a mix shift toward lower-priced SKUs?
 - Volume: Has unit volume changed? Is the decline concentrated in a segment, geography, or channel?
 - Mix: Does the business have multiple products or customer segments? If one high-margin segment is shrinking, blended revenue stays flat but profit falls.
 
 Cost = Fixed Costs + Variable Costs
+
 - Fixed: Rent, depreciation, salaries, insurance. These should not move with volume -- if they did, ask why.
 - Variable: COGS (materials, direct labor, packaging), distribution, commissions. These move with output.
 - One-time charges: Write-offs, severance, legal settlements can distort a single year's profit. Always ask whether any unusual items exist.
@@ -381,6 +389,7 @@ Group cases evaluate different skills from individual cases: collaboration, stru
 ## Case Interview Preparation: BCG Second Round -- Interviewee-Led Market Entry Case
 
 ### Session Overview
+
 - Target firm: BCG (MBB tier, interviewee-led format)
 - Interview format: Interviewee-led -- you control pacing, branch transitions, and data requests
 - Case type: Market entry
@@ -398,24 +407,28 @@ In a BCG interviewee-led case, there is no interviewer walking you through. You 
 ### Framework: Market Entry
 
 **Branch 1: Market Attractiveness**
+
 - Key questions: What is the total addressable market size? What is the growth rate? What are the industry profit margins? Are there structural barriers that protect incumbents?
 - Data to request: "What is the estimated market size for [product] in the target geography?" / "What has revenue growth looked like over the past 3-5 years?" / "What are typical operating margins for players in this space?"
 - Math to perform: Market revenue x operating margin = absolute profit pool available; compare to client's current business size to assess materiality
 - Synthesis test: "This market is [attractive / unattractive] because [size/growth/margin argument] -- it is [large/small] enough relative to our client's current revenue to be [material / immaterial]."
 
 **Branch 2: Competitive Dynamics**
+
 - Key questions: Who are the top 3 players and what are their market shares? Is the market concentrated (one player >40% share) or fragmented (<20% for top player)? What is the basis of competition -- price, product quality, distribution, brand, relationships?
 - Data to request: "Can you tell me who the major competitors are and their approximate market shares?" / "On what dimension do customers primarily choose between providers?"
 - Math to perform: Sum of top-3 shares; if <60% combined, the market is fragmented and easier to penetrate
 - Synthesis test: "The competitive structure is [concentrated / fragmented], which means entry is [difficult / feasible]. The basis of competition is [price / quality / relationships], which is [favorable / unfavorable] for our client given their capabilities."
 
 **Branch 3: Client Capability Fit**
+
 - Key questions: Does the client have relevant product technology or operational capability? Does the client have distribution channels or customer relationships that translate to the new market? What are the capability gaps, and how costly and time-consuming are they to close?
 - Data to request: "What is our client's current product and operational capability in adjacent markets?" / "Do they have existing customer relationships that could be leveraged here?"
 - Math to perform: Estimate the cost to close capability gaps (hiring, technology investment, partnership fees) as a percentage of the investment thesis
 - Synthesis test: "The client's fit is [strong / moderate / weak]. The most important gap is [specific gap], which would cost approximately [estimate] to close and take [timeframe] -- this is [manageable / prohibitive]."
 
 **Branch 4: Financial Viability and Entry Mode**
+
 - Key questions: What investment is required for each entry mode (organic build vs. acquisition vs. partnership)? What is the expected annual profit contribution once at scale? What is the payback period?
 - Data to request: "Do we have any data on what it would cost to build out the required sales force and operations?" / "Are there potential acquisition targets in this space, and at what valuations?"
 - Math to perform: Payback period = upfront investment / annual incremental profit. Under 3 years is strong; 4-6 years is acceptable with strong strategic rationale; over 7 years typically fails the investment test unless the strategic positioning value is exceptional.
@@ -432,11 +445,11 @@ In a BCG interviewee-led case, there is no interviewer walking you through. You 
 
 **Suggested Clarifying Questions:**
 
-1. "When you say 'industrial equipment,' can you confirm which specific product categories the client manufactures? And are German industrial customers buying similar equipment categories, or does the German market demand meaningfully different specifications?" -- *Why it matters: if German customers require certifications or product specs the client does not hold, the entry timeline changes dramatically.*
+1. "When you say 'industrial equipment,' can you confirm which specific product categories the client manufactures? And are German industrial customers buying similar equipment categories, or does the German market demand meaningfully different specifications?" -- _Why it matters: if German customers require certifications or product specs the client does not hold, the entry timeline changes dramatically._
 
-2. "The European competitor exited for operational reasons -- do we know whether the underlying market demand in Germany is healthy, or was there a demand issue the competitor was also facing?" -- *Why it matters: you need to separate a bad competitor from a bad market.*
+2. "The European competitor exited for operational reasons -- do we know whether the underlying market demand in Germany is healthy, or was there a demand issue the competitor was also facing?" -- _Why it matters: you need to separate a bad competitor from a bad market._
 
-3. "Does the client have any existing presence in Europe -- even a small sales office or distribution relationship -- or would this be a completely greenfield entry?" -- *Why it matters: existing footholds dramatically reduce the cost and complexity of market entry and should shift the entry mode analysis.*
+3. "Does the client have any existing presence in Europe -- even a small sales office or distribution relationship -- or would this be a completely greenfield entry?" -- _Why it matters: existing footholds dramatically reduce the cost and complexity of market entry and should shift the entry mode analysis._
 
 ---
 
@@ -447,16 +460,16 @@ In a BCG interviewee-led case, there is no interviewer walking you through. You 
 
 **Key Data Points (Interviewer Feed):**
 
-| Data Point | Value | What It Implies |
-|------------|-------|-----------------|
-| German industrial equipment market size | ~$4B annual revenue | Material at ~20% of client's current revenue |
-| Market growth rate | 3-4% per year | Healthy, not hyper-growth -- stable industrial demand |
-| Industry operating margins in Germany | 14-16% | Slightly lower than client's 18%, likely due to higher labor costs |
-| Exited competitor's former market share | ~25% | Leaves significant addressable white space -- market now more fragmented |
-| Client's product specification gap | Needs EU CE certification + German-language technical documentation | 12-18 month process; ~$15M one-time investment |
-| Estimated cost to establish German sales/operations | $40M upfront (hiring, warehouse, sales team) | Total initial investment ~$55M including certification |
-| Expected annual profit at scale (Year 3+) | ~$80M revenue x 15% margin = ~$12M operating profit | Payback period ~$55M / $12M = ~4.6 years |
-| Small German distributor available for partnership | 8% market share, strong customer relationships | Partnership could accelerate market access by 1-2 years |
+| Data Point                                          | Value                                                               | What It Implies                                                          |
+| --------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| German industrial equipment market size             | ~$4B annual revenue                                                 | Material at ~20% of client's current revenue                             |
+| Market growth rate                                  | 3-4% per year                                                       | Healthy, not hyper-growth -- stable industrial demand                    |
+| Industry operating margins in Germany               | 14-16%                                                              | Slightly lower than client's 18%, likely due to higher labor costs       |
+| Exited competitor's former market share             | ~25%                                                                | Leaves significant addressable white space -- market now more fragmented |
+| Client's product specification gap                  | Needs EU CE certification + German-language technical documentation | 12-18 month process; ~$15M one-time investment                           |
+| Estimated cost to establish German sales/operations | $40M upfront (hiring, warehouse, sales team)                        | Total initial investment ~$55M including certification                   |
+| Expected annual profit at scale (Year 3+)           | ~$80M revenue x 15% margin = ~$12M operating profit                 | Payback period ~$55M / $12M = ~4.6 years                                 |
+| Small German distributor available for partnership  | 8% market share, strong customer relationships                      | Partnership could accelerate market access by 1-2 years                  |
 
 ---
 
@@ -474,13 +487,13 @@ In a BCG interviewee-led case, there is no interviewer walking you through. You 
 
 ### Debrief and Evaluation
 
-| Dimension | Rating | Specific Feedback |
-|-----------|--------|-------------------|
-| Structure quality | Strong | Four MECE branches that are non-overlapping and collectively cover the decision. Prioritization rationale (start with market attractiveness because we need to check if the competitor exit reflects a bad market) was sound. |
-| Analytical rigor | Strong | Profit bridge was complete: market size to addressable share to margin to absolute profit to payback period. Certification gap was identified and incorporated into the investment estimate rather than noted and ignored. |
-| Business judgment | Adequate | The partnership-first entry mode is commercially savvy. However, the candidate should also address the risk that the distributor represents -- if they are approached by a larger competitor in the 12-18 month window, the client loses their market access vehicle. Proactively naming that risk would demonstrate sharper commercial thinking. |
-| Communication | Needs Work | The candidate needs to practice the recommendation script until it is smooth, direct, and delivered without hedging qualifiers. Record yourself saying it -- any sentence beginning with "I think maybe" or "it probably makes sense to" should be rewritten as a declarative statement. |
-| Composure | Not tested -- run a second case where the interviewer pushes back on the partnership recommendation to practice defending a position under pressure. |
+| Dimension         | Rating                                                                                                                                               | Specific Feedback                                                                                                                                                                                                                                                                                                                                 |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Structure quality | Strong                                                                                                                                               | Four MECE branches that are non-overlapping and collectively cover the decision. Prioritization rationale (start with market attractiveness because we need to check if the competitor exit reflects a bad market) was sound.                                                                                                                     |
+| Analytical rigor  | Strong                                                                                                                                               | Profit bridge was complete: market size to addressable share to margin to absolute profit to payback period. Certification gap was identified and incorporated into the investment estimate rather than noted and ignored.                                                                                                                        |
+| Business judgment | Adequate                                                                                                                                             | The partnership-first entry mode is commercially savvy. However, the candidate should also address the risk that the distributor represents -- if they are approached by a larger competitor in the 12-18 month window, the client loses their market access vehicle. Proactively naming that risk would demonstrate sharper commercial thinking. |
+| Communication     | Needs Work                                                                                                                                           | The candidate needs to practice the recommendation script until it is smooth, direct, and delivered without hedging qualifiers. Record yourself saying it -- any sentence beginning with "I think maybe" or "it probably makes sense to" should be rewritten as a declarative statement.                                                          |
+| Composure         | Not tested -- run a second case where the interviewer pushes back on the partnership recommendation to practice defending a position under pressure. |
 
 **Top Priority Before Next Practice:** Practice the recommendation script out loud three times before your next case. The analysis here was solid -- the gap is entirely in the delivery. A BCG partner wants to feel, in 90 seconds, that they could trust you to say this recommendation to a CEO. Confidence in your closing is what makes that happen.
 

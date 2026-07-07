@@ -29,8 +29,9 @@ metadata:
     resilience-engineer chaos-engineer cicd-architect shell-scripter
   disclaimer: none
   difficulty: intermediate
-  interactivity: "auto"
+  interactivity: 'auto'
 ---
+
 # Set Up Monitoring
 
 **Estimated time:** 2-4 weeks
@@ -119,7 +120,7 @@ validate that the monitoring stack works. Simulate failures: kill a service inst
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Align stakeholders on what matters before instrumenting
   - If **After Step 2**: Fix instrumentation gaps before building dashboards
   - If **After Step 4**: Ensure alerts work before writing runbooks for them
@@ -171,6 +172,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

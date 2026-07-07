@@ -47,7 +47,7 @@ const SlackSetup: React.FC = () => {
       pluginId='slack_default'
       helpText={t(
         'settings.channels.slack.help',
-        'Native Slack bot integration via @slack/bolt. Choose Socket Mode for the simplest setup (no public webhook URL required) or Events API if you already have a stable HTTPS endpoint.',
+        'Native Slack bot integration via @slack/bolt. Choose Socket Mode for the simplest setup (no public webhook URL required) or Events API if you already have a stable HTTPS endpoint.'
       )}
     >
       <SlackConfigForm pluginStatus={pluginStatus} modelSelection={modelSelection} onStatusChange={setPluginStatus} />

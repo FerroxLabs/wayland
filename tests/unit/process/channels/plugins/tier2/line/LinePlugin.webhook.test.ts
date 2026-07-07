@@ -117,7 +117,7 @@ describe('lineVerifier', () => {
   it('returns ok=true for a valid signature and parses payload', () => {
     const result = lineVerifier(
       { headers: { 'x-line-signature': validSig }, rawBody, query: {}, url: '/webhooks/line/tok' },
-      CHANNEL_SECRET,
+      CHANNEL_SECRET
     );
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -127,10 +127,7 @@ describe('lineVerifier', () => {
   });
 
   it('returns ok=false when x-line-signature header is absent', () => {
-    const result = lineVerifier(
-      { headers: {}, rawBody, query: {}, url: '/webhooks/line/tok' },
-      CHANNEL_SECRET,
-    );
+    const result = lineVerifier({ headers: {}, rawBody, query: {}, url: '/webhooks/line/tok' }, CHANNEL_SECRET);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('missing-signature');
   });
@@ -139,7 +136,7 @@ describe('lineVerifier', () => {
     const tampered = Buffer.from(body + 'evil', 'utf8');
     const result = lineVerifier(
       { headers: { 'x-line-signature': validSig }, rawBody: tampered, query: {}, url: '/webhooks/line/tok' },
-      CHANNEL_SECRET,
+      CHANNEL_SECRET
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('invalid-signature');
@@ -150,7 +147,7 @@ describe('lineVerifier', () => {
     const badSig = makeSignature(badBody);
     const result = lineVerifier(
       { headers: { 'x-line-signature': badSig }, rawBody: badBody, query: {}, url: '/webhooks/line/tok' },
-      CHANNEL_SECRET,
+      CHANNEL_SECRET
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('invalid-json');
@@ -172,7 +169,9 @@ describe('LinePlugin.handleWebhookPayload', () => {
   it('emits a unified message for a text message event', async () => {
     const plugin = await initPlugin();
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(textMessagePayload(), {}, 'line_default');
 
@@ -185,7 +184,9 @@ describe('LinePlugin.handleWebhookPayload', () => {
   it('drops follow events without emitting a message', async () => {
     const plugin = await initPlugin();
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       {
@@ -193,7 +194,7 @@ describe('LinePlugin.handleWebhookPayload', () => {
         events: [{ type: 'follow', source: { type: 'user', userId: 'U222' }, timestamp: Date.now() }],
       },
       {},
-      'line_default',
+      'line_default'
     );
 
     expect(emitted).toHaveLength(0);
@@ -202,7 +203,9 @@ describe('LinePlugin.handleWebhookPayload', () => {
   it('emits a postback event as a text message', async () => {
     const plugin = await initPlugin();
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       {
@@ -218,7 +221,7 @@ describe('LinePlugin.handleWebhookPayload', () => {
         ],
       },
       {},
-      'line_default',
+      'line_default'
     );
 
     expect(emitted).toHaveLength(1);
@@ -229,7 +232,9 @@ describe('LinePlugin.handleWebhookPayload', () => {
     const plugin = await initPlugin();
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const emitted: IUnifiedIncomingMessage[] = [];
-    plugin.onMessage(async (msg) => { emitted.push(msg); });
+    plugin.onMessage(async (msg) => {
+      emitted.push(msg);
+    });
 
     await plugin.handleWebhookPayload(
       {
@@ -245,7 +250,7 @@ describe('LinePlugin.handleWebhookPayload', () => {
         ],
       },
       {},
-      'line_default',
+      'line_default'
     );
 
     expect(emitted).toHaveLength(0);
@@ -255,7 +260,7 @@ describe('LinePlugin.handleWebhookPayload', () => {
   it('handles an empty events array without throwing', async () => {
     const plugin = await initPlugin();
     await expect(
-      plugin.handleWebhookPayload({ destination: 'Ubot123', events: [] }, {}, 'line_default'),
+      plugin.handleWebhookPayload({ destination: 'Ubot123', events: [] }, {}, 'line_default')
     ).resolves.toBeUndefined();
   });
 });

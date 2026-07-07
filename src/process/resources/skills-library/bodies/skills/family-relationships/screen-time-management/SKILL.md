@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "parenting planning guide"
-  category: "family-relationships"
-  subcategory: "parenting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'parenting planning guide'
+  category: 'family-relationships'
+  subcategory: 'parenting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Screen Time Management
 
 ## When to Use
 
 **Use this skill when:**
+
 - A parent asks how many hours of screen time are appropriate for a child of a specific age, especially if they cite confusion about conflicting advice they've heard
 - A family wants to create a written media agreement that all household members -- including children old enough to participate -- can sign and refer to
 - A parent describes ongoing conflict at screen-time transitions: meltdowns when turning off devices, sneaking screens, negotiating endlessly, or lying about usage
@@ -31,6 +33,7 @@ metadata:
 - A family is dealing with sibling inequity -- different ages need different limits and the younger child is protesting
 
 **Do NOT use when:**
+
 - The parent describes behaviors indicating possible problematic technology use: the child becomes physically aggressive when devices are removed, lies compulsively about usage, abandons all non-screen activities, shows withdrawal symptoms (sleep disruption, appetite changes, mood dysregulation beyond typical transition resistance) -- refer to a pediatrician or child psychologist
 - The user is asking about managing their own adult screen time for productivity -- use a productivity or habits skill
 - The user needs clinical assessment of whether a child has a screen dependency disorder -- this skill does not diagnose
@@ -78,6 +81,7 @@ Set limits by child, by day type (school day vs. weekend vs. school holiday), an
 
 **Content Quality Criteria:**
 Use the PACE framework for evaluating children's content:
+
 - **P -- Pacing:** Content with slower pacing (scenes lasting 10+ seconds, deliberate transitions, wait time for the child to respond) produces better comprehension and lower arousal than rapid-cut content. Below age 5, avoid anything with average shot lengths under 5 seconds.
 - **A -- Active Engagement:** The child should be doing something -- choosing, predicting, answering, moving, creating -- rather than purely receiving. Look for content that generates questions the child asks aloud, or that the child re-enacts in play afterward.
 - **C -- Commercialization and Manipulation:** Assess whether content embeds toy advertising, encourages in-app purchasing, or uses persuasive dark patterns (autoplay, variable reward loops in games, like counts). These features are specifically designed to extend session duration and generate revenue at the child's expense.
@@ -313,17 +317,18 @@ Social screen time is developmentally distinct from solo passive consumption. A 
 **Output:**
 
 ## Family Media Plan
+
 ### [Your Family] | 4-year-old and 7-year-old
 
 ---
 
 ## Part 1: Daily Screen Time Limits
 
-| Child | Age | School Days | Weekends/Holidays | Special Exceptions |
-|-------|-----|-------------|-------------------|-------------------|
-| Younger child | 4 | 45-60 min recreational | 1 hour recreational | Travel: add 30-45 min; Sick days: relaxed |
-| Older child | 7 | 1 hour recreational | 1.5 hours recreational | Travel: add 30-45 min; Sick days: relaxed |
-| Parent work calls | Both | Up to 30 min (designated work window only) | N/A | This is a planned exception, not a failure of the plan |
+| Child             | Age  | School Days                                | Weekends/Holidays      | Special Exceptions                                     |
+| ----------------- | ---- | ------------------------------------------ | ---------------------- | ------------------------------------------------------ |
+| Younger child     | 4    | 45-60 min recreational                     | 1 hour recreational    | Travel: add 30-45 min; Sick days: relaxed              |
+| Older child       | 7    | 1 hour recreational                        | 1.5 hours recreational | Travel: add 30-45 min; Sick days: relaxed              |
+| Parent work calls | Both | Up to 30 min (designated work window only) | N/A                    | This is a planned exception, not a failure of the plan |
 
 **Total current usage:** ~3 hours daily. Target: 45 min (age 4) and 1 hour (age 7) recreational. Transition over 4 weeks.
 
@@ -333,12 +338,12 @@ Social screen time is developmentally distinct from solo passive consumption. A 
 
 ## Part 2: What Counts as Screen Time
 
-| Counts Toward Daily Limit | Does NOT Count | Partial Credit (50%) |
-|---------------------------|----------------|---------------------|
-| Streaming shows and movies | Video calls with grandparents/family | Educational interactive apps |
-| Passive YouTube viewing | The 30-min parent work window (if content is intentionally chosen) | Creative apps (drawing, simple animation) |
-| Entertainment tablet games | Audiobooks | Co-op game with a friend (age 7) |
-| Background TV while "watching" | Music listening | Documentary content related to school topic |
+| Counts Toward Daily Limit      | Does NOT Count                                                     | Partial Credit (50%)                        |
+| ------------------------------ | ------------------------------------------------------------------ | ------------------------------------------- |
+| Streaming shows and movies     | Video calls with grandparents/family                               | Educational interactive apps                |
+| Passive YouTube viewing        | The 30-min parent work window (if content is intentionally chosen) | Creative apps (drawing, simple animation)   |
+| Entertainment tablet games     | Audiobooks                                                         | Co-op game with a friend (age 7)            |
+| Background TV while "watching" | Music listening                                                    | Documentary content related to school topic |
 
 **Note on the work window:** The 30 minutes during parent work calls is a named exception, not part of the recreational limit. Choose this content intentionally -- slow-paced, high-quality -- rather than defaulting to autoplay. When the call ends, the exception ends.
 
@@ -347,12 +352,14 @@ Social screen time is developmentally distinct from solo passive consumption. A 
 ## Part 3: Screen-Free Zones and Times
 
 **Every day, no exceptions:**
+
 - [x] All meals -- TV off, tablets face-down, phones away from the table
 - [x] All bedrooms -- no screens in sleeping spaces; no falling asleep to video content
 - [x] 60 minutes before bedtime -- screens off by 7:00 PM (assuming 8:00 PM bedtime for 4-year-old, 8:30 PM for 7-year-old)
-  -- *Why:* Screens suppress melatonin by up to 50%, making it harder to fall asleep. This is biology, not punishment.
+      -- _Why:_ Screens suppress melatonin by up to 50%, making it harder to fall asleep. This is biology, not punishment.
 
 **Daily structure zones:**
+
 - [x] First 30 minutes after school/childcare pickup -- transition time, connection with parent, no screens
 - [x] During the 7-year-old's homework -- device for homework only; no open entertainment tabs; TV off
 
@@ -360,14 +367,15 @@ Social screen time is developmentally distinct from solo passive consumption. A 
 
 ## Part 4: Content Quality Criteria (PACE Framework)
 
-| Dimension | Green Flag -- Choose This | Red Flag -- Reconsider |
-|-----------|--------------------------|----------------------|
-| Pacing | Scenes last 10+ seconds; deliberate transitions; characters wait for responses | Rapid cuts; constant audio stimulation; no quiet moments |
-| Active Engagement | Child talks to the screen; re-enacts content in play; asks questions about it | Glazed expression; unresponsive when spoken to; cannot describe what they watched |
-| Commercialization | Ad-free settings; no in-app purchases; no autoplay to next episode | Embedded toy commercials; reward loops designed to extend session; "buy this" prompts |
-| Educational Transfer | Child teaches back a concept; vocabulary from content appears in conversation | Child watched for 45 minutes and retained nothing describable |
+| Dimension            | Green Flag -- Choose This                                                      | Red Flag -- Reconsider                                                                |
+| -------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Pacing               | Scenes last 10+ seconds; deliberate transitions; characters wait for responses | Rapid cuts; constant audio stimulation; no quiet moments                              |
+| Active Engagement    | Child talks to the screen; re-enacts content in play; asks questions about it  | Glazed expression; unresponsive when spoken to; cannot describe what they watched     |
+| Commercialization    | Ad-free settings; no in-app purchases; no autoplay to next episode             | Embedded toy commercials; reward loops designed to extend session; "buy this" prompts |
+| Educational Transfer | Child teaches back a concept; vocabulary from content appears in conversation  | Child watched for 45 minutes and retained nothing describable                         |
 
 **Quick content check before introducing something new:**
+
 1. Would I sit and watch this with my child without feeling bored or uncomfortable?
 2. Is this content telling a story, or is it primarily designed to keep a child watching as long as possible?
 3. Can I turn autoplay off? If not, that is a design feature worth resisting.
@@ -386,13 +394,14 @@ The meltdown problem is almost always about abruptness and the absence of a comp
 
 **If the 4-year-old melts down:**
 "I know you want to keep watching. That's really hard. Screen time is done for now. You can feel upset about that -- it makes sense. Come with me to [activity]. I'm going to sit with you."
--- *Do not negotiate the limit. Validate the feeling, hold the boundary, reduce the distance by moving toward the alternative together.*
+-- _Do not negotiate the limit. Validate the feeling, hold the boundary, reduce the distance by moving toward the alternative together._
 
 **If the 7-year-old argues or bargains:**
 "I hear you. We can talk about the plan at our review in [X weeks]. Right now, screen time is done. What do you want to do first -- [option A] or [option B]?"
--- *Offering two real choices restores a sense of agency without reopening the screen time negotiation.*
+-- _Offering two real choices restores a sense of agency without reopening the screen time negotiation._
 
 **What NOT to do:**
+
 - Say "just five more minutes" -- this resets the clock and trains bargaining
 - Make the consequence indefinite ("no screens for a week") in the moment of conflict -- this is unenforceable and the child knows it
 - Skip the warning on a rushed day -- consistency in the warning is exactly what reduces meltdowns over time
@@ -403,17 +412,17 @@ The meltdown problem is almost always about abruptness and the absence of a comp
 
 ## Part 6: Alternative Activity Toolkit
 
-| Situation | Screen-Free Alternative |
-|-----------|------------------------|
-| After-school wind-down (both children) | Outdoor play if weather allows; snack at the table with conversation; 15 minutes of free play with a specific toy set already out |
+| Situation                                       | Screen-Free Alternative                                                                                                                                                                 |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| After-school wind-down (both children)          | Outdoor play if weather allows; snack at the table with conversation; 15 minutes of free play with a specific toy set already out                                                       |
 | Parent work call (4-year-old needs containment) | Parallel activity box: rotated weekly with items only accessed during work time -- playdough, sticker books, a specific set of blocks, water beads. Novelty is what sustains attention. |
-| Parent work call (7-year-old) | Independent reading, homework start, creative drawing with prompt ("draw what you'd build if you had unlimited LEGO") |
-| Dinner preparation | 4-year-old: washing vegetables, tearing lettuce, stirring; 7-year-old: reading a recipe, measuring ingredients, setting the table |
-| Rainy day (both children) | Cardboard box construction kit (saved boxes + tape + markers); indoor obstacle course with couch cushions; audiobook during quiet rest time |
-| Car ride under 20 minutes | I Spy variations; 20 Questions; "name 5 things you can see that are [color]"; silly storytelling where each person adds a sentence |
-| Car ride 45+ minutes | One screen segment (30-40 min) + audiobook chapter + car game; not continuous screen time for full trip |
-| Restaurant wait | Small notebook in every bag for drawing; observation game ("count everything on this table that is a circle"); simple card deck |
-| Sick day (either child) | Relaxed recreational limit: add 45 minutes-1 hour of calm content. Sick days are a planned exception. |
+| Parent work call (7-year-old)                   | Independent reading, homework start, creative drawing with prompt ("draw what you'd build if you had unlimited LEGO")                                                                   |
+| Dinner preparation                              | 4-year-old: washing vegetables, tearing lettuce, stirring; 7-year-old: reading a recipe, measuring ingredients, setting the table                                                       |
+| Rainy day (both children)                       | Cardboard box construction kit (saved boxes + tape + markers); indoor obstacle course with couch cushions; audiobook during quiet rest time                                             |
+| Car ride under 20 minutes                       | I Spy variations; 20 Questions; "name 5 things you can see that are [color]"; silly storytelling where each person adds a sentence                                                      |
+| Car ride 45+ minutes                            | One screen segment (30-40 min) + audiobook chapter + car game; not continuous screen time for full trip                                                                                 |
+| Restaurant wait                                 | Small notebook in every bag for drawing; observation game ("count everything on this table that is a circle"); simple card deck                                                         |
+| Sick day (either child)                         | Relaxed recreational limit: add 45 minutes-1 hour of calm content. Sick days are a planned exception.                                                                                   |
 
 ---
 
@@ -421,15 +430,16 @@ The meltdown problem is almost always about abruptness and the absence of a comp
 
 The target for your family is 45 minutes (age 4) and 1 hour (age 7) of recreational screen time on school days. Current usage is approximately 3 hours shared. Reduce gradually -- one week at a time.
 
-| Week | 4-Year-Old Daily Limit | 7-Year-Old Daily Limit | Combined Change | Replacement Activity |
-|------|----------------------|----------------------|-----------------|---------------------|
-| Current | ~1.5 hours | ~1.5 hours | -- | -- |
-| Week 1 | 1.25 hours | 1.25 hours | -30 min total | Afternoon outdoor play block added (30 min) |
-| Week 2 | 1 hour | 1 hour | -30 min | Post-dinner read-aloud (15-20 min) + free play |
-| Week 3 | 45 min | 1.25 hours | -15 min/-45 min | Morning screen-free play routine established |
-| Week 4 (Target) | 45 min recreational | 1 hour recreational | -- | New routine is the default |
+| Week            | 4-Year-Old Daily Limit | 7-Year-Old Daily Limit | Combined Change | Replacement Activity                           |
+| --------------- | ---------------------- | ---------------------- | --------------- | ---------------------------------------------- |
+| Current         | ~1.5 hours             | ~1.5 hours             | --              | --                                             |
+| Week 1          | 1.25 hours             | 1.25 hours             | -30 min total   | Afternoon outdoor play block added (30 min)    |
+| Week 2          | 1 hour                 | 1 hour                 | -30 min         | Post-dinner read-aloud (15-20 min) + free play |
+| Week 3          | 45 min                 | 1.25 hours             | -15 min/-45 min | Morning screen-free play routine established   |
+| Week 4 (Target) | 45 min recreational    | 1 hour recreational    | --              | New routine is the default                     |
 
 **What to expect:**
+
 - Days 1-2: Goes smoothly (novelty effect)
 - Days 3-7: Peak resistance, especially from the 4-year-old. This is the window where most parents conclude the plan "isn't working." It is working -- this is the adjustment response. Hold the limit.
 - Days 10-14: Resistance decreases. The new activities start being chosen voluntarily.
@@ -441,13 +451,13 @@ The target for your family is 45 minutes (age 4) and 1 hour (age 7) of recreatio
 
 ## Part 8: Family Agreement
 
-**Our plan starts:** _______________
+**Our plan starts:** ******\_\_\_******
 
-**Our review date:** _______________ (4 weeks from start)
+**Our review date:** ******\_\_\_****** (4 weeks from start)
 
-Parent(s): _______________________
+Parent(s): **********\_\_\_**********
 
-*"This is our family's plan. When screen time is hard, we go back to the plan. When something isn't working, we wait for review day to adjust it -- not during a tough moment."*
+_"This is our family's plan. When screen time is hard, we go back to the plan. When something isn't working, we wait for review day to adjust it -- not during a tough moment."_
 
 ---
 

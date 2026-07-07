@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "api-design backend best-practices"
-  category: "backend-systems"
-  subcategory: "backend-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'api-design backend best-practices'
+  category: 'backend-systems'
+  subcategory: 'backend-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # REST API Design
 
 ## When to Use
 
 **Use this skill when:**
+
 - User is designing a new REST API from scratch and needs guidance on resource modeling, URL structure, HTTP semantics, versioning strategy, or response shape
 - User is reviewing an existing API for correctness, consistency, or scalability issues before a major release or integration
 - User asks about specific REST design questions: pagination strategies, error response formats, authentication flows, HATEOAS, idempotency, or partial updates
@@ -29,6 +31,7 @@ metadata:
 - User needs to choose between REST, GraphQL, gRPC, or WebSockets for a given use case -- this skill covers the REST side of that decision
 
 **Do NOT use this skill when:**
+
 - User needs guidance on GraphQL schema design, resolvers, or subscriptions -- use the GraphQL API design skill
 - User is implementing gRPC services with Protobuf definitions -- use the gRPC service design skill
 - User needs WebSocket or Server-Sent Events patterns for real-time push communication
@@ -195,7 +198,7 @@ The API design is not complete until it is documented and reviewed.
 
 When helping a user design or review a REST API, produce the following structured output:
 
-```
+````
 ## REST API Design Review / Specification
 
 ### Resource Model
@@ -227,9 +230,10 @@ When helping a user design or review a REST API, produce the following structure
     "self": { "href": "/v1/resources/uuid" }
   }
 }
-```
+````
 
 **POST /v1/[resources] Request Body**
+
 ```json
 {
   "requiredField": "type -- required, constraints",
@@ -238,6 +242,7 @@ When helping a user design or review a REST API, produce the following structure
 ```
 
 ### Error Response Format
+
 ```json
 {
   "type": "https://api.example.com/errors/[error-type]",
@@ -245,23 +250,24 @@ When helping a user design or review a REST API, produce the following structure
   "status": 422,
   "detail": "Specific description of what went wrong",
   "instance": "/v1/[resources]",
-  "errors": [
-    { "field": "fieldName", "code": "ERROR_CODE", "message": "Description" }
-  ]
+  "errors": [{ "field": "fieldName", "code": "ERROR_CODE", "message": "Description" }]
 }
 ```
 
 ### Pagination Design
+
 - Strategy: [Offset/Cursor/Keyset] -- rationale: [reason]
 - Page size: default [20], max [100]
 - Parameters: [?page=&pageSize= OR ?cursor=&limit=]
 
 ### Versioning Decision
+
 - Strategy: [URL path / Header / Query param] -- rationale: [reason]
 - Current version: v[N]
 - Breaking change policy: [description]
 
 ### Security Checklist
+
 - [ ] HTTPS enforced
 - [ ] Auth scheme documented (Bearer token / API key / OAuth2)
 - [ ] Object-level authorization on all endpoints
@@ -270,10 +276,12 @@ When helping a user design or review a REST API, produce the following structure
 - [ ] Rate limiting: [N] requests per [window] per [client/user/IP]
 
 ### Known Trade-offs and Decisions
-| Decision | Alternatives Considered | Reason Chosen |
-|----------|------------------------|---------------|
-| [decision] | [alt1, alt2] | [rationale] |
-```
+
+| Decision   | Alternatives Considered | Reason Chosen |
+| ---------- | ----------------------- | ------------- |
+| [decision] | [alt1, alt2]            | [rationale]   |
+
+````
 
 ---
 
@@ -417,24 +425,24 @@ When your REST API is backed by distributed systems (CQRS with separate read/wri
     "reviews": { "href": "/v1/reviews?productId=01HQ2K4M7N3P8R9S0TVWXYZ123" }
   }
 }
-```
+````
 
 **Key decisions:** Price is stored as integer cents (`priceCents: 2800`) to avoid floating-point rounding errors -- never use floats for money. ID uses ULID format (sortable, URL-safe, no collision at 10M/s for 80 years). Status is a string enum, not an integer code.
 
 #### Order Creation
 
 **POST /v1/orders -- Request Body**
+
 ```json
 {
-  "items": [
-    { "productId": "01HQ2K4M7N3P8R9S0TVWXYZ123", "quantity": 2 }
-  ],
+  "items": [{ "productId": "01HQ2K4M7N3P8R9S0TVWXYZ123", "quantity": 2 }],
   "shippingAddressId": "addr_789xyz",
   "paymentMethodId": "pm_456abc"
 }
 ```
 
 **Headers required:**
+
 ```
 Authorization: Bearer <buyer-jwt>
 Idempotency-Key: 7f3a9c2e-4b81-4d5f-a2e3-8c6d9f1b0e47
@@ -442,6 +450,7 @@ Content-Type: application/json
 ```
 
 **POST /v1/orders -- 202 Accepted Response**
+
 ```json
 {
   "orderId": "01HR5M8N2P4R7S9TVWXYZ789",
@@ -461,6 +470,7 @@ Content-Type: application/json
 ### Product Collection Endpoint
 
 **GET /v1/products -- Query Parameters**
+
 ```
 GET /v1/products
   ?category=ceramics
@@ -475,6 +485,7 @@ GET /v1/products
 ```
 
 **200 OK Response**
+
 ```json
 {
   "data": [
@@ -500,6 +511,7 @@ GET /v1/products
 ### Error Response Examples
 
 **422 Unprocessable Entity -- Validation failure on product creation**
+
 ```json
 {
   "type": "https://api.marketplace.com/errors/validation-failed",
@@ -523,6 +535,7 @@ GET /v1/products
 ```
 
 **409 Conflict -- Idempotency key reuse with different body**
+
 ```json
 {
   "type": "https://api.marketplace.com/errors/idempotency-key-conflict",
@@ -542,6 +555,7 @@ GET /v1/products
 **Rationale:** Mobile app consumers cannot be forced to upgrade immediately -- iOS and Android apps in production may be 3-6 months behind the latest release. URL versioning allows the API gateway to route `/v1/` and `/v2/` to entirely separate deployments, enabling zero-downtime version transitions. Header versioning was rejected because it cannot be easily tested by partners using curl or Postman without additional tooling.
 
 **Breaking change policy:**
+
 - A new major version (`/v2/`) is required for: field removal, field rename, field type change, endpoint removal, auth requirement changes
 - Additive changes (new optional fields, new endpoints, new optional parameters) are deployed to the current version without a version bump
 - Deprecation timeline: 6 months notice minimum for `/v1/` endpoints before `/v2/` is the only version; `Sunset` and `Deprecation` headers added to deprecated endpoints on day of v2 launch
@@ -562,11 +576,11 @@ GET /v1/products
 
 ### Key Trade-off Decisions
 
-| Decision | Alternatives Considered | Reason Chosen |
-|----------|------------------------|---------------|
-| Cursor pagination for products | Offset/limit pagination | Offset degrades past 50K rows; mobile infinite-scroll requires stable pagination under writes |
-| `202 Accepted` for order creation | `201 Created` with synchronous response | Payment auth + inventory lock cannot complete in < 5s reliably; async prevents mobile timeout errors |
-| ULID for resource IDs | UUID v4, sequential integers | ULIDs are sortable (useful for keyset pagination), URL-safe, non-enumerable, and monotonically increasing within a millisecond |
-| Prices in cents (integer) | Decimal strings, float | Eliminates floating-point rounding; avoids currency library inconsistencies across mobile/web/backend |
-| Singleton `/v1/cart` endpoint | `/v1/carts/{cartId}` | Buyers do not need to know their cart ID; auth token is the identity; simplifies mobile client state management |
-| Flat user model with `role` field | Separate `/buyers` and `/sellers` endpoints | Most users are both buyers and sellers on the platform; separate resources would require dual registration and sync |
+| Decision                          | Alternatives Considered                     | Reason Chosen                                                                                                                  |
+| --------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Cursor pagination for products    | Offset/limit pagination                     | Offset degrades past 50K rows; mobile infinite-scroll requires stable pagination under writes                                  |
+| `202 Accepted` for order creation | `201 Created` with synchronous response     | Payment auth + inventory lock cannot complete in < 5s reliably; async prevents mobile timeout errors                           |
+| ULID for resource IDs             | UUID v4, sequential integers                | ULIDs are sortable (useful for keyset pagination), URL-safe, non-enumerable, and monotonically increasing within a millisecond |
+| Prices in cents (integer)         | Decimal strings, float                      | Eliminates floating-point rounding; avoids currency library inconsistencies across mobile/web/backend                          |
+| Singleton `/v1/cart` endpoint     | `/v1/carts/{cartId}`                        | Buyers do not need to know their cart ID; auth token is the identity; simplifies mobile client state management                |
+| Flat user model with `role` field | Separate `/buyers` and `/sellers` endpoints | Most users are both buyers and sellers on the platform; separate resources would require dual registration and sync            |

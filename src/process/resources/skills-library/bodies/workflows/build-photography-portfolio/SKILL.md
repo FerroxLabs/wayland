@@ -14,7 +14,7 @@ description: >-
   advice beyond educational guidance.
 license: Apache-2.0
 type: workflow
-skills: "photography-guide brand-identity-designer photography-business"
+skills: 'photography-guide brand-identity-designer photography-business'
 trigger_phrases: >-
   I want to build a photography portfolio start a photography business how to
   get photography clients build my photography website photography portfolio
@@ -24,8 +24,9 @@ metadata:
   version: 1.0.0
   tags: photography editing entrepreneurship step-by-step planning
   category: creative-project
-  depends: "photography-guide brand-identity-designer photography-business"
+  depends: 'photography-guide brand-identity-designer photography-business'
 ---
+
 # Build Photography Portfolio
 
 **Estimated time:** 2-4 months
@@ -156,6 +157,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained
@@ -166,7 +168,6 @@ Overall Status: [IN PROGRESS / COMPLETE]
 - **No niche means no clients:** "I shoot everything" tells clients you specialize in nothing. Pick a niche. You can expand later.
 - **Gear obsession over skill development:** A $500 camera with great lighting and composition beats a $5000 camera with poor technique. Invest in skills first.
 - **Inconsistent editing style:** If every image looks like it was processed differently, the portfolio feels amateur. Develop and maintain a consistent look.
-
 
 ### Timeline Considerations
 

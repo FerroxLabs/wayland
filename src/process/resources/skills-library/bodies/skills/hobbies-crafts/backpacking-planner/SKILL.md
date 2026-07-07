@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide hiking budgeting beginner-friendly cloud testing research planning"
-  category: "hobbies-crafts"
-  subcategory: "outdoor-recreation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide hiking budgeting beginner-friendly cloud testing research planning'
+  category: 'hobbies-crafts'
+  subcategory: 'outdoor-recreation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Backpacking Planner Guide
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about backpacking planner techniques or best practices
 - User needs guidance on backpacking planner concepts
 - User wants to implement or improve their approach to backpacking planner
 
 **Do NOT use when:**
+
 - The request falls outside the scope of backpacking planner
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,17 +54,20 @@ These three items make up 50-70% of your base weight. Invest here first.
 ### Backpack
 
 **Sizing**:
+
 - Weekend (1-3 nights): 40-55 liters
 - Multi-day (3-7 nights): 55-70 liters
 - Extended / Thru-hike: 50-65 liters (ultralight gear fits in smaller packs)
 
 **Fit**:
+
 - Measure torso length (C7 vertebra to top of hip bones)
 - Match to pack size (S/M/L)
 - Try on loaded at an outdoor store (REI will load a pack for you)
 - Hip belt should carry 80% of weight, shoulder straps guide the load
 
 **Recommendations**:
+
 - Budget: Osprey Atmos AG 65 (~$280) - most comfortable for the price
 - Mid-range: Gregory Baltoro/Deva 65 (~$300) - excellent load carrying
 - Ultralight: Gossamer Gear Mariposa 60 (~$280) - under 2 lbs
@@ -72,6 +76,7 @@ These three items make up 50-70% of your base weight. Invest here first.
 ### Shelter
 
 **Options**:
+
 - **Freestanding tent**: Easiest setup, works on any surface, heaviest
   - MSR Hubba Hubba 2P (~$450, 3 lb 8 oz) - gold standard
   - Big Agnes Copper Spur HV UL2 (~$450, 3 lb 2 oz) - lightest freestanding
@@ -83,6 +88,7 @@ These three items make up 50-70% of your base weight. Invest here first.
   - Hennessy Hammock or Warbonnet Blackbird + tarp + underquilt
 
 **Considerations**:
+
 - Weight: Target under 3 lbs for 2-person, under 2 lbs for solo
 - Rainfly coverage: Full coverage for wet climates, partial ok for dry areas
 - Vestibule space: Keeps gear dry outside the tent body
@@ -91,6 +97,7 @@ These three items make up 50-70% of your base weight. Invest here first.
 ### Sleep System
 
 **Sleeping Bag/Quilt**:
+
 - Temperature rating: Choose 10-15F below expected low temperatures
 - Down vs synthetic: Down is lighter and compresses smaller; synthetic works when wet
 - Fill power: Higher = warmer per weight (650 fill budget, 800-950 fill premium)
@@ -101,6 +108,7 @@ These three items make up 50-70% of your base weight. Invest here first.
   - Premium: Western Mountaineering UltraLite (~$475)
 
 **Sleeping Pad**:
+
 - R-value: Insulation from cold ground (summer: R2-3, 3-season: R3-5, winter: R5+)
 - Types:
   - Air pad: Lightest, most comfortable, vulnerable to puncture
@@ -114,6 +122,7 @@ These three items make up 50-70% of your base weight. Invest here first.
 ## Trip Planning
 
 ### Route Selection
+
 1. **Choose a trail matching your experience and fitness**
 2. **Research**: AllTrails, Guthook/FarOut app, guidebooks, trip reports
 3. **Daily mileage targets**: Beginners 5-8 miles/day, moderate 8-12, experienced 12-20+
@@ -124,6 +133,7 @@ These three items make up 50-70% of your base weight. Invest here first.
 8. **Shuttle logistics**: Point-to-point trails need car shuttle or ride sharing
 
 ### Permit and Reservation Systems
+
 - **Recreation.gov**: Federal lands permits and reservations
 - **National Park backcountry permits**: Some available in advance, some day-of
 - **National Forest**: Often no permits needed, some popular areas require them
@@ -131,6 +141,7 @@ These three items make up 50-70% of your base weight. Invest here first.
 - **Long trails**: AT, PCT, JMT have specific permit systems - research well in advance
 
 ### Leave an Itinerary
+
 - Give someone your planned route, campsites, and expected return date
 - Include: Emergency contact numbers, car location, gear color/description
 - Agree on check-in protocol (text when you have signal)
@@ -139,12 +150,14 @@ These three items make up 50-70% of your base weight. Invest here first.
 ## Navigation
 
 ### Map and Compass (Primary)
+
 - **Topographic map**: Shows terrain, elevation, water, trails (USGS 7.5-minute quads or print from CalTopo)
 - **Compass**: Baseplate compass (Suunto A-10 ~$20 or Silva Ranger ~$40)
 - **Skills to learn**: Orient map with compass, take bearings, triangulate position, contour reading
 - Practice in familiar areas before relying on it in the backcountry
 
 ### GPS and Apps (Supplement, Not Replacement)
+
 - **Gaia GPS** ($40/year): Downloadable offline topo maps, track recording
 - **AllTrails+** ($30/year): Trail maps, reviews, offline maps
 - **FarOut (Guthook)**: Trail-specific guide with water sources, campsites, elevation profiles
@@ -152,6 +165,7 @@ These three items make up 50-70% of your base weight. Invest here first.
 - **Satellite communicator**: Garmin inReach Mini ($300 + subscription) - SOS, messaging, GPS tracking
 
 ### Navigation Tips
+
 - Always carry paper map and compass as backup (phones die, apps crash)
 - Download offline maps before entering backcountry
 - Note landmark features as you hike (you may need to retrace)
@@ -161,24 +175,28 @@ These three items make up 50-70% of your base weight. Invest here first.
 ## Meal Planning
 
 ### Calorie Needs
+
 - Backpacking burns 3,000-5,000 calories per day (depending on terrain, pack weight, body size)
 - Target: 1.5-2.5 lbs of food per person per day
 - Calorie density matters: Aim for 100-130 calories per ounce
 - Higher fat content = more calories per weight (nuts, olive oil, cheese)
 
 ### Food Categories
+
 - **Breakfast**: Instant oatmeal with nuts/dried fruit, granola bars, pop-tarts, powdered eggs
 - **Lunch/Snacks** (no-cook): Tortillas with peanut butter/honey, cheese and salami, trail mix, jerky, crackers, energy bars
 - **Dinner**: Dehydrated meals (Mountain House, Peak Refuel, Backpacker's Pantry), ramen with added protein, couscous, instant mashed potatoes
 - **Extras**: Hot chocolate, coffee, electrolyte mix, candy, olive oil packets (calorie boost)
 
 ### Stove Options
+
 - **Canister stove**: Fastest, lightest, easiest (MSR PocketRocket 2 $50, or Soto Windmaster $65)
 - **Alcohol stove**: Ultralight, cheap, slow (Trail Designs Caldera)
 - **No-cook**: Eliminate stove weight, eat cold-soak meals (soak in cold water for hours)
 - **Fuel estimation**: 1 canister (100g) lasts approximately 3-4 days for 1 person (boil-only meals)
 
 ### Water Planning
+
 - Plan around known water sources (FarOut app, USGS topo maps, trail guides)
 - Carry capacity: 2-3 liters minimum between sources
 - Carry more in arid environments (1 liter per 2 miles in desert)
@@ -189,26 +207,31 @@ These three items make up 50-70% of your base weight. Invest here first.
 ### Treatment Methods
 
 **Filtration (Most Popular)**:
+
 - Sawyer Squeeze (~$35): Lightweight, effective, inline or gravity use
 - Platypus QuickDraw (~$40): Fast flow rate
 - Katadyn BeFree (~$45): Fast, easy to use, fragile threads
 - Removes bacteria and protozoa, NOT viruses
 
 **Chemical Treatment**:
+
 - Aquamira drops (~$15): Chlorine dioxide, lightweight, 30-min treatment time
 - Katadyn Micropur MP1 tablets ($12): Easy, individual tablet dosing, 4-hour treatment
 - Effective against bacteria, viruses, and protozoa (with sufficient contact time)
 
 **UV Treatment**:
+
 - SteriPen (~$80): UV light kills all pathogens in 90 seconds
 - Battery-dependent (bring backup method)
 
 **Boiling**:
+
 - Bring to rolling boil for 1 minute (3 minutes above 6,500 feet)
 - Kills everything, but requires fuel and time
 - Good emergency backup method
 
 ### Recommendation
+
 Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles virtually all backcountry water situations.
 
 ## Leave No Trace Principles
@@ -222,6 +245,7 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 7. **Be considerate of others**: Keep noise down, yield the trail appropriately
 
 ### Campsite Selection
+
 - Use existing designated/impacted sites when available
 - On pristine ground: Durable surface (rock, gravel, dry grass), 200 feet from water and trail
 - Avoid creating new paths between tent and water/cooking
@@ -230,12 +254,14 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 ## Bear Country Protocol
 
 ### Bear Canister
+
 - Required in many wilderness areas (Sierras, Adirondacks, some national parks)
 - Store all food, trash, toiletries, and scented items
 - Place 100+ feet from camp, not at edge of cliff (bears have knocked them off)
 - Recommended: BearVault BV500 ($80, 7.2 liters, fits 5-6 days food)
 
 ### Bear Hang (Where Canisters Not Required)
+
 - PCG (Pacific Crest Trail) method:
   1. Find tree branch 15+ feet high, 10+ feet from trunk
   2. Throw line over branch using rock in stuff sack
@@ -244,6 +270,7 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 - Ursack: Bear-resistant bag as alternative to hanging ($80-100, lighter than canister)
 
 ### Bear Safety Behavior
+
 - Cook and eat 200+ feet from sleeping area (downwind if possible)
 - Never store food or scented items in tent
 - Change out of clothes worn while cooking before sleeping (store cooking clothes with food)
@@ -256,24 +283,28 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 ### Training Timeline (8-12 Weeks Before Trip)
 
 **Weeks 1-4: Base Building**
+
 - Walk/hike 3-4 times per week, 30-60 minutes
 - Add stairs or hills progressively
 - Begin squats, lunges, and core exercises (planks, dead bugs)
 - Stretch and foam roll after every session
 
 **Weeks 5-8: Load Building**
+
 - Hike with loaded pack (start at 15 lbs, increase to trip weight)
 - Increase hike distance to 5-10 miles
 - Step-ups with pack (simulates uphill with weight)
 - Continue strength training
 
 **Weeks 9-12: Specificity**
+
 - Full-distance hikes on terrain similar to your trip
 - Back-to-back hiking days (simulates multi-day trip)
 - Practice with all gear (break in boots!)
 - Taper last week before trip (reduce volume, maintain intensity)
 
 ### Preventing Common Injuries
+
 - **Blisters**: Break in boots before the trip, moisture-wicking socks, treat hot spots immediately with moleskin or Leukotape
 - **Knee pain**: Trekking poles reduce knee impact by 25%, strengthen quads before trip
 - **Ankle sprains**: Ankle strengthening exercises, appropriate footwear for terrain
@@ -292,6 +323,7 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 ## Gear Weight Targets
 
 ### Weight Categories
+
 - **Traditional**: Base weight 25-35 lbs (comfortable, lots of amenities)
 - **Lightweight**: Base weight 15-20 lbs (thoughtful choices, still comfortable)
 - **Ultralight**: Base weight under 10 lbs (requires experience, premium gear, and tradeoffs)
@@ -299,12 +331,14 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 ### Base Weight = All Gear Minus Consumables (Food, Water, Fuel)
 
 ### Lighten Your Pack (Priority Order)
+
 1. Eliminate: Do you actually need it? (Leave it home)
 2. Reduce: Can you take a smaller/lighter version?
 3. Substitute: Can you use one item for multiple purposes?
 4. Upgrade: Buy lighter gear (expensive but effective)
 
 ### Lighterpack.com
+
 - Free tool for tracking gear weight
 - Share with others for feedback
 - Community of weight-conscious hikers
@@ -329,7 +363,6 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 - **Websites**: Section Hiker, The Trek, Backpacking Light
 - **REI Classes**: Navigation, backpacking basics, wilderness first aid
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -337,7 +370,6 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -358,14 +390,12 @@ Sawyer Squeeze as primary, Aquamira drops as backup. This combination handles vi
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design database"
-  category: "backend-systems"
-  subcategory: "database"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend api-design database'
+  category: 'backend-systems'
+  subcategory: 'database'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # ORM Specialist
@@ -425,7 +425,7 @@ if (ENV_CONFIG_VALUE !== 'production') globalForPrisma.prisma = prisma;
 - [ ] Transactions used for multi-step mutations
 - [ ] Appropriate isolation level set for transaction type
 - [ ] Raw SQL used for complex queries beyond ORM capabilities
-- [ ] Connection pool sized appropriately (2 * CPU cores + 1)
+- [ ] Connection pool sized appropriately (2 \* CPU cores + 1)
 - [ ] Migrations are forward-only and zero-downtime compatible
 - [ ] Query logging enabled in development for performance analysis
 - [ ] Select/include used to avoid over-fetching columns
@@ -436,6 +436,7 @@ if (ENV_CONFIG_VALUE !== 'production') globalForPrisma.prisma = prisma;
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing orm specialist solutions
 - Reviewing or improving existing orm specialist approaches
 - Making architectural or implementation decisions about orm specialist
@@ -443,6 +444,7 @@ if (ENV_CONFIG_VALUE !== 'production') globalForPrisma.prisma = prisma;
 - Troubleshooting orm specialist-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -453,21 +455,26 @@ if (ENV_CONFIG_VALUE !== 'production') globalForPrisma.prisma = prisma;
 # Orm Specialist Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

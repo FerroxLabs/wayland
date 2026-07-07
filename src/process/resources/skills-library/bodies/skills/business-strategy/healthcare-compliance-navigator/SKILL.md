@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "healthcare strategy checklist analysis research planning email cleaning"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'healthcare strategy checklist analysis research planning email cleaning'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Healthcare Compliance Navigator
@@ -22,15 +22,16 @@ You are a healthcare compliance specialist who helps healthcare professionals an
 
 > **DISCLAIMER**: This skill provides general educational information about healthcare compliance concepts. It does not constitute legal advice, official regulatory guidance, or a comprehensive compliance program. Healthcare regulations are complex, vary by jurisdiction, and change frequently. Always consult qualified legal counsel, certified compliance professionals, and the original regulatory sources for definitive guidance. This content focuses primarily on the United States regulatory environment; international requirements differ significantly.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about healthcare compliance navigator techniques or best practices
 - User needs guidance on healthcare compliance navigator concepts
 - User wants to implement or improve their approach to healthcare compliance navigator
 
 **Do NOT use when:**
+
 - The request falls outside the scope of healthcare compliance navigator
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -51,12 +52,12 @@ Before advising on compliance:
 
 ### Key HIPAA Components
 
-| Rule | Focus | Key Requirements |
-|------|-------|-----------------|
-| **Privacy Rule** | Who can access and share protected health information (PHI) | Permitted uses and disclosures, patient rights, minimum necessary standard, notice of privacy practices |
-| **Security Rule** | Safeguarding electronic PHI (ePHI) | Administrative, physical, and technical safeguards for electronic systems |
-| **Breach Notification Rule** | What to do when a breach occurs | Notification to individuals, HHS, and media (for large breaches); timelines and content requirements |
-| **Enforcement Rule** | Consequences of non-compliance | Investigation procedures, penalties, and hearing processes |
+| Rule                         | Focus                                                       | Key Requirements                                                                                        |
+| ---------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Privacy Rule**             | Who can access and share protected health information (PHI) | Permitted uses and disclosures, patient rights, minimum necessary standard, notice of privacy practices |
+| **Security Rule**            | Safeguarding electronic PHI (ePHI)                          | Administrative, physical, and technical safeguards for electronic systems                               |
+| **Breach Notification Rule** | What to do when a breach occurs                             | Notification to individuals, HHS, and media (for large breaches); timelines and content requirements    |
+| **Enforcement Rule**         | Consequences of non-compliance                              | Investigation procedures, penalties, and hearing processes                                              |
 
 ### Protected Health Information (PHI)
 
@@ -87,62 +88,62 @@ PHI is any individually identifiable health information held or transmitted by a
 
 PHI can generally be used or disclosed without patient authorization for:
 
-| Purpose | Description |
-|---------|-------------|
-| Treatment | Providing, coordinating, or managing health care |
-| Payment | Activities related to obtaining reimbursement for services |
-| Healthcare operations | Quality assessment, competency evaluation, training, business planning |
-| Required by law | Court orders, public health reporting, law enforcement requests meeting specific criteria |
-| Public health | Disease reporting, vital statistics, FDA reporting |
-| Abuse/neglect reporting | As required by state law |
-| Health oversight | Audits, inspections, investigations by authorized agencies |
-| Judicial proceedings | In response to valid court orders or subpoenas |
-| Research | With IRB or privacy board approval or waiver, or with de-identified data |
+| Purpose                 | Description                                                                               |
+| ----------------------- | ----------------------------------------------------------------------------------------- |
+| Treatment               | Providing, coordinating, or managing health care                                          |
+| Payment                 | Activities related to obtaining reimbursement for services                                |
+| Healthcare operations   | Quality assessment, competency evaluation, training, business planning                    |
+| Required by law         | Court orders, public health reporting, law enforcement requests meeting specific criteria |
+| Public health           | Disease reporting, vital statistics, FDA reporting                                        |
+| Abuse/neglect reporting | As required by state law                                                                  |
+| Health oversight        | Audits, inspections, investigations by authorized agencies                                |
+| Judicial proceedings    | In response to valid court orders or subpoenas                                            |
+| Research                | With IRB or privacy board approval or waiver, or with de-identified data                  |
 
 **Minimum Necessary Standard**: When using or disclosing PHI, limit the information to the minimum amount necessary to accomplish the purpose. This applies to most uses and disclosures except treatment, disclosures to the individual, and uses/disclosures authorized by the individual.
 
 ### Patient Rights Under HIPAA
 
-| Right | Description | Organization Obligation |
-|-------|-------------|------------------------|
-| Access | View and obtain copies of their PHI | Respond within 30 days; reasonable cost-based fees |
-| Amendment | Request corrections to their PHI | Respond within 60 days; may deny with explanation |
-| Accounting of disclosures | See who their PHI has been shared with | Provide an accounting for the prior 6 years |
-| Restriction requests | Request limitations on uses/disclosures | Must agree to restrict disclosures to health plans for self-pay services |
-| Confidential communications | Request communication via alternative means or locations | Accommodate reasonable requests |
-| Notice | Receive a notice of privacy practices | Provide at first service and make available upon request |
-| Complaint | File a complaint about privacy practices | Cannot retaliate; must have a complaint process |
+| Right                       | Description                                              | Organization Obligation                                                  |
+| --------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Access                      | View and obtain copies of their PHI                      | Respond within 30 days; reasonable cost-based fees                       |
+| Amendment                   | Request corrections to their PHI                         | Respond within 60 days; may deny with explanation                        |
+| Accounting of disclosures   | See who their PHI has been shared with                   | Provide an accounting for the prior 6 years                              |
+| Restriction requests        | Request limitations on uses/disclosures                  | Must agree to restrict disclosures to health plans for self-pay services |
+| Confidential communications | Request communication via alternative means or locations | Accommodate reasonable requests                                          |
+| Notice                      | Receive a notice of privacy practices                    | Provide at first service and make available upon request                 |
+| Complaint                   | File a complaint about privacy practices                 | Cannot retaliate; must have a complaint process                          |
 
 ## Security Safeguards
 
 ### Administrative Safeguards
 
-| Safeguard | Description | Implementation |
-|-----------|-------------|---------------|
-| Security officer | Designated individual responsible for security | Assign by name; define responsibilities in writing |
-| Risk analysis | Identify threats and vulnerabilities to ePHI | Conduct at least annually; document findings and remediation |
-| Workforce training | All workforce members trained on security policies | Initial training plus annual refreshers; document completion |
-| Access management | Role-based access to ePHI | Grant minimum necessary access; review periodically; revoke promptly on departure |
-| Incident procedures | Process for identifying and responding to security incidents | Written procedure; investigation process; documentation requirements |
-| Contingency planning | Plans for emergencies affecting ePHI | Data backup, disaster recovery, emergency operations plan |
-| Business associate agreements | Contracts with entities that access ePHI on your behalf | Written agreement required before sharing ePHI; specify permitted uses |
+| Safeguard                     | Description                                                  | Implementation                                                                    |
+| ----------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Security officer              | Designated individual responsible for security               | Assign by name; define responsibilities in writing                                |
+| Risk analysis                 | Identify threats and vulnerabilities to ePHI                 | Conduct at least annually; document findings and remediation                      |
+| Workforce training            | All workforce members trained on security policies           | Initial training plus annual refreshers; document completion                      |
+| Access management             | Role-based access to ePHI                                    | Grant minimum necessary access; review periodically; revoke promptly on departure |
+| Incident procedures           | Process for identifying and responding to security incidents | Written procedure; investigation process; documentation requirements              |
+| Contingency planning          | Plans for emergencies affecting ePHI                         | Data backup, disaster recovery, emergency operations plan                         |
+| Business associate agreements | Contracts with entities that access ePHI on your behalf      | Written agreement required before sharing ePHI; specify permitted uses            |
 
 ### Physical Safeguards
 
-| Safeguard | Description | Implementation |
-|-----------|-------------|---------------|
-| Facility access controls | Limit physical access to systems containing ePHI | Badge access, visitor logs, locked server rooms |
-| Workstation use | Policies on how workstations are used and located | Screen positioning, auto-lock, clean desk policy |
-| Device and media controls | Policies for hardware and media containing ePHI | Inventory tracking, encryption, secure disposal |
+| Safeguard                 | Description                                       | Implementation                                   |
+| ------------------------- | ------------------------------------------------- | ------------------------------------------------ |
+| Facility access controls  | Limit physical access to systems containing ePHI  | Badge access, visitor logs, locked server rooms  |
+| Workstation use           | Policies on how workstations are used and located | Screen positioning, auto-lock, clean desk policy |
+| Device and media controls | Policies for hardware and media containing ePHI   | Inventory tracking, encryption, secure disposal  |
 
 ### Technical Safeguards
 
-| Safeguard | Description | Implementation |
-|-----------|-------------|---------------|
-| Access controls | Unique user identification and authentication | Individual logins, strong passwords, multi-factor authentication |
-| Audit controls | Mechanisms to record and examine system activity | System logging, log review procedures, retention policies |
-| Integrity controls | Protect ePHI from improper alteration or destruction | Hash verification, version control, change management |
-| Transmission security | Protect ePHI during electronic transmission | Encryption in transit (TLS), secure email, VPN for remote access |
+| Safeguard             | Description                                          | Implementation                                                   |
+| --------------------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
+| Access controls       | Unique user identification and authentication        | Individual logins, strong passwords, multi-factor authentication |
+| Audit controls        | Mechanisms to record and examine system activity     | System logging, log review procedures, retention policies        |
+| Integrity controls    | Protect ePHI from improper alteration or destruction | Hash verification, version control, change management            |
+| Transmission security | Protect ePHI during electronic transmission          | Encryption in transit (TLS), secure email, VPN for remote access |
 
 ## Breach Response
 
@@ -160,11 +161,11 @@ PHI can generally be used or disclosed without patient authorization for:
 
 ### Breach Notification Requirements
 
-| Audience | Threshold | Timeline | Method |
-|----------|-----------|----------|--------|
-| Affected individuals | Any confirmed breach | Within 60 days of discovery | Written notice (first-class mail or email if agreed) |
-| HHS | All confirmed breaches | Within 60 days (500+) or annual log (under 500) | HHS breach reporting portal |
-| Media | 500+ individuals in a single state/jurisdiction | Within 60 days of discovery | Press release to prominent media outlets |
+| Audience             | Threshold                                       | Timeline                                        | Method                                               |
+| -------------------- | ----------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| Affected individuals | Any confirmed breach                            | Within 60 days of discovery                     | Written notice (first-class mail or email if agreed) |
+| HHS                  | All confirmed breaches                          | Within 60 days (500+) or annual log (under 500) | HHS breach reporting portal                          |
+| Media                | 500+ individuals in a single state/jurisdiction | Within 60 days of discovery                     | Press release to prominent media outlets             |
 
 ### Breach Response Checklist
 
@@ -187,6 +188,7 @@ PHI can generally be used or disclosed without patient authorization for:
 ### Compliance Audit Readiness Checklist
 
 **Documentation**
+
 - [ ] Current, signed policies and procedures for privacy, security, and breach notification
 - [ ] Completed and documented risk analysis (within the last 12 months)
 - [ ] Risk management plan with remediation timeline
@@ -197,6 +199,7 @@ PHI can generally be used or disclosed without patient authorization for:
 - [ ] Authorization forms and accounting of disclosures records
 
 **Technical**
+
 - [ ] System access logs available and reviewed
 - [ ] Encryption status documented for all ePHI storage and transmission
 - [ ] User access reviews completed and documented
@@ -205,6 +208,7 @@ PHI can generally be used or disclosed without patient authorization for:
 - [ ] Workstation and device inventory current
 
 **Operational**
+
 - [ ] Compliance officer designated and active
 - [ ] Compliance committee meets regularly with documented minutes
 - [ ] Complaint process in place and accessible
@@ -213,27 +217,27 @@ PHI can generally be used or disclosed without patient authorization for:
 
 ### Common Audit Findings
 
-| Finding | Root Cause | Prevention |
-|---------|-----------|------------|
-| Incomplete risk analysis | Treated as one-time project instead of ongoing process | Schedule annual risk analysis with interim reviews |
-| Missing business associate agreements | Vendor relationships not tracked centrally | Maintain a vendor inventory with agreement status |
-| Insufficient access controls | Access granted too broadly or not revoked timely | Implement role-based access with periodic reviews |
-| Inadequate training | Generic training without role-specific content | Develop role-based training with documented completion |
-| Missing or outdated policies | Policies not reviewed regularly | Schedule annual policy review with version control |
-| Unencrypted devices | Encryption not deployed to all endpoints | Implement mandatory encryption with compliance monitoring |
+| Finding                               | Root Cause                                             | Prevention                                                |
+| ------------------------------------- | ------------------------------------------------------ | --------------------------------------------------------- |
+| Incomplete risk analysis              | Treated as one-time project instead of ongoing process | Schedule annual risk analysis with interim reviews        |
+| Missing business associate agreements | Vendor relationships not tracked centrally             | Maintain a vendor inventory with agreement status         |
+| Insufficient access controls          | Access granted too broadly or not revoked timely       | Implement role-based access with periodic reviews         |
+| Inadequate training                   | Generic training without role-specific content         | Develop role-based training with documented completion    |
+| Missing or outdated policies          | Policies not reviewed regularly                        | Schedule annual policy review with version control        |
+| Unencrypted devices                   | Encryption not deployed to all endpoints               | Implement mandatory encryption with compliance monitoring |
 
 ## Compliance Training
 
 ### Training Program Framework
 
-| Component | Audience | Frequency | Content |
-|-----------|----------|-----------|---------|
-| General compliance orientation | All new workforce members | At hire | Organization values, code of conduct, reporting |
-| HIPAA privacy training | All workforce members | Annual | PHI handling, patient rights, minimum necessary |
-| HIPAA security training | All workforce members with ePHI access | Annual | Password policy, phishing awareness, device security |
-| Role-specific training | Targeted groups | Annual or as needed | Billing compliance, clinical documentation, research |
-| Incident-based training | Affected staff or department | After an incident | Lessons learned, corrective actions |
-| Leadership training | Managers and supervisors | Annual | Compliance culture, reporting obligations, oversight |
+| Component                      | Audience                               | Frequency           | Content                                              |
+| ------------------------------ | -------------------------------------- | ------------------- | ---------------------------------------------------- |
+| General compliance orientation | All new workforce members              | At hire             | Organization values, code of conduct, reporting      |
+| HIPAA privacy training         | All workforce members                  | Annual              | PHI handling, patient rights, minimum necessary      |
+| HIPAA security training        | All workforce members with ePHI access | Annual              | Password policy, phishing awareness, device security |
+| Role-specific training         | Targeted groups                        | Annual or as needed | Billing compliance, clinical documentation, research |
+| Incident-based training        | Affected staff or department           | After an incident   | Lessons learned, corrective actions                  |
+| Leadership training            | Managers and supervisors               | Annual              | Compliance culture, reporting obligations, oversight |
 
 ### Training Best Practices
 
@@ -247,14 +251,14 @@ PHI can generally be used or disclosed without patient authorization for:
 
 ### Common Training Topics by Role
 
-| Role | Key Topics |
-|------|-----------|
-| Front desk / Registration | Verifying identity, handling PHI at the desk, overheard conversations, faxing |
-| Clinical staff | Access controls, verbal discussions, patient rights, documentation |
-| IT staff | Technical safeguards, incident response, encryption, access management |
-| Billing staff | Coding compliance, false claims, medical necessity, documentation requirements |
-| Management | Oversight responsibilities, investigation procedures, sanctions, culture |
-| Vendors / Business associates | BAA obligations, permitted uses, breach reporting |
+| Role                          | Key Topics                                                                     |
+| ----------------------------- | ------------------------------------------------------------------------------ |
+| Front desk / Registration     | Verifying identity, handling PHI at the desk, overheard conversations, faxing  |
+| Clinical staff                | Access controls, verbal discussions, patient rights, documentation             |
+| IT staff                      | Technical safeguards, incident response, encryption, access management         |
+| Billing staff                 | Coding compliance, false claims, medical necessity, documentation requirements |
+| Management                    | Oversight responsibilities, investigation procedures, sanctions, culture       |
+| Vendors / Business associates | BAA obligations, permitted uses, breach reporting                              |
 
 ## Building a Compliance Culture
 
@@ -282,16 +286,15 @@ Based on widely recognized frameworks for healthcare compliance:
 
 ### Compliance Program Metrics
 
-| Metric | What It Indicates |
-|--------|------------------|
-| Training completion rates | Workforce awareness and engagement |
-| Hotline/report volume | Whether staff feel safe reporting (low volume can indicate fear, not compliance) |
-| Time to investigate reports | Responsiveness of the compliance function |
-| Audit finding trends | Whether issues are being addressed or recurring |
-| Breach volume and severity | Security posture and incident management effectiveness |
-| Policy review completion | Whether the program is being maintained |
-| Corrective action closure rate | Whether improvements are actually implemented |
-
+| Metric                         | What It Indicates                                                                |
+| ------------------------------ | -------------------------------------------------------------------------------- |
+| Training completion rates      | Workforce awareness and engagement                                               |
+| Hotline/report volume          | Whether staff feel safe reporting (low volume can indicate fear, not compliance) |
+| Time to investigate reports    | Responsiveness of the compliance function                                        |
+| Audit finding trends           | Whether issues are being addressed or recurring                                  |
+| Breach volume and severity     | Security posture and incident management effectiveness                           |
+| Policy review completion       | Whether the program is being maintained                                          |
+| Corrective action closure rate | Whether improvements are actually implemented                                    |
 
 ## Process
 
@@ -300,7 +303,6 @@ Based on widely recognized frameworks for healthcare compliance:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -321,14 +323,12 @@ Based on widely recognized frameworks for healthcare compliance:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

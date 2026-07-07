@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis strategy planning research spreadsheets"
-  category: "business-strategy"
-  subcategory: "human-resources"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'analysis strategy planning research spreadsheets'
+  category: 'business-strategy'
+  subcategory: 'human-resources'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Compensation Benchmarking
 
 ## When to Use
 
 **Use this skill when:**
+
 - A company (startup, growth-stage, or mature) needs to establish or redesign salary bands for one or more job families from scratch
 - An HR leader, People Ops team, or founder needs to benchmark existing salaries against current market data and identify underpaid, overpaid, or at-risk employees
 - A compensation committee or executive team needs to design or update a total compensation philosophy (cash, equity, bonus, benefits) tied to a stated market position
@@ -29,6 +31,7 @@ metadata:
 - A pre-IPO company needs to formalize compensation structure before public scrutiny, board presentations, or proxy advisor review
 
 **Do NOT use this skill when:**
+
 - A user wants help negotiating their own salary or evaluating a job offer they received -- use `salary-negotiation`
 - A user needs a written employment offer letter with specific compensation language -- use `offer-letter`
 - A user needs to model headcount costs as part of a financial forecast or operating plan -- use `financial-model-structure`
@@ -381,12 +384,15 @@ Translate the analysis into actionable decisions with costs, priorities, and rat
 ## Edge Cases
 
 ### Early-Stage Startup with No Compensation Infrastructure
+
 A pre-Series A or seed company often has 5-20 employees, no HR function, no formal levels, and no survey access. Do not build a 6-level architecture with Radford survey data -- it will be irrelevant in 12 months and waste the team's time.
 
 Instead: Build a simple 4-level structure (Associate, Mid, Senior, Lead/Manager) using free and low-cost data sources: Levels.fyi for engineering, LinkedIn Salary, and VC portfolio comp databases (Carta Total Comp, Option Impact) if accessible. Acknowledge that equity is a significant component of the value proposition and build an equity value model using the most recent 409A valuation with an explicit risk disclosure. State the philosophy as: "We pay Xth percentile on cash today; our equity represents our commitment to sharing in the outcome." Review quarterly in the first two years -- the market will move faster than the business.
 
 ### Fully Distributed / International Team
+
 When a company has employees in multiple countries, a single US-anchored comp structure does not work. Each country has:
+
 - Different statutory benefits (pension contributions, healthcare, parental leave mandates, vacation minimums) that affect the true cost to employer and value to employee
 - Different tax treatment of equity (UK EMI schemes, French BSPCEs, German Mitarbeiterbeteiligungen all have distinct tax consequences)
 - Different labor law governing classification, termination, and comp transparency
@@ -394,16 +400,19 @@ When a company has employees in multiple countries, a single US-anchored comp st
 For international compensation: build separate band structures for each country. Use local salary surveys (e.g., Radford Global Technology Survey, Robert Half local salary guides, Mercer International) rather than applying an exchange-rate conversion to US data. Statutory benefits are not optional -- they must be included in the total compensation model and they often exceed what US employers voluntarily provide. Do not express international salaries in USD in the primary output; use local currency with USD equivalent in parentheses for reference.
 
 ### Acquired Company Integration
+
 When a company is acquired and must merge compensation structures, the acquiring company's bands may not accommodate all acquired employees cleanly. Common issues: acquired company paid above-market cash with less equity; acquired company had flat band structure without levels; acquired employees fall outside the acquirer's leveling rubric.
 
 Approach: Map each acquired employee to the acquiring company's closest level using both job description and current salary as inputs. Do not use title matching alone -- an acquired "Senior Engineer" may map to IC3 or IC4 depending on scope. For employees who fall above band maximum after mapping, use a transition period (typically 12-24 months) with frozen base merit but with lump-sum bonuses or accelerated equity grants to maintain retention. Never cut pay on acquisition close -- it immediately surfaces as a retention risk and is often contractually prohibited by deal terms.
 
 ### Non-Profit, Government, or Mission-Driven Organizations
+
 Total compensation comparison for non-profits must explicitly quantify the value of benefits that typically exceed private-sector packages: PSLF loan forgiveness eligibility (present value of up to $120,000 in student debt forgiveness over 10 years), defined-benefit pension plans (actuarial value of a 2% per-year DB pension can be $50,000-$150,000 in present value), above-market PTO, and strong job security. Without quantifying these, non-profit compensation appears to be simply below-market, which undervalues the full package.
 
 Benchmarking sources: use SHRM's Non-Profit Compensation Survey, GuideStar salary data, and sector-specific surveys (YMCA, hospital systems, universities, foundations each have sector surveys). For government roles, use OPM GS-scale data for federal benchmarking and BLS Occupational Employment Statistics for state and local.
 
 ### Highly Specialized or Emerging Roles with No Market Comparables
+
 Some roles have no direct survey match (Machine Learning Safety Researcher, Autonomous Vehicle Sensor Fusion Engineer, Climate Finance Analyst). When direct benchmarking is impossible:
 
 1. Identify the 2-3 closest analogous roles with survey data. A Sensor Fusion Engineer might be benchmarked as a hybrid of Senior Software Engineer (Radford P3) and Systems Researcher at 50/50 weight.
@@ -412,14 +421,17 @@ Some roles have no direct survey match (Machine Learning Safety Researcher, Auto
 4. Review annually -- emerging roles often have survey coverage added within 2-3 years as the talent market matures.
 
 ### Compensation Band Compression from Rapid Market Growth
+
 When a company has operated with the same bands for 2-3 years during a period of rapid market growth (e.g., 2020-2022 tech market), the result is often: new hires entering at band midpoint at current market rates, while 3-5 year tenured employees are stuck near the same midpoint due to 3-5% annual merit increases. This is inversion or compression -- long-tenured employees earning the same as or less than recent hires in similar roles.
 
 Resolution: The only correct fix is to update the bands to current market and then assess every employee's compa-ratio against the new midpoints. Many long-tenured employees will show below-midpoint compa-ratios on the updated bands and require market adjustments. This is expensive but the alternative (flight of experienced employees) is more expensive. Model the full cost of market adjustments vs. the cost of replacing a senior employee (typically 50-200% of annual salary in recruiting and ramp time). Present this trade-off explicitly in the budget recommendation.
 
 ### Pay Transparency Law Compliance
+
 As of 2024, California, Colorado, New York, Washington, and several other jurisdictions require salary range disclosure in job postings. Some require disclosure to internal employees upon request or promotion. If the company operates in these states, compensation bands are no longer an internal-only document -- they become public-facing.
 
 This creates several requirements:
+
 - Bands must be defensible as a real range -- a band of $50,000 to $500,000 is not compliant in spirit and may trigger regulatory attention in some jurisdictions
 - The range posted in a job description must match the actual band for the role, not a narrower window
 - Internal pay transparency policy must align with external posting requirements or employees will discover mismatches
@@ -439,6 +451,7 @@ Flag this as a compliance item in any output where the company is hiring in affe
 **Output:**
 
 ## Compensation Benchmarking: [Company] Engineering Organization
+
 **Analysis date:** Q1 2025
 **Prepared for:** VP Engineering, Head of People
 
@@ -447,6 +460,7 @@ Flag this as a compliance item in any output where the company is hiring in affe
 ### 1. Compensation Philosophy
 
 **Market position:**
+
 - Base salary: 50th percentile (match market)
 - Target total cash (base + bonus): 60th percentile
 - Total compensation: Modeled below; equity is below-cash-value pre-liquidity and should be supplemented with competitive cash
@@ -458,21 +472,22 @@ Flag this as a compliance item in any output where the company is hiring in affe
 | IC3-IC4 | 8% | 0% | 16% |
 | M1 | 15% | 0% | 30% |
 
-*Note: To reach 60th percentile target total cash from 50th percentile base, bonus targets must be executed at or above 100% of target. Validate that bonus plan mechanics deliver expected payout in average performance years.*
+_Note: To reach 60th percentile target total cash from 50th percentile base, bonus targets must be executed at or above 100% of target. Validate that bonus plan mechanics deliver expected payout in average performance years._
 
 **Geographic pay policy:** Three-tier location-based pay
 
-| Tier | Cities / Region | Index |
-|------|----------------|-------|
-| Tier 1 | SF Bay Area, NYC, Seattle, Boston | 100% |
-| Tier 2 | Austin, Denver, Atlanta, Chicago, LA | 88% |
-| Tier 3 | All other US metros | 80% |
+| Tier   | Cities / Region                      | Index |
+| ------ | ------------------------------------ | ----- |
+| Tier 1 | SF Bay Area, NYC, Seattle, Boston    | 100%  |
+| Tier 2 | Austin, Denver, Atlanta, Chicago, LA | 88%   |
+| Tier 3 | All other US metros                  | 80%   |
 
-*Cost-of-labor index sourced from Radford North America Technology Survey geographic differentials (2024). Note: Austin and Denver Tier 2 indices have increased from ~82% in 2021 to ~88% today -- 18-month-old bands likely understate current Tier 2 market rates.*
+_Cost-of-labor index sourced from Radford North America Technology Survey geographic differentials (2024). Note: Austin and Denver Tier 2 indices have increased from ~82% in 2021 to ~88% today -- 18-month-old bands likely understate current Tier 2 market rates._
 
 **Pay transparency level:** Band-transparent (employees see their own band; individual salaries are confidential). Required for CA job postings under EPCA. Bands must be published in all external job postings for roles based in California.
 
 **Market data sources:**
+
 - Primary: Radford North America Technology Survey, Q3 2024, Engineering job codes P2-P5 (IC levels), M3 (EM)
 - Secondary: Levels.fyi public aggregated data for SF Software Engineering (directional validation)
 - Peer data: VC network comp consortium data (5 comparable Series C SaaS companies, N=280 engineers) -- used for calibration only

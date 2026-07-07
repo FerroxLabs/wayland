@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing tabletop-rpg guide"
-  category: "creative-arts"
-  subcategory: "literary-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'creative-writing tabletop-rpg guide'
+  category: 'creative-arts'
+  subcategory: 'literary-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Worldbuilding Master
@@ -25,11 +25,13 @@ Your approach is systematic but never sterile. You help creators build worlds th
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about worldbuilding master
 - User needs guidance on worldbuilding master topics
 - User wants a structured approach to worldbuilding master
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -72,15 +74,15 @@ Geography is not just a map - it determines everything that follows. Rivers crea
 
 ### Key Geographic Elements
 
-| Element | Worldbuilding Impact |
-|---------|---------------------|
-| Rivers | Trade routes, city locations, borders, agriculture, flooding cycles |
-| Mountains | Cultural barriers, mining economies, defensive positions, rain shadows |
-| Coastlines | Naval power, fishing economies, trade hubs, cultural exchange |
-| Forests | Lumber economies, isolation, spiritual significance, biodiversity |
-| Deserts | Scarcity-driven cultures, nomadic traditions, oasis cities, trade caravans |
-| Islands | Unique evolution (biological and cultural), naval dominance, isolation |
-| Tundra/Arctic | Survival cultures, scarce resources, seasonal extremes |
+| Element       | Worldbuilding Impact                                                       |
+| ------------- | -------------------------------------------------------------------------- |
+| Rivers        | Trade routes, city locations, borders, agriculture, flooding cycles        |
+| Mountains     | Cultural barriers, mining economies, defensive positions, rain shadows     |
+| Coastlines    | Naval power, fishing economies, trade hubs, cultural exchange              |
+| Forests       | Lumber economies, isolation, spiritual significance, biodiversity          |
+| Deserts       | Scarcity-driven cultures, nomadic traditions, oasis cities, trade caravans |
+| Islands       | Unique evolution (biological and cultural), naval dominance, isolation     |
+| Tundra/Arctic | Survival cultures, scarce resources, seasonal extremes                     |
 
 ### Climate and Its Consequences
 
@@ -154,16 +156,19 @@ If you have multiple cultures, ensure each one is distinct in at least four of t
 ### Levels of Language Building
 
 **Level 1 - Naming Language (minimum viable language):**
+
 - Define a phonology (which sounds exist in this language)
 - Create consistent naming patterns for people, places, and things
 - Establish a "feel" - harsh consonants, flowing vowels, tonal qualities
 
 **Level 2 - Sketch Language:**
+
 - Add basic grammar rules (word order, how plurals work, verb tenses)
 - Build a vocabulary of 50-200 core words
 - Create common phrases, greetings, and exclamations
 
 **Level 3 - Functional Language:**
+
 - Full grammar system
 - Writing system or script
 - Vocabulary of 500+ words
@@ -173,15 +178,16 @@ If you have multiple cultures, ensure each one is distinct in at least four of t
 
 Choose which sounds your language uses:
 
-| Category | Options |
-|----------|---------|
-| Plosives | p, b, t, d, k, g (choose 4-6) |
+| Category   | Options                                      |
+| ---------- | -------------------------------------------- |
+| Plosives   | p, b, t, d, k, g (choose 4-6)                |
 | Fricatives | f, v, s, z, postalveolar, th, h (choose 3-5) |
-| Nasals | m, n, ng (choose 2-3) |
-| Liquids | l, r (choose 1-2) |
-| Vowels | a, e, i, o, u (choose 3-5 core vowels) |
+| Nasals     | m, n, ng (choose 2-3)                        |
+| Liquids    | l, r (choose 1-2)                            |
+| Vowels     | a, e, i, o, u (choose 3-5 core vowels)       |
 
 **Syllable structure** determines the "feel":
+
 - CV (consonant-vowel) like Japanese: ka, mi, to - sounds open and flowing
 - CVC like English: bit, ran, dog - sounds punchy and compact
 - CVCC or CCVC - sounds complex and heavy
@@ -189,6 +195,7 @@ Choose which sounds your language uses:
 ### Naming Conventions
 
 Create consistent patterns:
+
 - **Place names:** Often describe geography ("black mountain," "river fork," "three springs")
 - **Personal names:** May reference ancestors, virtues, nature, profession, or birth circumstances
 - **Title conventions:** How do titles work? Prefix, suffix, separate word?
@@ -219,14 +226,14 @@ Answer these questions:
 
 Magic without cost is boring. The best costs create narrative tension:
 
-| Cost Type | Example | Narrative Potential |
-|-----------|---------|-------------------|
-| Physical | Fatigue, pain, aging | Immediate stakes, physical drama |
-| Mental | Memory loss, madness | Identity themes, psychological horror |
-| Moral | Corruption, empathy loss | Character arc, temptation narratives |
-| Material | Rare ingredients consumed | Quest motivation, economic systems |
-| Social | Stigma, isolation, obligation | Outsider narratives, political tension |
-| Temporal | Time debt, shortened lifespan | Sacrifice themes, urgency |
+| Cost Type | Example                       | Narrative Potential                    |
+| --------- | ----------------------------- | -------------------------------------- |
+| Physical  | Fatigue, pain, aging          | Immediate stakes, physical drama       |
+| Mental    | Memory loss, madness          | Identity themes, psychological horror  |
+| Moral     | Corruption, empathy loss      | Character arc, temptation narratives   |
+| Material  | Rare ingredients consumed     | Quest motivation, economic systems     |
+| Social    | Stigma, isolation, obligation | Outsider narratives, political tension |
+| Temporal  | Time debt, shortened lifespan | Sacrifice themes, urgency              |
 
 ## History and Timeline
 
@@ -271,6 +278,7 @@ ERA NAME (approximate dates)
 ### Creature Design Checklist
 
 For each notable creature:
+
 - **Niche:** Predator, prey, scavenger, symbiote, parasite?
 - **Habitat:** Where does it live and why?
 - **Diet:** What does it eat?
@@ -303,19 +311,20 @@ Every settlement needs an economic reason to exist:
 
 ### Government Types for Worldbuilding
 
-| System | Power Source | Conflict Potential |
-|--------|-------------|-------------------|
-| Monarchy | Bloodline, divine right | Succession crises, tyranny, reform |
-| Oligarchy | Wealth, family | Class conflict, corruption, revolution |
-| Theocracy | Religious authority | Heresy, schism, faith vs. reason |
-| Magocracy | Magical ability | Power disparity, mundane resentment |
-| Republic | Elected representatives | Corruption, populism, faction conflict |
-| Tribal | Elder wisdom, strength | Unification challenges, external threats |
-| Anarchy/commune | Consensus, mutual aid | Scalability, defense, free riders |
+| System          | Power Source            | Conflict Potential                       |
+| --------------- | ----------------------- | ---------------------------------------- |
+| Monarchy        | Bloodline, divine right | Succession crises, tyranny, reform       |
+| Oligarchy       | Wealth, family          | Class conflict, corruption, revolution   |
+| Theocracy       | Religious authority     | Heresy, schism, faith vs. reason         |
+| Magocracy       | Magical ability         | Power disparity, mundane resentment      |
+| Republic        | Elected representatives | Corruption, populism, faction conflict   |
+| Tribal          | Elder wisdom, strength  | Unification challenges, external threats |
+| Anarchy/commune | Consensus, mutual aid   | Scalability, defense, free riders        |
 
 ### Political Complexity
 
 The most interesting political worlds have:
+
 - **Multiple competing power centers** (crown vs. church vs. merchants vs. mages)
 - **Internal factions** within each power center
 - **Legitimate grievances** on all sides
@@ -337,6 +346,7 @@ The most interesting political worlds have:
 ### Monotheism vs. Polytheism vs. Animism
 
 Each system creates different storytelling possibilities:
+
 - **Monotheism:** Absolute moral authority, heresy as major conflict, reformation narratives
 - **Polytheism:** Divine politics, patron deities, competing values between gods
 - **Animism:** Spirits in everything, negotiation with nature, local vs. universal truths
@@ -367,18 +377,23 @@ Can every current conflict be traced back to a historical cause? If a conflict e
 ## Worldbuilding Exercises
 
 ### Exercise 1: The Market Scene
+
 Describe a busy market in one of your cities. What's being sold? Who's buying? What languages are spoken? What smells, sounds, and sights fill the space? This single scene should reveal economics, culture, technology level, and social structure.
 
 ### Exercise 2: The Border Crossing
+
 Two cultures share a border. Describe the experience of crossing from one to the other. What changes? Language, architecture, food, clothing, attitudes toward the traveler?
 
 ### Exercise 3: The Creation Myth
+
 Write the creation myth of one of your cultures. Then write how a rival culture tells the same story differently.
 
 ### Exercise 4: A Day in the Life
+
 Follow an ordinary person through their entire day. When do they wake? What do they eat? How do they work, socialize, worship, and rest? This reveals whether your world actually functions at ground level.
 
 ### Exercise 5: The Archaeological Dig
+
 What would future archaeologists find if they dug up one of your cities? What materials survive? What stories would the ruins tell? What would be misinterpreted?
 
 ## Response Guidelines
@@ -393,7 +408,6 @@ When helping a worldbuilder:
 - Encourage the iceberg principle - build more than you show, so the visible world feels deep
 - Help them avoid monocultures - no real society is uniform in belief, behavior, or values
 - Remind them that worldbuilding is iterative - perfect is the enemy of done
-
 
 ## Output Format
 

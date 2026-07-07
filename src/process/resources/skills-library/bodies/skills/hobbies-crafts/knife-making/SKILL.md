@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "guide step-by-step"
-  category: "hobbies-crafts"
-  subcategory: "making-building"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'guide step-by-step'
+  category: 'hobbies-crafts'
+  subcategory: 'making-building'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Knife Making
 
 ## When to Use
-
 
 ## Process
 
@@ -32,13 +31,16 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on knife making
 - User asks about knife making best practices or techniques
 - User wants a structured approach to knife making
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of knife making
+
 ## Questions to Ask First
 
 Before providing guidance, establish the maker's situation:
@@ -57,6 +59,7 @@ Before providing guidance, establish the maker's situation:
 ## Stock Removal vs. Forging
 
 ### Stock Removal Method (Recommended for Beginners)
+
 ```
 WHAT IT IS:
   Starting with flat bar stock (steel in a flat bar shape)
@@ -95,6 +98,7 @@ ADVANTAGES:
 ```
 
 ### Forging Method
+
 ```
 WHAT IT IS:
   Heating steel in a forge and shaping it with hammer and anvil.
@@ -133,6 +137,7 @@ DISADVANTAGES:
 ## Steel Selection
 
 ### Beginner-Friendly Steels
+
 ```
 1084 HIGH CARBON STEEL:
   Carbon: 0.84%
@@ -179,6 +184,7 @@ O1 TOOL STEEL:
 ```
 
 ### Advanced Steels Reference
+
 ```
 STAINLESS/SEMI-STAINLESS:
   AEB-L / 13C26: Excellent kitchen knife steel, thin edge capable
@@ -197,6 +203,7 @@ DAMASCUS:
 ## Heat Treatment
 
 ### Heat Treatment Process (Carbon Steel)
+
 ```
 SAFETY:
   - Work in a ventilated area
@@ -234,6 +241,7 @@ SEND-OUT HEAT TREATMENT:
 ## Grinding Bevels
 
 ### Bevel Geometry
+
 ```
 BEVEL TYPES:
   FLAT GRIND:
@@ -263,6 +271,7 @@ GRIND LINES:
 ```
 
 ### Grinding Process
+
 ```
 EQUIPMENT:
   2x72 belt grinder: The standard knife-making tool
@@ -300,6 +309,7 @@ GRINDING TIPS:
 ## Handle Materials
 
 ### Material Options
+
 ```
 WOOD (Most Popular):
   Stabilized wood: Impregnated with resin, won't shrink/swell
@@ -336,6 +346,7 @@ SYNTHETIC:
 ```
 
 ### Handle Construction
+
 ```
 FULL TANG (Scales):
   Handle scales are attached to either side of the tang
@@ -375,6 +386,7 @@ PIN MATERIALS:
 ## Sheath Making
 
 ### Leather Sheath (Most Common)
+
 ```
 BASIC POUCH SHEATH:
   Material: 7-8 oz vegetable-tanned leather
@@ -406,6 +418,7 @@ SHEATH SAFETY:
 ```
 
 ### Kydex Sheath
+
 ```
 MATERIAL: Kydex thermoformed plastic (0.080" typical thickness)
 
@@ -430,6 +443,7 @@ ADVANTAGES:
 ## Finishing
 
 ### Blade Finishing Options
+
 ```
 SATIN FINISH:
   Sand to 400-600 grit in one direction (lengthwise)
@@ -467,6 +481,7 @@ CERAKOTE:
 ```
 
 ### Handle Finishing
+
 ```
 WOOD HANDLES:
   Sand to 600-800 grit minimum
@@ -490,6 +505,7 @@ GENERAL:
 ```
 
 ## Safety
+
 ```
 SHOP SAFETY RULES:
   1. Always wear safety glasses when grinding or cutting
@@ -530,7 +546,6 @@ SHARPENING:
 9. Not drilling pin holes before heat treatment (hardened steel is very difficult to drill)
 10. Trying to make a complex knife design as your first project (start simple, learn skills)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -543,13 +558,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with knife making for a mid-size project."
 
 **Output:** A complete knife making framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

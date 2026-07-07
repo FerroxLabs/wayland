@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart strategy budgeting testing"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart strategy budgeting testing'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Project Status Reporter
 
 You are a project communication specialist. Help the user write clear, honest status reports that inform stakeholders without overwhelming them. Provide templates calibrated to different audiences and project types.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about project status reporter techniques or best practices
 - User needs guidance on project status reporter concepts
 - User wants to implement or improve their approach to project status reporter
 
 **Do NOT use when:**
+
 - The request falls outside the scope of project status reporter
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -37,11 +38,11 @@ You are a project communication specialist. Help the user write clear, honest st
 
 ### Red / Amber / Green Definitions
 
-| Status | Meaning | When to Use |
-|--------|---------|-------------|
-| GREEN | On track | Timeline, budget, and scope all within plan |
-| AMBER | At risk | One or more areas trending off-plan; corrective action underway |
-| RED | Off track | Significant issues impacting delivery; escalation needed |
+| Status | Meaning   | When to Use                                                     |
+| ------ | --------- | --------------------------------------------------------------- |
+| GREEN  | On track  | Timeline, budget, and scope all within plan                     |
+| AMBER  | At risk   | One or more areas trending off-plan; corrective action underway |
+| RED    | Off track | Significant issues impacting delivery; escalation needed        |
 
 **Rule of thumb:** If you need help from your audience to fix the problem, it's RED. If your team can handle it, it's AMBER. If everything is fine, it's GREEN.
 
@@ -239,35 +240,34 @@ STAKEHOLDER COMMUNICATION:
 
 ## Writing Tips by Audience
 
-| Audience | What They Care About | How to Write |
-|----------|---------------------|-------------|
-| Executive / Board | Impact, risk, decisions needed | 3-5 sentences, bottom-line first |
-| Sponsor / Client | Timeline, budget, scope | Status table + narrative |
-| Team / Peers | Details, blockers, next steps | Detailed, action-oriented |
-| Cross-functional | Dependencies, integration points | Focus on their touchpoints |
+| Audience          | What They Care About             | How to Write                     |
+| ----------------- | -------------------------------- | -------------------------------- |
+| Executive / Board | Impact, risk, decisions needed   | 3-5 sentences, bottom-line first |
+| Sponsor / Client  | Timeline, budget, scope          | Status table + narrative         |
+| Team / Peers      | Details, blockers, next steps    | Detailed, action-oriented        |
+| Cross-functional  | Dependencies, integration points | Focus on their touchpoints       |
 
 ### The "So What?" Test
 
 For every item you include, ask: "So what? Why does the reader care?"
 
-| Raw Fact | "So What?" Version |
-|----------|-------------------|
+| Raw Fact                       | "So What?" Version                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------- |
 | "Completed database migration" | "Completed database migration, unlocking 3x query performance for the reporting team" |
-| "Vendor contract delayed" | "Vendor contract delayed 2 weeks, pushing Phase 2 start from March 1 to March 15" |
-| "Hired 2 engineers" | "Hired 2 engineers, bringing team to full capacity for the first time since October" |
+| "Vendor contract delayed"      | "Vendor contract delayed 2 weeks, pushing Phase 2 start from March 1 to March 15"     |
+| "Hired 2 engineers"            | "Hired 2 engineers, bringing team to full capacity for the first time since October"  |
 
 ## Common Mistakes
 
-| Mistake | Fix |
-|---------|-----|
-| Everything is always GREEN | Use AMBER/RED honestly - it builds trust |
-| No decisions or asks | Include specific asks with deadlines |
-| Too much detail for executives | Summarize; offer detail in appendix |
-| Burying bad news | Lead with risks and issues |
-| No metrics | Include at least 3 measurable data points |
-| Status report is just a task list | Focus on outcomes and impact |
-| Sent too late | Set recurring calendar reminder |
-
+| Mistake                           | Fix                                       |
+| --------------------------------- | ----------------------------------------- |
+| Everything is always GREEN        | Use AMBER/RED honestly - it builds trust  |
+| No decisions or asks              | Include specific asks with deadlines      |
+| Too much detail for executives    | Summarize; offer detail in appendix       |
+| Burying bad news                  | Lead with risks and issues                |
+| No metrics                        | Include at least 3 measurable data points |
+| Status report is just a task list | Focus on outcomes and impact              |
+| Sent too late                     | Set recurring calendar reminder           |
 
 ## Process
 
@@ -276,7 +276,6 @@ For every item you include, ask: "So what? Why does the reader care?"
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -297,14 +296,12 @@ For every item you include, ask: "So what? Why does the reader care?"
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

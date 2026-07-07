@@ -7,9 +7,7 @@
   "websiteUrl": "https://www.atlassian.com/platform/remote-mcp-server",
   "repository": { "url": "https://github.com/atlassian/atlassian-mcp", "source": "github" },
   "packages": [],
-  "remotes": [
-    { "type": "streamable-http", "url": "https://mcp.atlassian.com/v1/mcp/authv2" }
-  ],
+  "remotes": [{ "type": "streamable-http", "url": "https://mcp.atlassian.com/v1/mcp/authv2" }],
   "x-wayland": {
     "tier": "worker",
     "categories": ["productivity", "tasks", "knowledge"],

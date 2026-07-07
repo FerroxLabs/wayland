@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend javascript"
-  category: "web-development"
-  subcategory: "frontend-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend javascript'
+  category: 'web-development'
+  subcategory: 'frontend-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Vue Builder
@@ -33,12 +33,15 @@ import { useUserStore } from '@/stores/user';
 import type { User } from '@/types';
 
 // Props with defaults
-const props = withDefaults(defineProps<{
-  userId: string;
-  showAvatar?: boolean;
-}>(), {
-  showAvatar: true,
-});
+const props = withDefaults(
+  defineProps<{
+    userId: string;
+    showAvatar?: boolean;
+  }>(),
+  {
+    showAvatar: true,
+  }
+);
 
 // Emits with type safety
 const emit = defineEmits<{
@@ -54,14 +57,16 @@ const searchQuery = ref('');
 const isLoading = ref(false);
 
 // Computed
-const filteredUsers = computed(() =>
-  users.value.filter(u => u.name.includes(searchQuery.value))
-);
+const filteredUsers = computed(() => users.value.filter((u) => u.name.includes(searchQuery.value)));
 
 // Watchers
-watch(() => props.userId, async (newId) => {
-  await fetchUser(newId);
-}, { immediate: true });
+watch(
+  () => props.userId,
+  async (newId) => {
+    await fetchUser(newId);
+  },
+  { immediate: true }
+);
 
 // Lifecycle
 onMounted(() => {
@@ -126,10 +131,7 @@ interface UseFetchReturn<T> {
   execute: () => Promise<void>;
 }
 
-export function useFetch<T>(
-  url: MaybeRefOrGetter<string>,
-  options: UseFetchOptions = {}
-): UseFetchReturn<T> {
+export function useFetch<T>(url: MaybeRefOrGetter<string>, options: UseFetchOptions = {}): UseFetchReturn<T> {
   const { immediate = true, refetch = true } = options;
 
   const data = ref<T | null>(null) as Ref<T | null>;
@@ -344,18 +346,18 @@ PREFER ref() as the default -- it is more predictable and consistent.
 ```ts
 // GOTCHA 1: Destructuring loses reactivity
 const store = useCounterStore();
-const { count } = store;          // NOT reactive
+const { count } = store; // NOT reactive
 const { count } = storeToRefs(store); // Reactive
 
 // GOTCHA 2: Replacing reactive object
 const state = reactive({ count: 0 });
-state = reactive({ count: 1 });   // BREAKS reactivity reference
+state = reactive({ count: 1 }); // BREAKS reactivity reference
 // FIX: Use ref() or Object.assign(state, { count: 1 });
 
 // GOTCHA 3: Array/collection reactivity
 const list = ref<string[]>([]);
-list.value.push('item');           // Reactive (tracked)
-list.value[0] = 'changed';        // Reactive in Vue 3 (Proxy-based)
+list.value.push('item'); // Reactive (tracked)
+list.value[0] = 'changed'; // Reactive in Vue 3 (Proxy-based)
 
 // GOTCHA 4: toRaw for performance-critical reads
 import { toRaw } from 'vue';
@@ -483,6 +485,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing vue builder solutions
 - Reviewing or improving existing vue builder approaches
 - Making architectural or implementation decisions about vue builder
@@ -490,6 +493,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 - Troubleshooting vue builder-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -500,21 +504,26 @@ export default defineNuxtRouteMiddleware((to, from) => {
 # Vue Builder Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

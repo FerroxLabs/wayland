@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "web-development frontend html-css"
-  category: "web-development"
-  subcategory: "html-css-web"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'web-development frontend html-css'
+  category: 'web-development'
+  subcategory: 'html-css-web'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # CSS Master
@@ -97,7 +97,9 @@ body {
   flex-direction: column;
   min-height: 100dvh;
 }
-main { flex: 1; }
+main {
+  flex: 1;
+}
 
 /* Space-between with wrapping fallback */
 .toolbar {
@@ -175,21 +177,30 @@ main { flex: 1; }
 
 ```css
 /* Base: Mobile (0px+) -- no media query needed */
-.container { padding: var(--space-4); }
+.container {
+  padding: var(--space-4);
+}
 
 /* Tablet (768px+) */
 @media (min-width: 48em) {
-  .container { padding: var(--space-8); }
+  .container {
+    padding: var(--space-8);
+  }
 }
 
 /* Desktop (1024px+) */
 @media (min-width: 64em) {
-  .container { max-width: 1200px; margin-inline: auto; }
+  .container {
+    max-width: 1200px;
+    margin-inline: auto;
+  }
 }
 
 /* Wide (1440px+) */
 @media (min-width: 90em) {
-  .container { max-width: 1400px; }
+  .container {
+    max-width: 1400px;
+  }
 }
 ```
 
@@ -241,7 +252,9 @@ main { flex: 1; }
 
 /* Style queries (check custom property values) */
 @container style(--variant: compact) {
-  .card { padding: var(--space-2); }
+  .card {
+    padding: var(--space-2);
+  }
 }
 ```
 
@@ -285,32 +298,39 @@ main { flex: 1; }
 
 ### Decision Matrix
 
-| Factor | BEM | Utility-First (Tailwind) | CSS Modules | CSS-in-JS |
-|---|---|---|---|---|
-| Team size | Any | Any | Small-Medium | Small-Medium |
-| Framework | Any | Any | React/Vue | React |
-| Runtime cost | None | None | None | Variable |
-| Learning curve | Low | Medium | Low | Medium |
-| Component scoping | Convention | N/A (class collision safe) | Automatic | Automatic |
-| Design system | Good | Excellent | Good | Excellent |
-| SSR support | Full | Full | Full | Requires setup |
-| Bundle size | Medium | Small (purge) | Small | Variable |
+| Factor            | BEM        | Utility-First (Tailwind)   | CSS Modules  | CSS-in-JS      |
+| ----------------- | ---------- | -------------------------- | ------------ | -------------- |
+| Team size         | Any        | Any                        | Small-Medium | Small-Medium   |
+| Framework         | Any        | Any                        | React/Vue    | React          |
+| Runtime cost      | None       | None                       | None         | Variable       |
+| Learning curve    | Low        | Medium                     | Low          | Medium         |
+| Component scoping | Convention | N/A (class collision safe) | Automatic    | Automatic      |
+| Design system     | Good       | Excellent                  | Good         | Excellent      |
+| SSR support       | Full       | Full                       | Full         | Requires setup |
+| Bundle size       | Medium     | Small (purge)              | Small        | Variable       |
 
 ### BEM Naming Convention
 
 ```css
 /* Block */
-.card { }
+.card {
+}
 
 /* Element (part of block) */
-.card__header { }
-.card__body { }
-.card__footer { }
+.card__header {
+}
+.card__body {
+}
+.card__footer {
+}
 
 /* Modifier (variation) */
-.card--featured { }
-.card--compact { }
-.card__header--sticky { }
+.card--featured {
+}
+.card--compact {
+}
+.card__header--sticky {
+}
 ```
 
 ## Specificity Management
@@ -334,25 +354,31 @@ CASCADE LAYERS supersede specificity:
 
 ```css
 /* AVOID: Specificity wars */
-#sidebar .nav .nav-item a.active { }  /* 1,3,1 -- nightmare */
+#sidebar .nav .nav-item a.active {
+} /* 1,3,1 -- nightmare */
 
 /* PREFER: Flat selectors */
-.nav-item-active { }                   /* 0,1,0 -- manageable */
+.nav-item-active {
+} /* 0,1,0 -- manageable */
 
 /* Use :where() to zero-out specificity */
 :where(.card, .panel, .modal) {
-  border-radius: var(--radius-md);     /* 0,0,0 specificity */
+  border-radius: var(--radius-md); /* 0,0,0 specificity */
 }
 
 /* Use :is() for grouping (takes highest specificity) */
 :is(h1, h2, h3) {
-  line-height: 1.2;                   /* 0,0,1 specificity */
+  line-height: 1.2; /* 0,0,1 specificity */
 }
 
 /* Use @layer to manage third-party CSS conflicts */
 @layer vendor, app;
-@layer vendor { /* third-party CSS here */ }
-@layer app { /* your CSS always wins */ }
+@layer vendor {
+  /* third-party CSS here */
+}
+@layer app {
+  /* your CSS always wins */
+}
 ```
 
 ## Animation Performance
@@ -378,7 +404,7 @@ NEVER ANIMATE:
 ```css
 /* Promote to own compositor layer */
 .animated-element {
-  will-change: transform;  /* Only when actively animating */
+  will-change: transform; /* Only when actively animating */
   transform: translateZ(0); /* Fallback for older browsers */
 }
 
@@ -401,7 +427,9 @@ NEVER ANIMATE:
 # ... (condensed) ...
 /* Respect user preferences */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -455,6 +483,7 @@ PROGRESSIVE ENHANCEMENT:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing css master solutions
 - Reviewing or improving existing css master approaches
 - Making architectural or implementation decisions about css master
@@ -462,6 +491,7 @@ PROGRESSIVE ENHANCEMENT:
 - Troubleshooting css master-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -472,21 +502,26 @@ PROGRESSIVE ENHANCEMENT:
 # Css Master Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

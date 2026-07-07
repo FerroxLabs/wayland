@@ -139,9 +139,11 @@ test.describe('WebUI HTTP + bridge protocol', () => {
     if (port === null) test.skip(true, 'WebUI did not start');
 
     const result = await page.evaluate(async () => {
-      const api = (window as unknown as {
-        electronAPI?: { webuiGenerateQRToken?: () => Promise<unknown> };
-      }).electronAPI;
+      const api = (
+        window as unknown as {
+          electronAPI?: { webuiGenerateQRToken?: () => Promise<unknown> };
+        }
+      ).electronAPI;
       if (!api?.webuiGenerateQRToken) return { reachable: false } as const;
 
       const outcomes: Array<'ok' | 'limited' | 'error'> = [];

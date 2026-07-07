@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "academic-writing writing research"
-  category: "writing"
-  subcategory: "academic-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'academic-writing writing research'
+  category: 'writing'
+  subcategory: 'academic-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Research Paper Structure
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user asks to structure, draft, or organize an original research paper for journal submission, conference proceedings, or academic publication
 - A user has collected empirical data (experimental, observational, survey-based, computational) and needs to know how to organize it into a publishable paper
 - A user is writing an original research paper and asks which sections to include, in what order, and what each section must accomplish
@@ -29,6 +31,7 @@ metadata:
 - A user is writing a methods paper, a replication study, or a multi-study paper with more than one experiment or dataset
 
 **Do NOT use this skill when:**
+
 - The user wants only a literature review with no original data or argument -- use `literature-review`
 - The user wants only an abstract for a completed paper -- use `abstract-writing`
 - The user needs feedback or revision on an already-written paper -- use `academic-paper-review`
@@ -59,33 +62,39 @@ Before proposing any structure, collect the following information. Ask explicitl
 Match the structure to the discipline and study type. Never apply IMRaD by default to all papers.
 
 **IMRaD (Introduction, Methods, Results, and Discussion):**
+
 - The dominant structure in natural sciences, experimental psychology, health sciences, and quantitative social sciences
 - Suited for: randomized experiments, observational studies, survey studies with statistical analysis, computational studies
 - Each section has a strict functional role -- deviation confuses reviewers and editors
 
 **Extended IMRaD (Introduction, Literature Review, Methods, Results, Discussion, Conclusion):**
+
 - Common in social sciences journals, education research, and health services research
 - The Literature Review is a standalone section (not folded into the Introduction) and is typically 1,000-2,000 words
 - A separate Conclusion section (300-500 words) is expected beyond what the Discussion provides
 
 **Social Sciences Variant:**
+
 - Structure: Introduction, Theoretical Framework, Methods, Findings, Discussion, Implications/Conclusion
 - "Findings" is used instead of "Results" when data are qualitative (coded themes, narrative data)
 - The Theoretical Framework section (600-1,500 words) situates the study within a named theoretical tradition (e.g., social learning theory, self-determination theory, grounded theory methodology)
 - Implications is sometimes a subsection of Discussion and sometimes a standalone section depending on the journal
 
 **Engineering and Computer Science:**
+
 - Structure: Introduction, Related Work, System Design/Methodology, Evaluation, Discussion, Conclusion
 - Related Work is a separate section from Introduction and is typically 500-1,200 words
 - Evaluation includes experimental setup, metrics, baselines, and results tables -- it is more detailed than a standard Results section
 - Reproducibility statements and code/data availability sections are increasingly required
 
 **Humanities:**
+
 - Structure: Introduction, Literature Review/Theoretical Context, Analysis (multiple sections with thematic or chronological headings), Discussion/Argument, Conclusion
 - Section headers are often thematic or argumentative, not functional ("The Rhetoric of Crisis" rather than "Analysis")
 - Evidence is textual, archival, or artifact-based; no Methods section in the empirical sense
 
 **Multi-Study Paper (Psychology, Education, Medical):**
+
 - Structure: Introduction, Study 1 (Methods, Results), Study 2 (Methods, Results), [Study 3 if applicable], General Discussion, Conclusion
 - Each study must be comprehensible in isolation but contribute to the cumulative argument
 - General Discussion integrates findings across studies and addresses limitations of each
@@ -93,6 +102,7 @@ Match the structure to the discipline and study type. Never apply IMRaD by defau
 ### Step 3: Build the Title and Abstract Scaffold
 
 **Title:**
+
 - The ideal research paper title is 10-15 words, specific enough to index correctly in PubMed, PsycINFO, or Google Scholar, and informative enough to communicate the key variable relationship or finding
 - Use a declarative or descriptive title, not a question (most journals discourage question titles)
 - Include: the key independent variable, key dependent variable or outcome, population, and method if novel (e.g., "A Randomized Trial of...," "A Meta-Analysis of...")
@@ -101,6 +111,7 @@ Match the structure to the discipline and study type. Never apply IMRaD by defau
 - Examples of weak vs. strong: "A Study of Music and Learning" (weak) vs. "Lyrical Background Music Impairs Reading Comprehension in College Students: A Randomized Experiment" (strong)
 
 **Abstract:**
+
 - For a full journal article: 150-300 words (check target journal -- Nature requires 150, APA journals allow 250, some allow 350)
 - Structured abstract (required by many clinical and health journals): Background, Objective, Methods, Results, Conclusions -- each as a labeled paragraph or sentence group
 - Unstructured abstract (common in psychology, education): A single paragraph covering the same elements without labels
@@ -113,12 +124,14 @@ Match the structure to the discipline and study type. Never apply IMRaD by defau
 The Introduction has a specific rhetorical architecture called the CARS model (Create a Research Space, Swales 1990) that applies across disciplines:
 
 **Move 1 -- Establish the Territory (1-2 paragraphs):**
+
 - Open with a statement of the phenomenon's importance, prevalence, or impact -- grounded in citation
 - Demonstrate that the topic is actively researched (cite 5-10 key studies)
 - Establish the stakes: why does this matter clinically, socially, theoretically, or practically?
 - Avoid opening with a dictionary definition or a sweeping generalization ("Since the dawn of time...")
 
 **Move 2 -- Establish the Niche / Identify the Gap (2-3 paragraphs):**
+
 - Describe what is known -- accurately and specifically, not dismissively
 - Identify the specific gap: a methodological limitation in prior work, an untested population, a theoretical contradiction, an unanswered question, a replication need
 - The gap must be a genuine absence, not a manufactured one -- reviewers in the field will know
@@ -126,6 +139,7 @@ The Introduction has a specific rhetorical architecture called the CARS model (C
 - Cite the studies that come closest to your question -- showing you know the adjacent work
 
 **Move 3 -- Occupy the Niche (1-2 paragraphs):**
+
 - State the research question(s) or hypotheses explicitly -- numbered if there are multiple
 - Describe the study design in one to two sentences
 - Preview the paper's contribution: "This study contributes X to the literature by Y"
@@ -138,6 +152,7 @@ The Introduction has a specific rhetorical architecture called the CARS model (C
 The Methods section must be detailed enough that a researcher with equivalent expertise could replicate the study without contacting the authors. It is not a narrative about what you did -- it is a technical specification.
 
 **Subsection structure for quantitative/experimental studies:**
+
 - **Participants/Sample:** N (total and per condition), recruitment source, inclusion/exclusion criteria, demographics (age M and SD, sex/gender distribution, relevant characteristics), compensation if any, dropout or attrition rates, power analysis justification for sample size (target power = .80 or .90, alpha = .05, and the effect size assumed -- state the source of the assumed effect size)
 - **Materials/Instruments:** Describe every measure, instrument, or stimulus used. For validated scales: full name, original citation, number of items, response scale (e.g., 1 = strongly disagree to 7 = strongly agree), Cronbach's alpha from validation study and from this sample. For stimuli: how selected, counterbalancing, presentation software (e.g., PsychoPy, E-Prime, Qualtrics), timing parameters.
 - **Design:** State the design explicitly -- "a 3 (music condition: silence, classical, lyrical) x 2 (passage difficulty: low, high) between-subjects factorial design" -- and identify independent and dependent variables
@@ -154,6 +169,7 @@ The Results section presents what was found. No interpretation belongs here -- i
 **Organizing principle:** Mirror the structure of the research questions or hypotheses stated in the Introduction. If you stated three hypotheses, present results in Hypothesis 1, Hypothesis 2, Hypothesis 3 order. Reviewers track this alignment explicitly.
 
 **For quantitative results:**
+
 - Lead each subsection with a statement of the finding in plain language before presenting statistics
 - Report statistics in APA format: F(df1, df2) = value, p = .xxx, η² = .xx; t(df) = value, p = .xxx, d = .xx
 - Always report effect sizes: Cohen's d for t-tests, η² or ω² for ANOVA (prefer ω² -- η² is positively biased), r or R² for correlations/regression, OR and RR for binary outcomes in medical research
@@ -164,6 +180,7 @@ The Results section presents what was found. No interpretation belongs here -- i
 - Figures: use for interaction effects, distributions, time series; label as Figure 1, Figure 2
 
 **For qualitative results:**
+
 - Organize by emergent themes, not by participant
 - Each theme needs: a theme name, a brief description, representative quotations (verbatim, with participant identifier), and the frequency of occurrence across participants
 - Quotations must be contextual -- never drop a quote without surrounding interpretive framing
@@ -176,6 +193,7 @@ The Results section presents what was found. No interpretation belongs here -- i
 The Discussion is the intellectually demanding heart of the paper. It must do five distinct things, and failing to do any of them is a common reason for rejection.
 
 **Discussion architecture:**
+
 1. **Brief restatement of purpose (1 paragraph):** One to three sentences restating what the study set out to do and its key finding -- without merely copying the abstract. "This study examined X among Y using Z and found A."
 2. **Interpretation of key findings (2-4 paragraphs):** What do the results mean? Interpret each major finding in relation to the theoretical framework or conceptual model introduced in the Introduction. Explain the mechanism -- not just the pattern.
 3. **Comparison to existing literature (2-3 paragraphs):** How do findings align with, extend, or contradict prior work? Cite specific studies. If your results contradict previous findings, explain why -- methodological differences, population differences, moderating variables. This is where you show command of the field.
@@ -183,6 +201,7 @@ The Discussion is the intellectually demanding heart of the paper. It must do fi
 5. **Implications and future directions (1-2 paragraphs):** Practical implications (what should practitioners, policymakers, clinicians do differently?). Theoretical implications (what does this mean for the model or framework?). Future research: 2-3 specific, actionable suggestions (not "future research should examine this further" -- say exactly what design, population, and question would be informative).
 
 **Conclusion:**
+
 - Separate section in extended IMRaD; final paragraph of Discussion in compact IMRaD
 - 150-300 words; states the contribution clearly and concisely
 - Does not introduce new arguments, new citations, or new data
@@ -526,6 +545,7 @@ Conclusions: The results implicate phonological loop interference -- not arousal
 ---
 
 ### 1. INTRODUCTION
+
 **Target length:** 850-1,000 words
 
 **1.1 Establish the Territory (Paragraphs 1-2)**
@@ -545,6 +565,7 @@ Gap language: "However, existing studies have rarely distinguished between music
 **1.3 Occupy the Niche (Paragraphs 5-6)**
 
 Research questions and hypotheses:
+
 - H1: Participants in the pop music with lyrics condition will show significantly lower reading comprehension scores than participants in the silence condition.
 - H2: Participants in the classical instrumental music condition will show no significant difference in reading comprehension scores compared to participants in the silence condition.
 - Theoretical integration: Both hypotheses are derived from Baddeley's phonological loop model: lyrics engage the phonological loop's articulatory rehearsal mechanism, competing with the phonological processing required for reading, while instrumental music does not access this system.
@@ -556,18 +577,21 @@ Contribution statement: "This study provides the first adequately powered experi
 ---
 
 ### 2. METHODS
+
 **Target length:** 550-700 words
 
 **2.1 Participants**
+
 - N = 120 undergraduate students (40 per condition)
 - Recruitment: [university subject pool or posted flyers -- specify]
 - Inclusion: native English speakers (reading comprehension test in English), normal or corrected-to-normal vision, no diagnosed reading or attentional disorders
 - Exclusion: professional musicians (>5 years formal training) -- to avoid familiarity with the classical stimuli affecting arousal
 - Demographics: Report age (M, SD), gender distribution, year in college
-- Power analysis: Target power = .80, α = .05, minimum detectable effect d = 0.45 (conservative estimate based on meta-analytic effect sizes for irrelevant speech effects from Jones & Morris, 1992), computed in G*Power 3.1 -- required N = 33 per group, enrolled 40 per group to account for potential attrition
+- Power analysis: Target power = .80, α = .05, minimum detectable effect d = 0.45 (conservative estimate based on meta-analytic effect sizes for irrelevant speech effects from Jones & Morris, 1992), computed in G\*Power 3.1 -- required N = 33 per group, enrolled 40 per group to account for potential attrition
 - Attrition: [Report any]
 
 **2.2 Materials**
+
 - Reading comprehension measure: [Name the validated test used -- e.g., Nelson-Denny Reading Comprehension Test or a published passage comprehension battery]; 20 items, multiple choice, α from validation study = .87, α from this sample = [report]
 - Musical stimuli:
   - Silence condition: ambient room noise only (no music playback)
@@ -576,12 +600,14 @@ Contribution statement: "This study provides the first adequately powered experi
   - Stimulus matching: All music conditions matched on loudness (65 dB, measured with sound level meter), approximate tempo (70-80 BPM), and participant familiarity (assessed via pre-study 7-point familiarity rating -- report M and SD per condition to confirm matching)
 
 **2.3 Design**
+
 - 3 (music condition: silence vs. classical instrumental vs. pop with lyrics) between-subjects design
 - Independent variable: Music condition (3 levels)
 - Dependent variable: Reading comprehension score (0-20, number correct)
 - No within-subjects factors -- using between-subjects to avoid carryover effects from multiple listening exposures
 
 **2.4 Procedure**
+
 - Participants arrived individually or in small groups (max 3 per session) and provided written informed consent
 - Pre-study questionnaire: demographics, music familiarity ratings, headphone vs. speaker preference
 - Assigned to condition via computer-generated random number sequence (blocked randomization in sets of 6 to ensure equal condition assignment)
@@ -590,6 +616,7 @@ Contribution statement: "This study provides the first adequately powered experi
 - Debriefing: Explained the study purpose; disclosed hypotheses
 
 **2.5 Data Analysis**
+
 - Primary: One-way ANOVA (music condition: 3 levels) on comprehension scores; planned pairwise contrasts using Bonferroni correction (α = .0167 per comparison) comparing: (1) lyrics vs. silence, (2) classical vs. silence
 - Effect size: ω² for omnibus F; Cohen's d with 95% CI for pairwise contrasts
 - Software: R version 4.3.1 (afex package for ANOVA, effectsize package for effect sizes)
@@ -597,6 +624,7 @@ Contribution statement: "This study provides the first adequately powered experi
 - Note: All analyses below are exploratory and unplanned (study was not pre-registered) -- H1 and H2 above were formulated before data collection but without formal registration; interpret with appropriate caution
 
 **2.6 Ethics**
+
 - IRB approved by [Institution] IRB, Protocol #[number]
 - Written informed consent obtained from all participants
 - Data stored anonymously with condition assignment as the only identifier
@@ -604,40 +632,49 @@ Contribution statement: "This study provides the first adequately powered experi
 ---
 
 ### 3. RESULTS
+
 **Target length:** 600-800 words
 
 **3.0 Preliminary Analyses**
+
 - Table 1: Descriptive statistics -- M and SD for comprehension scores by condition; age, gender, music familiarity by condition
 - Assumption checks: Shapiro-Wilk tests for each group (report W and p for each); Levene's test (report F and p)
 - Manipulation check on familiarity: Confirm groups did not differ significantly in their familiarity with the musical stimuli used (one-way ANOVA on familiarity ratings)
 
 **3.1 Omnibus ANOVA**
+
 - Report: F(2, 117) = [value], p = [value], ω² = [value], 95% CI [low, high]
 - Figure 1: Bar graph or violin plot of mean comprehension scores (with 95% CIs) by condition -- recommend violin plot because it shows score distribution, not just means
 
 **3.2 Hypothesis 1 -- Pop Music with Lyrics vs. Silence**
+
 - "As hypothesized, participants in the pop music with lyrics condition scored significantly lower on the reading comprehension test (M = [xx], SD = [xx]) compared to participants in the silence condition (M = [xx], SD = [xx]), t(78) = [value], p < .001, d = -0.64, 95% CI [-0.99, -0.29]."
 - Interpret the CI: The lower bound of the 95% CI excludes effects smaller than d = -0.29, confirming the effect is at minimum small-to-medium in magnitude.
 
 **3.3 Hypothesis 2 -- Classical Instrumental Music vs. Silence**
+
 - "Classical instrumental music did not significantly affect comprehension scores (M = [xx], SD = [xx]) compared to silence (M = [xx], SD = [xx]), t(78) = [value], p = .71, d = 0.08, 95% CI [-0.28, 0.44]."
 - Note: The 95% CI extends to d = 0.44 -- the study cannot rule out a small positive or small negative effect of classical music. Acknowledge this in Discussion.
 
 **3.4 Exploratory Analysis (if conducted)**
+
 - If any additional analyses were conducted post-hoc (e.g., moderation by music familiarity, GPA, or self-reported study music habits), label explicitly: "Exploratory analyses, unplanned prior to data collection."
 
 ---
 
 ### 4. DISCUSSION
+
 **Target length:** 1,000-1,300 words
 
 **4.1 Summary of Key Findings (Paragraph 1)**
 "This experiment tested whether background music disrupts reading comprehension as a function of lyrical content, operationalized within Baddeley's phonological loop framework. Results supported both hypotheses: pop music with lyrics significantly impaired comprehension (d = -0.64) while classical instrumental music had no reliable effect (d = 0.08) relative to silence."
 
 **4.2 Interpretation Through the Phonological Loop Account**
+
 - Paragraph 2: Explain the phonological loop mechanism in concrete terms. The articulatory rehearsal loop maintains verbal information through subvocal rehearsal. Lyrics -- as meaningful, sequential phonological sequences -- compete directly with the phonological codes generated during reading, overloading the rehearsal system and reducing the capacity available for comprehension. Instrumental music, which contains no phonological structure, does not load this system.
 - Paragraph 3: Address why the effect was medium-to-large (d = -0.64). This may reflect that the 20-minute reading window was sufficient for interference to accumulate, that the pop stimuli used were particularly phonologically dense, or that college-age readers already approach working memory capacity during complex text comprehension. Future work can disentangle these.
 
 **4.3 Comparison to Existing Literature**
+
 - Consistent with: Salamé and Baddeley's (1982, 1989) irrelevant speech effect -- the finding that phonologically structured background noise (speech, sung text) impairs serial recall and verbal tasks more than non-phonological noise. Cite additional more recent replications if available.
 - Extends: Prior research on music and cognitive performance by isolating phonological content as the operative variable rather than treating all music as a

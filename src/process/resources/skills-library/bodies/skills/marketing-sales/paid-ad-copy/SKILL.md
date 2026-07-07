@@ -13,14 +13,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "marketing marketing-copy writing seo"
-  category: "marketing-sales"
-  subcategory: "marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'marketing marketing-copy writing seo'
+  category: 'marketing-sales'
+  subcategory: 'marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Paid Ad Copy
 
 ## When to Use
@@ -36,6 +37,7 @@ Use this skill when the user explicitly needs copy for paid advertising placemen
 - User needs copy for retargeting sequences, where messaging must acknowledge prior user behavior (site visit, cart abandonment, video view)
 
 **Do NOT use when:**
+
 - User needs organic social media content, captions, or post strategies -- use `social-media-strategy` instead
 - User needs full landing page copy, hero text, or page body copy -- use `landing-page-copy` instead
 - User needs email subject lines, body copy, or nurture sequences -- use `email-campaign` instead
@@ -91,6 +93,7 @@ For most campaigns, layer PAS into the opening of Meta primary text, then close 
 Write each platform's copy knowing its exact constraints, format logic, and how the platform uses the copy.
 
 **Google Search Ads (Responsive Search Ads -- RSA):**
+
 - Up to 15 headlines, 30 characters each (Google rotates and tests combinations automatically)
 - Up to 4 descriptions, 90 characters each (2 appear at a time, selected by Google)
 - Display URL: Domain is automatic; add 2 path fields, 15 characters each
@@ -100,6 +103,7 @@ Write each platform's copy knowing its exact constraints, format logic, and how 
 - Start descriptions with the offer or a full sentence; do not start with "We" -- leads with user benefit
 
 **Google Display / Demand Gen Ads:**
+
 - Short headline: 30 characters
 - Long headline: 90 characters
 - Description: 90 characters
@@ -107,17 +111,20 @@ Write each platform's copy knowing its exact constraints, format logic, and how 
 - These run against interest audiences, not search intent -- copy must work as an interruption, not a response
 
 **Meta (Facebook/Instagram) Ads -- Feed Placement:**
+
 - Primary text: No hard limit, but only the first 125 characters show before "See More" on mobile (most users never tap). Write the first 125 characters as if that is all they will read.
 - Headline: 40 characters (desktop newsfeed); on mobile, can display up to 27 characters before truncation
 - Description (below headline on desktop): 30 characters
 - CTA buttons: Shop Now, Learn More, Sign Up, Get Offer, Download, Book Now, Apply Now, Contact Us, Get Quote, Subscribe, Watch More, Send Message -- choose based on conversion action, not what sounds exciting. "Sign Up" outperforms "Learn More" for lead generation in most studies.
 
 **Meta Story and Reel Ads:**
+
 - Text overlaid on visual: Keep to under 20% of screen area (Meta's old 20% rule no longer technically applies but user experience data supports sparse text on full-screen formats)
 - Primary text still renders on the ad set level but the visual carries the message
 - Copy must assume no sound: convey the offer without relying on audio
 
 **LinkedIn Ads -- Sponsored Content:**
+
 - Introductory text: 150 characters show without "See More" (up to 600 characters total)
 - Headline: 70 characters
 - Description (optional): 100 characters
@@ -125,16 +132,19 @@ Write each platform's copy knowing its exact constraints, format logic, and how 
 - Tone: Significantly more formal than Meta. Colloquialisms, exclamation points, and aggressive urgency tactics underperform. Credibility and specificity outperform hype.
 
 **LinkedIn Conversation Ads / Message Ads:**
+
 - Message subject: 60 characters
 - Message body: 500 characters recommended (can go longer but response rates drop)
 - CTA text: 25 characters
 
 **TikTok Ads:**
+
 - Primary text (video caption area): 100 characters
 - Hook must land in the first 3 seconds of video -- write the opening spoken or on-screen line as part of the copy brief
 - Copy reads more native when it sounds like something a creator would say, not a brand
 
 **Microsoft/Bing Search Ads:**
+
 - Same RSA format as Google Search Ads (15 headlines at 30 characters, 4 descriptions at 90 characters)
 - Bing audience skews older and higher income; copy can be slightly more formal and price-sensitive
 - Import Google campaigns but customize at least the top 2-3 headlines for Bing-specific audience
@@ -306,7 +316,7 @@ Copy does not exist in isolation. Provide adjacent guidance that ensures the cop
 **Audience Profile:** [Job title, seniority, industry, company size]
 
 | Variant | Intro Text (150 char visible) | Headline (70 char) | CTA Button |
-|---------|-------------------------------|--------------------|-----------| 
+|---------|-------------------------------|--------------------|-----------|
 | Benefit | [Copy] *([##] chars)* | [Copy] *([##] chars)* | [Button] |
 | Problem | [Copy] *([##] chars)* | [Copy] *([##] chars)* | [Button] |
 | Proof | [Copy] *([##] chars)* | [Copy] *([##] chars)* | [Button] |
@@ -432,52 +442,53 @@ When the user has a large keyword list and wants to use DKI (the `{keyword: Defa
 
 #### Headlines (30 characters max each)
 
-| # | Angle | Headline Text | Char Count |
-|---|-------|---------------|-----------|
-| H1 | Benefit | Track Time in 1 Click | 21/30 |
-| H2 | Benefit | Auto-Generate PDF Invoices | 27/30 |
-| H3 | Benefit | Stop Losing Billable Hours | 27/30 |
-| H4 | Problem | Tired of Manual Timesheets? | 28/30 |
-| H5 | Problem | Invoicing Taking Too Long? | 27/30 |
-| H6 | Social Proof | 4.8 Stars on G2 | 17/30 |
-| H7 | Social Proof | 10,000+ Freelancers Trust It | 29/30 |
-| H8 | Offer | Free 14-Day Trial | 18/30 |
-| H9 | Offer | No Credit Card Required | 24/30 |
-| H10 | Offer | $9/Month -- Try It Free | 23/30 |
-| H11 | Curiosity | Are You Undercharging? | 23/30 |
-| H12 | Benefit | Chrome Extension -- 1 Click | 28/30 |
-| H13 | Brand | Timedly for Freelancers | 24/30 |
-| H14 | Benefit | Invoice Clients in Seconds | 27/30 |
-| H15 | Problem | Spreadsheet Tracking Fails | 27/30 |
+| #   | Angle        | Headline Text                | Char Count |
+| --- | ------------ | ---------------------------- | ---------- |
+| H1  | Benefit      | Track Time in 1 Click        | 21/30      |
+| H2  | Benefit      | Auto-Generate PDF Invoices   | 27/30      |
+| H3  | Benefit      | Stop Losing Billable Hours   | 27/30      |
+| H4  | Problem      | Tired of Manual Timesheets?  | 28/30      |
+| H5  | Problem      | Invoicing Taking Too Long?   | 27/30      |
+| H6  | Social Proof | 4.8 Stars on G2              | 17/30      |
+| H7  | Social Proof | 10,000+ Freelancers Trust It | 29/30      |
+| H8  | Offer        | Free 14-Day Trial            | 18/30      |
+| H9  | Offer        | No Credit Card Required      | 24/30      |
+| H10 | Offer        | $9/Month -- Try It Free      | 23/30      |
+| H11 | Curiosity    | Are You Undercharging?       | 23/30      |
+| H12 | Benefit      | Chrome Extension -- 1 Click  | 28/30      |
+| H13 | Brand        | Timedly for Freelancers      | 24/30      |
+| H14 | Benefit      | Invoice Clients in Seconds   | 27/30      |
+| H15 | Problem      | Spreadsheet Tracking Fails   | 27/30      |
 
 **Pin Recommendations:**
+
 - Position 1: No pin recommended -- allow Google to optimize across H1, H4, H5 for maximum variety
 - Position 2: No pin recommended
 - Rationale: No mandatory legal or brand messaging requires pinning. Google's RSA rotation will surface the highest-performing headline combinations for each query. Pinning would reduce Ad Strength from Excellent to Good.
 
 #### Descriptions (90 characters max each)
 
-| # | Focus | Description Text | Char Count |
-|---|-------|-----------------|-----------|
-| D1 | Benefit + CTA | One-click Chrome extension logs hours automatically. PDF invoices ready in seconds. Try free. | 92/90 |
+| #   | Focus         | Description Text                                                                              | Char Count |
+| --- | ------------- | --------------------------------------------------------------------------------------------- | ---------- |
+| D1  | Benefit + CTA | One-click Chrome extension logs hours automatically. PDF invoices ready in seconds. Try free. | 92/90      |
 
-*(Revised D1):*
+_(Revised D1):_
 
-| # | Focus | Description Text | Char Count |
-|---|-------|-----------------|-----------|
-| D1 | Benefit + CTA | 1-click Chrome extension logs hours. Auto-generates invoices. Start your free trial today. | 90/90 |
-| D2 | Problem + Solution | Stop tracking hours in spreadsheets. Timedly logs time + invoices clients automatically. | 88/90 |
-| D3 | Proof + CTA | Rated 4.8 stars by 10,000+ freelancers. No credit card needed. Start your free 14-day trial. | 93/90 |
+| #   | Focus              | Description Text                                                                             | Char Count |
+| --- | ------------------ | -------------------------------------------------------------------------------------------- | ---------- |
+| D1  | Benefit + CTA      | 1-click Chrome extension logs hours. Auto-generates invoices. Start your free trial today.   | 90/90      |
+| D2  | Problem + Solution | Stop tracking hours in spreadsheets. Timedly logs time + invoices clients automatically.     | 88/90      |
+| D3  | Proof + CTA        | Rated 4.8 stars by 10,000+ freelancers. No credit card needed. Start your free 14-day trial. | 93/90      |
 
-*(Revised D3):*
+_(Revised D3):_
 
-| # | Focus | Description Text | Char Count |
-|---|-------|-----------------|-----------|
-| D3 | Proof + CTA | Rated 4.8 stars. 10,000+ freelancers trust Timedly. No credit card. Free 14-day trial. | 87/90 |
-| D4 | Offer + Risk Reversal | $9/month after your free trial. Cancel anytime. One-click time tracking + auto invoicing. | 90/90 |
+| #   | Focus                 | Description Text                                                                          | Char Count |
+| --- | --------------------- | ----------------------------------------------------------------------------------------- | ---------- |
+| D3  | Proof + CTA           | Rated 4.8 stars. 10,000+ freelancers trust Timedly. No credit card. Free 14-day trial.    | 87/90      |
+| D4  | Offer + Risk Reversal | $9/month after your free trial. Cancel anytime. One-click time tracking + auto invoicing. | 90/90      |
 
 **Display URL Path:** timedly.com/freelancers/free-trial
-*(path1: "freelancers" = 11/15 chars | path2: "free-trial" = 10/15 chars)*
+_(path1: "freelancers" = 11/15 chars | path2: "free-trial" = 10/15 chars)_
 
 **Ad Strength Target:** Excellent
 **Asset Coverage:** 15 unique headlines (no repeated phrases across any pair) / 4 descriptions
@@ -495,23 +506,28 @@ free time tracker, open source time tracking, time tracking spreadsheet, time tr
 ---
 
 **Variant 1 -- Benefit Angle (Cold Audience)**
+
 - Primary Text (125 chars visible): Track your hours in one click. Timedly auto-generates PDF invoices from your logged time.
-  *Char count: 88/125 -- full message visible without "See More"*
-  *Full text (optional extended): Track your hours in one click. Timedly auto-generates PDF invoices from your logged time. No manual entry. No separate invoicing step. Just click start, click stop, and send.*
-- Headline: Track Time. Send Invoices. Done. *(35/40 chars)*
-- Description: Free 14-day trial. No credit card. *(36/30 chars)*
+  _Char count: 88/125 -- full message visible without "See More"_
+  _Full text (optional extended): Track your hours in one click. Timedly auto-generates PDF invoices from your logged time. No manual entry. No separate invoicing step. Just click start, click stop, and send._
+- Headline: Track Time. Send Invoices. Done. _(35/40 chars)_
+- Description: Free 14-day trial. No credit card. _(36/30 chars)_
 
-*(Revised Description):*
-- Description: No credit card. Start free today. *(33/30 chars)*
+_(Revised Description):_
 
-*(Final Revised):*
-- Description: Try free -- no credit card needed *(33/30 chars)*
+- Description: No credit card. Start free today. _(33/30 chars)_
 
-*(Corrected):*
-- Description: No credit card. Try 14 days free. *(35/30 chars -- over limit)*
+_(Final Revised):_
 
-*(Final):*
-- Description: Free trial. No credit card. *(27/30 chars)*
+- Description: Try free -- no credit card needed _(33/30 chars)_
+
+_(Corrected):_
+
+- Description: No credit card. Try 14 days free. _(35/30 chars -- over limit)_
+
+_(Final):_
+
+- Description: Free trial. No credit card. _(27/30 chars)_
 
 - CTA Button: Sign Up
 - Best for audience: Cold (no prior brand exposure)
@@ -519,14 +535,16 @@ free time tracker, open source time tracking, time tracking spreadsheet, time tr
 ---
 
 **Variant 2 -- Problem Angle / PAS (Cold to Warm Audience)**
-- Primary Text (125 chars visible): Still tracking hours in a spreadsheet? You are probably leaving money on the table every week.
-  *Char count: 94/125 -- full message visible*
-  *Full text: Still tracking hours in a spreadsheet? You are probably leaving money on the table every week. Timedly logs your time in one click and sends professional PDF invoices automatically. Freelancers save an average of 3 hours per week.*
-- Headline: Stop Losing Billable Hours *(27/40 chars)*
-- Description: One click. Auto invoices. $9/mo. *(33/30 chars)*
 
-*(Revised):*
-- Description: 1 click. Auto invoices. $9/mo. *(30/30 chars)*
+- Primary Text (125 chars visible): Still tracking hours in a spreadsheet? You are probably leaving money on the table every week.
+  _Char count: 94/125 -- full message visible_
+  _Full text: Still tracking hours in a spreadsheet? You are probably leaving money on the table every week. Timedly logs your time in one click and sends professional PDF invoices automatically. Freelancers save an average of 3 hours per week._
+- Headline: Stop Losing Billable Hours _(27/40 chars)_
+- Description: One click. Auto invoices. $9/mo. _(33/30 chars)_
+
+_(Revised):_
+
+- Description: 1 click. Auto invoices. $9/mo. _(30/30 chars)_
 
 - CTA Button: Sign Up
 - Best for audience: Cold audience with spreadsheet or manual tracking behavior in interest targeting
@@ -534,28 +552,31 @@ free time tracker, open source time tracking, time tracking spreadsheet, time tr
 ---
 
 **Variant 3 -- Social Proof Angle (Cold Audience)**
+
 - Primary Text (125 chars visible): 10,000 freelancers track time and invoice clients with one tool. Rated 4.8 stars on G2.
-  *Char count: 88/125 -- full message visible*
-  *Full text: 10,000 freelancers track time and invoice clients with one tool. Rated 4.8 stars on G2. One-click Chrome extension. Auto-generated PDF invoices. Free 14-day trial, no credit card required.*
-- Headline: 10,000+ Freelancers Can't Be Wrong *(36/40 chars)*
-- Description: Free trial. No credit card. *(27/30 chars)*
+  _Char count: 88/125 -- full message visible_
+  _Full text: 10,000 freelancers track time and invoice clients with one tool. Rated 4.8 stars on G2. One-click Chrome extension. Auto-generated PDF invoices. Free 14-day trial, no credit card required._
+- Headline: 10,000+ Freelancers Can't Be Wrong _(36/40 chars)_
+- Description: Free trial. No credit card. _(27/30 chars)_
 - CTA Button: Sign Up
 - Best for audience: Cold audiences who respond to category validation; particularly effective with lookalike audiences built on existing customers
 
 ---
 
 **Variant 4 -- Urgency Angle**
-*NOTE: No real urgency exists for this campaign as of the input brief. This variant is provided as a template to activate only when a real offer deadline exists (e.g., "50% off first 3 months -- ends Friday"). Do not run this variant with manufactured urgency.*
+_NOTE: No real urgency exists for this campaign as of the input brief. This variant is provided as a template to activate only when a real offer deadline exists (e.g., "50% off first 3 months -- ends Friday"). Do not run this variant with manufactured urgency._
 
 - Primary Text (125 chars visible): [ACTIVATE ONLY WITH REAL DEADLINE] The introductory price for Timedly ends [DATE]. Lock in $9/month before it increases.
-- Headline: Price Increases [DATE] -- Start Now *(36/40 chars -- adjust date)*
-- Description: Free trial before the price goes up. *(37/30 chars)*
+- Headline: Price Increases [DATE] -- Start Now _(36/40 chars -- adjust date)_
+- Description: Free trial before the price goes up. _(37/30 chars)_
 
-*(Revised):*
-- Description: Start free before price goes up. *(32/30 chars)*
+_(Revised):_
 
-*(Final):*
-- Description: Start free. Price increases soon. *(33/30 chars)*
+- Description: Start free before price goes up. _(32/30 chars)_
+
+_(Final):_
+
+- Description: Start free. Price increases soon. _(33/30 chars)_
 
 - CTA Button: Sign Up
 - Best for audience: Retargeting -- warm audiences who have visited pricing page
@@ -563,14 +584,16 @@ free time tracker, open source time tracking, time tracking spreadsheet, time tr
 ---
 
 **Variant 5 -- Curiosity / Pattern Interrupt (Cold Audience)**
-- Primary Text (125 chars visible): Most freelancers undercharge by 23% -- not because of pricing, but because of missed hours.
-  *Char count: 90/125 -- full message visible*
-  *Full text: Most freelancers undercharge by 23% -- not because of pricing, but because of missed hours. Timedly's one-click Chrome extension logs every minute automatically. Invoice exactly what you earned.*
-- Headline: Are You Billing What You Earned? *(32/40 chars)*
-- Description: Free 14-day trial. No card needed. *(35/30 chars)*
 
-*(Revised):*
-- Description: Try free. No credit card. *(25/30 chars)*
+- Primary Text (125 chars visible): Most freelancers undercharge by 23% -- not because of pricing, but because of missed hours.
+  _Char count: 90/125 -- full message visible_
+  _Full text: Most freelancers undercharge by 23% -- not because of pricing, but because of missed hours. Timedly's one-click Chrome extension logs every minute automatically. Invoice exactly what you earned._
+- Headline: Are You Billing What You Earned? _(32/40 chars)_
+- Description: Free 14-day trial. No card needed. _(35/30 chars)_
+
+_(Revised):_
+
+- Description: Try free. No credit card. _(25/30 chars)_
 
 - CTA Button: Sign Up
 - Best for audience: Cold audiences; works well with content-engaged audiences (people who read freelancing blogs or follow freelancing creators)
@@ -581,13 +604,13 @@ free time tracker, open source time tracking, time tracking spreadsheet, time tr
 
 **Priority Test Order:**
 
-| Priority | Platform | Variable | Variant A | Variant B | Primary Metric | Min. Sample | Test Duration |
-|----------|----------|----------|-----------|-----------|---------------|-------------|---------------|
-| 1 | Meta Feed | Primary text angle | Variant 1 (Benefit) | Variant 2 (Problem/PAS) | Free trial signup rate | 100 signups total (50 per variant) | 14-21 days |
-| 2 | Meta Feed | Primary text angle | Test 1 winner | Variant 3 (Social Proof) | Free trial signup rate | 100 signups total | 14-21 days |
-| 3 | Meta Feed | CTA Button | "Sign Up" | "Start Free Trial" (if available in placement) | Signup click-through rate | 500 clicks per variant | 14 days |
-| 4 | Google RSA | Headline angle | Monitor via Asset Details Report | -- | Headline combination performance rating | 2,000+ impressions per asset | 21 days |
-| 5 | Google RSA | Description emphasis | D1 (Benefit) vs D4 (Offer + Risk Reversal) | -- | CTR + conversion rate | 500 clicks | 14-21 days |
+| Priority | Platform   | Variable             | Variant A                                  | Variant B                                      | Primary Metric                          | Min. Sample                        | Test Duration |
+| -------- | ---------- | -------------------- | ------------------------------------------ | ---------------------------------------------- | --------------------------------------- | ---------------------------------- | ------------- |
+| 1        | Meta Feed  | Primary text angle   | Variant 1 (Benefit)                        | Variant 2 (Problem/PAS)                        | Free trial signup rate                  | 100 signups total (50 per variant) | 14-21 days    |
+| 2        | Meta Feed  | Primary text angle   | Test 1 winner                              | Variant 3 (Social Proof)                       | Free trial signup rate                  | 100 signups total                  | 14-21 days    |
+| 3        | Meta Feed  | CTA Button           | "Sign Up"                                  | "Start Free Trial" (if available in placement) | Signup click-through rate               | 500 clicks per variant             | 14 days       |
+| 4        | Google RSA | Headline angle       | Monitor via Asset Details Report           | --                                             | Headline combination performance rating | 2,000+ impressions per asset       | 21 days       |
+| 5        | Google RSA | Description emphasis | D1 (Benefit) vs D4 (Offer + Risk Reversal) | --                                             | CTR + conversion rate                   | 500 clicks                         | 14-21 days    |
 
 **Statistical Significance Threshold:** 95% confidence
 **Winner Declaration Rule:** Do not pause a variant until 95% statistical significance is reached AND the minimum sample threshold is met AND the test has run for at least 14 days. For Meta, use the built-in Experiments tool to prevent audience overlap between test cells. For Google RSA, use the Asset Details report -- pause headlines rated "Low" after 5,000+ impressions if they consistently underperform.
@@ -597,21 +620,25 @@ free time tracker, open source time tracking, time tracking spreadsheet, time tr
 ### Creative & Deployment Brief
 
 **Visual Direction:**
+
 - Variant 1 (Benefit): Show a freelancer's screen with a clean timer interface and a generated invoice -- emphasize clarity and simplicity. Avoid generic stock photos of people at laptops looking happy. Use a product screenshot or a minimal flat-design illustration.
 - Variant 2 (Problem): Consider a split image: chaotic spreadsheet on one side, clean Timedly interface on the other. Visual contrast reinforces the copy's before/after framing.
 - Variant 3 (Social Proof): Feature the G2 badge or star rating as a visual element. Authentic review screenshots perform well against cold audiences.
 - Variant 5 (Curiosity): Use a bold text-forward creative with the statistic as the visual hook. Dark background, white text, large number "23%" visible in thumbnail.
 
 **Audience Targeting Alignment:**
+
 - Variants 1, 2, 3, 5 → Cold audiences: interest-based targeting on freelancing, self-employment, invoicing software, independent consulting; lookalike audiences from existing trial signups
 - Variant 4 (Urgency) → Retargeting: site visitors who viewed pricing page in the past 30 days, users who started signup flow but did not complete
 
 **Landing Page Consistency Check:**
+
 - Ad promise: "Free 14-day trial, no credit card required, $9/month"
 - Landing page must confirm within 3 seconds: Hero headline or subhead should state "Start free for 14 days -- no credit card required." Pricing section must show $9/month clearly.
 - Message match rating: **HIGH** -- provided the landing page states the free trial and no-card policy prominently. If the landing page currently leads with a feature benefit rather than the trial offer, recommend reordering the hero section to front-load the no-risk offer.
 
 **Audience Exclusions:**
+
 - Exclude current Timedly subscribers (upload customer list as Custom Audience and exclude)
 - Exclude users who completed the signup flow in the past 30 days (suppress post-conversion)
 - Exclude job titles with 10+ direct reports (these users are likely looking for team time tracking, not solo freelancer tools -- wrong fit, higher CPA)

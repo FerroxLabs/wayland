@@ -2,7 +2,7 @@
 name: legal
 description: AI legal-document orchestrator for SMB owners and operators. Routes requests to 12 legal sub-skills - NDA, Terms of Service, Privacy Policy, generic service contract, GDPR / data-processing, employment agreement, refund policy, independent contractor, EULA, DMCA, cease-and-desist, equity grant. Templates only - not legal advice; outputs must be reviewed by a qualified attorney.
 attribution:
-  lineage: "Wayland Business Suite (Original)"
+  lineage: 'Wayland Business Suite (Original)'
 metadata:
   wayland:
     tags: [orchestrator, legal, smb, business]
@@ -13,6 +13,7 @@ metadata:
 > Outputs from this skill pack are **template documents and analytical frameworks** designed to help you structure legal-adjacent work - they are **NOT legal advice**, are **NOT a substitute for an attorney**, and may not be appropriate for your jurisdiction, industry, or specific situation. Laws vary by country, state, and locality, and templates that work in one context may be unenforceable, illegal, or harmful in another.
 >
 > **Before using ANY output from this skill pack:**
+>
 > - Have a qualified attorney licensed in your jurisdiction review the document
 > - Verify that all clauses comply with applicable local, state, and federal law
 > - Confirm that the document fits your specific business context, parties, and intended use
@@ -25,21 +26,21 @@ Route any legal-template request to the right specialist skill. The orchestrator
 
 ## Verb → Sub-skill routing table
 
-| Verb / keyword | Sub-skill dispatched | Example |
-|---|---|---|
-| `nda`, `non-disclosure`, `confidentiality` | `legal-nda` | `/legal nda mutual` |
-| `tos`, `terms`, `terms-of-service`, `terms-of-use` | `legal-tos` | `/legal tos saas-product` |
-| `privacy`, `privacy-policy` | `legal-privacy` | `/legal privacy mobile-app` |
-| `contract`, `service-contract`, `sow`, `msa` | `legal-contract` | `/legal contract msa` |
-| `contractor`, `consulting`, `independent-contractor`, `consulting-agreement`, `1099` | `legal-contractor` | `/legal contractor freelance-designer` |
-| `gdpr`, `data-processing`, `dpa`, `ccpa` | `legal-gdpr` | `/legal gdpr eu-customers` |
-| `employment`, `employment-agreement`, `offer-letter`, `at-will` | `legal-employment` | `/legal employment software-engineer` |
-| `refund`, `refund-policy`, `return-policy` | `legal-refund-policy` | `/legal refund-policy ecommerce` |
-| `eula`, `end-user-license`, `app-store-eula` | `legal-eula` | `/legal eula mobile-app` |
-| `dmca`, `takedown`, `counter-notice`, `designated-agent`, `safe-harbor` | `legal-dmca` | `/legal dmca takedown youtube-video` |
-| `cease-and-desist`, `c&d`, `c-and-d`, `demand-letter` | `legal-cease-and-desist` | `/legal cease-and-desist trademark` |
-| `equity`, `equity-grant`, `stock-option`, `iso`, `nso`, `rsu`, `83b`, `83(b)` | `legal-equity-grant` | `/legal equity-grant senior-engineer-iso` |
-| `help` | (this skill) | `/legal help` |
+| Verb / keyword                                                                       | Sub-skill dispatched     | Example                                   |
+| ------------------------------------------------------------------------------------ | ------------------------ | ----------------------------------------- |
+| `nda`, `non-disclosure`, `confidentiality`                                           | `legal-nda`              | `/legal nda mutual`                       |
+| `tos`, `terms`, `terms-of-service`, `terms-of-use`                                   | `legal-tos`              | `/legal tos saas-product`                 |
+| `privacy`, `privacy-policy`                                                          | `legal-privacy`          | `/legal privacy mobile-app`               |
+| `contract`, `service-contract`, `sow`, `msa`                                         | `legal-contract`         | `/legal contract msa`                     |
+| `contractor`, `consulting`, `independent-contractor`, `consulting-agreement`, `1099` | `legal-contractor`       | `/legal contractor freelance-designer`    |
+| `gdpr`, `data-processing`, `dpa`, `ccpa`                                             | `legal-gdpr`             | `/legal gdpr eu-customers`                |
+| `employment`, `employment-agreement`, `offer-letter`, `at-will`                      | `legal-employment`       | `/legal employment software-engineer`     |
+| `refund`, `refund-policy`, `return-policy`                                           | `legal-refund-policy`    | `/legal refund-policy ecommerce`          |
+| `eula`, `end-user-license`, `app-store-eula`                                         | `legal-eula`             | `/legal eula mobile-app`                  |
+| `dmca`, `takedown`, `counter-notice`, `designated-agent`, `safe-harbor`              | `legal-dmca`             | `/legal dmca takedown youtube-video`      |
+| `cease-and-desist`, `c&d`, `c-and-d`, `demand-letter`                                | `legal-cease-and-desist` | `/legal cease-and-desist trademark`       |
+| `equity`, `equity-grant`, `stock-option`, `iso`, `nso`, `rsu`, `83b`, `83(b)`        | `legal-equity-grant`     | `/legal equity-grant senior-engineer-iso` |
+| `help`                                                                               | (this skill)             | `/legal help`                             |
 
 ## Composite flows
 

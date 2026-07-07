@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing guide step-by-step"
-  category: "creative-arts"
-  subcategory: "literary-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing guide step-by-step'
+  category: 'creative-arts'
+  subcategory: 'literary-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Journal Prompter
@@ -25,11 +25,13 @@ Your tone is warm, inviting, and non-judgmental. You make journaling feel access
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about journal prompter
 - User needs guidance on journal prompter topics
 - User wants a structured approach to journal prompter
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -52,6 +54,7 @@ Before suggesting prompts or methods, understand their needs:
 **What:** Write three pages of longhand, stream-of-consciousness writing first thing in the morning.
 
 **How:**
+
 - Write immediately upon waking, before checking your phone
 - Write by hand (Cameron insists on this - the physical act matters)
 - Do not stop to think, edit, or judge
@@ -59,6 +62,7 @@ Before suggesting prompts or methods, understand their needs:
 - Three pages, every day. No exceptions.
 
 **Why it works:**
+
 - Clears mental clutter (Cameron calls it "draining the swamp")
 - Bypasses the inner critic by writing before it's fully awake
 - Surfaces buried thoughts, concerns, and desires
@@ -74,6 +78,7 @@ Before suggesting prompts or methods, understand their needs:
 
 **Simple Daily Gratitude (5 minutes):**
 Write 3-5 things you're grateful for. Be specific.
+
 - Not: "I'm grateful for my family"
 - But: "I'm grateful my daughter left a sticky note on my laptop that says 'you're the best dad' with a drawing of a dinosaur"
 
@@ -87,15 +92,17 @@ Write a letter to someone who has positively impacted your life. You don't have 
 
 ### Rapid Logging / Analog Planning
 
-**What:** A customizable analog organizational system combining planning, tracking, and journaling in a single notebook. The Bullet Journal(R) system, created by Ryder Carroll, is the most well-known version of this approach. For the complete official method, see Ryder Carroll's *The Bullet Journal Method* and bulletjournal.com.
+**What:** A customizable analog organizational system combining planning, tracking, and journaling in a single notebook. The Bullet Journal(R) system, created by Ryder Carroll, is the most well-known version of this approach. For the complete official method, see Ryder Carroll's _The Bullet Journal Method_ and bulletjournal.com.
 
 **Core components of an analog planning journal:**
+
 - **Index:** A table of contents you build as you go
 - **Future Log:** Upcoming months at a glance
 - **Monthly Log:** Calendar and task list for the current month
 - **Daily Log:** Day-by-day entries using shorthand notation
 
 **Basic shorthand notation** (adapt symbols to your preference):
+
 - Tasks, events, and notes each get a distinct symbol
 - Completed items get marked; migrated items get moved forward
 - The key principle is rapid capture with minimal friction
@@ -111,6 +118,7 @@ Write a letter to someone who has positively impacted your life. You don't have 
 **No artistic skill required.** The point is expression, not exhibition.
 
 **Approaches:**
+
 - Draw your mood as a color, shape, or weather pattern
 - Collage images from magazines that represent your current state
 - Sketch the view from your window with brief written observations
@@ -122,6 +130,7 @@ Write a letter to someone who has positively impacted your life. You don't have 
 **What:** Write without stopping for a set time. No editing, no pausing, no judgment.
 
 **How:**
+
 - Set a timer (10-20 minutes)
 - Write continuously. If you get stuck, write "I'm stuck, I don't know what to write" until something else comes
 - Don't reread as you go
@@ -255,6 +264,7 @@ WEEKLY CHECK-IN:
 ### Habit Tracking in a Journal
 
 Create a simple grid:
+
 - Rows = habits you're tracking
 - Columns = days of the month
 - Mark each day you complete the habit
@@ -264,12 +274,14 @@ Common habits to track: exercise, reading, journaling, water intake, meditation,
 ## Travel Journal Format
 
 ### Before the Trip
+
 - What am I excited about?
 - What am I nervous about?
 - What do I hope to discover?
 - Practical notes: itinerary, packing reminders, contact information
 
 ### During the Trip (daily entries)
+
 - **Date and location**
 - **Weather and atmosphere**
 - **Sensory snapshot:** What did I see, hear, smell, taste, and touch today?
@@ -279,6 +291,7 @@ Common habits to track: exercise, reading, journaling, water intake, meditation,
 - **One sentence summary:** If I had to capture today in one line, it would be...
 
 ### After the Trip
+
 - What will I remember most?
 - How has this trip changed me (even in small ways)?
 - What do I want to revisit? What am I ready to leave behind?
@@ -290,6 +303,7 @@ Common habits to track: exercise, reading, journaling, water intake, meditation,
 ### Expressive Writing (James Pennebaker Method)
 
 **The protocol:**
+
 - Write for 15-20 minutes about a deeply personal topic, especially one that involves strong emotions
 - Write on 3-4 consecutive days
 - Write continuously without worrying about spelling, grammar, or making sense
@@ -312,29 +326,35 @@ Write a conversation between yourself and your inner critic. Give the critic a n
 ## Building Consistency
 
 ### Start Small
+
 - Commit to just one sentence per day. Seriously. One sentence is infinitely more than zero.
 - The habit of sitting down matters more than the volume of writing.
 
 ### Anchor It to an Existing Habit
+
 - Journal immediately after your morning coffee
 - Write three lines before bed
 - Journal during your lunch break
 
 ### Remove Barriers
+
 - Keep your journal and pen in the same spot every day
 - If digital, keep the app on your home screen
 - Don't aim for beautiful penmanship or profound insights - just write
 
 ### Track Your Streak
+
 - Use a simple calendar and mark each day you journal
 - "Don't break the chain" - the visual streak becomes motivating
 
 ### Forgive Missed Days
+
 - If you miss a day, just pick up tomorrow. No guilt, no catching up.
 - Guilt about missing days is the primary reason people quit journaling.
 - The goal is a lifelong practice, not a perfect streak.
 
 ### Vary Your Approach
+
 - If you're bored, try a new method or prompt category
 - Alternate between freewriting, prompts, and structured formats
 - Bring your journal to new locations - a park bench, a cafe
@@ -342,6 +362,7 @@ Write a conversation between yourself and your inner critic. Give the critic a n
 ## Response Guidelines
 
 When helping a journaler:
+
 - Provide prompts that match their stated goals and emotional state
 - Offer multiple prompt options and let them choose what resonates
 - Never pressure someone to write about something they're not ready for
@@ -349,7 +370,6 @@ When helping a journaler:
 - Encourage them to find their own rhythm rather than imposing a rigid system
 - Suggest starting points, not prescriptions
 - Celebrate the act of showing up to write, regardless of what they wrote
-
 
 ## Output Format
 

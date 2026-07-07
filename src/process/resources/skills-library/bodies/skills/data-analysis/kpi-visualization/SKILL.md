@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-visualization analysis template"
-  category: "data-analysis"
-  subcategory: "data-visualization"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'data-visualization analysis template'
+  category: 'data-analysis'
+  subcategory: 'data-visualization'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # KPI Visualization
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user has already defined KPIs (with names, current values, targets, and directionality) and needs a complete visual specification for displaying them in a dashboard, scorecard, or performance report
 - A user asks "how should I display this metric?", "what format works best for showing performance against target?", or "how do I color-code my KPIs?"
 - A user is building an executive dashboard, operations review, or C-suite scorecard and needs consistent visual standards across all KPI tiles
@@ -29,6 +31,7 @@ metadata:
 - A user is standardizing KPI display formats across multiple teams, departments, or dashboards and needs a design system specification
 
 **Do NOT use when:**
+
 - The user has not yet decided which KPIs to track or how to define them -- use `kpi-definition` first to establish metric ownership, formulas, data sources, and targets
 - The user needs to design the full layout of a multi-panel dashboard including navigation, filters, and panel arrangement -- use `dashboard-design` for the spatial and interaction layer
 - The user wants to explore data analytically using scatter plots, histograms, box plots, or correlation matrices -- use `chart-type-selector` for non-KPI analytical charts
@@ -79,15 +82,15 @@ Use **small multiples** -- a grid of identical Scorecard cards, one per segment 
 
 **Format Summary Table:**
 
-| KPI Characteristic | Recommended Format | Avoid |
-|---|---|---|
-| Single value vs. fixed target | Scorecard card | Gauge (unless bounded rate) |
-| Progress toward a discrete deliverable | Progress bar | Radial gauge |
-| Bounded rate/percentage (cannot exceed 100%) | Radial gauge or Scorecard | Progress bar |
-| Direction of change is primary question | Scorecard + sparkline | Standalone sparkline |
-| Full trajectory matters | Scorecard + trend line | Bullet chart |
-| Same KPI, multiple segments | Small multiples | Stacked cards |
-| KPI without a target | Scorecard with period-over-period delta | Status color (no target = no color) |
+| KPI Characteristic                           | Recommended Format                      | Avoid                               |
+| -------------------------------------------- | --------------------------------------- | ----------------------------------- |
+| Single value vs. fixed target                | Scorecard card                          | Gauge (unless bounded rate)         |
+| Progress toward a discrete deliverable       | Progress bar                            | Radial gauge                        |
+| Bounded rate/percentage (cannot exceed 100%) | Radial gauge or Scorecard               | Progress bar                        |
+| Direction of change is primary question      | Scorecard + sparkline                   | Standalone sparkline                |
+| Full trajectory matters                      | Scorecard + trend line                  | Bullet chart                        |
+| Same KPI, multiple segments                  | Small multiples                         | Stacked cards                       |
+| KPI without a target                         | Scorecard with period-over-period delta | Status color (no target = no color) |
 
 ---
 
@@ -100,12 +103,14 @@ The background color wash, colored left border (4px), or status badge. The viewe
 
 **Layer 2 -- Current Value (primary focal point):**
 The metric value, formatted and rounded, in the largest font on the card. Sizing guidelines:
+
 - Cards 280-360px wide: 32-36pt bold
 - Cards 200-280px wide: 24-28pt bold
 - Cards wider than 360px (feature KPIs): 48-56pt bold
 - TV dashboards at 10+ feet: minimum 72pt
 
 Format values to reduce cognitive load -- viewers should read values, not calculate them:
+
 - Currency: $2.4M (not $2,400,000 or $2.40M); use one decimal only when it changes the story ($2.4M vs. $2.5M -- the 0.1 matters; $24.1M vs. $24.2M -- round to $24M)
 - Percentages: 3.2% (not 3.17% or 3%); use one decimal for percentages below 10%, round to whole numbers for percentages above 10% unless precision matters operationally
 - Counts: 4.2K (not 4,187); use K/M/B suffixes consistently
@@ -114,6 +119,7 @@ Format values to reduce cognitive load -- viewers should read values, not calcul
 
 **Layer 3 -- Comparison and Delta (secondary, read in 1-3 seconds):**
 The delta value, arrow indicator, and comparison period label. This layer answers "how is performance changing?" Rules:
+
 - Always show the comparison period: "+8% vs. last quarter" not "+8%"
 - Show both absolute and relative change when both are meaningful: "-$100K (-4%) vs. target"
 - Use an up/down arrow for direction; use a flat dash (--) for changes less than 1% (or 0.5 standard deviations for volatile metrics)
@@ -123,6 +129,7 @@ The delta value, arrow indicator, and comparison period label. This layer answer
 Sparkline or mini trend line in the upper-right corner of the card, or as a bottom band. Size: 80-120px wide, 30-40px tall for sparklines. Include a faint dashed target reference line within the sparkline at the target value level. Do not label the sparkline axes -- the primary number provides the anchor.
 
 **Card anatomy (text layout, top to bottom):**
+
 ```
 [KPI Label -- 12pt, #666666]          [Sparkline -- 100x36px]
 [Primary Value -- 32pt Bold]
@@ -140,23 +147,27 @@ This is the most consequential design decision. Poorly set thresholds cause aler
 **Principle: Thresholds must be operationally meaningful, not mathematically symmetric.**
 
 **For "higher is better" KPIs with a fixed target:**
+
 - Derive thresholds from the operational response required: "What is the value at which a manager would escalate to leadership?" = Red threshold. "What value triggers a formal improvement plan?" = Yellow threshold.
 - Default starting point if no operational input: Green >= 95% of target; Yellow = 85-94% of target; Red < 85% of target
 - Adjust for the size of the gap that can be recovered in one period. A KPI at 89% of target in month 1 might be recoverable by month 3; same gap in month 11 of a fiscal year is not. Consider whether thresholds should tighten as the period progresses (maturity-adjusted thresholds).
 
 **For "lower is better" KPIs:**
+
 - Invert the logic entirely: Green = at or below target; Yellow = up to a defined overage band; Red = beyond the overage band
 - Example: Churn target = 2.5%. Green: <= 2.5%. Yellow: 2.5% to 3.0% (within 0.5 percentage points, which is 20% above target). Red: > 3.0%.
 - Do NOT set yellow as "90-94% of target" for a lower-is-better KPI -- this is wrong. Lower means better; the warning band is above the target, not below it.
 - Always state thresholds in the original unit, not as "% of target", for lower-is-better KPIs. "3.0%" is clearer than "120% of target."
 
 **For band KPIs (target is a range):**
+
 - Green: inside the band entirely
 - Yellow: outside the band by up to a specified tolerance
 - Red: outside the band beyond the tolerance
 - Example: Inventory days target = 45-60 days. Green: 45-60. Yellow: 35-44 or 61-70. Red: < 35 or > 70.
 
 **For KPIs without a target:**
+
 - Do NOT use green/yellow/red. Use directional colors only: Blue = improving vs. prior period; Gray = flat; Orange = declining. State explicitly in the spec that status colors are not applicable until a target is set.
 
 **Document every threshold in a threshold table per KPI** -- do not leave thresholds implicit or describe them only in prose.
@@ -285,15 +296,17 @@ Assemble the per-KPI card specs and the cross-KPI visual standards into the stru
 
 **Card Layout Diagram:**
 ```
+
 +---[4px status color border]-----------------------------------+
-| [KPI Label]           [Period]         [Sparkline 100x36px]  |
-|                                                               |
-| [Primary Value -- 32pt Bold]                                  |
-| [↑/↓/--] [Delta value]  vs. [comparison period]              |
-|                                                               |
-| Target: [value]                            [Status badge]    |
+| [KPI Label] [Period] [Sparkline 100x36px] |
+| |
+| [Primary Value -- 32pt Bold] |
+| [↑/↓/--] [Delta value] vs. [comparison period] |
+| |
+| Target: [value] [Status badge] |
 +---------------------------------------------------------------+
 Card size: [width]px x [height]px
+
 ```
 
 ---
@@ -365,6 +378,7 @@ Card size: [width]px x [height]px
 ### No Target Has Been Defined for the KPI
 
 Do not apply green/amber/red status colors when there is no target -- these colors imply a judgment that has no basis without a defined goal. Instead:
+
 - Use a neutral blue (#2980B9) directional color scheme: blue for improving, gray for flat, orange for declining
 - Show period-over-period delta as the primary comparison
 - Replace the "Target: [value]" field with "Target: Not set -- contact [metric owner]"
@@ -374,6 +388,7 @@ Do not apply green/amber/red status colors when there is no target -- these colo
 ### KPI Has No Historical Data (Brand New Metric)
 
 When fewer than 3 prior periods exist:
+
 - Display the current value with a "Baseline" subtext below the primary number
 - Replace the sparkline with a text indicator: "Trend available after [N] periods (currently [M] of [N])"
 - Replace the delta indicator with a flat dash "--" and label it "First period -- no prior comparison"
@@ -383,6 +398,7 @@ When fewer than 3 prior periods exist:
 ### KPI Exhibits High Volatility (High Coefficient of Variation)
 
 When a KPI's coefficient of variation (standard deviation / mean) exceeds 25%, single-point comparisons produce false alarms and false confidence:
+
 - Replace the raw current-period value with the 3-period simple moving average as the primary displayed value, labeled explicitly: "3-Month Avg: $2.4M"
 - Show the raw current period value as a secondary element: "Latest: $2.7M"
 - Apply status thresholds against the moving average, not the raw value -- this prevents a single anomalous period from triggering red-alert responses
@@ -392,6 +408,7 @@ When a KPI's coefficient of variation (standard deviation / mean) exceeds 25%, s
 ### KPI Near the 0% or 100% Boundary
 
 Standard percentage-of-target thresholds break down at the extremes:
+
 - **High-end KPIs (e.g., uptime SLA at 99.9% target):** A threshold of "Green >= 95% of target" would set green at 94.9% uptime, which is catastrophically bad. Instead, define thresholds in absolute terms: Green >= 99.9%; Yellow: 99.5-99.89%; Red: < 99.5%. Document that thresholds were set in absolute percentage points, not relative to target.
 - **Low-end KPIs (e.g., defect rate target of 0.1%):** A 10% tolerance band above target is 0.01 percentage points -- indistinguishable in practice. Set the yellow band to 2x the target (0.1% to 0.2%) and red as > 0.2% (or whatever the operational escalation threshold is). Use basis points (bps) for very small percentages: "10 bps above target."
 - **Binary or near-binary KPIs:** For metrics that are either achieved or not (e.g., "All regulatory filings submitted on time: Yes/No"), do not use a gauge or scorecard with a numeric primary value. Use a binary status badge instead: a large colored icon (✓ green or ✗ red) with a text label.
@@ -399,6 +416,7 @@ Standard percentage-of-target thresholds break down at the extremes:
 ### Multiple Audiences Seeing the Same KPI
 
 When a dashboard serves multiple audience types (e.g., C-suite and operations team), the same KPI needs different levels of detail:
+
 - **Executive view:** Show only the primary value, status color, and one delta (target comparison). Suppress sparkline or show a compact version. Card size: 280px x 140px.
 - **Operational view:** Show all elements including sparkline, secondary period-over-period delta, threshold details, and moving average. Card size: 320px x 200px.
 - Specify both layouts in the spec with an explicit "View variant" field. Do not create two completely different card designs -- use a single expandable template with a detail-disclosure mechanism, or clearly document that two separate card sizes serve the two audiences.
@@ -407,6 +425,7 @@ When a dashboard serves multiple audience types (e.g., C-suite and operations te
 ### KPI Value Has Changed Methodology Mid-Period
 
 When the calculation method, data source, or definition of a KPI changes partway through the history displayed in a sparkline:
+
 - Insert a visible discontinuity marker on the sparkline at the period of the methodology change: a vertical dashed line or a labeled dot ("Methodology change")
 - Add a footnote or tooltip: "Data before [date] calculated using [old method]; data from [date] onward uses [new method]"
 - Do not connect pre-change and post-change data points with a continuous line if the values are not comparable -- use a gap in the sparkline to signal the break
@@ -415,6 +434,7 @@ When the calculation method, data source, or definition of a KPI changes partway
 ### KPI Is a Composite Score or Index
 
 Composite KPIs (e.g., a Customer Health Score derived from 5 sub-metrics, or an overall Risk Index):
+
 - Always show the composite score as the primary value, but add a composition indicator beneath the card: "Based on: NPS (40%), CSAT (30%), Churn (30%)"
 - Add a drill-down specification: clicking the card should reveal the component breakdown. Document this interaction requirement explicitly in the spec even if the drill-down design is handled by `dashboard-design`.
 - Set thresholds based on the composite score scale, and clearly label the scale: "Score: 0-100" or "Index: 0-10." Never show a composite score without labeling the scale -- a score of 67 is meaningless without knowing the range.
@@ -438,11 +458,11 @@ Composite KPIs (e.g., a Customer Health Score derived from 5 sub-metrics, or an 
 
 ### KPI Summary Table
 
-| # | KPI Name | Unit | Current Value | Target | Status | Display Format | Direction |
-|---|---------|------|--------------|--------|--------|---------------|-----------|
-| 1 | Monthly Recurring Revenue | USD | $2.4M | $2.5M | At-risk | Scorecard + 12-month sparkline | Higher is better |
-| 2 | Customer Churn Rate | % | 3.2% | ≤ 2.5% | Off-track | Scorecard + 12-month sparkline | Lower is better |
-| 3 | Net Promoter Score | Index (−100 to +100) | 42 | ≥ 50 | At-risk | Scorecard + 12-month trend line | Higher is better |
+| #   | KPI Name                  | Unit                 | Current Value | Target | Status    | Display Format                  | Direction        |
+| --- | ------------------------- | -------------------- | ------------- | ------ | --------- | ------------------------------- | ---------------- |
+| 1   | Monthly Recurring Revenue | USD                  | $2.4M         | $2.5M  | At-risk   | Scorecard + 12-month sparkline  | Higher is better |
+| 2   | Customer Churn Rate       | %                    | 3.2%          | ≤ 2.5% | Off-track | Scorecard + 12-month sparkline  | Lower is better  |
+| 3   | Net Promoter Score        | Index (−100 to +100) | 42            | ≥ 50   | At-risk   | Scorecard + 12-month trend line | Higher is better |
 
 ---
 
@@ -456,34 +476,35 @@ Composite KPIs (e.g., a Customer Health Score derived from 5 sub-metrics, or an 
 
 **Card Elements:**
 
-| Element | Specification |
-|---------|--------------|
-| Primary value | $2.4M |
-| Primary value font | 32pt, Bold, #1A1A1A |
-| KPI label | "Monthly Recurring Revenue", 12pt, Regular, #666666 |
-| Time period label | "October 2024", 11pt, #888888 |
-| Delta indicator | ↓ −$100K (−4%) |
-| Delta label | "vs. target ($2.5M)" |
-| Delta color | #E67E22 (amber -- at-risk) |
-| Secondary delta | Show beneath in 11pt gray: "e.g., +$47K (+2%) vs. September 2024" (populate with actual prior-month data) |
-| Trend element | Sparkline: trailing 12 months of MRR, monthly granularity |
-| Target reference | "Target: $2.5M", 11pt, #999999; dashed horizontal line at $2.5M within sparkline |
-| Status indicator | Left border, 4px, #E67E22 (amber) |
-| Status badge | "⚠ At-risk", 11pt, #E67E22 |
+| Element            | Specification                                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------- |
+| Primary value      | $2.4M                                                                                                     |
+| Primary value font | 32pt, Bold, #1A1A1A                                                                                       |
+| KPI label          | "Monthly Recurring Revenue", 12pt, Regular, #666666                                                       |
+| Time period label  | "October 2024", 11pt, #888888                                                                             |
+| Delta indicator    | ↓ −$100K (−4%)                                                                                            |
+| Delta label        | "vs. target ($2.5M)"                                                                                      |
+| Delta color        | #E67E22 (amber -- at-risk)                                                                                |
+| Secondary delta    | Show beneath in 11pt gray: "e.g., +$47K (+2%) vs. September 2024" (populate with actual prior-month data) |
+| Trend element      | Sparkline: trailing 12 months of MRR, monthly granularity                                                 |
+| Target reference   | "Target: $2.5M", 11pt, #999999; dashed horizontal line at $2.5M within sparkline                          |
+| Status indicator   | Left border, 4px, #E67E22 (amber)                                                                         |
+| Status badge       | "⚠ At-risk", 11pt, #E67E22                                                                                |
 
 **Status Thresholds:**
 
-| Status | Label | Color | Hex | Condition (in original units) |
-|--------|-------|-------|-----|-------------------------------|
-| On-track | ✓ On-track | Green | #27AE60 | MRR ≥ $2.5M (100% of target) |
-| At-risk | ⚠ At-risk | Amber | #E67E22 | MRR $2.25M to $2.499M (90-99.9% of target) |
-| Off-track | ✗ Off-track | Red | #C0392B | MRR < $2.25M (below 90% of target) |
+| Status    | Label       | Color | Hex     | Condition (in original units)              |
+| --------- | ----------- | ----- | ------- | ------------------------------------------ |
+| On-track  | ✓ On-track  | Green | #27AE60 | MRR ≥ $2.5M (100% of target)               |
+| At-risk   | ⚠ At-risk   | Amber | #E67E22 | MRR $2.25M to $2.499M (90-99.9% of target) |
+| Off-track | ✗ Off-track | Red   | #C0392B | MRR < $2.25M (below 90% of target)         |
 
 **Threshold Rationale:** A gap of less than $250K ($2.25M floor) is recoverable within 2-3 months at historical growth rates; beyond $250K requires a formal corrective action review.
 
 **Directionality note:** ↑ arrow = green (revenue growing); ↓ arrow = red (revenue declining). This is a standard higher-is-better KPI.
 
 **Card Layout Diagram:**
+
 ```
 +--[4px #E67E22 amber border]------------------------------+
 | Monthly Recurring Revenue  Oct 2024    [Sparkline~~~~]   |
@@ -506,42 +527,43 @@ Card size: 320px wide x 180px tall
 
 **Card Elements:**
 
-| Element | Specification |
-|---------|--------------|
-| Primary value | 3.2% |
-| Primary value font | 32pt, Bold, #1A1A1A |
-| KPI label | "Customer Churn Rate", 12pt, Regular, #666666 |
-| Time period label | "October 2024", 11pt, #888888 |
-| Delta indicator | ↑ +0.7pp above target |
-| Delta label | "vs. target (≤ 2.5%)" |
-| Delta color | #C0392B (red -- off-track) |
-| Secondary delta | "vs. September 2024: [+/− Xpp vs. prior month]" (populate with actual prior-month value) |
-| Trend element | Sparkline: trailing 12 months of monthly churn rate |
-| Target reference | "Target: ≤ 2.5%", 11pt, #999999; dashed horizontal line at 2.5% in sparkline |
-| Status indicator | Left border, 4px, #C0392B (red) |
-| Status badge | "✗ Off-track", 11pt, #C0392B |
+| Element            | Specification                                                                            |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| Primary value      | 3.2%                                                                                     |
+| Primary value font | 32pt, Bold, #1A1A1A                                                                      |
+| KPI label          | "Customer Churn Rate", 12pt, Regular, #666666                                            |
+| Time period label  | "October 2024", 11pt, #888888                                                            |
+| Delta indicator    | ↑ +0.7pp above target                                                                    |
+| Delta label        | "vs. target (≤ 2.5%)"                                                                    |
+| Delta color        | #C0392B (red -- off-track)                                                               |
+| Secondary delta    | "vs. September 2024: [+/− Xpp vs. prior month]" (populate with actual prior-month value) |
+| Trend element      | Sparkline: trailing 12 months of monthly churn rate                                      |
+| Target reference   | "Target: ≤ 2.5%", 11pt, #999999; dashed horizontal line at 2.5% in sparkline             |
+| Status indicator   | Left border, 4px, #C0392B (red)                                                          |
+| Status badge       | "✗ Off-track", 11pt, #C0392B                                                             |
 
 **Critical directionality reversal -- lower is better:**
 
-| Arrow direction | Color | Meaning |
-|----------------|-------|---------|
-| ↓ Down | #27AE60 Green | Churn decreased -- GOOD |
-| ↑ Up | #C0392B Red | Churn increased -- BAD |
-| -- Flat | #888888 Gray | No meaningful change |
+| Arrow direction | Color         | Meaning                 |
+| --------------- | ------------- | ----------------------- |
+| ↓ Down          | #27AE60 Green | Churn decreased -- GOOD |
+| ↑ Up            | #C0392B Red   | Churn increased -- BAD  |
+| -- Flat         | #888888 Gray  | No meaningful change    |
 
 **Status Thresholds (inverted -- higher value = worse performance):**
 
-| Status | Label | Color | Hex | Condition (stated in absolute units, not % of target) |
-|--------|-------|-------|-----|-------------------------------|
-| On-track | ✓ On-track | Green | #27AE60 | Churn Rate ≤ 2.5% (at or below target) |
-| At-risk | ⚠ At-risk | Amber | #E67E22 | Churn Rate 2.5% to 3.0% (up to 0.5pp above target) |
-| Off-track | ✗ Off-track | Red | #C0392B | Churn Rate > 3.0% (more than 0.5pp above target) |
+| Status    | Label       | Color | Hex     | Condition (stated in absolute units, not % of target) |
+| --------- | ----------- | ----- | ------- | ----------------------------------------------------- |
+| On-track  | ✓ On-track  | Green | #27AE60 | Churn Rate ≤ 2.5% (at or below target)                |
+| At-risk   | ⚠ At-risk   | Amber | #E67E22 | Churn Rate 2.5% to 3.0% (up to 0.5pp above target)    |
+| Off-track | ✗ Off-track | Red   | #C0392B | Churn Rate > 3.0% (more than 0.5pp above target)      |
 
 **Threshold Rationale:** A 0.5pp overage (2.5% to 3.0%) represents roughly $50K additional MRR loss per month at this company's ARR -- manageable with targeted retention campaigns. Above 3.0% triggers a formal retention program escalation.
 
 **Delta labeling note:** Display delta as "+0.7pp vs. target" not "+28% vs. target." The metric is already a percentage; reporting a percentage-of-a-percentage confuses stakeholders. Always use "pp" (percentage points) for churn rate deltas.
 
 **Card Layout Diagram:**
+
 ```
 +--[4px #C0392B red border]--------------------------------+
 | Customer Churn Rate        Oct 2024   [Sparkline~~~~]    |
@@ -564,34 +586,35 @@ Card size: 320px wide x 180px tall
 
 **Card Elements:**
 
-| Element | Specification |
-|---------|--------------|
-| Primary value | 42 |
-| Primary value font | 32pt, Bold, #1A1A1A |
-| KPI label | "Net Promoter Score", 12pt, Regular, #666666 |
-| Time period label | "October 2024", 11pt, #888888 |
-| Delta indicator | ↓ −8 points vs. target |
-| Delta label | "vs. target (50)" |
-| Delta color | #E67E22 (amber -- at-risk) |
-| Secondary delta | "vs. October 2023: [+/− X points YoY]" (populate with actual prior-year value) |
-| Trend element | 12-month trend line with labeled Y-axis (range: 0 to 70 to show target meaningfully); mark target at 50 with dashed line |
-| Scale label | "Scale: −100 to +100", 10pt, #AAAAAA, below the trend line |
-| Status indicator | Left border, 4px, #E67E22 (amber) |
-| Status badge | "⚠ At-risk", 11pt, #E67E22 |
+| Element            | Specification                                                                                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| Primary value      | 42                                                                                                                       |
+| Primary value font | 32pt, Bold, #1A1A1A                                                                                                      |
+| KPI label          | "Net Promoter Score", 12pt, Regular, #666666                                                                             |
+| Time period label  | "October 2024", 11pt, #888888                                                                                            |
+| Delta indicator    | ↓ −8 points vs. target                                                                                                   |
+| Delta label        | "vs. target (50)"                                                                                                        |
+| Delta color        | #E67E22 (amber -- at-risk)                                                                                               |
+| Secondary delta    | "vs. October 2023: [+/− X points YoY]" (populate with actual prior-year value)                                           |
+| Trend element      | 12-month trend line with labeled Y-axis (range: 0 to 70 to show target meaningfully); mark target at 50 with dashed line |
+| Scale label        | "Scale: −100 to +100", 10pt, #AAAAAA, below the trend line                                                               |
+| Status indicator   | Left border, 4px, #E67E22 (amber)                                                                                        |
+| Status badge       | "⚠ At-risk", 11pt, #E67E22                                                                                               |
 
 **Status Thresholds:**
 
-| Status | Label | Color | Hex | Condition (NPS points, whole numbers) |
-|--------|-------|-------|-----|-------------------------------|
-| On-track | ✓ On-track | Green | #27AE60 | NPS ≥ 50 (at or above target) |
-| At-risk | ⚠ At-risk | Amber | #E67E22 | NPS 35 to 49 (within 15 points of target) |
-| Off-track | ✗ Off-track | Red | #C0392B | NPS < 35 (more than 15 points below target) |
+| Status    | Label       | Color | Hex     | Condition (NPS points, whole numbers)       |
+| --------- | ----------- | ----- | ------- | ------------------------------------------- |
+| On-track  | ✓ On-track  | Green | #27AE60 | NPS ≥ 50 (at or above target)               |
+| At-risk   | ⚠ At-risk   | Amber | #E67E22 | NPS 35 to 49 (within 15 points of target)   |
+| Off-track | ✗ Off-track | Red   | #C0392B | NPS < 35 (more than 15 points below target) |
 
 **Threshold Rationale:** An NPS gap of 15 points (35-49 range) is recoverable within 2-3 quarters through product and support improvements. Below 35 signals systemic customer experience failure requiring executive intervention.
 
 **Comparison type note:** Do not use MoM comparison as primary for NPS -- a 2-point MoM swing is within survey sampling noise (NPS sample sizes of 200-500 produce ±5 to ±8 point confidence intervals). Use YoY comparison or a 3-month rolling average as the primary trend indicator.
 
 **Card Layout Diagram:**
+
 ```
 +--[4px #E67E22 amber border]-------------------------------------------+
 | Net Promoter Score              Oct 2024   [Trend line chart 160x50px]|
@@ -608,14 +631,15 @@ Card size: 360px wide x 180px tall (wider to accommodate trend line)
 
 ### Visual Standards (Applied Across All Three KPI Cards)
 
-| Element | Standard |
-|---------|----------|
-| Card background | White #FFFFFF |
-| Card border | #E8E8E8, 1px, 8px corner radius |
-| Card padding | 16px all sides |
-| Card minimum width | 280px (standard) / 360px (NPS feature card) |
-| Card height | 180px (uniform across all three cards) |
-| Status border (left edge) | 4px solid, status color |
-| Card shadow | 0px 2px 8px rgba(0,0,0,0.08) |
-| Primary number font | Inter (fallback: Roboto, system-ui), Bold |
+| Element                   | Standard                                    |
+| ------------------------- | ------------------------------------------- |
+| Card background           | White #FFFFFF                               |
+| Card border               | #E8E8E8, 1px, 8px corner radius             |
+| Card padding              | 16px all sides                              |
+| Card minimum width        | 280px (standard) / 360px (NPS feature card) |
+| Card height               | 180px (uniform across all three cards)      |
+| Status border (left edge) | 4px solid, status color                     |
+| Card shadow               | 0px 2px 8px rgba(0,0,0,0.08)                |
+| Primary number font       | Inter (fallback: Roboto, system-ui), Bold   |
+
 | Primary number

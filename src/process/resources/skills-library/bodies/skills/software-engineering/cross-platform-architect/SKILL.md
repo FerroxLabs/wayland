@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "mobile best-practices architecture"
-  category: "software-engineering"
-  subcategory: "mobile-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'mobile best-practices architecture'
+  category: 'software-engineering'
+  subcategory: 'mobile-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cross-Platform Architect
@@ -26,18 +26,18 @@ Cross-platform architecture enables building mobile applications for iOS and And
 
 ### Decision Matrix
 
-| Factor | React Native | Flutter | Kotlin Multiplatform |
-|--------|-------------|---------|---------------------|
-| Language | TypeScript/JavaScript | Dart | Kotlin |
-| UI Approach | Native components | Custom rendering (Skia) | Native UI per platform |
-| Code Sharing | UI + logic | UI + logic | Logic only (UI is native) |
-| Typical Sharing % | 80-95% | 90-98% | 50-70% (logic layer) |
-| Performance | Good (JSI bridge) | Excellent (compiled) | Excellent (native) |
-| Hot Reload | Yes (Fast Refresh) | Yes (sub-second) | Partial (logic only) |
-| Bundle Size | ~15-25MB | ~10-20MB | Native baseline |
-| Native Integration | Bridge/TurboModules | Platform channels | Direct interop |
-| Learning Curve | Low (web devs) | Medium (new lang) | Medium (Kotlin devs) |
-| Maturity | 2015, Meta | 2018, Google | 2020, JetBrains |
+| Factor             | React Native          | Flutter                 | Kotlin Multiplatform      |
+| ------------------ | --------------------- | ----------------------- | ------------------------- |
+| Language           | TypeScript/JavaScript | Dart                    | Kotlin                    |
+| UI Approach        | Native components     | Custom rendering (Skia) | Native UI per platform    |
+| Code Sharing       | UI + logic            | UI + logic              | Logic only (UI is native) |
+| Typical Sharing %  | 80-95%                | 90-98%                  | 50-70% (logic layer)      |
+| Performance        | Good (JSI bridge)     | Excellent (compiled)    | Excellent (native)        |
+| Hot Reload         | Yes (Fast Refresh)    | Yes (sub-second)        | Partial (logic only)      |
+| Bundle Size        | ~15-25MB              | ~10-20MB                | Native baseline           |
+| Native Integration | Bridge/TurboModules   | Platform channels       | Direct interop            |
+| Learning Curve     | Low (web devs)        | Medium (new lang)       | Medium (Kotlin devs)      |
+| Maturity           | 2015, Meta            | 2018, Google            | 2020, JetBrains           |
 
 ### When to Choose What
 
@@ -117,7 +117,7 @@ export class UserRepositoryImpl implements UserRepository {
   constructor(
     private apiClient: ApiClient,
     private localDb: LocalDatabase,
-    private cache: CacheManager,
+    private cache: CacheManager
   ) {}
 
   async getUser(userId: string): Promise<User> {
@@ -258,10 +258,7 @@ import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
-  takePhoto(options: {
-    quality: number;
-    facing: string;
-  }): Promise<{
+  takePhoto(options: { quality: number; facing: string }): Promise<{
     uri: string;
     width: number;
     height: number;
@@ -397,12 +394,12 @@ Modal presentation   Modal stack           showModalBottomSheet Native modal
 
 ### State Management Comparison
 
-| Approach | React Native | Flutter | When to Use |
-|----------|-------------|---------|-------------|
-| Local state | useState/useReducer | setState/ValueNotifier | Component-level UI state |
-| App state | Redux/Zustand | Riverpod/Provider/BLoC | App-wide shared state |
-| Server state | TanStack Query | flutter_query/dio_cache | API data with caching |
-| Navigation state | React Navigation state | GoRouter state | URL/screen state |
+| Approach         | React Native           | Flutter                 | When to Use              |
+| ---------------- | ---------------------- | ----------------------- | ------------------------ |
+| Local state      | useState/useReducer    | setState/ValueNotifier  | Component-level UI state |
+| App state        | Redux/Zustand          | Riverpod/Provider/BLoC  | App-wide shared state    |
+| Server state     | TanStack Query         | flutter_query/dio_cache | API data with caching    |
+| Navigation state | React Navigation state | GoRouter state          | URL/screen state         |
 
 ## Testing Strategy
 
@@ -498,6 +495,7 @@ Quality:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing cross platform architect solutions
 - Reviewing or improving existing cross platform architect approaches
 - Making architectural or implementation decisions about cross platform architect
@@ -505,6 +503,7 @@ Quality:
 - Troubleshooting cross platform architect-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -515,21 +514,26 @@ Quality:
 # Cross Platform Architect Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing design guide"
-  category: "creative-arts"
-  subcategory: "visual-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing design guide'
+  category: 'creative-arts'
+  subcategory: 'visual-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Comic Creator
@@ -25,11 +25,13 @@ You help creators at every level, from first-timers sketching in notebooks to pr
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about comic creator
 - User needs guidance on comic creator topics
 - User wants a structured approach to comic creator
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -51,6 +53,7 @@ Before guiding a comic project, understand the context:
 ### How Comics Work
 
 Comics communicate through the interplay of three elements:
+
 - **Images** - what is shown in each panel
 - **Text** - dialogue, narration, sound effects
 - **Sequence** - the order and relationship between panels
@@ -61,14 +64,14 @@ The magic happens in the **gutters** - the space between panels. The reader's br
 
 Understanding transition types helps you control pacing and storytelling:
 
-| Transition | Description | Effect |
-|------------|-------------|--------|
-| Moment-to-moment | Very small time change | Slow, cinematic, builds tension |
-| Action-to-action | One subject, clear progression | Standard storytelling, clear action |
-| Subject-to-subject | Different subjects, same scene | Shows relationships, environment |
-| Scene-to-scene | Different time/place | Time jumps, parallel storylines |
-| Aspect-to-aspect | Different views of same moment | Mood, atmosphere, contemplation |
-| Non-sequitur | No logical relationship | Experimental, surreal, comedic |
+| Transition         | Description                    | Effect                              |
+| ------------------ | ------------------------------ | ----------------------------------- |
+| Moment-to-moment   | Very small time change         | Slow, cinematic, builds tension     |
+| Action-to-action   | One subject, clear progression | Standard storytelling, clear action |
+| Subject-to-subject | Different subjects, same scene | Shows relationships, environment    |
+| Scene-to-scene     | Different time/place           | Time jumps, parallel storylines     |
+| Aspect-to-aspect   | Different views of same moment | Mood, atmosphere, contemplation     |
+| Non-sequitur       | No logical relationship        | Experimental, surreal, comedic      |
 
 Most Western comics lean heavily on action-to-action transitions. Manga uses more aspect-to-aspect transitions, which is partly why manga often feels more atmospheric and contemplative.
 
@@ -79,6 +82,7 @@ Most Western comics lean heavily on action-to-action transitions. Manga uses mor
 Start with a grid and deviate with purpose:
 
 **Standard grids:**
+
 - **6-panel grid** (2 columns x 3 rows) - the workhorse of comics
 - **9-panel grid** (3x3) - dense, controlled, great for dialogue and timing
 - **4-panel grid** (2x2) - open, cinematic, room to breathe
@@ -87,11 +91,13 @@ Start with a grid and deviate with purpose:
 ### Layout Principles
 
 **Panel size communicates importance:**
+
 - Large panels = important moments, establishing shots, emotional beats
 - Small panels = quick actions, rapid dialogue, passing time
 - Full-page splash = maximum impact, use sparingly
 
 **Panel shape communicates feeling:**
+
 - Tall, narrow panels = height, falling, claustrophobia
 - Wide panels = landscape, calm, scope
 - Tilted panels = disorientation, action, chaos
@@ -99,6 +105,7 @@ Start with a grid and deviate with purpose:
 - Overlapping panels = simultaneous action, urgency
 
 **Reading flow:**
+
 - Western comics: left to right, top to bottom (Z-pattern)
 - Manga: right to left, top to bottom
 - Never create a layout where the reading order is ambiguous
@@ -129,6 +136,7 @@ In print comics, the page turn is one of your most powerful tools:
 Comics are the only medium where the reader controls the speed of consumption, but you can influence their pace:
 
 **To slow down:**
+
 - More panels per action sequence
 - Moment-to-moment transitions
 - Silent panels (no text)
@@ -136,6 +144,7 @@ Comics are the only medium where the reader controls the speed of consumption, b
 - Aspect-to-aspect transitions showing environment
 
 **To speed up:**
+
 - Fewer panels, more action per panel
 - Action-to-action transitions
 - Shorter dialogue
@@ -184,6 +193,7 @@ SCENE EXIT (0.5-1 page):
 ### Script Formats
 
 **Full script (DC/Marvel style):**
+
 ```
 PAGE 1
 
@@ -233,34 +243,37 @@ Rough layout sketches with notes. Common for solo creators who write and draw.
 Lettering is the bridge between art and writing. Bad lettering can ruin great art and writing.
 
 **Balloon placement rules:**
+
 - Read left to right, top to bottom - the first speaker's balloon must be higher and/or to the left
 - Balloons should not cover important art
 - Balloon tails should point toward the speaker's mouth, not their body center
 - Leave breathing room between balloons and panel borders
 
 **Font selection:**
+
 - Standard comic fonts: use a dedicated comic font (not Comic Sans)
 - All-caps is traditional in Western comics; mixed case is increasingly common
 - Bold for emphasis, italic for whispers or internal thought
 - Sound effects often use custom or display fonts
 
 **Sound effects (SFX):**
+
 - Integrated into the art, not floating separately
 - Size and style should match the sound - a small "click" vs. a massive "KRAAKOOOM"
 - SFX can be part of the composition - they're visual elements as much as text
 
 ### Balloon Types
 
-| Balloon Style | Usage |
-|---------------|-------|
-| Round/oval | Normal speech |
-| Cloud/bumpy | Thought |
-| Jagged/burst | Shouting, loud noise |
-| Wavy edges | Weak, sick, scared, ghostly |
-| Rectangle (caption) | Narration, time/place |
-| Dashed outline | Whispering |
+| Balloon Style           | Usage                               |
+| ----------------------- | ----------------------------------- |
+| Round/oval              | Normal speech                       |
+| Cloud/bumpy             | Thought                             |
+| Jagged/burst            | Shouting, loud noise                |
+| Wavy edges              | Weak, sick, scared, ghostly         |
+| Rectangle (caption)     | Narration, time/place               |
+| Dashed outline          | Whispering                          |
 | No outline (naked text) | Background dialogue, distant speech |
-| Connected balloons | Same speaker, continuous speech |
+| Connected balloons      | Same speaker, continuous speech     |
 
 ## Character Design for Comics
 
@@ -276,6 +289,7 @@ Every character must be instantly recognizable, even in silhouette:
 ### Expression Sheets
 
 Create an expression sheet for each major character showing:
+
 - Neutral, happy, sad, angry, surprised, scared, disgusted, thoughtful
 - Three-quarter view, profile, and front-facing
 - Their signature gesture or pose
@@ -291,14 +305,14 @@ Create an expression sheet for each major character showing:
 
 ### Software Comparison
 
-| Tool | Strengths | Best For |
-|------|-----------|----------|
-| Clip Studio Paint | Purpose-built for comics, panel tools, perspective rulers, tone library | Most comic creators |
-| Procreate | Intuitive, portable (iPad), great brushes | Sketching, illustration-style comics |
-| Photoshop | Industry standard, powerful | Coloring, production, photobash styles |
-| Krita | Free, open source, solid brush engine | Budget-conscious creators |
-| Medibang Paint | Free, cloud-based, comic tools | Beginners, manga creators |
-| Affinity Designer | Vector-based, one-time purchase | Clean line art, graphic styles |
+| Tool              | Strengths                                                               | Best For                               |
+| ----------------- | ----------------------------------------------------------------------- | -------------------------------------- |
+| Clip Studio Paint | Purpose-built for comics, panel tools, perspective rulers, tone library | Most comic creators                    |
+| Procreate         | Intuitive, portable (iPad), great brushes                               | Sketching, illustration-style comics   |
+| Photoshop         | Industry standard, powerful                                             | Coloring, production, photobash styles |
+| Krita             | Free, open source, solid brush engine                                   | Budget-conscious creators              |
+| Medibang Paint    | Free, cloud-based, comic tools                                          | Beginners, manga creators              |
+| Affinity Designer | Vector-based, one-time purchase                                         | Clean line art, graphic styles         |
 
 ### Digital Comic Workflow
 
@@ -321,12 +335,14 @@ Create an expression sheet for each major character showing:
 ### Webcomics
 
 **Platforms:**
+
 - **Webtoon/Canvas** - largest audience, vertical scroll format, discovery algorithm
 - **Tapas** - similar to Webtoon, strong community
 - **Your own website** - full control, harder to build audience, own your platform
 - **Social media** (Instagram, Twitter/X, Tumblr) - great for visibility, not for reading experience
 
 **Webcomic Success Factors:**
+
 - Consistent upload schedule (weekly minimum for audience building)
 - Strong first 3-5 episodes (readers decide quickly)
 - Vertical scroll format for mobile readers
@@ -334,6 +350,7 @@ Create an expression sheet for each major character showing:
 - Engage with your audience in comments
 
 **Monetization:**
+
 - Patreon/Ko-fi (early access, bonus content, behind-the-scenes)
 - Webtoon/Tapas revenue share (requires significant readership)
 - Print collections (once you have enough material)
@@ -343,16 +360,19 @@ Create an expression sheet for each major character showing:
 ### Print Comics
 
 **Self-publishing:**
+
 - Print-on-demand (Ka-Blam, Mixam, PrintNinja for bulk)
 - Sell at conventions, through your website, or via indie comic shops
 - Crowdfunding campaigns for print runs
 
 **Independent publishers:**
+
 - Submit pitches (usually 5-page story summary + 5-10 finished pages)
 - Image, Dark Horse, BOOM!, IDW, Oni Press, Vault, Aftershock
 - Creator-owned deals: you keep the IP, publisher handles production and distribution
 
 **Traditional publishers:**
+
 - DC, Marvel - work-for-hire on existing properties, or pitch creator-owned imprints
 - Graphic novel publishers (First Second, Drawn & Quarterly, Fantagraphics)
 - Typically requires an agent for book publishers
@@ -360,6 +380,7 @@ Create an expression sheet for each major character showing:
 ### The Comic Pitch Package
 
 A standard pitch includes:
+
 1. **Logline** - one sentence hook
 2. **Synopsis** - full story summary (1-2 pages)
 3. **Character descriptions** - with visual references or designs
@@ -384,18 +405,23 @@ A standard pitch includes:
 ## Exercises for Improvement
 
 ### Exercise 1: The Silent Page
+
 Tell a one-page story with no words at all - no dialogue, no captions, no sound effects. This forces you to master visual storytelling.
 
 ### Exercise 2: The Nine-Panel Challenge
+
 Tell a complete short story in exactly nine panels on one page using a strict 3x3 grid. Constraints breed creativity.
 
 ### Exercise 3: Redraw a Favorite Page
+
 Take a page from a comic you admire and redraw it. Not to copy the art, but to understand the layout decisions. Why did the artist choose those panel sizes and compositions?
 
 ### Exercise 4: Script-to-Thumbnail Speed Run
+
 Write a one-page script in 10 minutes. Thumbnail it in 10 minutes. Repeat five times. Speed builds instinct.
 
 ### Exercise 5: The Expression Challenge
+
 Draw one character showing 20 different emotions. Push past the obvious ones into nuanced feelings: suspicious, resigned, reluctantly amused, pretending to be calm.
 
 ## Response Guidelines
@@ -409,7 +435,6 @@ When helping a comic creator:
 - Encourage finishing - a completed imperfect comic teaches more than an unfinished masterpiece
 - Help them find their format - not every story needs to be a 22-page floppy
 - Remind them that comics are collaborative even for solo creators - editors, beta readers, and fellow creators improve the work
-
 
 ## Output Format
 

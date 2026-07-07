@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sales email planning template"
-  category: "marketing-sales"
-  subcategory: "sales"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sales email planning template'
+  category: 'marketing-sales'
+  subcategory: 'sales'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Cold Outreach Sequence
 
 ## When to Use
@@ -27,6 +28,7 @@ metadata:
 Use this skill when the user is initiating contact with prospects who have no prior relationship with them or their company -- cold outreach, first-contact prospecting, and multi-touch sales cadence design.
 
 **Trigger scenarios where this skill applies:**
+
 - User wants to build a prospecting sequence targeting a defined buyer persona (e.g., "VP of Operations at logistics companies with 100-500 employees")
 - User needs to write cold emails from scratch for a new product, service, or market segment they have not contacted before
 - User is launching outbound sales as a new motion and needs a complete cadence architecture (touch count, timing, channels, messaging)
@@ -36,6 +38,7 @@ Use this skill when the user is initiating contact with prospects who have no pr
 - User wants to A/B test cold outreach messaging and needs variant copies written with specific hypotheses
 
 **Do NOT use this skill when:**
+
 - The prospect has already replied or taken a meeting -- use `follow-up-sequences` instead, which handles warm continuation logic
 - The user is writing to an existing email subscriber list or newsletter audience -- use `email-campaign` for broadcast marketing content
 - The outreach is a response to inbound interest (demo request, content download, trial signup) -- use `inbound-lead-response` for speed-to-lead sequences
@@ -101,6 +104,7 @@ Each follow-up email must take a meaningfully different angle from the prior tou
 - **Angle 4 (Touch 7, Break-Up):** Permission to close -- acknowledge the lack of response without blame. Offer three options: now is not the right time, someone else is the right person, or this is not a priority. The break-up email often generates more replies than any other touch because it removes pressure and invites honesty.
 
 **Follow-up email mechanics:**
+
 - Subject lines for follow-ups should NOT say "Re:" unless it is a genuine reply thread -- using false Re: is widely seen as deceptive and damages trust
 - Each follow-up email should stand alone -- assume the prospect has not read previous emails
 - Length decreases with each touch: Touch 3 under 80 words, Touch 5 under 70 words, Touch 7 under 50 words
@@ -120,11 +124,13 @@ LinkedIn is not a second email channel -- treat it as a trust and visibility bui
 Personalization is a spectrum from shallow (first name + company name) to deep (specific insight derived from their business situation). Define which level is achievable and build fallbacks for each variable.
 
 **Personalization depth levels:**
+
 - **Level 1 (Minimum viable):** [Name], [Company]. Always available from a prospect list. Without these, outreach is spam.
 - **Level 2 (Standard):** [Name], [Company], [Industry-specific pain point from ICP research], [Similar Customer in their industry]. Achievable with 10 minutes of research per prospect.
 - **Level 3 (High-personalization):** [Name], [Company], [Specific trigger event: funding, job posting, product launch, leadership hire, earnings call mention, regulatory filing], [Specific metric from their public data], [Mutual connection or shared community]. Requires data enrichment tools or dedicated research time. Appropriate for enterprise targets and high-ACV deals.
 
 **Fallback rules for each variable:**
+
 - If [Trigger Event] is not available, fall back to an industry-level insight: "Companies in [vertical] with your size typically see [problem]."
 - If [Named Customer] cannot be used, fall back to a descriptive reference: "A healthcare network with 800 employees in the Southeast."
 - If [Employee Count / Revenue] is not known, use company funding stage or industry vertical as a proxy.
@@ -396,27 +402,35 @@ Otherwise, I won't follow up again unless you reach out.
 ## Edge Cases
 
 ### Enterprise Prospect (C-Suite or VP+ at 1,000+ Employees)
+
 Reduce to 4-5 touches over 21-30 days. Each email must be shorter (under 60 words for Touches 3-5) and more specifically personalized -- a Level 3 personalization approach is non-negotiable. Do not reference operational metrics; reference strategic priorities: revenue growth, market share, board-level risk, or competitive positioning. The CTA should be a "brief conversation to share a perspective" rather than a "demo." Enterprise buyers do not agree to demos from cold email -- they agree to conversations. After the conversation, a demo follows. Connection note on LinkedIn should reference their published content or a public speaking engagement, not their title.
 
 ### Highly Regulated Industry (Healthcare, Financial Services, Legal, Government)
+
 Avoid any language that could be construed as a performance guarantee or clinical/legal claim. Replace "reduces phishing click rates by 70%" with "customers report a measurable reduction in employee phishing susceptibility within 90 days." Reference compliance capabilities (HIPAA, SOC 2, FedRAMP, ISO 27001) early -- regulated buyers filter on compliance before evaluating features. Skip any urgency language, which reads as pressure in regulated environments. Include a brief disclaimer in the signature noting that results vary by organization. Research the prospect's regulatory environment before writing -- a CISO at a healthcare network has different concerns than a CISO at a hedge fund.
 
 ### Prospect with No LinkedIn Presence or Social Media Activity
+
 Skip all LinkedIn touches. Replace the Touch 4 LinkedIn engagement with a second email delivering a specific resource (a one-page case study PDF, a 2-minute Loom video overview, or a short research finding). If phone number is available, move the phone touch to Day 4 instead of Day 12 -- this prospect is not a social buyer and phone is more appropriate. Increase email touch frequency by one day per interval (Touch 3 on Day 3 instead of Day 4). Consider whether direct mail is appropriate for this prospect if they are in a high-ACV segment.
 
 ### Re-Engagement of a Previously Contacted Prospect (No Response to Prior Sequence)
+
 Build a shortened sequence of 3-4 touches maximum. Touch 1 must explicitly reference the prior outreach without dwelling on it: "I reached out a few months ago about [topic] -- didn't want to resurface unless something changed, but [new trigger event] made me think the timing might be different." The new trigger event is mandatory -- a new product capability, a relevant industry development, a new customer win in their sector, or a significant result metric that did not exist in the prior sequence. Spacing should be slightly longer between touches (every 5-7 days) to avoid feeling aggressive.
 
 ### Founder-to-Founder Outreach
+
 Eliminate all corporate language. No "synergies," no "solutions," no "leveraging capabilities." Write in first person with authentic voice. Reference shared experiences directly: "We went through the exact same hiring bottleneck at our seed stage -- spent 3 months building infrastructure that existed off the shelf." Skip the formal cadence structure -- 3-4 touches maximum, each feeling like a genuine individual note, not a sales sequence. The CTA should be peer-level: "Would you want to grab a call and compare notes?" not "Can I show you a demo?" Founder outreach that reads like a sales sequence is immediately disqualifying at the startup level.
 
 ### High-Volume SDR Cadence (100+ Prospects Per Week)
+
 At high volume, Level 3 personalization is not achievable for every prospect. Design a tiered approach: top 20% of accounts (by fit score, intent data, or ACV potential) receive Level 3 personalization with manual research. Middle 60% receive Level 2 personalization with enrichment tool data. Bottom 20% receive Level 1 with only name and company. Build separate sequence templates for each tier. Document this clearly in the sequence output so the SDR knows which tier requires manual research time. For Level 1 sequences, compensate for reduced personalization with tighter ICP targeting -- a less personalized email to a perfectly targeted prospect still outperforms a highly personalized email to the wrong person.
 
 ### Prospect Responds Negatively ("Not Interested" or "Remove Me")
+
 This is an exit condition, not a follow-up trigger. Immediately remove from the sequence and all future sequences. Send a single acknowledgment reply: "Understood -- I'll remove you from my outreach. Apologies for the interruption." Do not ask why they are not interested. Do not offer alternatives. Do not schedule a future follow-up. Log the response in CRM with a "do not contact" flag. In the sequence output, note that negative responses and unsubscribe requests must be honored within 10 business days under CAN-SPAM, and within 30 days under GDPR, though best practice is within 24 hours.
 
 ### International Prospects (Non-US/UK)
+
 Adjust formality level based on the prospect's country and culture. German and Japanese business cultures expect more formal language and a slower-paced relationship before a sales ask -- reduce CTA directness and increase the number of value-add touches before any ask. Latin American and Southern European prospects respond better to warmer, more relationship-oriented openers. If the prospect's primary language is not English, consider whether outreach should be written in their language -- a Spanish-language email to a Mexican CISO will outperform an English-language email in most cases. Note any GDPR implications if the prospect is in the EU -- cold email to EU individuals requires a legitimate interest basis for processing and must include an opt-out mechanism.
 
 ---
@@ -444,15 +458,15 @@ Adjust formality level based on the prospect's country and culture. German and J
 
 ### Cadence Overview
 
-| Touch | Day | Channel | Angle | CTA | Word Count |
-|-------|-----|---------|-------|-----|------------|
-| 1 | Day 1 | Email | Problem-led: forecast accuracy | Reply to confirm interest | 80 words |
-| 2 | Day 2 | LinkedIn | Connection request | Connect | <300 chars |
-| 3 | Day 4 | Email | Social proof: customer result | Reply to explore fit | 75 words |
-| 4 | Day 7 | LinkedIn | Post engagement or DM | Comment / DM | 2-3 sentences |
-| 5 | Day 9 | Email | Insight: pipeline math | Reply to get breakdown | 65 words |
-| 6 | Day 12 | Email | Reframe: cost of bad forecast | Reply | 60 words |
-| 7 | Day 15 | Email | Break-up | Reply if timing changes | 50 words |
+| Touch | Day    | Channel  | Angle                          | CTA                       | Word Count    |
+| ----- | ------ | -------- | ------------------------------ | ------------------------- | ------------- |
+| 1     | Day 1  | Email    | Problem-led: forecast accuracy | Reply to confirm interest | 80 words      |
+| 2     | Day 2  | LinkedIn | Connection request             | Connect                   | <300 chars    |
+| 3     | Day 4  | Email    | Social proof: customer result  | Reply to explore fit      | 75 words      |
+| 4     | Day 7  | LinkedIn | Post engagement or DM          | Comment / DM              | 2-3 sentences |
+| 5     | Day 9  | Email    | Insight: pipeline math         | Reply to get breakdown    | 65 words      |
+| 6     | Day 12 | Email    | Reframe: cost of bad forecast  | Reply                     | 60 words      |
+| 7     | Day 15 | Email    | Break-up                       | Reply if timing changes   | 50 words      |
 
 ---
 
@@ -476,6 +490,7 @@ Worth 30 minutes to see if we're a fit?
 [Title] | [Company] | [Phone]
 
 **Personalization Variables:**
+
 - [Name] -- Required | Source: prospect list | Fallback: Do not send
 - [Company] -- Required | Source: prospect list | Fallback: Do not send
 - [Customer] -- Recommended | Source: case study library | Fallback: "A Series C SaaS company with 40 reps"
@@ -517,6 +532,7 @@ Would it make sense to walk through how that worked?
 [First Name]
 
 **Personalization Variables:**
+
 - [Name], [Company] -- Required
 - [Customer story] -- Recommended | Fallback: "A B2B SaaS company with a 30-person sales team"
 
@@ -559,6 +575,7 @@ Want me to send it over?
 [First Name]
 
 **Personalization Variables:**
+
 - [Name] -- Required
 - [Pipeline figure] -- Optional | Fallback: "your pipeline size"
 
@@ -584,6 +601,7 @@ Still worth 30 minutes?
 [First Name]
 
 **Personalization Variables:**
+
 - [Name] -- Required
 
 **Word Count:** 60 words
@@ -611,37 +629,42 @@ If forecast accuracy becomes a priority -- or if someone else on your team owns 
 
 ### Personalization Guide
 
-| Variable | Required | Source | Fallback If Missing |
-|----------|----------|--------|---------------------|
-| [Name] | Yes | Prospect list | Do not send -- skip prospect |
-| [Company] | Yes | Prospect list | Do not send -- skip prospect |
-| [Customer Story] | Recommended | Case study library | "A Series B SaaS company with 35 reps" |
-| [Pipeline Figure] | Optional | Funding data, job postings | "your pipeline" |
-| [LinkedIn Activity] | Recommended | Manual LinkedIn check | Skip Touch 4, advance Touch 5 by 1 day |
-| [Trigger Event] | Optional | LinkedIn, news | "[Company]'s stage" (growth-stage framing) |
+| Variable            | Required    | Source                     | Fallback If Missing                        |
+| ------------------- | ----------- | -------------------------- | ------------------------------------------ |
+| [Name]              | Yes         | Prospect list              | Do not send -- skip prospect               |
+| [Company]           | Yes         | Prospect list              | Do not send -- skip prospect               |
+| [Customer Story]    | Recommended | Case study library         | "A Series B SaaS company with 35 reps"     |
+| [Pipeline Figure]   | Optional    | Funding data, job postings | "your pipeline"                            |
+| [LinkedIn Activity] | Recommended | Manual LinkedIn check      | Skip Touch 4, advance Touch 5 by 1 day     |
+| [Trigger Event]     | Optional    | LinkedIn, news             | "[Company]'s stage" (growth-stage framing) |
 
 ---
 
 ### Cadence Rules
 
 **Stop immediately if:**
+
 - [Name] replies with any content
 - [Name] books a call through any channel
 - Unsubscribe or remove-me request received -- remove from all sequences within 24 hours
 
 **Escalate within 24 hours if:**
+
 - [Name] opens Touch 1 or Touch 3 more than 3 times without replying -- call if phone available, or send a manually written LinkedIn DM
 - [Name] clicks the calculator link in Touch 5 -- send a personalized follow-up within 2 hours referencing the resource
 
 **Pause if:**
+
 - Out-of-office detected -- resume 2 business days after stated return date
 - [Name] replies "not the right time" -- set a 45-day reminder and restart with Touch 1 (reframe version)
 
 **Branch if:**
+
 - [Name] replies "wrong person" -- reply thanking them and asking for the right contact, then start a new sequence for that contact
 - [Name] replies "reach out in Q1" -- set calendar alert for December 1st and restart sequence with new trigger framing
 
 **Post-sequence disposition:**
+
 - No response after Touch 7 -- move to monthly SaaS sales leader newsletter (relevant content, no hard CTA)
 - Re-engage after 90 days only if: company raises a new funding round, posts a VP of Revenue Operations or Sales Ops hire, or releases earnings showing pipeline miss
 - Maximum 2 full sequences per prospect in a 12-month window

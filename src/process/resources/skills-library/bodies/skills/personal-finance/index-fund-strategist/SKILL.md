@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance investing checklist guide automation research performing-arts tax-planning"
-  category: "personal-finance"
-  subcategory: "investing"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance investing checklist guide automation research performing-arts tax-planning'
+  category: 'personal-finance'
+  subcategory: 'investing'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Index Fund Strategist
@@ -24,15 +24,16 @@ You are a passive investing strategist who helps users build, optimize, and main
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about index fund strategist techniques or best practices
 - User needs guidance on index fund strategist concepts
 - User wants to implement or improve their approach to index fund strategist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of index fund strategist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -90,11 +91,11 @@ The simplest evidence-based portfolio uses just three index funds to capture the
 
 ### Fund Selection by Brokerage
 
-| Asset Class | Vanguard | Fidelity | Schwab |
-|------------|----------|----------|--------|
-| US Total Stock Market | VTSAX / VTI (0.03%) | FSKAX / FZROX (0.015% / 0%) | SWTSX / SCHB (0.03%) |
-| International Stock Market | VTIAX / VXUS (0.07%) | FTIHX / FZILX (0.06% / 0%) | SWISX / SCHF (0.06%) |
-| US Total Bond Market | VBTLX / BND (0.03%) | FXNAX / FNDSX (0.025%) | SWAGX / SCHZ (0.03%) |
+| Asset Class                | Vanguard             | Fidelity                    | Schwab               |
+| -------------------------- | -------------------- | --------------------------- | -------------------- |
+| US Total Stock Market      | VTSAX / VTI (0.03%)  | FSKAX / FZROX (0.015% / 0%) | SWTSX / SCHB (0.03%) |
+| International Stock Market | VTIAX / VXUS (0.07%) | FTIHX / FZILX (0.06% / 0%)  | SWISX / SCHF (0.06%) |
+| US Total Bond Market       | VBTLX / BND (0.03%)  | FXNAX / FNDSX (0.025%)      | SWAGX / SCHZ (0.03%) |
 
 ### Why These Three
 
@@ -290,12 +291,12 @@ overall allocation matters more than perfect placement.
 
 ### When to Rebalance
 
-| Method | Description | Frequency |
-|--------|------------|-----------|
-| Calendar | Rebalance on a fixed date | Annually (birthday, New Year, tax time) |
-| Threshold | Rebalance when any class drifts 5%+ from target | Check quarterly |
-| Contribution | Direct new money to underweight class | Every contribution |
-| Hybrid | Check quarterly, rebalance only if 5%+ drift | Quarterly check, act only when needed |
+| Method       | Description                                     | Frequency                               |
+| ------------ | ----------------------------------------------- | --------------------------------------- |
+| Calendar     | Rebalance on a fixed date                       | Annually (birthday, New Year, tax time) |
+| Threshold    | Rebalance when any class drifts 5%+ from target | Check quarterly                         |
+| Contribution | Direct new money to underweight class           | Every contribution                      |
+| Hybrid       | Check quarterly, rebalance only if 5%+ drift    | Quarterly check, act only when needed   |
 
 ### Rebalancing Steps (Tax-Efficient Order)
 
@@ -355,16 +356,16 @@ optimization. The best portfolio is the one you actually stick with.
 
 ## Common Mistakes to Avoid
 
-| Mistake | Why It Hurts | What to Do Instead |
-|---------|-------------|-------------------|
-| Paying high expense ratios | 1% fee costs ~25% of wealth over 30 years | Choose funds under 0.10% expense ratio |
-| Performance chasing | Last year's best fund is rarely next year's | Stick to your allocation through all markets |
-| Over-complicating | Adding sector funds, smart beta, alternatives | Three funds cover the entire global market |
-| Checking too often | More checking leads to emotional decisions | Check quarterly at most, rebalance annually |
-| Timing the market | Missing the 10 best days cuts returns in half | Stay fully invested, invest on schedule |
-| Ignoring tax placement | Bonds in taxable account wastes money on taxes | Follow the tax-efficient placement guide above |
-| No international exposure | US has not always been the top performer | Include 20-40% international for diversification |
-| All bonds too early | Being too conservative in your 20s-30s costs growth | Match bond allocation to age and risk tolerance |
+| Mistake                    | Why It Hurts                                        | What to Do Instead                               |
+| -------------------------- | --------------------------------------------------- | ------------------------------------------------ |
+| Paying high expense ratios | 1% fee costs ~25% of wealth over 30 years           | Choose funds under 0.10% expense ratio           |
+| Performance chasing        | Last year's best fund is rarely next year's         | Stick to your allocation through all markets     |
+| Over-complicating          | Adding sector funds, smart beta, alternatives       | Three funds cover the entire global market       |
+| Checking too often         | More checking leads to emotional decisions          | Check quarterly at most, rebalance annually      |
+| Timing the market          | Missing the 10 best days cuts returns in half       | Stay fully invested, invest on schedule          |
+| Ignoring tax placement     | Bonds in taxable account wastes money on taxes      | Follow the tax-efficient placement guide above   |
+| No international exposure  | US has not always been the top performer            | Include 20-40% international for diversification |
+| All bonds too early        | Being too conservative in your 20s-30s costs growth | Match bond allocation to age and risk tolerance  |
 
 ---
 
@@ -388,7 +389,6 @@ INDEX FUND PORTFOLIO SETUP
 
 ---
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -410,7 +410,6 @@ When helping users with index fund strategy, provide:
 7. **Behavioral reminders** -- Key principles for staying the course
 8. **Disclaimer** -- Reiterate this is education, not personalized advice
 
-
 ```template
 ## Index Fund Strategist -- Structured Output
 
@@ -425,14 +424,12 @@ When helping users with index fund strategy, provide:
 - [ ] [Action item 2]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

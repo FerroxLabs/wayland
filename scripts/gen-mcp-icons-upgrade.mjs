@@ -83,11 +83,14 @@ async function bestIcon(c) {
   return null;
 }
 
-let upgraded = 0, kept = 0;
+let upgraded = 0,
+  kept = 0;
 const lines = [];
 for (const [file, c] of Object.entries(MAP)) {
   const dest = path.join(ROOT, 'icons', `${file}.svg`);
-  if (!isMonogram(file)) { continue; } // already a real logo
+  if (!isMonogram(file)) {
+    continue;
+  } // already a real logo
   const got = await bestIcon(c);
   if (got) {
     fs.writeFileSync(dest, got.svg.endsWith('\n') ? got.svg : got.svg + '\n');

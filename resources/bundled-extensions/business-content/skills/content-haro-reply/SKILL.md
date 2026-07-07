@@ -38,11 +38,12 @@ attribution:
 
 # Content HARO Reply - The 90-Second Quotability Stack
 
-> *"A journalist reading HARO replies has 90 seconds and 50+ responses. You're not competing with bad answers - you're competing with decent answers. The only way to win is to be so specific, so credentialed, and so quotable that using you is the path of least resistance."* - Sean Donahoe
+> _"A journalist reading HARO replies has 90 seconds and 50+ responses. You're not competing with bad answers - you're competing with decent answers. The only way to win is to be so specific, so credentialed, and so quotable that using you is the path of least resistance."_ - Sean Donahoe
 
 HARO (now merged into Connectively), Qwoted, and SourceBottle exist because journalists need expert sources fast. A reporter on deadline with 60 replies in their inbox is not looking for the most comprehensive answer - they are looking for the answer they can drop into their article in 90 seconds without rewriting.
 
 Most replies fail not because the expertise is wrong, but because:
+
 - The credential is generic ("I'm a marketing expert with 15 years of experience")
 - The answer is too long (journalists don't read walls of text from strangers)
 - There's no pull quote (the journalist has to write the quote themselves)
@@ -55,12 +56,14 @@ The 90-Second Quotability Stack fixes all four.
 Trigger phrases: "HARO reply", "HARO pitch", "journalist query", "expert source reply", "get quoted in press", "respond to journalist query", "Qwoted reply".
 
 Use when:
+
 - You have received a HARO / Qwoted / SourceBottle query that matches your actual expertise
 - The deadline is within 2-4 hours (most journalist queries have same-day or next-day deadlines)
 - You can provide specific numbers, named experiences, or a genuinely contrarian take - not general advice anyone could give
 - You want to build a press citation record for your media kit or `content-media-kit`
 
 Do NOT use for:
+
 - Cold-pitching journalists who didn't post a query - use press outreach adapted from `content-press-release`
 - Responding to queries outside your actual expertise - journalists verify sources; misrepresentation destroys relationships
 - Writing a long-form editorial or byline - use `content-blog` instead
@@ -104,6 +107,7 @@ Support the direct answer with 3-5 bullets - each one a specific piece of eviden
 Each bullet format: **[Specific claim or finding]** - [one sentence of context or mechanism]
 
 Rules:
+
 - Every bullet must have at least one specific: a number, a named situation, a date, a named company (with permission), or a measurable result
 - No bullet should be general advice that any Google search would return
 - At least one bullet should be contrarian - the thing most sources won't say, or the finding that surprises people
@@ -114,12 +118,14 @@ Rules:
 Write one sentence, in quotation marks, designed to be lifted verbatim into the article.
 
 This is the single highest-leverage thing most HARO sources don't do. A journalist on deadline needs:
+
 1. A quote
 2. Attribution
 
 If you provide the quote pre-written, you remove two steps from their workflow. They can edit it, but they'll often use it close to verbatim if it's good.
 
 Pull quote criteria:
+
 - 1-2 sentences max (25-40 words is the sweet spot for article quotes)
 - Written in first person, present tense, natural spoken cadence
 - Contains either a surprising specific, a strong claim, or a memorable frame
@@ -142,11 +148,13 @@ Include a link to one supporting resource only if directly relevant (a study you
 ## Inputs
 
 Required:
+
 1. **The journalist's query** - paste the full query text including outlet name, journalist name, deadline, and angle
 2. **Your relevant credential for THIS query** - specific role, years in this domain, specific evidence of expertise
 3. **Your specific finding, data, or POV** - the thing you'll say that generic experts won't
 
 Optional:
+
 - **Named client results** - with permission; anonymized if needed ("a $4M e-commerce brand I worked with in Q1 2025")
 - **Published research or cited data** - third-party data you can cite (always with source)
 - **Contrarian position** - the thing most sources get wrong about this topic
@@ -155,6 +163,7 @@ Optional:
 ## Output Spec
 
 The skill produces:
+
 1. **Query audit result** - qualified / partially qualified / skip this one (with reasoning)
 2. **Full HARO reply** - credentialed one-liner + direct answer + 3-5 bullet stack + pull quote + contact block
 3. **Word count** - should be 150-300 words total; flag if over 300
@@ -163,7 +172,7 @@ The skill produces:
 
 ## Worked Example
 
-**Query (hypothetical):** *"HARO - Forbes Small Business: I'm writing a piece on why most small business owners underprice their services. Looking for expert sources (coaches, consultants, pricing strategists, accountants) who can speak to the psychology of pricing fear and give 2-3 actionable tips. Deadline: 5pm ET today. - Jordan Rivers, Forbes."*
+**Query (hypothetical):** _"HARO - Forbes Small Business: I'm writing a piece on why most small business owners underprice their services. Looking for expert sources (coaches, consultants, pricing strategists, accountants) who can speak to the psychology of pricing fear and give 2-3 actionable tips. Deadline: 5pm ET today. - Jordan Rivers, Forbes."_
 
 **Guest:** Business coach with 8 years coaching 6-figure service businesses; has worked with 200+ clients on pricing specifically; runs a community of 4,200 service-based entrepreneurs.
 
@@ -199,7 +208,7 @@ dana@danaoseicoaching.com | 404-555-0183
 
 **1. Answering a different question than the one asked.** The query says "why do owners underprice." The reply is "here's how to set prices." These are different questions. Read the query three times. Answer the one they asked.
 
-**2. The generic credential.** "I have 15 years of experience in business coaching" could describe 10,000 people. The credential must be specific to *this query*: "I have worked through this specific pricing issue with 200 clients" is specific to a pricing question. "I have 15 years of coaching experience" is not.
+**2. The generic credential.** "I have 15 years of experience in business coaching" could describe 10,000 people. The credential must be specific to _this query_: "I have worked through this specific pricing issue with 200 clients" is specific to a pricing question. "I have 15 years of coaching experience" is not.
 
 **3. No pull quote.** The most common failure. The journalist has to write the quote themselves - that's additional work in a deadline situation. Write the quote for them. You control the language; they control whether to use it.
 
@@ -211,12 +220,12 @@ dana@danaoseicoaching.com | 404-555-0183
 
 The journalist is the buyer. The quote is the product. The reply is a 250-word sales letter. Map the DR frame:
 
-| DR Element | HARO Reply Equivalent |
-|---|---|
-| **Hook** | Credentialed one-liner - "why this person, for this query, right now" |
-| **Promise** | Direct answer in first 2 sentences - "I will answer your question, not a nearby question" |
-| **Proof** | 3-5 bullet evidence stack - specifics, data, contrarian take; specificity IS credibility (Schwartz) |
-| **Close** | Pull quote + contact - make the "yes" (quoting you) require zero additional work |
+| DR Element  | HARO Reply Equivalent                                                                               |
+| ----------- | --------------------------------------------------------------------------------------------------- |
+| **Hook**    | Credentialed one-liner - "why this person, for this query, right now"                               |
+| **Promise** | Direct answer in first 2 sentences - "I will answer your question, not a nearby question"           |
+| **Proof**   | 3-5 bullet evidence stack - specifics, data, contrarian take; specificity IS credibility (Schwartz) |
+| **Close**   | Pull quote + contact - make the "yes" (quoting you) require zero additional work                    |
 
 Ogilvy's rule: "The pull quote is the unit of communication in print journalism." Write the quote. Don't make the journalist write it.
 

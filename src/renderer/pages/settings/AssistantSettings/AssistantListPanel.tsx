@@ -247,13 +247,7 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
                 size='small'
                 data-testid='btn-search-toggle'
                 className='!rounded-10px !h-34px !w-34px !p-0 flex items-center justify-center !text-t-secondary hover:!bg-fill-1 hover:!text-t-primary'
-                icon={
-                  isSearchVisible ? (
-                    <X size={16} />
-                  ) : (
-                    <Search size={16} />
-                  )
-                }
+                icon={isSearchVisible ? <X size={16} /> : <Search size={16} />}
                 onClick={() => {
                   if (isSearchVisible) {
                     setSearchExpanded(false);

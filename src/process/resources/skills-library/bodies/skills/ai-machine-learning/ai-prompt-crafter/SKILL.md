@@ -7,26 +7,27 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml template step-by-step beginner-friendly advanced api-design automation analysis"
-  category: "ai-machine-learning"
-  subcategory: "llm-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'ai-ml template step-by-step beginner-friendly advanced api-design automation analysis'
+  category: 'ai-machine-learning'
+  subcategory: 'llm-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # AI Prompt Crafter
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about ai prompt crafter techniques or best practices
 - User needs guidance on ai prompt crafter concepts
 - User wants to implement or improve their approach to ai prompt crafter
 
 **Do NOT use when:**
+
 - The request falls outside the scope of ai prompt crafter
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -131,6 +132,7 @@ Chain-of-thought (CoT) prompting asks the AI to show its reasoning step by step 
 ### CoT Prompt Patterns
 
 **Explicit CoT:**
+
 ```
 Analyze whether this business should enter the European market.
 
@@ -145,6 +147,7 @@ Show your reasoning for each step.
 ```
 
 **Zero-shot CoT (simple trigger):**
+
 ```
 [Your question or task]
 
@@ -152,6 +155,7 @@ Let's work through this step by step.
 ```
 
 **Structured CoT:**
+
 ```
 Organize your thinking into:
 - OBSERVATIONS: What do we know from the given information?
@@ -197,6 +201,7 @@ Output:
 ### Forcing Specific Output Formats
 
 **JSON Output:**
+
 ```
 Analyze this product review and return as JSON:
 {
@@ -210,6 +215,7 @@ Review: [paste review text]
 ```
 
 **Table Output:**
+
 ```
 Compare these 5 tools across these dimensions.
 Return as a markdown table:
@@ -261,6 +267,7 @@ MEDIUM/LOW PRIORITY (summarize or omit):
 ### Building on Previous Responses
 
 **Refinement Loop:**
+
 ```
 Turn 1: Initial generation (broad prompt)
 Turn 2: "Expand section 3 with more detail"
@@ -270,6 +277,7 @@ Turn 5: "Fix any inconsistencies and polish"
 ```
 
 **Interview Method:**
+
 ```
 Turn 1: "I need help with [topic]. Before you start, ask me
          5 questions that will help you give better advice."
@@ -321,6 +329,7 @@ Deliverable: Executive summary, detailed analysis, key findings
 ### Prompt Chaining
 
 Use the output of one prompt as input for the next:
+
 ```
 Chain 1: "Generate 10 blog post title ideas about [topic]"
 Chain 2: "For title #3, create a detailed outline"
@@ -351,6 +360,7 @@ Also explain why you chose this approach."
 ### Negative Prompting
 
 Tell the AI what NOT to do:
+
 ```
 Do NOT: Use cliches, start with "In today's digital age...",
 include generic disclaimers, use passive voice, pad with
@@ -359,16 +369,15 @@ unnecessary words, or list obvious information.
 
 ## Troubleshooting Common Issues
 
-| Problem | Likely Cause | Fix |
-|---------|-------------|-----|
-| Output too generic | Prompt too vague | Add specific context, examples, constraints |
-| Output too long | No length constraint | Specify word count or section limits |
-| Inconsistent format | No format specification | Provide a template or examples |
-| Hallucinated facts | Requires specific knowledge | Ask AI to flag uncertainty |
-| Ignoring instructions | Too many instructions | Prioritize and number instructions |
-| Wrong tone | No tone guidance | Include explicit tone instructions with example |
-| Shallow analysis | No depth instruction | Ask for step-by-step reasoning |
-
+| Problem               | Likely Cause                | Fix                                             |
+| --------------------- | --------------------------- | ----------------------------------------------- |
+| Output too generic    | Prompt too vague            | Add specific context, examples, constraints     |
+| Output too long       | No length constraint        | Specify word count or section limits            |
+| Inconsistent format   | No format specification     | Provide a template or examples                  |
+| Hallucinated facts    | Requires specific knowledge | Ask AI to flag uncertainty                      |
+| Ignoring instructions | Too many instructions       | Prioritize and number instructions              |
+| Wrong tone            | No tone guidance            | Include explicit tone instructions with example |
+| Shallow analysis      | No depth instruction        | Ask for step-by-step reasoning                  |
 
 ## Process
 
@@ -377,7 +386,6 @@ unnecessary words, or list obvious information.
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -398,14 +406,12 @@ unnecessary words, or list obvious information.
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

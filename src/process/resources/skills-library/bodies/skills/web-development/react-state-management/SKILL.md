@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "javascript typescript frontend frameworks"
-  category: "web-development"
-  subcategory: "web-development"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'javascript typescript frontend frameworks'
+  category: 'web-development'
+  subcategory: 'web-development'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # React State Management
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks which state management library to choose for a React project (useState vs. useReducer vs. Zustand vs. Redux Toolkit vs. Jotai vs. Recoil vs. React Query)
 - User needs to implement a specific state pattern such as optimistic updates, derived state, server state synchronization, or cross-component state sharing
 - User is experiencing performance issues caused by excessive re-renders due to state structure or placement decisions
@@ -30,6 +32,7 @@ metadata:
 - User wants to set up a new React project and needs guidance on the correct state management baseline
 
 **Do NOT use this skill when:**
+
 - User needs general React component architecture advice not tied to state -- check the react-component-design skill
 - User needs help with CSS-in-JS or styling -- check the react-styling skill
 - User is asking about Next.js-specific data fetching patterns (getServerSideProps, server components, React Server Components state) -- check the nextjs-data-fetching skill
@@ -71,12 +74,14 @@ Once the state category is known, determine the correct ownership level before c
 Apply this decision matrix based on confirmed requirements:
 
 **For server state (async data from APIs):**
+
 - Default choice: TanStack Query v5 (`@tanstack/react-query`). Provides caching, background refetching, stale-while-revalidate, pagination helpers, optimistic updates, and request deduplication out of the box. Works with REST and GraphQL.
 - If already using Apollo Client with GraphQL: stick with Apollo. Its normalized cache is unmatched for deeply relational GraphQL data.
 - If the app is very small (< 5 API endpoints, no caching needed): `useEffect` + `useState` is acceptable. Stop there and do not over-engineer.
 - If using Next.js 13+ App Router with server components: prefer server-side data fetching with `fetch` and React Cache; use TanStack Query only for client-side interactivity.
 
 **For global client state:**
+
 - Team size 1--3, app complexity low--medium, or team is Redux-fatigued: **Zustand**. Minimal boilerplate, no providers needed, excellent DevTools support via `zustand/middleware`. Bundle size ~1 KB gzipped.
 - Atomic/fine-grained state updates needed (many independent pieces that update at different rates): **Jotai**. Atom-based, co-locates state definition with feature files, avoids the "big store object" problem.
 - Team has existing Redux expertise, or app requires complex multi-step async workflows with structured action history: **Redux Toolkit (RTK)**. Use `createSlice`, `createAsyncThunk`, and RTK Query. Never write plain Redux in 2024+.
@@ -84,6 +89,7 @@ Apply this decision matrix based on confirmed requirements:
 - Enterprise app with strict unidirectional data flow requirements, time-travel debugging, or compliance requirements for full state audit logs: **Redux Toolkit** with Redux DevTools Extension.
 
 **For UI state:**
+
 - Single component: `useState`.
 - Complex local state with multiple related sub-values or transitions: `useReducer` inside the component.
 - Shared across a small subtree: React Context with `useReducer`. Pattern the context as `[state, dispatch]` tuple following the useReducer convention.
@@ -101,6 +107,7 @@ This step prevents the most common performance and correctness bugs. Apply these
 ### Step 5: Implement the Chosen Pattern
 
 For **TanStack Query**:
+
 - Wrap the app in `<QueryClientProvider client={queryClient}>` at the root.
 - Configure `QueryClient` with sensible defaults: `staleTime: 60_000` (1 minute) for most data, `gcTime: 300_000` (5 minutes), `retry: 1` for non-idempotent queries.
 - Define query keys as typed constants or factory functions: `const userKeys = { all: ['users'] as const, detail: (id: string) => ['users', id] as const }`. This prevents key typos and makes invalidation predictable.
@@ -108,18 +115,21 @@ For **TanStack Query**:
 - For optimistic updates: use `onMutate` callback to update the cache immediately, `onError` to roll back via `queryClient.setQueryData`, and `onSettled` to invalidate and refetch.
 
 For **Zustand**:
+
 - Create stores with `create<StoreType>()((set, get) => ({ ... }))`. Always provide the TypeScript generic for the store interface.
 - Use shallow equality for selectors that return objects: `const { count, increment } = useStore(useShallow(s => ({ count: s.count, increment: s.increment })))`. Without this, every store update triggers a re-render.
 - Use the `devtools` middleware in development: `create(devtools(immer((set) => ({ ... }))))`. Middleware order matters: `devtools(immer(subscribeWithSelector(vanilla)))`.
 - For large apps, use the slice pattern: define each slice as a function `(set, get, api) => ({...})` and compose them in a single `create` call.
 
 For **Redux Toolkit**:
+
 - Define slices with `createSlice`: actions, reducers, and initial state in one place.
 - Use `createAsyncThunk` for async operations. Handle loading/error/success states by responding to the `.pending`, `.fulfilled`, and `.rejected` action types in `extraReducers`.
 - Use RTK Query's `createApi` for data fetching rather than writing thunks manually. It auto-generates hooks and manages cache lifecycle.
 - Access state with typed selectors: create selectors using `createSelector` from `reselect` for memoization. Colocate selectors in the slice file.
 
 For **React Context + useReducer**:
+
 - Define the reducer separately from the context -- keeps it pure and testable.
 - Split context into `StateContext` and `DispatchContext` to prevent components that only dispatch from re-rendering when state changes.
 - Memoize the Provider's children with `React.memo` or ensure the context value itself does not change on every render.
@@ -148,7 +158,7 @@ Re-render bugs from poor state management are performance killers. Address these
 
 When responding to a user's state management question, structure the response as follows:
 
-```
+````
 ## State Management Recommendation: [Feature or App Name]
 
 ### State Classification
@@ -172,9 +182,10 @@ When responding to a user's state management question, structure the response as
 #### Setup / Installation
 ```bash
 npm install [packages]
-```
+````
 
 #### Core Implementation
+
 ```typescript
 // [Filename]: [Brief description]
 
@@ -182,30 +193,36 @@ npm install [packages]
 ```
 
 #### TypeScript Types
+
 ```typescript
 [Complete type definitions for the state shape]
 ```
 
 #### Usage in Components
+
 ```typescript
 // [Component file]: Demonstrates correct selector/hook usage
 [Complete component code with state consumption]
 ```
 
 ### Performance Notes
+
 - [Specific re-render concern and how the implementation avoids it]
 - [Memoization decisions]
 
 ### Testing Approach
+
 ```typescript
 // [Test file]: Core test cases
 [Test code]
 ```
 
 ### Next Steps
+
 - [Migration path if user has existing state]
 - [Follow-on concern to address after this implementation]
-```
+
+````
 
 ---
 
@@ -334,7 +351,7 @@ When the same React app is open in multiple browser tabs and state must stay con
 ```bash
 npm install @tanstack/react-query @tanstack/react-query-devtools zustand immer
 npm install -D @tanstack/eslint-plugin-query
-```
+````
 
 #### TanStack Query Setup
 
@@ -345,13 +362,13 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60_000,        // 1 minute -- products don't change every second
-      gcTime: 300_000,          // 5 minutes in cache after last subscriber
-      retry: 1,                 // Retry failed requests once
+      staleTime: 60_000, // 1 minute -- products don't change every second
+      gcTime: 300_000, // 5 minutes in cache after last subscriber
+      retry: 1, // Retry failed requests once
       refetchOnWindowFocus: true, // Refetch stale data when user returns to tab
     },
     mutations: {
-      retry: 0,                 // Never retry mutations automatically
+      retry: 0, // Never retry mutations automatically
     },
   },
 });
@@ -425,7 +442,7 @@ export function useProducts(filters: ProductFilters) {
     queryKey: productKeys.list(filters),
     queryFn: () => fetchProducts(filters),
     placeholderData: keepPreviousData, // Prevents content flash during page changes
-    select: (data) => data,             // Transform here if API shape differs from UI needs
+    select: (data) => data, // Transform here if API shape differs from UI needs
   });
 }
 ```
@@ -449,9 +466,9 @@ export function useProductInventory(productId: string) {
   return useQuery({
     queryKey: productKeys.inventory(productId),
     queryFn: () => fetchInventory(productId),
-    refetchInterval: 30_000,       // Poll every 30 seconds
+    refetchInterval: 30_000, // Poll every 30 seconds
     refetchIntervalInBackground: false, // Pause polling when tab is hidden
-    staleTime: 10_000,             // Consider inventory stale after 10 seconds
+    staleTime: 10_000, // Consider inventory stale after 10 seconds
   });
 }
 ```
@@ -489,13 +506,9 @@ export const selectItemCount = (state: CartState) =>
   Object.values(state.items).reduce((sum, item) => sum + item.quantity, 0);
 
 export const selectTotalPrice = (state: CartState) =>
-  Object.values(state.items).reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  Object.values(state.items).reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-export const selectCartItems = (state: CartState) =>
-  Object.values(state.items);
+export const selectCartItems = (state: CartState) => Object.values(state.items);
 
 type CartStore = CartState & CartActions;
 
@@ -536,13 +549,14 @@ export const useCartStore = create<CartStore>()(
           }),
       })),
       {
-        name: 'shopping-cart',        // localStorage key
-        partialize: (state) => ({     // Only persist the items, not the actions
+        name: 'shopping-cart', // localStorage key
+        partialize: (state) => ({
+          // Only persist the items, not the actions
           items: state.items,
         }),
       }
     ),
-    { name: 'CartStore' }             // DevTools display name
+    { name: 'CartStore' } // DevTools display name
   )
 );
 ```

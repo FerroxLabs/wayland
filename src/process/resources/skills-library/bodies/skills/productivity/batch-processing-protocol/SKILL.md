@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "automation planning checklist"
-  category: "productivity"
-  subcategory: "automation"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'automation planning checklist'
+  category: 'productivity'
+  subcategory: 'automation'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Batch Processing Protocol
 
 ## When to Use
@@ -367,15 +368,15 @@ Assemble everything into a single self-contained reference card. The test of a g
 
 ### Overview
 
-| Field | Value |
-|---|---|
-| Item type | Listener question and feedback form submissions (per episode) |
-| Arrival rate | 25-40 submissions per episode; most arrive within 72 hours of episode publish; trickle for up to 2 weeks |
-| Per-item processing time | 5-6 minutes (read: 2 min, categorize: 1 min, action: 2 min, archive: 30 sec) |
-| Acceptable delay | 5 days -- submissions do not require same-day responses |
-| Recommended batch frequency | 2x per week (Day 3 and Day 7 after each episode publishes) |
-| Expected batch duration | 15 items x 6 min = 90 minutes per batch (split across two batches per episode) |
-| Maximum batch size | 15 items OR 90 minutes, whichever comes first |
+| Field                       | Value                                                                                                    |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Item type                   | Listener question and feedback form submissions (per episode)                                            |
+| Arrival rate                | 25-40 submissions per episode; most arrive within 72 hours of episode publish; trickle for up to 2 weeks |
+| Per-item processing time    | 5-6 minutes (read: 2 min, categorize: 1 min, action: 2 min, archive: 30 sec)                             |
+| Acceptable delay            | 5 days -- submissions do not require same-day responses                                                  |
+| Recommended batch frequency | 2x per week (Day 3 and Day 7 after each episode publishes)                                               |
+| Expected batch duration     | 15 items x 6 min = 90 minutes per batch (split across two batches per episode)                           |
+| Maximum batch size          | 15 items OR 90 minutes, whichever comes first                                                            |
 
 ---
 
@@ -390,6 +391,7 @@ Assemble everything into a single self-contained reference card. The test of a g
 **Hybrid rule:** The Monday/Thursday schedule is the default. If any episode queue hits 15 before Monday or Thursday, run an early batch for that episode only. Do not combine episodes in an early batch.
 
 **Exception -- process immediately (outside the batch) if:**
+
 - A submission identifies a factual error in the episode that may mislead listeners (requires an episode correction or pinned response)
 - A submission is from a named guest, expert, or partner (courtesy response within 24 hours)
 
@@ -399,7 +401,7 @@ Assemble everything into a single self-contained reference card. The test of a g
 
 ### Pre-Batch Setup Checklist
 
-*Target: Complete in under 2 minutes*
+_Target: Complete in under 2 minutes_
 
 - [ ] Open form dashboard (e.g., Typeform, Jotform, or equivalent) and filter view to one episode only -- do not process multiple episodes in the same batch
 - [ ] Open email or communication tool for sending direct replies
@@ -408,11 +410,11 @@ Assemble everything into a single self-contained reference card. The test of a g
 - [ ] Open the Direct Reply template doc (pre-written response starters for the 4 most common reply types)
 - [ ] Close all unrelated browser tabs
 - [ ] Set phone to Do Not Disturb
-- [ ] Count submissions in this episode's queue: ______ submissions
-- [ ] Calculate: ______ x 6 min = ______ minutes
+- [ ] Count submissions in this episode's queue: **\_\_** submissions
+- [ ] Calculate: **\_\_** x 6 min = **\_\_** minutes
 - [ ] If calculated time exceeds 90 min, limit this batch to 15 submissions; remainder processed at next trigger
 - [ ] Quick triage (60-second scan): Mark any submissions with "URGENT" self-label or from known guests as Exceptions -- handle those before starting the timer
-- [ ] Set batch timer: ______ minutes
+- [ ] Set batch timer: **\_\_** minutes
 - [ ] Begin
 
 ---
@@ -428,6 +430,7 @@ Assemble everything into a single self-contained reference card. The test of a g
 **For each submission:**
 
 **Step 1: Read and assess -- 2 minutes**
+
 - Read the full submission once without annotating
 - Identify the primary type:
   - Is it a **question** (the listener is asking something specific that could be answered on air or in writing)?
@@ -471,6 +474,7 @@ IF the submission is ambiguous between FC and DR: default to DR. Feature candida
   - No further action
 
 **Step 4: Confirm and advance -- 30 seconds**
+
 - Verify the submission is archived with the correct tag in the dashboard (no submission should remain in "unprocessed" state after this step)
 - Verify any log entry or reply is complete
 - Move to the next submission
@@ -487,35 +491,35 @@ IF the submission is ambiguous between FC and DR: default to DR. Feature candida
 
 ### Post-Batch Wrap-Up Checklist
 
-*Target: Complete in under 5 minutes*
+_Target: Complete in under 5 minutes_
 
-- [ ] Stop timer. Record actual time: ______ minutes
+- [ ] Stop timer. Record actual time: **\_\_** minutes
 - [ ] Count outcomes for this episode batch:
-  - FC: ______
-  - DR: ______
-  - AA: ______
-  - AO: ______
-  - Deferred: ______
-  - Discarded: ______
-  - Total processed: ______
+  - FC: **\_\_**
+  - DR: **\_\_**
+  - AA: **\_\_**
+  - AO: **\_\_**
+  - Deferred: **\_\_**
+  - Discarded: **\_\_**
+  - Total processed: **\_\_**
 - [ ] For each deferred submission: write the specific blocker and next action in the Deferred list (do not leave as just "deferred")
 - [ ] Check if any deferred submissions from the previous batch are now resolvable -- if yes, resolve them now (max 5 minutes total)
 - [ ] Review Feature Candidates log for this episode: are there at least 2-3 strong FCs (rated 2 or 3)? If fewer than 2, note it as a "low-yield episode" -- may need to source questions from social media before recording
 - [ ] Log batch metrics in Batch Log table
-- [ ] Confirm next trigger: ______ (next Monday / Thursday / early trigger date if count threshold approaching)
-- [ ] Note one protocol observation (optional): ______________________________
+- [ ] Confirm next trigger: **\_\_** (next Monday / Thursday / early trigger date if count threshold approaching)
+- [ ] Note one protocol observation (optional): **************\_\_**************
 
 ---
 
 ### Batch Log
 
-| Date | Episode | FC | DR | AA | AO | Deferred | Discarded | Total | Actual Time | Defer Rate | Notes |
-|------|---------|----|----|----|-----|----------|-----------|-------|-------------|------------|-------|
-| | | | | | | | | | | | |
-| | | | | | | | | | | | |
-| | | | | | | | | | | | |
+| Date | Episode | FC  | DR  | AA  | AO  | Deferred | Discarded | Total | Actual Time | Defer Rate | Notes |
+| ---- | ------- | --- | --- | --- | --- | -------- | --------- | ----- | ----------- | ---------- | ----- |
+|      |         |     |     |     |     |          |           |       |             |            |       |
+|      |         |     |     |     |     |          |           |       |             |            |       |
+|      |         |     |     |     |     |          |           |       |             |            |       |
 
-*Defer rate = Deferred / Total processed. Flag if above 15% for two consecutive batches for the same episode.*
+_Defer rate = Deferred / Total processed. Flag if above 15% for two consecutive batches for the same episode._
 
 ---
 
@@ -531,7 +535,7 @@ Because submissions from multiple episodes accumulate at the same time (listener
 
 ### Protocol Review Schedule
 
-- **Review trigger:** After every 10 batches OR after the first full month of use (approximately 8-10 episodes), whichever comes first. Approximate first review date: ______.
+- **Review trigger:** After every 10 batches OR after the first full month of use (approximately 8-10 episodes), whichever comes first. Approximate first review date: **\_\_**.
 - **Review checklist:**
   - [ ] Average per-item time consistently above 8 minutes? Audit Step 3 (Direct Reply) -- most overruns come from writing replies from scratch rather than using templates. Add more templates.
   - [ ] Defer rate above 15%? Identify the most common defer reason. If it is "need to verify episode content," add a pre-batch step to have episode transcript or show notes open.

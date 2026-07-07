@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis planning"
-  category: "productivity"
-  subcategory: "decision-making"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'decision-making analysis planning'
+  category: 'productivity'
+  subcategory: 'decision-making'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Weighted Decision Matrix
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user is choosing between 3 or more distinct options and cannot converge on a winner through intuition alone -- typically because each option excels on different dimensions
 - The user explicitly asks to "build a decision matrix," "score my options," "create a weighted comparison," or "help me think through this objectively"
 - The user is making a decision with 4 or more competing criteria that cannot be easily traded off in their head (cognitive overload threshold)
@@ -29,6 +31,7 @@ metadata:
 - The user has already done informal comparison and gotten inconsistent results depending on which factor they focus on -- the matrix resolves this by holding all factors simultaneously
 
 **Do NOT use when:**
+
 - The user has exactly two options and no hard constraints -- use `pro-con-analysis` instead, which is faster and less likely to produce false precision on a binary choice
 - The user wants to stress-test a decision they have already leaned toward by imagining failure modes -- use `premortem-analysis`, which is purpose-built for that
 - The user is allocating a budget or headcount across competing projects or departments -- use business strategy resource allocation skills, which account for portfolio effects and interdependencies that a matrix cannot
@@ -235,7 +238,7 @@ A single matrix output is a point estimate. Sensitivity analysis reveals how rob
 
 **Where the runner-up was stronger:** [criterion(s)] where [runner-up] outscored [winner] and why that was not enough to change the result
 
-**When to choose the runner-up instead:** [specific condition -- e.g., "if your tech team doubles and family proximity becomes less important"] 
+**When to choose the runner-up instead:** [specific condition -- e.g., "if your tech team doubles and family proximity becomes less important"]
 
 **Confidence: [High / Medium / Low]**
 - [Reason: e.g., "Scores are well-supported with factual evidence; margin is clear; no information gaps"]
@@ -308,23 +311,24 @@ If the winner has scored last on the criterion the user verbally describes as "t
 ## Decision Matrix: Which Cloud Platform Should I Use for My SaaS Product?
 
 ### Decision Parameters
-| Parameter | Detail |
-|-----------|--------|
-| Decision | Which cloud platform should I build my SaaS product on? |
-| Options evaluated | AWS, Google Cloud Platform (GCP), Microsoft Azure |
-| Reversibility | Partially reversible -- migrating between clouds after launch requires significant re-architecture of managed services; estimated 2-4 weeks of engineering effort per migration |
-| Decision timeline | Before starting infrastructure setup (immediate) |
-| Decision-maker | Solo developer |
-| Stakes | High -- this decision affects architecture, tooling, and cost structure for the life of the product |
+
+| Parameter         | Detail                                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Decision          | Which cloud platform should I build my SaaS product on?                                                                                                                         |
+| Options evaluated | AWS, Google Cloud Platform (GCP), Microsoft Azure                                                                                                                               |
+| Reversibility     | Partially reversible -- migrating between clouds after launch requires significant re-architecture of managed services; estimated 2-4 weeks of engineering effort per migration |
+| Decision timeline | Before starting infrastructure setup (immediate)                                                                                                                                |
+| Decision-maker    | Solo developer                                                                                                                                                                  |
+| Stakes            | High -- this decision affects architecture, tooling, and cost structure for the life of the product                                                                             |
 
 ---
 
 ### Stage 1: Deal-Breaker Screening
 
-| Hard Constraint | AWS | GCP | Azure |
-|-----------------|-----|-----|-------|
-| Must offer a managed PostgreSQL-compatible service | Pass | Pass | Pass |
-| Must have a free tier or pay-as-you-go pricing (no minimum spend commitment required) | Pass | Pass | Pass |
+| Hard Constraint                                                                       | AWS  | GCP  | Azure |
+| ------------------------------------------------------------------------------------- | ---- | ---- | ----- |
+| Must offer a managed PostgreSQL-compatible service                                    | Pass | Pass | Pass  |
+| Must have a free tier or pay-as-you-go pricing (no minimum spend commitment required) | Pass | Pass | Pass  |
 
 **Options eliminated by deal-breakers:** None
 **Options advancing to scoring:** AWS, GCP, Azure
@@ -333,14 +337,14 @@ If the winner has scored last on the criterion the user verbally describes as "t
 
 ### Stage 2: Criteria, Weights, and Anchors
 
-| # | Criterion | Category | Weight | What it Measures | Score 1 | Score 5 |
-|---|-----------|----------|--------|-----------------|---------|---------|
-| 1 | Pricing for early-stage SaaS | Financial | 25% | Total estimated monthly cost at 0-500 active users, including compute (1 vCPU/2GB), managed Postgres (db.t3.micro equivalent), and egress (50GB/month) | $200+/month with no meaningful free tier | Under $30/month with sustained free tier or credits |
-| 2 | Solo developer ramp-up speed | Operational | 30% | Time to productive deployment given solo developer starting from scratch; accounts for console UX, CLI tooling quality, and learning resources | 40+ hours to first production-ready deployment | Under 10 hours to first production-ready deployment |
-| 3 | Managed database service quality | Operational | 20% | Quality, reliability, and feature set of the managed relational database offering: automated backups, point-in-time recovery, read replicas, connection pooling | No built-in connection pooling, manual backup management required, limited PITR | PgBouncer-compatible connection pooling built-in, automated PITR to 5-minute resolution, seamless read replica promotion |
-| 4 | Vendor lock-in risk | Strategic | 15% | Degree to which core services used for a standard SaaS stack use open standards vs. proprietary APIs; portability of workloads if migration is needed later | Core services use fully proprietary APIs with no open-source equivalent; migration requires full rewrite | Core services map directly to open-source tools (Kubernetes, Postgres, standard S3 API); migration feasible with tooling changes only |
-| 5 | Developer documentation quality | Human | 10% | Quality, accuracy, and navigability of official docs, tutorials, and error message explanations for the standard SaaS stack (compute + database + auth + storage) | Docs are fragmented, frequently outdated, error messages are cryptic, community answers are sparse | Official docs cover every API with working code examples, error messages include resolution steps, active community with answered questions |
-| **TOTAL** | | | **100%** | | | |
+| #         | Criterion                        | Category    | Weight   | What it Measures                                                                                                                                                  | Score 1                                                                                                  | Score 5                                                                                                                                     |
+| --------- | -------------------------------- | ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1         | Pricing for early-stage SaaS     | Financial   | 25%      | Total estimated monthly cost at 0-500 active users, including compute (1 vCPU/2GB), managed Postgres (db.t3.micro equivalent), and egress (50GB/month)            | $200+/month with no meaningful free tier                                                                 | Under $30/month with sustained free tier or credits                                                                                         |
+| 2         | Solo developer ramp-up speed     | Operational | 30%      | Time to productive deployment given solo developer starting from scratch; accounts for console UX, CLI tooling quality, and learning resources                    | 40+ hours to first production-ready deployment                                                           | Under 10 hours to first production-ready deployment                                                                                         |
+| 3         | Managed database service quality | Operational | 20%      | Quality, reliability, and feature set of the managed relational database offering: automated backups, point-in-time recovery, read replicas, connection pooling   | No built-in connection pooling, manual backup management required, limited PITR                          | PgBouncer-compatible connection pooling built-in, automated PITR to 5-minute resolution, seamless read replica promotion                    |
+| 4         | Vendor lock-in risk              | Strategic   | 15%      | Degree to which core services used for a standard SaaS stack use open standards vs. proprietary APIs; portability of workloads if migration is needed later       | Core services use fully proprietary APIs with no open-source equivalent; migration requires full rewrite | Core services map directly to open-source tools (Kubernetes, Postgres, standard S3 API); migration feasible with tooling changes only       |
+| 5         | Developer documentation quality  | Human       | 10%      | Quality, accuracy, and navigability of official docs, tutorials, and error message explanations for the standard SaaS stack (compute + database + auth + storage) | Docs are fragmented, frequently outdated, error messages are cryptic, community answers are sparse       | Official docs cover every API with working code examples, error messages include resolution steps, active community with answered questions |
+| **TOTAL** |                                  |             | **100%** |                                                                                                                                                                   |                                                                                                          |                                                                                                                                             |
 
 **Weighting method used:** Point Allocation -- developer identified ramp-up speed as highest priority (solo operation, time is the binding constraint), followed by pricing at scale, then database quality, then lock-in risk, then documentation.
 
@@ -348,14 +352,14 @@ If the winner has scored last on the criterion the user verbally describes as "t
 
 ### Stage 3: Scoring Matrix
 
-| Criterion (Weight) | AWS | GCP | Azure |
-|--------------------|-----|-----|-------|
-| Pricing for early-stage SaaS (25%) | 3 | 4 | 2 |
-| Solo developer ramp-up speed (30%) | 4 | 3 | 2 |
-| Managed database service quality (20%) | 4 | 3 | 4 |
-| Vendor lock-in risk (15%) | 3 | 4 | 2 |
-| Developer documentation quality (10%) | 4 | 3 | 3 |
-| **Raw Score (unweighted sum)** | **18** | **17** | **13** |
+| Criterion (Weight)                     | AWS    | GCP    | Azure  |
+| -------------------------------------- | ------ | ------ | ------ |
+| Pricing for early-stage SaaS (25%)     | 3      | 4      | 2      |
+| Solo developer ramp-up speed (30%)     | 4      | 3      | 2      |
+| Managed database service quality (20%) | 4      | 3      | 4      |
+| Vendor lock-in risk (15%)              | 3      | 4      | 2      |
+| Developer documentation quality (10%)  | 4      | 3      | 3      |
+| **Raw Score (unweighted sum)**         | **18** | **17** | **13** |
 
 **Information gaps:** None -- all criteria scored with available factual evidence.
 
@@ -364,26 +368,31 @@ If the winner has scored last on the criterion the user verbally describes as "t
 ### Stage 4: Scoring Rationale
 
 **Pricing for early-stage SaaS** (1 = $200+/month, 5 = under $30/month)
+
 - AWS: 3 -- Estimated $45-65/month for t3.micro EC2 + RDS db.t3.micro + 50GB egress; 12-month free tier covers most compute but expires; no sustained free tier after year one
 - GCP: 4 -- e2-micro compute instance is permanently free (not time-limited); Cloud SQL for Postgres starts at ~$7/month for the smallest instance; $300 in credits for new accounts; estimated ongoing monthly cost under $35/month at early-stage traffic
 - Azure: 2 -- B1s VM at ~$15/month; Azure Database for Postgres Flexible Server starts at ~$25/month for burstable tier; combined with egress costs ($0.087/GB), estimated $55-80/month with less generous free-tier coverage
 
 **Solo developer ramp-up speed** (1 = 40+ hours, 5 = under 10 hours)
+
 - AWS: 4 -- Developer already has some AWS familiarity; AWS console is complex but AWS CLI tooling (especially CDK and Copilot) has matured significantly; extensive community tutorials specifically for SaaS bootstrappers; existing mental model reduces ramp-up to approximately 8-12 hours for full stack
 - GCP: 3 -- No existing familiarity; gcloud CLI is well-designed; Cloud Run + Cloud SQL is a straightforward SaaS pattern with good tutorials; estimated 15-20 hours from scratch without prior knowledge; Firebase documentation is strong but GCP-specific SaaS patterns require more research
 - Azure: 2 -- Most complex console UX of the three; Azure Portal navigation requires significant orientation; resource group model adds conceptual overhead; estimated 25-35 hours for a solo developer with no prior Azure experience
 
 **Managed database service quality** (1 = no connection pooling/manual backups, 5 = built-in pooling/5-min PITR/read replica promotion)
+
 - AWS: 4 -- RDS for Postgres offers automated backups with 5-minute PITR, Multi-AZ standby, read replicas with promotion; no built-in connection pooling (requires PgBouncer on a separate instance or RDS Proxy at additional cost ~$0.015/hour); overall strong but connection pooling adds complexity
 - GCP: 3 -- Cloud SQL for Postgres offers automated backups and PITR; no built-in connection pooling until you deploy Cloud SQL Auth Proxy or use AlloyDB at higher price point; read replicas available; slightly less mature than RDS on edge-case reliability; Cloud Spanner is overkill for early SaaS
 - Azure: 4 -- Azure Database for PostgreSQL Flexible Server includes built-in PgBouncer connection pooling (a genuine differentiator); automated PITR with up to 35-day retention; seamless HA with zone-redundant standby; arguably the strongest Postgres managed service of the three for production SaaS
 
 **Vendor lock-in risk** (1 = fully proprietary APIs, 5 = open-standard workloads only)
+
 - AWS: 3 -- Core SaaS services (EC2/ECS, RDS, S3) use open standards; however SQS, Lambda, Cognito, and DynamoDB have proprietary APIs; risk is medium because a standard SaaS stack using RDS + S3 + ALB is relatively portable, but the AWS ecosystem encourages gradual adoption of proprietary services
 - GCP: 4 -- Cloud Run (container-based) uses standard container APIs; Cloud SQL is standard Postgres; GCS uses an S3-compatible API; Firebase is proprietary but optional; Kubernetes on GKE is the most portable managed Kubernetes offering; lower lock-in risk for a containerized SaaS architecture
 - Azure: 2 -- Azure Active Directory/Entra ID is deeply integrated and proprietary; Azure Service Bus and Blob Storage have non-standard APIs; Bicep/ARM templates are Azure-specific; higher lock-in risk than both AWS and GCP for standard tooling choices
 
 **Developer documentation quality** (1 = fragmented/outdated, 5 = complete with code examples and active community)
+
 - AWS: 4 -- AWS documentation is comprehensive and up-to-date; re:Post community has high-quality answered questions; AWS error messages often include documentation links; Boto3 docs are thorough; some docs suffer from being written for enterprise teams rather than solo developers but overall quality is high
 - GCP: 3 -- Google Cloud docs are accurate but can feel sparse on practical SaaS patterns; Qwiklabs/Google documentation improved substantially 2022-2024; error messages are generally clear; community is smaller than AWS but StackOverflow coverage is adequate
 - Azure: 3 -- Microsoft Learn documentation is extremely comprehensive for Azure services; however, docs often assume Windows tooling and .NET stacks, which creates friction for Linux/Node/Python developers; error messages in Azure Portal are sometimes generic; community is strong for enterprise scenarios, weaker for solo SaaS bootstrappers
@@ -393,12 +402,13 @@ If the winner has scored last on the criterion the user verbally describes as "t
 ### Stage 5: Weighted Score Calculation
 
 | Option | Raw Score | Weighted Score | Rank | vs. Winner |
-|--------|----------|---------------|------|------------|
-| AWS | 18 | 3.65 | 1 | -- |
-| GCP | 17 | 3.45 | 2 | -0.20 |
-| Azure | 13 | 2.60 | 3 | -1.05 |
+| ------ | --------- | -------------- | ---- | ---------- |
+| AWS    | 18        | 3.65           | 1    | --         |
+| GCP    | 17        | 3.45           | 2    | -0.20      |
+| Azure  | 13        | 2.60           | 3    | -1.05      |
 
 **Calculation detail:**
+
 - AWS: (3×0.25) + (4×0.30) + (4×0.20) + (3×0.15) + (4×0.10) = 0.75 + 1.20 + 0.80 + 0.45 + 0.40 = **3.60**
 - GCP: (4×0.25) + (3×0.30) + (3×0.20) + (4×0.15) + (3×0.10) = 1.00 + 0.90 + 0.60 + 0.60 + 0.30 = **3.40**
 - Azure: (2×0.25) + (2×0.30) + (4×0.20) + (2×0.15) + (3×0.10) = 0.50 + 0.60 + 0.80 + 0.30 + 0.30 = **2.50**
@@ -410,12 +420,12 @@ If the winner has scored last on the criterion the user verbally describes as "t
 
 ### Stage 6: Sensitivity Analysis
 
-| Test | Change Applied | Winner Under This Scenario | Impact |
-|------|---------------|---------------------------|--------|
-| Reduce highest-weight criterion | Ramp-up speed from 30% to 20% (redistributed equally to other 4) | AWS still wins -- 3.50 vs GCP 3.40 | Winner holds but margin shrinks to 0.10, becoming a toss-up |
-| Ramp-up speed further reduced | Ramp-up speed from 30% to 10% (redistributed to pricing 35%, others proportional) | GCP wins -- 3.65 vs AWS 3.40 | If prior AWS experience is discounted, GCP's pricing advantage drives a reversal |
-| Pricing weight increased | Pricing from 25% to 35% (reduce ramp-up to 20%) | GCP wins -- 3.60 vs AWS 3.50 | GCP's pricing advantage becomes decisive if cost is the primary concern |
-| Runner-up threshold | What GCP needs to tie AWS under current weights | GCP would need ramp-up score of 4 instead of 3 | Practically achievable if developer invests in GCP tutorials upfront |
+| Test                            | Change Applied                                                                    | Winner Under This Scenario                     | Impact                                                                           |
+| ------------------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| Reduce highest-weight criterion | Ramp-up speed from 30% to 20% (redistributed equally to other 4)                  | AWS still wins -- 3.50 vs GCP 3.40             | Winner holds but margin shrinks to 0.10, becoming a toss-up                      |
+| Ramp-up speed further reduced   | Ramp-up speed from 30% to 10% (redistributed to pricing 35%, others proportional) | GCP wins -- 3.65 vs AWS 3.40                   | If prior AWS experience is discounted, GCP's pricing advantage drives a reversal |
+| Pricing weight increased        | Pricing from 25% to 35% (reduce ramp-up to 20%)                                   | GCP wins -- 3.60 vs AWS 3.50                   | GCP's pricing advantage becomes decisive if cost is the primary concern          |
+| Runner-up threshold             | What GCP needs to tie AWS under current weights                                   | GCP would need ramp-up score of 4 instead of 3 | Practically achievable if developer invests in GCP tutorials upfront             |
 
 ---
 
@@ -426,6 +436,7 @@ If the winner has scored last on the criterion the user verbally describes as "t
 **Margin:** 0.20 points over GCP -- this is a **Close Decision** at the border of toss-up. Azure is not competitive under these priorities (gap of 1.10 points).
 
 **What drove the win:**
+
 1. **Solo developer ramp-up speed** (weighted 30%): AWS scored 4 vs GCP's 3, contributing a 0.30-point advantage on the most heavily weighted criterion. The developer's existing AWS familiarity is a genuine asset that reduces time-to-deployment by an estimated 8-10 hours.
 2. **Developer documentation quality** (weighted 10%): AWS scored 4 vs GCP's 3, contributing a small but decisive 0.10-point advantage -- exactly the gap between a close decision and a tie.
 3. AWS matched or exceeded GCP on managed database quality (both competitive) and only trailed on pricing and lock-in risk, where GCP's advantages exist but were outweighed.

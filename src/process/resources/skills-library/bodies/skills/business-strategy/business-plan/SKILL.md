@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy planning entrepreneurship"
-  category: "business-strategy"
-  subcategory: "strategy-planning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'strategy planning entrepreneurship'
+  category: 'business-strategy'
+  subcategory: 'strategy-planning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Business Plan
 
 ## When to Use
@@ -34,6 +35,7 @@ Use this skill when any of the following conditions are true:
 - The user needs to articulate their go-to-market strategy, revenue model, and key assumptions in a single coherent artifact
 
 **Do NOT use this skill when:**
+
 - The user needs a narrative investor pitch -- use `sales-pitch-deck` instead. Business plans inform pitches but are not pitch decks; they have different audiences and structures
 - The user needs detailed multi-year financial projections with income statements, balance sheets, or DCF analysis -- use `financial-model-structure`
 - The user needs a standalone competitive landscape analysis with Porter's Five Forces, market positioning maps, or SWOT -- use `competitive-analysis`
@@ -301,27 +303,35 @@ This final step grounds the plan in reality -- resources required, what makes th
 ## Edge Cases
 
 ### Pre-Idea or Validation Stage (No Product Built)
+
 When the business is still a hypothesis, the plan functions as a structured set of testable assumptions rather than a description of a working business. Mark every solution element as a hypothesis. Add a "Validation Plan" subsection to the Milestones section that lists the top 3 customer discovery experiments (e.g., "conduct 20 problem interviews with restaurant owners in our target segment by [date]"), the hypothesis each experiment tests, and the threshold that would confirm or refute it (e.g., "if fewer than 14 of 20 interviewees name this as their top-3 problem, pivot problem definition"). Use Rob Fitzpatrick's "Mom Test" principles: validation interviews should ask about past behavior, not future intentions.
 
 ### Service Business (Consulting, Agency, Skilled Trades)
+
 Service businesses have structurally different economics than software businesses. Revenue model entries should use hourly ($X/hr), project-based ($X per engagement), or retainer ($X/month for Y deliverables) pricing. Unit economics are margin per engagement (revenue minus direct labor and delivery costs) rather than MRR-based LTV. The gross margin benchmark for professional services is 35-55% after accounting for billable utilization rates (typically 65-75% for knowledge workers). Channels should emphasize referral and outbound relationship-building over paid acquisition, as service businesses typically achieve 60-80% of new revenue through referrals in years 2-5. The unfair advantage in service businesses is most commonly a specific methodology, proprietary framework, or access to a high-trust network that competitors cannot replicate.
 
 ### Marketplace or Platform Business (Two-Sided Networks)
+
 Both the supply side and demand side must be fully described in the Customer Segments section with separate channel strategies and separate acquisition economics. State the chicken-and-egg strategy explicitly: supply-first (seed supply manually before opening to demand), demand-first (build a waitlist of buyers before signing up sellers), or simultaneous launch in a constrained geography (launch in one city to achieve density before expanding). Key metrics must include supply health metrics (e.g., active listings, supply-demand ratio, fill rate) in addition to demand metrics. Take rate must be justified relative to the platform's value contribution -- extracting 25% take rate on a marketplace where the platform provides no trust, payments, or logistics infrastructure will face supply-side revolt. Include a "liquidity" metric: the probability that a buyer can find a match in under X minutes/hours, which is the core value the platform delivers.
 
 ### Nonprofit or Social Enterprise
+
 Replace "Revenue Model" with "Funding Model" and categorize by source: earned revenue (fees for service, product sales), philanthropic funding (grants, donations, major gifts), government contracts, and investment capital (program-related investments, social impact bonds). Key metrics must include impact metrics alongside financial sustainability metrics -- state the theory of change (if we do X, outcome Y will occur, which leads to impact Z) and the specific indicators used to measure each outcome. Unfair advantage in nonprofit contexts is most commonly mission credibility with a specific community (which takes years to build and cannot be purchased), access to a population that other organizations cannot reach, or deep government or funder relationships. Financial sustainability ratio (earned revenue as a percentage of total operating expenses) is a critical metric -- organizations below 30% earned revenue are highly dependent on philanthropic cycles.
 
 ### User Requests Traditional Format Instead of Lean Canvas
+
 When the user explicitly requests traditional format (common for SBA loan applications, bank financing requests, or established businesses updating their plan), restructure the output into: (1) Executive Summary (half page max -- the entire plan in miniature), (2) Company Overview (legal structure, location, founding date, stage), (3) Problem and Market Opportunity (problem, customer segments, TAM/SAM/SOM), (4) Product or Service Description (what it is, how it works, IP or proprietary elements), (5) Go-to-Market and Sales Strategy (channels, sales process, pricing), (6) Operations (team, key processes, key vendors or partners), (7) Financial Highlights (revenue model, unit economics, burn rate, funding needed and use of funds), (8) Milestones and Risk Factors. Maintain the same specificity requirements -- the change is structural, not a license to be vague.
 
 ### Hardware or Physical Product Business
+
 Add a "Supply Chain and Manufacturing" section to the Cost Structure that distinguishes between NRE (non-recurring engineering costs -- tooling, molds, certifications), COGS (bill of materials + manufacturing labor + logistics), and operating costs. Gross margin for hardware is typically 20-50% at scale and 5-20% at initial production volumes -- state the volume at which target margin is achieved. Regulatory and certification costs (FCC, CE, UL, FDA depending on product category) must appear in the cost structure. Channel strategy must address the distinction between DTC (direct-to-consumer via e-commerce), retail distribution (which requires minimum order quantities, margin for the retailer -- typically 40-50% -- and co-op marketing dollars), and OEM (original equipment manufacturer) partnerships.
 
 ### Highly Regulated Industry (Healthcare, Fintech, Legal, Education)
+
 When the business operates in a regulated space, add a "Regulatory and Compliance" section. State the specific regulatory frameworks that apply (e.g., HIPAA for health data, PCI DSS for payment processing, SEC/FINRA for investment products, FERPA for student data). Identify any licenses, registrations, or approvals required before launch and the estimated timeline and cost to obtain them. Regulatory compliance is often a legitimate unfair advantage in regulated markets -- once obtained, it raises the barrier to entry for new competitors. Compliance costs must appear explicitly in the cost structure, and milestone timelines must account for regulatory approval timelines (FDA 510(k) clearance, for example, can take 3-12 months and must appear as a milestone, not a footnote).
 
 ### Existing Business Pivoting to a New Model
+
 When an existing revenue-generating business is considering a pivot (new customer segment, new revenue model, new product line), the plan must address transition risk explicitly. Add a "Transition Economics" section that states: current revenue at risk from the pivot, the timeline over which new revenue will replace it, and the minimum runway required to survive the transition period. The riskiest assumption in a pivot plan is almost always "our existing customers will follow us to the new model" or "our existing distribution channels will work for the new product" -- both of which should be explicitly named and validated before the pivot is fully committed.
 
 ---
@@ -342,11 +352,13 @@ When an existing revenue-generating business is considering a pivot (new custome
 ---
 
 ### Problem
+
 1. **Missed and late renewals cause direct revenue loss:** Independent agencies with 200-500 active policies manage renewal timelines across 5+ insurer portals and 2-4 spreadsheets, resulting in an estimated 3-8% of policies lapsing annually due to tracking failures -- each lapse costs the agency the full commission on that policy ($150-$800 per policy).
 2. **No unified client communication record at renewal time:** Agents spend 45-90 minutes per renewal reconstructing client communication history from email, sticky notes, and spreadsheet comments to prepare for renewal conversations, creating a time cost that limits how many renewals a single agent can handle per week.
 3. **Renewal pipeline has no visibility for agency principals:** Agency owners cannot see which renewals are on track, at risk, or overdue without manually querying each agent -- making revenue forecasting and workload distribution impossible without a weekly all-hands meeting.
 
 **Existing Alternatives (how agencies cope today):**
+
 - Multi-tab Excel workbooks with conditional formatting for date alerts (primary method for ~70% of agencies under 500 policies)
 - Outlook calendar reminders set manually per policy (used alongside spreadsheets)
 - Agency Management Systems (AMS) like Applied Epic or HawkSoft -- overpowered, $500-$2,000/month, designed for agencies with 2,000+ policies; renewal workflow is buried under 40+ modules
@@ -358,20 +370,20 @@ When an existing revenue-generating business is considering a pivot (new custome
 
 ### Customer Segments
 
-| Segment | Profile | Emotional State | Size Estimate |
-|---------|---------|----------------|---------------|
-| Primary: Independent P&C Insurance Agencies | 1-10 agents, 200-1,500 active policies, not yet using an AMS or currently frustrated with their AMS renewal module; revenue $300K-$3M/year; owner-operated; licensed in 1-3 states | Anxious about missed renewals, frustrated by administrative overhead, embarrassed when clients lapse without warning | ~38,000 independent P&C agencies in the US with 1-10 agents (IIABA data); TAM ~$114M/year at $250/mo average; SAM (reachable via digital channels) ~$34M/year |
-| Early Adopters: Growth-stage agencies adding their 3rd-5th agent | Owner has outgrown personal spreadsheet system, beginning to delegate renewals to staff but has no standardized process; actively Googling "insurance renewal tracking software"; willing to pay immediately for any working solution | High urgency -- feels the organizational pain daily; has already experienced at least one painful lapse in the past 12 months | ~8,000 agencies matching this profile; reachable via independent agent association forums and LinkedIn groups (IIABA, PIA member directories) |
+| Segment                                                          | Profile                                                                                                                                                                                                                               | Emotional State                                                                                                               | Size Estimate                                                                                                                                                 |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary: Independent P&C Insurance Agencies                      | 1-10 agents, 200-1,500 active policies, not yet using an AMS or currently frustrated with their AMS renewal module; revenue $300K-$3M/year; owner-operated; licensed in 1-3 states                                                    | Anxious about missed renewals, frustrated by administrative overhead, embarrassed when clients lapse without warning          | ~38,000 independent P&C agencies in the US with 1-10 agents (IIABA data); TAM ~$114M/year at $250/mo average; SAM (reachable via digital channels) ~$34M/year |
+| Early Adopters: Growth-stage agencies adding their 3rd-5th agent | Owner has outgrown personal spreadsheet system, beginning to delegate renewals to staff but has no standardized process; actively Googling "insurance renewal tracking software"; willing to pay immediately for any working solution | High urgency -- feels the organizational pain daily; has already experienced at least one painful lapse in the past 12 months | ~8,000 agencies matching this profile; reachable via independent agent association forums and LinkedIn groups (IIABA, PIA member directories)                 |
 
 ---
 
 ### Solution
 
-| Problem | Solution | Outcome for Customer |
-|---------|----------|---------------------|
-| Missed renewals causing policy lapses | Centralized renewal calendar with automated 90/60/30-day email and SMS alerts triggered by policy effective date; no manual setup per policy after initial import | Agencies reduce policy lapse rate from 3-8% to under 1%; estimated revenue saved: $4,000-$15,000/year per agency depending on book of business size |
-| 45-90 minute per-renewal prep time | Unified client record that aggregates policy details, communication history, and renewal notes in one screen; one-click renewal summary exported as a PDF for client calls | Renewal prep time reduced to under 10 minutes per client; single agent can handle 40% more renewals per week |
-| No pipeline visibility for agency owners | Principal dashboard showing renewal pipeline by agent, by status (on-track, at-risk, overdue), and by projected commission value; weekly digest email auto-generated every Monday | Agency principals can conduct renewal reviews in 15 minutes instead of a weekly all-hands; revenue forecast accuracy improves |
+| Problem                                  | Solution                                                                                                                                                                          | Outcome for Customer                                                                                                                                |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Missed renewals causing policy lapses    | Centralized renewal calendar with automated 90/60/30-day email and SMS alerts triggered by policy effective date; no manual setup per policy after initial import                 | Agencies reduce policy lapse rate from 3-8% to under 1%; estimated revenue saved: $4,000-$15,000/year per agency depending on book of business size |
+| 45-90 minute per-renewal prep time       | Unified client record that aggregates policy details, communication history, and renewal notes in one screen; one-click renewal summary exported as a PDF for client calls        | Renewal prep time reduced to under 10 minutes per client; single agent can handle 40% more renewals per week                                        |
+| No pipeline visibility for agency owners | Principal dashboard showing renewal pipeline by agent, by status (on-track, at-risk, overdue), and by projected commission value; weekly digest email auto-generated every Monday | Agency principals can conduct renewal reviews in 15 minutes instead of a weekly all-hands; revenue forecast accuracy improves                       |
 
 **MVP (Minimum Viable Solution):** Policy import via CSV, renewal calendar with automated email alerts at 90/60/30 days, and client notes field. Principal dashboard and SMS alerts are Phase 2 (Month 4-6 post-launch).
 
@@ -387,20 +399,20 @@ When an existing revenue-generating business is considering a pivot (new custome
 
 ### Channels
 
-| Channel | Type | Why It Fits This Customer | Estimated CAC |
-|---------|------|--------------------------|---------------|
-| Independent agent association communities (IIABA, PIA state chapters) | Inbound/Partnership | Agency owners actively seek peer recommendations before purchasing any operations tool; association endorsement creates instant trust in a trust-driven industry | Projected: $80-$120 per trial signup; benchmark from comparable B2B niche SaaS: $200-$600 CAC |
-| LinkedIn outbound to agency principals with 3-10 employees | Outbound | Agency owners are identifiable by role, company size, and license type on LinkedIn; direct outreach from a credentialed insurance operations professional (15-year background) will be well-received | Projected: $150-$250 per trial; includes sales time at opportunity cost |
-| Content SEO targeting "insurance renewal tracking software" and "policy renewal management" | Inbound | These terms are searched by agency owners experiencing the exact problem; low competition in niche insurance operations search space | Projected: $30-$60 per organic trial at scale (Months 6-12); near zero early until content accumulates |
+| Channel                                                                                     | Type                | Why It Fits This Customer                                                                                                                                                                            | Estimated CAC                                                                                          |
+| ------------------------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Independent agent association communities (IIABA, PIA state chapters)                       | Inbound/Partnership | Agency owners actively seek peer recommendations before purchasing any operations tool; association endorsement creates instant trust in a trust-driven industry                                     | Projected: $80-$120 per trial signup; benchmark from comparable B2B niche SaaS: $200-$600 CAC          |
+| LinkedIn outbound to agency principals with 3-10 employees                                  | Outbound            | Agency owners are identifiable by role, company size, and license type on LinkedIn; direct outreach from a credentialed insurance operations professional (15-year background) will be well-received | Projected: $150-$250 per trial; includes sales time at opportunity cost                                |
+| Content SEO targeting "insurance renewal tracking software" and "policy renewal management" | Inbound             | These terms are searched by agency owners experiencing the exact problem; low competition in niche insurance operations search space                                                                 | Projected: $30-$60 per organic trial at scale (Months 6-12); near zero early until content accumulates |
 
 ---
 
 ### Revenue Model
 
-| Stream | Mechanism | Price Point | Gross Margin | Unit Economics |
-|--------|-----------|-------------|--------------|----------------|
-| Monthly SaaS subscription | Per-agency flat fee; one subscription per agency regardless of agent count (up to 10 agents) | $199/month (Tier 1: up to 500 policies); $349/month (Tier 2: 501-1,500 policies) | 85% (cloud hosting $8/agency/month; payment processing 2.9%) | Projected CAC: $200 | Projected LTV (24-month avg tenure, 3.5% mo. churn): $1,430 at $199/mo | LTV:CAC: 7.2:1 | Payback: ~1.5 months |
-| Annual prepayment discount | Customer pays 12 months upfront at 2-month discount (10 months billed) | $1,990/year (Tier 1 annual) | 85% | Improves cash flow; reduces churn risk by ~40% for prepaid cohort (benchmark from comparable SMB SaaS) |
+| Stream                     | Mechanism                                                                                    | Price Point                                                                      | Gross Margin                                                 | Unit Economics                                                                                         |
+| -------------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | -------------- | -------------------- |
+| Monthly SaaS subscription  | Per-agency flat fee; one subscription per agency regardless of agent count (up to 10 agents) | $199/month (Tier 1: up to 500 policies); $349/month (Tier 2: 501-1,500 policies) | 85% (cloud hosting $8/agency/month; payment processing 2.9%) | Projected CAC: $200                                                                                    | Projected LTV (24-month avg tenure, 3.5% mo. churn): $1,430 at $199/mo | LTV:CAC: 7.2:1 | Payback: ~1.5 months |
+| Annual prepayment discount | Customer pays 12 months upfront at 2-month discount (10 months billed)                       | $1,990/year (Tier 1 annual)                                                      | 85%                                                          | Improves cash flow; reduces churn risk by ~40% for prepaid cohort (benchmark from comparable SMB SaaS) |
 
 **Revenue Model Notes:** $199/month pricing validated against 8 of 12 discovery interview participants who named a willingness to pay between $100-$300/month. Two participants named $50-$100, two named $400+. Annual plan discount to be tested in Month 2-3 of revenue operations. Free trial of 14 days with no credit card required to reduce friction; conversion rate hypothesis: 25% of trial users convert (benchmark for SMB SaaS with strong product-problem fit: 20-35%).
 
@@ -410,14 +422,15 @@ When an existing revenue-generating business is considering a pivot (new custome
 
 **North Star Metric:** Active policy records managed on RenewalDesk -- Target: 50,000 policies under management by Month 12 (indicates both customer count and depth of usage per customer)
 
-| Metric | Definition | Baseline | 6-Month Target | 12-Month Target |
-|--------|-----------|---------|---------------|----------------|
-| MRR (Monthly Recurring Revenue) | Sum of all active subscription fees in a calendar month | $0 (pre-revenue) | $15,000 (75 agencies) | $45,000 (200 agencies) |
-| Monthly Churn Rate | Agencies that cancel in month / total agencies at start of month | N/A | <4% (acceptable during early iteration) | <2.5% (target steady state for SMB SaaS) |
-| Trial-to-Paid Conversion Rate | Trials started in period that convert to paid within 14 days | N/A | 20% (initial hypothesis) | 28% (as onboarding improves) |
-| Time-to-First-Renewal-Alert | Minutes from account creation to first automated renewal alert configured | N/A | <15 minutes (activation metric) | <8 minutes (with guided onboarding) |
+| Metric                          | Definition                                                                | Baseline         | 6-Month Target                          | 12-Month Target                          |
+| ------------------------------- | ------------------------------------------------------------------------- | ---------------- | --------------------------------------- | ---------------------------------------- |
+| MRR (Monthly Recurring Revenue) | Sum of all active subscription fees in a calendar month                   | $0 (pre-revenue) | $15,000 (75 agencies)                   | $45,000 (200 agencies)                   |
+| Monthly Churn Rate              | Agencies that cancel in month / total agencies at start of month          | N/A              | <4% (acceptable during early iteration) | <2.5% (target steady state for SMB SaaS) |
+| Trial-to-Paid Conversion Rate   | Trials started in period that convert to paid within 14 days              | N/A              | 20% (initial hypothesis)                | 28% (as onboarding improves)             |
+| Time-to-First-Renewal-Alert     | Minutes from account creation to first automated renewal alert configured | N/A              | <15 minutes (activation metric)         | <8 minutes (with guided onboarding)      |
 
 **Health Thresholds:**
+
 - Monthly churn above 5% requires immediate customer interview sprint to identify top cancellation reason
 - LTV:CAC ratio below 3:1 triggers channel efficiency review and pricing experiment
 - Trial-to-paid conversion below 15% triggers onboarding redesign sprint
@@ -434,15 +447,15 @@ When an existing revenue-generating business is considering a pivot (new custome
 
 ### Cost Structure
 
-| Category | Description | Monthly Estimate | Fixed or Variable |
-|----------|------------|-----------------|------------------|
-| People | Solo founder (sweat equity, no salary draw until $15K MRR); contract developer for MVP ($6,000/month for 4-month build) | $6,000 (build phase); $0 (post-launch, until $15K MRR) | Fixed (build phase) |
-| Customer Acquisition | LinkedIn Sales Navigator ($100/mo), content tools ($50/mo), association membership dues ($200/mo), outreach tools ($80/mo) | $430 | Fixed |
-| Infrastructure | AWS hosting ($150/mo), Stripe payment processing (2.9% of revenue), email delivery service ($30/mo), analytics ($50/mo) | $230 + 2.9% of revenue | Semi-variable |
-| Customer Success | Help desk software ($50/mo), screen recording for onboarding ($20/mo), founder's time (10 hrs/week) | $70 | Fixed |
-| Compliance & Legal | Insurance industry-specific data handling review (one-time $2,500 legal review); ongoing accounting ($300/mo) | $300 ongoing; $2,500 one-time | Fixed |
-| **Total Monthly Burn (build phase)** | | **$7,030 [Projected]** | |
-| **Total Monthly Burn (post-launch, pre-revenue)** | | **$1,030 [Projected]** | |
+| Category                                          | Description                                                                                                                | Monthly Estimate                                       | Fixed or Variable   |
+| ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------- |
+| People                                            | Solo founder (sweat equity, no salary draw until $15K MRR); contract developer for MVP ($6,000/month for 4-month build)    | $6,000 (build phase); $0 (post-launch, until $15K MRR) | Fixed (build phase) |
+| Customer Acquisition                              | LinkedIn Sales Navigator ($100/mo), content tools ($50/mo), association membership dues ($200/mo), outreach tools ($80/mo) | $430                                                   | Fixed               |
+| Infrastructure                                    | AWS hosting ($150/mo), Stripe payment processing (2.9% of revenue), email delivery service ($30/mo), analytics ($50/mo)    | $230 + 2.9% of revenue                                 | Semi-variable       |
+| Customer Success                                  | Help desk software ($50/mo), screen recording for onboarding ($20/mo), founder's time (10 hrs/week)                        | $70                                                    | Fixed               |
+| Compliance & Legal                                | Insurance industry-specific data handling review (one-time $2,500 legal review); ongoing accounting ($300/mo)              | $300 ongoing; $2,500 one-time                          | Fixed               |
+| **Total Monthly Burn (build phase)**              |                                                                                                                            | **$7,030 [Projected]**                                 |                     |
+| **Total Monthly Burn (post-launch, pre-revenue)** |                                                                                                                            | **$1,030 [Projected]**                                 |                     |
 
 **Months of Runway:** Founder has $30,000 in personal savings allocated to this venture. At $7,030/month during 4-month build: $28,120 spent through MVP launch. Remaining $1,880 provides ~1.8 months post-launch runway at $1,030/month burn. First 10 paying customers ($1,990 MRR) cover ongoing burn. **Critical milestone: 10 paying customers within 60 days of launch.**
 
@@ -450,9 +463,9 @@ When an existing revenue-generating business is considering a pivot (new custome
 
 ### Milestones
 
-| Milestone | Description | Target Date | Success Metric | Validates |
-|-----------|------------|------------|----------------|-----------|
-| MVP Launch | CSV policy import, renewal calendar, automated 90/60/30 day email alerts, and basic client notes live and stable | Month 4 from start | 0 critical bugs; 5 beta agencies completing full policy import and receiving first automated alert | That the core product can be built by a solo founder + one contractor within budget and 4 months |
-| First 10 Paying Customers | Convert beta agencies and discovery interview participants to paid subscriptions at $199/month | Month 6 from start | $1,990 MRR; average trial-to-paid conversion among beta cohort >= 20% | That agencies will pay $199/month for a standalone renewal tool (riskiest assumption) |
-| 50 Paying Customers and CAC Validation | Scale from personal network to first channel-acquired customers via LinkedIn outbound and one IIABA state chapter partnership | Month 9 from start | $9,950 MRR; at least 20 of 50 customers acquired through a channel other than founder's personal network; CAC confirmed <= $250 | That customer acquisition is repeatable and economics are sustainable beyond founder's personal network |
-| Churn Rate Stabilization | Identify and resolve top 2 cancellation drivers through monthly churned-customer interviews; implement retention improvements | Month 12 from start | Monthly churn rate at or below 2.5% for 3 consecutive months; NPS score >= 40 from active customer base | That the product has sufficient retention to support an LTV model justifying paid acquisition at scale |
+| Milestone                              | Description                                                                                                                   | Target Date         | Success Metric                                                                                                                  | Validates                                                                                               |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| MVP Launch                             | CSV policy import, renewal calendar, automated 90/60/30 day email alerts, and basic client notes live and stable              | Month 4 from start  | 0 critical bugs; 5 beta agencies completing full policy import and receiving first automated alert                              | That the core product can be built by a solo founder + one contractor within budget and 4 months        |
+| First 10 Paying Customers              | Convert beta agencies and discovery interview participants to paid subscriptions at $199/month                                | Month 6 from start  | $1,990 MRR; average trial-to-paid conversion among beta cohort >= 20%                                                           | That agencies will pay $199/month for a standalone renewal tool (riskiest assumption)                   |
+| 50 Paying Customers and CAC Validation | Scale from personal network to first channel-acquired customers via LinkedIn outbound and one IIABA state chapter partnership | Month 9 from start  | $9,950 MRR; at least 20 of 50 customers acquired through a channel other than founder's personal network; CAC confirmed <= $250 | That customer acquisition is repeatable and economics are sustainable beyond founder's personal network |
+| Churn Rate Stabilization               | Identify and resolve top 2 cancellation drivers through monthly churned-customer interviews; implement retention improvements | Month 12 from start | Monthly churn rate at or below 2.5% for 3 consecutive months; NPS score >= 40 from active customer base                         | That the product has sufficient retention to support an LTV model justifying paid acquisition at scale  |

@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "cleaning guide step-by-step"
-  category: "home-household"
-  subcategory: "cleaning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'cleaning guide step-by-step'
+  category: 'home-household'
+  subcategory: 'cleaning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Laundry System
 
 ## When to Use
@@ -434,15 +435,16 @@ Some users come with a specific damage problem rather than a general system need
 
 ### Sorting Architecture -- Set Up 5 Bins
 
-| Bin | What Goes In | Approximate Frequency |
-|-----|-------------|----------------------|
-| LIGHTS | White t-shirts, underwear, light-gray socks, light-colored tops, white kids' uniforms (non-soccer) | 2x per week |
-| DARKS | Black, navy, dark gray, dark brown clothing -- jeans, dark t-shirts, dark pants, dark socks | 2x per week |
-| COLORS | Bright reds, oranges, yellows, bright blues, medium greens -- anything saturated that could bleed | 1x per week |
-| TOWELS + SHEETS | Bath towels, hand towels, washcloths, all bed sheets and pillowcases | 1-2x per week |
-| ACTIVEWEAR + DELICATES | Soccer kit (jersey, shorts, socks), all sports clothing from both kids and adults, sports bras, anything labeled "gentle" | 1-2x per week |
+| Bin                    | What Goes In                                                                                                              | Approximate Frequency |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| LIGHTS                 | White t-shirts, underwear, light-gray socks, light-colored tops, white kids' uniforms (non-soccer)                        | 2x per week           |
+| DARKS                  | Black, navy, dark gray, dark brown clothing -- jeans, dark t-shirts, dark pants, dark socks                               | 2x per week           |
+| COLORS                 | Bright reds, oranges, yellows, bright blues, medium greens -- anything saturated that could bleed                         | 1x per week           |
+| TOWELS + SHEETS        | Bath towels, hand towels, washcloths, all bed sheets and pillowcases                                                      | 1-2x per week         |
+| ACTIVEWEAR + DELICATES | Soccer kit (jersey, shorts, socks), all sports clothing from both kids and adults, sports bras, anything labeled "gentle" | 1-2x per week         |
 
 **Sorting rules for this household:**
+
 - Place a bin in the kids' bedrooms and the master bedroom -- not just in the laundry room. Dirty clothes travel to bins, not to the floor.
 - The 12-year-old sorts their own clothes. Takes 30 seconds per night. The 7-year-old can be guided by color.
 - Soccer kit goes directly into the ACTIVEWEAR bin immediately after a game or practice -- stains treated while still fresh, not discovered 3 days later.
@@ -453,14 +455,14 @@ Some users come with a specific damage problem rather than a general system need
 
 ### Wash Settings Matrix
 
-| Category | Water Temp | Temp °F | Cycle | HE Detergent Dose | Special Instructions |
-|----------|-----------|---------|-------|------------------|---------------------|
-| Lights | Warm | 105°F | Normal | 1.5 tbsp (HE line 1) | Add 1/2 cup baking soda for brightness on whites. No bleach on items with any synthetic fiber content. |
-| Darks | Cold | 80°F | Normal | 1.5 tbsp (HE line 1) | Wash inside-out. Zip all zippers to prevent snagging. Cold water slows dye release. |
-| Colors | Cold | 80°F | Normal | 1.5 tbsp (HE line 1) | Cold water only -- warm or hot causes bright dyes (especially reds) to bleed. Wash new bright items alone for first wash. |
-| Towels | Hot | 130°F | Heavy Duty | 2 tbsp (HE line 2) | No fabric softener -- ever. It coats fibers and destroys absorbency. Use 1/2 cup white vinegar in the rinse dispenser instead. |
-| Sheets | Warm | 105°F | Normal | 1.5 tbsp (HE line 1) | Wash king-size sheets alone -- they need the full drum to agitate properly. Twin/full sheets can be combined. |
-| Activewear / Soccer | Cold | 80°F | Gentle/Delicate | 1 tbsp (half of HE line 1) | Inside-out. Mesh laundry bag for sports bras. NO fabric softener. If soccer kit smells after washing, pre-soak 30 min in 1 cup white vinegar per gallon of cold water before washing. |
+| Category            | Water Temp | Temp °F | Cycle           | HE Detergent Dose          | Special Instructions                                                                                                                                                                  |
+| ------------------- | ---------- | ------- | --------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lights              | Warm       | 105°F   | Normal          | 1.5 tbsp (HE line 1)       | Add 1/2 cup baking soda for brightness on whites. No bleach on items with any synthetic fiber content.                                                                                |
+| Darks               | Cold       | 80°F    | Normal          | 1.5 tbsp (HE line 1)       | Wash inside-out. Zip all zippers to prevent snagging. Cold water slows dye release.                                                                                                   |
+| Colors              | Cold       | 80°F    | Normal          | 1.5 tbsp (HE line 1)       | Cold water only -- warm or hot causes bright dyes (especially reds) to bleed. Wash new bright items alone for first wash.                                                             |
+| Towels              | Hot        | 130°F   | Heavy Duty      | 2 tbsp (HE line 2)         | No fabric softener -- ever. It coats fibers and destroys absorbency. Use 1/2 cup white vinegar in the rinse dispenser instead.                                                        |
+| Sheets              | Warm       | 105°F   | Normal          | 1.5 tbsp (HE line 1)       | Wash king-size sheets alone -- they need the full drum to agitate properly. Twin/full sheets can be combined.                                                                         |
+| Activewear / Soccer | Cold       | 80°F    | Gentle/Delicate | 1 tbsp (half of HE line 1) | Inside-out. Mesh laundry bag for sports bras. NO fabric softener. If soccer kit smells after washing, pre-soak 30 min in 1 cup white vinegar per gallon of cold water before washing. |
 
 **HE Detergent Note:**
 Your front-load HE washer uses approximately 13-15 gallons per cycle. Use 1-2 tablespoons per load maximum -- this is correct even though it looks like too little. Overdosing creates suds that the low water volume cannot rinse out, leading to residue buildup in the drum and dispensers that causes the machine to develop a musty smell over time. If your machine has a faint sour odor, overdosing is the likely cause.
@@ -469,16 +471,17 @@ Your front-load HE washer uses approximately 13-15 gallons per cycle. Use 1-2 ta
 
 ### Drying Guide
 
-| Category | Dryer Setting | Est. Time | Notes / Air Dry Instructions |
-|----------|--------------|-----------|------------------------------|
-| Lights | Medium heat | 40-50 min | Remove promptly. Fold while still warm. |
-| Darks | Low-Medium heat | 45-55 min | Low heat slows additional fading. Fold immediately -- heat-set wrinkles in dark denim are difficult to remove. |
-| Colors | Medium heat | 40-50 min | Remove promptly. |
-| Towels | High heat | 50-60 min | Towels benefit from high heat -- full drying prevents mildew between uses. No items to remove from this load. |
-| Sheets | Medium heat | 40-55 min | Remove and fold/put back on bed immediately to prevent wrinkle-setting. King sheets: 55+ minutes. |
-| Activewear / Soccer | NO DRYER for elastic items | Air dry | **All sports bras, compression shorts, swimwear: hang or lay flat to dry.** Soccer jerseys and shorts: air dry or use air fluff (no heat) only. Heat degrades elastic permanently -- 3-4 dryer cycles at high heat can permanently destroy a sports bra's support. Soccer socks: can go in the dryer on low heat. |
+| Category            | Dryer Setting              | Est. Time | Notes / Air Dry Instructions                                                                                                                                                                                                                                                                                      |
+| ------------------- | -------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lights              | Medium heat                | 40-50 min | Remove promptly. Fold while still warm.                                                                                                                                                                                                                                                                           |
+| Darks               | Low-Medium heat            | 45-55 min | Low heat slows additional fading. Fold immediately -- heat-set wrinkles in dark denim are difficult to remove.                                                                                                                                                                                                    |
+| Colors              | Medium heat                | 40-50 min | Remove promptly.                                                                                                                                                                                                                                                                                                  |
+| Towels              | High heat                  | 50-60 min | Towels benefit from high heat -- full drying prevents mildew between uses. No items to remove from this load.                                                                                                                                                                                                     |
+| Sheets              | Medium heat                | 40-55 min | Remove and fold/put back on bed immediately to prevent wrinkle-setting. King sheets: 55+ minutes.                                                                                                                                                                                                                 |
+| Activewear / Soccer | NO DRYER for elastic items | Air dry   | **All sports bras, compression shorts, swimwear: hang or lay flat to dry.** Soccer jerseys and shorts: air dry or use air fluff (no heat) only. Heat degrades elastic permanently -- 3-4 dryer cycles at high heat can permanently destroy a sports bra's support. Soccer socks: can go in the dryer on low heat. |
 
 **Never-Dryer List for This Household:**
+
 - All sports bras (both adult and any worn by the 12-year-old for sports)
 - Soccer jersey and shorts (any synthetic game-day gear)
 - Anything labeled "lay flat to dry"
@@ -489,9 +492,9 @@ Your front-load HE washer uses approximately 13-15 gallons per cycle. Use 1-2 ta
 
 ### Stain Treatment Quick Reference
 
-| Stain Type | First Response (within 5 min) | Full Treatment Method | Temp | Critical Warning |
-|-----------|-------------------------------|----------------------|------|-----------------|
-| Grass (soccer) | Apply undiluted liquid laundry detergent directly to stain, rub gently | Let sit 15 min. Wash warm (normal cycle, lights or colors bin depending on uniform color). | Warm | Do NOT pre-treat with hot water -- protein component will set. Treat before putting in the bin. |
-| Mud (soccer, playground) | Do nothing yet -- let dry completely | Brush off all dried mud first. Apply liquid detergent to remaining stain, let sit 10 min. Wash warm. | Warm | Do NOT rub wet mud -- it pushes deeper into fibers. The counterintuitive step (letting it dry) is correct. |
-| Blood (playground scrapes, cuts) | Cold running water immediately through the back of the fabric | Apply 3% hydrogen peroxide directly -- it will fizz. Blot with cloth, do not rub. Repeat if needed. Wash cold. | COLD ONLY | HOT WATER SETS BLOOD PERMANENTLY. Cold water only, every step. Once dried, soak in cold water + enzyme detergent 30-60 min before washing. |
-| Food grease / lunch box spills | Sprinkle baking soda on the stain immediately -- absorbs oil before it spreads. Leave 15-20 min. | Brush off baking soda. Apply dish soap directly to st
+| Stain Type                       | First Response (within 5 min)                                                                    | Full Treatment Method                                                                                          | Temp      | Critical Warning                                                                                                                           |
+| -------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Grass (soccer)                   | Apply undiluted liquid laundry detergent directly to stain, rub gently                           | Let sit 15 min. Wash warm (normal cycle, lights or colors bin depending on uniform color).                     | Warm      | Do NOT pre-treat with hot water -- protein component will set. Treat before putting in the bin.                                            |
+| Mud (soccer, playground)         | Do nothing yet -- let dry completely                                                             | Brush off all dried mud first. Apply liquid detergent to remaining stain, let sit 10 min. Wash warm.           | Warm      | Do NOT rub wet mud -- it pushes deeper into fibers. The counterintuitive step (letting it dry) is correct.                                 |
+| Blood (playground scrapes, cuts) | Cold running water immediately through the back of the fabric                                    | Apply 3% hydrogen peroxide directly -- it will fizz. Blot with cloth, do not rub. Repeat if needed. Wash cold. | COLD ONLY | HOT WATER SETS BLOOD PERMANENTLY. Cold water only, every step. Once dried, soak in cold water + enzyme detergent 30-60 min before washing. |
+| Food grease / lunch box spills   | Sprinkle baking soda on the stain immediately -- absorbs oil before it spreads. Leave 15-20 min. | Brush off baking soda. Apply dish soap directly to st                                                          |

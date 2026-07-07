@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops automation cloud"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops automation cloud'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Infrastructure As Code
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks about writing, structuring, or managing Terraform, Pulumi, AWS CDK, Bicep, Crossplane, or Ansible configurations for production infrastructure
 - The user wants to migrate from manual ClickOps provisioning or shell scripts to declarative IaC
 - The user needs to design module structure, state management strategy, or workspace layout for a multi-environment IaC project
@@ -30,6 +32,7 @@ metadata:
 - The user asks about secret injection, remote state backends, or workload identity for IaC pipelines
 
 **Do NOT use this skill when:**
+
 - The user needs container orchestration specifics (Kubernetes manifests, Helm charts, Kustomize) -- use the container-orchestration skill instead
 - The user is asking about CI/CD pipeline configuration (GitHub Actions YAML, Tekton pipelines) for application code rather than infrastructure -- use the ci-cd-pipelines skill
 - The user needs cloud cost optimization analysis without IaC context -- use the cloud-cost-management skill
@@ -171,14 +174,14 @@ When responding to a user's IaC question, produce output in this structure:
 
 ### Situation Assessment
 
-| Factor | Observed Value | Implication |
-|---|---|---|
-| Tool | Terraform 1.7 / Pulumi / CDK | Affects syntax and state model |
-| Environment count | 3 (dev/staging/prod) | Separate state files per environment |
-| Team size | 8 engineers | Atlantis or TF Cloud for plan review |
-| Cloud provider | AWS / Azure / GCP / Multi | Affects provider pinning and backend |
-| Existing infra | Greenfield / Migration | Affects import strategy |
-| Compliance needs | SOC 2 / HIPAA / None | Affects policy-as-code requirements |
+| Factor            | Observed Value               | Implication                          |
+| ----------------- | ---------------------------- | ------------------------------------ |
+| Tool              | Terraform 1.7 / Pulumi / CDK | Affects syntax and state model       |
+| Environment count | 3 (dev/staging/prod)         | Separate state files per environment |
+| Team size         | 8 engineers                  | Atlantis or TF Cloud for plan review |
+| Cloud provider    | AWS / Azure / GCP / Multi    | Affects provider pinning and backend |
+| Existing infra    | Greenfield / Migration       | Affects import strategy              |
+| Compliance needs  | SOC 2 / HIPAA / None         | Affects policy-as-code requirements  |
 
 ### Recommended Structure
 
@@ -189,6 +192,7 @@ When responding to a user's IaC question, produce output in this structure:
 Provide complete, deployable files with inline comments explaining every non-obvious setting. Never use placeholder values.
 
 **Backend configuration** (`backend.tf`):
+
 ```hcl
 terraform {
   backend "s3" {
@@ -204,6 +208,7 @@ terraform {
 ```
 
 **Provider and version pins** (`versions.tf`):
+
 ```hcl
 terraform {
   required_version = ">= 1.6.0, < 2.0.0"
@@ -219,12 +224,12 @@ terraform {
 
 ### Decision Matrix
 
-| Criterion | Option 1 | Option 2 | Winner | Rationale |
-|---|---|---|---|---|
-| Multi-cloud support | Terraform: Yes | CDK: AWS-only | Terraform | Org uses AWS + Azure |
-| Language familiarity | HCL (new DSL) | TypeScript (known) | CDK | Team is TypeScript-native |
-| State management | Built-in S3 | CDK requires TF/CFN | Depends | See rationale |
-| Policy integration | OPA/Sentinel | CloudFormation Guard | Terraform | Richer policy ecosystem |
+| Criterion            | Option 1       | Option 2             | Winner    | Rationale                 |
+| -------------------- | -------------- | -------------------- | --------- | ------------------------- |
+| Multi-cloud support  | Terraform: Yes | CDK: AWS-only        | Terraform | Org uses AWS + Azure      |
+| Language familiarity | HCL (new DSL)  | TypeScript (known)   | CDK       | Team is TypeScript-native |
+| State management     | Built-in S3    | CDK requires TF/CFN  | Depends   | See rationale             |
+| Policy integration   | OPA/Sentinel   | CloudFormation Guard | Terraform | Richer policy ecosystem   |
 
 ### Security Controls Checklist
 
@@ -344,15 +349,15 @@ When IaC operates in regulated environments with audit obligations:
 
 ### Situation Assessment
 
-| Factor | Observed Value | Implication |
-|---|---|---|
-| Tool | Terraform (recommended for AWS multi-account) | HCL, S3 backend, DynamoDB locking |
-| Environment count | 3 (dev / staging / prod) | Three separate root modules, three state backends |
-| Team size | 8 engineers | Atlantis or TF Cloud for PR-based plan review |
-| Cloud | AWS | AWS provider ~> 5.x, OIDC for GitHub Actions |
-| Existing infra | Full migration (VPC, ECS, RDS, ALB) | Import-first strategy, no recreation |
-| CI | GitHub Actions | OIDC trust policy, saved plan artifacts |
-| Compliance | Unspecified -- implement SOC 2 baseline | Audit logs, CMK encryption, access controls |
+| Factor            | Observed Value                                | Implication                                       |
+| ----------------- | --------------------------------------------- | ------------------------------------------------- |
+| Tool              | Terraform (recommended for AWS multi-account) | HCL, S3 backend, DynamoDB locking                 |
+| Environment count | 3 (dev / staging / prod)                      | Three separate root modules, three state backends |
+| Team size         | 8 engineers                                   | Atlantis or TF Cloud for PR-based plan review     |
+| Cloud             | AWS                                           | AWS provider ~> 5.x, OIDC for GitHub Actions      |
+| Existing infra    | Full migration (VPC, ECS, RDS, ALB)           | Import-first strategy, no recreation              |
+| CI                | GitHub Actions                                | OIDC trust policy, saved plan artifacts           |
+| Compliance        | Unspecified -- implement SOC 2 baseline       | Audit logs, CMK encryption, access controls       |
 
 ---
 
@@ -666,19 +671,19 @@ name: Terraform
 
 on:
   pull_request:
-    paths: ["infra/**"]
+    paths: ['infra/**']
   push:
     branches: [main]
-    paths: ["infra/**"]
+    paths: ['infra/**']
 
 permissions:
-  id-token: write   # Required for OIDC token generation
+  id-token: write # Required for OIDC token generation
   contents: read
-  pull-requests: write  # Required for PR comment with plan output
+  pull-requests: write # Required for PR comment with plan output
 
 env:
-  TF_VERSION: "1.7.2"
-  AWS_REGION: "us-east-1"
+  TF_VERSION: '1.7.2'
+  AWS_REGION: 'us-east-1'
 
 jobs:
   validate:
@@ -710,7 +715,7 @@ jobs:
         with:
           directory: infra/
           config_file: infra/policies/checkov-baseline.yaml
-          soft_fail: false  # Hard fail on critical findings
+          soft_fail: false # Hard fail on critical findings
           output_format: sarif
           output_file_path: checkov-results.sarif
 
@@ -723,7 +728,7 @@ jobs:
     name: Plan Dev
     runs-on: ubuntu-latest
     needs: validate
-    environment: dev-plan  # GitHub environment with OIDC trust
+    environment: dev-plan # GitHub environment with OIDC trust
     steps:
       - uses: actions/checkout@v4
 
@@ -782,8 +787,8 @@ jobs:
     name: Apply Dev
     runs-on: ubuntu-latest
     needs: plan-dev
-    if: github.ref == 'refs/heads/main'  # Only apply on merge to main
-    environment: dev-apply  # GitHub environment for audit trail
+    if: github.ref == 'refs/heads/main' # Only apply on merge to main
+    environment: dev-apply # GitHub environment for audit trail
     steps:
       - uses: actions/checkout@v4
 
@@ -816,9 +821,9 @@ jobs:
   apply-prod:
     name: Apply Prod
     runs-on: ubuntu-latest
-    needs: [plan-prod, apply-staging]  # Prod only after staging succeeds
+    needs: [plan-prod, apply-staging] # Prod only after staging succeeds
     if: github.ref == 'refs/heads/main'
-    environment: prod-apply  # Configured in GitHub with 2 required reviewers
+    environment: prod-apply # Configured in GitHub with 2 required reviewers
     steps:
       # ... identical pattern to apply-dev with prod role ARN
 ```
@@ -833,3 +838,4 @@ jobs:
 # After all imports succeed with zero-diff plan, delete this file
 
 import
+```

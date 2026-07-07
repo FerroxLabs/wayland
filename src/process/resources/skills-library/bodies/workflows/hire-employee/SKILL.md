@@ -13,12 +13,12 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "template guide planning step-by-step"
-  category: "business-operations"
-  depends: "job-description cold-outreach-sequence interview-guide performance-review offer-letter onboarding-plan"
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'template guide planning step-by-step'
+  category: 'business-operations'
+  depends: 'job-description cold-outreach-sequence interview-guide performance-review offer-letter onboarding-plan'
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Hire an Employee
@@ -200,6 +200,7 @@ When this workflow is complete, the user will have:
 ## Hiring Pipeline: Senior Frontend Engineer
 
 ### Job Description
+
 - **Title:** Senior Frontend Engineer
 - **Team:** Product Engineering, reporting to VP Engineering
 - **Salary Range:** $140,000-$170,000 USD
@@ -208,17 +209,19 @@ When this workflow is complete, the user will have:
 - **Posted to:** LinkedIn, Hacker News, React/TypeScript communities, company careers page
 
 ### Sourcing Pipeline
+
 - **Total Candidates Sourced:** 47
 - **Channels:**
-  | Channel              | Candidates | Response Rate |
+  | Channel | Candidates | Response Rate |
   |---------------------|------------|---------------|
-  | LinkedIn outreach    | 28         | 18%           |
-  | Inbound applications | 12         | n/a           |
-  | Employee referrals   | 7          | n/a           |
+  | LinkedIn outreach | 28 | 18% |
+  | Inbound applications | 12 | n/a |
+  | Employee referrals | 7 | n/a |
 - **Referral Program:** Active ($3,000 bonus after 90-day retention)
 - **Pipeline Target:** 5 candidates for final round
 
 ### Interview Process
+
 - **Stages:** 4 rounds
   1. Phone screen -- 30 min -- Recruiter
   2. Technical assessment (take-home) -- 3 hours -- Engineering panel
@@ -228,16 +231,18 @@ When this workflow is complete, the user will have:
 - **Scoring Rubric:** 1-5 scale, 6 competencies evaluated
 
 ### Candidate Evaluation
-| Candidate | Technical | System Design | Mentorship | Collaboration | Overall | Rank |
-|-----------|-----------|---------------|------------|---------------|---------|------|
-| Candidate A | 5       | 4             | 5          | 4             | 4.5     | 1    |
-| Candidate B | 5       | 5             | 3          | 4             | 4.25    | 2    |
-| Candidate C | 4       | 4             | 4          | 5             | 4.25    | 3    |
+
+| Candidate   | Technical | System Design | Mentorship | Collaboration | Overall | Rank |
+| ----------- | --------- | ------------- | ---------- | ------------- | ------- | ---- |
+| Candidate A | 5         | 4             | 5          | 4             | 4.5     | 1    |
+| Candidate B | 5         | 5             | 3          | 4             | 4.25    | 2    |
+| Candidate C | 4         | 4             | 4          | 5             | 4.25    | 3    |
 
 - **Top Recommendation:** Candidate A -- strongest combination of technical skill and mentorship ability, which is the team's most critical current need (3 junior engineers need senior guidance)
 - **Backup Candidate:** Candidate B (strongest technically, may need mentorship coaching)
 
 ### Offer
+
 - **Compensation:** $162,000 base + 0.15% equity (4-year vest, 1-year cliff) + $5,000 home office stipend
 - **Start Date:** March 15
 - **Response Deadline:** February 28 (7 business days)
@@ -246,6 +251,7 @@ When this workflow is complete, the user will have:
 - **Status:** Accepted
 
 ### Onboarding Plan
+
 - **Pre-start Checklist:** 8/8 items complete (laptop shipped, accounts created, codebase access granted, team intro email sent)
 - **Day 1 Agenda:** 9 AM team standup, 10 AM 1:1 with manager, 11 AM codebase walkthrough, 2 PM pair programming with buddy
 - **30-60-90 Day Goals:** Day 30: ship first feature independently. Day 60: lead a code review session. Day 90: own a product area and mentor 1 junior engineer.

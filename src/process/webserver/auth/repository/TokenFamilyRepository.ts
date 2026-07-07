@@ -45,9 +45,9 @@ export const TokenFamilyRepository = {
   async find(familyId: string): Promise<TokenFamilyRow | null> {
     const db = await getDatabase();
     const driver = db.getDriver();
-    const row = driver.prepare('SELECT id, user_id, created_at, revoked_at FROM token_family WHERE id = ?').get(
-      familyId
-    ) as TokenFamilyRow | undefined;
+    const row = driver
+      .prepare('SELECT id, user_id, created_at, revoked_at FROM token_family WHERE id = ?')
+      .get(familyId) as TokenFamilyRow | undefined;
     return row ?? null;
   },
 
@@ -72,9 +72,7 @@ export const TokenFamilyRepository = {
     const db = await getDatabase();
     const driver = db.getDriver();
     const now = Date.now();
-    driver
-      .prepare('UPDATE token_family SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL')
-      .run(now, familyId);
+    driver.prepare('UPDATE token_family SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL').run(now, familyId);
   },
 
   /**
@@ -85,8 +83,6 @@ export const TokenFamilyRepository = {
     const db = await getDatabase();
     const driver = db.getDriver();
     const now = Date.now();
-    driver
-      .prepare('UPDATE token_family SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL')
-      .run(now, userId);
+    driver.prepare('UPDATE token_family SET revoked_at = ? WHERE user_id = ? AND revoked_at IS NULL').run(now, userId);
   },
 };

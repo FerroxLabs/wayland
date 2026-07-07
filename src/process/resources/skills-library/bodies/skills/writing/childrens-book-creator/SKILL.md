@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing teaching"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'creative-writing writing teaching'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Childrens Book Creator
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on childrens book creator
 - User asks about childrens book creator best practices or techniques
 - User wants a structured approach to childrens book creator
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of childrens book creator
 
@@ -57,6 +58,7 @@ You are an experienced children's book editor and creator who understands the un
 ## Age Categories: The Complete Breakdown
 
 ### Board Books (Ages 0-3)
+
 - **Word count:** 0-200 words (many under 100)
 - **Page count:** 14-24 pages (always in multiples of 4; typically 24)
 - **Format:** Thick cardboard pages, small trim size (6x6 or 7x7 inches typical)
@@ -68,6 +70,7 @@ You are an experienced children's book editor and creator who understands the un
 - **Examples:** "Goodnight Moon," "Brown Bear Brown Bear," "Dear Zoo"
 
 ### Picture Books (Ages 3-7)
+
 - **Word count:** 200-1,000 words (sweet spot: 500-700)
 - **Page count:** 32 pages (industry standard; 24 and 40 exist but are rare)
 - **Format:** Large trim, full illustrations on every spread
@@ -79,6 +82,7 @@ You are an experienced children's book editor and creator who understands the un
 - **Examples:** "Where the Wild Things Are," "The Giving Tree," "Last Stop on Market Street"
 
 ### Early Readers (Ages 5-8)
+
 - **Word count:** 200-2,000 (varies by level)
 - **Page count:** 32-64 pages
 - **Levels:** Most publishers use leveling systems (DRA, Guided Reading, Lexile)
@@ -89,6 +93,7 @@ You are an experienced children's book editor and creator who understands the un
 - **Examples:** "Frog and Toad," "Elephant & Piggie," "Mercy Watson"
 
 ### Chapter Books (Ages 6-10)
+
 - **Word count:** 5,000-15,000
 - **Page count:** 64-112 pages
 - **Format:** Short chapters (3-5 pages), spot illustrations (10-20 per book)
@@ -100,6 +105,7 @@ You are an experienced children's book editor and creator who understands the un
 - **Examples:** "Junie B. Jones," "Magic Tree House," "Ivy + Bean"
 
 ### Middle Grade (Ages 8-12)
+
 - **Word count:** 25,000-55,000 (sweet spot: 35,000-45,000)
 - **Page count:** 150-300 pages
 - **Format:** No illustrations (except occasional maps or chapter headers)
@@ -111,6 +117,7 @@ You are an experienced children's book editor and creator who understands the un
 - **Examples:** "Percy Jackson," "Wonder," "Holes," "Bridge to Terabithia"
 
 ### Young Adult (Ages 12-18)
+
 - **Word count:** 55,000-80,000 (can go higher for fantasy/sci-fi)
 - **Page count:** 200-400 pages
 - **Format:** Standard novel format
@@ -124,21 +131,27 @@ You are an experienced children's book editor and creator who understands the un
 ## Writing for Children: Core Principles
 
 ### Respect the Reader
+
 Children are not less intelligent than adults. They are less experienced. Write with full respect for their emotional and intellectual capacity at their developmental stage.
 
 ### The Picture Book Text-Illustration Relationship
+
 **Text should NOT:**
+
 - Describe what the illustration will show ("The dog was brown and fluffy")
 - Narrate facial expressions ("She looked sad")
 - Over-explain the setting ("They were in a big red barn")
 
 **Text SHOULD:**
+
 - Carry the narrative, dialogue, and emotional arc
 - Leave room for the illustrator to add humor, detail, and subtext
 - Create page-turn moments (the reveal happens when you flip)
 
 ### Page Turn Architecture (Picture Books)
+
 The 32-page picture book has a specific architecture:
+
 - Pages 1-3: Title, copyright, dedication
 - Pages 4-5: First spread (setup)
 - Pages 6-29: Story (12-13 spreads)
@@ -148,11 +161,13 @@ The 32-page picture book has a specific architecture:
 Each spread should have one clear moment, idea, or beat. Plan your text by spread, not by paragraph.
 
 ### Creating a Picture Book Dummy
+
 Fold 8 sheets of paper in half to create a 32-page mockup. Number each page. Write or sketch each spread. This is how you test pacing, page turns, and the text-illustration balance before finalizing your manuscript.
 
 ## Illustration Briefs (For Author-Illustrators or Art Direction)
 
 ### What to Include in an Illustration Brief
+
 ```
 SPREAD NUMBER:
 TEXT ON THIS SPREAD: [exact words]
@@ -166,6 +181,7 @@ NOTES: [composition suggestions, if any --- keep minimal]
 ```
 
 ### Working with Illustrators
+
 - In traditional publishing, the publisher chooses the illustrator. Authors rarely get input.
 - In self-publishing, hire an illustrator with a portfolio in your target age group.
 - Budget for children's book illustration: $3,000-$15,000+ for a 32-page picture book.
@@ -174,17 +190,19 @@ NOTES: [composition suggestions, if any --- keep minimal]
 ## Readability and Language
 
 ### Readability Metrics by Category
-| Category | Flesch-Kincaid Grade | Sentence Length | Syllables/Word |
-|----------|---------------------|-----------------|----------------|
-| Board Book | Pre-K | 2-5 words | 1-2 |
-| Picture Book | K-2 | 5-12 words | 1-2 |
-| Early Reader (L1) | K-1 | 5-8 words | 1 |
-| Early Reader (L2) | 1-2 | 6-10 words | 1-2 |
-| Chapter Book | 2-4 | 8-15 words | 1-2 |
-| Middle Grade | 4-7 | 10-20 words | Any |
-| Young Adult | 7+ | Any | Any |
+
+| Category          | Flesch-Kincaid Grade | Sentence Length | Syllables/Word |
+| ----------------- | -------------------- | --------------- | -------------- |
+| Board Book        | Pre-K                | 2-5 words       | 1-2            |
+| Picture Book      | K-2                  | 5-12 words      | 1-2            |
+| Early Reader (L1) | K-1                  | 5-8 words       | 1              |
+| Early Reader (L2) | 1-2                  | 6-10 words      | 1-2            |
+| Chapter Book      | 2-4                  | 8-15 words      | 1-2            |
+| Middle Grade      | 4-7                  | 10-20 words     | Any            |
+| Young Adult       | 7+                   | Any             | Any            |
 
 ### Language Guidelines
+
 - Use active voice
 - Avoid didacticism (do not preach; let the story teach)
 - Read the text aloud --- children's books must sound good spoken
@@ -195,21 +213,27 @@ NOTES: [composition suggestions, if any --- keep minimal]
 ## Themes by Age: What Resonates
 
 ### Ages 0-3
+
 Trust, safety, naming the world, object permanence, routine, love
 
 ### Ages 3-5
+
 Autonomy, sharing, emotional vocabulary, imagination, family expansion, starting school
 
 ### Ages 5-7
+
 Competence, fairness, friendship rules, minor fears conquered, humor, independence
 
 ### Ages 8-10
+
 Justice, loyalty, secrets, wider world awareness, identity beyond family, moral complexity
 
 ### Ages 10-12
+
 Belonging, difference, first responsibilities, systemic awareness, complex friendships, loss
 
 ### Ages 12-18
+
 Identity, sexuality, power, justice, mortality, independence, purpose, love, systemic change
 
 ## Submission Guidelines
@@ -217,21 +241,25 @@ Identity, sexuality, power, justice, mortality, independence, purpose, love, sys
 ### Traditional Publishing Path
 
 **Picture Books:**
+
 - Submit text only (do NOT illustrate unless you are a professional illustrator)
 - Standard manuscript format: double-spaced, 12pt font
 - Do NOT include page breaks or art notes (editor and art director handle layout)
 - Query agents who represent picture book authors or submit to open publishers
 
 **Chapter Books and Middle Grade:**
+
 - Query letter + first 10 pages (or per agent guidelines)
 - Synopsis (1-2 pages)
 - Full manuscript must be complete before querying
 
 **Young Adult:**
+
 - Same as middle grade: query + pages + synopsis
 - Full manuscript must be complete
 
 ### Query Letter Format for Children's Books
+
 ```
 Dear [Agent Name],
 
@@ -252,6 +280,7 @@ Thank you for your consideration.
 ```
 
 ### Self-Publishing Children's Books
+
 - **Picture books:** Require significant investment in illustration
 - **Print quality matters:** Children's books are physical objects; invest in production
 - **KDP Print and IngramSpark** both support children's book formats
@@ -261,15 +290,15 @@ Thank you for your consideration.
 
 ## Common Mistakes in Children's Book Writing
 
-| Mistake | Why It Fails | Fix |
-|---------|-------------|-----|
-| Writing for adults, not children | Kids detect condescension instantly | Read 50 books in your target category before writing |
-| Rhyming badly | Forced rhyme is worse than no rhyme | Only rhyme if you have genuine skill; most editors prefer prose |
-| Teaching a lesson explicitly | "And that is why sharing is important" --- children shut down | Let the story carry the theme implicitly |
-| Too many words (picture books) | No room for illustration; pacing dies | Cut ruthlessly; aim for 500 words |
-| Adult protagonist | Children want to see themselves | Protagonist should be the target reader's age or slightly older |
-| No conflict | "A bunny had a nice day" is not a story | Every story needs a problem, even a small one |
-| Writing a series before selling book one | Premature planning | Write the best single book you can; series potential is a bonus |
+| Mistake                                  | Why It Fails                                                  | Fix                                                             |
+| ---------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| Writing for adults, not children         | Kids detect condescension instantly                           | Read 50 books in your target category before writing            |
+| Rhyming badly                            | Forced rhyme is worse than no rhyme                           | Only rhyme if you have genuine skill; most editors prefer prose |
+| Teaching a lesson explicitly             | "And that is why sharing is important" --- children shut down | Let the story carry the theme implicitly                        |
+| Too many words (picture books)           | No room for illustration; pacing dies                         | Cut ruthlessly; aim for 500 words                               |
+| Adult protagonist                        | Children want to see themselves                               | Protagonist should be the target reader's age or slightly older |
+| No conflict                              | "A bunny had a nice day" is not a story                       | Every story needs a problem, even a small one                   |
+| Writing a series before selling book one | Premature planning                                            | Write the best single book you can; series potential is a bonus |
 
 ## The Picture Book Revision Checklist
 
@@ -285,7 +314,6 @@ Thank you for your consideration.
 
 That last question is the only one that truly matters. Children vote with their attention. Write a book they will ask for again and again.
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -298,13 +326,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with childrens book creator for a mid-size project."
 
 **Output:** A complete childrens book creator framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

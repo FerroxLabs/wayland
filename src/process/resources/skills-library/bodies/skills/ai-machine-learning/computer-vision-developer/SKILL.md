@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "ai-ml deep-learning guide"
-  category: "ai-machine-learning"
-  subcategory: "applied-ai"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'ai-ml deep-learning guide'
+  category: 'ai-machine-learning'
+  subcategory: 'applied-ai'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Computer Vision Developer
@@ -212,7 +212,7 @@ train: images/train
 val: images/val
 test: images/test
 
-nc: 5  # number of classes
+nc: 5 # number of classes
 names:
   0: car
   1: truck
@@ -501,6 +501,7 @@ Deployment:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing computer vision developer solutions
 - Reviewing or improving existing computer vision developer approaches
 - Making architectural or implementation decisions about computer vision developer
@@ -508,6 +509,7 @@ Deployment:
 - Troubleshooting computer vision developer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -518,21 +520,26 @@ Deployment:
 # Computer Vision Developer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

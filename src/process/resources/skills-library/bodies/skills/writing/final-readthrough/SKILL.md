@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing checklist"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'editing writing checklist'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Final Readthrough
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks for a "final check," "last-pass review," "pre-publication review," "pre-submission read," or "one more set of eyes" on a document they consider nearly finished
 - The document has already received at least one substantive editing pass and the user is verifying readiness, not seeking developmental feedback
 - The user needs a structured go/no-go readiness verdict before sending to a client, editor, publisher, hiring manager, or live audience
@@ -29,6 +31,7 @@ metadata:
 - The user is about to schedule or trigger publication in a CMS, email platform, or print queue and cannot easily correct errors afterward
 
 **Do NOT use this skill when:**
+
 - The document still needs structural reorganization -- sections are in the wrong order, the argument is unclear, or entire sections are missing (use `structural-editing` first)
 - The user needs sentence-level rewriting for clarity, tone, or style -- word choice is weak, sentences are tangled, or paragraphs are bloated (use `copy-editing` first)
 - The user needs verification of factual claims, statistics, dates, or source accuracy (use `fact-check-framework` -- a final readthrough catches obvious internal contradictions but does not verify external facts)
@@ -70,6 +73,7 @@ The most common mistake in a final readthrough is stopping to annotate at the fi
 Work through every category in order. Do not skip categories because the document "feels fine" -- the point of a checklist is that human (and AI) judgment is unreliable without systematic prompting.
 
 **Category A: Structural Integrity (content-level)**
+
 - Does the opening sentence or paragraph give the reader a reason to continue? For long-form content, the first 50 words must earn the next 500. For short-form content (email, memo), the subject line and first sentence must make the purpose immediately clear.
 - Is the core message stated explicitly, not left to inference? In persuasive and informational documents, the key claim must appear in the first third of the document. In academic abstracts, it must appear in the abstract itself.
 - Does every section or paragraph have a clear reason to exist in relation to the core message? A section that is interesting but tangential to the core message is a liability in a final document -- flag it.
@@ -77,6 +81,7 @@ Work through every category in order. Do not skip categories because the documen
 - Are there any internal contradictions -- statements in one section that contradict claims in another? Pay particular attention to numerical claims (statistics, dates, quantities) that appear more than once.
 
 **Category B: Mechanics**
+
 - Spelling: proper nouns, technical terms, and brand names are the highest-risk spelling locations in a final document because spellcheck does not catch them. Read every proper noun, every technical term, and every name deliberately.
 - Grammar: subject-verb agreement failures, pronoun-antecedent mismatches, dangling modifiers, and run-on sentences are the most common grammar errors that survive copy editing. Read each sentence as a standalone unit.
 - Punctuation: comma splices, missing Oxford commas (or present Oxford commas in a document that uses AP style), and apostrophe errors in possessives vs. plurals are the most common punctuation failures.
@@ -85,6 +90,7 @@ Work through every category in order. Do not skip categories because the documen
 - Capitalization: are job titles capitalized only when used as formal titles before a name, or are they overcapitalized throughout ("the Marketing Director reviewed the report" -- "director" should be lowercase here)? Is the capitalization style for headings consistent (title case vs. sentence case)?
 
 **Category C: Formatting and Visual Consistency**
+
 - Heading hierarchy: H1 is for the document title only, H2 for major sections, H3 for subsections. A document with H1 appearing mid-body or H3 without a parent H2 has a broken hierarchy.
 - List formatting: every list in the document should share the same terminal punctuation convention. If bulleted items are complete sentences, they end with periods. If they are fragments, they end with nothing or with commas/semicolons for the penultimate item. Choose one convention and apply it universally.
 - Spacing and visual rhythm: paragraph breaks, section spacing, and line spacing should be consistent. A document that has double-spaced paragraphs in one section and single-spaced in another looks unfinished.
@@ -93,6 +99,7 @@ Work through every category in order. Do not skip categories because the documen
 - Font and style consistency: bold and italic should be used purposefully and consistently -- not for decoration. If the document uses bold for key terms, bold should appear only on first use of key terms, not scattered throughout for emphasis.
 
 **Category D: Terminological and Tonal Consistency**
+
 - Term consistency: identify the three to five most important content terms in the document and verify they are used with exactly the same spelling, capitalization, and hyphenation throughout. "Machine learning," "machine-learning," and "ML" should not coexist in the same document without explicit introduction of the abbreviation.
 - Abbreviation protocol: every abbreviation must be spelled out in full on first use, with the abbreviation in parentheses immediately after. "The World Health Organization (WHO)" -- then WHO thereafter. Scan for abbreviations that appear before their introduction.
 - Tone register: is the document uniformly formal, semiformal, or conversational? Tone breaks are most common at section boundaries, especially in collaborative documents. A document that is formal in sections 1-3 and suddenly conversational in section 4 has a seam problem.
@@ -100,6 +107,7 @@ Work through every category in order. Do not skip categories because the documen
 - Tense consistency: in analytical and reporting documents, findings are typically described in present tense ("the data show") while methodology is described in past tense ("we surveyed"). Verify the tense logic is consistent with the document's conventions.
 
 **Category E: Reader Experience and Final Impression**
+
 - The re-read test: note any sentence you had to read more than once to understand. A sentence that requires re-reading in a final document is a readability failure, not just an aesthetics issue. Flag every re-read sentence.
 - The one-sentence test: after reading the full document, try to state its core message in one sentence. If you cannot, the document has a clarity problem even if every individual sentence is grammatically correct.
 - The embarrassment test: imagine the document appearing in front of the most critical audience it could reach. Is there any word, claim, metaphor, or phrasing that would cause the author embarrassment, that could be misread, or that could be taken out of context in a damaging way?
@@ -321,65 +329,70 @@ During the embarrassment test, flag any phrase, metaphor, idiom, or example that
 ### Checklist Results
 
 #### A. Structural Integrity
-| Check | Result | Notes |
-|-------|--------|-------|
-| Opening earns continued reading | ✓ | Executive summary opens with a concrete cost figure ($240,000 average annual unplanned downtime cost) -- immediately relevant to the audience |
-| Core message stated explicitly | ✓ | Core argument is clear: predictive maintenance reduces costs by an average of 30% compared to reactive maintenance |
-| All sections serve core message | ⚠ | The third paragraph of "The Cost of Reactive Maintenance" discusses supply chain disruption at length -- relevant but slightly tangential; could be one sentence instead of a full paragraph |
-| Ending provides appropriate closure | ✗ | The Implementation Roadmap section ends with a bullet list and no closing paragraph -- the document stops rather than concludes |
-| No internal contradictions | ✗ | The Executive Summary states "average ROI of 18 months"; the Implementation Roadmap states "ROI typically realized within 12-18 months" -- these are compatible but will read as inconsistent to a careful reader |
+
+| Check                               | Result | Notes                                                                                                                                                                                                             |
+| ----------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Opening earns continued reading     | ✓      | Executive summary opens with a concrete cost figure ($240,000 average annual unplanned downtime cost) -- immediately relevant to the audience                                                                     |
+| Core message stated explicitly      | ✓      | Core argument is clear: predictive maintenance reduces costs by an average of 30% compared to reactive maintenance                                                                                                |
+| All sections serve core message     | ⚠      | The third paragraph of "The Cost of Reactive Maintenance" discusses supply chain disruption at length -- relevant but slightly tangential; could be one sentence instead of a full paragraph                      |
+| Ending provides appropriate closure | ✗      | The Implementation Roadmap section ends with a bullet list and no closing paragraph -- the document stops rather than concludes                                                                                   |
+| No internal contradictions          | ✗      | The Executive Summary states "average ROI of 18 months"; the Implementation Roadmap states "ROI typically realized within 12-18 months" -- these are compatible but will read as inconsistent to a careful reader |
 
 #### B. Mechanics
-| Check | Result | Notes |
-|-------|--------|-------|
-| Spelling (including proper nouns and technical terms) | ✓ | All technical terms ("predictive maintenance," "SCADA," "CMMS") spelled consistently |
-| Grammar (agreement, modifiers, pronouns) | ⚠ | One dangling modifier in Section 3, paragraph 2: "Analyzing sensor data in real time, equipment failure becomes predictable" -- the subject of "analyzing" must be the maintenance team, not "equipment failure" |
-| Punctuation (commas, apostrophes, hyphens) | ⚠ | "Data driven" appears three times without hyphen as a compound modifier before a noun ("data driven approach") -- should be "data-driven approach" |
-| Number formatting consistent | ✗ | Numbers below ten are sometimes spelled out ("three sensors") and sometimes written as numerals ("3 maintenance cycles") -- pick one convention and apply it throughout |
-| Capitalization consistent | ⚠ | "Predictive Maintenance" is capitalized in Sections 1 and 2 (as if a proper noun) but lowercase in Sections 3 and 4 -- standardize to lowercase as a common noun |
+
+| Check                                                 | Result | Notes                                                                                                                                                                                                            |
+| ----------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Spelling (including proper nouns and technical terms) | ✓      | All technical terms ("predictive maintenance," "SCADA," "CMMS") spelled consistently                                                                                                                             |
+| Grammar (agreement, modifiers, pronouns)              | ⚠      | One dangling modifier in Section 3, paragraph 2: "Analyzing sensor data in real time, equipment failure becomes predictable" -- the subject of "analyzing" must be the maintenance team, not "equipment failure" |
+| Punctuation (commas, apostrophes, hyphens)            | ⚠      | "Data driven" appears three times without hyphen as a compound modifier before a noun ("data driven approach") -- should be "data-driven approach"                                                               |
+| Number formatting consistent                          | ✗      | Numbers below ten are sometimes spelled out ("three sensors") and sometimes written as numerals ("3 maintenance cycles") -- pick one convention and apply it throughout                                          |
+| Capitalization consistent                             | ⚠      | "Predictive Maintenance" is capitalized in Sections 1 and 2 (as if a proper noun) but lowercase in Sections 3 and 4 -- standardize to lowercase as a common noun                                                 |
 
 #### C. Formatting and Visual Consistency
-| Check | Result | Notes |
-|-------|--------|-------|
-| Heading hierarchy logical (H1 > H2 > H3) | ✓ | Hierarchy is clean throughout |
-| List formatting consistent (punctuation, parallelism) | ⚠ | The Implementation Roadmap bullet list has inconsistent terminal punctuation -- three bullets end with periods, two do not |
-| Spacing and visual rhythm consistent | ✓ | Consistent throughout |
-| Tables / figures captioned and labeled correctly | ✓ | Figure 1 (cost comparison chart) is properly labeled and referenced in text |
-| Links and references verified | ✓ | No hyperlinks in this document; no reference list required |
+
+| Check                                                 | Result | Notes                                                                                                                      |
+| ----------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Heading hierarchy logical (H1 > H2 > H3)              | ✓      | Hierarchy is clean throughout                                                                                              |
+| List formatting consistent (punctuation, parallelism) | ⚠      | The Implementation Roadmap bullet list has inconsistent terminal punctuation -- three bullets end with periods, two do not |
+| Spacing and visual rhythm consistent                  | ✓      | Consistent throughout                                                                                                      |
+| Tables / figures captioned and labeled correctly      | ✓      | Figure 1 (cost comparison chart) is properly labeled and referenced in text                                                |
+| Links and references verified                         | ✓      | No hyperlinks in this document; no reference list required                                                                 |
 
 #### D. Terminological and Tonal Consistency
-| Check | Result | Notes |
-|-------|--------|-------|
-| Key terms used consistently | ⚠ | "Condition-based monitoring" appears in Section 3 as an apparent synonym for "predictive maintenance" without being introduced as a related but distinct term -- this will confuse readers who know the field |
-| Abbreviations introduced before use | ✗ | "CMMS" (Computerized Maintenance Management System) is used in Section 2 without introduction; it is introduced in Section 3 -- reverse the order or add introduction at first use in Section 2 |
-| Tone register uniform throughout | ✓ | Consistent formal register throughout -- appropriate for procurement audience |
-| Person and voice consistent | ✓ | "Organizations" and "manufacturers" used consistently; no person shifts |
-| Tense logic consistent | ✓ | Findings in present tense; roadmap steps in future tense -- correct and consistent |
+
+| Check                               | Result | Notes                                                                                                                                                                                                         |
+| ----------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Key terms used consistently         | ⚠      | "Condition-based monitoring" appears in Section 3 as an apparent synonym for "predictive maintenance" without being introduced as a related but distinct term -- this will confuse readers who know the field |
+| Abbreviations introduced before use | ✗      | "CMMS" (Computerized Maintenance Management System) is used in Section 2 without introduction; it is introduced in Section 3 -- reverse the order or add introduction at first use in Section 2               |
+| Tone register uniform throughout    | ✓      | Consistent formal register throughout -- appropriate for procurement audience                                                                                                                                 |
+| Person and voice consistent         | ✓      | "Organizations" and "manufacturers" used consistently; no person shifts                                                                                                                                       |
+| Tense logic consistent              | ✓      | Findings in present tense; roadmap steps in future tense -- correct and consistent                                                                                                                            |
 
 #### E. Reader Experience
-| Check | Result | Notes |
-|-------|--------|-------|
-| No sentences requiring re-reading | ⚠ | One sentence in Section 3, paragraph 4 is 62 words long and requires re-reading to parse -- flag for potential simplification |
-| Core message statable in one sentence | ✓ | "Predictive maintenance reduces unplanned downtime costs by an average of 30% and is achievable for mid-size manufacturers in 12-18 months." |
-| No embarrassment-risk language | ✓ | No problematic phrasing identified |
-| Document is defensible as submitted | ⚠ | With the CMMS abbreviation error and the ROI inconsistency corrected, yes -- as-is, a careful reader on the procurement committee will notice both |
+
+| Check                                 | Result | Notes                                                                                                                                              |
+| ------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| No sentences requiring re-reading     | ⚠      | One sentence in Section 3, paragraph 4 is 62 words long and requires re-reading to parse -- flag for potential simplification                      |
+| Core message statable in one sentence | ✓      | "Predictive maintenance reduces unplanned downtime costs by an average of 30% and is achievable for mid-size manufacturers in 12-18 months."       |
+| No embarrassment-risk language        | ✓      | No problematic phrasing identified                                                                                                                 |
+| Document is defensible as submitted   | ⚠      | With the CMMS abbreviation error and the ROI inconsistency corrected, yes -- as-is, a careful reader on the procurement committee will notice both |
 
 ---
 
 ### Issues Found
 
-| # | Severity | Category | Location | Issue | Fix |
-|---|----------|----------|----------|-------|-----|
-| 1 | Critical | D -- Terminology | Section 2, paragraph 3 (first use of CMMS) | "CMMS" used without introduction -- reader encounters the abbreviation without knowing what it means | Change to "Computerized Maintenance Management System (CMMS)" at first use in Section 2; "CMMS" alone is then correct in all subsequent uses including Section 3 |
-| 2 | Critical | A -- Structural Integrity | Executive Summary vs. Implementation Roadmap | "Average ROI of 18 months" (Exec Summary) vs. "ROI typically realized within 12-18 months" (Roadmap) -- two different figures for the same claim | Standardize to "ROI typically realized within 12-18 months" in both locations, or "average ROI realization of 15 months (range: 12-18 months)" if precision is preferred |
-| 3 | Critical | A -- Structural Integrity | End of Implementation Roadmap section | Document ends on a bullet list with no closing paragraph -- abrupt stop | Add a 2-3 sentence closing paragraph that states the call to action (next step for the procurement committee) and reinforces the core value proposition |
-| 4 | Standard | B -- Mechanics | Section 3, paragraph 2 | Dangling modifier: "Analyzing sensor data in real time, equipment failure becomes predictable" | Rewrite as: "By analyzing sensor data in real time, maintenance teams can predict equipment failure before it occurs" |
-| 5 | Standard | B -- Mechanics | Sections 1, 2, 3 (three instances) | "Data driven approach" missing hyphen as compound modifier | Change all three instances to "data-driven approach" |
-| 6 | Standard | B -- Mechanics | Document-wide | Number formatting inconsistent -- numerals and spelled-out numbers mixed for numbers below ten | Select one convention (recommend: spell out one through nine, numerals for 10 and above, which is standard in business writing) and apply consistently throughout. Seven instances require updating. |
-| 7 | Standard | B/D | Sections 1 and 2 vs. Sections 3 and 4 | "Predictive Maintenance" capitalized in first half, lowercase in second half | Standardize to lowercase ("predictive maintenance") throughout -- it is a common noun describing a practice, not a trademarked product name |
-| 8 | Standard | C -- Formatting | Implementation Roadmap bullet list | Three bullets end with periods; two do not | Add terminal periods to the two bullets lacking them; all five should end with periods as they are complete sentences |
-| 9 | Advisory | D -- Terminology | Section 3 | "Condition-based monitoring" introduced without clarification of its relationship to "predictive maintenance" -- knowledgeable readers know these are related but distinct; less technical readers may be confused | Add a parenthetical: "condition-based monitoring (a core technique within predictive maintenance)" at first use |
-| 10 | Advisory | E -- Reader Experience | Section 3, paragraph 4 | 62-word sentence beginning "When sensor arrays deployed across..." is difficult to parse on first read | Consider splitting into two sentences at the semicolon or restructuring the second clause as a separate sentence |
+| #   | Severity | Category                  | Location                                     | Issue                                                                                                                                                                                                              | Fix                                                                                                                                                                                                  |
+| --- | -------- | ------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Critical | D -- Terminology          | Section 2, paragraph 3 (first use of CMMS)   | "CMMS" used without introduction -- reader encounters the abbreviation without knowing what it means                                                                                                               | Change to "Computerized Maintenance Management System (CMMS)" at first use in Section 2; "CMMS" alone is then correct in all subsequent uses including Section 3                                     |
+| 2   | Critical | A -- Structural Integrity | Executive Summary vs. Implementation Roadmap | "Average ROI of 18 months" (Exec Summary) vs. "ROI typically realized within 12-18 months" (Roadmap) -- two different figures for the same claim                                                                   | Standardize to "ROI typically realized within 12-18 months" in both locations, or "average ROI realization of 15 months (range: 12-18 months)" if precision is preferred                             |
+| 3   | Critical | A -- Structural Integrity | End of Implementation Roadmap section        | Document ends on a bullet list with no closing paragraph -- abrupt stop                                                                                                                                            | Add a 2-3 sentence closing paragraph that states the call to action (next step for the procurement committee) and reinforces the core value proposition                                              |
+| 4   | Standard | B -- Mechanics            | Section 3, paragraph 2                       | Dangling modifier: "Analyzing sensor data in real time, equipment failure becomes predictable"                                                                                                                     | Rewrite as: "By analyzing sensor data in real time, maintenance teams can predict equipment failure before it occurs"                                                                                |
+| 5   | Standard | B -- Mechanics            | Sections 1, 2, 3 (three instances)           | "Data driven approach" missing hyphen as compound modifier                                                                                                                                                         | Change all three instances to "data-driven approach"                                                                                                                                                 |
+| 6   | Standard | B -- Mechanics            | Document-wide                                | Number formatting inconsistent -- numerals and spelled-out numbers mixed for numbers below ten                                                                                                                     | Select one convention (recommend: spell out one through nine, numerals for 10 and above, which is standard in business writing) and apply consistently throughout. Seven instances require updating. |
+| 7   | Standard | B/D                       | Sections 1 and 2 vs. Sections 3 and 4        | "Predictive Maintenance" capitalized in first half, lowercase in second half                                                                                                                                       | Standardize to lowercase ("predictive maintenance") throughout -- it is a common noun describing a practice, not a trademarked product name                                                          |
+| 8   | Standard | C -- Formatting           | Implementation Roadmap bullet list           | Three bullets end with periods; two do not                                                                                                                                                                         | Add terminal periods to the two bullets lacking them; all five should end with periods as they are complete sentences                                                                                |
+| 9   | Advisory | D -- Terminology          | Section 3                                    | "Condition-based monitoring" introduced without clarification of its relationship to "predictive maintenance" -- knowledgeable readers know these are related but distinct; less technical readers may be confused | Add a parenthetical: "condition-based monitoring (a core technique within predictive maintenance)" at first use                                                                                      |
+| 10  | Advisory | E -- Reader Experience    | Section 3, paragraph 4                       | 62-word sentence beginning "When sensor arrays deployed across..." is difficult to parse on first read                                                                                                             | Consider splitting into two sentences at the semicolon or restructuring the second clause as a separate sentence                                                                                     |
 
 ---
 
@@ -400,22 +413,22 @@ Seven Standard findings and two Critical findings are present. The Critical find
 ### Corrected Passages (Critical and Standard fixes)
 
 **Section 2, paragraph 3 -- CMMS introduction:**
-*Before:* "Tracking work orders and maintenance schedules in a CMMS allows organizations to..."
-*After:* "Tracking work orders and maintenance schedules in a Computerized Maintenance Management System (CMMS) allows organizations to..."
+_Before:_ "Tracking work orders and maintenance schedules in a CMMS allows organizations to..."
+_After:_ "Tracking work orders and maintenance schedules in a Computerized Maintenance Management System (CMMS) allows organizations to..."
 
 **Executive Summary -- ROI statement:**
-*Before:* "Organizations adopting predictive maintenance report an average ROI of 18 months."
-*After:* "Organizations adopting predictive maintenance typically realize ROI within 12-18 months."
+_Before:_ "Organizations adopting predictive maintenance report an average ROI of 18 months."
+_After:_ "Organizations adopting predictive maintenance typically realize ROI within 12-18 months."
 
 **Implementation Roadmap -- closing paragraph (add after final bullet):**
-*Add:* "Predictive maintenance is not a wholesale transformation -- it is an incremental capability that mid-size manufacturers can deploy strategically, one asset line at a time. Organizations that begin with a pilot program in the next quarter are positioned to reduce unplanned downtime costs by the figures described in this framework within their first full fiscal year of implementation."
+_Add:_ "Predictive maintenance is not a wholesale transformation -- it is an incremental capability that mid-size manufacturers can deploy strategically, one asset line at a time. Organizations that begin with a pilot program in the next quarter are positioned to reduce unplanned downtime costs by the figures described in this framework within their first full fiscal year of implementation."
 
 **Section 3, paragraph 2 -- dangling modifier:**
-*Before:* "Analyzing sensor data in real time, equipment failure becomes predictable."
-*After:* "By analyzing sensor data in real time, maintenance teams can predict equipment failure before it occurs."
+_Before:_ "Analyzing sensor data in real time, equipment failure becomes predictable."
+_After:_ "By analyzing sensor data in real time, maintenance teams can predict equipment failure before it occurs."
 
 **Number formatting -- representative corrections (apply convention throughout):**
-*Before:* "3 maintenance cycles," "three sensors," "9 asset lines"
-*After:* "three maintenance cycles," "three sensors," "nine asset lines" (all below ten: spell out)
+_Before:_ "3 maintenance cycles," "three sensors," "9 asset lines"
+_After:_ "three maintenance cycles," "three sensors," "nine asset lines" (all below ten: spell out)
 
-*(All three instances of "data driven" corrected to "data-driven"; "Predictive Maintenance" standardized to "predictive maintenance" in Sections 1 and 2; bullet list terminal punctuation standardized to periods throughout the Implementation Roadmap.)*
+_(All three instances of "data driven" corrected to "data-driven"; "Predictive Maintenance" standardized to "predictive maintenance" in Sections 1 and 2; bullet list terminal punctuation standardized to periods throughout the Implementation Roadmap.)_

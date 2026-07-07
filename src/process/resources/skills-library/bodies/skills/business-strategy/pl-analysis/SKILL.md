@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "analysis report strategy planning spreadsheets"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'analysis report strategy planning spreadsheets'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # P&L Analysis
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user shares an income statement (monthly, quarterly, or annual) and asks for analysis, interpretation, or commentary
 - The user asks for variance analysis comparing actual results to budget, forecast, prior quarter, or prior year same period
 - The user wants to understand why their margins changed -- gross margin compression, SG&A creep, or EBITDA deterioration
@@ -29,6 +31,7 @@ metadata:
 - The user asks about operating leverage, contribution margin, or fixed vs. variable cost structure as it relates to P&L performance
 
 **Do NOT use this skill when:**
+
 - The user needs to build a financial model, three-statement model, or DCF from scratch -- use `financial-model-structure`
 - The user wants personal budgeting or household expense analysis -- use `budget-planning`
 - The user needs unit economics, CAC/LTV analysis, or per-customer profitability -- use `unit-economics`
@@ -135,13 +138,13 @@ The same analysis needs different packaging for different consumers.
 ---
 
 ### Executive Summary
-[2--3 sentences covering: overall performance verdict (beat/miss/in-line), 
-primary driver of any gap, and the most important action required. 
-Example: "Q3 revenue missed budget by 10% ($50K), driven by a conversion rate 
-decline in the enterprise segment, while gross margin improved 2pp to 70% 
-indicating healthy unit economics. The shortfall was fully absorbed into 
-operating income due to simultaneous COGS efficiency, but S&M overspend of 
-$20K (20% above budget) with no corresponding revenue return is the critical 
+[2--3 sentences covering: overall performance verdict (beat/miss/in-line),
+primary driver of any gap, and the most important action required.
+Example: "Q3 revenue missed budget by 10% ($50K), driven by a conversion rate
+decline in the enterprise segment, while gross margin improved 2pp to 70%
+indicating healthy unit economics. The shortfall was fully absorbed into
+operating income due to simultaneous COGS efficiency, but S&M overspend of
+$20K (20% above budget) with no corresponding revenue return is the critical
 issue requiring immediate audit."]
 
 ---
@@ -186,9 +189,9 @@ Type = One-Time (OT) | Timing (T) | Structural (S)
 | EBITDA Margin %          |            |            |            |         | Expanding / Contracting |
 | Net Margin %             |            |            |            |         | Expanding / Contracting |
 
-**Trend interpretation:** [1--2 sentences explaining what the trend pattern means 
-collectively -- e.g., "Gross margin is expanding while OpEx ratios are also rising, 
-indicating the business is investing ahead of revenue scale -- acceptable if 
+**Trend interpretation:** [1--2 sentences explaining what the trend pattern means
+collectively -- e.g., "Gross margin is expanding while OpEx ratios are also rising,
+indicating the business is investing ahead of revenue scale -- acceptable if
 revenue acceleration is anticipated within 1--2 quarters, problematic if not."]
 
 ---
@@ -209,7 +212,7 @@ Total variance:          $[X] ([X]%) [F/U]
 **Driver 1: [Line Item] -- [F/U] $[X] ([X]%) -- [Type: OT/T/S]**
 - **Root cause:** [Specific, one-level-deeper explanation beyond "costs were higher"]
 - **Volume vs. rate/price decomposition:** [Which dominated?]
-- **Forward impact:** [Dollar estimate of ongoing impact per quarter if structural, 
+- **Forward impact:** [Dollar estimate of ongoing impact per quarter if structural,
   or resolution timeline if timing]
 - **Watch indicator:** [The specific metric to track to confirm this resolves or escalates]
 
@@ -233,7 +236,7 @@ Total variance:          $[X] ([X]%) [F/U]
 [Include only when relevant -- skip section if not applicable]
 - **Non-recurring items included in revenue:** [Describe and quantify]
 - **Non-cash charges in COGS or OpEx:** [SBC, D&A, impairments -- amounts]
-- **Revenue recognition judgments:** [Any deferred revenue acceleration, 
+- **Revenue recognition judgments:** [Any deferred revenue acceleration,
   bill-and-hold arrangements, percent-of-completion estimates]
 - **Adjusted EBITDA vs. GAAP EBITDA:** [Addback items and amounts]
 
@@ -248,7 +251,7 @@ Total variance:          $[X] ([X]%) [F/U]
 | 3  | [Concrete action]                        | Driver [X]    | $[X]--$[X]/yr  | [Quarter] | Strategic       |
 | 4  | [Concrete action]                        | Driver [X]    | $[X]/yr        | Next cycle| Monitor Only    |
 
-Priority Key: Quick Win (High impact, low effort) | Strategic (High impact, high effort) | 
+Priority Key: Quick Win (High impact, low effort) | Strategic (High impact, high effort) |
 Optimize (Low impact, low effort) | Deprioritize (Low impact, high effort)
 
 ---
@@ -391,51 +394,51 @@ Q3 total revenue of $2,050K missed budget by $100K (4.7%), driven entirely by a 
 
 ### P&L with Variance Analysis
 
-| Line Item                          | Actual ($K) | Budget ($K) | Var ($K) | Var (%)  | F/U | Type |
-|------------------------------------|------------|------------|---------|---------|-----|------|
-| **Subscription Revenue**           | 1,840       | 2,000       | (160)   | (8.0%)  | U   | T/S  |
-| **Professional Services Revenue**  | 210         | 150         | 60      | 40.0%   | F   | T    |
-| **Total Revenue**                  | 2,050       | 2,150       | (100)   | (4.7%)  | U   |      |
-| Hosting / Infrastructure           | (185)       | (170)       | (15)    | (8.8%)  | U   | S    |
-| Customer Success Salaries          | (220)       | (200)       | (20)    | (10.0%) | U   | S    |
-| PS Delivery Costs                  | (168)       | (120)       | (48)    | (40.0%) | U   | S    |
-| **Total COGS**                     | (573)       | (490)       | (83)    | (16.9%) | U   |      |
-| **Gross Profit**                   | 1,477       | 1,660       | (183)   | (11.0%) | U   |      |
-| *Gross Margin %*                   | 72.1%       | 77.2%       | (5.1pp) |         | U   |      |
-| Sales & Marketing                  | (620)       | (580)       | (40)    | (6.9%)  | U   | S    |
-| Research & Development             | (410)       | (400)       | (10)    | (2.5%)  | F   | --   |
-| G&A (reported)                     | (195)       | (180)       | (15)    | (8.3%)  | U   | OT   |
-| *-- of which: Legal settlement*    | (38)        | --          | (38)    |         | U   | OT   |
-| *G&A adjusted (ex-settlement)*     | (157)       | (180)       | 23      | 12.8%   | F   | S    |
-| **Total OpEx**                     | (1,225)     | (1,160)     | (65)    | (5.6%)  | U   |      |
-| *OpEx as % of Revenue*             | 59.8%       | 54.0%       | (5.8pp) |         | U   |      |
-| **EBITDA (reported)**              | 252         | 500         | (248)   | (49.6%) | U   |      |
-| *D&A addback*                      | 45          | 45          | --      |         |     |      |
-| **EBIT (reported)**                | 207         | 455         | (248)   | (54.5%) | U   |      |
-| **EBITDA adjusted (ex-settlement)**| 290         | 500         | (210)   | (42.0%) | U   |      |
-| *EBITDA Margin % (reported)*       | 12.3%       | 23.3%       | (11.0pp)|         | U   |      |
-| *EBITDA Margin % (adjusted)*       | 14.1%       | 23.3%       | (9.2pp) |         | U   |      |
-| **Net Income (reported)**          | 207         | 455         | (248)   | (54.5%) | U   |      |
-| *Net Margin % (reported)*          | 10.1%       | 21.2%       | (11.1pp)|         | U   |      |
+| Line Item                           | Actual ($K) | Budget ($K) | Var ($K) | Var (%) | F/U | Type |
+| ----------------------------------- | ----------- | ----------- | -------- | ------- | --- | ---- |
+| **Subscription Revenue**            | 1,840       | 2,000       | (160)    | (8.0%)  | U   | T/S  |
+| **Professional Services Revenue**   | 210         | 150         | 60       | 40.0%   | F   | T    |
+| **Total Revenue**                   | 2,050       | 2,150       | (100)    | (4.7%)  | U   |      |
+| Hosting / Infrastructure            | (185)       | (170)       | (15)     | (8.8%)  | U   | S    |
+| Customer Success Salaries           | (220)       | (200)       | (20)     | (10.0%) | U   | S    |
+| PS Delivery Costs                   | (168)       | (120)       | (48)     | (40.0%) | U   | S    |
+| **Total COGS**                      | (573)       | (490)       | (83)     | (16.9%) | U   |      |
+| **Gross Profit**                    | 1,477       | 1,660       | (183)    | (11.0%) | U   |      |
+| _Gross Margin %_                    | 72.1%       | 77.2%       | (5.1pp)  |         | U   |      |
+| Sales & Marketing                   | (620)       | (580)       | (40)     | (6.9%)  | U   | S    |
+| Research & Development              | (410)       | (400)       | (10)     | (2.5%)  | F   | --   |
+| G&A (reported)                      | (195)       | (180)       | (15)     | (8.3%)  | U   | OT   |
+| _-- of which: Legal settlement_     | (38)        | --          | (38)     |         | U   | OT   |
+| _G&A adjusted (ex-settlement)_      | (157)       | (180)       | 23       | 12.8%   | F   | S    |
+| **Total OpEx**                      | (1,225)     | (1,160)     | (65)     | (5.6%)  | U   |      |
+| _OpEx as % of Revenue_              | 59.8%       | 54.0%       | (5.8pp)  |         | U   |      |
+| **EBITDA (reported)**               | 252         | 500         | (248)    | (49.6%) | U   |      |
+| _D&A addback_                       | 45          | 45          | --       |         |     |      |
+| **EBIT (reported)**                 | 207         | 455         | (248)    | (54.5%) | U   |      |
+| **EBITDA adjusted (ex-settlement)** | 290         | 500         | (210)    | (42.0%) | U   |      |
+| _EBITDA Margin % (reported)_        | 12.3%       | 23.3%       | (11.0pp) |         | U   |      |
+| _EBITDA Margin % (adjusted)_        | 14.1%       | 23.3%       | (9.2pp)  |         | U   |      |
+| **Net Income (reported)**           | 207         | 455         | (248)    | (54.5%) | U   |      |
+| _Net Margin % (reported)_           | 10.1%       | 21.2%       | (11.1pp) |         | U   |      |
 
 F = Favorable, U = Unfavorable | OT = One-Time, T = Timing, S = Structural
 
-*Note: No interest or tax figures provided; Net Income approximated as EBIT. Actual net income will differ if the business carries debt or has tax obligations.*
+_Note: No interest or tax figures provided; Net Income approximated as EBIT. Actual net income will differ if the business carries debt or has tax obligations._
 
 ---
 
 ### Margin Trend Analysis (Q1--Q3)
 
-| Metric                     | Q1         | Q2         | Q3 Actual  | Q3 Budget  | Trend Direction            |
-|----------------------------|-----------|-----------|-----------|-----------|----------------------------|
-| Gross Margin %             | 65.4%      | 65.9%      | 72.1%      | 77.2%      | Expanding but below budget |
-| S&M as % of Revenue        | N/A*       | N/A*       | 30.2%      | 27.0%      | Above target               |
-| R&D as % of Revenue        | N/A*       | N/A*       | 20.0%      | 18.6%      | Slightly above target      |
-| G&A as % of Revenue        | N/A*       | N/A*       | 9.5%       | 8.4%       | Above target (legal event) |
-| EBITDA Margin % (reported) | N/A*       | N/A*       | 12.3%      | 23.3%      | Below target               |
-| Net Margin % (reported)    | N/A*       | N/A*       | 10.1%      | 21.2%      | Below target               |
+| Metric                     | Q1    | Q2    | Q3 Actual | Q3 Budget | Trend Direction            |
+| -------------------------- | ----- | ----- | --------- | --------- | -------------------------- |
+| Gross Margin %             | 65.4% | 65.9% | 72.1%     | 77.2%     | Expanding but below budget |
+| S&M as % of Revenue        | N/A\* | N/A\* | 30.2%     | 27.0%     | Above target               |
+| R&D as % of Revenue        | N/A\* | N/A\* | 20.0%     | 18.6%     | Slightly above target      |
+| G&A as % of Revenue        | N/A\* | N/A\* | 9.5%      | 8.4%      | Above target (legal event) |
+| EBITDA Margin % (reported) | N/A\* | N/A\* | 12.3%     | 23.3%     | Below target               |
+| Net Margin % (reported)    | N/A\* | N/A\* | 10.1%     | 21.2%     | Below target               |
 
-*Q1 and Q2 OpEx detail not provided. Gross profit provided for trend analysis only.
+\*Q1 and Q2 OpEx detail not provided. Gross profit provided for trend analysis only.
 
 **Trend interpretation:** Gross margin has improved 6.7pp from Q1 (65.4%) to Q3 (72.1%), which is a strong positive signal on unit economics -- the core subscription product is getting more efficient to deliver. However, Q3 gross margin fell 5.1pp below the 77.2% budget, entirely driven by professional services delivery cost overruns and CS headcount growing ahead of revenue. The improvement from Q1 to Q3 indicates the trajectory is right; the miss versus budget indicates execution gaps in Q3 specifically.
 
@@ -462,24 +465,28 @@ Variance:                                          (5.1pp)  Unfavorable
 ### Key Variance Drivers
 
 **Driver 1: Subscription Revenue Shortfall -- Unfavorable ($160K) (8.0%) -- Type: Timing / Structural (TBD)**
+
 - **Root cause:** Subscription revenue missed budget by $160K. Without pipeline data, the decomposition is: (a) volume effect -- fewer new logos or net negative churn reduced recurring base, (b) price effect -- discounting on renewals or new deals below target ASP, or (c) recognition timing -- contracts signed but not yet recognized. All three have different implications.
 - **Volume vs. price decomposition:** Requires ARR/MRR bridge data. Priority next step is to obtain: beginning ARR, new ARR added, expansion ARR, churn ARR, and ending ARR for Q3 vs. budget.
 - **Forward impact:** At the current run rate, if the $160K monthly shortfall reflects a lower ARR base (structural), annualized subscription revenue shortfall is $640K -- 8.0% below the implied annual budget. If timing, Q4 revenue should catch up. This distinction is the most important open question from this analysis.
 - **Watch indicator:** Monthly ARR reconciliation for October. If new ARR added in October matches budget, Q3 was likely a timing issue. If new ARR continues below budget, declare the variance structural and reforecast the annual P&L.
 
 **Driver 2: Professional Services Delivery Cost Overrun -- Unfavorable ($48K) (40.0%) -- Type: Structural**
+
 - **Root cause:** PS delivery costs of $168K on $210K of PS revenue yields a PS gross margin of 20.0% ($42K gross profit). Budget implied delivery costs of $120K on $150K revenue also yields 20.0% gross margin ($30K gross profit). However, the absolute PS delivery cost grew 40% while PS revenue grew 40% -- the margins held but the absolute overrun on delivery created $48K more COGS than budgeted. The structural risk is that the $210K PS revenue at 20% gross margin is substantially diluting the subscription business which likely carries 80%+ gross margins.
 - **Volume vs. rate decomposition:** Volume drove most of the COGS increase (more PS engagements); the rate appears consistent with budget. This is actually a mix problem disguised as a COGS overrun -- the business is selling more of its lower-margin PS work.
 - **Forward impact:** Every $100K of incremental PS revenue adds approximately $80K of COGS. If PS as a percentage of total revenue continues to grow (from 7.3% of budget to 10.2% of actual in Q3), blended gross margins will compress by approximately 1.5pp per 5pp shift in PS revenue mix.
 - **Watch indicator:** PS revenue as a percentage of total bookings in Q4. If PS mix continues above 10% of revenue, set a minimum PS gross margin floor (recommend 35%+) by repricing or more disciplined scoping.
 
 **Driver 3: Customer Success Salaries Above Budget -- Unfavorable ($20K) (10.0%) -- Type: Structural**
+
 - **Root cause:** CS salary costs exceeded budget by $20K (10%). This is likely a headcount-driven variance: either a hire made ahead of schedule or a compensation adjustment not reflected in the budget. A 10% budget overrun in CS is a yellow flag because CS costs should scale with customer count, not with revenue -- in a SaaS business, CS hired ahead of revenue is acceptable, but it should be a conscious decision, not a budget surprise.
 - **Rate vs. volume decomposition:** Likely a volume effect (one additional FTE) rather than a rate effect (unplanned salary increase). At $200K budgeted CS salary for the quarter, budget implies approximately 3--4 CS headcount at typical SaaS CS compensation. A $20K overrun suggests one partial-quarter hire.
 - **Forward impact:** If this hire was made to manage increased customer load, it is a permanent $80K annualized cost increase. If it was backfill for attrition not reflected in budget, it is neutral to plan for the remainder of the year.
 - **Watch indicator:** CS headcount as of quarter-end vs. budgeted headcount. Confirm with the CS team leader whether the overage represents net new capacity or backfill.
 
 **Driver 4: Sales & Marketing Overspend -- Unfavorable ($40K) (6.9%) -- Type: Structural**
+
 - **Root cause:** S&M exceeded budget by $40K (6.9%) in a quarter where subscription revenue missed budget by $160K (8.0%). This is the most concerning combination in the analysis: more was spent on sales and marketing than planned, and less subscription revenue was generated. S&M efficiency deteriorated in Q3. Budget implied an S&M-to-subscription-revenue ratio of 29.0% ($580K / $2,000K). Actual ratio was 33.7% ($620K / $1,840K).
 - **Efficiency implication:** The incremental $40K of S&M spend did not generate incremental subscription revenue -- it is entirely plausible it was invested in pipeline that will convert in Q4. However, until Q4 results are known, the working assumption must be that S&M efficiency declined.
 - **Forward impact:** If the $40K represents a campaign that front-loads cost for Q4 pipeline (timing), the ratio will normalize. If it represents structural S&M cost inflation (more expensive channels, lower close rates, inflated headcount), this ratio will persist and EBITDA margins will compress by approximately 4--5pp below the original plan.
@@ -488,6 +495,7 @@ Variance:                                          (5.1pp)  Unfavorable
 ---
 
 ### Quality-of-Earnings Notes
+
 - **One-time item in G&A:** $38K legal settlement is non-recurring. Adjusted G&A of $157K is $23K below budget, indicating strong underlying G&A control.
 - **Adjusted EBITDA:** Adjusted for the $38K settlement, EBITDA is $290K (14.1% margin). The 9.2pp gap to budget on adjusted EBITDA is a cleaner measure of operational underperformance than the reported 11.0pp gap.
 - **Professional Services revenue quality:** PS revenue of $210K is non-recurring in nature and should not be included in ARR/MRR calculations. If investors or the board are assessing subscription ARR trajectory, PS revenue inflates headline revenue growth and depresses apparent gross margins.
@@ -497,6 +505,6 @@ Variance:                                          (5.1pp)  Unfavorable
 
 ### Recommendations
 
-| #  | Action                                                                                         | Linked Driver | Est. Impact       | Timeframe     | Priority     |
-|----|-----------------------------------------------------------------------------------------------|---------------|-------------------|---------------|--------------|
-| 1  | Obtain ARR bridge for Q3 (new, expansion, churn) to classify subscription miss as timing vs. structural; reforecast annual P&L accordingly | Driver 1 | Determines $0--
+| #   | Action                                                                                                                                     | Linked Driver | Est. Impact     | Timeframe | Priority |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | --------------- | --------- | -------- |
+| 1   | Obtain ARR bridge for Q3 (new, expansion, churn) to classify subscription miss as timing vs. structural; reforecast annual P&L accordingly | Driver 1      | Determines $0-- |

@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts checklist guide"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts checklist guide'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Dispute Resolution Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -22,6 +23,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user has a concrete dispute (consumer complaint, contractor defect, landlord-tenant conflict, neighbor boundary issue, breach of contract claim, employment wage dispute, business partner disagreement) and wants to understand what resolution paths exist before escalating
 - A user wants to compare negotiation, mediation, arbitration, and litigation on cost, timeline, control, and enforceability before choosing an approach
 - A user has received a contract with a mandatory mediation or arbitration clause and wants to understand what they agreed to and what their rights are under that clause
@@ -31,6 +33,7 @@ metadata:
 - A user wants to evaluate whether a dispute is worth pursuing at all given the costs and likely outcomes at each level
 
 **Do NOT use when:**
+
 - The user needs active litigation strategy, deposition preparation, or trial tactics -- these require licensed counsel (refer to an attorney)
 - The user wants to file a specific lawsuit, draft a complaint, or handle procedural court filings -- use `small-claims-court-prep` for small claims situations
 - The user needs representation at any stage of a dispute resolution process -- this skill is educational, not representational
@@ -133,21 +136,22 @@ Litigation is the formal court process: filing a complaint, serving the defendan
 
 Map the dispute's characteristics to the resolution method using the structured factors below. Do not give a generic recommendation -- use the actual facts gathered in Step 1.
 
-| Factor | Negotiation | Mediation | Arbitration | Litigation |
-|---|---|---|---|---|
-| Dollar value | Any (ideal under $5K) | Any (ideal $1K-$100K) | Moderate-high ($10K+) | High ($25K+) practical minimum |
-| Relationship preservation | Strongest | Strong | Moderate | Weakest |
-| Speed needed | Fastest (days-weeks) | Fast (weeks) | Moderate (months) | Slowest (1-3 years) |
-| Cost sensitivity | Lowest ($0) | Low-moderate | Moderate-high | Highest |
-| Control over outcome | Both parties control | Both parties control | Arbitrator decides | Judge/jury decides |
-| Need for discovery | Not available | Not available | Limited | Full discovery |
-| Confidentiality need | Private (informal) | Statutorily protected | Generally private | Public record |
-| Enforceability needed | Written agreement required | Written settlement = contract | Binding award | Court judgment |
-| Attorney representation | Rarely needed | Helpful but optional | Strongly recommended | Usually required |
-| Appeal rights needed | N/A | N/A | Very limited | Broad appellate rights |
-| Mandatory clause present | N/A | May be required | May be required | May be barred by clause |
+| Factor                    | Negotiation                | Mediation                     | Arbitration           | Litigation                     |
+| ------------------------- | -------------------------- | ----------------------------- | --------------------- | ------------------------------ |
+| Dollar value              | Any (ideal under $5K)      | Any (ideal $1K-$100K)         | Moderate-high ($10K+) | High ($25K+) practical minimum |
+| Relationship preservation | Strongest                  | Strong                        | Moderate              | Weakest                        |
+| Speed needed              | Fastest (days-weeks)       | Fast (weeks)                  | Moderate (months)     | Slowest (1-3 years)            |
+| Cost sensitivity          | Lowest ($0)                | Low-moderate                  | Moderate-high         | Highest                        |
+| Control over outcome      | Both parties control       | Both parties control          | Arbitrator decides    | Judge/jury decides             |
+| Need for discovery        | Not available              | Not available                 | Limited               | Full discovery                 |
+| Confidentiality need      | Private (informal)         | Statutorily protected         | Generally private     | Public record                  |
+| Enforceability needed     | Written agreement required | Written settlement = contract | Binding award         | Court judgment                 |
+| Attorney representation   | Rarely needed              | Helpful but optional          | Strongly recommended  | Usually required               |
+| Appeal rights needed      | N/A                        | N/A                           | Very limited          | Broad appellate rights         |
+| Mandatory clause present  | N/A                        | May be required               | May be required       | May be barred by clause        |
 
 **Key decision triggers that override the general preference for lower-cost methods:**
+
 - Mandatory arbitration clause = arbitration is required (unless void, unconscionable, or waived)
 - Government agency opponent = exhaust administrative remedies first
 - Statute of limitations expiring = file litigation now to preserve rights, negotiate simultaneously
@@ -162,6 +166,7 @@ Map the dispute's characteristics to the resolution method using the structured 
 Once the appropriate method is identified, give the user concrete preparation steps for that method. Generic preparation advice wastes the user's effort -- every step should be specific to what that forum requires.
 
 **Direct Negotiation Preparation:**
+
 - Define your BATNA with specificity: "If they don't respond to my demand letter, I will file in small claims court in 30 days." Vague BATNAs create weak negotiating positions.
 - Define your ZOPA: What is your ideal outcome? Your minimum acceptable outcome? What will you actually walk away with? Do not start negotiating without knowing where you will stop.
 - Prepare a demand letter structured as: (1) factual background, (2) what the other party did or failed to do, (3) the legal or contractual basis for your claim (cite the contract clause or statutory right), (4) the specific remedy requested, (5) a deadline (14-30 days), and (6) a statement of what you will do if they do not respond.
@@ -170,6 +175,7 @@ Once the appropriate method is identified, give the user concrete preparation st
 - Determine who has authority to settle on the other side. Negotiating with an employee who cannot authorize a refund is unproductive.
 
 **Mediation Preparation:**
+
 - Prepare a mediation brief (2-5 pages) covering: factual background, your legal position, your key evidence, and your settlement range. Even if it is not required, submitting a brief helps the mediator prepare and signals your seriousness.
 - Distinguish your interests from your positions. "I want a full refund" is your position. "I need $8,000 to hire a replacement contractor to fix this work" is your interest. Mediators ask about interests to find solutions that meet both parties' underlying needs.
 - Bring decision-making authority. If you need to call a parent, partner, or insurance company before agreeing, the mediation will stall. Know your authority limits in advance and make sure the person with authority is either at the table or reachable by phone.
@@ -179,6 +185,7 @@ Once the appropriate method is identified, give the user concrete preparation st
 - Think through contingency offers: if you cannot get your ideal outcome, what combinations of partial refund + repair + apology + future performance would you accept?
 
 **Arbitration Preparation:**
+
 - Read the arbitration organization's rules completely. AAA Commercial Rules, AAA Consumer Rules, and JAMS Comprehensive Rules have different discovery rights, timing requirements, and fee structures. The rules govern everything.
 - File a proper demand for arbitration with the organization, including the contract clause relied upon, a statement of the claim, and the relief requested. Filing fees are due at filing.
 - Participate in arbitrator selection carefully. Review each proposed arbitrator's CV, disclosed cases, and any available published awards. Strike arbitrators with potential conflicts. Rank your preferences.
@@ -188,6 +195,7 @@ Once the appropriate method is identified, give the user concrete preparation st
 - Note the hearing format: in-person, telephonic, or document-only (on-the-papers) arbitration. For claims under $25,000, many organizations offer a documents-only process that is faster and cheaper.
 
 **Litigation Preparation:**
+
 - Confirm the correct court: small claims (under state threshold), limited jurisdiction court (state-specific threshold), or general jurisdiction court. Filing in the wrong court results in dismissal or transfer.
 - Calculate the statute of limitations for your specific claim type in your state. Breach of written contract (typically 4-6 years in most states), breach of oral contract (typically 2-4 years), property damage (typically 3-4 years), personal injury (typically 2-3 years). If you are close to the deadline, file first and negotiate later.
 - Gather and preserve evidence before filing: litigation can trigger evidence spoliation concerns on the other side, but your own records should be secured first.
@@ -219,6 +227,7 @@ Deadlines kill valid claims. Surfacing them early is one of the most valuable th
 ### Step 7: Deliver the Structured Output and Actionable Next Steps
 
 Produce the formatted analysis (see Output Format below) and close with specific next-step instructions:
+
 - What should the user do today or this week?
 - What documents should they gather before taking any action?
 - Is legal consultation recommended given the complexity, value at stake, or mandatory clause involved?
@@ -406,6 +415,7 @@ Complete anonymity in a dispute resolution process is not possible -- the opposi
 ---
 
 ### Dispute Summary
+
 - **Parties:** User (website owner/client) vs. web design agency (service contractor)
 - **Subject:** Breach of web development contract -- non-delivery of functional e-commerce site after 7 months (contract promised 90-day delivery), incomplete deliverables (8 of 20 promised product pages), defective checkout, and non-compliant mobile responsiveness
 - **Amount at stake:** $12,000 paid (full contract amount or prepayment -- confirm). The user seeks either a full refund or specific performance of the remaining contract obligations.
@@ -417,12 +427,12 @@ Complete anonymity in a dispute resolution process is not possible -- the opposi
 
 ### Resolution Options Comparison
 
-| Method | Applicable? | Estimated Cost | Estimated Timeline | Key Factor for This Dispute |
-|---|---|---|---|---|
-| Direct Negotiation | Yes -- attempt immediately as a practical first step, even though mediation is the contractual first step | $0-$300 (demand letter) | 2-4 weeks | A strong written demand may produce a settlement without the cost of mediation; the agency may prefer to refund rather than mediate |
-| Mediation | **Required by contract before arbitration** | $300-$1,200 (split between parties) | 1-2 sessions, typically 2-6 weeks to schedule and complete | Mandated first formal step; check whether the contract specifies a mediation organization or allows the parties to select jointly |
-| Arbitration | **Available and binding if mediation fails, under AAA Commercial Rules** | $3,500-$8,000+ including arbitrator fees and filing costs | 60-120 days after mediation fails | AAA Commercial Rules apply -- review them carefully. AAA filing fee for a $12,000 claim is approximately $1,750. Arbitrator fees add $300-$600/hour. |
-| Litigation | **Effectively barred unless the arbitration clause is void or waived** -- California courts will enforce this clause under the FAA | $15,000-$40,000+ with attorney | 18-36 months | Litigation is not realistically available here given the mandatory arbitration clause. Exception: if the clause is procedurally and substantively unconscionable under California law, it could be challenged -- but this is an attorney decision, not a DIY move. |
+| Method             | Applicable?                                                                                                                        | Estimated Cost                                            | Estimated Timeline                                         | Key Factor for This Dispute                                                                                                                                                                                                                                        |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Direct Negotiation | Yes -- attempt immediately as a practical first step, even though mediation is the contractual first step                          | $0-$300 (demand letter)                                   | 2-4 weeks                                                  | A strong written demand may produce a settlement without the cost of mediation; the agency may prefer to refund rather than mediate                                                                                                                                |
+| Mediation          | **Required by contract before arbitration**                                                                                        | $300-$1,200 (split between parties)                       | 1-2 sessions, typically 2-6 weeks to schedule and complete | Mandated first formal step; check whether the contract specifies a mediation organization or allows the parties to select jointly                                                                                                                                  |
+| Arbitration        | **Available and binding if mediation fails, under AAA Commercial Rules**                                                           | $3,500-$8,000+ including arbitrator fees and filing costs | 60-120 days after mediation fails                          | AAA Commercial Rules apply -- review them carefully. AAA filing fee for a $12,000 claim is approximately $1,750. Arbitrator fees add $300-$600/hour.                                                                                                               |
+| Litigation         | **Effectively barred unless the arbitration clause is void or waived** -- California courts will enforce this clause under the FAA | $15,000-$40,000+ with attorney                            | 18-36 months                                               | Litigation is not realistically available here given the mandatory arbitration clause. Exception: if the clause is procedurally and substantively unconscionable under California law, it could be challenged -- but this is an attorney decision, not a DIY move. |
 
 ---
 
@@ -450,6 +460,7 @@ Complete anonymity in a dispute resolution process is not possible -- the opposi
 ### Preparation Checklist: Direct Demand (Step 1)
 
 **Documents to gather:**
+
 - [ ] **The signed web development contract** -- This is your foundation. Identify every promised deliverable, the 90-day deadline, payment terms, and any warranties or performance standards. Look for a notice of breach clause, a cure period (the agency may have contractual right to cure within X days of notice), and the dispute resolution clause in full.
 - [ ] **All project correspondence** (email, Slack, project management tool exports, text messages) -- Documents the timeline, the agency's representations about completion, and your communications putting them on notice of concerns. Organize chronologically.
 - [ ] **Payment records** -- Invoices, bank records, or credit card statements confirming you paid $12,000.
@@ -458,4 +469,5 @@ Complete anonymity in a dispute resolution process is not possible -- the opposi
 - [ ] **Quotes from other agencies to complete or rebuild the site** -- Get 2-3 quotes to either (a) complete the remaining 12 product pages and fix the checkout and mobile issues, or (b) rebuild from scratch. This establishes your damages with specificity.
 
 **Actions to take:**
+
 - [ ] Draft and send a formal demand letter via

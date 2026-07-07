@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing guide"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'editing writing guide'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Conciseness Editing
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to make text shorter, tighter, more concise, or to reduce word count -- phrases like "cut this down," "trim the fat," "tighten this up," or "I need to hit X words"
 - The user has a hard word or character limit they cannot exceed: grant abstracts (150--250 words), journal abstracts (200--350 words), LinkedIn posts (1,300 character sweet spot), executive summaries (10% of source document length), pitch decks (one idea per slide, ~25 words per slide)
 - The user's text has a high flab ratio -- more than 20% of sentences contain one or more conciseness targets (filler phrases, redundant pairs, nominalizations, throat-clearing openers)
@@ -29,6 +31,7 @@ metadata:
 - The user explicitly says the writing "feels bloated," "goes on too long," or "loses people halfway through"
 
 **Do NOT use this skill when:**
+
 - The user wants to reorganize, reorder, or restructure content -- this requires structural editing, which decides what sections exist and in what order, before word-level trimming
 - The user wants to change the register, formality, warmth, or personality of the writing -- these are tone and voice decisions, not conciseness decisions; use `tone-adjustment`
 - The user needs grammar, spelling, punctuation, or factual error correction -- use `proofreading` for that pass; always proofread after conciseness editing, never before
@@ -58,6 +61,7 @@ Before making a single cut, define the parameters that constrain the edit.
 These are the seven categories of conciseness targets, in order of impact. Always address higher-impact categories before lower-impact ones -- do not spend time cutting "very" while entire redundant paragraphs remain.
 
 **Category 1 -- Redundant Content (Highest Impact)**
+
 - Entire sections or paragraphs that repeat a point already made clearly
 - Summary sentences at the end of short paragraphs that merely restate the paragraph's opening
 - Opening paragraphs that describe what the document is about instead of beginning the argument
@@ -65,11 +69,13 @@ These are the seven categories of conciseness targets, in order of impact. Alway
 - Lists where items overlap in meaning (e.g., "efficient, fast, and quick")
 
 **Category 2 -- Nominalizations (High Impact)**
+
 - Nominalizations are verb or adjective meanings trapped inside nouns, requiring extra words to function: "conducted an investigation" (3 words) vs. "investigated" (1 word); "make a decision" vs. "decide"; "give consideration to" vs. "consider"; "reach a conclusion" vs. "conclude"; "is in violation of" vs. "violates"; "have an impact on" vs. "affect"
 - Spot them by looking for these noun forms: -tion, -sion, -ment, -ance, -ence, -ity, -ness combined with a weak verb (make, do, give, have, be, provide, conduct, perform, carry out)
 - Reversing a nominalization typically saves 2--5 words and also improves the strength of the sentence
 
 **Category 3 -- Filler Phrases (High Impact)**
+
 - These are phrases that take 3--7 words to say something that can be said in 0--2 words
 - "In order to" → "to" (saves 2 words)
 - "Due to the fact that" → "because" (saves 4 words)
@@ -84,6 +90,7 @@ These are the seven categories of conciseness targets, in order of impact. Alway
 - "In close proximity to" → "near" (saves 3 words)
 
 **Category 4 -- Redundant Pairs and Triads (Medium Impact)**
+
 - "Each and every" → "every" or "each"
 - "First and foremost" → "first"
 - "Various and sundry" → "various"
@@ -95,6 +102,7 @@ These are the seven categories of conciseness targets, in order of impact. Alway
 - "Added bonus" / "free gift" / "ATM machine" / "PIN number" -- tautological compounds
 
 **Category 5 -- Throat-Clearing Openers (Medium Impact)**
+
 - Sentences that begin with setup before reaching the point
 - "It is worth noting that the system..." → "The system..."
 - "What this means is that..." → cut the opener and state what it means
@@ -103,12 +111,14 @@ These are the seven categories of conciseness targets, in order of impact. Alway
 - "As we discussed in our previous meeting..." → context-setting that can usually be cut or compressed to a parenthetical
 
 **Category 6 -- Weak Qualifiers (Medium-Low Impact)**
+
 - "Very," "really," "quite," "rather," "fairly," "somewhat," "a bit," "a little" -- these qualify adjectives and adverbs without adding precision; a "very important issue" is not more important than an "important issue"
 - The exception: when a qualifier creates a meaningful distinction ("slightly elevated" vs. "elevated" may matter in clinical writing; "fairly confident" vs. "confident" may matter in risk communication)
 - "Basically," "essentially," "generally," "typically," "usually" -- often removable when the sentence already implies typicality; essential when it genuinely distinguishes from the absolute case
 - Do not confuse weak qualifiers with hedging language in academic writing -- "may," "suggests," "appears to," "is consistent with" are precision language, not filler
 
 **Category 7 -- Passive Constructions That Add Words (Lower Impact)**
+
 - Not all passive voice is wordy; passive is appropriate when the actor is unknown, irrelevant, or when the recipient of action is the topic
 - Wordy passive: "It was decided by the committee that the proposal would be rejected" → "The committee rejected the proposal" (saves 4 words, clarifies agency)
 - Acceptable passive: "The sample was heated to 90°C" -- the actor is irrelevant; converting to active ("We heated the sample to 90°C") adds a useless word and shifts focus
@@ -302,24 +312,31 @@ Further reduction to reach the target would require:
 ## Edge Cases
 
 ### Hard Word Limits in High-Stakes Short-Form Genres
+
 Grant abstracts, journal abstracts, conference abstracts, and ClinicalTrials.gov summaries have word or character limits that are absolute and enforced programmatically. In these cases: (1) identify the mandatory content elements for the genre (significance, gap, method, expected outcome for a grant abstract; background, objective, methods, results, conclusion for a structured journal abstract); (2) allocate a word budget to each element based on genre conventions (methods sections in clinical abstracts are often too long -- cut there first); (3) apply all seven categories of conciseness cuts; (4) if the limit still cannot be met, identify which content elements are genre-mandatory and which are additions the author included that the genre does not require. Never cut the conclusion or the statement of significance -- these are the highest-value elements in every short-form academic genre.
 
 ### 50%+ Reduction Required
+
 A user who asks to cut a 2,000-word blog post to 800 words, or a 10-page report to 2 pages, is requesting something that cannot be accomplished through conciseness editing alone without destroying the document. The correct response is: (a) confirm the target; (b) explain that reductions above 35% require structural decisions about what content to keep; (c) offer two paths -- either you perform structural editing first (identify which sections survive) and then conciseness-edit the survivors, or the user decides which sections to cut and you conciseness-edit what remains. Do not silently perform content thinning and call it conciseness editing.
 
 ### Already-Tight Text With a Word Limit
+
 Users sometimes bring already-well-edited text with a hard word limit they cannot meet. In this case: (1) perform the full scan to verify the text is actually tight (do not take the user's word for it); (2) if you confirm it is tight, report this explicitly with the word count achieved by applying all available cuts; (3) present the maximum achievable reduction; (4) identify the specific content removals that would reach the limit -- do not make them, but name them: "To reach 250 words from 290 words, you would need to remove the third sentence of the final paragraph (the phrase 'as has been demonstrated in previous studies') -- this is a content decision, not an editing decision."
 
 ### Academic Writing With Discipline-Specific Conventions
+
 Academic writing in different disciplines has different tolerances and different conventions. In the natural sciences, passive voice in methods sections is standard practice ("samples were centrifuged at 3,000 rpm for 10 minutes") -- do not convert to active. In the social sciences and humanities, hedging verbs ("suggests," "appears to," "is consistent with") carry epistemic weight and must not be cut or strengthened to "shows" or "proves." In qualitative research, thick description in findings sections is methodologically required, not verbosity. Before editing academic writing, identify the discipline and the genre -- conference paper, journal article, thesis chapter, grant -- and apply cuts only where they are safe given those conventions.
 
 ### Legal and Compliance Text
+
 Legal documents -- contracts, terms of service, regulatory filings, compliance policies -- contain language that appears redundant to a non-lawyer but serves legal purposes. "Null and void" is a legally established phrase. "Shall" and "may" are terms of art with specific legal meanings that differ from their everyday usage. Conditions, qualifications, and exceptions in legal text ("provided, however, that," "subject to the limitations set forth in Section 3.2") may look like padding but often exclude liability or establish precedent. The correct approach: (1) apply Categories 1 and 3 cuts only where the text is genuinely non-functional (introductory boilerplate, redundant headings, unnecessary preambles); (2) flag -- but do not cut -- anything that looks like a legal qualification or term of art; (3) advise the user to have a lawyer review flagged items before any cuts are accepted.
 
 ### User Asks for Conciseness Plus Clarity Simultaneously
+
 "Make this tighter and clearer" is a common dual request. In most cases, conciseness and clarity reinforce each other -- the concise version is usually clearer because clutter obscures meaning. However, there are genuine tensions: (1) a technical term may be precise but unfamiliar (clarity requires a brief definition, which adds words); (2) a long, qualified sentence may need to be broken into two shorter ones (net neutral or slightly positive word count but much clearer); (3) a missing transition between compressed paragraphs may need a connector added. The resolution: perform conciseness editing as the primary task, but where clarity repairs require adding words, add them and note them explicitly so the user can see the trade-off. Never sacrifice clarity for a lower word count -- "conciseness serves clarity, not brevity for its own sake" is the governing principle.
 
 ### Voice and Style Preservation in Creative and Brand Writing
+
 When editing marketing copy, brand writing, personal essays, or creative non-fiction, voice is an explicit asset. Some characteristics that look like conciseness targets are intentional style: short declarative sentence fragments (Apple's "Think different."), strategic repetition for emphasis ("Work hard. Play harder. Rest harder than both."), or colloquial phrasing that defines a brand personality. Before editing brand or creative writing, identify the voice signature -- the consistent stylistic patterns that define the work -- and protect them. Cut filler and redundancy, but leave rhythm, sentence variation, and personality markers intact. When in doubt, flag a potential cut rather than making it.
 
 ---
@@ -327,6 +344,7 @@ When editing marketing copy, brand writing, personal essays, or creative non-fic
 ## Example
 
 **Input:**
+
 > "Please make this more concise. It's for an executive email to our leadership team about a delayed product launch. We don't have a specific word target, but it's too long right now.
 >
 > 'I wanted to take a moment to reach out to all of you to make you aware of the fact that we are currently experiencing some significant challenges with regard to the upcoming product launch that was originally scheduled to take place during the month of October. Due to the fact that our engineering team has been conducting a thorough investigation into a number of critical technical issues that were identified during the final stages of the QA process, it has become necessary for us to make the decision to delay the launch by a period of approximately four to six weeks. I want to be very clear that the safety and quality of our product is of the utmost importance to us and we are completely committed to ensuring that we do not release a product to our customers that does not fully meet our very high standards. We will be providing you with further updates as we are able to make them available and we will keep each and every one of you informed throughout this process.'"
@@ -351,95 +369,106 @@ When editing marketing copy, brand writing, personal essays, or creative non-fic
 #### Category 1 -- Redundant Content
 
 **Cut 1.** ~~"I want to be very clear that the safety and quality of our product is of the utmost importance to us and we are completely committed to ensuring that we do not release a product to our customers that does not fully meet our very high standards."~~ → INTEGRATED INTO CUT SUMMARY (see Cut Summary Table -- this entire sentence restates what is already implied by the decision to delay)
-   - Saved: 48 words
-   - Reason: This sentence justifies the delay decision in terms the decision itself already communicates. A product launch delay for quality reasons is self-evidently a quality commitment. The sentence adds no new information and, in an executive email, reads as defensive positioning rather than leadership communication.
-   - Nuance flag: **Yes** -- If the leadership team is likely to push back on the delay or interpret it as an engineering failure rather than a quality decision, the author may want to restore a shorter version: "Quality cannot be compromised." (4 words vs. 48 -- see Nuance Flags section below.)
+
+- Saved: 48 words
+- Reason: This sentence justifies the delay decision in terms the decision itself already communicates. A product launch delay for quality reasons is self-evidently a quality commitment. The sentence adds no new information and, in an executive email, reads as defensive positioning rather than leadership communication.
+- Nuance flag: **Yes** -- If the leadership team is likely to push back on the delay or interpret it as an engineering failure rather than a quality decision, the author may want to restore a shorter version: "Quality cannot be compromised." (4 words vs. 48 -- see Nuance Flags section below.)
 
 ---
 
 #### Category 2 -- Nominalizations
 
 **Cut 2.** ~~"has been conducting a thorough investigation into"~~ → **"investigated"**
-   - Saved: 5 words
-   - Reason: "conducting a thorough investigation" uses the pattern [weak verb + nominalization]; the verb "investigated" or "is investigating" (if ongoing) contains the full meaning in one word. "Thorough" is a weak qualifier in this context -- an investigation by an engineering team is assumed to be thorough.
-   - Nuance flag: No
+
+- Saved: 5 words
+- Reason: "conducting a thorough investigation" uses the pattern [weak verb + nominalization]; the verb "investigated" or "is investigating" (if ongoing) contains the full meaning in one word. "Thorough" is a weak qualifier in this context -- an investigation by an engineering team is assumed to be thorough.
+- Nuance flag: No
 
 **Cut 3.** ~~"it has become necessary for us to make the decision to delay"~~ → **"we decided to delay"**
-   - Saved: 9 words
-   - Reason: "make the decision" is a classic nominalization pattern (weak verb "make" + noun "decision"). "Has become necessary for us to" is additional throat-clearing that defers the action. The active, direct form "we decided" is 3 words vs. 12 and conveys agency more confidently.
-   - Nuance flag: Yes -- "it has become necessary" distances the author from the decision, which may be intentional if the author wants to frame the delay as externally forced rather than an active choice. If that framing matters, restore: "we are compelled to delay."
+
+- Saved: 9 words
+- Reason: "make the decision" is a classic nominalization pattern (weak verb "make" + noun "decision"). "Has become necessary for us to" is additional throat-clearing that defers the action. The active, direct form "we decided" is 3 words vs. 12 and conveys agency more confidently.
+- Nuance flag: Yes -- "it has become necessary" distances the author from the decision, which may be intentional if the author wants to frame the delay as externally forced rather than an active choice. If that framing matters, restore: "we are compelled to delay."
 
 ---
 
 #### Category 3 -- Filler Phrases
 
 **Cut 4.** ~~"I wanted to take a moment to reach out to all of you to make you aware of the fact that"~~ → DELETED (entire opener)
-   - Saved: 20 words
-   - Reason: Four compounded filler patterns: "wanted to take a moment to" (throat-clearing), "reach out to all of you" (filler -- you are emailing them), "make you aware of the fact that" (= "tell you that" = cut entirely and open with the content). Executive communication is direct; the recipient knows this is an email to them.
-   - Nuance flag: No
+
+- Saved: 20 words
+- Reason: Four compounded filler patterns: "wanted to take a moment to" (throat-clearing), "reach out to all of you" (filler -- you are emailing them), "make you aware of the fact that" (= "tell you that" = cut entirely and open with the content). Executive communication is direct; the recipient knows this is an email to them.
+- Nuance flag: No
 
 **Cut 5.** ~~"Due to the fact that"~~ → **"Because"**
-   - Saved: 4 words
-   - Reason: "Due to the fact that" is a 5-word version of the 1-word conjunction "because." No information is lost.
-   - Nuance flag: No
+
+- Saved: 4 words
+- Reason: "Due to the fact that" is a 5-word version of the 1-word conjunction "because." No information is lost.
+- Nuance flag: No
 
 **Cut 6.** ~~"a period of approximately four to six weeks"~~ → **"four to six weeks"**
-   - Saved: 3 words
-   - Reason: "A period of" adds nothing -- "four to six weeks" is already a period. "Approximately" is redundant with the range "four to six" -- a range already signals approximation.
-   - Nuance flag: No
+
+- Saved: 3 words
+- Reason: "A period of" adds nothing -- "four to six weeks" is already a period. "Approximately" is redundant with the range "four to six" -- a range already signals approximation.
+- Nuance flag: No
 
 **Cut 7.** ~~"We will be providing you with further updates as we are able to make them available"~~ → **"We will update you"** (or **"We will send updates as they are available"** if timing uncertainty matters)
-   - Saved: 10 words
-   - Reason: "as we are able to make them available" qualifies the update cadence without adding specificity. If there is genuine uncertainty about when updates can be sent, use the 7-word version. If the author has a regular cadence in mind, name it ("We will update you weekly").
-   - Nuance flag: **Yes** -- the original's qualification ("as we are able") signals that updates may be uncertain or delayed. If that caveat matters for expectation-setting, restore: "We will send updates as they become available."
+
+- Saved: 10 words
+- Reason: "as we are able to make them available" qualifies the update cadence without adding specificity. If there is genuine uncertainty about when updates can be sent, use the 7-word version. If the author has a regular cadence in mind, name it ("We will update you weekly").
+- Nuance flag: **Yes** -- the original's qualification ("as we are able") signals that updates may be uncertain or delayed. If that caveat matters for expectation-setting, restore: "We will send updates as they become available."
 
 ---
 
 #### Category 4 -- Redundant Pairs
 
 **Cut 8.** ~~"each and every one of you"~~ → **"you"** (or **"everyone"**)
-   - Saved: 4 words
-   - Reason: "Each and every one" is a three-element redundant series. "You" (the email recipients) or "everyone" carries the meaning completely.
-   - Nuance flag: No
+
+- Saved: 4 words
+- Reason: "Each and every one" is a three-element redundant series. "You" (the email recipients) or "everyone" carries the meaning completely.
+- Nuance flag: No
 
 ---
 
 #### Category 5 -- Throat-Clearing Openers
 
 **Cut 9.** ~~"that was originally scheduled to take place during the month of"~~ → **"scheduled for"**
-   - Saved: 8 words
-   - Reason: "originally scheduled to take place during the month of October" = "scheduled for October." "Originally" is redundant with the delay announcement. "Take place" is a weak verb substituting for a specific verb (launch, ship, go live). "During the month of" is a 4-word version of the preposition "in."
-   - Nuance flag: No
+
+- Saved: 8 words
+- Reason: "originally scheduled to take place during the month of October" = "scheduled for October." "Originally" is redundant with the delay announcement. "Take place" is a weak verb substituting for a specific verb (launch, ship, go live). "During the month of" is a 4-word version of the preposition "in."
+- Nuance flag: No
 
 ---
 
 #### Category 6 -- Weak Qualifiers
 
 **Cut 10.** ~~"some significant"~~ → **"significant"** (or **"serious"**)
-   - Saved: 1 word
-   - Reason: "Some" qualifies "significant" in a way that undermines it -- either the challenges are significant or they are not. Remove "some" and strengthen if needed.
-   - Nuance flag: No
+
+- Saved: 1 word
+- Reason: "Some" qualifies "significant" in a way that undermines it -- either the challenges are significant or they are not. Remove "some" and strengthen if needed.
+- Nuance flag: No
 
 **Cut 11.** ~~"very high standards"~~ → absorbed into Cut 1 deletion
-   - Saved: 0 additional (already counted in Cut 1)
-   - Reason: "Very" adds no precision to "high standards."
+
+- Saved: 0 additional (already counted in Cut 1)
+- Reason: "Very" adds no precision to "high standards."
 
 ---
 
 ### Cut Summary Table
 
-| # | Original | Replacement | Saved | Category | Flagged |
-|---|----------|-------------|-------|----------|---------|
-| 1 | Entire "I want to be very clear..." sentence | DELETED | 48 | 1 -- Redundant Content | Y |
-| 2 | "has been conducting a thorough investigation into" | "investigated" | 5 | 2 -- Nominalization | N |
-| 3 | "it has become necessary for us to make the decision to delay" | "we decided to delay" | 9 | 2 -- Nominalization | Y |
-| 4 | "I wanted to take a moment to reach out to all of you to make you aware of the fact that" | DELETED | 20 | 3 -- Filler + Throat-clearing | N |
-| 5 | "Due to the fact that" | "Because" | 4 | 3 -- Filler Phrase | N |
-| 6 | "a period of approximately" | DELETED | 3 | 3 -- Filler Phrase | N |
-| 7 | "We will be providing you with further updates as we are able to make them available" | "We will update you" | 10 | 3 -- Filler Phrase | Y |
-| 8 | "each and every one of you" | "everyone" | 4 | 4 -- Redundant Pair | N |
-| 9 | "originally scheduled to take place during the month of" | "scheduled for" | 8 | 5 -- Throat-clearing | N |
-| 10 | "some significant" | "significant" | 1 | 6 -- Weak Qualifier | N |
+| #   | Original                                                                                  | Replacement           | Saved | Category                      | Flagged |
+| --- | ----------------------------------------------------------------------------------------- | --------------------- | ----- | ----------------------------- | ------- |
+| 1   | Entire "I want to be very clear..." sentence                                              | DELETED               | 48    | 1 -- Redundant Content        | Y       |
+| 2   | "has been conducting a thorough investigation into"                                       | "investigated"        | 5     | 2 -- Nominalization           | N       |
+| 3   | "it has become necessary for us to make the decision to delay"                            | "we decided to delay" | 9     | 2 -- Nominalization           | Y       |
+| 4   | "I wanted to take a moment to reach out to all of you to make you aware of the fact that" | DELETED               | 20    | 3 -- Filler + Throat-clearing | N       |
+| 5   | "Due to the fact that"                                                                    | "Because"             | 4     | 3 -- Filler Phrase            | N       |
+| 6   | "a period of approximately"                                                               | DELETED               | 3     | 3 -- Filler Phrase            | N       |
+| 7   | "We will be providing you with further updates as we are able to make them available"     | "We will update you"  | 10    | 3 -- Filler Phrase            | Y       |
+| 8   | "each and every one of you"                                                               | "everyone"            | 4     | 4 -- Redundant Pair           | N       |
+| 9   | "originally scheduled to take place during the month of"                                  | "scheduled for"       | 8     | 5 -- Throat-clearing          | N       |
+| 10  | "some significant"                                                                        | "significant"         | 1     | 6 -- Weak Qualifier           | N       |
 
 **Total words saved: 112** (adjusted for overlap; net reduction from 148 to 52 = 96 words)
 

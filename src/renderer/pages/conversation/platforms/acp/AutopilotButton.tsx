@@ -28,7 +28,10 @@ const AutopilotButton = ({ content, workspacePath }: Props) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    ipcBridge.autopilot.available.invoke().then((r) => setAvailable(r.available)).catch(() => {});
+    ipcBridge.autopilot.available
+      .invoke()
+      .then((r) => setAvailable(r.available))
+      .catch(() => {});
   }, []);
 
   // When Tank finishes the run, open its worktree branch as a project to review.
@@ -66,15 +69,15 @@ const AutopilotButton = ({ content, workspacePath }: Props) => {
   };
 
   return (
-    <Tooltip content="Run this task on autopilot (Tank)">
+    <Tooltip content='Run this task on autopilot (Tank)'>
       <Button
-        shape="circle"
-        size="small"
-        type="text"
+        shape='circle'
+        size='small'
+        type='text'
         loading={sending}
-        icon={<Rocket theme="outline" />}
+        icon={<Rocket theme='outline' />}
         onClick={onClick}
-        aria-label="Run on autopilot"
+        aria-label='Run on autopilot'
       />
     </Tooltip>
   );

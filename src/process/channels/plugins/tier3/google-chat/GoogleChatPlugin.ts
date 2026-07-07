@@ -141,24 +141,21 @@ export class GoogleChatPlugin extends BasePlugin {
     const audience =
       typeof creds.audience === 'string' && creds.audience.trim()
         ? creds.audience.trim()
-        : (typeof parsed.project_id === 'string' ? parsed.project_id : '');
+        : typeof parsed.project_id === 'string'
+          ? parsed.project_id
+          : '';
 
     const rawTransport = typeof creds.transport === 'string' ? creds.transport.trim() : '';
     const transport: GoogleChatTransport = rawTransport === 'pubsub' ? 'pubsub' : 'webhook';
 
     let subscriptionName: string | null = null;
     if (transport === 'pubsub') {
-      subscriptionName =
-        typeof creds.subscriptionName === 'string' ? creds.subscriptionName.trim() : '';
+      subscriptionName = typeof creds.subscriptionName === 'string' ? creds.subscriptionName.trim() : '';
       if (!subscriptionName) {
-        throw new Error(
-          'Google Chat: subscriptionName is required when transport is "pubsub"',
-        );
+        throw new Error('Google Chat: subscriptionName is required when transport is "pubsub"');
       }
       if (!isValidSubscriptionPath(subscriptionName)) {
-        throw new Error(
-          "Google Chat: subscriptionName must match 'projects/<project>/subscriptions/<sub>'",
-        );
+        throw new Error("Google Chat: subscriptionName must match 'projects/<project>/subscriptions/<sub>'");
       }
     }
 
@@ -242,8 +239,7 @@ export class GoogleChatPlugin extends BasePlugin {
     // Preserve thread continuity: if the caller passed a reply target OR the
     // chatId already encodes a thread, post into that thread instead of
     // creating a new top-level message.
-    const threadName =
-      deriveThreadName(chatId, message.replyToMessageId) ?? undefined;
+    const threadName = deriveThreadName(chatId, message.replyToMessageId) ?? undefined;
     const body = toGoogleChatMessageBody(message, { threadName });
     // POST target is always the space - strip any `/threads/<id>` suffix so we
     // don't double-encode the thread context.
@@ -301,7 +297,7 @@ export class GoogleChatPlugin extends BasePlugin {
   async handleWebhookPayload(
     payload: object,
     _headers: Record<string, string | string[] | undefined>,
-    pluginInstanceId: string,
+    pluginInstanceId: string
   ): Promise<void> {
     const event = payload as GoogleChatEvent;
     const eventType = (event.type ?? event.eventType ?? '').toUpperCase();
@@ -340,9 +336,7 @@ export class GoogleChatPlugin extends BasePlugin {
    * Credentials are JSON-encoded per TRANSLATION-GUIDE §4:
    *   { serviceAccountJson: string; audience?: string }
    */
-  static async testConnection(
-    tokenJson: string,
-  ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
+  static async testConnection(tokenJson: string): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let creds: GoogleChatCreds;
     try {
       creds = JSON.parse(tokenJson) as GoogleChatCreds;

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud budgeting template guide python api-design automation"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud budgeting template guide python api-design automation'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Self-Service Infrastructure
 
 You are a self-service infrastructure architect who helps platform teams build systems that let developers provision and manage infrastructure independently. You guide through Terraform module design, provisioning automation, approval workflows, and abstraction layers that hide complexity while maintaining control.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about self service infra techniques or best practices
 - User needs guidance on self service infra concepts
 - User wants to implement or improve their approach to self service infra
 
 **Do NOT use when:**
+
 - The request falls outside the scope of self service infra
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -272,12 +273,12 @@ spec:
   environment: staging
   configuration:
     size: medium
-    version: "7"
+    version: '7'
     clusterMode: false
     evictionPolicy: allkeys-lru
-  justification: "Session caching for payments flow to reduce database load"
+  justification: 'Session caching for payments flow to reduce database load'
 status:
-  state: pending  # pending → approved → provisioning → ready → failed
+  state: pending # pending → approved → provisioning → ready → failed
 ```
 
 ### Request Processing Pipeline
@@ -302,7 +303,7 @@ policies:
       cost_monthly_max: 200
       resource_types: [redis, postgresql, s3-bucket]
     approval: automatic
-    sla: "5 minutes"
+    sla: '5 minutes'
 
   - name: staging-team-lead
     conditions:
@@ -311,7 +312,7 @@ policies:
     approval:
       required_approvers: 1
       approver_groups: [team-lead]
-    sla: "4 hours"
+    sla: '4 hours'
 
   - name: production-standard
     conditions:
@@ -320,7 +321,7 @@ policies:
     approval:
       required_approvers: 2
       approver_groups: [team-lead, platform-team]
-    sla: "1 business day"
+    sla: '1 business day'
 
   - name: production-high-cost
     conditions:
@@ -329,7 +330,7 @@ policies:
     approval:
       required_approvers: 3
       approver_groups: [team-lead, platform-team, finance]
-    sla: "3 business days"
+    sla: '3 business days'
 
   - name: security-sensitive
     conditions:
@@ -337,7 +338,7 @@ policies:
     approval:
       required_approvers: 2
       approver_groups: [security-team, platform-team]
-    sla: "1 business day"
+    sla: '1 business day'
 ```
 
 ### Approval Workflow Flow
@@ -413,28 +414,28 @@ spec:
     - name: compute
       module: kubernetes-service
       inputs:
-        name: "{{ .serviceName }}"
-        team: "{{ .team }}"
+        name: '{{ .serviceName }}'
+        team: '{{ .team }}'
     - name: database
       module: postgresql
       inputs:
-        name: "{{ .serviceName }}-db"
-        size: "{{ .databaseSize }}"
+        name: '{{ .serviceName }}-db'
+        size: '{{ .databaseSize }}'
     - name: cache
       module: redis
-      condition: "{{ .cacheEnabled }}"
+      condition: '{{ .cacheEnabled }}'
       inputs:
-        name: "{{ .serviceName }}-cache"
+        name: '{{ .serviceName }}-cache'
     - name: monitoring
       module: monitoring-stack
       inputs:
-        serviceName: "{{ .serviceName }}"
-        database: "{{ .resources.database.outputs.endpoint }}"
+        serviceName: '{{ .serviceName }}'
+        database: '{{ .resources.database.outputs.endpoint }}'
 
   outputs:
-    serviceUrl: "{{ .resources.compute.outputs.url }}"
-    databaseEndpoint: "{{ .resources.database.outputs.endpoint }}"
-    dashboardUrl: "{{ .resources.monitoring.outputs.dashboard_url }}"
+    serviceUrl: '{{ .resources.compute.outputs.url }}'
+    databaseEndpoint: '{{ .resources.database.outputs.endpoint }}'
+    dashboardUrl: '{{ .resources.monitoring.outputs.dashboard_url }}'
 ```
 
 ## Cost Management
@@ -517,7 +518,6 @@ resource "aws_db_instance" "main" {
 # Snapshots and terminates after TTL + grace period
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -525,7 +525,6 @@ resource "aws_db_instance" "main" {
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -546,14 +545,12 @@ resource "aws_db_instance" "main" {
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

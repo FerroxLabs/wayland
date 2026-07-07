@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "security devops guide"
-  category: "security"
-  subcategory: "application-security"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'security devops guide'
+  category: 'security'
+  subcategory: 'application-security'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # DevSecOps Engineer
@@ -104,7 +104,7 @@ rules:
               password = "..."
           - pattern: |
               api_key = "..."
-    message: "Hardcoded secret detected. Use environment variables or secret manager."
+    message: 'Hardcoded secret detected. Use environment variables or secret manager.'
     severity: ERROR
     languages: [python, javascript, java]
 
@@ -114,13 +114,13 @@ rules:
           cursor.execute(f"... {$USER_INPUT} ...")
       - pattern-not: |
           cursor.execute("...", [$PARAMS])
-    message: "Possible SQL injection. Use parameterized queries."
+    message: 'Possible SQL injection. Use parameterized queries.'
     severity: ERROR
     languages: [python]
 
   - id: unsafe-deserialization
     pattern: $MODULE.loads($DATA)
-    message: "Unsafe deserialization with untrusted data. Use json.loads or a safe deserializer."
+    message: 'Unsafe deserialization with untrusted data. Use json.loads or a safe deserializer.'
     severity: WARNING
     languages: [python]
 
@@ -136,9 +136,9 @@ rules:
           def $FUNC(...):
               ...
     paths:
-      include: ["**/api/**"]
-      exclude: ["**/public/**", "**/health**"]
-    message: "POST endpoint missing @require_auth decorator."
+      include: ['**/api/**']
+      exclude: ['**/public/**', '**/health**']
+    message: 'POST endpoint missing @require_auth decorator.'
     severity: WARNING
     languages: [python]
 ```
@@ -155,24 +155,24 @@ dast_scan:
   script:
     # Start the application in background
     - docker-compose -f docker-compose.test.yml up -d
-    - sleep 30  # Wait for app startup
+    - sleep 30 # Wait for app startup
 
     # API scan using OpenAPI spec
     - zap-api-scan.py
-        -t [reference URL]
-        -f openapi
-        -r zap-api-report.html
-        -w zap-api-report.md
-        -J zap-api-report.json
-        -c zap-api-rules.conf
-        -I  # Don't fail on warnings
+      -t [reference URL]
+      -f openapi
+      -r zap-api-report.html
+      -w zap-api-report.md
+      -J zap-api-report.json
+      -c zap-api-rules.conf
+      -I # Don't fail on warnings
 
     # Full scan for web application
     - zap-full-scan.py
-        -t [reference URL]
-        -r zap-full-report.html
-        -J zap-full-report.json
-        -c zap-full-rules.conf
+      -t [reference URL]
+      -r zap-full-report.html
+      -J zap-full-report.json
+      -c zap-full-rules.conf
 
     # Evaluate results
     - python evaluate_zap_results.py zap-api-report.json
@@ -182,7 +182,7 @@ dast_scan:
     paths:
       - zap-*-report.*
   rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"  # Run on schedule, not every PR
+    - if: $CI_PIPELINE_SOURCE == "schedule" # Run on schedule, not every PR
 ```
 
 ## Container Security Scanning
@@ -207,7 +207,7 @@ container-security:
         format: sarif
         output: trivy-results.sarif
         severity: CRITICAL,HIGH
-        exit-code: 1  # Fail on critical/high
+        exit-code: 1 # Fail on critical/high
 
     # Grype: Alternative scanner for comparison
     - name: Grype scan
@@ -430,27 +430,27 @@ violations[msg] {
 ```yaml
 metrics:
   pipeline_security:
-    - mean_time_to_remediate_critical: "< 7 days"
-    - mean_time_to_remediate_high: "< 30 days"
-    - security_gate_pass_rate: "> 85%"
-    - false_positive_rate: "< 15%"
+    - mean_time_to_remediate_critical: '< 7 days'
+    - mean_time_to_remediate_high: '< 30 days'
+    - security_gate_pass_rate: '> 85%'
+    - false_positive_rate: '< 15%'
 
   developer_enablement:
-    - pre_commit_adoption_rate: "> 90% of devs"
-    - security_training_completion: "> 95%"
-    - security_champion_coverage: "1 per team"
-    - time_to_fix_in_pr: "< 2 hours"
+    - pre_commit_adoption_rate: '> 90% of devs'
+    - security_training_completion: '> 95%'
+    - security_champion_coverage: '1 per team'
+    - time_to_fix_in_pr: '< 2 hours'
 
   vulnerability_management:
-    - open_critical_vulns: "0"
-    - open_high_vulns: "< 10"
-    - dependency_freshness: "> 90% up to date"
-    - sbom_coverage: "100% of services"
+    - open_critical_vulns: '0'
+    - open_high_vulns: '< 10'
+    - dependency_freshness: '> 90% up to date'
+    - sbom_coverage: '100% of services'
 
   compliance:
-    - policy_compliance_rate: "> 98%"
-    - audit_findings_open: "< 5"
-    - iac_scan_coverage: "100% of infra"
+    - policy_compliance_rate: '> 98%'
+    - audit_findings_open: '< 5'
+    - iac_scan_coverage: '100% of infra'
 ```
 
 ## Implementation Checklist
@@ -487,6 +487,7 @@ Phase 4 - Culture:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing devsecops engineer solutions
 - Reviewing or improving existing devsecops engineer approaches
 - Making architectural or implementation decisions about devsecops engineer
@@ -494,6 +495,7 @@ Phase 4 - Culture:
 - Troubleshooting devsecops engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -504,21 +506,26 @@ Phase 4 - Culture:
 # Devsecops Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

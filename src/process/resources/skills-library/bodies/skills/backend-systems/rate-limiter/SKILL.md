@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "backend api-design security"
-  category: "backend-systems"
-  subcategory: "server-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'backend api-design security'
+  category: 'backend-systems'
+  subcategory: 'server-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Rate Limiter
@@ -61,7 +61,7 @@ class FixedWindowLimiter {
 
   constructor(
     private maxRequests: number,
-    private windowMs: number,
+    private windowMs: number
   ) {}
 
   isAllowed(key: string): { allowed: boolean; remaining: number; resetAt: number } {
@@ -151,15 +151,15 @@ class SlidingWindowCounterLimiter {
     const now = Date.now();
     const currentWindow = Math.floor(now / windowMs);
     const previousWindow = currentWindow - 1;
-    const elapsedInWindow = now - (currentWindow * windowMs);
+    const elapsedInWindow = now - currentWindow * windowMs;
     const weight = (windowMs - elapsedInWindow) / windowMs;
 
     const currentKey = `${key}:${currentWindow}`;
     const previousKey = `${key}:${previousWindow}`;
 
     const [currentCount, previousCount] = await Promise.all([
-      this.redis.get(currentKey).then(v => parseInt(v ?? '0')),
-      this.redis.get(previousKey).then(v => parseInt(v ?? '0')),
+      this.redis.get(currentKey).then((v) => parseInt(v ?? '0')),
+      this.redis.get(previousKey).then((v) => parseInt(v ?? '0')),
     ]);
 
     const effectiveCount = currentCount + Math.floor(previousCount * weight);
@@ -301,19 +301,19 @@ COMBINED:
 ```ts
 const RATE_LIMIT_TIERS = {
   free: {
-    global:  { maxRequests: 100,   windowMs: 60_000 },
-    upload:  { maxRequests: 10,    windowMs: 3600_000 },
-    search:  { maxRequests: 30,    windowMs: 60_000 },
+    global: { maxRequests: 100, windowMs: 60_000 },
+    upload: { maxRequests: 10, windowMs: 3600_000 },
+    search: { maxRequests: 30, windowMs: 60_000 },
   },
   pro: {
-    global:  { maxRequests: 1000,  windowMs: 60_000 },
-    upload:  { maxRequests: 100,   windowMs: 3600_000 },
-    search:  { maxRequests: 300,   windowMs: 60_000 },
+    global: { maxRequests: 1000, windowMs: 60_000 },
+    upload: { maxRequests: 100, windowMs: 3600_000 },
+    search: { maxRequests: 300, windowMs: 60_000 },
   },
   enterprise: {
-    global:  { maxRequests: 10000, windowMs: 60_000 },
-    upload:  { maxRequests: 1000,  windowMs: 3600_000 },
-    search:  { maxRequests: 3000,  windowMs: 60_000 },
+    global: { maxRequests: 10000, windowMs: 60_000 },
+    upload: { maxRequests: 1000, windowMs: 3600_000 },
+    search: { maxRequests: 3000, windowMs: 60_000 },
   },
 };
 ```
@@ -414,7 +414,7 @@ RECOMMENDATION: Local fallback with monitoring alert.
 class ResilientRateLimiter {
   constructor(
     private distributed: DistributedRateLimiter,
-    private local: LocalRateLimiter,
+    private local: LocalRateLimiter
   ) {}
 
   async isAllowed(key: string): Promise<RateLimitResult> {
@@ -447,7 +447,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
       ? parseInt(retryAfter) * 1000
       : Math.min(1000 * Math.pow(2, attempt) + Math.random() * 1000, 30000);
 
-    await new Promise(resolve => scheduleDelayed(resolve, waitMs));
+    await new Promise((resolve) => scheduleDelayed(resolve, waitMs));
   }
 
   throw new Error('Max retries exceeded');
@@ -461,7 +461,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
 - [ ] Lua scripts ensure atomic rate limit checks
 - [ ] Rate limit keys distinguish IP, user, API key, endpoint
 - [ ] Tiered limits configured per plan/subscription level
-- [ ] Standard response headers included (RateLimit-*, Retry-After)
+- [ ] Standard response headers included (RateLimit-\*, Retry-After)
 - [ ] 429 response body includes error details and retry information
 - [ ] Auth endpoints have stricter rate limits
 - [ ] Health check endpoints excluded from rate limiting
@@ -474,6 +474,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing rate limiter solutions
 - Reviewing or improving existing rate limiter approaches
 - Making architectural or implementation decisions about rate limiter
@@ -481,6 +482,7 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
 - Troubleshooting rate limiter-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -491,21 +493,26 @@ async function fetchWithRetry(url: string, options: RequestInit, maxRetries = 3)
 # Rate Limiter Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

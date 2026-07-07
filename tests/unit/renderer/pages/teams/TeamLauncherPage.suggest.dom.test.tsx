@@ -22,10 +22,7 @@
 import React, { useState } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import type {
-  SuggestRosterResult,
-  SuggestSpecialist,
-} from '@process/team/suggestRoster';
+import type { SuggestRosterResult, SuggestSpecialist } from '@process/team/suggestRoster';
 
 const { suggestRosterInvoke, successFn, errorFn } = vi.hoisted(() => ({
   suggestRosterInvoke: vi.fn(),
@@ -66,10 +63,7 @@ type RosterEntry = { specialistId: string; backend: string; slotName: string };
  * handler's contract - button state machine + IPC invoke shape + post-success
  * state population - independent of the full page's hook surface.
  */
-const SuggestHarness: React.FC<{ pool: SuggestSpecialist[]; detected: string[] }> = ({
-  pool,
-  detected,
-}) => {
+const SuggestHarness: React.FC<{ pool: SuggestSpecialist[]; detected: string[] }> = ({ pool, detected }) => {
   const [goalText, setGoalText] = useState('');
   const [suggesting, setSuggesting] = useState(false);
   const [leader, setLeader] = useState<RosterEntry | null>(null);
@@ -105,9 +99,7 @@ const SuggestHarness: React.FC<{ pool: SuggestSpecialist[]; detected: string[] }
         }))
       );
       Message.success(
-        result.fellBackToDefaults
-          ? 'Picked a default roster (no goal keywords matched)'
-          : 'Roster suggested'
+        result.fellBackToDefaults ? 'Picked a default roster (no goal keywords matched)' : 'Roster suggested'
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
@@ -119,11 +111,7 @@ const SuggestHarness: React.FC<{ pool: SuggestSpecialist[]; detected: string[] }
 
   return (
     <div>
-      <Input.TextArea
-        data-testid='launcher-goal-input'
-        value={goalText}
-        onChange={setGoalText}
-      />
+      <Input.TextArea data-testid='launcher-goal-input' value={goalText} onChange={setGoalText} />
       <Button
         type='outline'
         size='small'

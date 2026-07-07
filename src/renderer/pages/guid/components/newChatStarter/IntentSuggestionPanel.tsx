@@ -37,9 +37,8 @@ const IntentSuggestionPanel: React.FC<IntentSuggestionPanelProps> = ({ intent, o
   const { t } = useTranslation();
   const def = INTENTS[intent];
 
-  const { data: extensionAssistants } = useSWR(
-    'extensions.assistants',
-    () => ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
+  const { data: extensionAssistants } = useSWR('extensions.assistants', () =>
+    ipcBridge.extensions.getAssistants.invoke().catch(() => [] as Record<string, unknown>[])
   );
 
   const nameLookup = useMemo(() => {

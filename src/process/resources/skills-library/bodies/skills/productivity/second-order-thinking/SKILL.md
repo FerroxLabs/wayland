@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "decision-making analysis planning"
-  category: "productivity"
-  subcategory: "decision-making"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'decision-making analysis planning'
+  category: 'productivity'
+  subcategory: 'decision-making'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Second Order Thinking
 
 ## When to Use
 
 **Use this skill when:**
+
 - User explicitly asks to apply second-order thinking, map ripple effects, or trace downstream consequences of a specific decision
 - User says they want to think beyond the obvious impacts -- phrases like "what am I missing," "what happens next," or "what are the unintended consequences"
 - User is weighing a major life or professional decision (career change, relocation, large purchase, organizational restructuring, policy change) and wants to stress-test it before committing
@@ -29,6 +31,7 @@ metadata:
 - User asks about the difference between what they intend to happen and what might actually happen
 
 **Do NOT use when:**
+
 - User wants to imagine a specific failure scenario before a project begins -- use `premortem-analysis`, which focuses on the decision already failing rather than tracing all consequence chains
 - User wants to compare multiple options with weighted criteria -- use `weighted-decision-matrix`, which scores trade-offs across options rather than mapping one decision's consequences forward
 - User wants to build contingency plans for multiple possible futures -- use `scenario-planning`, which constructs parallel futures rather than one consequence chain
@@ -162,20 +165,22 @@ The analysis is only complete when it produces an actionable synthesis, not just
 
 ### Consequence Chain Visualization
 ```
+
 [Decision]
-  |
-  +--> 1A: [first-order] (+/-)
-  |       +--> 2A: [second-order] (+/-) --> 3A: [third-order] (+/-)
-  |       +--> 2B: [second-order] (+/-)
-  |
-  +--> 1B: [first-order] (+/-)
-  |       +--> 2C: [second-order] (+/-) --> 3B: [third-order] (+/-)
-  |
-  +--> 1C: [first-order] (+/-)
-  |       +--> 2D: [second-order] (+/-) --> 3C: [third-order] (+/-)
-  |
-  +--> 1D: [first-order] (+/-)
-          +--> 2E: [second-order] (+/-)
+|
++--> 1A: [first-order] (+/-)
+| +--> 2A: [second-order] (+/-) --> 3A: [third-order] (+/-)
+| +--> 2B: [second-order] (+/-)
+|
++--> 1B: [first-order] (+/-)
+| +--> 2C: [second-order] (+/-) --> 3B: [third-order] (+/-)
+|
++--> 1C: [first-order] (+/-)
+| +--> 2D: [second-order] (+/-) --> 3C: [third-order] (+/-)
+|
++--> 1D: [first-order] (+/-)
++--> 2E: [second-order] (+/-)
+
 ```
 
 ---
@@ -286,6 +291,7 @@ The analysis is only complete when it produces an actionable synthesis, not just
 ## Second-Order Thinking: Eliminating Annual Performance Reviews
 
 ### Decision Profile
+
 - **Choice:** I am choosing to eliminate the formal annual performance review process company-wide
 - **Decision type:** Partially reversible (can reinstate, but cultural expectations once set are difficult to reset)
 - **Intended first-order outcome:** Reduced bureaucratic burden, improved employee morale, and shift to more organic continuous feedback
@@ -298,38 +304,42 @@ The analysis is only complete when it produces an actionable synthesis, not just
 ### Consequence Map
 
 #### First-Order Effects (Direct, Immediate)
-| ID | Effect | Domain | +/- | Magnitude | Timeframe |
-|----|--------|--------|-----|-----------|-----------|
-| 1A | Annual review cycle removed from calendar; managers and ICs reclaim ~40 hours/year each spent on prep, self-assessments, and review meetings | Operations/Time | + | Moderate | Month 1 |
-| 1B | Explicit structured mechanism for documenting individual performance is eliminated | Org Culture/Legal | - | Major | Month 1 |
-| 1C | Company signals "we trust you" -- perceived as culturally progressive by employees who disliked reviews | Culture/Morale | + | Moderate | Month 1 |
-| 1D | The formal link between performance evaluation and compensation decisions is severed | Finances/Career | - | Major | Month 1 |
-| 1E | Managers are no longer required to deliver structured feedback on a fixed schedule | Management Operations | N | Moderate | Month 1 |
+
+| ID  | Effect                                                                                                                                       | Domain                | +/- | Magnitude | Timeframe |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | --- | --------- | --------- |
+| 1A  | Annual review cycle removed from calendar; managers and ICs reclaim ~40 hours/year each spent on prep, self-assessments, and review meetings | Operations/Time       | +   | Moderate  | Month 1   |
+| 1B  | Explicit structured mechanism for documenting individual performance is eliminated                                                           | Org Culture/Legal     | -   | Major     | Month 1   |
+| 1C  | Company signals "we trust you" -- perceived as culturally progressive by employees who disliked reviews                                      | Culture/Morale        | +   | Moderate  | Month 1   |
+| 1D  | The formal link between performance evaluation and compensation decisions is severed                                                         | Finances/Career       | -   | Major     | Month 1   |
+| 1E  | Managers are no longer required to deliver structured feedback on a fixed schedule                                                           | Management Operations | N   | Moderate  | Month 1   |
 
 #### Second-Order Effects (Consequences of the Consequences)
-| Source | ID | Effect | Domain | +/- | Magnitude | Timeframe | Confidence |
-|--------|----|--------|--------|-----|-----------|-----------|------------|
-| 1A --> | 2A | Time savings mostly captured by managers -- but without a replacement feedback structure, that time is not reinvested in informal coaching; it simply disappears from the calendar | Management Operations | - | Moderate | Months 2-4 | High |
-| 1B --> | 2B | When a performance issue escalates to a PIP or termination, HR and legal have no documented performance history -- creating significant legal exposure for wrongful termination claims | Legal | - | Major | Months 6-18 | High |
-| 1B --> | 2C | High performers have no formal record of their achievements to reference in promotion discussions or external job applications -- their career capital goes undocumented | Career Development | - | Moderate | Months 3-12 | High |
-| 1C --> | 2D | Employees who disliked reviews loudly celebrate the change -- this creates the false impression of universal support; employees who depended on reviews for clarity and recognition stay quiet | Culture | - | Moderate | Months 1-3 | Medium |
-| 1D --> | 2E | Compensation decisions (raises, promotions) must now be made without a structured evaluation basis -- managers rely on recency bias, visibility, and relationship quality rather than documented performance | Finances/Fairness | - | Major | Months 6-12 | High |
-| 1D --> | 2F | Pay equity risk increases: without documented performance criteria anchoring compensation decisions, demographic disparities in raises and promotions are more likely to emerge and harder to defend | Legal/DEI | - | Major | Months 12-18 | Medium |
-| 1E --> | 2G | Managers who were already poor at informal feedback use the removal of the formal requirement as de facto permission to give almost no feedback at all -- feedback frequency drops company-wide | Management Operations | - | Major | Months 2-6 | High |
-| 1E --> | 2H | Managers who were already strong at informal feedback continue operating well -- the change has almost no effect on the best 20% of your management layer | Management Operations | N | Minor | Ongoing | High |
+
+| Source | ID  | Effect                                                                                                                                                                                                       | Domain                | +/- | Magnitude | Timeframe    | Confidence |
+| ------ | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------- | --- | --------- | ------------ | ---------- |
+| 1A --> | 2A  | Time savings mostly captured by managers -- but without a replacement feedback structure, that time is not reinvested in informal coaching; it simply disappears from the calendar                           | Management Operations | -   | Moderate  | Months 2-4   | High       |
+| 1B --> | 2B  | When a performance issue escalates to a PIP or termination, HR and legal have no documented performance history -- creating significant legal exposure for wrongful termination claims                       | Legal                 | -   | Major     | Months 6-18  | High       |
+| 1B --> | 2C  | High performers have no formal record of their achievements to reference in promotion discussions or external job applications -- their career capital goes undocumented                                     | Career Development    | -   | Moderate  | Months 3-12  | High       |
+| 1C --> | 2D  | Employees who disliked reviews loudly celebrate the change -- this creates the false impression of universal support; employees who depended on reviews for clarity and recognition stay quiet               | Culture               | -   | Moderate  | Months 1-3   | Medium     |
+| 1D --> | 2E  | Compensation decisions (raises, promotions) must now be made without a structured evaluation basis -- managers rely on recency bias, visibility, and relationship quality rather than documented performance | Finances/Fairness     | -   | Major     | Months 6-12  | High       |
+| 1D --> | 2F  | Pay equity risk increases: without documented performance criteria anchoring compensation decisions, demographic disparities in raises and promotions are more likely to emerge and harder to defend         | Legal/DEI             | -   | Major     | Months 12-18 | Medium     |
+| 1E --> | 2G  | Managers who were already poor at informal feedback use the removal of the formal requirement as de facto permission to give almost no feedback at all -- feedback frequency drops company-wide              | Management Operations | -   | Major     | Months 2-6   | High       |
+| 1E --> | 2H  | Managers who were already strong at informal feedback continue operating well -- the change has almost no effect on the best 20% of your management layer                                                    | Management Operations | N   | Minor     | Ongoing      | High       |
 
 #### Third-Order Effects (Deep Ripples -- Selected High-Magnitude Chains)
-| Source | ID | Effect | Domain | +/- | Magnitude | Timeframe | Confidence |
-|--------|-----|--------|--------|-----|-----------|-----------|------------|
-| 2B --> | 3A | A single wrongful termination lawsuit -- now with no documented performance record -- results in a settlement of $150K-$500K and significant management distraction; word spreads internally that poor performers cannot be managed out, reducing accountability norms company-wide | Legal/Culture | - | Transformative | Months 12-24 | Medium |
-| 2E --> | 3B | High performers -- who can most easily find other jobs -- observe that compensation feels arbitrary and disconnected from output; they begin passively interviewing; attrition concentrates at the top of the performance distribution | Retention | - | Major | Months 9-18 | High |
-| 2G --> | 3C | Individual contributors with no feedback mechanism and no performance documentation lose clarity on whether they are on track; disengagement and performance drift increase in the bottom 40% of the IC population | Culture/Performance | - | Major | Months 6-12 | High |
-| 2G --> | 3D | Managers who are uncomfortable with unstructured feedback conversations -- the majority in a typical 120-person company -- experience increased anxiety about performance conversations with no scaffolding; some avoid difficult conversations entirely, allowing underperformance to accumulate silently | Management Operations | - | Major | Months 3-9 | High |
-| 2C --> | 3E | High performers who have no documented achievement history are less promotable internally (no paper trail) and more promotable externally (they can reframe the undocumented period as "startup-style autonomy") -- the information asymmetry favors external moves over internal promotion | Retention/Career | - | Moderate | Months 12-24 | Medium |
+
+| Source | ID  | Effect                                                                                                                                                                                                                                                                                                     | Domain                | +/- | Magnitude      | Timeframe    | Confidence |
+| ------ | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | --- | -------------- | ------------ | ---------- |
+| 2B --> | 3A  | A single wrongful termination lawsuit -- now with no documented performance record -- results in a settlement of $150K-$500K and significant management distraction; word spreads internally that poor performers cannot be managed out, reducing accountability norms company-wide                        | Legal/Culture         | -   | Transformative | Months 12-24 | Medium     |
+| 2E --> | 3B  | High performers -- who can most easily find other jobs -- observe that compensation feels arbitrary and disconnected from output; they begin passively interviewing; attrition concentrates at the top of the performance distribution                                                                     | Retention             | -   | Major          | Months 9-18  | High       |
+| 2G --> | 3C  | Individual contributors with no feedback mechanism and no performance documentation lose clarity on whether they are on track; disengagement and performance drift increase in the bottom 40% of the IC population                                                                                         | Culture/Performance   | -   | Major          | Months 6-12  | High       |
+| 2G --> | 3D  | Managers who are uncomfortable with unstructured feedback conversations -- the majority in a typical 120-person company -- experience increased anxiety about performance conversations with no scaffolding; some avoid difficult conversations entirely, allowing underperformance to accumulate silently | Management Operations | -   | Major          | Months 3-9   | High       |
+| 2C --> | 3E  | High performers who have no documented achievement history are less promotable internally (no paper trail) and more promotable externally (they can reframe the undocumented period as "startup-style autonomy") -- the information asymmetry favors external moves over internal promotion                | Retention/Career      | -   | Moderate       | Months 12-24 | Medium     |
 
 ---
 
 ### Consequence Chain Visualization
+
 ```
 [Eliminate annual performance reviews]
   |
@@ -358,51 +368,56 @@ The analysis is only complete when it produces an actionable synthesis, not just
 ### Non-Obvious Findings
 
 #### Hidden Risks (Negative Effects Not Visible at First Order)
-| # | Risk | Order | Source Chain | Why Easy to Miss | Severity | Reversible? |
-|---|------|-------|-------------|-----------------|----------|-------------|
-| 1 | High-performer attrition concentrating at the top of the performance distribution (3B) | 3rd | 1D --> 2E --> 3B | Most people assume review elimination is uniformly popular; in reality, high performers use structured feedback for career navigation and compensation anchoring -- losing it hurts them most | Critical | Partial |
-| 2 | Legal exposure on terminations with no documented performance history (2B/3A) | 2nd/3rd | 1B --> 2B --> 3A | The legal risk is invisible until the first termination challenge -- by then the gap in documentation is already 12+ months deep | Critical | No |
-| 3 | Compensation decisions drifting toward demographic bias (2F) | 2nd | 1D --> 2F | Pay equity risks are slow-developing and invisible until audit or complaint -- but they are structurally forced when evaluation criteria become informal | High | Partial |
-| 4 | Poor-feedback managers using absence of structure as permission to give no feedback at all (2G) | 2nd | 1E --> 2G | The assumption is that "continuous feedback" replaces formal reviews; in practice, continuous feedback requires more skill, not less -- managers who struggled with annual reviews struggle more without structure | High | Yes |
+
+| #   | Risk                                                                                            | Order   | Source Chain     | Why Easy to Miss                                                                                                                                                                                                   | Severity | Reversible? |
+| --- | ----------------------------------------------------------------------------------------------- | ------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----------- |
+| 1   | High-performer attrition concentrating at the top of the performance distribution (3B)          | 3rd     | 1D --> 2E --> 3B | Most people assume review elimination is uniformly popular; in reality, high performers use structured feedback for career navigation and compensation anchoring -- losing it hurts them most                      | Critical | Partial     |
+| 2   | Legal exposure on terminations with no documented performance history (2B/3A)                   | 2nd/3rd | 1B --> 2B --> 3A | The legal risk is invisible until the first termination challenge -- by then the gap in documentation is already 12+ months deep                                                                                   | Critical | No          |
+| 3   | Compensation decisions drifting toward demographic bias (2F)                                    | 2nd     | 1D --> 2F        | Pay equity risks are slow-developing and invisible until audit or complaint -- but they are structurally forced when evaluation criteria become informal                                                           | High     | Partial     |
+| 4   | Poor-feedback managers using absence of structure as permission to give no feedback at all (2G) | 2nd     | 1E --> 2G        | The assumption is that "continuous feedback" replaces formal reviews; in practice, continuous feedback requires more skill, not less -- managers who struggled with annual reviews struggle more without structure | High     | Yes         |
 
 #### Hidden Opportunities (Positive Effects Not Visible at First Order)
-| # | Opportunity | Order | Source Chain | Why Easy to Miss | Value | Time to Realize |
-|---|-------------|-------|-------------|-----------------|-------|----------------|
-| 1 | The elimination process forces a long-overdue conversation about what performance actually means at your company -- defining it clearly now creates stronger norms than the bureaucratic review ever did | 2nd | 1B --> redesign opportunity | Most companies remove reviews without replacing the underlying theory -- the gap is actually an invitation to build something better | High | Months 3-6 |
-| 2 | Strong managers who were constrained by the formality of annual reviews can now give richer, more contextual feedback without the structured form limiting the conversation | 2nd | 1E --> 2H extension | The upside of format removal only materializes for managers who already had the skill -- this is a meaningful win for roughly 20% of your management layer | Medium | Months 1-3 |
+
+| #   | Opportunity                                                                                                                                                                                              | Order | Source Chain                | Why Easy to Miss                                                                                                                                           | Value  | Time to Realize |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------- |
+| 1   | The elimination process forces a long-overdue conversation about what performance actually means at your company -- defining it clearly now creates stronger norms than the bureaucratic review ever did | 2nd   | 1B --> redesign opportunity | Most companies remove reviews without replacing the underlying theory -- the gap is actually an invitation to build something better                       | High   | Months 3-6      |
+| 2   | Strong managers who were constrained by the formality of annual reviews can now give richer, more contextual feedback without the structured form limiting the conversation                              | 2nd   | 1E --> 2H extension         | The upside of format removal only materializes for managers who already had the skill -- this is a meaningful win for roughly 20% of your management layer | Medium | Months 1-3      |
 
 #### Feedback Loops
-| # | Loop Description | Type | Triggered By | Stakes |
-|---|-----------------|------|--------------|--------|
-| 1 | No feedback --> IC performance drift --> manager becomes more conflict-avoidant about the drift --> less feedback --> more drift | Vicious | 2G (manager feedback collapse) | If unaddressed, low performers become entrenched and the management team loses the muscle to address them; takes 18-24 months to diagnose and reverse |
-| 2 | Arbitrary compensation --> high-performer attrition --> remaining team's average performance drops --> compensation pressure increases (must pay more to retain who's left) --> more arbitrary decisions | Vicious | 2E (recency bias in comp) | Attrition begets attrition; once your top performers signal the culture is no longer meritocratic, it becomes a self-fulfilling exit signal |
-| 3 | Absence of documentation --> legal vulnerability --> HR becomes risk-averse about all performance conversations --> even less feedback reaches ICs --> performance issues accumulate unaddressed | Vicious | 2B (legal exposure) | HR conservatism in response to legal risk is a known organizational pathology -- it systematically suppresses the very feedback the decision was designed to free up |
+
+| #   | Loop Description                                                                                                                                                                                         | Type    | Triggered By                   | Stakes                                                                                                                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | No feedback --> IC performance drift --> manager becomes more conflict-avoidant about the drift --> less feedback --> more drift                                                                         | Vicious | 2G (manager feedback collapse) | If unaddressed, low performers become entrenched and the management team loses the muscle to address them; takes 18-24 months to diagnose and reverse                |
+| 2   | Arbitrary compensation --> high-performer attrition --> remaining team's average performance drops --> compensation pressure increases (must pay more to retain who's left) --> more arbitrary decisions | Vicious | 2E (recency bias in comp)      | Attrition begets attrition; once your top performers signal the culture is no longer meritocratic, it becomes a self-fulfilling exit signal                          |
+| 3   | Absence of documentation --> legal vulnerability --> HR becomes risk-averse about all performance conversations --> even less feedback reaches ICs --> performance issues accumulate unaddressed         | Vicious | 2B (legal exposure)            | HR conservatism in response to legal risk is a known organizational pathology -- it systematically suppresses the very feedback the decision was designed to free up |
 
 #### Irreversible and Optionality Effects
-| # | Effect | Order | Irreversibility Reason | Options Foreclosed |
-|---|--------|-------|----------------------|--------------------|
-| 1 | Gap in documented performance history during the review-free period (2B) | 2nd | Documentation cannot be reconstructed retroactively -- the gap period is permanently undocumented | Ability to defend termination decisions or performance-based compensation changes that occurred during this window |
-| 2 | Cultural expectation that reviews are gone (1C) | 1st | Once you tell employees reviews are eliminated, reinstating them requires a full change management initiative and signals indecision -- employee cynicism about management credibility rises | Ability to revert quickly if the model fails; any reinstatement costs political capital |
-| 3 | Pay equity disparities that accumulate during informal comp cycles (2F) | 2nd | Disparities compound each raise cycle; the longer the informal period runs, the larger the correction required and the larger the legal exposure | A clean pay equity audit becomes impossible for the informal period |
+
+| #   | Effect                                                                   | Order | Irreversibility Reason                                                                                                                                                                       | Options Foreclosed                                                                                                 |
+| --- | ------------------------------------------------------------------------ | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 1   | Gap in documented performance history during the review-free period (2B) | 2nd   | Documentation cannot be reconstructed retroactively -- the gap period is permanently undocumented                                                                                            | Ability to defend termination decisions or performance-based compensation changes that occurred during this window |
+| 2   | Cultural expectation that reviews are gone (1C)                          | 1st   | Once you tell employees reviews are eliminated, reinstating them requires a full change management initiative and signals indecision -- employee cynicism about management credibility rises | Ability to revert quickly if the model fails; any reinstatement costs political capital                            |
+| 3   | Pay equity disparities that accumulate during informal comp cycles (2F)  | 2nd   | Disparities compound each raise cycle; the longer the informal period runs, the larger the correction required and the larger the legal exposure                                             | A clean pay equity audit becomes impossible for the informal period                                                |
 
 #### Convergent Effects (Multiple Chains Pointing to the Same Outcome)
-| Effect | Chains That Lead Here | Combined Probability | Significance |
-|--------|-----------------------|----------------------|-------------|
-| High-performer attrition | 1D --> 2E --> 3B (arbitrary comp) AND 1B --> 2C --> 3E (undocumented career capital) AND 2G --> 3C (no feedback/clarity) | High | Three independent chains converge on the same outcome; high-performer attrition is the single most structurally likely negative consequence of this decision and should be treated as near-certain without mitigation |
-| Increased legal exposure | 1B --> 2B (no documentation) AND 1D --> 2F (pay equity drift) | High | Two independent legal risks from different first-order effects -- compensation law and employment law -- converge; legal counsel should be consulted before implementation, not after the first incident |
+
+| Effect                   | Chains That Lead Here                                                                                                    | Combined Probability | Significance                                                                                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------ | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| High-performer attrition | 1D --> 2E --> 3B (arbitrary comp) AND 1B --> 2C --> 3E (undocumented career capital) AND 2G --> 3C (no feedback/clarity) | High                 | Three independent chains converge on the same outcome; high-performer attrition is the single most structurally likely negative consequence of this decision and should be treated as near-certain without mitigation |
+| Increased legal exposure | 1B --> 2B (no documentation) AND 1D --> 2F (pay equity drift)                                                            | High                 | Two independent legal risks from different first-order effects -- compensation law and employment law -- converge; legal counsel should be consulted before implementation, not after the first incident              |
 
 ---
 
 ### Assessment
 
-| Dimension | Rating | Explanation |
-|-----------|--------|-------------|
-| First-order balance | Mixed | Time savings and cultural signal are real, but documentation gap and compensation link severance are structurally damaging |
-| Second-order balance | Net Negative | Legal exposure, feedback collapse among weak managers, and recency-bias comp are high-magnitude and high-confidence |
-| Third-order balance | Net Negative | High-performer attrition, manager avoidance of hard conversations, and the wrongful termination risk dominate |
-| Overall trajectory | Worsening | The decision looks better at first order than it is; every level deeper reveals more and larger negative consequences |
-| Irreversibility exposure | High | Documentation gap and cultural expectation-setting are both difficult to reverse; pay equity disparities compound with time |
-| Feedback loop risk | Critical | Three active vicious loops identified, all with 12-24 month activation timelines and high confidence |
+| Dimension                | Rating       | Explanation                                                                                                                 |
+| ------------------------ | ------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| First-order balance      | Mixed        | Time savings and cultural signal are real, but documentation gap and compensation link severance are structurally damaging  |
+| Second-order balance     | Net Negative | Legal exposure, feedback collapse among weak managers, and recency-bias comp are high-magnitude and high-confidence         |
+| Third-order balance      | Net Negative | High-performer attrition, manager avoidance of hard conversations, and the wrongful termination risk dominate               |
+| Overall trajectory       | Worsening    | The decision looks better at first order than it is; every level deeper reveals more and larger negative consequences       |
+| Irreversibility exposure | High         | Documentation gap and cultural expectation-setting are both difficult to reverse; pay equity disparities compound with time |
+| Feedback loop risk       | Critical     | Three active vicious loops identified, all with 12-24 month activation timelines and high confidence                        |
 
 **Key Insight:**
 The decision creates three independent paths to high-performer attrition, making it the single most structurally likely outcome of this change -- not because eliminating reviews is inherently bad, but because eliminating reviews without replacing the performance clarity and compensation anchoring they provided removes the very infrastructure high performers depend on to navigate their careers and earn recognition. The loud support from employees who hated reviews is a signal from the wrong population: the people who most wanted reviews gone are often the people who benefited least from performing well. The people who relied on reviews for career advancement -- your best performers -- will not celebrate, and they will eventually leave.

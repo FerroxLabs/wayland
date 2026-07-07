@@ -177,7 +177,9 @@ test.describe('F-PERM-01 AI operation permission approval', () => {
 });
 
 test.describe('F-PERM-02 Permission confirmation actions', () => {
-  test('card disappears immediately after clicking the confirm button (reuses F-PERM-01 Allow test for verification)', async ({ page }) => {
+  test('card disappears immediately after clicking the confirm button (reuses F-PERM-01 Allow test for verification)', async ({
+    page,
+  }) => {
     // This AC is already covered by F-PERM-01 "Allow" test above
     // Create a fresh conversation to verify independently
     await goToGuid(page);

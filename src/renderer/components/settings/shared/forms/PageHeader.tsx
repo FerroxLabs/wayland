@@ -19,9 +19,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, breadcrumb, ac
   return (
     <div
       className={
-        isMobile
-          ? 'flex flex-col items-stretch gap-12px mb-20px'
-          : 'flex items-start justify-between gap-12px mb-20px'
+        isMobile ? 'flex flex-col items-stretch gap-12px mb-20px' : 'flex items-start justify-between gap-12px mb-20px'
       }
     >
       <div className='flex flex-col gap-4px min-w-0'>

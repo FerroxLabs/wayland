@@ -15,9 +15,9 @@ steps:
   - id: api-key
     title: Paste your Attio API key
     estSeconds: 90
-    externalAction: { label: "Open Attio developer settings", url: "https://app.attio.com/settings/apps" }
+    externalAction: { label: 'Open Attio developer settings', url: 'https://app.attio.com/settings/apps' }
     inputs:
-      - { name: ATTIO_API_KEY, label: "Attio API key", secret: true }
+      - { name: ATTIO_API_KEY, label: 'Attio API key', secret: true }
     body: |
       Attio scopes API access through a workspace **App**. You'll create
       one app and generate a single-workspace access token from it.

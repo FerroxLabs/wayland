@@ -28,7 +28,8 @@ const RunawayHaltModal: React.FC = () => {
 
   if (!halted) return null;
 
-  const bodyKey = halted.kind === 'repeated_read' ? 'messages.runaway.repeatedReadBody' : 'messages.runaway.failingCommandBody';
+  const bodyKey =
+    halted.kind === 'repeated_read' ? 'messages.runaway.repeatedReadBody' : 'messages.runaway.failingCommandBody';
 
   return (
     <Modal

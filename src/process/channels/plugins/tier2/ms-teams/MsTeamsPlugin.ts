@@ -216,11 +216,7 @@ export class MsTeamsPlugin extends BasePlugin {
    * Edit a previously-sent activity via PUT.
    * Bot Framework edit: PUT {serviceUrl}/v3/conversations/{convId}/activities/{activityId}
    */
-  async editMessage(
-    chatId: string,
-    messageId: string,
-    message: IUnifiedOutgoingMessage,
-  ): Promise<void> {
+  async editMessage(chatId: string, messageId: string, message: IUnifiedOutgoingMessage): Promise<void> {
     if (!this.creds) throw new Error('MS Teams plugin not initialized');
 
     const { serviceUrl, conversationId } = parseChatId(chatId);
@@ -340,7 +336,7 @@ export class MsTeamsPlugin extends BasePlugin {
   async handleWebhookPayload(
     payload: object,
     _headers: Record<string, string | string[] | undefined>,
-    _pluginInstanceId: string,
+    _pluginInstanceId: string
   ): Promise<void> {
     const activity = payload as BotFrameworkActivity;
     const selfId = this.botId ?? this.creds?.appId ?? '';
@@ -384,7 +380,7 @@ export class MsTeamsPlugin extends BasePlugin {
    * not collected (dropped in v0.4.1 as part of the channel cleanup wave).
    */
   static override async testConnection(
-    tokenJson: string,
+    tokenJson: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     let creds: MsTeamsCreds;
     try {

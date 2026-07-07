@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "quickstart home-maintenance budgeting checklist template guide planning branding"
-  category: "home-household"
-  subcategory: "cooking-meals"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'quickstart home-maintenance budgeting checklist template guide planning branding'
+  category: 'home-household'
+  subcategory: 'cooking-meals'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Grocery List Optimizer
 
 You are a grocery planning specialist. Help the user build efficient grocery lists that reduce waste, stay on budget, and support meal plans. Provide templates and strategies they can use immediately.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about grocery list optimizer techniques or best practices
 - User needs guidance on grocery list optimizer concepts
 - User wants to implement or improve their approach to grocery list optimizer
 
 **Do NOT use when:**
+
 - The request falls outside the scope of grocery list optimizer
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -101,24 +102,24 @@ Budget target: $________
 
 ### Price-Per-Unit Comparison
 
-| Item | Size A | Size B | Best Value |
-|------|--------|--------|------------|
+| Item   | Size A            | Size B            | Best Value      |
+| ------ | ----------------- | ----------------- | --------------- |
 | (item) | $X / Y oz = $?/oz | $X / Y oz = $?/oz | Pick lower $/oz |
 
 Formula: **Total Price / Total Units = Price Per Unit**
 
 ### Budget Strategies
 
-| Strategy | Savings | Effort |
-|----------|---------|--------|
-| Store brand vs name brand | 20-40% | Low |
-| Buy seasonal produce | 30-50% | Low |
-| Batch cook proteins | 15-25% | Medium |
-| Shop with a list (no impulse) | 10-20% | Low |
-| Buy whole vs pre-cut | 20-40% | Medium |
-| Use store loyalty programs | 5-15% | Low |
-| Buy in bulk (non-perishables) | 15-30% | Low |
-| Shop sales + plan meals around them | 20-35% | Medium |
+| Strategy                            | Savings | Effort |
+| ----------------------------------- | ------- | ------ |
+| Store brand vs name brand           | 20-40%  | Low    |
+| Buy seasonal produce                | 30-50%  | Low    |
+| Batch cook proteins                 | 15-25%  | Medium |
+| Shop with a list (no impulse)       | 10-20%  | Low    |
+| Buy whole vs pre-cut                | 20-40%  | Medium |
+| Use store loyalty programs          | 5-15%   | Low    |
+| Buy in bulk (non-perishables)       | 15-30%  | Low    |
+| Shop sales + plan meals around them | 20-35%  | Medium |
 
 ### Weekly Budget Template
 
@@ -161,23 +162,24 @@ Bananas, onions, potatoes, carrots, garlic, celery, lettuce
 
 ### Storage Quick Reference
 
-| Item | Storage | Lasts |
-|------|---------|-------|
-| Bananas | Counter (separate from other fruit) | 5-7 days |
-| Berries | Fridge, unwashed, paper towel | 3-5 days |
-| Leafy greens | Fridge, wrapped in damp towel | 5-7 days |
-| Tomatoes | Counter until ripe, then fridge | 5-7 days |
-| Bread | Counter 3 days, freeze for longer | 3 days / 3 months |
-| Raw chicken | Fridge (use within 2 days) | 1-2 days |
-| Ground meat | Fridge (use within 2 days) | 1-2 days |
-| Eggs | Fridge, in carton (not door) | 3-5 weeks |
-| Cheese (hard) | Fridge, wrapped in wax paper | 3-4 weeks |
-| Herbs | Fridge, stems in water like flowers | 1-2 weeks |
-| Cooked leftovers | Fridge, sealed container | 3-4 days |
+| Item             | Storage                             | Lasts             |
+| ---------------- | ----------------------------------- | ----------------- |
+| Bananas          | Counter (separate from other fruit) | 5-7 days          |
+| Berries          | Fridge, unwashed, paper towel       | 3-5 days          |
+| Leafy greens     | Fridge, wrapped in damp towel       | 5-7 days          |
+| Tomatoes         | Counter until ripe, then fridge     | 5-7 days          |
+| Bread            | Counter 3 days, freeze for longer   | 3 days / 3 months |
+| Raw chicken      | Fridge (use within 2 days)          | 1-2 days          |
+| Ground meat      | Fridge (use within 2 days)          | 1-2 days          |
+| Eggs             | Fridge, in carton (not door)        | 3-5 weeks         |
+| Cheese (hard)    | Fridge, wrapped in wax paper        | 3-4 weeks         |
+| Herbs            | Fridge, stems in water like flowers | 1-2 weeks         |
+| Cooked leftovers | Fridge, sealed container            | 3-4 days          |
 
 ### Freezer-Friendly Items
 
 Buy in bulk when on sale and freeze:
+
 - Bread, tortillas, bagels
 - Chicken breasts, ground meat, fish fillets
 - Shredded cheese
@@ -248,7 +250,6 @@ PANTRY ESSENTIALS
 - Tortilla + cheese + canned chicken + hot sauce
 - Oats + banana + peanut butter + honey + milk
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -256,7 +257,6 @@ PANTRY ESSENTIALS
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -277,14 +277,12 @@ PANTRY ESSENTIALS
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

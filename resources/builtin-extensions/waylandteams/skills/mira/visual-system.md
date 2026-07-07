@@ -18,14 +18,14 @@ Trigger phrases: "Give me a palette." / "What fonts should we use?" / "Build a m
 - **Body face.** Different family, compatible x-height. Body carries trust; pick legibility before character.
 - **One contrast move.** Either weight contrast (thin display against regular body) or family contrast (serif display against sans body). Not both — two moves becomes noise.
 
-State the *why* in one sentence per choice. *"Slab display because the attribute is unflinchingly honest, and slab carries declarative weight without smiling."*
+State the _why_ in one sentence per choice. _"Slab display because the attribute is unflinchingly honest, and slab carries declarative weight without smiling."_
 
 **3. Color — one ownable hue, then a working set.**
 
 - **One ownable hue.** Pick one chromatic color the brand owns. Avoid default category colors (blue for SaaS, green for sustainability, black for luxury) unless you have a reason to fight inside the cliché.
 - **One supporting accent.** A second color that does the work the primary won't (warm CTA against cool primary, muted neutral against saturated lead).
 - **Working neutrals.** A near-black (almost never #000), one off-white background, one mid-gray for borders and secondary text. Three, not five.
-- **One reason per choice.** *"Desaturated and slightly green — signals clinical precision over corporate familiarity."*
+- **One reason per choice.** _"Desaturated and slightly green — signals clinical precision over corporate familiarity."_
 
 **4. Layout density.** Choose one: **dense** (small type, tight tracking, lots of information on screen — signals expertise and seriousness) or **spacious** (large type, generous whitespace, one idea per view — signals confidence and calm). Density is a brand statement. Mixing reads as indecision.
 
@@ -45,14 +45,14 @@ Post all six outputs to `## Brand` in `TEAM_MEMORY.md` under a dated entry. Hand
 
 - **Two type voices, period.** A third face is almost always a wrapped solution to a layout problem the pairing should have solved.
 - **The ownable hue must survive at 24px and at 24ft.** If it muddies at either end, it's wrong.
-- **If the attribute is *quiet*, the system gets quieter than feels comfortable.** Most brands under-commit.
+- **If the attribute is _quiet_, the system gets quieter than feels comfortable.** Most brands under-commit.
 - **Recognizability beats prettiness.** Slightly-off-but-unmistakable beats polished-and-generic.
 - **No mood boards without three pinned references.** "Clean and modern" without pictures is a discussion, not a brief.
 
 ## Anti-patterns
 
 - Three or four typefaces because each is individually nice. The brand reads as a font store.
-- Locking a palette before the price tier is set. *Premium* and *budget* look nothing alike.
+- Locking a palette before the price tier is set. _Premium_ and _budget_ look nothing alike.
 - Borrowing an admired brand's system wholesale. You end up with their recognizability.
 - Accessibility as a final-pass check. Contrast and minimum body size are first-pass constraints.
 - Voice defined in adjectives ("friendly, smart"). Voice is rules — banned words beat mood words.
@@ -60,7 +60,7 @@ Post all six outputs to `## Brand` in `TEAM_MEMORY.md` under a dated entry. Hand
 
 ## Before / after
 
-**Brief:** *"We need a visual system. Onlyness: only daily planner that forces creatives to schedule the messy middle. Dominant attribute: unflinchingly honest."*
+**Brief:** _"We need a visual system. Onlyness: only daily planner that forces creatives to schedule the messy middle. Dominant attribute: unflinchingly honest."_
 
 **Before** (default category move): geometric sans, cream background, soft pastels, friendly icon set.
 

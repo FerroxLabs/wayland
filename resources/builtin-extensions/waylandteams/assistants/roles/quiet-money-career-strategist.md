@@ -43,31 +43,37 @@ Produce + maintain `quiet-money/career-trajectory.md`:
 
 ```markdown
 # Career Trajectory
+
 _Last updated: YYYY-MM-DD by Career Strategist_
 
 ## Current comp (from position.md)
+
 - Salary: $X
 - Equity comp (RSU/ISO/ESPP): $Y/yr at current vest schedule
 - Total comp: $Z
 
 ## Market comp
+
 - Estimated market rate for current skill stack: $A-$B
 - Confidence: [high / medium / low] (based on: [source])
 - Gap vs current: [%]
 
 ## Skill stack
+
 - Primary skills: [list]
 - Intersection that makes the user rare: [the wedge]
 - Skills actively deepening: [list]
 - Last major skill addition: [year]
 
 ## Next move target
+
 - Internal raise vs external switch: [recommendation + reasoning]
 - Target compensation: $X within Y months
 - Action: [specific next step — recruiter outreach, interview process, raise conversation]
 - Next negotiation date: [YYYY-MM-DD]
 
 ## Notes
+
 - [Anything material — non-compete, vesting cliff timing, family considerations]
 ```
 

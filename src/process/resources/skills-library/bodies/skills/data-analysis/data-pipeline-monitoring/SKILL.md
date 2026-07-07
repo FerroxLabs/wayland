@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "data-science analysis checklist"
-  category: "data-analysis"
-  subcategory: "data-engineering"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'data-science analysis checklist'
+  category: 'data-analysis'
+  subcategory: 'data-engineering'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Data Pipeline Monitoring
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to set up automated monitoring for one or more production data pipelines, ETL jobs, or ELT workflows running on orchestrators like Airflow, Prefect, Dagster, dbt Cloud, or AWS Glue
 - The user needs to define SLAs for data freshness -- for example, "the orders table must be updated by 06:00 UTC daily" or "the sessions table must never be more than 2 hours stale"
 - The user wants to configure alerting thresholds for pipeline health signals: job duration, row count variance, error rates, retry counts, or resource consumption
@@ -29,6 +31,7 @@ metadata:
 - The user wants to tier their pipeline portfolio by criticality and apply differentiated monitoring intensity based on business impact
 
 **Do NOT use when:**
+
 - The user wants to design the pipeline logic itself -- the extract, transform, and load steps, the DAG structure, or the scheduling topology (use `etl-pipeline-design`)
 - The user wants to define data quality rules applied to the loaded data -- null checks, uniqueness checks, referential integrity, distribution tests (use `data-quality-rules`)
 - The user wants to design a dashboard layout showing business KPIs or analytical output (use `bi-dashboard-spec`)
@@ -76,6 +79,7 @@ Every threshold must be anchored to observed behavior. Setting arbitrary numbers
 Each pipeline must have metrics in five categories. A pipeline can succeed on all execution metrics while silently producing wrong data, so all five categories are mandatory.
 
 **Category 1 -- Execution Metrics (did the pipeline run, and did it finish?)**
+
 - Run status: success, failure, running (stuck), skipped, upstream_failed (Airflow-specific)
 - Total execution duration (wall clock time from task start to completion)
 - Per-step execution duration for pipelines with multiple tasks -- this isolates whether slowdown is in extract, transform, or load phase
@@ -83,6 +87,7 @@ Each pipeline must have metrics in five categories. A pipeline can succeed on al
 - Retry count per run: a pipeline that succeeds only after 4 retries is not healthy even though status = success
 
 **Category 2 -- Data Volume Metrics (did the pipeline move the expected amount of data?)**
+
 - Absolute row count per run: compare against the baseline distribution, not just a fixed number
 - Row count delta from previous run: large swings (>50% in either direction) often indicate source issues, logic bugs, or deduplication failures
 - Zero-row runs: always alert, always investigate -- a pipeline completing with zero rows is almost never correct
@@ -91,12 +96,14 @@ Each pipeline must have metrics in five categories. A pipeline can succeed on al
 - Null rate for critical columns on insert: if the source is omitting the order_id field, the pipeline may succeed with zero errors but load corrupt data
 
 **Category 3 -- Data Freshness Metrics (is the data in the target current?)**
+
 - Time since last successful run: derived from the orchestrator's run history
 - Age of the newest record in the target table: `SELECT MAX(updated_at) FROM analytics.orders` -- this is different from run time because a successful run may load records that are themselves hours old due to source-side delays
 - Source-to-warehouse lag: the time between when a record is created/updated in the source system and when it appears in the warehouse. This requires a watermark column in both source and target.
 - SLA compliance rate: what percentage of scheduled runs completed before the SLA deadline over the past 30 days. Report this as a percentage for stakeholder communication.
 
 **Category 4 -- Error and Quality Metrics (did the pipeline encounter problems?)**
+
 - Error count per run by error type: schema validation errors, API rate limit errors, authentication errors, transformation errors (division by zero, type cast failures), infrastructure errors (connection timeouts, disk full)
 - Retry count: any run requiring more than the expected number of retries (typically 1-2 for transient errors) warrants investigation
 - Dead letter queue depth: for streaming pipelines, records that cannot be processed accumulate in a DLQ. Monitor depth and growth rate.
@@ -104,6 +111,7 @@ Each pipeline must have metrics in five categories. A pipeline can succeed on al
 - Partial load detection: for pipelines that process files or batches, verify that all expected files/batches were processed, not just some
 
 **Category 5 -- Resource and Cost Metrics (is the pipeline efficient?)**
+
 - Peak memory usage: for Spark or pandas-based transformations, memory exhaustion causes failures but also causes excessive garbage collection that shows up as duration spikes
 - Compute cost per run: for cloud-based jobs (AWS Glue, Databricks, BigQuery slots), cost per run should be stable. A run that costs 10x the baseline usually indicates a query plan regression or an unexpected data volume spike.
 - API call count: for pipelines extracting from external APIs, monitor call count against rate limits. A pipeline approaching 80% of its rate limit allocation is a warning; hitting 100% causes failures.
@@ -116,17 +124,20 @@ Each pipeline must have metrics in five categories. A pipeline can succeed on al
 Each metric needs two thresholds: warning (investigate proactively) and critical (respond immediately). Set thresholds using the appropriate method for each metric type.
 
 **Statistical thresholds (for metrics without hard business constraints):**
+
 - Warning: value falls outside mean ± 2 standard deviations
 - Critical: value falls outside mean ± 3 standard deviations, OR crosses zero (for row counts)
 - For right-skewed metrics like duration: use mean + 1.5×IQR for warning, mean + 3×IQR for critical instead of standard deviation, since duration distributions are not normal
 - Maintain separate threshold profiles for regular runs vs. high-volume periods (month-end, year-end, campaign launch days). Apply the correct profile based on calendar day.
 
 **Business-defined thresholds (for metrics with SLA commitments):**
+
 - Data freshness SLA: if stakeholders need data by 06:00 UTC, set the critical threshold at 05:30 UTC (30 minutes before SLA breach) to allow time for intervention. Set warning at 05:00 UTC.
 - Row count floor: if fewer than 100 orders per day would indicate a severe source problem for a business doing 2,000 orders/day, set that as a hard critical threshold regardless of statistical baseline.
 - Error rate ceiling: if any data quality errors on financial records are unacceptable, set the error count threshold at 1 (not a statistical multiple).
 
 **Threshold calibration rules:**
+
 - After the first 30 days of monitoring, review false positive and false negative rates. If any alert fired more than 5 times in 30 days without resulting in a real incident, the threshold is too loose -- tighten it. If a real incident occurred without firing an alert, the threshold is too tight in the wrong direction -- expand coverage.
 - Document the rationale for every threshold so future engineers understand why the numbers exist. "Warning at 45 min because avg is 25 min and 2σ = 20 min" is actionable. "Warning at 45 min" is not.
 - Never set a critical threshold at the same value as a warning threshold. There must be a meaningful gap that allows the warning to be investigated before it escalates to critical.
@@ -138,16 +149,19 @@ Each metric needs two thresholds: warning (investigate proactively) and critical
 An alert without a clear owner is noise. Every alert must have a named recipient, a defined channel, and an automatic escalation path that does not depend on human judgment to trigger.
 
 **Alert channels by severity:**
+
 - **Warning alerts:** Route to a monitored Slack channel (e.g., #data-alerts). These require no immediate action but should be triaged during business hours. Tag the on-call engineer directly so the notification is not lost in channel noise.
 - **Critical alerts:** Route to PagerDuty or OpsGenie AND the Slack channel simultaneously. PagerDuty handles escalation automatically if acknowledgment does not occur within the SLA. Do not rely on Slack alone for critical alerts -- Slack notifications are missed.
 - **Informational alerts:** Route to Slack only, no tagging. Used for pipeline completions, SLA met confirmations, or weekly summaries.
 
 **Escalation levels:**
+
 - **Level 1 (Immediate):** On-call data engineer receives PagerDuty page. Acknowledgment SLA: 15 minutes for Tier 1, 30 minutes for Tier 2.
 - **Level 2 (Auto-escalation):** If Level 1 is not acknowledged within SLA, PagerDuty automatically pages the secondary on-call engineer AND the engineering manager. This escalation must be configured in the paging tool -- do not rely on the L1 engineer to manually escalate.
 - **Level 3 (Executive escalation):** If the incident is not resolved within 2 hours of the first page (Tier 1) or 4 hours (Tier 2), send an automated email to VP of Data and affected business stakeholders. The email must include: pipeline name, business impact, current data age, and ETA for resolution.
 
 **On-call rotation design:**
+
 - Minimum viable rotation: 3 engineers on a weekly rotation (Primary, Secondary, Manager backup). Never have a rotation of 2 -- it leads to fatigue and resentment.
 - Define clear handoff procedure: the outgoing on-call engineer documents all open incidents and pending issues before rotation. Use a handoff Slack message template or a shared incident log.
 - For teams in multiple time zones: define overlapping coverage hours and route Tier 1 alerts to the engineer whose local business hours cover the alert time. Avoid waking engineers at 03:00 local time for a Tier 2 alert.
@@ -170,6 +184,7 @@ The runbook transforms institutional knowledge into executable instructions. An 
 7. **Post-incident actions:** What must happen after the incident is resolved -- within 1 hour, within 24 hours, and within 1 week. This includes: sending a resolution notification, filing an incident report, completing the root cause analysis, and assigning prevention action items.
 
 **Cover these specific failure modes in every runbook:**
+
 - Pipeline execution failure (task-level error in the orchestrator)
 - Pipeline timeout (duration exceeded maximum allowed runtime)
 - Source system unavailable (API down, database unreachable, file not delivered)
@@ -201,12 +216,14 @@ The monitoring dashboard gives the data team and stakeholders a shared operation
 Not every team has Datadog and PagerDuty. Prescribe a working monitoring setup using only tools that are always available.
 
 **The absolute minimum monitoring setup (requires only: a database query, a cron job, and email):**
+
 - Write a SQL query against the orchestrator metadata database (Airflow's `dag_run` table, for example) that returns: pipeline name, last successful run time, time since last success, and SLA threshold.
 - Schedule this query to run every 30 minutes as a cron job.
 - If any pipeline's time-since-last-success exceeds its SLA threshold, send an email to the on-call engineer.
 - This approach covers freshness monitoring with zero tooling investment. It will not catch duration anomalies or row count issues, but it will catch the most common and most damaging failure: stale data.
 
 **Upgrade path:**
+
 - Phase 1 (week 1): Freshness SLA check via cron + email
 - Phase 2 (month 1): Add row count checks using the same pattern (query target table counts, compare to stored baselines in a simple tracking table)
 - Phase 3 (month 2): Integrate with Slack via webhook for alerting; use a simple Python script to compute 2σ thresholds from stored history
@@ -217,8 +234,9 @@ Not every team has Datadog and PagerDuty. Prescribe a working monitoring setup u
 
 ## Output Format
 
-```markdown
+````markdown
 ## Pipeline Monitoring Plan: [Organization / Team Name]
+
 **Prepared by:** [Name or AI Assistant]
 **Date:** [Date]
 **Review cycle:** Quarterly or after any Tier 1 incident
@@ -227,11 +245,12 @@ Not every team has Datadog and PagerDuty. Prescribe a working monitoring setup u
 
 ### 1. Pipeline Inventory and Criticality Classification
 
-| Pipeline Name | Schedule (UTC) | Source | Target | Owner | Tier | Business Impact | Upstream Dependencies |
-|---------------|---------------|--------|--------|-------|------|-----------------|----------------------|
-| [pipeline_name] | [cron / trigger] | [Source system] | [Target schema.table] | [Team] | [1/2/3] | [Impact if failed or stale] | [Depends on: ...] |
+| Pipeline Name   | Schedule (UTC)   | Source          | Target                | Owner  | Tier    | Business Impact             | Upstream Dependencies |
+| --------------- | ---------------- | --------------- | --------------------- | ------ | ------- | --------------------------- | --------------------- |
+| [pipeline_name] | [cron / trigger] | [Source system] | [Target schema.table] | [Team] | [1/2/3] | [Impact if failed or stale] | [Depends on: ...]     |
 
 **Tier definitions for this plan:**
+
 - **Tier 1 (Critical):** [List pipelines] -- 15-min acknowledge, 2-hr resolve SLA, 24/7 coverage
 - **Tier 2 (High):** [List pipelines] -- 2-hr acknowledge, 8-hr resolve SLA, business hours
 - **Tier 3 (Standard):** [List pipelines] -- daily digest, best-effort resolution
@@ -240,9 +259,9 @@ Not every team has Datadog and PagerDuty. Prescribe a working monitoring setup u
 
 ### 2. Baseline Statistics (from [date range] historical run data)
 
-| Pipeline | Avg Duration | Duration P95 | Avg Row Count | Row Count StdDev | Failure Rate (30-day) | Avg Retries Per Run |
-|----------|-------------|-------------|--------------|-----------------|----------------------|-------------------|
-| [pipeline_name] | [X min] | [Y min] | [N rows] | [σ rows] | [%] | [count] |
+| Pipeline        | Avg Duration | Duration P95 | Avg Row Count | Row Count StdDev | Failure Rate (30-day) | Avg Retries Per Run |
+| --------------- | ------------ | ------------ | ------------- | ---------------- | --------------------- | ------------------- |
+| [pipeline_name] | [X min]      | [Y min]      | [N rows]      | [σ rows]         | [%]                   | [count]             |
 
 **Baseline notes:** [Document any known anomalies excluded from baseline, e.g., "Month-end runs excluded from shopify_orders duration baseline -- separate threshold profile applied last 3 business days of each month"]
 
@@ -254,22 +273,23 @@ Not every team has Datadog and PagerDuty. Prescribe a working monitoring setup u
 
 **Baseline context:** Average duration [X] min (σ=[Y] min). Average row count [N] (σ=[M]). Runs daily at [time] UTC.
 
-| Metric | Measurement Method | Warning Threshold | Critical Threshold | Alert Channel | Check Frequency |
-|--------|-------------------|-------------------|-------------------|---------------|----------------|
-| Run status | Orchestrator run state | 1 failure in rolling 24h | 2 consecutive failures | Slack + PagerDuty | Every run |
-| Execution duration | Task end_time - start_time | > [avg + 2σ] min | > [avg + 3σ] min OR > [hard cap] min | Slack | Every run |
-| Row count -- absolute | COUNT(*) on target partition | < [avg - 2σ] or > [avg + 2σ] | = 0 rows or > [avg + 3σ] | Slack + PagerDuty | Every run |
-| Row count delta (vs. prev run) | This run vs. last run | Change > [X]% | Change > [Y]% | Slack | Every run |
-| Data freshness | MAX(updated_at) on target table | > [SLA - 30 min] old | > [SLA] old | Slack + PagerDuty | Hourly |
-| Source-to-warehouse lag | MAX(source_created_at) vs. MAX(warehouse_loaded_at) | > [X] hours | > [Y] hours | Slack | Every run |
-| Schema drift | Schema hash comparison at run start | Any column added or removed | Any column type changed | Slack + PagerDuty | Every run |
-| Error count by type | Orchestrator log parsing | Any error (even if retried successfully) | Any error after max retries exhausted | Slack + PagerDuty | Every run |
-| Retry count | Orchestrator metadata | > [expected max retries] | [max retries] exhausted + failure | Slack | Every run |
-| API call rate (if applicable) | API call counter | > 80% of rate limit quota | > 95% of rate limit quota | Slack | Every 15 min |
-| Compute cost (cloud only) | Cloud billing API | > [avg + 50%] | > [avg × 3] | Slack | Every run |
-| Memory usage | Container/executor metrics | > 80% of allocation | > 95% OR OOM kill | Slack + PagerDuty | Every 5 min during run |
+| Metric                         | Measurement Method                                  | Warning Threshold                        | Critical Threshold                    | Alert Channel     | Check Frequency        |
+| ------------------------------ | --------------------------------------------------- | ---------------------------------------- | ------------------------------------- | ----------------- | ---------------------- |
+| Run status                     | Orchestrator run state                              | 1 failure in rolling 24h                 | 2 consecutive failures                | Slack + PagerDuty | Every run              |
+| Execution duration             | Task end_time - start_time                          | > [avg + 2σ] min                         | > [avg + 3σ] min OR > [hard cap] min  | Slack             | Every run              |
+| Row count -- absolute          | COUNT(\*) on target partition                       | < [avg - 2σ] or > [avg + 2σ]             | = 0 rows or > [avg + 3σ]              | Slack + PagerDuty | Every run              |
+| Row count delta (vs. prev run) | This run vs. last run                               | Change > [X]%                            | Change > [Y]%                         | Slack             | Every run              |
+| Data freshness                 | MAX(updated_at) on target table                     | > [SLA - 30 min] old                     | > [SLA] old                           | Slack + PagerDuty | Hourly                 |
+| Source-to-warehouse lag        | MAX(source_created_at) vs. MAX(warehouse_loaded_at) | > [X] hours                              | > [Y] hours                           | Slack             | Every run              |
+| Schema drift                   | Schema hash comparison at run start                 | Any column added or removed              | Any column type changed               | Slack + PagerDuty | Every run              |
+| Error count by type            | Orchestrator log parsing                            | Any error (even if retried successfully) | Any error after max retries exhausted | Slack + PagerDuty | Every run              |
+| Retry count                    | Orchestrator metadata                               | > [expected max retries]                 | [max retries] exhausted + failure     | Slack             | Every run              |
+| API call rate (if applicable)  | API call counter                                    | > 80% of rate limit quota                | > 95% of rate limit quota             | Slack             | Every 15 min           |
+| Compute cost (cloud only)      | Cloud billing API                                   | > [avg + 50%]                            | > [avg × 3]                           | Slack             | Every run              |
+| Memory usage                   | Container/executor metrics                          | > 80% of allocation                      | > 95% OR OOM kill                     | Slack + PagerDuty | Every 5 min during run |
 
 **Month-end threshold overrides (last 3 business days of month):**
+
 - Duration warning: > [month-end avg + 2σ] min (separate baseline)
 - Duration critical: > [month-end hard cap] min
 
@@ -277,16 +297,17 @@ Not every team has Datadog and PagerDuty. Prescribe a working monitoring setup u
 
 ### 4. Alert Configuration and Routing
 
-| Alert Severity | Trigger Condition | Primary Channel | Secondary Channel | Recipients | Acknowledge SLA | Resolve SLA |
-|---------------|------------------|----------------|------------------|------------|-----------------|-------------|
-| Info | Pipeline completed successfully; SLA met | Slack #data-ops | -- | Channel (no tag) | N/A | N/A |
-| Warning | Warning threshold crossed | Slack #data-alerts | -- | @on-call-data-eng | 4 hours (business hrs) | Next business day |
-| Critical (Tier 1) | Critical threshold crossed | PagerDuty | Slack #data-alerts | On-call engineer | 15 minutes | 2 hours |
-| Critical (Tier 2) | Critical threshold crossed | PagerDuty | Slack #data-alerts | On-call engineer | 30 minutes | 8 hours |
-| Escalation L2 | L1 not acknowledged within SLA | PagerDuty auto-escalate | Email | Secondary on-call + Eng manager | Auto-triggered | |
-| Escalation L3 | Not resolved within [X] hours | Email | Calendar invite | VP Data + affected stakeholders | Auto-triggered | Best effort |
+| Alert Severity    | Trigger Condition                        | Primary Channel         | Secondary Channel  | Recipients                      | Acknowledge SLA        | Resolve SLA       |
+| ----------------- | ---------------------------------------- | ----------------------- | ------------------ | ------------------------------- | ---------------------- | ----------------- |
+| Info              | Pipeline completed successfully; SLA met | Slack #data-ops         | --                 | Channel (no tag)                | N/A                    | N/A               |
+| Warning           | Warning threshold crossed                | Slack #data-alerts      | --                 | @on-call-data-eng               | 4 hours (business hrs) | Next business day |
+| Critical (Tier 1) | Critical threshold crossed               | PagerDuty               | Slack #data-alerts | On-call engineer                | 15 minutes             | 2 hours           |
+| Critical (Tier 2) | Critical threshold crossed               | PagerDuty               | Slack #data-alerts | On-call engineer                | 30 minutes             | 8 hours           |
+| Escalation L2     | L1 not acknowledged within SLA           | PagerDuty auto-escalate | Email              | Secondary on-call + Eng manager | Auto-triggered         |                   |
+| Escalation L3     | Not resolved within [X] hours            | Email                   | Calendar invite    | VP Data + affected stakeholders | Auto-triggered         | Best effort       |
 
 **Alert suppression rules:**
+
 - During confirmed source maintenance windows (pre-scheduled in monitoring tool): suppress all alerts for affected pipelines
 - During planned data backfills: suppress row count delta alerts (volume will be abnormal)
 - After a deployment: suppress duration and error alerts for the first 2 runs to allow warm-up
@@ -295,11 +316,11 @@ Not every team has Datadog and PagerDuty. Prescribe a working monitoring setup u
 
 ### 5. On-Call Rotation
 
-| Week | Primary (First Page) | Secondary (Auto-Escalation) | Manager Backup (L3) |
-|------|---------------------|---------------------------|---------------------|
-| [Week 1 dates] | [Name] | [Name] | [Name] |
-| [Week 2 dates] | [Name] | [Name] | [Name] |
-| [Week 3 dates] | [Name] | [Name] | [Name] |
+| Week           | Primary (First Page) | Secondary (Auto-Escalation) | Manager Backup (L3) |
+| -------------- | -------------------- | --------------------------- | ------------------- |
+| [Week 1 dates] | [Name]               | [Name]                      | [Name]              |
+| [Week 2 dates] | [Name]               | [Name]                      | [Name]              |
+| [Week 3 dates] | [Name]               | [Name]                      | [Name]              |
 
 **Handoff protocol:** Outgoing on-call posts a handoff message in #data-alerts by [time] on the last day of their rotation containing: (a) open incidents and status, (b) any pipelines with known instability, (c) any threshold changes made during the week.
 
@@ -319,6 +340,7 @@ Slack message in #data-alerts: ":red_circle: [pipeline_name] | Status: FAILED | 
 **Business impact:** [Which downstream dashboards, reports, models, or systems are affected. How stale is the data right now? What is the SLA and how close to breach?]
 
 **Triage checklist (complete in first 5 minutes):**
+
 - [ ] Is this the first failure or part of a pattern? Check last 7 runs in orchestrator.
 - [ ] Are other pipelines from the same source also failing? Check #data-alerts for related alerts.
 - [ ] Did anything change recently? Check deployment log or Slack #data-deployments.
@@ -326,17 +348,18 @@ Slack message in #data-alerts: ":red_circle: [pipeline_name] | Status: FAILED | 
 
 **Diagnosis decision tree:**
 
-| Error signature in logs | Meaning | Next step |
-|------------------------|---------|-----------|
-| `401 Unauthorized` / `403 Forbidden` | API credential expired or revoked | Check secrets manager for expiry; regenerate credential; update secret; rerun |
-| `429 Too Many Requests` | API rate limit hit | Check if another process is hitting the API concurrently; wait [X] minutes; rerun |
-| `Connection timed out` / `Name resolution failed` | Source system unreachable | Check source system status page; escalate to source system owner; set retry for [X] minutes |
-| `KeyError: '[column_name]'` / `Column not found` | Schema drift in source | Run schema comparison query (see below); update pipeline schema config; rerun |
-| `MemoryError` / `Java heap space` | Memory exhaustion | Check executor memory allocation; check if data volume increased unexpectedly; increase allocation or optimize query |
-| `No such file or directory: [path]` | Input file not delivered | Check upstream file delivery process; contact upstream owner; backfill when file arrives |
-| Task `marked as failed by external system` | Infrastructure failure (cluster crash, preemption) | Rerun -- typically transient; escalate if it recurs 3+ times in a session |
+| Error signature in logs                           | Meaning                                            | Next step                                                                                                            |
+| ------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `401 Unauthorized` / `403 Forbidden`              | API credential expired or revoked                  | Check secrets manager for expiry; regenerate credential; update secret; rerun                                        |
+| `429 Too Many Requests`                           | API rate limit hit                                 | Check if another process is hitting the API concurrently; wait [X] minutes; rerun                                    |
+| `Connection timed out` / `Name resolution failed` | Source system unreachable                          | Check source system status page; escalate to source system owner; set retry for [X] minutes                          |
+| `KeyError: '[column_name]'` / `Column not found`  | Schema drift in source                             | Run schema comparison query (see below); update pipeline schema config; rerun                                        |
+| `MemoryError` / `Java heap space`                 | Memory exhaustion                                  | Check executor memory allocation; check if data volume increased unexpectedly; increase allocation or optimize query |
+| `No such file or directory: [path]`               | Input file not delivered                           | Check upstream file delivery process; contact upstream owner; backfill when file arrives                             |
+| Task `marked as failed by external system`        | Infrastructure failure (cluster crash, preemption) | Rerun -- typically transient; escalate if it recurs 3+ times in a session                                            |
 
 **Schema comparison query (run when schema drift is suspected):**
+
 ```sql
 -- Compare current source columns to expected schema stored in pipeline metadata
 SELECT
@@ -353,8 +376,10 @@ FULL OUTER JOIN information_schema.columns actual
     AND actual.table_name = '[source_table_name]'
 WHERE status != 'OK';
 ```
+````
 
 **Resolution steps:**
+
 1. Identify error type from decision tree above
 2. Confirm whether rerun is safe: [Is this pipeline idempotent? Yes/No. If No, what cleanup is required before rerun?]
 3. Apply resolution for identified error type
@@ -363,6 +388,7 @@ WHERE status != 'OK';
 6. Verify data landed: run the freshness check query below to confirm data is now current.
 
 **Freshness verification query (run after successful rerun):**
+
 ```sql
 SELECT
     MAX(updated_at) AS newest_record,
@@ -373,6 +399,7 @@ WHERE DATE(loaded_at) = CURRENT_DATE;
 ```
 
 **Stakeholder communication template:**
+
 ```
 [INCIDENT IN PROGRESS] [Pipeline Name] Data Delay -- [Date]
 
@@ -387,11 +414,13 @@ Contact: [On-call engineer name] via Slack or [escalation channel]
 ```
 
 **Resolution confirmation message:**
+
 ```
 [RESOLVED] [Pipeline Name] is now healthy. [Target table] is current as of [timestamp]. [X] rows were loaded in the recovery run. Total data delay: [X] hours. Root cause: [brief]. Incident report will be filed by [date].
 ```
 
 **Post-incident actions:**
+
 - **Within 1 hour of resolution:** Post resolution confirmation message in #data-alerts and in any stakeholder channels where the incident was communicated
 - **Within 24 hours:** File incident report in [incident tracking system] with: timeline, root cause, business impact (hours of data staleness × affected users/reports), and at least one prevention action item
 - **Within 1 week:** Prevention action item must have an assigned owner and a target completion date in the project tracker
@@ -406,21 +435,22 @@ Contact: [On-call engineer name] via Slack or [escalation channel]
 
 ### 7. Monitoring Dashboard Specification
 
-| Panel Name | Chart Type | Data Source | Query/Logic | Purpose | Refresh Rate |
-|-----------|-----------|-------------|-------------|---------|-------------|
-| Pipeline Health Grid | Status grid (green/yellow/red per cell) | Orchestrator metadata API | Last run status + time since last success vs. SLA | Immediate operational status for all pipelines | 1 minute |
-| Execution Duration Trend | Multi-line chart, 7-day window, one line per pipeline | Pipeline run log table | Run duration by execution_date, with 7-day rolling avg overlay | Detect gradual degradation before failure | 5 minutes |
-| Data Freshness Tracker | Table with conditional formatting | Target table MAX(updated_at) queries | Newest record age vs. SLA per pipeline | Identify stale data assets; shareable with stakeholders | 15 minutes |
-| Row Count Trend | Line chart, 30-day, one chart per pipeline | Pipeline run metrics table | Row count per run, with mean ± 2σ bands overlaid | Spot volume anomalies; distinguish expected variance from real anomalies | 5 minutes |
-| Alert Log | Sortable and filterable table | Alert management system | Alert timestamp, pipeline, severity, ack by, time-to-ack, time-to-resolve, root cause | Track SLA compliance; identify chronic problem pipelines | 5 minutes |
-| Cost Trend (cloud pipelines) | Bar chart, 30-day | Cloud billing API | Estimated cost per run vs. 7-day rolling average | Detect unexpected cost regressions | Daily |
-| On-Call Status | Banner | Rotation schedule | Current primary and secondary on-call names and contact | Immediate escalation contact during incident | Real-time |
+| Panel Name                   | Chart Type                                            | Data Source                          | Query/Logic                                                                           | Purpose                                                                  | Refresh Rate |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------ |
+| Pipeline Health Grid         | Status grid (green/yellow/red per cell)               | Orchestrator metadata API            | Last run status + time since last success vs. SLA                                     | Immediate operational status for all pipelines                           | 1 minute     |
+| Execution Duration Trend     | Multi-line chart, 7-day window, one line per pipeline | Pipeline run log table               | Run duration by execution_date, with 7-day rolling avg overlay                        | Detect gradual degradation before failure                                | 5 minutes    |
+| Data Freshness Tracker       | Table with conditional formatting                     | Target table MAX(updated_at) queries | Newest record age vs. SLA per pipeline                                                | Identify stale data assets; shareable with stakeholders                  | 15 minutes   |
+| Row Count Trend              | Line chart, 30-day, one chart per pipeline            | Pipeline run metrics table           | Row count per run, with mean ± 2σ bands overlaid                                      | Spot volume anomalies; distinguish expected variance from real anomalies | 5 minutes    |
+| Alert Log                    | Sortable and filterable table                         | Alert management system              | Alert timestamp, pipeline, severity, ack by, time-to-ack, time-to-resolve, root cause | Track SLA compliance; identify chronic problem pipelines                 | 5 minutes    |
+| Cost Trend (cloud pipelines) | Bar chart, 30-day                                     | Cloud billing API                    | Estimated cost per run vs. 7-day rolling average                                      | Detect unexpected cost regressions                                       | Daily        |
+| On-Call Status               | Banner                                                | Rotation schedule                    | Current primary and secondary on-call names and contact                               | Immediate escalation contact during incident                             | Real-time    |
 
 ---
 
 ### 8. SLA Compliance Reporting
 
 **Weekly report (auto-generated, sent to data engineering manager and stakeholders):**
+
 - SLA compliance rate per pipeline: percentage of runs that completed before SLA deadline in the past 7 days
 - Total incidents by severity: warnings, criticals, escalations
 - Mean time to acknowledge (MTTA) and mean time to resolve (MTTR) by tier
@@ -428,11 +458,13 @@ Contact: [On-call engineer name] via Slack or [escalation channel]
 - Any open action items from previous incident reports
 
 **Monthly report (for VP of Data and department heads):**
+
 - Overall data platform reliability percentage (successful on-time runs / total scheduled runs)
 - SLA compliance trend (7 days, 30 days, 90 days) per pipeline tier
 - Business impact summary: total hours of data staleness across Tier 1 pipelines
 - Top recurring incidents and their prevention status
-```
+
+````
 
 ---
 
@@ -538,3 +570,4 @@ When a source database or API goes down, every pipeline sourced from it will fai
 | Pipeline Name | Schedule (UTC) | Source | Target | Owner | Tier | Business Impact | Upstream Dependencies |
 |---------------|---------------|--------|--------|-------|------|-----------------|----------------------|
 | stripe_payments_sync | Hourly (`0 *
+````

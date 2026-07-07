@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud optimization"
-  category: "devops-cloud"
-  subcategory: "cloud-infrastructure"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud optimization'
+  category: 'devops-cloud'
+  subcategory: 'cloud-infrastructure'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Cloud Cost Optimizer
@@ -55,18 +55,20 @@ ManagedBy        IaC tracking             terraform, pulumi, manual
 
 ```json
 {
-  "Statement": [{
-    "Effect": "Deny",
-    "Action": ["ec2:RunInstances", "rds:CreateDBInstance", "s3:CreateBucket"],
-    "Resource": "*",
-    "Condition": {
-      "Null": {
-        "aws:RequestTag/Environment": "true",
-        "aws:RequestTag/Service": "true",
-        "aws:RequestTag/Team": "true"
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": ["ec2:RunInstances", "rds:CreateDBInstance", "s3:CreateBucket"],
+      "Resource": "*",
+      "Condition": {
+        "Null": {
+          "aws:RequestTag/Environment": "true",
+          "aws:RequestTag/Service": "true",
+          "aws:RequestTag/Team": "true"
+        }
       }
     }
-  }]
+  ]
 }
 ```
 
@@ -180,8 +182,7 @@ AutoScalingGroup:
 // Poll for 2-minute interruption warning
 scheduleRepeating(async () => {
   try {
-    const resp = await get('[reference URL]',
-      { signal: AbortSignal.timeout(1000) });
+    const resp = await get('[reference URL]', { signal: AbortSignal.timeout(1000) });
     if (resp.ok) {
       console.log('Spot interruption detected');
       server.close();
@@ -189,7 +190,9 @@ scheduleRepeating(async () => {
       await checkpointState();
       process.exit(0);
     }
-  } catch { /* no interruption */ }
+  } catch {
+    /* no interruption */
+  }
 }, 5000);
 ```
 
@@ -210,14 +213,16 @@ Glacier Deep          $0.00099      Long-term, 12-hour retrieval
 
 ```json
 {
-  "Rules": [{
-    "Transitions": [
-      { "Days": 30, "StorageClass": "STANDARD_IA" },
-      { "Days": 90, "StorageClass": "GLACIER_IR" },
-      { "Days": 365, "StorageClass": "DEEP_ARCHIVE" }
-    ],
-    "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 7 }
-  }]
+  "Rules": [
+    {
+      "Transitions": [
+        { "Days": 30, "StorageClass": "STANDARD_IA" },
+        { "Days": 90, "StorageClass": "GLACIER_IR" },
+        { "Days": 365, "StorageClass": "DEEP_ARCHIVE" }
+      ],
+      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 7 }
+    }
+  ]
 }
 ```
 
@@ -334,6 +339,7 @@ GOVERNANCE:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing cloud cost optimizer solutions
 - Reviewing or improving existing cloud cost optimizer approaches
 - Making architectural or implementation decisions about cloud cost optimizer
@@ -341,6 +347,7 @@ GOVERNANCE:
 - Troubleshooting cloud cost optimizer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -351,21 +358,26 @@ GOVERNANCE:
 # Cloud Cost Optimizer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

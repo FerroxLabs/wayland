@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "teaching lesson-plan curriculum step-by-step"
-  category: "education"
-  subcategory: "teaching"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'teaching lesson-plan curriculum step-by-step'
+  category: 'education'
+  subcategory: 'teaching'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Summative Assessment
 
 ## When to Use
@@ -22,6 +23,7 @@ metadata:
 Use this skill when an educator explicitly needs a complete, deployable summative assessment package -- not just a rubric, not just a task prompt, but the full artifact set a teacher can hand to students and use for grading.
 
 **Trigger scenarios where this skill applies:**
+
 - An educator has finished teaching a unit and needs a culminating assessment to measure how well students met the stated learning objectives or standards
 - A teacher asks for an end-of-unit test, final project, performance task, capstone presentation, or unit exam and mentions content already taught
 - A curriculum designer needs an assessment to anchor a unit -- working backward from the assessment to plan instruction (Understanding by Design / backward design workflow)
@@ -31,6 +33,7 @@ Use this skill when an educator explicitly needs a complete, deployable summativ
 - An educator is building a portfolio assessment and needs both the artifact collection requirements and a holistic portfolio rubric that evaluates growth rather than individual pieces
 
 **Do NOT use this skill when:**
+
 - The educator wants a quick check for understanding during instruction -- use `formative-assessment` instead, which handles exit tickets, checks for understanding, and low-stakes in-class tasks
 - The user only needs a rubric without the full assessment task -- use `rubric-creation`, which has deeper rubric-building logic including analytic vs. holistic vs. single-point formats
 - The user is a student preparing to take an exam -- use `exam-prep-plan`, which generates study guides, practice questions, and review strategies from the student perspective
@@ -275,24 +278,31 @@ separates this student from proficiency.]
 ## Edge Cases
 
 ### Project-based summative assessment (multi-day or take-home)
+
 When the assessment spans multiple days or takes the form of a project, the standard one-period test format does not apply. Replace the time-limited test structure with a project brief that includes: a clear deliverables list (what is submitted, in what format, by what deadline), milestone checkpoints with dates (e.g., proposal due Day 2, draft due Day 5, final product due Day 8), a product rubric assessing the final deliverable, and a separate process rubric assessing research, drafting, or iteration work. For multi-day projects, include a daily progress log students submit with the final product so teachers can evaluate process, not just the polished final output. Group projects require an individual contribution documentation requirement -- a division of labor form and an individual written reflection are the minimum.
 
 ### Portfolio assessment
+
 A portfolio assessment evaluates a curated collection of student work over time, not a single performance. The assessment package must specify: which artifacts are required (minimum count), whether artifacts are teacher-selected, student-selected, or a mix, and the reflection prompt for each artifact ("Why did you include this piece? What does it demonstrate about your learning?"). The portfolio-level rubric must assess growth across the collection -- not the quality of any individual artifact. Key criteria include: range of standards addressed, evidence of revision and improvement, depth of student self-reflection, and connection between artifacts and stated learning goals. Avoid rubrics that simply average the scores of individual pieces -- that defeats the purpose of portfolio assessment, which is to show trajectory, not average performance.
 
 ### Standards-based grading (no percentage-based scores)
+
 If the educator's school uses standards-based grading rather than points, the assessment format shifts significantly. There is no total score -- there is a proficiency level (4-3-2-1) reported per standard. Each item must be cleanly mapped to a single standard (multi-standard items create reporting ambiguity). The scoring guide reports student performance by standard, not by section. For each standard, the teacher records the highest sustained evidence of proficiency across items -- not an average. This means if a student scores 2 on two items for Standard A but then scores 4 on the extended response for Standard A, the grade for Standard A is 4, not the average of 2+2+4=2.67. Make this scoring logic explicit in the teacher guide.
 
 ### Accommodated and modified assessment versions
-When building a modified version for students with IEPs, 504 plans, or ELL designations, maintain the cognitive demand while reducing language and format barriers. Specific modifications: reduce reading level of prompts by one to two grade levels using a Flesch-Kincaid readability check; provide sentence starters for constructed response items ("One example of mutualism is __ because __"); replace purely text-based distractors with labeled diagrams or images where possible; chunk multi-part questions into separate numbered prompts rather than one compound question. Do not remove higher-order items from the modified version -- that changes what the assessment measures and may violate a student's right to access grade-level curriculum. Accommodation notes (extended time, scribe, calculator) belong in the teacher's administration guide, not the student-facing document.
+
+When building a modified version for students with IEPs, 504 plans, or ELL designations, maintain the cognitive demand while reducing language and format barriers. Specific modifications: reduce reading level of prompts by one to two grade levels using a Flesch-Kincaid readability check; provide sentence starters for constructed response items ("One example of mutualism is ** because **"); replace purely text-based distractors with labeled diagrams or images where possible; chunk multi-part questions into separate numbered prompts rather than one compound question. Do not remove higher-order items from the modified version -- that changes what the assessment measures and may violate a student's right to access grade-level curriculum. Accommodation notes (extended time, scribe, calculator) belong in the teacher's administration guide, not the student-facing document.
 
 ### Oral and performance-based summative assessments
+
 For oral defenses, Socratic seminars, laboratory practicals, physical education demonstrations, and fine arts performances, the "document" students produce is ephemeral. The scoring guide must include: an observation checklist the teacher can complete in real time, a numbered sequence of observable behaviors or required components (not impressionistic judgments), and a protocol for the teacher to follow (what question to ask, in what order, what probing follow-up to use if a student gives a minimal answer). For oral assessments, include 3-5 standardized probing questions the teacher can use when a student gives an ambiguous response, so all students are probed equally. Record video when possible for inter-rater calibration.
 
 ### Assessment security and multiple class sections
+
 When a teacher has multiple class sections taking the same assessment at different times, item security matters. Identify which items are highest-priority to keep secure (typically the extended response prompt, since it's easily shared). For parallel sections, build a small bank of parallel items (same standard, same Bloom's level, different content details) so item substitutions are available if security is compromised. Note which items can be safely used for public exemplars and which should remain secured for possible future use in re-assessments.
 
 ### Backward design alignment audit
+
 When an educator has an existing unit but suspects their assessment is misaligned, use this skill to run an alignment audit rather than build from scratch. The process is: list all stated unit objectives, map each objective to Bloom's taxonomy level, inventory all existing assessment items and classify each by standard and Bloom's level, identify gaps (objectives with no items), identify excess (items with no corresponding objective), and calculate point weights by standard. Report findings in a table before recommending revisions. This is a distinct workflow from building a new assessment -- acknowledge the difference and ask whether the goal is audit-and-revise or build-new.
 
 ---
@@ -318,12 +328,12 @@ When an educator has an existing unit but suspects their assessment is misaligne
 
 ### Standards Assessed
 
-| Standard Code | Standard Description | Bloom's Level | Points Allocated |
-|---------------|---------------------|---------------|-----------------|
-| NGSS MS-LS2-1 | Analyze and interpret data to provide evidence for effects of resource availability on organisms | Analyze (4) | 12 pts |
-| NGSS MS-LS2-2 | Construct an explanation predicting patterns of interactions among organisms across multiple ecosystems | Apply / Analyze (3-4) | 10 pts |
-| NGSS MS-LS2-3 | Develop a model to describe cycling of matter and flow of energy among organisms | Apply (3) | 18 pts |
-| NGSS MS-LS2-4 | Construct an argument supported by evidence for how changes affect populations | Evaluate (5) | 10 pts |
+| Standard Code | Standard Description                                                                                    | Bloom's Level         | Points Allocated |
+| ------------- | ------------------------------------------------------------------------------------------------------- | --------------------- | ---------------- |
+| NGSS MS-LS2-1 | Analyze and interpret data to provide evidence for effects of resource availability on organisms        | Analyze (4)           | 12 pts           |
+| NGSS MS-LS2-2 | Construct an explanation predicting patterns of interactions among organisms across multiple ecosystems | Apply / Analyze (3-4) | 10 pts           |
+| NGSS MS-LS2-3 | Develop a model to describe cycling of matter and flow of energy among organisms                        | Apply (3)             | 18 pts           |
+| NGSS MS-LS2-4 | Construct an argument supported by evidence for how changes affect populations                          | Evaluate (5)          | 10 pts           |
 
 ---
 
@@ -346,63 +356,74 @@ If a question is unclear, raise your hand. Your teacher can clarify what is bein
 ---
 
 #### Part 1: Multiple Choice -- 20 points
-*Suggested time: 12 minutes (about 1 minute per question)*
+
+_Suggested time: 12 minutes (about 1 minute per question)_
 
 **1.** Which organism in a food web is the original source of all energy for that ecosystem?
+
 - a) Decomposer
 - b) Primary consumer
 - c) Producer
 - d) Apex predator
 
 **2.** Energy flows through an ecosystem in which direction?
+
 - a) From consumers to producers
 - b) From producers to consumers, with some lost at each level as heat
 - c) In a complete cycle with no net loss
 - d) From decomposers to producers to consumers
 
 **3.** Approximately what percentage of the energy at one trophic level is available to the next trophic level?
+
 - a) 100% -- energy is fully conserved
 - b) 50%
 - c) 25%
 - d) 10%
 
 **4.** A prairie dog colony's burrows provide shelter for burrowing owls. The prairie dogs are not helped or harmed by the owls' presence. What type of symbiosis does this describe?
+
 - a) Mutualism
 - b) Parasitism
 - c) Commensalism
 - d) Predation
 
 **5.** Mycorrhizal fungi grow on the roots of pine trees. The fungi receive sugars from the tree; the tree receives water and phosphorus from the fungi. This relationship is best described as:
+
 - a) Parasitism, because the fungi take something from the tree
 - b) Commensalism, because only the fungi benefit
 - c) Mutualism, because both organisms benefit
 - d) Competition, because both organisms want the same resources
 
 **6.** Look at the food web diagram. If the mouse population is suddenly reduced by 75% due to a disease, what would most likely happen to the hawk population over the following season?
+
 - a) Increase, because hawks no longer compete with mice for grass
 - b) Decrease, because a major food source is reduced
 - c) Stay the same, because hawks can fully substitute other prey immediately
 - d) Increase, because less competition exists among hawks
 
 **7.** Which of the following correctly explains why an energy pyramid has fewer organisms at the top than at the base?
+
 - a) Top predators reproduce more slowly than producers
 - b) Producers are smaller than consumers
 - c) Less total energy is available at each successive trophic level due to metabolic heat loss
 - d) Decomposers remove energy from the top of the pyramid
 
 **8.** A farmer applies pesticide to crops. The pesticide does not break down and is stored in the body fat of organisms. As you move up the food chain, the concentration of pesticide in each organism's body increases. This process is called:
+
 - a) Eutrophication
 - b) Biological magnification
 - c) Decomposition
 - d) Nutrient cycling
 
 **9.** Which human activity most directly and immediately fragments wildlife habitat and reduces biodiversity?
+
 - a) Using solar panels
 - b) Land clearing and development
 - c) Recycling paper products
 - d) Monitoring water quality
 
 **10.** Decomposers are essential to an ecosystem primarily because they:
+
 - a) Produce energy from sunlight through photosynthesis
 - b) Reduce competition among primary consumers
 - c) Break down dead organic matter and return nutrients to the soil, making them available to producers again
@@ -411,7 +432,8 @@ If a question is unclear, raise your hand. Your teacher can clarify what is bein
 ---
 
 #### Part 2: Short Answer -- 15 points
-*Suggested time: 15 minutes (about 5 minutes per question)*
+
+_Suggested time: 15 minutes (about 5 minutes per question)_
 
 **11. (5 points)** Using the food web diagram provided, trace TWO complete energy pathways from the sun to a tertiary consumer. Write each pathway as a chain showing every organism in order. Then explain, in 1-2 sentences, why there are fewer tertiary consumers than there are producers in the same ecosystem.
 
@@ -422,7 +444,8 @@ If a question is unclear, raise your hand. Your teacher can clarify what is bein
 ---
 
 #### Part 3: Extended Response -- 15 points
-*Suggested time: 18 minutes*
+
+_Suggested time: 18 minutes_
 
 **14.** A county government is considering approving a plan to drain and develop 200 acres of wetland for a commercial warehouse facility. You are an ecologist hired to advise the county.
 
@@ -438,7 +461,7 @@ Write a scientific argument addressed to the county planning board that explains
 
 ---
 
-*[Attach food web diagram showing: Sun → Marsh grass → Grasshopper → Frog → Heron; Sun → Marsh grass → Muskrat → Mink; Sun → Algae → Aquatic invertebrates → Perch → Heron; Decomposers connected to all dead matter]*
+_[Attach food web diagram showing: Sun → Marsh grass → Grasshopper → Frog → Heron; Sun → Marsh grass → Muskrat → Mink; Sun → Algae → Aquatic invertebrates → Perch → Heron; Decomposers connected to all dead matter]_
 
 ---
 
@@ -446,36 +469,39 @@ Write a scientific argument addressed to the county planning board that explains
 
 #### Part 1: Answer Key
 
-| Item # | Correct Answer | Points | Standard | Misconception Note |
-|--------|---------------|--------|----------|--------------------|
-| 1 | c -- Producer | 2 | MS-LS2-3 | Students choosing b (primary consumer) are confusing energy source with energy flow direction |
-| 2 | b | 2 | MS-LS2-3 | Students choosing c believe energy cycles like matter; address the matter-energy distinction |
-| 3 | d -- 10% | 2 | MS-LS2-3 | Students choosing b (50%) have a quantitative misconception; reteach the 10% rule with a specific calculation |
-| 4 | c -- Commensalism | 2 | MS-LS2-2 | Students choosing a (mutualism) assume benefit must be reciprocal; emphasize "neither helped nor harmed" |
-| 5 | c -- Mutualism | 2 | MS-LS2-2 | Students choosing a (parasitism) focus only on the taking aspect; redirect to outcomes for both organisms |
-| 6 | b -- Decrease | 2 | MS-LS2-1 | Students choosing c have an "instant substitution" misconception; populations cannot fully substitute prey immediately |
-| 7 | c | 2 | MS-LS2-3 | Students choosing a confuse reproductive rate with energy availability; the pyramid reflects energy, not reproduction speed |
-| 8 | b -- Biological magnification | 2 | MS-LS2-4 | Students choosing d (nutrient cycling) are confusing a natural process with a pollution mechanism |
-| 9 | b -- Land clearing | 2 | MS-LS2-4 | Students choosing d (monitoring water quality) may not recognize it as a beneficial activity rather than a harm |
-| 10 | c | 2 | MS-LS2-3 | Students choosing a are confusing decomposers with producers; revisit decomposer role in nutrient cycling |
+| Item # | Correct Answer                | Points | Standard | Misconception Note                                                                                                          |
+| ------ | ----------------------------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1      | c -- Producer                 | 2      | MS-LS2-3 | Students choosing b (primary consumer) are confusing energy source with energy flow direction                               |
+| 2      | b                             | 2      | MS-LS2-3 | Students choosing c believe energy cycles like matter; address the matter-energy distinction                                |
+| 3      | d -- 10%                      | 2      | MS-LS2-3 | Students choosing b (50%) have a quantitative misconception; reteach the 10% rule with a specific calculation               |
+| 4      | c -- Commensalism             | 2      | MS-LS2-2 | Students choosing a (mutualism) assume benefit must be reciprocal; emphasize "neither helped nor harmed"                    |
+| 5      | c -- Mutualism                | 2      | MS-LS2-2 | Students choosing a (parasitism) focus only on the taking aspect; redirect to outcomes for both organisms                   |
+| 6      | b -- Decrease                 | 2      | MS-LS2-1 | Students choosing c have an "instant substitution" misconception; populations cannot fully substitute prey immediately      |
+| 7      | c                             | 2      | MS-LS2-3 | Students choosing a confuse reproductive rate with energy availability; the pyramid reflects energy, not reproduction speed |
+| 8      | b -- Biological magnification | 2      | MS-LS2-4 | Students choosing d (nutrient cycling) are confusing a natural process with a pollution mechanism                           |
+| 9      | b -- Land clearing            | 2      | MS-LS2-4 | Students choosing d (monitoring water quality) may not recognize it as a beneficial activity rather than a harm             |
+| 10     | c                             | 2      | MS-LS2-3 | Students choosing a are confusing decomposers with producers; revisit decomposer role in nutrient cycling                   |
 
 ---
 
 #### Part 2: Short Answer Scoring
 
 **Item 11 -- 5 points**
+
 - 2 pts: Two complete, accurate energy pathways traced from sun through to a tertiary consumer (1 pt each pathway; both must name each organism in sequence and be consistent with the diagram)
 - 2 pts: Accurate explanation of why fewer tertiary consumers exist, referencing energy loss across trophic levels (must mention 10% rule or "energy lost as heat" -- general statements like "less food" earn 1 pt)
 - 1 pt: Uses at least two unit vocabulary terms correctly (trophic level, producer, consumer, energy pyramid, 10% rule)
 - 0 pts on any component: Energy pathway is invented (not from diagram), or explanation inverts the relationship
 
 **Item 12 -- 5 points**
+
 - 2 pts: Correctly names the tick-deer relationship as parasitism AND accurately identifies that the tick benefits (+1) and the deer is harmed (+1)
 - 2 pts: Accurately explains the difference from commensalism: in commensalism one organism benefits and the other is neither helped nor harmed (+1), with a specific, accurate example of commensalism from outside the diagram (+1)
 - 1 pt: Uses correct scientific vocabulary for both symbiosis types
 - Common error: Students define commensalism as "both benefit" -- this is the mutualism definition; award 0 for the distinction criterion and note for reteaching
 
 **Item 13 -- 5 points**
+
 - 2 pts each (up to 4 pts) for each predicted effect: Award 1 pt for correctly identifying the affected animal/population and 1 pt for explaining the causal chain (e.g., "native grasses are displaced → grasshoppers lose food source → grasshopper population declines → insectivore birds lose prey → bird population declines")
 - 1 pt: Both effects are ecologically plausible and connected to the food web (not generic "animals will suffer")
 - Deduct 1 pt if student predicts only direct effects without tracing the cascade (e.g., says "grasshoppers lose food" but does not extend to the next trophic level)
@@ -484,12 +510,12 @@ Write a scientific argument addressed to the county planning board that explains
 
 #### Part 3: Analytic Rubric
 
-| Criterion | Weight | Exemplary (4) | Proficient (3) | Developing (2) | Beginning (1) |
-|-----------|--------|--------------|----------------|----------------|---------------|
-| **(a) Organism Impacts** | 4 pts | Names two specific wetland organisms (e.g., great blue heron, painted turtle, muskrat) with their ecological roles; explains how loss of habitat directly affects breeding, feeding, or shelter needs for each | Names two specific organisms and states that their populations would decline; explains impact for at least one organism in ecological terms | Names one specific organism with impact explained, or names two organisms without explaining ecological mechanism | Names no specific organisms, or claims only generic "animals" would be affected |
-| **(b) Energy Flow Disruption** | 4 pts | Accurately explains that removal of wetland producers (marsh grasses, algae) eliminates the energy base; traces disruption through at least two trophic levels using terms producer, consumer, and trophic level correctly; notes that less energy enters the ecosystem overall | Explains that producers would be lost and that consumers would be affected; uses producer and consumer correctly; explains disruption at one trophic level | Mentions energy or food chain in a general way without correctly using trophic level vocabulary, or describes disruption but reverses direction | Does not mention energy flow, or states that energy would "move elsewhere" without ecological basis |
-| **(c) Symbiotic Relationship** | 4 pts | Names a specific symbiotic pair found in wetlands (e.g., egret and water buffalo in commensal relationship; clover and nitrogen-fixing bacteria in mutualism; reed warbler and cuckoo in brood parasitism); correctly identifies symbiosis type; explains how development would disrupt the relationship and what would happen to each organism independently | Names a plausible wetland symbiotic pair; correctly names the symbiosis type; explains disruption for at least one organism | Describes a symbiotic relationship without naming organism types, or names organisms but misidentifies the relationship type | Does not include a symbiotic relationship, or example is from a non-wetland ecosystem with no explanation of relevance |
-| **(d) Mitigation Strategy** | 3 pts | Proposes a specific, scientifically grounded strategy (e.g., constructed wetland mitigation at a 2:1 replacement ratio; wildlife corridor design connecting remaining habitat patches; development footprint reduction using structured parking to limit impervious surface); explains the ecological mechanism by which the strategy reduces harm | Proposes a relevant mitigation strategy (e.g., "preserve some wetland area nearby"); gives a reason for why it helps | Suggests a general environmental action (e.g., "plant more trees") that is not specific to wetland ecology | Suggests an irrelevant action or no mitigation strategy |
+| Criterion                      | Weight | Exemplary (4)                                                                                                                                                                                                                                                                                                                                                 | Proficient (3)                                                                                                                                             | Developing (2)                                                                                                                                  | Beginning (1)                                                                                                          |
+| ------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **(a) Organism Impacts**       | 4 pts  | Names two specific wetland organisms (e.g., great blue heron, painted turtle, muskrat) with their ecological roles; explains how loss of habitat directly affects breeding, feeding, or shelter needs for each                                                                                                                                                | Names two specific organisms and states that their populations would decline; explains impact for at least one organism in ecological terms                | Names one specific organism with impact explained, or names two organisms without explaining ecological mechanism                               | Names no specific organisms, or claims only generic "animals" would be affected                                        |
+| **(b) Energy Flow Disruption** | 4 pts  | Accurately explains that removal of wetland producers (marsh grasses, algae) eliminates the energy base; traces disruption through at least two trophic levels using terms producer, consumer, and trophic level correctly; notes that less energy enters the ecosystem overall                                                                               | Explains that producers would be lost and that consumers would be affected; uses producer and consumer correctly; explains disruption at one trophic level | Mentions energy or food chain in a general way without correctly using trophic level vocabulary, or describes disruption but reverses direction | Does not mention energy flow, or states that energy would "move elsewhere" without ecological basis                    |
+| **(c) Symbiotic Relationship** | 4 pts  | Names a specific symbiotic pair found in wetlands (e.g., egret and water buffalo in commensal relationship; clover and nitrogen-fixing bacteria in mutualism; reed warbler and cuckoo in brood parasitism); correctly identifies symbiosis type; explains how development would disrupt the relationship and what would happen to each organism independently | Names a plausible wetland symbiotic pair; correctly names the symbiosis type; explains disruption for at least one organism                                | Describes a symbiotic relationship without naming organism types, or names organisms but misidentifies the relationship type                    | Does not include a symbiotic relationship, or example is from a non-wetland ecosystem with no explanation of relevance |
+| **(d) Mitigation Strategy**    | 3 pts  | Proposes a specific, scientifically grounded strategy (e.g., constructed wetland mitigation at a 2:1 replacement ratio; wildlife corridor design connecting remaining habitat patches; development footprint reduction using structured parking to limit impervious surface); explains the ecological mechanism by which the strategy reduces harm            | Proposes a relevant mitigation strategy (e.g., "preserve some wetland area nearby"); gives a reason for why it helps                                       | Suggests a general environmental action (e.g., "plant more trees") that is not specific to wetland ecology                                      | Suggests an irrelevant action or no mitigation strategy                                                                |
 
 **Total Points for Part 3:** Sum of four criterion scores. A score of 4+4+4+3 = 15 points maximum.
 
@@ -497,14 +523,14 @@ Write a scientific argument addressed to the county planning board that explains
 
 ### Standards Alignment Map
 
-| Standard | Part 1 Items | Part 2 Items | Part 3 Criteria | Total Points |
-|----------|-------------|-------------|-----------------|--------------|
-| MS-LS2-1 | 6 (2 pts) | 11 (partial: energy pyramid component, 2 pts), 13 (4 pts) | None directly | 8 pts |
-| MS-LS2-2 | 4, 5 (4 pts) | 12 (5 pts) | Criterion (c) (4 pts) | 13 pts |
-| MS-LS2-3 | 1, 2, 3, 7, 10 (10 pts) | 11 (3 pts), partial 13 | Criterion (b) (4 pts) | 17 pts |
-| MS-LS2-4 | 8, 9 (4 pts) | partial 13 (2 pts) | Criteria (a) and (d) (7 pts) | 13 pts |
+| Standard | Part 1 Items            | Part 2 Items                                              | Part 3 Criteria              | Total Points |
+| -------- | ----------------------- | --------------------------------------------------------- | ---------------------------- | ------------ |
+| MS-LS2-1 | 6 (2 pts)               | 11 (partial: energy pyramid component, 2 pts), 13 (4 pts) | None directly                | 8 pts        |
+| MS-LS2-2 | 4, 5 (4 pts)            | 12 (5 pts)                                                | Criterion (c) (4 pts)        | 13 pts       |
+| MS-LS2-3 | 1, 2, 3, 7, 10 (10 pts) | 11 (3 pts), partial 13                                    | Criterion (b) (4 pts)        | 17 pts       |
+| MS-LS2-4 | 8, 9 (4 pts)            | partial 13 (2 pts)                                        | Criteria (a) and (d) (7 pts) | 13 pts       |
 
-*Note: MS-LS2-3 carries the heaviest weight (17 points / 34%) reflecting that energy flow and food web structure were the primary instructional focus of the unit. MS-LS2-1 is lightly assessed (8 points / 16%) -- consider adding one additional short answer item if resource availability and population data analysis received significant instructional time.*
+_Note: MS-LS2-3 carries the heaviest weight (17 points / 34%) reflecting that energy flow and food web structure were the primary instructional focus of the unit. MS-LS2-1 is lightly assessed (8 points / 16%) -- consider adding one additional short answer item if resource availability and population data analysis received significant instructional time._
 
 ---
 
@@ -526,10 +552,10 @@ The student answers fewer than 5 multiple choice items correctly, with systemati
 
 ### Common Errors and Instructional Response
 
-| Error Pattern | Items Affected | What It Signals | Recommended Response |
-|---------------|---------------|-----------------|---------------------|
-| Selects 50% for energy transfer between trophic levels | Item 3 | Knows energy is lost but does not know the approximate rate; may be confusing with other percentages from class | Use a concrete calculation: 1000 kcal at grass level → 100 kcal at grasshopper level → 10 kcal at frog level. Have students calculate the actual numbers rather than memorize the percentage. |
-| Describes energy as cycling back through the system | Items 2, 7, 11 | Conflating matter cycling (which does cycle) with energy flow (which is one-way); a fundamental conceptual confusion | Teach matter and energy as parallel but distinct systems in the same ecosystem. Use two different colored arrows on the same diagram -- one for matter cycling, one for energy flow direction. |
-| Calls the tick-deer relationship mutualism because "both organisms get something" | Item 5, Short Answer 12 | Applying a transactional (exchange) framework instead of an outcomes (benefit/harm) framework for symbiosis | Reframe the definition: classify by what HAPPENS to each organism (benefited, unaffected, harmed), not by what is exchanged. Have students fill in a two-column table for each relationship. |
-| Predicts only direct first-order effects in cascade scenarios (e.g., "the muskrat will have less food" but does not extend to mink or heron) | Items 6, 13, Extended Response (a) | Understands direct predation relationships but has not internalized the cascading nature of food web disruptions | Practice "If-Then-Because" chains with three or more steps using the class food web diagram. Require students to trace each disruption at least two trophic levels away from the initial change. |
-| Proposes a mitigation strategy that is generic environmental action rather than ecosystem-specific | Extended Response (d) | Knows that environmental protection is important but lacks specific knowledge of ecological engineering or conservation biology tools | Introduce three to four specific, named mitigation strategies (wetland mitigation banking, wildlife corridors, buffer zones, permeable surface requirements) with examples from real cases. |
+| Error Pattern                                                                                                                                | Items Affected                     | What It Signals                                                                                                                       | Recommended Response                                                                                                                                                                             |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Selects 50% for energy transfer between trophic levels                                                                                       | Item 3                             | Knows energy is lost but does not know the approximate rate; may be confusing with other percentages from class                       | Use a concrete calculation: 1000 kcal at grass level → 100 kcal at grasshopper level → 10 kcal at frog level. Have students calculate the actual numbers rather than memorize the percentage.    |
+| Describes energy as cycling back through the system                                                                                          | Items 2, 7, 11                     | Conflating matter cycling (which does cycle) with energy flow (which is one-way); a fundamental conceptual confusion                  | Teach matter and energy as parallel but distinct systems in the same ecosystem. Use two different colored arrows on the same diagram -- one for matter cycling, one for energy flow direction.   |
+| Calls the tick-deer relationship mutualism because "both organisms get something"                                                            | Item 5, Short Answer 12            | Applying a transactional (exchange) framework instead of an outcomes (benefit/harm) framework for symbiosis                           | Reframe the definition: classify by what HAPPENS to each organism (benefited, unaffected, harmed), not by what is exchanged. Have students fill in a two-column table for each relationship.     |
+| Predicts only direct first-order effects in cascade scenarios (e.g., "the muskrat will have less food" but does not extend to mink or heron) | Items 6, 13, Extended Response (a) | Understands direct predation relationships but has not internalized the cascading nature of food web disruptions                      | Practice "If-Then-Because" chains with three or more steps using the class food web diagram. Require students to trace each disruption at least two trophic levels away from the initial change. |
+| Proposes a mitigation strategy that is generic environmental action rather than ecosystem-specific                                           | Extended Response (d)              | Knows that environmental protection is important but lacks specific knowledge of ecological engineering or conservation biology tools | Introduce three to four specific, named mitigation strategies (wetland mitigation banking, wildlife corridors, buffer zones, permeable surface requirements) with examples from real cases.      |

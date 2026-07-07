@@ -7,14 +7,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "study-skills active-recall step-by-step teaching"
-  category: "education"
-  subcategory: "self-learning"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'study-skills active-recall step-by-step teaching'
+  category: 'education'
+  subcategory: 'self-learning'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Feynman Technique
 
 ## When to Use
@@ -30,6 +31,7 @@ Use this skill when any of the following triggers apply:
 - A learner wants to build an analogy for a complex topic to make it memorable or communicable to others
 
 **Do NOT use when:**
+
 - The user wants a concept explained TO them without doing any explaining themselves -- that is a general explanation request, not this skill. The learner must do the work of explaining; the AI coaches and corrects.
 - The user wants flashcard sets for key terms -- use `flashcard-generation` instead, which is purpose-built for encoding discrete facts
 - The user wants structured note-taking from a lecture or reading -- use `cornell-notes` for that workflow
@@ -331,9 +333,9 @@ During gap-filling, it becomes clear that the learner is missing a prerequisite 
 
 ### Step 1 -- Simple-Language Explanation
 
-*(Written as if explaining to a curious 12-year-old who understands what a bet is but has never heard of an options contract)*
+_(Written as if explaining to a curious 12-year-old who understands what a bet is but has never heard of an options contract)_
 
-Imagine you want to buy the right -- but not the obligation -- to buy a concert ticket for $50, even if its price goes up before the show. You are not buying the ticket now; you are buying the *option* to buy it at $50 later. That right is worth something, and the question is: how much should you pay for it today?
+Imagine you want to buy the right -- but not the obligation -- to buy a concert ticket for $50, even if its price goes up before the show. You are not buying the ticket now; you are buying the _option_ to buy it at $50 later. That right is worth something, and the question is: how much should you pay for it today?
 
 That is the exact problem Black-Scholes solves. It calculates the fair price of an option today, given what you know about the asset it covers.
 
@@ -370,7 +372,7 @@ Scary-looking, but every piece has a job:
 
 **N(d2)**: The risk-adjusted probability that the option ends up "in the money" -- meaning the stock price at expiration will actually be above the strike price, making it worth exercising.
 
-So in plain terms: the option's value equals *what you expect to receive* (the probability-weighted claim on the stock) minus *what you expect to pay* (the present value of the strike price, weighted by the probability you actually pay it).
+So in plain terms: the option's value equals _what you expect to receive_ (the probability-weighted claim on the stock) minus _what you expect to pay_ (the present value of the strike price, weighted by the probability you actually pay it).
 
 ---
 
@@ -380,13 +382,13 @@ So in plain terms: the option's value equals *what you expect to receive* (the p
 
 **Structural Mappings:**
 
-| Target Concept Element | Analogy Element | How the Mapping Holds |
-|------------------------|-----------------|----------------------|
-| Option premium (C) | Deposit amount you pay upfront | Both are a certain cost paid now for an uncertain future right |
-| Volatility (σ) | How unpredictable vacation pricing is in that destination | More price swings in the rental market = deposit worth more, because if prices spike you benefit; your maximum loss is still just the deposit |
-| Time to expiration (T) | How far in advance you're booking | More time before your decision deadline = more chances for the situation to change in your favor; deposits on longer-lead bookings are more valuable |
-| Strike price (K) discounted | The locked-in price you negotiated, adjusted for the fact that you don't pay until checkout | Paying a fixed rate six months from now is not the same as paying it today -- a lower-cost equivalent today would be slightly less |
-| N(d2) probability | Your assessed probability you'll actually stay there rather than canceling | The deposit's practical value depends on how likely you are to follow through |
+| Target Concept Element      | Analogy Element                                                                             | How the Mapping Holds                                                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Option premium (C)          | Deposit amount you pay upfront                                                              | Both are a certain cost paid now for an uncertain future right                                                                                       |
+| Volatility (σ)              | How unpredictable vacation pricing is in that destination                                   | More price swings in the rental market = deposit worth more, because if prices spike you benefit; your maximum loss is still just the deposit        |
+| Time to expiration (T)      | How far in advance you're booking                                                           | More time before your decision deadline = more chances for the situation to change in your favor; deposits on longer-lead bookings are more valuable |
+| Strike price (K) discounted | The locked-in price you negotiated, adjusted for the fact that you don't pay until checkout | Paying a fixed rate six months from now is not the same as paying it today -- a lower-cost equivalent today would be slightly less                   |
+| N(d2) probability           | Your assessed probability you'll actually stay there rather than canceling                  | The deposit's practical value depends on how likely you are to follow through                                                                        |
 
 **Where the analogy breaks down:** Vacation rental deposits typically have no upside beyond "you secured a price" -- they do not scale with how far below market you end up. Stock options have unlimited upside: if the stock goes to $500 and your strike is $95, your gain is enormous. The deposit analogy captures the structure of the cost and the option logic, but it does not capture the asymmetric payoff profile, which is Black-Scholes's most important feature.
 
@@ -403,6 +405,7 @@ The closed-form solution is:
 **C = S·N(d₁) -- K·e^(--rT)·N(d₂)**
 
 Where:
+
 - **C** is the fair value (premium) of the call option today
 - **S** is the current spot price of the underlying asset
 - **K** is the strike price -- the agreed purchase price the option holder pays upon exercise
@@ -421,46 +424,50 @@ The model's foundational insight is **risk-neutral pricing**: regardless of inve
 
 ### Knowledge Gap Summary
 
-| Gap ID | Gap Description | Source Used to Fill | Confidence After Filling |
-|--------|-----------------|---------------------|--------------------------|
-| ★1 | Volatility defined statistically but not economically -- why high σ helps option buyers | Chapter section on payoff diagrams + limited liability argument | High |
-| ★2 | d₁ and d₂: what they calculate and why they differ by σ√T | Chapter derivation section + risk-neutral probability interpretation | Medium -- the derivation is clear; the intuition for why d₁ ≠ d₂ takes more work |
+| Gap ID | Gap Description                                                                         | Source Used to Fill                                                  | Confidence After Filling                                                         |
+| ------ | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| ★1     | Volatility defined statistically but not economically -- why high σ helps option buyers | Chapter section on payoff diagrams + limited liability argument      | High                                                                             |
+| ★2     | d₁ and d₂: what they calculate and why they differ by σ√T                               | Chapter derivation section + risk-neutral probability interpretation | Medium -- the derivation is clear; the intuition for why d₁ ≠ d₂ takes more work |
 
 ---
 
 ### Self-Check Questions
 
 **Level 1 -- Recall (Can you retrieve it?)**
+
 - Without looking, state the five inputs to the Black-Scholes formula and what each one represents.
 - What does the term K·e^(--rT) represent and why is it discounted rather than just K?
 
 **Level 2 -- Conceptual Depth (Do you understand it?)**
+
 - An option on a highly volatile biotech stock costs more than an option on a stable utility company, all else equal. Explain why using the model's structure, not just "more risk."
 - Why does Black-Scholes not require you to know the stock's expected return (mu)? What argument eliminates it?
 
 **Level 3 -- Transfer (Can you apply it to something new?)**
+
 - You are told that a stock's implied volatility has just jumped from 20% to 35% after an earnings announcement. The stock price itself did not change, nor did the strike or time to expiration. Using only your understanding of the model's structure, explain what happens to the option price and why -- without plugging into a calculator.
 
 ---
 
 ### Review Schedule (Spaced Repetition)
 
-| Review | Days From Now | What to Test |
-|--------|--------------|--------------|
-| 1st    | 1 day        | Recall the five inputs and explain what each one does without the formula in front of you |
-| 2nd    | 3 days       | Explain the plain-language meaning of N(d₁) and N(d₂) without notes |
+| Review | Days From Now | What to Test                                                                                     |
+| ------ | ------------- | ------------------------------------------------------------------------------------------------ |
+| 1st    | 1 day         | Recall the five inputs and explain what each one does without the formula in front of you        |
+| 2nd    | 3 days        | Explain the plain-language meaning of N(d₁) and N(d₂) without notes                              |
 | 3rd ★  | 5 days (exam) | Full Feynman re-test: explain the model from scratch; the exam is the real Level 3 transfer test |
-| 4th    | 14 days      | Answer Level 2 and Level 3 self-check questions cold |
-| 5th ★  | 30 days      | Full Feynman re-test: explanation should flow without any gap-filling |
+| 4th    | 14 days       | Answer Level 2 and Level 3 self-check questions cold                                             |
+| 5th ★  | 30 days       | Full Feynman re-test: explanation should flow without any gap-filling                            |
 
 ★ = Schedule a full Feynman session at this interval
-*Note: Day 7 interval adjusted to Day 5 to align with exam date.*
+_Note: Day 7 interval adjusted to Day 5 to align with exam date._
 
 ---
 
 ### Next Steps
 
 **Complementary techniques for this material:**
+
 1. **Worked examples / practice problems:** The Feynman session has built conceptual understanding of the formula's structure. Now do 5-8 numerical problems using different input combinations -- pay attention to how C changes as you vary σ and T individually. This builds intuition for option sensitivity (the Greeks) without requiring you to memorize the Greek formulas yet.
 2. **Flashcard generation** (`flashcard-generation`): Create cards for the five inputs, the definitions of N(d₁) and N(d₂), the risk-neutral pricing argument in one sentence, and the two knowledge gaps that were identified above -- these are high-probability exam targets precisely because they are conceptually subtle.
 

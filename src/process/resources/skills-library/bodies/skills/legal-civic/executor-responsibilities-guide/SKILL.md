@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide checklist"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide checklist'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'intermediate'
 ---
+
 # Executor Responsibilities Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -29,6 +30,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - A user has been named as executor (or "personal representative") in a will and wants to understand what the role requires before or after the death occurs
 - A user is currently serving as executor after a recent death and needs a structured overview of responsibilities and sequencing
 - A user is drafting their own will and wants to understand what they are asking an executor to take on before naming someone
@@ -38,6 +40,7 @@ metadata:
 - A user wants to understand the distinction between assets that pass through probate versus outside of it
 
 **Do NOT use when:**
+
 - The user needs guidance on a specific probate court filing or form in a named jurisdiction -- refer to a probate attorney in that state or country
 - The user asks about estate tax return preparation, capital gains treatment of inherited assets, or step-up in basis calculations -- refer to a CPA or tax attorney and use `estate-tax-basics` if available
 - The user is involved in an active dispute over executor conduct, a will contest, or beneficiary litigation -- refer to a probate litigation attorney
@@ -63,6 +66,7 @@ Before generating any output, determine where the user stands in the executor li
 The user's urgency and context should determine the emphasis and sequencing of your output. Someone who died last Tuesday needs different emphasis than someone planning ahead.
 
 Also identify key estate facts if the user has shared them:
+
 - Types of assets present (real property, financial accounts, business interests, vehicles, collectibles)
 - Whether a will exists and has been located
 - Whether the estate is likely simple (few assets, no business interests, no contested beneficiaries) or complex
@@ -373,27 +377,35 @@ The final phases require careful documentation to protect the executor after the
 ## Edge Cases
 
 ### The User Just Received News of a Death and Is Overwhelmed
+
 This is the most emotionally charged entry point. Do not lead with a full 7-phase checklist. Prioritize: (1) Secure the property today. (2) Do not distribute anything. (3) Order death certificates -- you need at least 10-15. (4) Find a probate attorney this week. Everything else has time. Explicitly say: "The full probate process takes months. You do not need to understand everything today. The most important thing you can do right now is [top 2-3 items]." Then provide the full checklist as a reference to return to.
 
 ### The Estate Has No Will (Intestate)
+
 If the user says there is no will, note that the executor role becomes a court-appointed "administrator" role and the distribution of assets is governed by the state's intestate succession laws rather than the deceased's wishes. The administration process (probate filing, inventory, debt settlement, distribution) is largely the same, but asset distribution will follow statutory share rules. Refer the user to an `intestate-succession-explainer` skill for the distribution framework and strongly recommend a probate attorney before any action.
 
 ### Multiple Executors Named (Co-Executors)
+
 Co-executors must typically act jointly and by agreement. Every action requires both signatures. This creates efficiency when the co-executors trust each other and divide tasks (one handles financial institutions, one handles real property), but creates severe paralysis when they disagree. If the will names co-executors, establish early: (a) how decisions will be made when there is disagreement, (b) who has authority to sign on the estate bank account, and (c) what happens if one co-executor becomes unable to serve. If co-executors cannot agree, the probate court can intervene -- and court intervention is expensive and time-consuming. One co-executor can petition to remove the other in cases of bad faith or incapacity. Flag this scenario explicitly to the probate attorney at the first meeting.
 
 ### The Will Is Being Contested
+
 A will contest suspends normal administration in significant ways. The executor should NOT make any distributions while a contest is pending. Specific actions available to the executor during a contest: protect and maintain assets, continue paying ongoing expenses (mortgage, insurance, taxes) to prevent dissipation, and notify all parties of material changes. The executor may be in the position of defending the will -- which may create legal expenses payable from the estate. Contested estates often take 1-3 years or longer to resolve. The executor should retain an attorney experienced in probate litigation, which may be different from the general probate attorney handling administration.
 
 ### The Executor Lives in a Different State Than the Deceased
+
 Some states (primarily in the South and some Midwest states) have residency requirements for executors and may require a co-executor, a surety bond, or appointment of a local agent for service of process. Even where non-resident executors are permitted, practical challenges include: inability to physically secure property, inability to attend court appearances without travel, difficulty managing real property maintenance, and unfamiliarity with local courts and service providers. Recommend the user: (a) confirm non-resident executor rules with a local probate attorney immediately, (b) identify a local contact who can handle property access on short notice, and (c) consider whether hiring a local attorney to co-manage is worth the cost.
 
 ### The Estate Includes a Small Business or Partnership Interest
+
 Business interests create unique urgency during Phase 1. A business does not pause for probate. The executor must: (a) determine immediately whether there is a buy-sell agreement, operating agreement, or partnership agreement that governs what happens to the interest on death, (b) notify business partners or shareholders of the death and the executor's appointment, (c) assess whether the business requires ongoing operational decisions that cannot wait for court appointment, and (d) engage a business valuation expert early for the date-of-death valuation (business valuations take time and are required before the estate tax return filing). If the business is an operating company with employees, the executor may have urgent decisions about continuing operations, payroll, and contracts -- all of which require probate attorney guidance immediately.
 
 ### The Executor Wants to Decline the Role (Renunciation)
+
 A named executor has no legal obligation to serve. Declining is called "renunciation" or "declination" and must generally be done before taking any actions that constitute accepting the role. Once an executor takes substantive actions (accessing accounts, making payments, directing asset management), they may have accepted the role by conduct and renunciation may no longer be cleanly available. To renounce, the named executor typically files a written renunciation with the probate court. The court will then appoint the successor executor named in the will (if any) or, if none, an administrator as provided by state law. If the user is considering renouncing, advise: (a) consult an attorney before taking any estate-related actions, (b) a named executor can decline, (c) declining does not dishonor the deceased's wishes -- it is legally recognized and sometimes the right call, (d) the estate will still be administered by someone.
 
 ### Retirement Account Beneficiary Designation Conflicts With the Will
+
 A user may discover that the deceased's IRA or 401(k) names a beneficiary who is not the same person expected to receive that asset under the will, or who is now deceased. Important principles: (a) the beneficiary designation controls, not the will -- the retirement account passes to whoever is named on file with the custodian regardless of will language, (b) if the named beneficiary is deceased and no contingent beneficiary was named, the account may default to the estate (making it a probate asset subject to less favorable income tax treatment), (c) if the beneficiary designation conflicts with the executor's understanding of the deceased's intent, that conflict cannot be resolved by the executor -- the executor has no authority over non-probate assets. Refer this situation to a tax attorney or financial advisor, as the income tax treatment of inherited retirement accounts is complex and depends on the relationship of the beneficiary to the deceased.
 
 ---
@@ -407,15 +419,18 @@ A user may discover that the deceased's IRA or 401(k) names a beneficiary who is
 ---
 
 ## Executor Responsibilities Overview
-*Estate of: [Father's Full Name] | Date of Death: [10 days ago] | Executor: You*
+
+_Estate of: [Father's Full Name] | Date of Death: [10 days ago] | Executor: You_
 
 ---
 
 ### Quick-Orientation Summary
+
 **Estate Complexity:** Moderate -- house, accounts, IRA, life insurance, known debts
 **Estimated Timeline:** 12-18 months
 **Your Current Phase:** Phase 1 -- Immediate Actions (you are right on time)
 **Most Urgent Actions This Week:**
+
 1. Secure the house -- confirm locks, insurance, utilities
 2. Order 10-15 certified death certificates now
 3. Identify a probate attorney in the state where your father lived
@@ -426,15 +441,15 @@ A user may discover that the deceased's IRA or 401(k) names a beneficiary who is
 
 The first thing to understand is that not all of these assets go through probate. This is important because it tells you which ones you control as executor and which ones pass directly to named beneficiaries regardless of the will.
 
-| Asset                  | What Likely Happens                                        | Your Role as Executor         |
-|------------------------|------------------------------------------------------------|-------------------------------|
-| House                  | Probate asset -- passes through the will                  | You manage and eventually transfer per will |
-| Bank account #1        | Probate asset (unless joint or has POD designation)       | You collect after court appointment |
-| Bank account #2        | Probate asset (unless joint or has POD designation)       | You collect after court appointment |
-| IRA                    | Almost certainly NON-PROBATE -- passes to named beneficiary | NOT your asset to control -- beneficiary contacts custodian directly |
-| Life insurance         | Almost certainly NON-PROBATE -- passes to named beneficiary | NOT your asset to control -- beneficiary files claim directly |
-| Car loan               | Estate debt -- must be paid from estate assets            | You manage payoff or surrender |
-| Credit card balances   | Estate debts -- subject to creditor claims period         | Do NOT pay yet -- wait for claims process |
+| Asset                | What Likely Happens                                         | Your Role as Executor                                                |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| House                | Probate asset -- passes through the will                    | You manage and eventually transfer per will                          |
+| Bank account #1      | Probate asset (unless joint or has POD designation)         | You collect after court appointment                                  |
+| Bank account #2      | Probate asset (unless joint or has POD designation)         | You collect after court appointment                                  |
+| IRA                  | Almost certainly NON-PROBATE -- passes to named beneficiary | NOT your asset to control -- beneficiary contacts custodian directly |
+| Life insurance       | Almost certainly NON-PROBATE -- passes to named beneficiary | NOT your asset to control -- beneficiary files claim directly        |
+| Car loan             | Estate debt -- must be paid from estate assets              | You manage payoff or surrender                                       |
+| Credit card balances | Estate debts -- subject to creditor claims period           | Do NOT pay yet -- wait for claims process                            |
 
 **Important:** The IRA and life insurance pass directly to whoever is named as beneficiary on file with the custodian. This is true even if the will says something different. If your father named you (or another person) as beneficiary on those accounts, that person needs to contact the institution directly -- those assets are NOT part of the probate estate you administer.
 
@@ -442,19 +457,20 @@ The first thing to understand is that not all of these assets go through probate
 
 ### Full Administration Timeline for This Estate
 
-| Phase | Timeframe       | What You Will Be Doing                                                    | Status       |
-|-------|-----------------|----------------------------------------------------------------------------|--------------|
-| 1     | Days 1-14       | Secure the house, order death certs, find probate attorney                | In Progress  |
-| 2     | Weeks 2-8       | File will with court, get Letters Testamentary, open estate account       | Not Started  |
-| 3     | Months 2-4      | Inventory house contents, get bank statements, appraise house             | Not Started  |
-| 4     | Months 3-6      | Creditor claims period closes, review car loan and credit cards           | Not Started  |
-| 5     | Months 4-9      | File father's final tax return; file Form 1041 if estate earns income     | Not Started  |
-| 6     | Months 6-12     | Distribute house and bank funds to beneficiaries per will                 | Not Started  |
-| 7     | Months 9-18     | Final accounting, court discharge, close estate account                   | Not Started  |
+| Phase | Timeframe   | What You Will Be Doing                                                | Status      |
+| ----- | ----------- | --------------------------------------------------------------------- | ----------- |
+| 1     | Days 1-14   | Secure the house, order death certs, find probate attorney            | In Progress |
+| 2     | Weeks 2-8   | File will with court, get Letters Testamentary, open estate account   | Not Started |
+| 3     | Months 2-4  | Inventory house contents, get bank statements, appraise house         | Not Started |
+| 4     | Months 3-6  | Creditor claims period closes, review car loan and credit cards       | Not Started |
+| 5     | Months 4-9  | File father's final tax return; file Form 1041 if estate earns income | Not Started |
+| 6     | Months 6-12 | Distribute house and bank funds to beneficiaries per will             | Not Started |
+| 7     | Months 9-18 | Final accounting, court discharge, close estate account               | Not Started |
 
 ---
 
 ### Phase 1 Checklist: What to Do This Week and Next
+
 - [ ] **Locate the original will.** Check your father's home (filing cabinet, fireproof safe, desk drawer), his attorney's office, and any safe deposit box. Note: accessing a safe deposit box after death may require the bank to be present with a court order in some states -- ask your father's bank what their procedure is before forcing access.
 - [ ] **Order 10-15 certified death certificates.** Contact the funeral home -- they can usually order these for you. Each bank, the probate court, the IRS, Social Security, and each insurance company will need its own certified original copy. Running short means delays of weeks.
 - [ ] **Secure the house today.** Make sure it is locked. If keys have been distributed to people who may enter without your knowledge, consider rekeying. Collect the mail to prevent identity theft. Make sure the homeowners insurance policy is still active -- call the insurer to notify them of the death and confirm coverage continues during estate administration. Keep heat/utilities on to prevent property damage.
@@ -476,34 +492,25 @@ The first thing to understand is that not all of these assets go through probate
 ### Questions to Bring to Your Probate Attorney (First Meeting)
 
 **Process and Jurisdiction:**
+
 1. What probate court has jurisdiction, and what documents do I need to file to start probate?
 2. Does this estate qualify for any simplified or small estate procedures in this state?
 3. What is the creditor claims period in this state, and what is required for the publication notice?
 
-**The House:**
-4. During administration, can I enter the house freely, and can family members visit?
-5. If the house needs maintenance or repairs, how do I authorize and pay for that?
-6. Who decides when and whether to sell the house, and what does that process look like?
+**The House:** 4. During administration, can I enter the house freely, and can family members visit? 5. If the house needs maintenance or repairs, how do I authorize and pay for that? 6. Who decides when and whether to sell the house, and what does that process look like?
 
-**The Car Loan:**
-7. What are my options for handling the car loan, and what do you recommend given the loan balance vs. vehicle value?
+**The Car Loan:** 7. What are my options for handling the car loan, and what do you recommend given the loan balance vs. vehicle value?
 
-**IRA and Life Insurance:**
-8. If the IRA or life insurance has a named beneficiary, does that completely bypass probate?
-9. What if the named beneficiary on the IRA is deceased -- what happens then?
+**IRA and Life Insurance:** 8. If the IRA or life insurance has a named beneficiary, does that completely bypass probate? 9. What if the named beneficiary on the IRA is deceased -- what happens then?
 
-**Taxes:**
-10. What tax returns will I need to file, and should I engage a CPA now or after the inventory?
-11. Is this estate large enough that we need to worry about estate taxes at the federal or state level?
+**Taxes:** 10. What tax returns will I need to file, and should I engage a CPA now or after the inventory? 11. Is this estate large enough that we need to worry about estate taxes at the federal or state level?
 
-**Your Role:**
-12. Am I entitled to executor compensation in this state, how is it calculated, and should I take it?
-13. What records do I need to maintain from day one, and for how long should I keep them after the estate closes?
-14. What actions require court approval before I can take them?
+**Your Role:** 12. Am I entitled to executor compensation in this state, how is it calculated, and should I take it? 13. What records do I need to maintain from day one, and for how long should I keep them after the estate closes? 14. What actions require court approval before I can take them?
 
 ---
 
 ### Executor Compensation Note
+
 You are entitled to compensation for your work as executor. In most states, this is either a percentage of the gross estate value (typically 2-5%) or a "reasonable fee" based on time and complexity. Your father's will may specify the amount. As a family member, you may choose to waive compensation -- but understand that (a) you are giving up something you are legally entitled to, (b) executor compensation is a deductible estate expense (waiving it may increase the taxable estate slightly), and (c) waiving compensation is a decision with minor tax implications to discuss with your attorney. There is no obligation to waive it.
 
 ---

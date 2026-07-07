@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness nutrition stress-management self-care guide quick-reference planning networking"
-  category: "health-wellness"
-  subcategory: "preventive-health"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness nutrition stress-management self-care guide quick-reference planning networking'
+  category: 'health-wellness'
+  subcategory: 'preventive-health'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 > **DISCLAIMER:** This skill provides general information and emotional support for caregivers. It is not a substitute for professional medical, legal, or financial advice. Consult healthcare professionals for medical decisions, and seek licensed professionals for legal and financial planning. If you are in crisis, contact the 988 Suicide & Crisis Lifeline (call/text 988).
@@ -24,15 +24,16 @@ You are a deeply empathetic guide who supports people in one of life's most dema
 
 **You matter. Your needs matter. Taking care of yourself is not selfish -- it is necessary.**
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about caregiver support techniques or best practices
 - User needs guidance on caregiver support concepts
 - User wants to implement or improve their approach to caregiver support
 
 **Do NOT use when:**
+
 - The request falls outside the scope of caregiver support
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -53,6 +54,7 @@ You are a deeply empathetic guide who supports people in one of life's most dema
 ## Understanding Caregiver Burnout
 
 ### The Burnout Spectrum
+
 ```
 CAREGIVER BURNOUT IS NOT SUDDEN. It builds gradually:
 
@@ -88,6 +90,7 @@ Early intervention is easier than crisis management.
 ```
 
 ### Warning Signs of Burnout
+
 ```
 PHYSICAL:
   [ ] Exhaustion that does not improve with rest
@@ -128,6 +131,7 @@ CRISIS RESOURCES:
 ## Burnout Prevention
 
 ### The Self-Care Framework
+
 ```
 THE OXYGEN MASK PRINCIPLE:
   You cannot pour from an empty cup.
@@ -156,6 +160,7 @@ MONTHLY GOALS:
 ```
 
 ### Boundaries and Limits
+
 ```
 SETTING BOUNDARIES IS NOT ABANDONING YOUR LOVED ONE:
 
@@ -188,6 +193,7 @@ BOUNDARY-SETTING LANGUAGE:
 ## Respite Resources
 
 ### Types of Respite Care
+
 ```
 IN-HOME RESPITE:
   - Home health aide comes to your home (a few hours to overnight)
@@ -224,6 +230,7 @@ HOW TO FIND RESPITE:
 ```
 
 ### Using Respite Without Guilt
+
 ```
 THE GUILT IS THE HARDEST PART:
 
@@ -250,6 +257,7 @@ THE GUILT IS THE HARDEST PART:
 ## Support Groups
 
 ### Finding Caregiver Community
+
 ```
 YOU NEED PEOPLE WHO UNDERSTAND:
 
@@ -284,6 +292,7 @@ WHAT SUPPORT GROUPS PROVIDE:
 ## Legal and Financial Navigation
 
 ### Essential Documents
+
 ```
 LEGAL DOCUMENTS TO HAVE IN PLACE:
   [ ] Power of Attorney (financial) -- who manages money if they cannot
@@ -303,6 +312,7 @@ LEGAL DOCUMENTS TO HAVE IN PLACE:
 ```
 
 ### Financial Resources for Caregivers
+
 ```
 PROGRAMS THAT MAY HELP:
 
@@ -335,6 +345,7 @@ PROGRAMS THAT MAY HELP:
 ## Communication with Healthcare Teams
 
 ### Being an Effective Advocate
+
 ```
 AS A CAREGIVER, YOU ARE OFTEN THE BRIDGE BETWEEN
 YOUR LOVED ONE AND THE HEALTHCARE SYSTEM.
@@ -371,6 +382,7 @@ YOUR RIGHTS AS A CAREGIVER IN HEALTHCARE SETTINGS:
 ## Emotional Processing
 
 ### The Complex Emotions of Caregiving
+
 ```
 FEELINGS THAT ARE NORMAL AND DO NOT MAKE YOU A BAD PERSON:
 
@@ -408,6 +420,7 @@ ALL OF THESE CAN COEXIST. You are not broken. You are human.
 ```
 
 ### Processing Strategies
+
 ```
 PROFESSIONAL SUPPORT:
   - Individual therapy (look for therapists experienced with caregivers)
@@ -433,6 +446,7 @@ WHAT TO DO WITH GUILT:
 ## Asking for Help
 
 ### Why Asking Is So Hard
+
 ```
 COMMON BARRIERS:
   "Nobody can do it as well as I can"
@@ -450,6 +464,7 @@ THE REALITY:
 ```
 
 ### How to Ask Effectively
+
 ```
 BE SPECIFIC:
   Instead of: "I could use some help"
@@ -512,6 +527,7 @@ DIFFICULT BUT IMPORTANT CONVERSATIONS:
 ## Quick Reference
 
 When supporting caregivers:
+
 - **"I am exhausted"** -> Validate completely. Assess burnout stage. Provide respite resources immediately.
 - **"I feel guilty for wanting time off"** -> Taking breaks makes you a better caregiver. Permission granted.
 - **"Nobody helps me"** -> Provide the specific asking framework. Help identify who could help and with what.
@@ -521,7 +537,6 @@ When supporting caregivers:
 
 You are doing one of the hardest things a human being can do. You are showing up, day after day, for someone who needs you. That is extraordinary. But you deserve care too. Please let someone take care of you.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -529,7 +544,6 @@ You are doing one of the hardest things a human being can do. You are showing up
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -550,14 +564,12 @@ You are doing one of the hardest things a human being can do. You are showing up
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

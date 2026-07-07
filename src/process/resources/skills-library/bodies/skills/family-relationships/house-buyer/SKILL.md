@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "family-events home-buying planning"
-  category: "family-relationships"
-  subcategory: "family-events"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'family-events home-buying planning'
+  category: 'family-relationships'
+  subcategory: 'family-events'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # House Buyer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on house buyer
 - User asks about house buyer best practices or techniques
 - User wants a structured approach to house buyer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of house buyer
 
@@ -109,15 +110,16 @@ EXAMPLE FOR $350,000 HOME (10% DOWN):
 
 ### Credit Score Impact
 
-| Credit Score | Rate Impact | Action |
-|---|---|---|
-| 760+ | Best available rates | Proceed confidently |
-| 700-759 | Slightly higher rates | Good position, minor optimization possible |
-| 660-699 | Noticeably higher rates | Consider 3-6 months of improvement |
-| 620-659 | Significantly higher rates | Spend 6-12 months improving |
-| Below 620 | Conventional difficult; FHA possible | Focus on credit repair first |
+| Credit Score | Rate Impact                          | Action                                     |
+| ------------ | ------------------------------------ | ------------------------------------------ |
+| 760+         | Best available rates                 | Proceed confidently                        |
+| 700-759      | Slightly higher rates                | Good position, minor optimization possible |
+| 660-699      | Noticeably higher rates              | Consider 3-6 months of improvement         |
+| 620-659      | Significantly higher rates           | Spend 6-12 months improving                |
+| Below 620    | Conventional difficult; FHA possible | Focus on credit repair first               |
 
 ### Credit Improvement Quick Wins
+
 1. Pay down credit card balances below 30% utilization (ideally below 10%)
 2. Dispute any errors on credit reports (all three bureaus)
 3. Do NOT open new credit accounts or close old ones
@@ -127,6 +129,7 @@ EXAMPLE FOR $350,000 HOME (10% DOWN):
 ## Mortgage Pre-Approval Process
 
 ### Documents to Gather
+
 ```
 EMPLOYMENT & INCOME:
   [ ] Last 2 years of W-2s
@@ -156,12 +159,14 @@ DEBTS:
 ```
 
 ### Lender Comparison Strategy
+
 - Get quotes from at least 3 lenders: one big bank, one credit union, one mortgage broker
 - All credit pulls within a 14-45 day window count as ONE inquiry
 - Compare: interest rate, APR, closing costs, lender fees, rate lock period
 - Ask about rate lock policies and float-down options
 
 ### Mortgage Types Explained
+
 - **30-Year Fixed**: Lowest monthly payment, highest total interest, most popular
 - **15-Year Fixed**: Higher monthly payment, much less total interest, faster equity
 - **5/1 ARM**: Lower initial rate for 5 years, then adjusts annually (risky if staying long-term)
@@ -172,6 +177,7 @@ DEBTS:
 ## House Hunting Strategy
 
 ### Needs vs. Wants Framework
+
 ```
 NON-NEGOTIABLES (must have):
   [ ] Minimum bedrooms: ___
@@ -197,11 +203,13 @@ DEAL BREAKERS (absolutely not):
 ```
 
 ### Market Analysis
+
 - **Seller's Market**: Low inventory, multiple offers common. Be prepared to act fast, offer strong.
 - **Buyer's Market**: More inventory, longer days on market. Negotiate hard, take your time.
 - **Balanced Market**: Fair negotiations. Standard contingencies usually accepted.
 
 ### Red Flags During Showings
+
 - Fresh paint in isolated areas (covering damage)
 - Strong air fresheners or candles (masking odors)
 - Evidence of water damage (stains on ceilings, warped floors, musty smell)
@@ -213,6 +221,7 @@ DEAL BREAKERS (absolutely not):
 ## Making an Offer
 
 ### Offer Strategy Framework
+
 ```
 COMPETITIVE OFFER COMPONENTS:
   1. Price: Based on comps, market conditions, and your maximum
@@ -232,6 +241,7 @@ OFFER PRICE DECISION:
 ```
 
 ### Negotiation Principles
+
 1. Your agent negotiates for you; communicate your limits clearly to them
 2. Everything is negotiable: price, closing costs, repairs, appliances, closing date
 3. Do not fall in love before you own it; emotional attachment weakens negotiation
@@ -241,6 +251,7 @@ OFFER PRICE DECISION:
 ## Home Inspection
 
 ### What the Inspector Checks
+
 - Structural integrity (foundation, framing, roof)
 - Electrical system (panel, wiring, outlets, GFCI)
 - Plumbing (pipes, water heater, water pressure, sewer line)
@@ -252,6 +263,7 @@ OFFER PRICE DECISION:
 - Appliances (if included in sale)
 
 ### Inspection Response Strategy
+
 ```
 CATEGORY 1 - SAFETY/STRUCTURAL (always request repair or credit):
   - Electrical hazards
@@ -275,6 +287,7 @@ CATEGORY 3 - MAINTENANCE (generally absorb):
 ```
 
 ### Additional Inspections to Consider
+
 - **Sewer/septic scope**: $150-$300 (highly recommended for older homes)
 - **Radon test**: $150-$200 (important in many regions)
 - **Termite/pest inspection**: $75-$150 (often required by lender)
@@ -284,12 +297,14 @@ CATEGORY 3 - MAINTENANCE (generally absorb):
 ## First-Time Buyer Programs
 
 ### Federal Programs
+
 - **FHA Loans**: 3.5% down, 580+ credit score, available through approved lenders
 - **VA Loans**: 0% down, no PMI, for veterans/active duty/surviving spouses
 - **USDA Loans**: 0% down, rural areas, income limits apply
 - **Good Neighbor Next Door (HUD)**: 50% discount for teachers, law enforcement, firefighters, EMTs in revitalization areas
 
 ### State and Local Programs
+
 - Most states offer down payment assistance (DPA) programs
 - Many are forgivable after 5-10 years of residency
 - Income limits usually apply (often up to 120% of area median income)
@@ -297,6 +312,7 @@ CATEGORY 3 - MAINTENANCE (generally absorb):
 - County and city programs may stack with state programs
 
 ### Tax Benefits
+
 - Mortgage interest deduction (if you itemize)
 - Property tax deduction (up to $10,000 SALT limit)
 - First-time buyer IRA withdrawal ($10,000 penalty-free from traditional IRA)
@@ -305,6 +321,7 @@ CATEGORY 3 - MAINTENANCE (generally absorb):
 ## The Closing Process
 
 ### Closing Timeline (Typical 30-45 Days)
+
 ```
 Week 1:  Offer accepted → Earnest money deposited
          Loan application submitted (if not already)
@@ -322,6 +339,7 @@ Week 5:  Final walkthrough (day of or day before closing)
 ```
 
 ### Closing Day Checklist
+
 ```
 BRING TO CLOSING:
   [ ] Government-issued photo ID (both buyers if applicable)
@@ -341,6 +359,7 @@ REVIEW BEFORE SIGNING:
 ## Post-Purchase: First 30 Days
 
 ### Immediate Tasks
+
 ```
 DAY 1:
   [ ] Change locks (or re-key)
@@ -364,6 +383,7 @@ MONTH 1:
 ```
 
 ### Ongoing Homeownership Budget
+
 ```
 MONTHLY SET-ASIDES:
   Maintenance reserve: 1-2% of home value annually (÷ 12)
@@ -395,6 +415,7 @@ ANNUAL TASKS:
 ## Quick Reference Commands
 
 When asked about home buying topics, apply these principles:
+
 - **"Am I ready to buy?"** → Run through the Financial Readiness Assessment
 - **"How much can I afford?"** → Calculate using the Affordability Framework, emphasize conservative estimates
 - **"Should I buy or rent?"** → Compare total costs including opportunity cost of down payment, maintenance, and mobility needs
@@ -403,7 +424,6 @@ When asked about home buying topics, apply these principles:
 - **"What about [specific program]?"** → Research current terms, as programs change frequently
 
 Always remind buyers: this is a marathon, not a sprint. The right home at the right price is worth waiting for.
-
 
 ## Output Format
 
@@ -417,13 +437,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with house buyer for a mid-size project."
 
 **Output:** A complete house buyer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

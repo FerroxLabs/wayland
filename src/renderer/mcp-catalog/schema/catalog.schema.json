@@ -11,7 +11,17 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "name", "shortDescription", "iconUrl", "tier", "categories", "maintainerType", "entryUrl", "guideUrl"],
+        "required": [
+          "id",
+          "name",
+          "shortDescription",
+          "iconUrl",
+          "tier",
+          "categories",
+          "maintainerType",
+          "entryUrl",
+          "guideUrl"
+        ],
         "properties": {
           "id": { "type": "string" },
           "name": { "type": "string" },

@@ -14,19 +14,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "travel research checklist planning"
-  category: "travel-experiences"
-  subcategory: "travel-logistics"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'travel research checklist planning'
+  category: 'travel-experiences'
+  subcategory: 'travel-logistics'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Visa Requirements Checker
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks whether they need a visa for a specific country and provides their passport nationality
 - User wants step-by-step guidance on how to apply for a tourist or short-stay visitor visa
 - User asks what documents are needed for entry into a foreign country for tourism, business meetings, or family visits
@@ -37,6 +39,7 @@ metadata:
 - User asks whether their planned activities (attending a conference, visiting a trade show, scouting business partners) require a business visa or fall under tourist entry rules
 
 **Do NOT use when:**
+
 - User is applying for an immigrant visa, permanent residency, or long-stay visa (more than 90 days as a rule of thumb for most countries) -- these require country-specific immigration guidance beyond this skill
 - User needs a work permit, employment authorization, or sponsored work visa -- application structures, labor market tests, and employer sponsorship requirements are outside this skill's scope
 - User is applying for a student visa or academic exchange program visa (F-1, Tier 4, Type D national visas) -- these involve university enrollment documentation, language proficiency requirements, and financial sponsorship rules that require a dedicated skill
@@ -176,6 +179,7 @@ For every layover lasting more than 0 minutes in an airport where the traveler c
 ### Step 8: Compile and Deliver the Complete Visa Preparation Package
 
 Assemble all findings into the structured output format defined in the Output Format section. Always end with three critical reminders:
+
 1. Visa requirements change frequently -- the information provided reflects current known requirements but must be verified with the official consular authority of the destination country within 4 weeks of departure.
 2. Visa approval is never guaranteed -- a valid visa grants permission to seek entry, not guaranteed entry. Border officers retain discretionary authority.
 3. This is a preparation guide, not legal advice. For complex cases (prior denials, dual nationality complications, unusual trip purposes), recommend consulting a licensed immigration attorney or accredited visa specialist.
@@ -337,21 +341,27 @@ passport offices.**
 ## Edge Cases
 
 ### Dual Citizenship and Multiple Passports
+
 When the user holds two or more passports, the analysis must compare the entry conditions for each passport and recommend the one that provides the easiest entry -- or note if one passport actually creates complications at the destination. Specific considerations:
+
 - Some countries (notably Israel, Iran, Cuba, and a handful of others) create secondary screening complications due to entry stamps or prior visas visible in a second passport. If the user holds a passport with stamps from a country that is politically sensitive at the destination, advise them to use the other passport for this trip if visa conditions allow.
 - Countries like the United Arab Emirates, Saudi Arabia, Kuwait, Libya, and some others maintain entry restrictions for passports bearing Israeli entry stamps.
 - Some countries require entry on the passport that matches the citizenship of the traveler's nationality -- for example, many countries with reciprocal visa agreements require entry on the nationality passport rather than a second passport held through naturalization.
 - If the user holds a refugee travel document or stateless person travel document (not a conventional passport), standard visa-free agreements typically do not apply -- each country must be researched individually.
 
 ### Multi-Destination Trip (Multiple Countries in Sequence)
+
 Create a separate visa section for each country in travel order. Then:
+
 - Build a unified document checklist that flags which documents are shared across applications vs. destination-specific.
 - Identify the critical path: the application with the longest processing time determines the overall planning timeline. If Country A requires a consulate visa with 6-week processing and Country B allows a 3-day e-visa, the timeline must be built around Country A.
 - Check for cumulative stay limits: the Schengen Area's 90-in-180-day rule applies across all 27 Schengen member states combined, not per country. A traveler spending 30 days in France and 30 days in Germany in the same 180-day window has used 60 of their 90 permitted days.
 - Some countries check for proof of visa to the next destination on entry -- particularly when exiting overland to a country known for strict entry requirements.
 
 ### Last-Minute Travel (Departure Within 4 Weeks)
+
 This scenario requires an immediate triage approach:
+
 - First, identify whether a consulate visa with standard 4-8 week processing is required. If so, present this as a serious risk factor that may make the trip impossible without expedited or emergency processing.
 - Expedited processing options: many consulates offer paid expedited processing that reduces timelines to 5-10 business days. Emergency same-day or 72-hour processing exists at some consulates but is typically limited to genuine emergencies (medical, funeral, government business) rather than leisure travel.
 - For e-visas and visas on arrival, last-minute travel is generally feasible -- 3-5 business day e-visa processing still fits a 4-week window with margin.
@@ -359,7 +369,9 @@ This scenario requires an immediate triage approach:
 - If the trip is not feasible without a visa that cannot be obtained in time, say so clearly rather than providing false hope.
 
 ### Prior Visa Denial or Immigration Violation
+
 Handle this case with particular care:
+
 - Most visa applications include a question asking whether the applicant has ever been denied a visa, entry, or had an immigration violation (overstay, deportation, removal). These questions must be answered truthfully -- providing false information typically results in permanent inadmissibility.
 - Visa denials are shared between the U.S., Canada, UK, Australia, and New Zealand (Five Eyes immigration cooperation) and increasingly between EU member states. A denial at one consulate may influence decisions at others.
 - A prior denial does not automatically mean the next application will be denied, particularly if the reason for the original denial has been resolved (e.g., insufficient financial proof that has since improved).
@@ -367,19 +379,25 @@ Handle this case with particular care:
 - If the prior violation was a deportation or removal order, entry may be permanently barred or require a formal waiver application -- far beyond the scope of this skill. Redirect clearly to an immigration attorney.
 
 ### Countries with Frequently Changing or Inconsistently Applied Visa Policies
+
 Some destinations have visa policies that change frequently due to diplomatic shifts, reciprocity measures, or political conditions. Additionally, some countries' policies are technically clear on paper but inconsistently applied at ports of entry. Handle this by:
+
 - Dating all information explicitly in the output ("information current as of [date]") and recommending verification within 2 weeks of travel.
 - Identifying the most reliable official verification channel: the destination country's immigration ministry or foreign affairs ministry website, or the traveler's own government's travel advisory page (which typically includes entry requirement summaries).
 - Noting if the destination has a known history of on-the-ground inconsistency: some countries have formal visa-free access but immigration officers at smaller border posts may not be familiar with the rules, causing unnecessary complications for overland travelers.
 
 ### Cruise or Organized Tour Entry (Not Standard Airport Arrival)
+
 Cruise passengers and organized tour groups often have different entry rules than independent travelers:
+
 - Many countries have specific "cruise visitor" categories that permit passport holders to go ashore for the day without a visa, even if a standard tourist visa would be required for air arrivals. This is common in Cuba, several Caribbean nations, and some island destinations.
 - Organized tour groups sometimes enter under a group visa issued to the tour operator rather than individual visas. The individual traveler in this case does not hold a personal visa -- the group leader does, and separation from the group may void the entry authorization.
 - Overland travelers entering by land border may face different rules than air arrivals, including different maximum stay durations, different document checks, and (in some cases) restricted crossings that are only available to residents of border regions.
 
 ### Traveler with Medical Conditions Requiring Medication or Medical Equipment
+
 While not a visa issue per se, this frequently arises alongside visa preparation and should be noted:
+
 - Controlled substances (certain painkillers, psychiatric medications, ADHD medications) are illegal to import in some countries even with a valid prescription. Some countries (Japan is a well-known example) prohibit common over-the-counter medications in the U.S. and Europe.
 - Medical equipment (syringes, insulin pens, CPAP machines) may require a doctor's letter for border clearance.
 - This is a customs and entry requirement that belongs in the "Additional Entry Requirements" section, not the visa section, but should be flagged when relevant.
@@ -403,14 +421,14 @@ While not a visa issue per se, this frequently arises alongside visa preparation
 
 ### Visa Type Determination
 
-| Field | Detail |
-|-------|--------|
-| **Visa category** | E-visa (India e-Tourist Visa -- eTV) |
-| **Maximum stay** | 90 days per visit (180 days total per calendar year across all e-Tourist Visa entries) |
-| **Entry type** | Double entry available under 90-day eTV; single entry under 30-day eTV |
-| **Visa fee** | Approximately $25 USD (fees subject to change; payable by credit/debit card on the official India e-visa portal) |
-| **Processing time** | 3-5 business days (standard); apply at least 4 days and no more than 120 days before arrival |
-| **Application method** | Online via the Indian government's official e-Visa portal (indianvisaonline.gov.in) |
+| Field                     | Detail                                                                                                                                                                                                                                                                           |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Visa category**         | E-visa (India e-Tourist Visa -- eTV)                                                                                                                                                                                                                                             |
+| **Maximum stay**          | 90 days per visit (180 days total per calendar year across all e-Tourist Visa entries)                                                                                                                                                                                           |
+| **Entry type**            | Double entry available under 90-day eTV; single entry under 30-day eTV                                                                                                                                                                                                           |
+| **Visa fee**              | Approximately $25 USD (fees subject to change; payable by credit/debit card on the official India e-visa portal)                                                                                                                                                                 |
+| **Processing time**       | 3-5 business days (standard); apply at least 4 days and no more than 120 days before arrival                                                                                                                                                                                     |
+| **Application method**    | Online via the Indian government's official e-Visa portal (indianvisaonline.gov.in)                                                                                                                                                                                              |
 | **Permitted entry ports** | Designated e-visa ports only -- all major international airports including Delhi (DEL), Mumbai (BOM), Bangalore (BLR), Chennai (MAA), Kolkata (CCU), Hyderabad (HYD), and Kochi (COK) are designated. Verify your specific entry airport is on the current list before applying. |
 
 > **Disclaimer:** India's visa regulations and fee structures change without notice. All details must be verified with the Indian High Commission in the UK or the official Indian e-Visa portal before submitting your application. This checklist is a research preparation guide only and does not constitute legal advice or guarantee visa approval or entry.
@@ -419,55 +437,55 @@ While not a visa issue per se, this frequently arises alongside visa preparation
 
 ### Passport Validity Check
 
-| Requirement | Required Value | Action |
-|-------------|----------------|--------|
+| Requirement               | Required Value                                                     | Action                                                                                   |
+| ------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | Minimum validity at entry | Valid until at least July 10 (6 months beyond April 10 entry date) | Verify your passport expiry date. If it expires before July 10, renew before proceeding. |
-| Blank pages required | Minimum 2 blank pages for entry stamps | Check your remaining blank visa/entry pages |
-| Physical condition | No damage, water stains, torn pages, or delaminated cover | Inspect passport -- damaged passports are routinely refused at Indian immigration |
+| Blank pages required      | Minimum 2 blank pages for entry stamps                             | Check your remaining blank visa/entry pages                                              |
+| Physical condition        | No damage, water stains, torn pages, or delaminated cover          | Inspect passport -- damaged passports are routinely refused at Indian immigration        |
 
 ---
 
 ### Document Checklist
 
-| # | Document | Required | Specification | Status |
-|---|----------|----------|---------------|--------|
-| 1 | Passport (original) | Yes | Valid until at least October 10 (6 months beyond last day of stay, April 30), minimum 2 blank pages, physically undamaged | [ ] |
-| 2 | Digital passport photo | Yes | 10 x 10 cm square crop, white background only (not off-white or cream), no glasses, face 80% of frame, taken within 6 months, JPEG format, file size between 10 KB and 1 MB | [ ] |
-| 3 | Scanned bio-data page of passport | Yes | JPEG or PDF, file size between 10 KB and 1 MB, all text clearly legible | [ ] |
-| 4 | E-visa application form | Yes | Completed entirely online at official India e-Visa portal; do not use third-party sites (they charge extra service fees on top of the official fee without providing faster service) | [ ] |
-| 5 | Proof of accommodation -- full trip | Yes | Hotel booking confirmations covering all 21 nights, showing property name and address in India, traveler's name, and stay dates. For stays with contacts, a host invitation letter is required. | [ ] |
-| 6 | Return or onward flight | Yes | Confirmed booking in your name showing departure from India on or before May 1 (within 21-day stay window) | [ ] |
-| 7 | Financial proof | Recommended (not mandatory for e-visa submission but may be requested at border) | Bank statements for the last 3 months showing consistent balance; unofficial threshold is GBP 50-100 equivalent per day of stay (approximately GBP 1,050-2,100 for 21 days). Carry these to the airport even if not formally submitted with the e-visa. | [ ] |
-| 8 | Travel insurance | Strongly recommended | Covers April 10 to May 1, minimum USD 50,000 medical coverage recommended (not mandated but advisable for India given healthcare costs for visitors), includes medical evacuation/repatriation | [ ] |
-| 9 | Yellow fever vaccination certificate | Conditional | Required only if you have been in a yellow fever-endemic country in the 6 days before arrival in India. Not required for direct travel from the UK. | [ ] |
+| #   | Document                             | Required                                                                         | Specification                                                                                                                                                                                                                                           | Status |
+| --- | ------------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| 1   | Passport (original)                  | Yes                                                                              | Valid until at least October 10 (6 months beyond last day of stay, April 30), minimum 2 blank pages, physically undamaged                                                                                                                               | [ ]    |
+| 2   | Digital passport photo               | Yes                                                                              | 10 x 10 cm square crop, white background only (not off-white or cream), no glasses, face 80% of frame, taken within 6 months, JPEG format, file size between 10 KB and 1 MB                                                                             | [ ]    |
+| 3   | Scanned bio-data page of passport    | Yes                                                                              | JPEG or PDF, file size between 10 KB and 1 MB, all text clearly legible                                                                                                                                                                                 | [ ]    |
+| 4   | E-visa application form              | Yes                                                                              | Completed entirely online at official India e-Visa portal; do not use third-party sites (they charge extra service fees on top of the official fee without providing faster service)                                                                    | [ ]    |
+| 5   | Proof of accommodation -- full trip  | Yes                                                                              | Hotel booking confirmations covering all 21 nights, showing property name and address in India, traveler's name, and stay dates. For stays with contacts, a host invitation letter is required.                                                         | [ ]    |
+| 6   | Return or onward flight              | Yes                                                                              | Confirmed booking in your name showing departure from India on or before May 1 (within 21-day stay window)                                                                                                                                              | [ ]    |
+| 7   | Financial proof                      | Recommended (not mandatory for e-visa submission but may be requested at border) | Bank statements for the last 3 months showing consistent balance; unofficial threshold is GBP 50-100 equivalent per day of stay (approximately GBP 1,050-2,100 for 21 days). Carry these to the airport even if not formally submitted with the e-visa. | [ ]    |
+| 8   | Travel insurance                     | Strongly recommended                                                             | Covers April 10 to May 1, minimum USD 50,000 medical coverage recommended (not mandated but advisable for India given healthcare costs for visitors), includes medical evacuation/repatriation                                                          | [ ]    |
+| 9   | Yellow fever vaccination certificate | Conditional                                                                      | Required only if you have been in a yellow fever-endemic country in the 6 days before arrival in India. Not required for direct travel from the UK.                                                                                                     | [ ]    |
 
 ---
 
 ### Preparation Timeline
 
-| Deadline | Weeks Before Departure | Action | Status |
-|----------|------------------------|--------|--------|
-| January 12 | 13 weeks | Verify passport validity -- must be valid past October 10. Count blank pages. If renewal needed, initiate immediately: UK standard renewal is approximately 10 weeks. | [ ] |
-| February 2 | 9 weeks | Confirm accommodation bookings and return flight. These are required for the e-visa application. | [ ] |
-| February 16 | 8 weeks | Take and prepare digital passport photo: 10x10 cm square, white background, no glasses, JPEG under 1 MB. Scan bio-data page of passport. | [ ] |
-| March 1 | 6 weeks | Submit e-visa application on official India e-Visa portal. Pay the $25 fee by credit card. Note: the portal can have technical issues -- attempt during off-peak hours. Save the application reference number immediately. | [ ] |
-| March 6 | Approx. 5 days after submission | Expected e-visa approval email arrives. Check spam folder. Open and verify: name matches passport exactly (including middle names), passport number is correct, visa validity dates bracket your stay, entry count (double entry selected), and designated airport of arrival is listed. | [ ] |
-| March 10 | 4 weeks | Print e-visa approval notice -- 2 printed copies. Indian immigration requires a printed copy; a phone screen is not reliably accepted at all Indian airports. | [ ] |
-| March 27 | 2 weeks | Re-verify that your arrival airport is still on the designated e-visa ports list. Check UK government India travel advisory for any updated entry requirements. | [ ] |
-| April 3 | 1 week | Print all documents: e-visa (2 copies), hotel confirmations, return flight, travel insurance certificate. Email scanned copies to yourself. Download offline copies to your phone. | [ ] |
-| April 10 | Travel day | Carry-on: original passport, printed e-visa, return flight booking, hotel confirmations, insurance card, and approximate GBP cash or card for any incidentals. Checked luggage: 1 copy of all documents. At check-in desk, airline will verify your e-visa before boarding. | [ ] |
+| Deadline    | Weeks Before Departure          | Action                                                                                                                                                                                                                                                                                   | Status |
+| ----------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| January 12  | 13 weeks                        | Verify passport validity -- must be valid past October 10. Count blank pages. If renewal needed, initiate immediately: UK standard renewal is approximately 10 weeks.                                                                                                                    | [ ]    |
+| February 2  | 9 weeks                         | Confirm accommodation bookings and return flight. These are required for the e-visa application.                                                                                                                                                                                         | [ ]    |
+| February 16 | 8 weeks                         | Take and prepare digital passport photo: 10x10 cm square, white background, no glasses, JPEG under 1 MB. Scan bio-data page of passport.                                                                                                                                                 | [ ]    |
+| March 1     | 6 weeks                         | Submit e-visa application on official India e-Visa portal. Pay the $25 fee by credit card. Note: the portal can have technical issues -- attempt during off-peak hours. Save the application reference number immediately.                                                               | [ ]    |
+| March 6     | Approx. 5 days after submission | Expected e-visa approval email arrives. Check spam folder. Open and verify: name matches passport exactly (including middle names), passport number is correct, visa validity dates bracket your stay, entry count (double entry selected), and designated airport of arrival is listed. | [ ]    |
+| March 10    | 4 weeks                         | Print e-visa approval notice -- 2 printed copies. Indian immigration requires a printed copy; a phone screen is not reliably accepted at all Indian airports.                                                                                                                            | [ ]    |
+| March 27    | 2 weeks                         | Re-verify that your arrival airport is still on the designated e-visa ports list. Check UK government India travel advisory for any updated entry requirements.                                                                                                                          | [ ]    |
+| April 3     | 1 week                          | Print all documents: e-visa (2 copies), hotel confirmations, return flight, travel insurance certificate. Email scanned copies to yourself. Download offline copies to your phone.                                                                                                       | [ ]    |
+| April 10    | Travel day                      | Carry-on: original passport, printed e-visa, return flight booking, hotel confirmations, insurance card, and approximate GBP cash or card for any incidentals. Checked luggage: 1 copy of all documents. At check-in desk, airline will verify your e-visa before boarding.              | [ ]    |
 
 ---
 
 ### Fee Summary
 
-| Fee | Amount | Currency | Payment Method | Notes |
-|-----|--------|----------|----------------|-------|
-| India e-Tourist Visa fee | ~$25 | USD | Credit/debit card (online) | Fee set by Indian government, payable on official portal only |
-| Third-party service fee | $0 | -- | N/A | Apply on the official portal only; third-party sites charge $30-80 extra for no added value |
-| Digital passport photo preparation | GBP 5-15 | GBP | Photo shop or self-prepared | If self-prepared, use a photo editing tool to achieve the exact 10x10 cm square crop on white background |
-| Travel insurance | GBP 30-80 | GBP | Credit card | Estimate for 21-day trip for UK resident; varies by provider, age, and coverage level |
-| **Total estimated visa-related costs** | **~GBP 40-95** | | | |
+| Fee                                    | Amount         | Currency | Payment Method              | Notes                                                                                                    |
+| -------------------------------------- | -------------- | -------- | --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| India e-Tourist Visa fee               | ~$25           | USD      | Credit/debit card (online)  | Fee set by Indian government, payable on official portal only                                            |
+| Third-party service fee                | $0             | --       | N/A                         | Apply on the official portal only; third-party sites charge $30-80 extra for no added value              |
+| Digital passport photo preparation     | GBP 5-15       | GBP      | Photo shop or self-prepared | If self-prepared, use a photo editing tool to achieve the exact 10x10 cm square crop on white background |
+| Travel insurance                       | GBP 30-80      | GBP      | Credit card                 | Estimate for 21-day trip for UK resident; varies by provider, age, and coverage level                    |
+| **Total estimated visa-related costs** | **~GBP 40-95** |          |                             |                                                                                                          |
 
 ---
 
@@ -487,18 +505,18 @@ While not a visa issue per se, this frequently arises alongside visa preparation
 
 ### Transit Visa Requirements
 
-| Layover Country | Airport | Layover Duration | Transit Visa Required | Exemption Conditions | Action Required |
-|-----------------|---------|------------------|-----------------------|----------------------|-----------------|
-| United Arab Emirates (Dubai) | Dubai International (DXB) | Approximately 4 hours | No | UK passport holders receive visa-free access to the UAE for up to 90 days per visit. Airside transit is always permitted without any visa. Landside transit (exiting to the terminal's public areas and shops, which are landside at DXB) also requires no visa for UK passport holders. | None required. No transit visa, no application needed. If your layover extends unexpectedly beyond 24 hours, you may exit the airport freely on your UK passport. |
+| Layover Country              | Airport                   | Layover Duration      | Transit Visa Required | Exemption Conditions                                                                                                                                                                                                                                                                     | Action Required                                                                                                                                                   |
+| ---------------------------- | ------------------------- | --------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| United Arab Emirates (Dubai) | Dubai International (DXB) | Approximately 4 hours | No                    | UK passport holders receive visa-free access to the UAE for up to 90 days per visit. Airside transit is always permitted without any visa. Landside transit (exiting to the terminal's public areas and shops, which are landside at DXB) also requires no visa for UK passport holders. | None required. No transit visa, no application needed. If your layover extends unexpectedly beyond 24 hours, you may exit the airport freely on your UK passport. |
 
 ---
 
 ### Additional Entry Requirements at Destination (India)
 
-| Requirement | Details |
-|-------------|---------|
-| Arrival registration card | Completed on the aircraft before landing; airline will distribute the form. Keep the departure stub -- immigration may ask for it when you leave. |
-| Customs declaration | Declare foreign currency in excess of USD 10,000 equivalent. Declare dutiable goods above the personal exemption threshold. |
-| Health entry requirements | No mandatory vaccinations for direct arrival from the UK. Yellow fever certificate required if arriving within 6 days of being in an endemic country. Hepatitis A, Typhoid, and Tetanus vaccinations are strongly recommended by UK travel health services but are not border requirements. |
-| Registration after arrival | Foreigners staying more than 180 days must register with the Foreigners Regional Registration Office (FRRO). For a 21-day tourist stay, no registration is required. |
-| Currency rules | No restriction on foreign currency you can carry in, but amounts over USD 10,000 equivalent must be declared. Indian rupees may not be exported in amounts exceeding INR 25,000. |
+| Requirement                | Details                                                                                                                                                                                                                                                                                     |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arrival registration card  | Completed on the aircraft before landing; airline will distribute the form. Keep the departure stub -- immigration may ask for it when you leave.                                                                                                                                           |
+| Customs declaration        | Declare foreign currency in excess of USD 10,000 equivalent. Declare dutiable goods above the personal exemption threshold.                                                                                                                                                                 |
+| Health entry requirements  | No mandatory vaccinations for direct arrival from the UK. Yellow fever certificate required if arriving within 6 days of being in an endemic country. Hepatitis A, Typhoid, and Tetanus vaccinations are strongly recommended by UK travel health services but are not border requirements. |
+| Registration after arrival | Foreigners staying more than 180 days must register with the Foreigners Regional Registration Office (FRRO). For a 21-day tourist stay, no registration is required.                                                                                                                        |
+| Currency rules             | No restriction on foreign currency you can carry in, but amounts over USD 10,000 equivalent must be declared. Indian rupees may not be exported in amounts exceeding INR 25,000.                                                                                                            |

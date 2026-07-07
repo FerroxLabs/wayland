@@ -174,9 +174,10 @@ export class ImessagePlugin extends BasePlugin {
 
     const creds = config.credentials ?? {};
 
-    const rawIntervalMs = typeof creds.pollIntervalMs === 'number' && creds.pollIntervalMs > 0
-      ? creds.pollIntervalMs
-      : DEFAULT_POLL_INTERVAL_MS;
+    const rawIntervalMs =
+      typeof creds.pollIntervalMs === 'number' && creds.pollIntervalMs > 0
+        ? creds.pollIntervalMs
+        : DEFAULT_POLL_INTERVAL_MS;
     // Clamp to [500ms, 60s] so a misconfigured 1ms cannot DOS the main process,
     // and an unreasonably high value cannot stall delivery for >1min.
     this.pollIntervalMs = Math.min(MAX_POLL_INTERVAL_MS, Math.max(MIN_POLL_INTERVAL_MS, rawIntervalMs));
@@ -198,15 +199,18 @@ export class ImessagePlugin extends BasePlugin {
       this.stmt = this.db.prepare(SQL_NEW_MESSAGES);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      const hint = msg.includes('EACCES') || msg.includes('permission')
-        ? ' - grant Full Disk Access to this app in System Settings → Privacy & Security'
-        : '';
+      const hint =
+        msg.includes('EACCES') || msg.includes('permission')
+          ? ' - grant Full Disk Access to this app in System Settings → Privacy & Security'
+          : '';
       throw new Error(`iMessage: cannot open chat.db: ${msg}${hint}`, { cause: err });
     }
 
     // Seed the cursor to the current max rowid so we only deliver NEW messages.
     try {
-      const seed = this.db.prepare('SELECT MAX(rowid) AS maxid FROM message').get() as { maxid: number | null } | undefined;
+      const seed = this.db.prepare('SELECT MAX(rowid) AS maxid FROM message').get() as
+        | { maxid: number | null }
+        | undefined;
       this.lastRowId = seed?.maxid ?? 0;
     } catch {
       this.lastRowId = 0;
@@ -242,8 +246,7 @@ export class ImessagePlugin extends BasePlugin {
     // Messages.app would otherwise pile up 15s timeouts indefinitely.
     if (this.sendQueueDepth >= SEND_QUEUE_MAX) {
       throw new Error(
-        `iMessage: send queue full (${SEND_QUEUE_MAX} in flight). Messages.app may be hung; ` +
-          `back off and retry.`,
+        `iMessage: send queue full (${SEND_QUEUE_MAX} in flight). Messages.app may be hung; ` + `back off and retry.`
       );
     }
 
@@ -281,16 +284,14 @@ export class ImessagePlugin extends BasePlugin {
     if (result.exitCode !== 0) {
       if (isAutomationDeniedStderr(result.stderr)) {
         throw new Error(
-          'iMessage Automation access denied. Grant in System Settings → Privacy & Security → Automation → <app name> → Messages.',
+          'iMessage Automation access denied. Grant in System Settings → Privacy & Security → Automation → <app name> → Messages.'
         );
       }
       // F10: brand-new group chats raise AppleScript -1728 ("Can't get chat
       // id...") because Messages.app caches its chat list; surfacing the raw
       // stderr leaves the user with no idea this is a "wake the chat" issue.
       if (isMissingChatStderr(result.stderr)) {
-        throw new Error(
-          'iMessage: target chat not found. Open it once in Messages.app to refresh, then retry.',
-        );
+        throw new Error('iMessage: target chat not found. Open it once in Messages.app to refresh, then retry.');
       }
       throw new Error(`iMessage: osascript send failed (exit ${result.exitCode}): ${result.stderr}`);
     }
@@ -302,7 +303,7 @@ export class ImessagePlugin extends BasePlugin {
     if (delivery && delivery.error !== 0) {
       throw new Error(
         `iMessage: send not delivered (chat.db error=${delivery.error}). Recipient may not have ` +
-          `iMessage, or Apple rejected the send.`,
+          `iMessage, or Apple rejected the send.`
       );
     }
 
@@ -326,9 +327,9 @@ export class ImessagePlugin extends BasePlugin {
     if (!this.db) return null;
     try {
       if (/^chat[0-9a-f]+$/i.test(chatId)) {
-        const row = this.db
-          .prepare('SELECT service_name FROM chat WHERE guid = ? LIMIT 1')
-          .get(chatId) as { service_name: string | null } | undefined;
+        const row = this.db.prepare('SELECT service_name FROM chat WHERE guid = ? LIMIT 1').get(chatId) as
+          | { service_name: string | null }
+          | undefined;
         return row?.service_name ?? null;
       }
       const row = this.db
@@ -339,7 +340,7 @@ export class ImessagePlugin extends BasePlugin {
            JOIN handle h ON h.rowid = chj.handle_id
            WHERE h.id = ?
            ORDER BY c.rowid DESC
-           LIMIT 1`,
+           LIMIT 1`
         )
         .get(chatId) as { service_name: string | null } | undefined;
       return row?.service_name ?? null;
@@ -353,7 +354,7 @@ export class ImessagePlugin extends BasePlugin {
    * Returns when is_delivered=1 OR error!=0, or null after the cycle budget.
    */
   private async pollDeliveryStatus(
-    sinceDateNs: number,
+    sinceDateNs: number
   ): Promise<{ rowid: number; is_delivered: number; error: number; date_delivered: number } | null> {
     if (!this.db) return null;
     let stmt: Database.Statement;
@@ -396,7 +397,9 @@ export class ImessagePlugin extends BasePlugin {
   async reactToMessage(chatId: string, msgId: string, reaction: string): Promise<void> {
     const code = TAPBACK_CODES[reaction.toLowerCase()];
     if (code == null) {
-      throw new Error(`iMessage: unknown tapback reaction '${reaction}'. Valid: ${Object.keys(TAPBACK_CODES).join(', ')}`);
+      throw new Error(
+        `iMessage: unknown tapback reaction '${reaction}'. Valid: ${Object.keys(TAPBACK_CODES).join(', ')}`
+      );
     }
 
     // Resolve the original message body from chat.db so we can target a
@@ -406,19 +409,23 @@ export class ImessagePlugin extends BasePlugin {
     }
     const rowidNum = Number(msgId);
     if (!Number.isFinite(rowidNum) || rowidNum <= 0) {
-      throw new Error(`iMessage tapback: could not find original message with id ${msgId}; tapback aborted to avoid wrong-target race`);
+      throw new Error(
+        `iMessage tapback: could not find original message with id ${msgId}; tapback aborted to avoid wrong-target race`
+      );
     }
     let body: string | null = null;
     try {
-      const lookup = this.db
-        .prepare('SELECT text FROM message WHERE rowid = ?')
-        .get(rowidNum) as { text: string | null } | undefined;
+      const lookup = this.db.prepare('SELECT text FROM message WHERE rowid = ?').get(rowidNum) as
+        | { text: string | null }
+        | undefined;
       body = lookup?.text?.trim() ?? null;
     } catch {
       body = null;
     }
     if (!body) {
-      throw new Error(`iMessage tapback: could not find original message with id ${msgId}; tapback aborted to avoid wrong-target race`);
+      throw new Error(
+        `iMessage tapback: could not find original message with id ${msgId}; tapback aborted to avoid wrong-target race`
+      );
     }
 
     const script = buildTapbackScript(chatId, code, body);
@@ -427,14 +434,12 @@ export class ImessagePlugin extends BasePlugin {
     if (result.exitCode !== 0) {
       if (isAutomationDeniedStderr(result.stderr)) {
         throw new Error(
-          'iMessage Automation access denied. Grant in System Settings → Privacy & Security → Automation → <app name> → Messages.',
+          'iMessage Automation access denied. Grant in System Settings → Privacy & Security → Automation → <app name> → Messages.'
         );
       }
       // F10: same brand-new-chat cache miss as sendMessage.
       if (isMissingChatStderr(result.stderr)) {
-        throw new Error(
-          'iMessage: target chat not found. Open it once in Messages.app to refresh, then retry.',
-        );
+        throw new Error('iMessage: target chat not found. Open it once in Messages.app to refresh, then retry.');
       }
       throw new Error(`iMessage: tapback failed (exit ${result.exitCode}): ${result.stderr}`);
     }
@@ -498,7 +503,7 @@ export class ImessagePlugin extends BasePlugin {
   // ── static testConnection ─────────────────────────────────────────────────
 
   static override async testConnection(
-    tokenJson: string,
+    tokenJson: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string }> {
     // 1. Platform check - fail fast on non-darwin.
     if (process.platform !== 'darwin') {
@@ -553,11 +558,9 @@ export class ImessagePlugin extends BasePlugin {
     //    Test & Enable. We swallow non-TCC errors (e.g. Messages.app not
     //    running yet) so they don't block setup - only an explicit Automation
     //    denial fails the test.
-    const tccProbe = await execFileNoThrow(
-      'osascript',
-      ['-e', 'tell application "Messages" to return name'],
-      { timeoutMs: 5_000 },
-    );
+    const tccProbe = await execFileNoThrow('osascript', ['-e', 'tell application "Messages" to return name'], {
+      timeoutMs: 5_000,
+    });
     if (tccProbe.exitCode !== 0 && isAutomationDeniedStderr(tccProbe.stderr)) {
       return {
         success: false,
@@ -669,9 +672,7 @@ function buildTapbackScript(chatId: string, actionCode: number, bodyText: string
 function isAutomationDeniedStderr(stderr: string | undefined): boolean {
   if (!stderr) return false;
   return (
-    stderr.includes('not allowed to send Apple events') ||
-    stderr.includes('-1743') ||
-    stderr.includes('AppleScript')
+    stderr.includes('not allowed to send Apple events') || stderr.includes('-1743') || stderr.includes('AppleScript')
   );
 }
 

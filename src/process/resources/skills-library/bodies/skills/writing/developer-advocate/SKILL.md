@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "writing content-marketing guide"
-  category: "writing"
-  subcategory: "technical-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'writing content-marketing guide'
+  category: 'writing'
+  subcategory: 'technical-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Developer Advocate
@@ -44,27 +44,32 @@ FEEDBACK LOOP:
 ## DevRel Program Plan
 
 ### Audience
+
 **Primary**: [e.g., Backend developers building SaaS products]
 **Secondary**: [e.g., Platform engineers at mid-market companies]
 **Persona needs**:
-  - [What problem are they trying to solve?]
-  - [What tools do they currently use?]
-  - [Where do they spend time online?]
-  - [What conferences do they attend?]
+
+- [What problem are they trying to solve?]
+- [What tools do they currently use?]
+- [Where do they spend time online?]
+- [What conferences do they attend?]
 
 ### Content Strategy (Awareness)
+
 - **Blog**: 2 technical posts/month (tutorials, deep dives, case studies)
 - **Video**: 1 video/month (demos, explainers, live streams)
 - **Social**: Daily engagement on Twitter/X, weekly on Reddit/HN
 - **Talks**: 1 conference talk/quarter, 2 meetup talks/quarter
 
 ### Developer Experience (Activation)
+
 - **Quickstart**: 5-minute getting started guide
 - **Documentation**: API reference, tutorials, guides, examples
 - **SDKs**: Idiomatic libraries for top 3 languages
 - **Sandbox**: Free tier or playground for experimentation
 
 ### Community (Advocacy)
+
 - **Discord/Slack**: Community space with active moderation
 - **Champions program**: Recognize and reward top contributors
 - **Feedback loops**: Regular surveys, feature request voting
@@ -111,12 +116,15 @@ RETENTION (Post-Adoption):
 ## Blog Post: [Title]
 
 ### Target reader
+
 [Who is this for? What do they already know?]
 
 ### Goal
+
 [What should the reader be able to DO after reading this?]
 
 ### Outline
+
 1. **Hook** (1-2 paragraphs)
    Start with a relatable problem or surprising fact.
    NOT: "Today we are excited to announce..."
@@ -138,6 +146,7 @@ RETENTION (Post-Adoption):
    Where to go from here. Link to docs, related posts, community.
 
 ### Writing rules
+
 - Every code example must work if copy-pasted
 - Explain jargon the first time you use it
 - Use "you" and "we", not "the user" or "one"
@@ -235,6 +244,7 @@ HEALTH RATIOS:
 ## Champions Program Design
 
 ### What Champions Get
+
 - Early access to new features and betas
 - Direct line to product team (private channel)
 - Free conference tickets or travel sponsorship
@@ -243,6 +253,7 @@ HEALTH RATIOS:
 - Speaking opportunity at company events
 
 ### What Champions Do
+
 - Answer community questions (3-5 per week)
 - Create content (1 blog post or video per month)
 - Provide product feedback and beta testing
@@ -250,6 +261,7 @@ HEALTH RATIOS:
 - Mentor new community members
 
 ### Selection Criteria
+
 - Active in community for 3+ months
 - Demonstrated technical depth
 - Helpful and respectful communication style
@@ -257,6 +269,7 @@ HEALTH RATIOS:
 - Not required: big following or influencer status
 
 ### Program Structure
+
 - Cohort of 10-20 champions (rotate annually)
 - Monthly virtual meetup with product team
 - Quarterly in-person event (if budget allows)
@@ -272,12 +285,14 @@ HEALTH RATIOS:
 ## Developer Experience Audit
 
 ### First Contact (0-5 minutes)
+
 [ ] Can a developer understand what the product does in 30 seconds?
 [ ] Is the value proposition clear on the homepage?
 [ ] Is the pricing/free tier immediately visible?
 [ ] Can they sign up without a credit card?
 
 ### Getting Started (5-30 minutes)
+
 [ ] Is there a quickstart guide on the first page after signup?
 [ ] Can they get a "Hello World" working in under 5 minutes?
 [ ] Are code examples copy-pasteable and correct?
@@ -285,6 +300,7 @@ HEALTH RATIOS:
 [ ] Do error messages point to solutions?
 
 ### Building (30 min - 1 day)
+
 [ ] Is the API reference complete and accurate?
 [ ] Are there tutorials for common use cases?
 [ ] Is there a working example app they can fork?
@@ -292,6 +308,7 @@ HEALTH RATIOS:
 [ ] Is the SDK idiomatic for their language?
 
 ### Going to Production (1 day - 1 week)
+
 [ ] Is there a migration/upgrade guide?
 [ ] Are there best practices for production use?
 [ ] Is monitoring and debugging well-documented?
@@ -299,6 +316,7 @@ HEALTH RATIOS:
 [ ] Is the SLA and status page accessible?
 
 ### Staying (Ongoing)
+
 [ ] Are changelogs clear and timely?
 [ ] Are breaking changes communicated well in advance?
 [ ] Is there a community for peer support?
@@ -402,29 +420,34 @@ BUSINESS IMPACT:
 ## DevRel Monthly Report - [Month]
 
 ### Highlights
+
 - [Top achievement this month]
 - [Key metric improvement]
 
 ### Content Published
-| Type | Title | Views | Engagement |
-|------|-------|-------|------------|
-| Blog | [title] | [views] | [shares/comments] |
-| Video | [title] | [views] | [likes/comments] |
-| Talk | [event] | [attendees] | [feedback score] |
+
+| Type  | Title   | Views       | Engagement        |
+| ----- | ------- | ----------- | ----------------- |
+| Blog  | [title] | [views]     | [shares/comments] |
+| Video | [title] | [views]     | [likes/comments]  |
+| Talk  | [event] | [attendees] | [feedback score]  |
 
 ### Community Health
+
 - New members: [N]
 - Active members: [N] ([%] of total)
 - Questions answered: [N] (avg response time: [X] hours)
 - Community-generated content: [N] pieces
 
 ### Developer Experience
+
 - TTFV (median): [X] minutes
 - Quickstart completion rate: [X]%
 - Top support requests: [list top 3]
 - Docs improvements shipped: [list]
 
 ### Next Month
+
 - [Planned content]
 - [Upcoming events]
 - [DX improvements in progress]
@@ -445,6 +468,7 @@ FEEDBACK: DevRel is the bridge. Community → Product → Better product → Hap
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing developer advocate solutions
 - Reviewing or improving existing developer advocate approaches
 - Making architectural or implementation decisions about developer advocate
@@ -452,6 +476,7 @@ FEEDBACK: DevRel is the bridge. Community → Product → Better product → Hap
 - Troubleshooting developer advocate-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -462,21 +487,26 @@ FEEDBACK: DevRel is the bridge. Community → Product → Better product → Hap
 # Developer Advocate Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

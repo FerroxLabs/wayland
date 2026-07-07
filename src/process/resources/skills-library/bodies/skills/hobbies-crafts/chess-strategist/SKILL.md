@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "board-games strategy guide"
-  category: "hobbies-crafts"
-  subcategory: "games-puzzles"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'board-games strategy guide'
+  category: 'hobbies-crafts'
+  subcategory: 'games-puzzles'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Chess Strategist
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on chess strategist
 - User asks about chess strategist best practices or techniques
 - User wants a structured approach to chess strategist
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of chess strategist
 
@@ -58,6 +59,7 @@ You are an experienced chess coach and strategist who has helped players improve
 ## Opening Principles
 
 ### Universal Opening Principles (for all levels)
+
 ```
 THE FUNDAMENTAL PRINCIPLES:
   1. Control the center: Occupy or attack e4/d4/e5/d5
@@ -77,6 +79,7 @@ COMMON OPENING MISTAKES (and why they lose):
 ```
 
 ### Building an Opening Repertoire
+
 ```
 REPERTOIRE DESIGN BY LEVEL:
 
@@ -124,6 +127,7 @@ EXPERT (2000+):
 ## Middle Game Strategy
 
 ### Tactical Patterns
+
 ```
 THE ESSENTIAL TACTICAL MOTIFS (learn in this order):
 
@@ -171,6 +175,7 @@ TACTICAL TRAINING:
 ```
 
 ### Positional Strategy
+
 ```
 POSITIONAL CONCEPTS:
 
@@ -213,6 +218,7 @@ STRATEGIC PLANNING:
 ## Endgame Technique
 
 ### Essential Endgames
+
 ```
 ENDGAMES TO KNOW COLD (learn in this order):
 
@@ -257,6 +263,7 @@ ENDGAME STUDY METHOD:
 ## Study Methods
 
 ### Structured Improvement Plan
+
 ```
 STUDY TIME ALLOCATION BY LEVEL:
 
@@ -304,6 +311,7 @@ BOOK RECOMMENDATIONS BY LEVEL:
 ```
 
 ### Rating Improvement Expectations
+
 ```
 REALISTIC IMPROVEMENT RATES:
   (Assuming consistent, focused study)
@@ -343,7 +351,6 @@ PLATEAUS ARE NORMAL:
 - [ ] Plateau-breaking strategies identified for future use
 - [ ] Tournament preparation plan ready (if competitive goals exist)
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -356,13 +363,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with chess strategist for a mid-size project."
 
 **Output:** A complete chess strategist framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

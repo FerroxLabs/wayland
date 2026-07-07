@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "editing writing research"
-  category: "writing"
-  subcategory: "editing-refinement"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'editing writing research'
+  category: 'writing'
+  subcategory: 'editing-refinement'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Readability Improvement
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to make text "easier to read," "more accessible," "simpler," or "less dense" for a defined or implied audience
 - The user wants to lower the reading grade level of a document -- for example, converting a Grade 14 white paper to Grade 8 for a general-public audience
 - The user references a readability score, Flesch-Kincaid grade level, SMOG index, or Gunning Fog index and wants to hit a specific target
@@ -30,6 +32,7 @@ metadata:
 - The user is reformatting content from a specialist channel (academic paper, legal brief, technical report) into a general-audience channel (blog post, FAQ, landing page, brochure)
 
 **Do NOT use this skill when:**
+
 - The user wants to fix a specific sentence or passage that is confusing for a reason other than complexity -- use `clarity-editing`, which addresses ambiguity, pronoun reference problems, and structural logic
 - The user wants to cut word count without a readability goal -- use `conciseness-editing`, which targets redundancy and verbosity independent of grade-level targets
 - The user wants to preserve and optimize academic register, disciplinary conventions, or scholarly citation practices -- use `research-paper-structure`
@@ -292,27 +295,35 @@ Present the output in the structured format below. Always show before and after 
 ## Edge Cases
 
 ### The Academically Constrained Text
+
 When the user provides an academic paper or section that must remain suitable for peer-reviewed publication, readability improvement must operate within tight register constraints. Do not simplify vocabulary that constitutes disciplinary terminology -- the discipline's own readers would find "utilize" appropriate in certain contexts, and "hedonic adaptation" has no single-word plain-language equivalent. Instead, focus on structural improvements: shorten sentences where subordinate clauses are genuinely separable, reduce passive voice in narrative sections (introduction, discussion) while leaving methods sections in conventional passive, and break dense paragraphs. Aim for the lower end of the acceptable academic range rather than a general-public target. Typical academic prose runs Grade 14-18; reducing to Grade 12-13 while preserving register is a meaningful improvement.
 
 ### The Health Literacy Document
+
 Patient education materials, medication guides, and public health campaigns require the most aggressive readability standards: Grade 6 on SMOG, Flesch Reading Ease of 70+, average sentence length under 15 words, and no more than three sentences per paragraph. The National Patient Safety Foundation and the American Medical Association recommend using the "teach-back" design principle: after every key instruction, the reader should be able to answer "What do I need to do?" in one sentence. For these materials, also check: Are illustrations referenced? Are action steps numbered? Are warnings clearly distinguished from information? Do not use "may cause" when a side effect is certain -- in health literacy, hedging that is imprecise can cause patient harm.
 
 ### The Legal or Regulatory Text
+
 Legal writing is subject to the plain language movement (the Plain Writing Act of 2010 for US federal documents; similar requirements in the UK and EU). However, legal precision is non-negotiable: "shall" vs. "must" vs. "may" have distinct legal meanings; defined terms cannot be casually substituted; exceptions and conditions must appear in full. Approach legal text in layers: first, restructure paragraphs to separate the main obligation from conditions and exceptions (consider using a base-rule-then-exceptions structure). Second, replace clearly inflated vocabulary -- "in the event that" → "if," "prior to" → "before," "subsequent to" → "after" -- these substitutions do not change legal meaning. Third, flag any vocabulary change that touches a defined term, a term of art, or a condition for a lawyer's review before finalizing. Never make vocabulary substitutions in legal text without this flag.
 
 ### The Mixed-Literacy Audience
+
 Some documents serve audiences with a wide literacy range -- for example, an employee handbook distributed to staff ranging from warehouse workers to corporate managers, or a community health communication reaching both educated residents and adults with limited literacy. In these cases, use a layered readability strategy: write the primary message at Grade 6-7 for maximum inclusion, then provide technical or detailed information in sidebars, callout boxes, or appendices that more literate readers can access. Do not attempt to write at Grade 8 as a "middle ground" -- this satisfies neither group. The primary text must be accessible to the lowest-literacy segment of the audience because that is who most needs the information.
 
 ### The Already-Readable Text
+
 When the user asks for readability improvement but the text is already within the target range, say so clearly and provide evidence. Present the before metrics, confirm they fall within the target range, and note any minor improvements (a single long sentence, one stacked prepositional phrase) without implying the text is problematic. Resist the temptation to change things to show work. A text at Grade 8 targeting a Grade 8 audience is correct. Offer a brief note on what would push readability down if the text grows -- for example, "If additional technical detail is added, watch for the tendency to reintroduce nominalized verbs."
 
 ### The Very Long Document
+
 For documents over 2,000 words, performing a full sentence-by-sentence revision in one pass is impractical in many contexts. Use a triage approach: (1) identify the three to five sections with the highest density of readability problems using a scan for sentence length outliers, polysyllabic density, and structural absence; (2) perform full improvement on those sections and on any section the user identifies as highest-priority; (3) provide a document-wide summary of the readability pattern and a set of writer-actionable guidelines specific to the problems found in this document -- so the author can apply the same techniques to remaining sections; (4) note whether sections that appear to be in good shape require any attention. This approach delivers actionable improvement without creating an unmanageably long output.
 
 ### The Text Being Read Aloud (Scripts, Voice Interfaces, Podcasts)
+
 When the output will be spoken rather than read, standard readability rules apply at the sentence level but visual structure rules do not. Do not add bullet points, headers, or tables. Instead, apply spoken-language readability techniques: sentences should be even shorter than in print (target 10-12 words on average) because listeners cannot reread; use signposting phrases ("First... Second... Finally...," "Here's what that means...," "In other words...") instead of visual structure; avoid parenthetical definitions (which interrupt spoken flow) in favor of embedded explanations ("atrial fibrillation -- an irregular heartbeat -- can cause..."); and avoid acronyms without first spelling them out audibly.
 
 ### The User Has No Grade-Level Target in Mind
+
 When the user says "make this more readable" without specifying an audience or grade level, ask one clarifying question before proceeding: "Who will read this -- for example, is this for a general public audience, a professional audience, or a specific group?" If the user cannot or does not specify, default to Grade 8 (Flesch-Kincaid), which is the most broadly appropriate target, note this assumption explicitly in the report, and flag whether the content appears to target a specialist audience that may warrant a higher threshold. Do not proceed without at least a stated assumption.
 
 ---
@@ -329,63 +340,68 @@ When the user says "make this more readable" without specifying an audience or g
 ## Readability Improvement Report
 
 ### Document Information
-| Field               | Value                                               |
-|---------------------|-----------------------------------------------------|
-| Document title      | Safety Compliance Policy Notice                     |
-| Target audience     | Field employees, most without college education     |
-| Target grade level  | Grade 6-7 (FKGL)                                   |
-| Readability formula | Flesch-Kincaid Grade Level (FKGL)                  |
-| Scope               | Three-sentence policy paragraph                     |
+
+| Field               | Value                                           |
+| ------------------- | ----------------------------------------------- |
+| Document title      | Safety Compliance Policy Notice                 |
+| Target audience     | Field employees, most without college education |
+| Target grade level  | Grade 6-7 (FKGL)                                |
+| Readability formula | Flesch-Kincaid Grade Level (FKGL)               |
+| Scope               | Three-sentence policy paragraph                 |
 
 ---
 
 ### Baseline Metrics (Before)
-| Metric                        | Value                          |
-|-------------------------------|-------------------------------|
-| Average sentence length       | 44 words                      |
-| Maximum sentence length       | 53 words (sentence 1)         |
-| Average paragraph length      | 3 sentences / 132 words       |
-| Polysyllabic word percentage  | 41%                           |
-| Passive voice rate            | 67%                           |
-| Nominalization count          | 9 (implementation, completion, attainment, continuation, compliance, performance, remediation, initiation, noncompliance) |
-| Estimated reading level       | Grade 17 (post-graduate)      |
-| Structural elements present   | None                          |
+
+| Metric                       | Value                                                                                                                     |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Average sentence length      | 44 words                                                                                                                  |
+| Maximum sentence length      | 53 words (sentence 1)                                                                                                     |
+| Average paragraph length     | 3 sentences / 132 words                                                                                                   |
+| Polysyllabic word percentage | 41%                                                                                                                       |
+| Passive voice rate           | 67%                                                                                                                       |
+| Nominalization count         | 9 (implementation, completion, attainment, continuation, compliance, performance, remediation, initiation, noncompliance) |
+| Estimated reading level      | Grade 17 (post-graduate)                                                                                                  |
+| Structural elements present  | None                                                                                                                      |
 
 ---
 
 ### Target Metrics
-| Metric                        | Target        |
-|-------------------------------|---------------|
-| Average sentence length       | ≤ 15 words    |
-| Polysyllabic word percentage  | ≤ 12%         |
-| Passive voice rate            | < 20%         |
-| Estimated reading level       | Grade 6-7     |
+
+| Metric                       | Target     |
+| ---------------------------- | ---------- |
+| Average sentence length      | ≤ 15 words |
+| Polysyllabic word percentage | ≤ 12%      |
+| Passive voice rate           | < 20%      |
+| Estimated reading level      | Grade 6-7  |
 
 ---
 
 ### Changes Applied
-| Technique                     | Count | Example                                                                                   |
-|-------------------------------|-------|-------------------------------------------------------------------------------------------|
-| Sentences split               | 3 → 7 | "The implementation of...is a precondition for..." → Three separate sentences             |
-| Vocabulary substitutions      | 14    | "necessitates" → "requires"; "delineated" → "explained"; "attainment" → "passing"        |
+
+| Technique                     | Count | Example                                                                                                                           |
+| ----------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Sentences split               | 3 → 7 | "The implementation of...is a precondition for..." → Three separate sentences                                                     |
+| Vocabulary substitutions      | 14    | "necessitates" → "requires"; "delineated" → "explained"; "attainment" → "passing"                                                 |
 | Nominalizations reversed      | 7     | "implementation of the updated...protocols" → "updated safety rules"; "initiation of disciplinary action" → "disciplinary action" |
-| Passive → active conversions  | 4     | "will be subject to a remediation process" → "will need to complete extra training"       |
-| Prepositional stacks resolved | 3     | "in accordance with established organizational procedures" → "following company rules"   |
-| Lists created                 | 1     | Consequences listed as three bullets for scan-ability                                     |
-| Headers added                 | 0     | (Paragraph too short to require headers)                                                  |
+| Passive → active conversions  | 4     | "will be subject to a remediation process" → "will need to complete extra training"                                               |
+| Prepositional stacks resolved | 3     | "in accordance with established organizational procedures" → "following company rules"                                            |
+| Lists created                 | 1     | Consequences listed as three bullets for scan-ability                                                                             |
+| Headers added                 | 0     | (Paragraph too short to require headers)                                                                                          |
 
 ---
 
 ### After Metrics (Revised)
-| Metric                        | Value         | Change           |
-|-------------------------------|---------------|------------------|
-| Average sentence length       | 13 words      | ↓ 31 words       |
-| Maximum sentence length       | 18 words      | ↓ 35 words       |
-| Average paragraph length      | 4 sentences / section |          |
-| Polysyllabic word percentage  | 9%            | ↓ 32%            |
-| Passive voice rate            | 14%           | ↓ 53%            |
-| Nominalization count          | 1             | ↓ 8              |
-| Estimated reading level       | Grade 6       | ↓ 11 grades      |
+
+| Metric                       | Value                 | Change      |
+| ---------------------------- | --------------------- | ----------- |
+| Average sentence length      | 13 words              | ↓ 31 words  |
+| Maximum sentence length      | 18 words              | ↓ 35 words  |
+| Average paragraph length     | 4 sentences / section |             |
+| Polysyllabic word percentage | 9%                    | ↓ 32%       |
+| Passive voice rate           | 14%                   | ↓ 53%       |
+| Nominalization count         | 1                     | ↓ 8         |
+| Estimated reading level      | Grade 6               | ↓ 11 grades |
 
 ---
 
@@ -406,13 +422,14 @@ The company may take disciplinary action, following standard company rules.
 ---
 
 ### Trade-off Notes
-| Location      | Original                                             | Simplification Made                          | Risk / Decision for Author                                                                                       |
-|---------------|------------------------------------------------------|----------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| Sentence 1    | "precondition for the continuation of employment"   | "required to keep your job"                  | Low risk. Meaning is preserved. "Keep your job" is more direct and comprehensible for the target audience.       |
-| Sentence 2    | "within the designated timeframe"                   | Removed -- no timeframe specified in original | The original does not name a specific timeframe. If a deadline exists (e.g., 90 days), add it explicitly here.  |
-| Sentence 2    | "parameters of which are delineated in Appendix C"  | "steps for this training are explained in Appendix C" | Slight scope assumption: "parameters" could mean eligibility criteria, not just steps. Author should confirm.   |
-| Sentence 3    | "in accordance with established organizational procedures" | "following standard company rules"     | "Standard company rules" is vague. If a specific policy number or procedure name applies, name it explicitly.    |
-| Sentence 3    | "may result in the initiation of disciplinary action" | "may take disciplinary action"              | Meaning preserved. "Initiation of" was pure nominalization padding with no added meaning.                        |
+
+| Location   | Original                                                   | Simplification Made                                   | Risk / Decision for Author                                                                                     |
+| ---------- | ---------------------------------------------------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Sentence 1 | "precondition for the continuation of employment"          | "required to keep your job"                           | Low risk. Meaning is preserved. "Keep your job" is more direct and comprehensible for the target audience.     |
+| Sentence 2 | "within the designated timeframe"                          | Removed -- no timeframe specified in original         | The original does not name a specific timeframe. If a deadline exists (e.g., 90 days), add it explicitly here. |
+| Sentence 2 | "parameters of which are delineated in Appendix C"         | "steps for this training are explained in Appendix C" | Slight scope assumption: "parameters" could mean eligibility criteria, not just steps. Author should confirm.  |
+| Sentence 3 | "in accordance with established organizational procedures" | "following standard company rules"                    | "Standard company rules" is vague. If a specific policy number or procedure name applies, name it explicitly.  |
+| Sentence 3 | "may result in the initiation of disciplinary action"      | "may take disciplinary action"                        | Meaning preserved. "Initiation of" was pure nominalization padding with no added meaning.                      |
 
 ---
 

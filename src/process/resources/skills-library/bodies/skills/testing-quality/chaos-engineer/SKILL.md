@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "testing best-practices devops"
-  category: "testing-quality"
-  subcategory: "test-methodology"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'testing best-practices devops'
+  category: 'testing-quality'
+  subcategory: 'test-methodology'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Chaos Engineer
@@ -298,12 +298,12 @@ Level 5: Production - Zone/Region Failure
 ```yaml
 # Chaos experiment definition with safety controls
 experiment:
-  name: "api-latency-injection"
-  description: "Inject 500ms latency to payment service calls"
+  name: 'api-latency-injection'
+  description: 'Inject 500ms latency to payment service calls'
 
   targeting:
-    service: "checkout-api"
-    percentage: 5           # Only 5% of instances
+    service: 'checkout-api'
+    percentage: 5 # Only 5% of instances
 
   fault:
     type: latency
@@ -311,22 +311,22 @@ experiment:
     jitter_ms: 100
 
   duration:
-    max_seconds: 300        # Auto-stop after 5 minutes
+    max_seconds: 300 # Auto-stop after 5 minutes
 
-  abort_conditions:         # Automatic halt triggers
-    - metric: "error_rate_5xx"
-      threshold: 5          # Abort if 5xx rate exceeds 5%
+  abort_conditions: # Automatic halt triggers
+    - metric: 'error_rate_5xx'
+      threshold: 5 # Abort if 5xx rate exceeds 5%
       window_seconds: 60
-    - metric: "p99_latency_ms"
-      threshold: 2000       # Abort if p99 exceeds 2 seconds
+    - metric: 'p99_latency_ms'
+      threshold: 2000 # Abort if p99 exceeds 2 seconds
       window_seconds: 60
-    - metric: "revenue_per_minute"
-      threshold_percent_drop: 10  # Abort if revenue drops 10%
+    - metric: 'revenue_per_minute'
+      threshold_percent_drop: 10 # Abort if revenue drops 10%
       window_seconds: 120
 
   rollback:
-    automatic: true         # Remove fault injection on abort
-    verification_wait: 60   # Wait 60s after rollback to verify recovery
+    automatic: true # Remove fault injection on abort
+    verification_wait: 60 # Wait 60s after rollback to verify recovery
 ```
 
 ## Chaos Experiment Catalog
@@ -418,6 +418,7 @@ After Experiment:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing chaos engineer solutions
 - Reviewing or improving existing chaos engineer approaches
 - Making architectural or implementation decisions about chaos engineer
@@ -425,6 +426,7 @@ After Experiment:
 - Troubleshooting chaos engineer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -435,21 +437,26 @@ After Experiment:
 # Chaos Engineer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

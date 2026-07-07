@@ -32,6 +32,7 @@ metadata:
   disclaimer: none
   difficulty: advanced
 ---
+
 # Security Hardening Sprint
 
 **Estimated time:** 2-4 weeks
@@ -129,7 +130,7 @@ set up security monitoring: intrusion detection alerts, failed authentication mo
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 1**: Expand audit scope to cover missed areas
   - If **After Step 3**: Reduce scope to critical/high items only
   - If **After Step 5**: Fix remaining application issues before infrastructure
@@ -183,6 +184,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

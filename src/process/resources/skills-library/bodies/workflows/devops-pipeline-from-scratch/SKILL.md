@@ -31,8 +31,9 @@ metadata:
     runbook-writer incident-responder security-hardener shell-scripter
   disclaimer: none
   difficulty: intermediate
-  interactivity: "auto"
+  interactivity: 'auto'
 ---
+
 # Devops Pipeline From Scratch
 
 **Estimated time:** 4-8 weeks
@@ -137,7 +138,7 @@ measure and optimize DORA metrics: deployment frequency, lead time for changes, 
 
 ## Decision Points
 
-- **After Step ?:** 
+- **After Step ?:**
   - If **After Step 2**: Stabilize CI before adding complexity
   - If **After Step 4**: Debug IaC issues in staging before building CD
   - If **After Step 5**: Fix deployment issues before adding security gates
@@ -193,6 +194,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on user's availability and prior experience
 - Steps may be reordered if dependencies allow parallel execution
 - Skip optional steps if time or budget is constrained

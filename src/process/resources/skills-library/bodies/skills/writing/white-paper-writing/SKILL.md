@@ -10,13 +10,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "content-marketing writing technical-writing"
-  category: "writing"
-  subcategory: "content-marketing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'content-marketing writing technical-writing'
+  category: 'writing'
+  subcategory: 'content-marketing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # White Paper Writing
@@ -259,6 +259,7 @@ Mid-market companies with 500-2000 employees operate an average of 47 internal a
 API observability provides the visibility layer between "is it up?" and "is it working correctly for users?" For mid-market engineering teams that lack the custom tooling budgets of enterprise organizations, observability platforms deliver disproportionate value by surfacing problems 10-15 minutes before they become incidents.
 
 **Key Takeaways:**
+
 - 73% of API-related incidents occur while uptime monitors report "healthy"
 - Mid-market companies experience an average of 14 API degradation events per month that uptime monitoring does not detect
 - Implementing API observability reduces mean-time-to-detection (MTTD) by 68% and mean-time-to-resolution (MTTR) by 41%
@@ -315,11 +316,11 @@ Anomaly detection learns each endpoint's normal behavior and alerts on deviation
 
 ## 5. Key Findings
 
-| Finding | Evidence | Implication |
-|---------|----------|-------------|
-| Uptime monitoring detects only 27% of API incidents before users report them | Industry incident analysis across 200+ mid-market companies | Current monitoring creates a false sense of security |
-| p95/p99 latency is a stronger predictor of user impact than average latency | Correlation analysis of latency metrics vs. user complaint volume | Monitoring practices must shift from averages to distributions |
-| API observability reduces MTTD by 68% and MTTR by 41% | Before/after analysis at companies implementing observability alongside existing monitoring | The investment delivers measurable operational improvement |
+| Finding                                                                      | Evidence                                                                                    | Implication                                                    |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Uptime monitoring detects only 27% of API incidents before users report them | Industry incident analysis across 200+ mid-market companies                                 | Current monitoring creates a false sense of security           |
+| p95/p99 latency is a stronger predictor of user impact than average latency  | Correlation analysis of latency metrics vs. user complaint volume                           | Monitoring practices must shift from averages to distributions |
+| API observability reduces MTTD by 68% and MTTR by 41%                        | Before/after analysis at companies implementing observability alongside existing monitoring | The investment delivers measurable operational improvement     |
 
 ---
 

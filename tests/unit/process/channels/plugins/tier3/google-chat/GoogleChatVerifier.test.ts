@@ -21,27 +21,29 @@ vi.mock('jose', async (importOriginal) => {
   };
 });
 
-import {
-  googleChatVerifier,
-  verifyGoogleChatJwt,
-} from '@process/channels/webhook/verifiers/google-chat';
+import { googleChatVerifier, verifyGoogleChatJwt } from '@process/channels/webhook/verifiers/google-chat';
 
 const AUDIENCE = '123456789012';
 const FAKE_TOKEN = 'eyJhbGciOiJSUzI1NiJ9.fake.token';
 
-function makeInput(overrides: {
-  authHeader?: string;
-  body?: string;
-} = {}) {
-  const body = overrides.body ?? JSON.stringify({
-    type: 'MESSAGE',
-    space: { name: 'spaces/AAA' },
-    message: { name: 'spaces/AAA/messages/M1', text: 'hi' },
-  });
+function makeInput(
+  overrides: {
+    authHeader?: string;
+    body?: string;
+  } = {}
+) {
+  const body =
+    overrides.body ??
+    JSON.stringify({
+      type: 'MESSAGE',
+      space: { name: 'spaces/AAA' },
+      message: { name: 'spaces/AAA/messages/M1', text: 'hi' },
+    });
   return {
-    headers: overrides.authHeader !== undefined
-      ? { authorization: overrides.authHeader }
-      : { authorization: `Bearer ${FAKE_TOKEN}` },
+    headers:
+      overrides.authHeader !== undefined
+        ? { authorization: overrides.authHeader }
+        : { authorization: `Bearer ${FAKE_TOKEN}` },
     rawBody: Buffer.from(body, 'utf8'),
     query: {},
     url: '/webhooks/google-chat/tok',
@@ -120,10 +122,7 @@ describe('googleChatVerifier', () => {
   });
 
   it('returns ok=false (missing-bearer-token) when Authorization header is absent', async () => {
-    const result = await googleChatVerifier(
-      makeInput({ authHeader: undefined }),
-      AUDIENCE,
-    );
+    const result = await googleChatVerifier(makeInput({ authHeader: undefined }), AUDIENCE);
     // The input helper always sets a header; override to truly missing:
     const inputNoAuth = {
       headers: {} as Record<string, string | string[] | undefined>,
@@ -165,10 +164,7 @@ describe('googleChatVerifier', () => {
     mockJwtVerify.mockResolvedValueOnce({
       payload: { iss: 'chat@system.gserviceaccount.com', aud: AUDIENCE },
     });
-    const result = await googleChatVerifier(
-      makeInput({ body: 'not-json' }),
-      AUDIENCE,
-    );
+    const result = await googleChatVerifier(makeInput({ body: 'not-json' }), AUDIENCE);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('invalid-json');
   });
@@ -195,7 +191,7 @@ describe('googleChatVerifier', () => {
         query: {},
         url: '/test',
       },
-      AUDIENCE,
+      AUDIENCE
     );
     expect(result.ok).toBe(true);
   });

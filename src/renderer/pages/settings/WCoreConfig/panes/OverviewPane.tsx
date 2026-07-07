@@ -122,7 +122,12 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
       // to "update available" and a completed download looks like it never
       // installed (issue #680).
       if (res.ok) setInstalledVersion(res.version);
-      else setInstallError('error' in res ? res.error : t('settings.wcoreConfig.overview.update.failedGeneric', { defaultValue: 'Update failed.' }));
+      else
+        setInstallError(
+          'error' in res
+            ? res.error
+            : t('settings.wcoreConfig.overview.update.failedGeneric', { defaultValue: 'Update failed.' })
+        );
     } catch (err) {
       setInstallError(err instanceof Error ? err.message : String(err));
     } finally {

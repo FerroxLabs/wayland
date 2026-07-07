@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops troubleshooting security step-by-step"
-  category: "software-development"
-  depends: "incident-response logging-patterns monitoring-alerting deployment-strategies technical-documentation"
-  disclaimer: "none"
-  difficulty: "advanced"
-  interactivity: "auto"
+  version: '1.0.0'
+  tags: 'devops troubleshooting security step-by-step'
+  category: 'software-development'
+  depends: 'incident-response logging-patterns monitoring-alerting deployment-strategies technical-documentation'
+  disclaimer: 'none'
+  difficulty: 'advanced'
+  interactivity: 'auto'
 ---
 
 # Incident Response Workflow
@@ -54,7 +54,7 @@ Assess the incident scope, severity, and impact to determine the response urgenc
   - **P1 (critical):** Complete service outage, data loss, or security breach affecting all users. Response: all hands, 15-minute status updates, customer communication within 30 minutes.
   - **P2 (high):** Partial degradation affecting a significant portion of users (over 10%) or a critical feature is broken. Response: on-call team plus escalation, 30-minute status updates.
   - **P3 (medium):** Minor degradation, workaround exists, or issue affects fewer than 10% of users. Response: on-call engineer investigates, hourly status updates.
-  Do not spend more than 10 minutes on initial triage. A wrong severity can be corrected; a slow triage delays the entire response.
+    Do not spend more than 10 minutes on initial triage. A wrong severity can be corrected; a slow triage delays the entire response.
 
 **Step 2: Investigate Using Logs and Traces** (uses: logging-patterns)
 

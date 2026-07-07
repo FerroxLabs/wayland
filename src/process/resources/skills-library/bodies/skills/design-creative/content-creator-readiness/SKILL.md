@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "assessment design template testing research planning marketing video-production"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'assessment design template testing research planning marketing video-production'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Content Creator Readiness
@@ -22,15 +22,16 @@ You are a content strategy consultant with expertise in digital media, audience 
 
 ---
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about content creator readiness techniques or best practices
 - User needs guidance on content creator readiness concepts
 - User wants to implement or improve their approach to content creator readiness
 
 **Do NOT use when:**
+
 - The request falls outside the scope of content creator readiness
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -38,6 +39,7 @@ You are a content strategy consultant with expertise in digital media, audience 
 ## Questions to Ask First
 
 ### Creator Profile
+
 1. What type of content do you create or plan to create? (Video, writing, audio/podcast, visual/design, mixed)
 2. Which platforms are you on or considering? (YouTube, TikTok, Instagram, Twitter/X, newsletter, blog, podcast, other)
 3. Are you actively creating content now, or planning to start?
@@ -45,6 +47,7 @@ You are a content strategy consultant with expertise in digital media, audience 
 5. What is your primary goal? (Build an audience, make money, establish expertise, creative expression, marketing for a business)
 
 ### Content Quality
+
 6. How would you rate the quality of your current content? (1-10)
 7. What tools and equipment do you use for creation?
 8. Do you have a defined content niche or topic area?
@@ -52,6 +55,7 @@ You are a content strategy consultant with expertise in digital media, audience 
 10. How do you decide what to create? (Planning, inspiration, trending topics, audience requests)
 
 ### Audience & Engagement
+
 11. What is your current follower or subscriber count across platforms?
 12. What is your typical engagement rate? (Likes, comments, shares relative to views)
 13. Do you know who your ideal audience is? Can you describe them specifically?
@@ -59,6 +63,7 @@ You are a content strategy consultant with expertise in digital media, audience 
 15. What has been your most successful piece of content? Why do you think it worked?
 
 ### Production & Consistency
+
 16. How many hours per week can you dedicate to content creation?
 17. Do you batch-create content or produce piece by piece?
 18. Do you have a content calendar or publishing schedule?
@@ -66,6 +71,7 @@ You are a content strategy consultant with expertise in digital media, audience 
 20. Have you maintained a consistent publishing schedule? For how long?
 
 ### Monetization & Business
+
 21. Are you currently earning money from content? If so, how?
 22. What monetization methods interest you? (Ads, sponsorships, products, services, memberships, affiliate)
 23. Do you have a media kit, rate card, or professional outreach materials?
@@ -78,39 +84,39 @@ You are a content strategy consultant with expertise in digital media, audience 
 
 ### Dimension 1: Content Quality & Differentiation (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Production quality | 0-7 | Visual, audio, and editing quality relative to platform standards |
-| Content value | 0-7 | Usefulness, entertainment, or insight for the target audience |
-| Niche clarity | 0-6 | Clear, defined content focus that attracts a specific audience |
-| Unique angle | 0-5 | Distinctive perspective, format, or approach that differentiates from competitors |
+| Factor             | Score Range | Criteria                                                                          |
+| ------------------ | ----------- | --------------------------------------------------------------------------------- |
+| Production quality | 0-7         | Visual, audio, and editing quality relative to platform standards                 |
+| Content value      | 0-7         | Usefulness, entertainment, or insight for the target audience                     |
+| Niche clarity      | 0-6         | Clear, defined content focus that attracts a specific audience                    |
+| Unique angle       | 0-5         | Distinctive perspective, format, or approach that differentiates from competitors |
 
 ### Dimension 2: Platform Strategy (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Platform selection | 0-7 | Chosen platforms match content type, audience, and goals |
-| Platform optimization | 0-7 | Effective use of platform features, SEO, hashtags, formatting |
-| Cross-platform presence | 0-6 | Strategic distribution across platforms with appropriate adaptation |
-| Algorithm awareness | 0-5 | Understanding of how discovery and distribution work on chosen platforms |
+| Factor                  | Score Range | Criteria                                                                 |
+| ----------------------- | ----------- | ------------------------------------------------------------------------ |
+| Platform selection      | 0-7         | Chosen platforms match content type, audience, and goals                 |
+| Platform optimization   | 0-7         | Effective use of platform features, SEO, hashtags, formatting            |
+| Cross-platform presence | 0-6         | Strategic distribution across platforms with appropriate adaptation      |
+| Algorithm awareness     | 0-5         | Understanding of how discovery and distribution work on chosen platforms |
 
 ### Dimension 3: Audience Development (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Audience definition | 0-7 | Clear understanding of who the content serves and what they need |
-| Engagement quality | 0-7 | Active conversation, community building, audience relationship |
-| Growth trajectory | 0-6 | Consistent audience growth relative to content volume and time |
-| Retention signals | 0-5 | Returning viewers, repeat engagement, subscriber-to-viewer ratio |
+| Factor              | Score Range | Criteria                                                         |
+| ------------------- | ----------- | ---------------------------------------------------------------- |
+| Audience definition | 0-7         | Clear understanding of who the content serves and what they need |
+| Engagement quality  | 0-7         | Active conversation, community building, audience relationship   |
+| Growth trajectory   | 0-6         | Consistent audience growth relative to content volume and time   |
+| Retention signals   | 0-5         | Returning viewers, repeat engagement, subscriber-to-viewer ratio |
 
 ### Dimension 4: Sustainability & Monetization (0-25 points)
 
-| Factor | Score Range | Criteria |
-|--------|------------|---------|
-| Consistency & workflow | 0-7 | Reliable publishing cadence, sustainable production process |
-| Monetization readiness | 0-7 | Audience size, engagement, and infrastructure for revenue generation |
-| Business fundamentals | 0-6 | Analytics tracking, professional materials, financial planning |
-| Burnout resistance | 0-5 | Sustainable time commitment, enjoyment, boundary management |
+| Factor                 | Score Range | Criteria                                                             |
+| ---------------------- | ----------- | -------------------------------------------------------------------- |
+| Consistency & workflow | 0-7         | Reliable publishing cadence, sustainable production process          |
+| Monetization readiness | 0-7         | Audience size, engagement, and infrastructure for revenue generation |
+| Business fundamentals  | 0-6         | Analytics tracking, professional materials, financial planning       |
+| Burnout resistance     | 0-5         | Sustainable time commitment, enjoyment, boundary management          |
 
 ---
 
@@ -166,19 +172,20 @@ Sustainability & Monetization
 
 ## Results Interpretation
 
-| Score Range | Rating | Interpretation |
-|-------------|--------|---------------|
-| 85-100 | Launch Ready | Strong foundation across all dimensions. Ready to scale aggressively. |
-| 70-84 | Mostly Ready | Good fundamentals with specific areas to strengthen. Start or continue publishing while improving. |
-| 55-69 | Building | Core elements are in place but gaps exist. Focus on weakest dimension before scaling effort. |
-| 40-54 | Preparing | Significant development needed. Build skills and test content before committing to aggressive schedule. |
-| Below 40 | Exploring | Still in discovery phase. Experiment, learn platforms, find your niche before formalizing a creator practice. |
+| Score Range | Rating       | Interpretation                                                                                                |
+| ----------- | ------------ | ------------------------------------------------------------------------------------------------------------- |
+| 85-100      | Launch Ready | Strong foundation across all dimensions. Ready to scale aggressively.                                         |
+| 70-84       | Mostly Ready | Good fundamentals with specific areas to strengthen. Start or continue publishing while improving.            |
+| 55-69       | Building     | Core elements are in place but gaps exist. Focus on weakest dimension before scaling effort.                  |
+| 40-54       | Preparing    | Significant development needed. Build skills and test content before committing to aggressive schedule.       |
+| Below 40    | Exploring    | Still in discovery phase. Experiment, learn platforms, find your niche before formalizing a creator practice. |
 
 ---
 
 ## Recommendations Based on Scores
 
 ### For Content Quality Issues (below 15)
+
 - Define your niche: answer "I make [content type] for [specific audience] about [specific topic]"
 - Upgrade one production element at a time (audio first for video/podcast, visuals first for design)
 - Study 5 creators in your niche and identify what makes their content compelling
@@ -186,6 +193,7 @@ Sustainability & Monetization
 - Get feedback from 3-5 people in your target audience
 
 ### For Platform Strategy Issues (below 15)
+
 - Choose one primary platform and master it before expanding
 - Study platform-specific best practices (optimal length, format, posting times, hashtag strategy)
 - Analyze your top-performing content and identify patterns
@@ -193,6 +201,7 @@ Sustainability & Monetization
 - Follow platform update announcements and adapt when algorithms change
 
 ### For Audience Development Issues (below 15)
+
 - Write a detailed audience persona: demographics, interests, problems, where they spend time online
 - Respond to every comment for your first 1000 followers
 - Create content that invites conversation (questions, polls, debates, calls to action)
@@ -200,6 +209,7 @@ Sustainability & Monetization
 - Track what content drives follows vs. views -- they are different
 
 ### For Sustainability Issues (below 15)
+
 - Build a content system: batch ideation, batch creation, batch scheduling
 - Set a publishing cadence you can maintain for 6 months without burning out
 - Start tracking basic analytics weekly (views, engagement rate, follower growth)
@@ -274,7 +284,6 @@ NEXT ASSESSMENT DATE: ____________
 5. Tailor recommendations to the creator's time availability and resources.
 6. Celebrate what is working before addressing gaps. Creating content takes courage.
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -282,7 +291,6 @@ NEXT ASSESSMENT DATE: ____________
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -303,14 +311,12 @@ NEXT ASSESSMENT DATE: ____________
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

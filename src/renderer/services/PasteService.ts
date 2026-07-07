@@ -185,7 +185,9 @@ class PasteServiceClass {
               // like a system name and give it a unique, strip-proof base. See #19.
               const isGenericClipboardName = !file.name || /^image\.\w+$/i.test(file.name);
               let fileName =
-                file.name && !isSystemGenerated && !isGenericClipboardName ? file.name : `pasted_image_${timeStr}${fileExt}`;
+                file.name && !isSystemGenerated && !isGenericClipboardName
+                  ? file.name
+                  : `pasted_image_${timeStr}${fileExt}`;
               // Ensure unique filename within the same paste batch to prevent
               // collisions when multiple images are pasted simultaneously
               if (usedFileNames.has(fileName)) {

@@ -77,12 +77,7 @@ type ChipEntry = {
 // Component
 // ---------------------------------------------------------------------------
 
-const TopbarChips: React.FC<TopbarChipsProps> = ({
-  typeCounts,
-  weekDeltas = {},
-  activeType,
-  onFilterChange,
-}) => {
+const TopbarChips: React.FC<TopbarChipsProps> = ({ typeCounts, weekDeltas = {}, activeType, onFilterChange }) => {
   const { t } = useTranslation('memory');
 
   const totalCount = Object.values(typeCounts).reduce((a, b) => a + b, 0);
@@ -94,7 +89,7 @@ const TopbarChips: React.FC<TopbarChipsProps> = ({
       decisions: stableSparkHeights('decisions'),
       wiki: stableSparkHeights('wiki'),
     }),
-    [],
+    []
   );
 
   const chips: ChipEntry[] = [
@@ -134,7 +129,9 @@ const TopbarChips: React.FC<TopbarChipsProps> = ({
           <div className={styles.popoverContent} data-testid={`chip-popover-${chip.key}`}>
             <div className={styles.popoverStat}>{chip.count.toLocaleString()}</div>
             {delta > 0 && (
-              <div className={styles.popoverDelta}>+{delta} {t('archive.chip.thisWeek', 'this week')}</div>
+              <div className={styles.popoverDelta}>
+                +{delta} {t('archive.chip.thisWeek', 'this week')}
+              </div>
             )}
             <div className={styles.popoverSparkline}>
               {/* 8-bar sparkline - stable placeholder until real weekDeltas are wired */}
@@ -142,23 +139,14 @@ const TopbarChips: React.FC<TopbarChipsProps> = ({
                 <div key={i} className={styles.sparkBar} style={{ height: `${ht}%` }} />
               ))}
             </div>
-            <button
-              type='button'
-              className={styles.popoverLink}
-              onClick={() => onFilterChange(chip.type)}
-            >
+            <button type='button' className={styles.popoverLink} onClick={() => onFilterChange(chip.type)}>
               {t('archive.chip.viewAsFilter', 'View as filter')}
             </button>
           </div>
         );
 
         return (
-          <Popover
-            key={chip.key}
-            content={popoverContent}
-            position='bottom'
-            trigger='hover'
-          >
+          <Popover key={chip.key} content={popoverContent} position='bottom' trigger='hover'>
             <button
               type='button'
               className={`${styles.chip}${isActive ? ` ${styles.chipActive}` : ''}`}

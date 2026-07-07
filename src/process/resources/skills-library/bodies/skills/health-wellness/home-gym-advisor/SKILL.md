@@ -7,26 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "health-wellness fitness guide"
-  category: "health-wellness"
-  subcategory: "fitness-exercise"
-  depends: ""
-  disclaimer: "not-medical-advice"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'health-wellness fitness guide'
+  category: 'health-wellness'
+  subcategory: 'fitness-exercise'
+  depends: ''
+  disclaimer: 'not-medical-advice'
+  difficulty: 'intermediate'
 ---
 
 # Home Gym Advisor
 
 > **Disclaimer:** This skill provides general wellness and health information for educational purposes only. It does NOT constitute medical advice, diagnosis, or treatment recommendations. The information provided is not a substitute for professional medical judgment. Always consult a qualified healthcare professional before making decisions about your health, starting a new fitness program, or changing your diet. If you are experiencing a medical emergency, contact emergency services immediately.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about home gym advisor
 - User needs guidance on home gym advisor topics
 - User wants a structured approach to home gym advisor
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -42,10 +45,13 @@ metadata:
 8. **Do you have any specific equipment you already own?**
 9. **Will others use the gym?** (Solo / Partner / Family)
 10. **What is your climate?** (For garage gym considerations)
+
 ---
+
 ## Budget Tier Builds
 
 ### Tier 1: Starter Setup ($100)
+
 ```
 EQUIPMENT LIST:
 - Resistance band set (5 bands): $20-30
@@ -68,6 +74,7 @@ LIMITATIONS:
 ```
 
 ### Tier 2: Solid Foundation ($500)
+
 ```
 EQUIPMENT LIST:
 - Adjustable dumbbells (5-50 lbs): $250-350
@@ -89,6 +96,7 @@ UPGRADE PRIORITY:
 ```
 
 ### Tier 3: Complete Home Gym ($1,000)
+
 ```
 EQUIPMENT LIST:
 - Olympic barbell (45 lbs): $150-250
@@ -112,6 +120,7 @@ UPGRADE PRIORITY:
 ```
 
 ### Tier 4: Premium Setup ($2,000+)
+
 ```
 EQUIPMENT LIST:
 - Full power rack with pull-up bar: $400-800
@@ -139,6 +148,7 @@ ADDITIONAL UPGRADES:
 ```
 
 ### Tier 5: Elite/Dream Gym ($5,000+)
+
 ```
 FLAGSHIP EQUIPMENT:
 - Premium power rack (Rogue, Rep, Titan): $800-2,000
@@ -155,20 +165,23 @@ FLAGSHIP EQUIPMENT:
 - Fan/climate control: $50-200
 TOTAL: $5,000-15,000+
 ```
+
 ---
+
 ## Space Planning
 
 ### Minimum Space Requirements by Setup
 
-| Setup Type | Minimum Footprint | Ceiling Height | Notes |
-|-----------|-------------------|----------------|-------|
-| Bodyweight/bands | 6' x 6' | 8' | Yoga mat + standing space |
-| Dumbbell station | 6' x 8' | 8' | Bench + dumbbell rack |
-| Barbell + rack | 8' x 10' | 9'+ | Squat rack + bench + deadlift |
-| Full home gym | 10' x 12' | 9'+ | Rack + bench + accessories |
-| Premium gym | 12' x 16'+ | 9'+ | Multiple stations |
+| Setup Type       | Minimum Footprint | Ceiling Height | Notes                         |
+| ---------------- | ----------------- | -------------- | ----------------------------- |
+| Bodyweight/bands | 6' x 6'           | 8'             | Yoga mat + standing space     |
+| Dumbbell station | 6' x 8'           | 8'             | Bench + dumbbell rack         |
+| Barbell + rack   | 8' x 10'          | 9'+            | Squat rack + bench + deadlift |
+| Full home gym    | 10' x 12'         | 9'+            | Rack + bench + accessories    |
+| Premium gym      | 12' x 16'+        | 9'+            | Multiple stations             |
 
 ### Space Planning Template
+
 ```
 ROOM DIMENSIONS:
 Length: _____ ft
@@ -198,6 +211,7 @@ CLEARANCE RULES:
 ```
 
 ### Layout Examples
+
 ```
 SMALL GARAGE (10' x 10'):
 +---------------------------+
@@ -220,43 +234,48 @@ DEDICATED ROOM (12' x 16'):
 |  rack]       machine]             |
 +-----------------------------------+
 ```
+
 ---
+
 ## Essential vs Nice-to-Have Equipment
 
 ### Priority Matrix
 
-| Priority | Equipment | Why |
-|----------|-----------|-----|
-| Essential | Barbell + plates | Foundation of strength training |
-| Essential | Squat rack/stand | Safety for squats and bench |
-| Essential | Bench (flat or adjustable) | Upper body pressing |
-| Essential | Floor protection | Protect floor, reduce noise |
-| High | Pull-up bar | Vertical pulling (may be on rack) |
-| High | Adjustable dumbbells | Unilateral work, variety |
-| Medium | Resistance bands | Warm-up, assistance, variety |
-| Medium | Dip station/attachment | Triceps, chest |
-| Medium | Foam roller | Recovery |
-| Low | Cable pulley | Isolation, variety |
-| Low | Specialty bars | Ergonomics, variety |
-| Low | Cardio machine | Can substitute outdoor activity |
-| Low | Mirrors | Form check (phone camera works) |
-| Luxury | GHD machine | Posterior chain |
-| Luxury | Reverse hyper | Low back health |
-| Luxury | Belt squat | Squat without spinal loading |
+| Priority  | Equipment                  | Why                               |
+| --------- | -------------------------- | --------------------------------- |
+| Essential | Barbell + plates           | Foundation of strength training   |
+| Essential | Squat rack/stand           | Safety for squats and bench       |
+| Essential | Bench (flat or adjustable) | Upper body pressing               |
+| Essential | Floor protection           | Protect floor, reduce noise       |
+| High      | Pull-up bar                | Vertical pulling (may be on rack) |
+| High      | Adjustable dumbbells       | Unilateral work, variety          |
+| Medium    | Resistance bands           | Warm-up, assistance, variety      |
+| Medium    | Dip station/attachment     | Triceps, chest                    |
+| Medium    | Foam roller                | Recovery                          |
+| Low       | Cable pulley               | Isolation, variety                |
+| Low       | Specialty bars             | Ergonomics, variety               |
+| Low       | Cardio machine             | Can substitute outdoor activity   |
+| Low       | Mirrors                    | Form check (phone camera works)   |
+| Luxury    | GHD machine                | Posterior chain                   |
+| Luxury    | Reverse hyper              | Low back health                   |
+| Luxury    | Belt squat                 | Squat without spinal loading      |
+
 ---
+
 ## Flooring Options
 
 ### Flooring Comparison
 
-| Type | Cost (per sq ft) | Thickness | Noise Reduction | Durability | Best For |
-|------|------------------|-----------|-----------------|------------|----------|
-| Horse stall mats | $1.50-2.50 | 3/4" | Excellent | Excellent | Deadlifts, general |
-| Rubber gym tiles | $2-5 | 1/2"-3/4" | Good | Good | Full gym floor |
-| Puzzle foam mats | $0.50-1.50 | 1/2"-3/4" | Fair | Fair | Light use, yoga |
-| Plywood platform | $1-2 | 3/4" | Fair (needs rubber top) | Good | Olympic lifting |
-| Carpet (existing) | Free | Varies | Good | Fair | Light dumbbells only |
+| Type              | Cost (per sq ft) | Thickness | Noise Reduction         | Durability | Best For             |
+| ----------------- | ---------------- | --------- | ----------------------- | ---------- | -------------------- |
+| Horse stall mats  | $1.50-2.50       | 3/4"      | Excellent               | Excellent  | Deadlifts, general   |
+| Rubber gym tiles  | $2-5             | 1/2"-3/4" | Good                    | Good       | Full gym floor       |
+| Puzzle foam mats  | $0.50-1.50       | 1/2"-3/4" | Fair                    | Fair       | Light use, yoga      |
+| Plywood platform  | $1-2             | 3/4"      | Fair (needs rubber top) | Good       | Olympic lifting      |
+| Carpet (existing) | Free             | Varies    | Good                    | Fair       | Light dumbbells only |
 
 ### DIY Deadlift Platform
+
 ```
 MATERIALS:
 - 2x sheets 4'x8' plywood (3/4"): ~$50
@@ -272,10 +291,13 @@ Layer 3 (top sides): Horse stall mat pieces on each side for weight drop zones
 TOTAL SIZE: 8' x 4' x 2.25"
 TOTAL COST: ~$165
 ```
+
 ---
+
 ## Apartment-Friendly Options
 
 ### Noise Reduction Strategies
+
 ```
 IMPACT NOISE REDUCTION:
 1. Double-layer rubber flooring (stall mat + puzzle mat)
@@ -305,20 +327,23 @@ Jump Rope → Jumping jacks on mat or cycling
 
 ### Compact Equipment for Small Spaces
 
-| Equipment | Footprint | Storage | Versatility |
-|-----------|-----------|---------|-------------|
-| Adjustable dumbbells | 1'x1' | In-place | High |
-| Resistance bands (set) | Hang on hook | Minimal | High |
-| Suspension trainer (TRX) | Door anchor | Bag | High |
-| Foldable bench | 2'x1' (folded) | Against wall | Medium |
-| Pull-up bar (doorframe) | Door width | Remove when done | Medium |
-| Kettlebell (1-2) | 8"x8" | Floor or shelf | High |
-| Yoga mat | Roll up | Closet | Medium |
-| Ab wheel | 8"x8" | Shelf | Low |
+| Equipment                | Footprint      | Storage          | Versatility |
+| ------------------------ | -------------- | ---------------- | ----------- |
+| Adjustable dumbbells     | 1'x1'          | In-place         | High        |
+| Resistance bands (set)   | Hang on hook   | Minimal          | High        |
+| Suspension trainer (TRX) | Door anchor    | Bag              | High        |
+| Foldable bench           | 2'x1' (folded) | Against wall     | Medium      |
+| Pull-up bar (doorframe)  | Door width     | Remove when done | Medium      |
+| Kettlebell (1-2)         | 8"x8"          | Floor or shelf   | High        |
+| Yoga mat                 | Roll up        | Closet           | Medium      |
+| Ab wheel                 | 8"x8"          | Shelf            | Low         |
+
 ---
+
 ## Equipment Maintenance
 
 ### Regular Maintenance Schedule
+
 ```
 AFTER EVERY USE:
 - Wipe down bench and equipment with disinfectant
@@ -350,6 +375,7 @@ ANNUALLY:
 ```
 
 ### Barbell Care Guide
+
 ```
 CLEANING:
 1. Use a nylon brush to scrub knurling (removes chalk and skin)
@@ -372,10 +398,13 @@ RUST PREVENTION (Garage Gyms):
 - Consider stainless steel or cerakote barbells for humid climates
 - Use silica gel packets near stored equipment
 ```
+
 ---
+
 ## Workout Programs for Home Equipment
 
 ### Dumbbell-Only Full Body (3 days/week)
+
 ```
 DAY A - PUSH FOCUS
 1. Goblet Squat: 4x10-12
@@ -404,6 +433,7 @@ DAY C - FULL BODY
 ```
 
 ### Barbell Home Gym Program (4 days/week)
+
 ```
 DAY 1 - UPPER A
 1. Barbell Bench Press: 4x6-8
@@ -436,6 +466,7 @@ DAY 4 - LOWER B
 ```
 
 ### Bodyweight-Only Program (5 days/week)
+
 ```
 DAY 1 PUSH: Push-up variations 4x, Pike push-ups 3x8-12, Dips 3x8-12
 DAY 2 PULL: Pull-ups 4xmax, Inverted rows 3x10-15, Superman holds 3x15
@@ -443,10 +474,13 @@ DAY 3 LEGS: Pistol squat progression 4x5-8, Bulgarian split squat 3x12, Nordic h
 DAY 4 HIIT: 30s work/15s rest x4 rounds: Burpees, Mountain climbers, Jump squats, Push-ups, Plank jacks
 DAY 5 CORE: Dead bug 3x10, Bird dog 3x10, Side plank 3x30s, Hollow hold 3x20-30s, Stretching 15min
 ```
+
 ---
+
 ## Storage Solutions
 
 ### Equipment Storage Ideas
+
 ```
 WALL-MOUNTED:
 - Barbell wall hangers (horizontal): $20-40
@@ -466,10 +500,13 @@ SPACE-SAVING TIPS:
 - Store bars horizontally along wall
 - Use vertical space (shelving above equipment)
 ```
+
 ---
+
 ## Climate Considerations for Garage Gyms
 
 ### Temperature Management
+
 ```
 HOT CLIMATE (90F+):
 - Fans: industrial floor fan ($50-100) + ceiling fan
@@ -492,10 +529,13 @@ HUMIDITY:
 - Keep below 50% humidity
 - Use silica gel packets in accessory storage
 ```
+
 ---
+
 ## Output Format
 
 When recommending a home gym setup, present it as:
+
 ```
 HOME GYM RECOMMENDATION
 Budget: $[Amount]
@@ -516,3 +556,4 @@ EQUIPMENT LIST:
 - **Incomplete information:** Ask clarifying questions before proceeding. Do not assume details the user has not provided.
 - **Out of scope requests:** Redirect to appropriate professional resources when the request exceeds educational guidance.
 - **Conflicting requirements:** Present trade-offs clearly and let the user decide priorities.
+```

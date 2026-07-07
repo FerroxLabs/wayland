@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "devops cloud security"
-  category: "devops-cloud"
-  subcategory: "devops-cloud"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'devops cloud security'
+  category: 'devops-cloud'
+  subcategory: 'devops-cloud'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Kubernetes Networking
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks how to design or implement a CNI plugin strategy (Calico, Cilium, Flannel, Weave, etc.) for a Kubernetes cluster
 - User needs to configure Services (ClusterIP, NodePort, LoadBalancer, ExternalName), Endpoints, or EndpointSlices
 - User wants to implement NetworkPolicy rules to segment traffic between namespaces or pods
@@ -32,6 +34,7 @@ metadata:
 - User asks about DNS configuration, CoreDNS tuning, or service discovery inside a cluster
 
 **Do NOT use this skill when:**
+
 - User needs container image building, Dockerfile optimization, or registry configuration -- use the container-build skill
 - User needs Kubernetes storage (PersistentVolumes, StorageClasses, CSI drivers) -- use the kubernetes-storage skill
 - User needs cluster provisioning, node scaling, or managed Kubernetes setup (EKS, GKE, AKS) -- use the cluster-provisioning skill
@@ -69,6 +72,7 @@ CNI selection is the foundational architectural decision and is difficult to cha
 - **Weave Net** -- no longer actively developed; avoid for new deployments.
 
 **Installation validation steps:**
+
 ```bash
 # Verify all CNI pods are Running
 kubectl get pods -n kube-system -l k8s-app=cilium
@@ -158,6 +162,7 @@ Networking bugs in production are expensive to debug. Pre-deployment validation 
 - **Policy validation with network-policy-validator:** Use `kubectl neat` and `kube-linter` to statically validate NetworkPolicy YAML before applying. The `netassert` tool runs declarative connectivity tests (pod A can reach pod B on port 8080; pod C cannot reach pod B) that can be run in CI.
 - **Connectivity test matrix:** For every service-to-service path, document and test: allowed paths (should return HTTP 200 or TCP connection success), denied paths (should return connection refused or timeout), and DNS resolution (should return expected IP). Tools: `kubectl exec` into a debug pod with `netshoot` image (which includes curl, netcat, tcpdump, nmap, etc.) for ad-hoc testing.
 - **iptables/eBPF rule inspection:**
+
   ```bash
   # Inspect iptables rules for a specific service
   iptables-save | grep <service-cluster-ip>
@@ -171,7 +176,9 @@ Networking bugs in production are expensive to debug. Pre-deployment validation 
   # Verify kube-proxy mode
   kubectl get cm kube-proxy -n kube-system -o yaml | grep mode
   ```
+
 - **DNS debugging:**
+
   ```bash
   # Run a debug pod with DNS tools
   kubectl run dnsutils --image=registry.k8s.io/e2e-test-images/jessie-dnsutils:1.3 \
@@ -180,6 +187,7 @@ Networking bugs in production are expensive to debug. Pre-deployment validation 
   # Check CoreDNS logs for NXDOMAIN errors
   kubectl logs -n kube-system -l k8s-app=kube-dns --tail=100
   ```
+
 - **Load testing ingress:** Use `k6`, `hey`, or `vegeta` to load test ingress routes before production traffic. Measure p95 and p99 latency. Baseline: NGINX Ingress with 10,000 RPS should show p99 < 50ms on a 4-core ingress node. Tune NGINX worker processes to match vCPU count.
 
 ---
@@ -220,10 +228,10 @@ metadata:
   name: default-deny-all
   namespace: <target-namespace>
 spec:
-  podSelector: {}        # selects ALL pods in the namespace
+  podSelector: {} # selects ALL pods in the namespace
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
 ---
 # allow-dns-egress.yaml
 # REQUIRED: without this, pods cannot resolve service names after deny-all
@@ -235,13 +243,13 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Egress
+    - Egress
   egress:
-  - ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
 ---
 # allow-app-ingress.yaml
 # Allow traffic to the application from a specific frontend tier
@@ -256,16 +264,16 @@ spec:
       app: <api-service-name>
       tier: backend
   policyTypes:
-  - Ingress
+    - Ingress
   ingress:
-  - from:
-    - podSelector:
-        matchLabels:
-          app: <frontend-service-name>
-          tier: frontend
-    ports:
-    - protocol: TCP
-      port: 8080
+    - from:
+        - podSelector:
+            matchLabels:
+              app: <frontend-service-name>
+              tier: frontend
+      ports:
+        - protocol: TCP
+          port: 8080
 ```
 
 ### Service Definition Template
@@ -282,16 +290,16 @@ metadata:
     # service.beta.kubernetes.io/aws-load-balancer-type: nlb
     # service.beta.kubernetes.io/aws-load-balancer-internal: "true"
 spec:
-  type: ClusterIP            # ClusterIP | NodePort | LoadBalancer | ExternalName
+  type: ClusterIP # ClusterIP | NodePort | LoadBalancer | ExternalName
   selector:
     app: <app-label>
     tier: <tier-label>
   ports:
-  - name: http               # always name ports; required for NetworkPolicy and Istio
-    protocol: TCP
-    port: 80                 # service port (what clients connect to)
-    targetPort: 8080         # container port (what the app listens on)
-  sessionAffinity: None      # or ClientIP for sticky sessions
+    - name: http # always name ports; required for NetworkPolicy and Istio
+      protocol: TCP
+      port: 80 # service port (what clients connect to)
+      targetPort: 8080 # container port (what the app listens on)
+  sessionAffinity: None # or ClientIP for sticky sessions
   # For LoadBalancer type -- preserve client IP, avoid double-hop:
   # externalTrafficPolicy: Local
 ```
@@ -306,50 +314,50 @@ metadata:
   name: <app-ingress>
   namespace: <namespace>
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/proxy-body-size: '10m'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '60'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '60'
     # Rate limiting: 100 req/min per IP
-    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-rps: '100'
 spec:
-  ingressClassName: nginx     # use ingressClassName, NOT deprecated annotation
+  ingressClassName: nginx # use ingressClassName, NOT deprecated annotation
   tls:
-  - hosts:
-    - <app.example.com>
-    secretName: <app-tls-secret>  # managed by cert-manager
+    - hosts:
+        - <app.example.com>
+      secretName: <app-tls-secret> # managed by cert-manager
   rules:
-  - host: <app.example.com>
-    http:
-      paths:
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: <api-service>
-            port:
-              name: http
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: <frontend-service>
-            port:
-              name: http
+    - host: <app.example.com>
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: <api-service>
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: <frontend-service>
+                port:
+                  name: http
 ```
 
 ### Decision Matrix
 
-| Factor | Flannel | Calico | Cilium | AWS VPC CNI |
-|--------|---------|--------|--------|-------------|
-| NetworkPolicy support | No | Yes (L3/L4 + GlobalPolicy) | Yes (L3/L4/L7) | With Calico add-on |
-| Data plane | VXLAN | iptables / eBPF | eBPF only | iptables + ENI routing |
-| Performance at scale | Medium | High | Highest | High (native VPC) |
-| Observability | None | Basic | Hubble (full L7 flow) | None native |
-| BGP peering | No | Yes (full BGP) | Yes (BGP control plane) | No |
-| Bare metal support | Yes | Yes | Yes | No |
-| Operational complexity | Low | Medium | Medium-High | Low (AWS-managed) |
-| Best for | Dev/test | On-prem, BGP | High-perf, L7 policy | AWS production |
+| Factor                 | Flannel  | Calico                     | Cilium                  | AWS VPC CNI            |
+| ---------------------- | -------- | -------------------------- | ----------------------- | ---------------------- |
+| NetworkPolicy support  | No       | Yes (L3/L4 + GlobalPolicy) | Yes (L3/L4/L7)          | With Calico add-on     |
+| Data plane             | VXLAN    | iptables / eBPF            | eBPF only               | iptables + ENI routing |
+| Performance at scale   | Medium   | High                       | Highest                 | High (native VPC)      |
+| Observability          | None     | Basic                      | Hubble (full L7 flow)   | None native            |
+| BGP peering            | No       | Yes (full BGP)             | Yes (BGP control plane) | No                     |
+| Bare metal support     | Yes      | Yes                        | Yes                     | No                     |
+| Operational complexity | Low      | Medium                     | Medium-High             | Low (AWS-managed)      |
+| Best for               | Dev/test | On-prem, BGP               | High-perf, L7 policy    | AWS production         |
 
 ---
 
@@ -500,8 +508,8 @@ metadata:
     # Required for NetworkPolicy namespaceSelector matching
     kubernetes.io/metadata.name: tenant-<tenant-id>
     tenant-id: <tenant-id>
-    pci-scope: "true"         # marks namespace for PCI-DSS audit
-    istio-injection: enabled  # auto-inject Envoy sidecar
+    pci-scope: 'true' # marks namespace for PCI-DSS audit
+    istio-injection: enabled # auto-inject Envoy sidecar
 ---
 # Step 1: Default deny ALL traffic in this namespace
 apiVersion: networking.k8s.io/v1
@@ -512,8 +520,8 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
 ---
 # Step 2: Allow DNS -- CRITICAL, must be applied alongside deny-all
 apiVersion: networking.k8s.io/v1
@@ -524,20 +532,20 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Egress
+    - Egress
   egress:
-  - to:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: kube-system
-      podSelector:
-        matchLabels:
-          k8s-app: kube-dns
-    ports:
-    - protocol: UDP
-      port: 53
-    - protocol: TCP
-      port: 53
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
 ---
 # Step 3: Allow intra-tenant traffic (pods within same tenant namespace can communicate)
 apiVersion: networking.k8s.io/v1
@@ -548,14 +556,14 @@ metadata:
 spec:
   podSelector: {}
   policyTypes:
-  - Ingress
-  - Egress
+    - Ingress
+    - Egress
   ingress:
-  - from:
-    - podSelector: {}    # any pod in THIS namespace (same tenant)
+    - from:
+        - podSelector: {} # any pod in THIS namespace (same tenant)
   egress:
-  - to:
-    - podSelector: {}    # any pod in THIS namespace (same tenant)
+    - to:
+        - podSelector: {} # any pod in THIS namespace (same tenant)
 ---
 # Step 4: Allow ingress from NGINX ingress controller namespace only
 apiVersion: networking.k8s.io/v1
@@ -566,17 +574,17 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      tier: api-gateway   # only the API gateway pods receive external traffic
+      tier: api-gateway # only the API gateway pods receive external traffic
   policyTypes:
-  - Ingress
+    - Ingress
   ingress:
-  - from:
-    - namespaceSelector:
-        matchLabels:
-          kubernetes.io/metadata.name: ingress-nginx
-    ports:
-    - protocol: TCP
-      port: 8080
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
 ```
 
 ---
@@ -597,20 +605,20 @@ spec:
     matchLabels:
       app: payment-service
   ingress:
-  - fromEndpoints:
-    - matchLabels:
-        app: checkout-service
-    toPorts:
-    - ports:
-      - port: "8080"
-        protocol: TCP
-      rules:
-        http:
-        - method: POST
-          path: /api/v1/payments
-        - method: GET
-          path: /api/v1/payments/[0-9a-f-]+   # UUID path only
-        # All other methods and paths are implicitly denied
+    - fromEndpoints:
+        - matchLabels:
+            app: checkout-service
+      toPorts:
+        - ports:
+            - port: '8080'
+              protocol: TCP
+          rules:
+            http:
+              - method: POST
+                path: /api/v1/payments
+              - method: GET
+                path: /api/v1/payments/[0-9a-f-]+ # UUID path only
+            # All other methods and paths are implicitly denied
 ```
 
 ---
@@ -625,7 +633,7 @@ apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
 metadata:
   name: default-strict-mtls
-  namespace: istio-system  # root namespace -- applies cluster-wide
+  namespace: istio-system # root namespace -- applies cluster-wide
 spec:
   mtls:
     mode: STRICT
@@ -644,8 +652,8 @@ spec:
   mtls:
     mode: STRICT
   portLevelMtls:
-    "9090":                # health check port
-      mode: PERMISSIVE     # ALB cannot present mTLS cert
+    '9090': # health check port
+      mode: PERMISSIVE # ALB cannot present mTLS cert
 ```
 
 ---
@@ -660,34 +668,34 @@ metadata:
   name: tenant-api-ingress
   namespace: tenant-<tenant-id>
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    nginx.ingress.kubernetes.io/proxy-body-size: "5m"
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '60'
+    nginx.ingress.kubernetes.io/proxy-body-size: '5m'
     # PCI-DSS: force TLS 1.2 minimum
-    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
-    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384"
+    nginx.ingress.kubernetes.io/ssl-protocols: 'TLSv1.2 TLSv1.3'
+    nginx.ingress.kubernetes.io/ssl-ciphers: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384'
     # Rate limiting: 200 req/sec per tenant subdomain
-    nginx.ingress.kubernetes.io/limit-rps: "200"
-    nginx.ingress.kubernetes.io/limit-connections: "50"
+    nginx.ingress.kubernetes.io/limit-rps: '200'
+    nginx.ingress.kubernetes.io/limit-connections: '50'
     # cert-manager will provision and renew this certificate automatically
     cert-manager.io/cluster-issuer: letsencrypt-production
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - <tenant-id>.api.example.com
-    secretName: tenant-<tenant-id>-tls
+    - hosts:
+        - <tenant-id>.api.example.com
+      secretName: tenant-<tenant-id>-tls
   rules:
-  - host: <tenant-id>.api.example.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: api-gateway
-            port:
-              name: http
+    - host: <tenant-id>.api.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  name: http
 ```
 
 ---
@@ -732,3 +740,4 @@ data:
 
 ```yaml
 # co
+```

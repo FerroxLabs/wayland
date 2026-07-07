@@ -7,25 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "fashion design planning"
-  category: "design-creative"
-  subcategory: "visual-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'fashion design planning'
+  category: 'design-creative'
+  subcategory: 'visual-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Wardrobe Planner
+
 > **PHILOSOPHY:** A capsule wardrobe is about intentional dressing -- owning fewer, better pieces that all work together. The goal is not deprivation but freedom: less decision fatigue, more confidence, and a closet where everything fits and makes you feel great.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about wardrobe planner
 - User needs guidance on wardrobe planner topics
 - User wants a structured approach to wardrobe planner
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -41,10 +45,13 @@ metadata:
 8. **What are your laundry constraints?** (Wash weekly / Twice a week / Daily access)
 9. **Do you have any dress code requirements?** (Business formal / Business casual / No code)
 10. **What is your biggest wardrobe frustration right now?**
+
 ---
+
 ## Phase 1: Wardrobe Audit
 
 ### The Closet Audit Process
+
 ```
 STEP 1: PULL EVERYTHING OUT
 - Remove ALL clothing from closet, drawers, storage
@@ -97,6 +104,7 @@ STEP 4: IDENTIFY GAPS
 ```
 
 ### The Hanger Method (Alternative Audit)
+
 ```
 If a full audit feels overwhelming:
 
@@ -108,10 +116,13 @@ If a full audit feels overwhelming:
 
 This gives you real data about what you actually wear vs. what you think you wear.
 ```
+
 ---
+
 ## Phase 2: Capsule Wardrobe Methodology
 
 ### What is a Capsule Wardrobe?
+
 ```
 DEFINITION:
 A curated collection of timeless, versatile clothing pieces that can be
@@ -143,6 +154,7 @@ WHAT DOES NOT COUNT:
 ```
 
 ### The Formula
+
 ```
 STANDARD CAPSULE FORMULA (35-item example):
 
@@ -184,10 +196,13 @@ OUTFIT MATH:
 60 x 4 outerwear options = 240 outfits
 Add shoes and accessories = 500+ unique looks
 ```
+
 ---
+
 ## Phase 3: Color Palette Selection
 
 ### Building Your Capsule Color Palette
+
 ```
 THE 4-COLOR METHOD:
 
@@ -227,6 +242,7 @@ If a color only works with one other item, it doesn't belong in your capsule.
 ```
 
 ### Color Compatibility Matrix Template
+
 ```
 Fill in your chosen colors and check pairings:
 
@@ -241,10 +257,13 @@ Color 5  |  Y/N    |  Y/N    |  Y/N    |  Y/N    |    -
 GOAL: Every color pairs with at least 3 others.
 If a color only pairs with 1-2 others, reconsider it.
 ```
+
 ---
+
 ## Phase 4: Mix-and-Match Optimization
 
 ### Outfit Formula Templates
+
 ```
 WOMEN'S OUTFIT FORMULAS:
 
@@ -290,6 +309,7 @@ EVENING:
 ```
 
 ### The Versatility Test
+
 ```
 FOR EVERY PIECE IN YOUR CAPSULE:
 
@@ -314,10 +334,13 @@ MOST VERSATILE PIECES (highest outfit count):
 9. Leather belt
 10. Trench coat
 ```
+
 ---
+
 ## Phase 5: Seasonal Capsule Rotation
 
 ### Four-Season Rotation System
+
 ```
 THE ROTATION METHOD:
 Instead of one year-round capsule, create seasonal micro-capsules
@@ -372,10 +395,13 @@ STORAGE:
 Off-season pieces go into labeled storage bins or garment bags.
 Rotate at the start of each season (equinoxes are a good reminder).
 ```
+
 ---
+
 ## Phase 6: Shopping List Generation
 
 ### Capsule Shopping Planner
+
 ```
 PRIORITY SHOPPING LIST TEMPLATE:
 
@@ -387,6 +413,7 @@ PRIORITY 1 - IMMEDIATE NEEDS (Gaps that affect daily dressing):
 
 ### Tracking Investment Value
 ```
+
 COST-PER-WEAR (CPW) FORMULA:
 CPW = Purchase Price / Number of Times Worn
 
@@ -403,6 +430,7 @@ $40 uncomfortable shoes worn 5 times = $8.00/wear
 $60 sale item you never wear = infinite CPW
 
 BEFORE BUYING, ASK:
+
 1. How many times will I realistically wear this?
 2. Does it fit my capsule color palette?
 3. Can it create 3+ outfits with what I already own?
@@ -412,7 +440,7 @@ BEFORE BUYING, ASK:
 CPW TRACKING LOG:
 Item | Cost | Date Bought | Wears | Current CPW | Target CPW
 -----|------|-------------|-------|-------------|----------
-     |      |             |       |             |
+| | | | |
 
 GOAL CPW TARGETS:
 Daily basics (tees, jeans): Under $1/wear
@@ -420,12 +448,14 @@ Workwear (blazers, trousers): Under $3/wear
 Outerwear: Under $5/wear
 Special occasion: Under $20/wear
 Everything else: Under $5/wear
+
 ```
 ---
 ## Phase 8: Minimalist Dressing Strategies
 
 ### The Art of Less
 ```
+
 MINIMALIST DRESSING PRINCIPLES:
 
 1. QUALITY OVER QUANTITY
@@ -458,19 +488,23 @@ MINIMALIST DRESSING PRINCIPLES:
    - Polish shoes regularly
 
 GARMENT CARE BASICS:
+
 - Wash cold, hang to dry (extends life significantly)
 - Don't over-wash (jeans: every 5-10 wears; sweaters: every 3-5 wears)
 - Use mesh laundry bags for delicates
 - Steam instead of iron when possible
 - Read care labels (they exist for a reason)
 - Store off-season clothes clean and in breathable bags
+
 ```
 
 ### Capsule Challenge: 30 Days / 30 Outfits
 ```
+
 CHALLENGE: Create 30 unique outfits from your capsule in 30 days.
 
 RULES:
+
 1. Select your capsule (25-35 pieces including shoes)
 2. Photograph each daily outfit
 3. No repeating an exact combination
@@ -480,23 +514,26 @@ RULES:
 DAILY LOG:
 Day | Top | Bottom | Layer | Shoes | Accessories | Rating (1-5)
 ----|-----|--------|-------|-------|-------------|-------------
- 1  |     |        |       |       |             |
- 2  |     |        |       |       |             |
-... |     |        |       |       |             |
-30  |     |        |       |       |             |
+1 | | | | | |
+2 | | | | | |
+... | | | | | |
+30 | | | | | |
 
 AFTER 30 DAYS, REVIEW:
+
 - Which pieces did you wear most? (Core pieces)
 - Which pieces did you reach for least? (Consider removing)
 - What outfits got the most compliments?
 - What gaps did you discover?
 - How did decision fatigue feel compared to a full closet?
+
 ```
 ---
 ## Output Format
 
 When building a capsule wardrobe plan, present it as:
 ```
+
 CAPSULE WARDROBE PLAN
 Style Profile: [Archetype]
 Lifestyle Mix: [Work/Casual/Active percentages]
@@ -513,14 +550,16 @@ Accent 2: [Color]
 CAPSULE INVENTORY:
 Category | Item | Color | Own/Need | Priority
 ---------|------|-------|----------|----------
-Tops     |      |       |          |
-Bottoms  |      |       |          |
-Dresses  |      |       |          |
-Outerwear|      |       |          |
-Shoes    |      |       |          |
+Tops | | | |
+Bottoms | | | |
+Dresses | | | |
+Outerwear| | | |
+Shoes | | | |
 
 OUTFIT COMBINATIONS (Top 10):
+
 # | Top + Bottom + Layer + Shoes | Occasion
+
 # | Item | Color | Budget | Where to Buy
 
 ## Example

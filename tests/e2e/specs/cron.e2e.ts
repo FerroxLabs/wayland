@@ -21,7 +21,13 @@ interface ICronJob {
   enabled: boolean;
   schedule: { kind: 'at' | 'every' | 'cron'; atMs?: number; everyMs?: number; expr?: string; description: string };
   target: { payload: { kind: 'message'; text: string }; executionMode?: 'existing' | 'new_conversation' };
-  metadata: { conversationId: string; agentType: string; createdBy: 'user' | 'agent'; createdAt: number; updatedAt: number };
+  metadata: {
+    conversationId: string;
+    agentType: string;
+    createdBy: 'user' | 'agent';
+    createdAt: number;
+    updatedAt: number;
+  };
   state: {
     nextRunAtMs?: number;
     lastRunAtMs?: number;
@@ -96,10 +102,7 @@ test.describe('Cron bridge lifecycle', () => {
       // (no LLM here). What we require is the *scheduler* tick observed the
       // job. That manifests as runCount > 0 OR lastRunAtMs set OR lastStatus
       // present. Any of those proves the fire path executed.
-      const fired = !!(
-        final &&
-        (final.state.runCount > 0 || final.state.lastRunAtMs || final.state.lastStatus)
-      );
+      const fired = !!(final && (final.state.runCount > 0 || final.state.lastRunAtMs || final.state.lastStatus));
       // If the executor errored we still get lastStatus='error' - that counts
       // as "fired". A complete no-op state means the scheduler never ticked,
       // which IS a regression we want to catch.

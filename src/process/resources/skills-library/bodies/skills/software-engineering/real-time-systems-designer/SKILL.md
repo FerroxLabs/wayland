@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns optimization"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns optimization'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Real-Time Systems Designer
@@ -24,17 +24,17 @@ You are an expert Real-Time Systems Designer who architects systems requiring su
 
 ### Decision Matrix
 
-| Requirement | WebSocket | SSE | Long Polling | Short Polling |
-|-------------|-----------|-----|-------------|---------------|
-| Server-to-client push | Yes | Yes | Yes | Simulated |
-| Client-to-server messages | Yes | No (use HTTP) | Via new request | Via new request |
-| Bidirectional streaming | Yes | No | No | No |
-| Browser support | All modern | All modern | All | All |
-| Through HTTP/2 multiplexing | Limited | Yes | Yes | Yes |
-| Auto-reconnect | Manual | Built-in | Manual | N/A |
-| Binary data | Yes | No (text only) | Yes | Yes |
-| Load balancer friendly | Requires sticky/upgrade | Standard HTTP | Standard HTTP | Standard HTTP |
-| Connection overhead | 1 persistent TCP | 1 persistent HTTP | Repeated connections | Repeated connections |
+| Requirement                 | WebSocket               | SSE               | Long Polling         | Short Polling        |
+| --------------------------- | ----------------------- | ----------------- | -------------------- | -------------------- |
+| Server-to-client push       | Yes                     | Yes               | Yes                  | Simulated            |
+| Client-to-server messages   | Yes                     | No (use HTTP)     | Via new request      | Via new request      |
+| Bidirectional streaming     | Yes                     | No                | No                   | No                   |
+| Browser support             | All modern              | All modern        | All                  | All                  |
+| Through HTTP/2 multiplexing | Limited                 | Yes               | Yes                  | Yes                  |
+| Auto-reconnect              | Manual                  | Built-in          | Manual               | N/A                  |
+| Binary data                 | Yes                     | No (text only)    | Yes                  | Yes                  |
+| Load balancer friendly      | Requires sticky/upgrade | Standard HTTP     | Standard HTTP        | Standard HTTP        |
+| Connection overhead         | 1 persistent TCP        | 1 persistent HTTP | Repeated connections | Repeated connections |
 
 ### When to Use What
 
@@ -74,8 +74,8 @@ import { WebSocketServer } from 'ws';
 class RealTimeServer {
   constructor(server) {
     this.wss = new WebSocketServer({ server, path: '/ws' });
-    this.rooms = new Map();       // roomId -> Set<WebSocket>
-    this.clients = new Map();     // WebSocket -> { userId, rooms, lastPing }
+    this.rooms = new Map(); // roomId -> Set<WebSocket>
+    this.clients = new Map(); // WebSocket -> { userId, rooms, lastPing }
 
     // Heartbeat: detect dead connections every 30s
     scheduleRepeating(() => {
@@ -87,10 +87,15 @@ class RealTimeServer {
 
     this.wss.on('connection', (ws, req) => {
       const userId = this.authenticateFromRequest(req);
-      if (!userId) { ws.close(4001, 'Unauthorized'); return; }
+      if (!userId) {
+        ws.close(4001, 'Unauthorized');
+        return;
+      }
 
       this.clients.set(ws, { userId, rooms: new Set(), lastPing: Date.now() });
-      ws.on('pong', () => { this.clients.get(ws).lastPing = Date.now(); });
+      ws.on('pong', () => {
+        this.clients.get(ws).lastPing = Date.now();
+      });
       ws.on('message', (data) => this.handleMessage(ws, JSON.parse(data)));
       ws.on('close', () => this.handleDisconnect(ws));
     });
@@ -178,8 +183,8 @@ app.get('/events/:channel', authenticateMiddleware, (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive',
-    'X-Accel-Buffering': 'no',  // Disable Nginx buffering
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no', // Disable Nginx buffering
   });
 
   // Send retry interval (client will auto-reconnect after this delay)
@@ -236,7 +241,7 @@ Do NOT use CRDTs when:
 class GCounter {
   constructor(nodeId) {
     this.nodeId = nodeId;
-    this.counts = {};  // nodeId -> count
+    this.counts = {}; // nodeId -> count
   }
 
   increment(amount = 1) {
@@ -269,8 +274,7 @@ class LWWRegister {
   }
 
   merge(other) {
-    if (other.timestamp > this.timestamp ||
-        (other.timestamp === this.timestamp && other.nodeId > this.nodeId)) {
+    if (other.timestamp > this.timestamp || (other.timestamp === this.timestamp && other.nodeId > this.nodeId)) {
       this.value = other.value;
       this.timestamp = other.timestamp;
     }
@@ -282,7 +286,7 @@ class LWWRegister {
 class ORSet {
   constructor(nodeId) {
     this.nodeId = nodeId;
-    this.elements = new Map();  // element -> Set<{ tag, nodeId }>
+    this.elements = new Map(); // element -> Set<{ tag, nodeId }>
     this.tombstones = new Set(); // removed tags
     this.counter = 0;
   }
@@ -354,8 +358,8 @@ class PresenceManager {
     const key = `presence:${roomId}`;
     const entry = JSON.stringify({
       userId,
-      ...data,          // cursor position, selection, status
-      updatedAt: Date.now()
+      ...data, // cursor position, selection, status
+      updatedAt: Date.now(),
     });
 
     // Set with expiry (auto-cleanup if client disconnects)
@@ -368,17 +372,20 @@ class PresenceManager {
 
   async removePresence(roomId, userId) {
     await this.redis.hdel(`presence:${roomId}`, userId);
-    this.pubsub.publish(`room:${roomId}:presence`, JSON.stringify({
-      userId, action: 'left'
-    }));
+    this.pubsub.publish(
+      `room:${roomId}:presence`,
+      JSON.stringify({
+        userId,
+        action: 'left',
+      })
+    );
   }
 
   async getRoomPresence(roomId) {
     const entries = await this.redis.hgetall(`presence:${roomId}`);
-    return Object.values(entries).map(e => JSON.parse(e));
+    return Object.values(entries).map((e) => JSON.parse(e));
   }
 }
-
 ```
 
 ## Scaling Real-Time Systems
@@ -461,6 +468,7 @@ Reliability:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing real time systems designer solutions
 - Reviewing or improving existing real time systems designer approaches
 - Making architectural or implementation decisions about real time systems designer
@@ -468,6 +476,7 @@ Reliability:
 - Troubleshooting real time systems designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -478,21 +487,26 @@ Reliability:
 # Real Time Systems Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

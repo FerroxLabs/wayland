@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "python backend optimization"
-  category: "software-engineering"
-  subcategory: "languages-runtimes"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'python backend optimization'
+  category: 'software-engineering'
+  subcategory: 'languages-runtimes'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Python Async Patterns
 
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about `async`/`await` syntax, coroutine behavior, or event loop mechanics in Python
 - User wants to choose between asyncio, threading, and multiprocessing for a specific workload
 - User asks about the GIL (Global Interpreter Lock) and its impact on concurrency primitives
@@ -34,6 +36,7 @@ metadata:
 - User is building a long-running service and needs graceful shutdown with signal handling
 
 **Do NOT use this skill when:**
+
 - User wants to set up a new Python project structure → use `python-project-setup`
 - User is asking about testing async code with pytest-asyncio or unittest async support → use `python-testing-patterns`
 - User wants general CPU or memory performance optimization → use `python-performance`
@@ -59,16 +62,16 @@ The single most important decision in Python concurrency is matching the workloa
 
 Apply this decision matrix before writing any code:
 
-| Workload Type | Library has async? | Recommended Model | GIL Impact |
-|---|---|---|---|
-| HTTP requests, DNS | Yes (httpx, aiohttp) | asyncio | None -- single thread |
-| Database queries | Yes (asyncpg, aiomysql) | asyncio | None |
-| Database queries | No (psycopg2, pymysql) | ThreadPoolExecutor | Released during C I/O |
-| File I/O | Partial (aiofiles) | asyncio + aiofiles or to_thread | Minimal |
-| CPU: pure Python | N/A | ProcessPoolExecutor | Bypassed (separate process) |
-| CPU: NumPy/C extensions | N/A | ThreadPoolExecutor | Released in C layer |
-| CLI batch processing | N/A | multiprocessing.Pool | Bypassed |
-| Mixed I/O + CPU | Depends | asyncio + run_in_executor | Managed per task |
+| Workload Type           | Library has async?      | Recommended Model               | GIL Impact                  |
+| ----------------------- | ----------------------- | ------------------------------- | --------------------------- |
+| HTTP requests, DNS      | Yes (httpx, aiohttp)    | asyncio                         | None -- single thread       |
+| Database queries        | Yes (asyncpg, aiomysql) | asyncio                         | None                        |
+| Database queries        | No (psycopg2, pymysql)  | ThreadPoolExecutor              | Released during C I/O       |
+| File I/O                | Partial (aiofiles)      | asyncio + aiofiles or to_thread | Minimal                     |
+| CPU: pure Python        | N/A                     | ProcessPoolExecutor             | Bypassed (separate process) |
+| CPU: NumPy/C extensions | N/A                     | ThreadPoolExecutor              | Released in C layer         |
+| CLI batch processing    | N/A                     | multiprocessing.Pool            | Bypassed                    |
+| Mixed I/O + CPU         | Depends                 | asyncio + run_in_executor       | Managed per task            |
 
 ### 2. Design the Event Loop Architecture
 
@@ -94,7 +97,7 @@ The most common asyncio bug is blocking the event loop with synchronous code. A 
   - Redis: `redis.asyncio.Redis` (formerly `aioredis`)
   - S3/AWS: `aiobotocore` or `boto3` wrapped in `to_thread`
   - File I/O: `aiofiles.open()` or `asyncio.to_thread(open, ...)`
-- **`asyncio.to_thread(func, *args, **kwargs)`** (Python 3.9+): runs `func` in the default `ThreadPoolExecutor` managed by the event loop. The thread count defaults to `min(32, os.cpu_count() + 4)`. For production code with many concurrent `to_thread` calls, create an explicit `ThreadPoolExecutor` with a defined worker count to prevent thread exhaustion.
+- **`asyncio.to_thread(func, \*args, **kwargs)`** (Python 3.9+): runs `func`in the default`ThreadPoolExecutor`managed by the event loop. The thread count defaults to`min(32, os.cpu_count() + 4)`. For production code with many concurrent `to_thread`calls, create an explicit`ThreadPoolExecutor` with a defined worker count to prevent thread exhaustion.
 - **`loop.run_in_executor(executor, func, *args)`**: gives explicit control over which executor runs the blocking function. Pass `None` as the executor to use the loop's default thread pool. Pass a custom `ThreadPoolExecutor` or `ProcessPoolExecutor` instance for dedicated pools.
 - **Do NOT use `time.sleep()` in async code.** Use `await asyncio.sleep(seconds)`. `time.sleep(1)` blocks the entire event loop for 1 second; `await asyncio.sleep(1)` suspends only the current coroutine and allows others to run.
 - **`asyncio.sleep(0)`**: technically valid -- it yields control to the event loop for one iteration, allowing other ready coroutines to run. Use this when implementing a tight CPU loop in a coroutine that must remain cooperative (e.g., processing a large list in chunks). Do not scatter `sleep(0)` throughout code as a fix for blocking -- redesign the blocking operation instead.
@@ -705,3 +708,4 @@ async def fetch_single_product(
     Phase 1 (I/O): Fetch details, pricing, reviews concurrently via TaskGroup.
     Phase 2 (CPU): Score the combined data in the process pool.
     Phase 3 (I
+```

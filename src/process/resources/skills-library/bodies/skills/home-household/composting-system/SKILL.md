@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "gardening composting sustainability"
-  category: "home-household"
-  subcategory: "gardening"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'gardening composting sustainability'
+  category: 'home-household'
+  subcategory: 'gardening'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Composting System
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user wants to start a home composting system from scratch and needs method selection guidance
 - The user has an existing pile that is failing -- producing odor, attracting pests, not heating up, or staying wet and slimy
 - The user asks about carbon-to-nitrogen ratios, what materials to add, or why their pile is not breaking down
@@ -31,6 +33,7 @@ metadata:
 - The user wants to maximize compost quality for vegetable gardens, where pathogen safety and nutrient content matter most
 
 **Do NOT use when:**
+
 - The user specifically wants a vermicomposting (worm bin) system -- worm bin design, feeding schedules, worm care, and bedding management require a dedicated vermicomposting skill with different parameters
 - The user is composting at commercial or farm scale (windrow composting, in-vessel systems, static pile aeration, regulatory compliance, and throughput calculations are outside this skill's scope)
 - The user wants to set up or join a community or municipal composting program -- logistics, permitting, collection routes, and equipment procurement require a separate community-scale skill
@@ -58,17 +61,18 @@ Present the method comparison table and walk the user through the decision with 
 
 **Complete method comparison:**
 
-| Method | Footprint | Capacity | Time to Finish | Effort | Cost Range | Best For |
-|---|---|---|---|---|---|---|
-| Open pile (passive) | 4x4 ft minimum | Unlimited | 12-18 months | Very low | Free | Large yard, abundant leaves and yard waste, no neighbors nearby |
-| Open pile (actively turned) | 4x4 ft minimum | Unlimited | 3-6 months | Moderate-high | Free | Large yard, user willing to turn weekly |
-| Three-bin system | 4x12 ft | High (batch) | 2-4 months | Moderate-high | $50-$250 (DIY lumber or wire) | Serious gardeners with large yard waste volumes who want continuous production |
-| Enclosed stationary bin | 3x3 ft | 10-20 cu ft | 4-8 months | Low | $60-$150 retail; $0-$30 DIY | Small-to-medium yards, moderate waste, low maintenance preference |
-| Tumbler (dual-chamber) | 3x4 ft | 5-15 cu ft | 4-8 weeks (active) to 4 months (typical) | Low per turning (easy handle rotation) | $100-$350 | Small yards, pest concerns, faster turnover wanted, user willing to be attentive about ratios |
-| Trench/pit composting | No above-ground footprint | Medium (per trench) | 2-4 months underground | Low ongoing | Free | Users who want no visible structure; no harvesting needed; nutrients absorbed in place |
-| Bokashi (pre-treatment only) | Countertop vessel | Small (5 gal bucket) | 2 weeks fermentation then 2-4 weeks buried | Low | $40-$90 starter kit | Apartments, small spaces, meat and dairy users (bokashi handles prohibited items), feeds into another system or trench |
+| Method                       | Footprint                 | Capacity             | Time to Finish                             | Effort                                 | Cost Range                    | Best For                                                                                                               |
+| ---------------------------- | ------------------------- | -------------------- | ------------------------------------------ | -------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Open pile (passive)          | 4x4 ft minimum            | Unlimited            | 12-18 months                               | Very low                               | Free                          | Large yard, abundant leaves and yard waste, no neighbors nearby                                                        |
+| Open pile (actively turned)  | 4x4 ft minimum            | Unlimited            | 3-6 months                                 | Moderate-high                          | Free                          | Large yard, user willing to turn weekly                                                                                |
+| Three-bin system             | 4x12 ft                   | High (batch)         | 2-4 months                                 | Moderate-high                          | $50-$250 (DIY lumber or wire) | Serious gardeners with large yard waste volumes who want continuous production                                         |
+| Enclosed stationary bin      | 3x3 ft                    | 10-20 cu ft          | 4-8 months                                 | Low                                    | $60-$150 retail; $0-$30 DIY   | Small-to-medium yards, moderate waste, low maintenance preference                                                      |
+| Tumbler (dual-chamber)       | 3x4 ft                    | 5-15 cu ft           | 4-8 weeks (active) to 4 months (typical)   | Low per turning (easy handle rotation) | $100-$350                     | Small yards, pest concerns, faster turnover wanted, user willing to be attentive about ratios                          |
+| Trench/pit composting        | No above-ground footprint | Medium (per trench)  | 2-4 months underground                     | Low ongoing                            | Free                          | Users who want no visible structure; no harvesting needed; nutrients absorbed in place                                 |
+| Bokashi (pre-treatment only) | Countertop vessel         | Small (5 gal bucket) | 2 weeks fermentation then 2-4 weeks buried | Low                                    | $40-$90 starter kit           | Apartments, small spaces, meat and dairy users (bokashi handles prohibited items), feeds into another system or trench |
 
 **Decision shortcuts:**
+
 - Small yard + low effort + odor concern: enclosed stationary bin, placed in partial shade on bare soil
 - Large yard + fall leaf surplus + moderate effort: three-bin system that processes leaves with kitchen scraps and grass clippings
 - Fast results wanted in any yard size: dual-chamber tumbler, but be honest that 4-8 weeks requires turning every 2-3 days and correct ratios at all times
@@ -80,59 +84,61 @@ Present the method comparison table and walk the user through the decision with 
 The C:N ratio is the single most controlling variable in home composting. Most problems -- odor, slow decomposition, pest attraction -- trace back to ratio imbalance. Explain this concept with enough depth that the user can self-correct without having to return with follow-up questions.
 
 **The chemistry made practical:**
+
 - Bacteria and fungi that decompose organic matter need carbon as an energy source and nitrogen to build proteins. When carbon is abundant relative to nitrogen, decomposition slows because microbes are nitrogen-limited. When nitrogen is abundant relative to carbon, excess nitrogen off-gasses as ammonia -- the source of that sharp, urine-like smell in wet piles
 - The ideal C:N ratio for active thermophilic composting (the kind that heats up to 130-160°F) is 25:1 to 30:1 by dry weight
 - By volume -- which is how home composters actually work -- the practical rule is 3 parts browns to 1 part greens. This approximation works because browns are less dense and bulkier per unit of carbon than greens
 
 **Browns (carbon-rich materials) with actual C:N ratios:**
 
-| Material | C:N Ratio | Practical Notes |
-|---|---|---|
-| Dry autumn leaves | 40:1 to 80:1 | The single best carbon source for most home composters; shred with a lawn mower or leaf shredder to triple decomposition speed |
-| Corrugated cardboard (uncoated) | 350:1 to 500:1 | High carbon -- use in thin layers; always wet it before adding; remove tape, staples, and plastic windows |
-| Newspaper (standard newsprint, black ink only) | 175:1 | Shred into strips; do not use glossy sections or color inserts with heavy metallic inks |
-| Straw (wheat, oat, rye -- not hay) | 75:1 to 100:1 | Hay contains weed seeds that survive cooler passive piles; straw is seed-free |
-| Wood chips (untreated) | 200:1 to 500:1 | Best for creating permanent air channels in the base of a pile; decompose very slowly on their own |
-| Sawdust (untreated wood only) | 300:1 to 500:1 | Compacts and can go anaerobic -- use sparingly in thin layers; never use sawdust from pressure-treated, painted, or stained wood |
-| Dried garden stalks and corn cobs | 75:1 to 100:1 | Chop or break up; whole cobs can take 2+ years |
-| Paper bags, paper towels, unbleached napkins | 100:1 to 150:1 | Free of cleaning chemicals; no wax coating |
-| Pine needles | 60:1 to 110:1 | Slightly acidic (pH 3.2-3.8 fresh); composting neutralizes most acidity; limit to 20% of total volume |
-| Dryer lint (from natural fiber laundry only) | 100:1 | Cotton and linen are compostable; polyester and synthetic lint contains microplastics -- do not add |
+| Material                                       | C:N Ratio      | Practical Notes                                                                                                                  |
+| ---------------------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Dry autumn leaves                              | 40:1 to 80:1   | The single best carbon source for most home composters; shred with a lawn mower or leaf shredder to triple decomposition speed   |
+| Corrugated cardboard (uncoated)                | 350:1 to 500:1 | High carbon -- use in thin layers; always wet it before adding; remove tape, staples, and plastic windows                        |
+| Newspaper (standard newsprint, black ink only) | 175:1          | Shred into strips; do not use glossy sections or color inserts with heavy metallic inks                                          |
+| Straw (wheat, oat, rye -- not hay)             | 75:1 to 100:1  | Hay contains weed seeds that survive cooler passive piles; straw is seed-free                                                    |
+| Wood chips (untreated)                         | 200:1 to 500:1 | Best for creating permanent air channels in the base of a pile; decompose very slowly on their own                               |
+| Sawdust (untreated wood only)                  | 300:1 to 500:1 | Compacts and can go anaerobic -- use sparingly in thin layers; never use sawdust from pressure-treated, painted, or stained wood |
+| Dried garden stalks and corn cobs              | 75:1 to 100:1  | Chop or break up; whole cobs can take 2+ years                                                                                   |
+| Paper bags, paper towels, unbleached napkins   | 100:1 to 150:1 | Free of cleaning chemicals; no wax coating                                                                                       |
+| Pine needles                                   | 60:1 to 110:1  | Slightly acidic (pH 3.2-3.8 fresh); composting neutralizes most acidity; limit to 20% of total volume                            |
+| Dryer lint (from natural fiber laundry only)   | 100:1          | Cotton and linen are compostable; polyester and synthetic lint contains microplastics -- do not add                              |
 
 **Greens (nitrogen-rich materials) with actual C:N ratios:**
 
-| Material | C:N Ratio | Practical Notes |
-|---|---|---|
-| Fruit and vegetable scraps (raw) | 15:1 to 20:1 | Chop into pieces under 2 inches; smaller surface area = faster microbial colonization |
-| Coffee grounds (including paper filters) | 20:1 | One of the best home compost activators; earthworms are strongly attracted to them |
-| Fresh grass clippings | 12:1 to 20:1 | High nitrogen but mats into impermeable layers -- always mix with equal or greater volume of dry leaves before adding |
-| Green garden trimmings and plant debris (disease-free) | 20:1 to 30:1 | Chop stems under 6 inches; thick woody stems slow the whole pile |
+| Material                                                         | C:N Ratio                                   | Practical Notes                                                                                                                                                             |
+| ---------------------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fruit and vegetable scraps (raw)                                 | 15:1 to 20:1                                | Chop into pieces under 2 inches; smaller surface area = faster microbial colonization                                                                                       |
+| Coffee grounds (including paper filters)                         | 20:1                                        | One of the best home compost activators; earthworms are strongly attracted to them                                                                                          |
+| Fresh grass clippings                                            | 12:1 to 20:1                                | High nitrogen but mats into impermeable layers -- always mix with equal or greater volume of dry leaves before adding                                                       |
+| Green garden trimmings and plant debris (disease-free)           | 20:1 to 30:1                                | Chop stems under 6 inches; thick woody stems slow the whole pile                                                                                                            |
 | Fresh manure from herbivores (chicken, rabbit, horse, goat, cow) | 7:1 to 25:1 (varies by species and bedding) | Chicken manure is the most nitrogen-dense (7:1) and can burn plants if used fresh -- always compost first; horse manure with straw bedding is nearly self-balancing at 25:1 |
-| Eggshells (crushed) | Near neutral (no significant C or N) | Not a green or brown -- they contribute calcium carbonate and crushed shell texture; always crush finely or they persist for years |
-| Tea leaves and paper tea bags | 15:1 | Remove staples and synthetic mesh bags (nylon mesh does not biodegrade) |
-| Seaweed and kelp | 19:1 to 25:1 | Excellent trace mineral source; rinse lightly if salt-coated; available in coastal areas; liquid seaweed extract can be used as a pile activator |
-| Fresh weeds (before seed set) | 15:1 to 25:1 | Fine in active thermal piles reaching 131°F+ (weed seeds are killed above 131°F); do NOT add to passive cool piles |
-| Hair and nail clippings (human or pet) | 3:1 to 6:1 | Extremely nitrogen-dense; add in small amounts mixed into browns; clump and create anaerobic pockets if added in thick masses |
+| Eggshells (crushed)                                              | Near neutral (no significant C or N)        | Not a green or brown -- they contribute calcium carbonate and crushed shell texture; always crush finely or they persist for years                                          |
+| Tea leaves and paper tea bags                                    | 15:1                                        | Remove staples and synthetic mesh bags (nylon mesh does not biodegrade)                                                                                                     |
+| Seaweed and kelp                                                 | 19:1 to 25:1                                | Excellent trace mineral source; rinse lightly if salt-coated; available in coastal areas; liquid seaweed extract can be used as a pile activator                            |
+| Fresh weeds (before seed set)                                    | 15:1 to 25:1                                | Fine in active thermal piles reaching 131°F+ (weed seeds are killed above 131°F); do NOT add to passive cool piles                                                          |
+| Hair and nail clippings (human or pet)                           | 3:1 to 6:1                                  | Extremely nitrogen-dense; add in small amounts mixed into browns; clump and create anaerobic pockets if added in thick masses                                               |
 
 **Prohibited materials with specific reasons:**
 
-| Material | Why It's Prohibited | Common Misconception |
-|---|---|---|
-| Meat, fish, shellfish, bones | Attracts rats, raccoons, bears; creates hydrogen sulfide odor; supports Salmonella and Listeria survival | Bokashi can handle meat -- but only bokashi, not standard aerobic composting |
-| Dairy (milk, cheese, butter, yogurt) | Goes rancid rapidly; produces foul sulfur and butyric acid odors; strong pest attractant | Small amounts of cheese rinds may seem harmless but cumulatively cause problems |
-| Cooked food with oils or sauces | Oils coat particles and prevent microbial contact; disrupts moisture balance; strong pest attractant | Plain cooked vegetables without oil or seasoning are technically borderline but not recommended for beginners |
-| Dog and cat feces | May contain Toxoplasma gondii, Cryptosporidium, and Campylobacter -- heat generated in home piles is insufficient and inconsistent to guarantee pathogen kill | Farm animal (herbivore) manure is safe; carnivore/omnivore pet waste is not |
-| Diseased plants (powdery mildew, blight, clubroot, mosaic virus) | Disease agents can survive cool composting and reinfect the garden when compost is applied | Only a consistently maintained thermophilic pile reaching 131°F throughout kills most pathogens and fungal spores |
-| Glossy or coated paper | Coatings contain clay compounds and synthetic polymers that do not biodegrade | Standard glossy magazine paper is not recyclable or compostable |
-| Pressure-treated, painted, or stained wood | Contains arsenic (older CCA-treated wood), chromium, copper, or VOC-heavy paint compounds -- these concentrate in finished compost and transfer to edible plants | Natural unfinished wood is fine; any wood with surface treatment is not |
-| Invasive plant species or weeds with seeds | Seeds survive passive cool composting; invasive material like English ivy, Japanese knotweed, or bindweed can resprout from fragments and spread | Only thermophilic piles reliably kill weed seeds -- even then, knotweed and some invasives should be excluded entirely |
-| Citrus and onions (myth busting) | These are safe to compost in normal quantities. The myth that citrus repels worms comes from concentrated citrus used in excess. A few orange peels per week are not harmful | Do not exclude citrus -- it is a useful green material |
+| Material                                                         | Why It's Prohibited                                                                                                                                                          | Common Misconception                                                                                                   |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Meat, fish, shellfish, bones                                     | Attracts rats, raccoons, bears; creates hydrogen sulfide odor; supports Salmonella and Listeria survival                                                                     | Bokashi can handle meat -- but only bokashi, not standard aerobic composting                                           |
+| Dairy (milk, cheese, butter, yogurt)                             | Goes rancid rapidly; produces foul sulfur and butyric acid odors; strong pest attractant                                                                                     | Small amounts of cheese rinds may seem harmless but cumulatively cause problems                                        |
+| Cooked food with oils or sauces                                  | Oils coat particles and prevent microbial contact; disrupts moisture balance; strong pest attractant                                                                         | Plain cooked vegetables without oil or seasoning are technically borderline but not recommended for beginners          |
+| Dog and cat feces                                                | May contain Toxoplasma gondii, Cryptosporidium, and Campylobacter -- heat generated in home piles is insufficient and inconsistent to guarantee pathogen kill                | Farm animal (herbivore) manure is safe; carnivore/omnivore pet waste is not                                            |
+| Diseased plants (powdery mildew, blight, clubroot, mosaic virus) | Disease agents can survive cool composting and reinfect the garden when compost is applied                                                                                   | Only a consistently maintained thermophilic pile reaching 131°F throughout kills most pathogens and fungal spores      |
+| Glossy or coated paper                                           | Coatings contain clay compounds and synthetic polymers that do not biodegrade                                                                                                | Standard glossy magazine paper is not recyclable or compostable                                                        |
+| Pressure-treated, painted, or stained wood                       | Contains arsenic (older CCA-treated wood), chromium, copper, or VOC-heavy paint compounds -- these concentrate in finished compost and transfer to edible plants             | Natural unfinished wood is fine; any wood with surface treatment is not                                                |
+| Invasive plant species or weeds with seeds                       | Seeds survive passive cool composting; invasive material like English ivy, Japanese knotweed, or bindweed can resprout from fragments and spread                             | Only thermophilic piles reliably kill weed seeds -- even then, knotweed and some invasives should be excluded entirely |
+| Citrus and onions (myth busting)                                 | These are safe to compost in normal quantities. The myth that citrus repels worms comes from concentrated citrus used in excess. A few orange peels per week are not harmful | Do not exclude citrus -- it is a useful green material                                                                 |
 
 ### Step 4: Design the Physical Setup
 
 Walk the user through the actual setup process with specific dimensions, placement logic, and materials. Generic instructions fail here -- give exact specifications.
 
 **Site selection criteria:**
+
 - Place on bare soil, not concrete, asphalt, or gravel. Soil contact allows earthworms to migrate in and out, and provides natural drainage. On concrete, moisture pools at the bottom and creates anaerobic conditions within days
 - Partial shade is ideal -- a location that receives 4-6 hours of direct sun and is shaded during peak afternoon heat. Full sun desiccates the pile in summer; full shade keeps it cold and slow year-round
 - Maintain a minimum 10-foot distance from the house foundation to prevent moisture infiltration and to reduce any odor reaching windows and doors
@@ -143,6 +149,7 @@ Walk the user through the actual setup process with specific dimensions, placeme
 A pile must be at least 3 feet x 3 feet x 3 feet (27 cubic feet, approximately 200 gallons) to generate and retain the heat needed for thermophilic decomposition. Smaller piles undergo only mesophilic (cool) decomposition, which is slower and does not kill weed seeds or pathogens. Most enclosed retail bins are 10-18 cubic feet -- they function as cool/passive composters by default, which is fine for basic kitchen scrap processing but should be communicated honestly to the user.
 
 **Build sequence for a new pile (open pile or three-bin):**
+
 1. Lay a 4-6 inch base layer of coarse woody material -- wood chips, thick sticks, or broken-up corn cobs. This creates a permanent air channel at the bottom and prevents the pile from sealing against the ground
 2. Add a 3-4 inch layer of browns (shredded leaves or torn cardboard)
 3. Add a 1-2 inch layer of greens (kitchen scraps or fresh clippings)
@@ -151,6 +158,7 @@ A pile must be at least 3 feet x 3 feet x 3 feet (27 cubic feet, approximately 2
 6. Insert a compost thermometer probe into the center 12 inches deep -- temperature readings in the first 24-72 hours confirm whether the pile has activated (target 130-160°F center temperature)
 
 **Kitchen scrap management:**
+
 - Keep a dedicated collection container in the kitchen: a 1-gallon ceramic or stainless crock works better than plastic because it does not absorb odors
 - Empty every 1-3 days in summer (fly and odor risk increases with heat), every 3-5 days in winter
 - When adding scraps to the pile, use a trowel to make a hole 6-8 inches into the pile, deposit the scraps, and cover completely with browns. This single practice eliminates 90% of fly and odor complaints in outdoor bins
@@ -162,6 +170,7 @@ Different management levels produce dramatically different timelines. Give the u
 **Three management tiers:**
 
 **Tier 1 -- Passive (minimum effort, long timeline):**
+
 - Add materials as generated; bury greens under browns each time
 - Turn the pile every 4-6 weeks with a garden fork
 - Check moisture once per month; water if dry
@@ -170,6 +179,7 @@ Different management levels produce dramatically different timelines. Give the u
 - Best for: users who primarily want diversion of kitchen and yard waste, not optimized compost production
 
 **Tier 2 -- Active Management (moderate effort, reliable results):**
+
 - Maintain 3:1 brown-to-green ratio with every addition
 - Turn the pile every 1-2 weeks
 - Monitor moisture weekly -- squeeze test
@@ -179,6 +189,7 @@ Different management levels produce dramatically different timelines. Give the u
 - Best for: home gardeners who will use finished compost in vegetable beds
 
 **Tier 3 -- Intensive (high effort, fastest results):**
+
 - Turn every 2-3 days (this is what tumbler manufacturers mean when they say "4-6 weeks")
 - Shred all inputs to under 2 inches before adding
 - Maintain 130-160°F center temperature measured before and after turning; add greens if temperature drops below 110°F for more than 3 days
@@ -189,14 +200,14 @@ Different management levels produce dramatically different timelines. Give the u
 
 **Maintenance frequency table:**
 
-| Task | Tier 1 (Passive) | Tier 2 (Active) | Tier 3 (Intensive) |
-|---|---|---|---|
-| Add materials | As available | As available | As available, pre-shredded |
-| Bury greens under browns | Every addition | Every addition | Every addition |
-| Turn pile | Every 4-6 weeks | Every 1-2 weeks | Every 2-3 days |
-| Check moisture | Monthly | Weekly | Every 1-2 days |
-| Monitor temperature | Occasionally | Weekly | Daily or every turn |
-| Harvest finished compost | Every 9-18 months | Every 3-6 months | Every 4-8 weeks |
+| Task                     | Tier 1 (Passive)  | Tier 2 (Active)  | Tier 3 (Intensive)         |
+| ------------------------ | ----------------- | ---------------- | -------------------------- |
+| Add materials            | As available      | As available     | As available, pre-shredded |
+| Bury greens under browns | Every addition    | Every addition   | Every addition             |
+| Turn pile                | Every 4-6 weeks   | Every 1-2 weeks  | Every 2-3 days             |
+| Check moisture           | Monthly           | Weekly           | Every 1-2 days             |
+| Monitor temperature      | Occasionally      | Weekly           | Daily or every turn        |
+| Harvest finished compost | Every 9-18 months | Every 3-6 months | Every 4-8 weeks            |
 
 **How to know compost is finished:**
 Finished compost shows all four of these indicators simultaneously: (1) dark brown to black color throughout; (2) crumbly, loose texture -- not stringy or chunky; (3) earthy, forest-floor smell with no ammonia, sulfur, or rotten odor; (4) no recognizable original ingredients (no visible food scraps, leaf shapes, or grass blades). When in doubt, use the bag test: fill a sealed plastic bag with a handful of compost and leave it for 3 days at room temperature. If it develops any foul odor, the compost is not finished and will deplete nitrogen from soil when applied.
@@ -399,21 +410,23 @@ Users growing vegetables (particularly root vegetables and leafy greens eaten ra
 ## Composting Plan
 
 ### System Selection
-| Parameter                    | Recommendation                                                                |
-|-----------------------------|-------------------------------------------------------------------------------|
-| Method                      | Enclosed stationary bin with hardware cloth base (raccoon-resistant)          |
-| Management tier             | Active (turning every 2 weeks; monitoring moisture weekly)                    |
-| Location                    | Back corner of yard, partial shade, level ground, on bare soil -- not concrete |
-| Minimum pile or bin size    | 10-15 cubic feet (commercial enclosed bin) or DIY 3x3x3 ft wire bin with lid  |
-| Estimated setup cost        | $70-$150 for a commercial enclosed bin; add $15-$25 for hardware cloth base if DIY |
-| Time to first harvest       | 4-6 months at Active tier                                                     |
-| Special considerations      | Raccoon-resistant lid (latching), hardware cloth base (1/4 inch galvanized mesh) to prevent burrowing access; vegetable-garden end use requires Active management to achieve pathogen-killing temperatures |
+
+| Parameter                | Recommendation                                                                                                                                                                                             |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Method                   | Enclosed stationary bin with hardware cloth base (raccoon-resistant)                                                                                                                                       |
+| Management tier          | Active (turning every 2 weeks; monitoring moisture weekly)                                                                                                                                                 |
+| Location                 | Back corner of yard, partial shade, level ground, on bare soil -- not concrete                                                                                                                             |
+| Minimum pile or bin size | 10-15 cubic feet (commercial enclosed bin) or DIY 3x3x3 ft wire bin with lid                                                                                                                               |
+| Estimated setup cost     | $70-$150 for a commercial enclosed bin; add $15-$25 for hardware cloth base if DIY                                                                                                                         |
+| Time to first harvest    | 4-6 months at Active tier                                                                                                                                                                                  |
+| Special considerations   | Raccoon-resistant lid (latching), hardware cloth base (1/4 inch galvanized mesh) to prevent burrowing access; vegetable-garden end use requires Active management to achieve pathogen-killing temperatures |
 
 **Why this method:** Your 1-1.5 gallons per week of kitchen scraps plus fall leaves is a textbook combination for a productive enclosed bin. The enclosed design contains odors and deters raccoons significantly better than an open pile. With Active management, you will reach the thermophilic temperatures needed to produce compost safe for vegetable garden application. A three-bin system would produce more volume but is unnecessary for your output.
 
 ---
 
 ### Setup Checklist
+
 - [ ] Purchase an enclosed bin with a latching lid, or build a 3x3x3 foot bin from wire mesh with a fitted lid -- look for designs specifically labeled wildlife-resistant
 - [ ] Cut a piece of 1/4 inch galvanized hardware cloth to the footprint of the bin and place it flat on the ground beneath the bin to prevent burrowing access from below
 - [ ] Choose your site: a back corner with afternoon shade, on grass or bare soil (never concrete), within 50 feet of a hose
@@ -428,24 +441,26 @@ Users growing vegetables (particularly root vegetables and leafy greens eaten ra
 ### What to Compost
 
 **Browns to prioritize (based on your available materials):**
+
 - Shredded dry autumn leaves -- C:N approx. 40:1 to 80:1; your primary carbon source; store in bags after shredding each fall for year-round use
 - Torn uncoated cardboard -- C:N approx. 350:1; use when leaves run low; wet thoroughly before adding; remove any tape or plastic windows from boxes
 - Newspaper (black ink newsprint only, shredded) -- C:N approx. 175:1; supplement when cardboard and leaves are both exhausted
 
 **Greens to add (based on your waste stream):**
+
 - Vegetable and fruit peels, cores, and scraps (raw) -- C:N approx. 15:1 to 20:1; chop pieces to under 2 inches; your primary nitrogen source
 - Coffee grounds and paper filters -- C:N approx. 20:1; add directly; earthworms are strongly attracted to grounds and will colonize your bin
 - Fresh grass clippings (spring through fall) -- C:N approx. 12:1 to 20:1; ALWAYS mix with 2-3 parts shredded leaves before adding to prevent matting
 
 **NEVER add to this system:**
-| Prohibited Item              | Why                                                       |
+| Prohibited Item | Why |
 |-----------------------------|-----------------------------------------------------------|
-| Meat, fish, shellfish, bones | Pathogen risk; strong raccoon and rat attractant          |
-| Dairy products               | Rancidity, butyric acid odor, major raccoon attractant    |
-| Cooked food with oil or sauce | Raccoon attractant; disrupts moisture balance             |
-| Dog or cat waste             | Toxoplasma and other pathogen risk; vegetable garden use makes this critical |
-| Diseased plant material      | Late blight, club root, and mosaic virus risk for your vegetable garden |
-| Bread, pasta, cooked grains  | Ferments and creates anaerobic zones; pest attractant     |
+| Meat, fish, shellfish, bones | Pathogen risk; strong raccoon and rat attractant |
+| Dairy products | Rancidity, butyric acid odor, major raccoon attractant |
+| Cooked food with oil or sauce | Raccoon attractant; disrupts moisture balance |
+| Dog or cat waste | Toxoplasma and other pathogen risk; vegetable garden use makes this critical |
+| Diseased plant material | Late blight, club root, and mosaic virus risk for your vegetable garden |
+| Bread, pasta, cooked grains | Ferments and creates anaerobic zones; pest attractant |
 | Weeds that have gone to seed | Cool corners of the pile will not kill seeds; spreads weeds in garden beds |
 
 Note: Citrus peels and onion scraps are fine in normal quantities -- add them with the rest of your vegetable scraps.
@@ -454,23 +469,23 @@ Note: Citrus peels and onion scraps are fine in normal quantities -- add them wi
 
 ### Maintenance Schedule
 
-| Task                  | Frequency             | Specific Action                                                         |
-|-----------------------|-----------------------|-------------------------------------------------------------------------|
-| Add kitchen scraps    | Every 2-3 days        | Make a hole 6-8 inches deep; deposit scraps; cover completely with shredded leaves |
-| Maintain brown layer  | Every addition        | Add a 3:1 volume of shredded leaves over each scrap addition; keep a small pile of leaves next to the bin |
-| Turn the pile         | Every 2 weeks         | Use a garden fork; lift material from outside to center; check for steam (indicates thermophilic activity) |
-| Check moisture        | Weekly                | Squeeze a handful: should feel like a wrung-out sponge; add a slow pour of water if dry; add shredded leaves if soggy |
-| Monitor temperature   | After each turning    | Insert thermometer 12-18 inches into center; target 130-160°F; below 110°F, add fresh greens and water; above 160°F, turn immediately to cool |
-| Harvest compost       | Every 4-6 months      | Harvest from the bottom of the bin; screen through 1/2 inch hardware cloth; return large unfinished pieces to the active pile |
+| Task                 | Frequency          | Specific Action                                                                                                                               |
+| -------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Add kitchen scraps   | Every 2-3 days     | Make a hole 6-8 inches deep; deposit scraps; cover completely with shredded leaves                                                            |
+| Maintain brown layer | Every addition     | Add a 3:1 volume of shredded leaves over each scrap addition; keep a small pile of leaves next to the bin                                     |
+| Turn the pile        | Every 2 weeks      | Use a garden fork; lift material from outside to center; check for steam (indicates thermophilic activity)                                    |
+| Check moisture       | Weekly             | Squeeze a handful: should feel like a wrung-out sponge; add a slow pour of water if dry; add shredded leaves if soggy                         |
+| Monitor temperature  | After each turning | Insert thermometer 12-18 inches into center; target 130-160°F; below 110°F, add fresh greens and water; above 160°F, turn immediately to cool |
+| Harvest compost      | Every 4-6 months   | Harvest from the bottom of the bin; screen through 1/2 inch hardware cloth; return large unfinished pieces to the active pile                 |
 
 ---
 
 ### Troubleshooting Quick Reference
 
-| Symptom                          | Diagnosis                         | Fix                                                            |
-|---------------------------------|-----------------------------------|----------------------------------------------------------------|
-| Sharp ammonia smell              | Too many greens, not enough browns | Add 4-6 inches shredded leaves; turn pile; resolves in 24-48 hrs |
-| Rotten egg / sewer smell         | Anaerobic -- pile too wet or compacted | Turn aggressively; add coarse dry material; cover from rain temporarily |
-| No heat at all after 1 week     | Too dry, too small, or ratio off  | Check moisture first (add water if dry); add fresh grass clippings or coffee grounds; turn |
-| Fruit flies around the bin      | Exposed food scraps near the surface | Bury all scraps 6-8 inches deep; always cover with browns; problem resolves in 1-2 weeks |
-| Raccoon attempting to access bin | Odor escaping from scraps         | Verify latching lid is secured; check that no prohibited items were added; consider an additional b
+| Symptom                          | Diagnosis                              | Fix                                                                                                 |
+| -------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Sharp ammonia smell              | Too many greens, not enough browns     | Add 4-6 inches shredded leaves; turn pile; resolves in 24-48 hrs                                    |
+| Rotten egg / sewer smell         | Anaerobic -- pile too wet or compacted | Turn aggressively; add coarse dry material; cover from rain temporarily                             |
+| No heat at all after 1 week      | Too dry, too small, or ratio off       | Check moisture first (add water if dry); add fresh grass clippings or coffee grounds; turn          |
+| Fruit flies around the bin       | Exposed food scraps near the surface   | Bury all scraps 6-8 inches deep; always cover with browns; problem resolves in 1-2 weeks            |
+| Raccoon attempting to access bin | Odor escaping from scraps              | Verify latching lid is secured; check that no prohibited items were added; consider an additional b |

@@ -9,14 +9,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "report writing business-writing"
-  category: "writing"
-  subcategory: "business-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'report writing business-writing'
+  category: 'writing'
+  subcategory: 'business-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Executive Summary Writing
 
 ## When to Use
@@ -325,4 +326,5 @@ The 60% risk reduction estimate is based on vendor compliance modeling from comp
 The board should approve the $280K cybersecurity vendor certification program budget at the February board meeting. The Chief Information Security Officer will initiate vendor outreach in March and complete high-risk vendor assessments by September 30, 2026, with a progress report to the board at the Q2 meeting.
 
 ---
-*Full assessment, vendor classification methodology, and incident reports available from the CISO upon request.*
+
+_Full assessment, vendor classification methodology, and incident reports available from the CISO upon request._

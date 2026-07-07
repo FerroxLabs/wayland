@@ -92,7 +92,11 @@ describe('resolveSpawnSecretsFromRepo', () => {
       anthropic: { connected: true, creds: { key: 'sk-acct-b' } },
     });
     const a = resolveSpawnSecretsFromRepo(repo, { providerId: 'openai', accountId: 'a', modelId: 'gpt-5.5' });
-    const b = resolveSpawnSecretsFromRepo(repo, { providerId: 'anthropic', accountId: 'b', modelId: 'claude-opus-4-8' });
+    const b = resolveSpawnSecretsFromRepo(repo, {
+      providerId: 'anthropic',
+      accountId: 'b',
+      modelId: 'claude-opus-4-8',
+    });
     expect(a?.apiKey).toBe('sk-acct-a');
     expect(b?.apiKey).toBe('sk-acct-b');
   });

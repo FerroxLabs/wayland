@@ -292,12 +292,7 @@ const WaylandModal: React.FC<WaylandModalProps> = ({
             <Button onClick={onCancel} className='px-16px min-w-80px' style={{ borderRadius: 8 }}>
               {cancelLabel}
             </Button>
-            <Button
-              type='primary'
-              onClick={props.onOk}
-              loading={props.confirmLoading}
-              className='min-w-80px'
-            >
+            <Button type='primary' onClick={props.onOk} loading={props.confirmLoading} className='min-w-80px'>
               {okLabel}
             </Button>
           </div>

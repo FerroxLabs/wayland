@@ -33,16 +33,44 @@ author: Wayland Business Pack
 license: MIT
 metadata:
   wayland:
-    related_skills: [funnels, funnels-offer, funnels-offer-stack, funnels-offer-pricing, funnels-offer-guarantee, funnels-ascension-ladder, funnels-lead-magnet, funnels-tripwire, funnels-conviction-webinar, funnels-cart-cycle-launch, funnels-story-drip, funnels-daily-pivot, funnels-architecture-audit, convert-sales-page, convert-vsl, convert-vsl-page, convert-lead-magnet-page, convert-bridge-page, convert-oto-page, convert-downsell-page, convert-thank-you-page, convert-webinar-reg-page, convert-bullets, convert-voice, convert-bullshit-filter, convert-audit]
+    related_skills:
+      [
+        funnels,
+        funnels-offer,
+        funnels-offer-stack,
+        funnels-offer-pricing,
+        funnels-offer-guarantee,
+        funnels-ascension-ladder,
+        funnels-lead-magnet,
+        funnels-tripwire,
+        funnels-conviction-webinar,
+        funnels-cart-cycle-launch,
+        funnels-story-drip,
+        funnels-daily-pivot,
+        funnels-architecture-audit,
+        convert-sales-page,
+        convert-vsl,
+        convert-vsl-page,
+        convert-lead-magnet-page,
+        convert-bridge-page,
+        convert-oto-page,
+        convert-downsell-page,
+        convert-thank-you-page,
+        convert-webinar-reg-page,
+        convert-bullets,
+        convert-voice,
+        convert-bullshit-filter,
+        convert-audit,
+      ]
 attribution:
-  lineage: "Wayland Business Suite (Original) - The Campaign Build composite orchestrates the full funnels family + delegates asset authoring to the convert-* family, producing an agency-equivalent campaign in 15-30 minutes via parallel delegate_task fan-out"
+  lineage: 'Wayland Business Suite (Original) - The Campaign Build composite orchestrates the full funnels family + delegates asset authoring to the convert-* family, producing an agency-equivalent campaign in 15-30 minutes via parallel delegate_task fan-out'
 ---
 
 # Funnels Build Campaign - The End-to-End Composite
 
-> *"This is the AI-replaces-the-agency moment. One product brief in. A full launch-ready campaign out."*
+> _"This is the AI-replaces-the-agency moment. One product brief in. A full launch-ready campaign out."_
 
-This is the **composite** skill that builds an entire direct-response campaign end-to-end. It orchestrates the funnels family for architecture (offer + ladder + sequence) + delegates to the convert-* family for asset authoring (sales page, VSL, OTO, etc.) + ships back the full campaign deliverable.
+This is the **composite** skill that builds an entire direct-response campaign end-to-end. It orchestrates the funnels family for architecture (offer + ladder + sequence) + delegates to the convert-\* family for asset authoring (sales page, VSL, OTO, etc.) + ships back the full campaign deliverable.
 
 Expected runtime: 15-30 minutes wall-clock with parallel delegation. Output: ~80-120 pages of campaign artifacts.
 
@@ -51,15 +79,17 @@ Expected runtime: 15-30 minutes wall-clock with parallel delegation. Output: ~80
 Trigger phrases: "build my campaign", "build full campaign", "full campaign build", "launch a new product", "build me a launch", "build me a sales engine", "agency replacement", "end-to-end campaign", "campaign architecture", "build the whole thing", "one-shot launch", "30-minute campaign build", `/funnel build-campaign <product>`.
 
 Use when:
+
 - The user has a product (or a clear product concept) and wants the full launch-ready campaign delivered
 - The user has 15-30 minutes of compute time and wants to fan out parallel work
 - The user needs the "agency-replacement" deliverable - copy, page structure, email sequences, the works
 
 Do NOT use for:
+
 - Single-skill needs (use the specific skill - `funnels-offer`, `convert-sales-page`, etc.)
 - URL audit / CRO teardown (use `market-funnel`)
 - Iterative one-piece-at-a-time work (use the relevant single skill)
-- A full-launch *campaign strategy* across channels (use `market-launch` for channel-level orchestration)
+- A full-launch _campaign strategy_ across channels (use `market-launch` for channel-level orchestration)
 
 ## Inputs
 
@@ -79,26 +109,27 @@ The composite runs in 4 phases, executed STRICTLY SEQUENTIALLY at the phase leve
 
 **Job:** lock the offer, ladder, and conversion sequence model. Phase 2 + 3 depend on Phase 1.
 
-| Step | Skill | Output |
-|------|-------|--------|
-| 1.1 | `funnels-offer` | The Irresistible Stack - core offer with value-equation engineering, mechanism, deliverable |
-| 1.2 | `funnels-offer-stack` | Bonus stack - 5–7 named bonuses with objection mapping |
-| 1.3 | `funnels-offer-pricing` | Pricing levers - anchor + contrast + payment plan + decoy if multi-tier |
-| 1.4 | `funnels-offer-guarantee` | Guarantee statement in Donahoe Voice |
-| 1.5 | `funnels-ascension-ladder` | 5-rung ladder map with bridge offers |
-| 1.6 | `funnels-lead-magnet` | Rung 0 magnet design |
-| 1.7 | `funnels-tripwire` | Rung 1 tripwire design + front-end revenue stack (bump + OTO + downsell) |
-| 1.8 | **Branch decision:** webinar-led OR launch-led | |
-| 1.8a | If webinar: `funnels-conviction-webinar` | 4-stage webinar script |
-| 1.8b | If launch: `funnels-cart-cycle-launch` | 3-stage cart-cycle launch architecture |
+| Step | Skill                                          | Output                                                                                      |
+| ---- | ---------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1.1  | `funnels-offer`                                | The Irresistible Stack - core offer with value-equation engineering, mechanism, deliverable |
+| 1.2  | `funnels-offer-stack`                          | Bonus stack - 5–7 named bonuses with objection mapping                                      |
+| 1.3  | `funnels-offer-pricing`                        | Pricing levers - anchor + contrast + payment plan + decoy if multi-tier                     |
+| 1.4  | `funnels-offer-guarantee`                      | Guarantee statement in Donahoe Voice                                                        |
+| 1.5  | `funnels-ascension-ladder`                     | 5-rung ladder map with bridge offers                                                        |
+| 1.6  | `funnels-lead-magnet`                          | Rung 0 magnet design                                                                        |
+| 1.7  | `funnels-tripwire`                             | Rung 1 tripwire design + front-end revenue stack (bump + OTO + downsell)                    |
+| 1.8  | **Branch decision:** webinar-led OR launch-led |                                                                                             |
+| 1.8a | If webinar: `funnels-conviction-webinar`       | 4-stage webinar script                                                                      |
+| 1.8b | If launch: `funnels-cart-cycle-launch`         | 3-stage cart-cycle launch architecture                                                      |
 
 **Phase 1 output:** the architecture document - offer + ladder + sequence model, all locked.
 
 ### Phase 2 - Asset Authoring (parallel via delegate_task, ~10-15 min)
 
-**Job:** convert-* pack delegations for each asset. Fans out 7-9 parallel children.
+**Job:** convert-\* pack delegations for each asset. Fans out 7-9 parallel children.
 
-Phase 2 receives the locked architecture from Phase 1 and delegates to convert-* skills via `delegate_task`. Each delegate gets:
+Phase 2 receives the locked architecture from Phase 1 and delegates to convert-\* skills via `delegate_task`. Each delegate gets:
+
 - The locked offer (from Phase 1)
 - The relevant section of the architecture
 - The audience + voice rules
@@ -106,16 +137,16 @@ Phase 2 receives the locked architecture from Phase 1 and delegates to convert-*
 
 Cap parallelism at 4 children at a time (per playbook risk-mitigation: avoid context-overflow on parallel orchestration).
 
-| Asset | Skill (delegated) | Receives |
-|-------|------------------|---------|
-| Lead-magnet opt-in page | `convert-lead-magnet-page` | magnet name, audience, opt-in form fields |
-| Bridge page (advertorial) | `convert-bridge-page` | ad-to-offer warm-up copy |
-| Webinar registration page (if webinar-led) | `convert-webinar-reg-page` | webinar promise, presenter credibility |
-| Sales page | `convert-sales-page` | full offer + stack + guarantee + price |
-| VSL script + page | `convert-vsl` + `convert-vsl-page` | 18-min VSL aligned to the offer |
-| OTO page | `convert-oto-page` | OTO offer (post-tripwire AND post-core) |
-| Downsell page | `convert-downsell-page` | OTO recovery offer |
-| Thank-you page | `convert-thank-you-page` | post-purchase delivery + referral CTA |
+| Asset                                      | Skill (delegated)                  | Receives                                  |
+| ------------------------------------------ | ---------------------------------- | ----------------------------------------- |
+| Lead-magnet opt-in page                    | `convert-lead-magnet-page`         | magnet name, audience, opt-in form fields |
+| Bridge page (advertorial)                  | `convert-bridge-page`              | ad-to-offer warm-up copy                  |
+| Webinar registration page (if webinar-led) | `convert-webinar-reg-page`         | webinar promise, presenter credibility    |
+| Sales page                                 | `convert-sales-page`               | full offer + stack + guarantee + price    |
+| VSL script + page                          | `convert-vsl` + `convert-vsl-page` | 18-min VSL aligned to the offer           |
+| OTO page                                   | `convert-oto-page`                 | OTO offer (post-tripwire AND post-core)   |
+| Downsell page                              | `convert-downsell-page`            | OTO recovery offer                        |
+| Thank-you page                             | `convert-thank-you-page`           | post-purchase delivery + referral CTA     |
 
 Each asset comes back with structured brief + clean HTML/CSS reference + Donahoe Method audit footer.
 
@@ -123,23 +154,23 @@ Each asset comes back with structured brief + clean HTML/CSS reference + Donahoe
 
 **Job:** funnels family email sequences.
 
-| Asset | Skill | Output |
-|-------|-------|--------|
-| Welcome / nurture sequence (5-day Story-Drip) | `funnels-story-drip` | 5 emails with Donahoe Voice |
-| Daily pivot ongoing sequence (10-15 emails) | `funnels-daily-pivot` | rolling daily emails for mature-list cadence |
-| Cart-window emails (if launch-led) | `funnels-daily-pivot` (cart-window mode) | 5-7 emails through cart cycle |
-| Webinar sequence (if webinar-led) | `funnels-daily-pivot` | reg → reminder → live → replay → cart-close |
+| Asset                                         | Skill                                    | Output                                       |
+| --------------------------------------------- | ---------------------------------------- | -------------------------------------------- |
+| Welcome / nurture sequence (5-day Story-Drip) | `funnels-story-drip`                     | 5 emails with Donahoe Voice                  |
+| Daily pivot ongoing sequence (10-15 emails)   | `funnels-daily-pivot`                    | rolling daily emails for mature-list cadence |
+| Cart-window emails (if launch-led)            | `funnels-daily-pivot` (cart-window mode) | 5-7 emails through cart cycle                |
+| Webinar sequence (if webinar-led)             | `funnels-daily-pivot`                    | reg → reminder → live → replay → cart-close  |
 
 ### Phase 4 - Audit Pass (sequential, ~3-5 min)
 
 **Job:** verify the campaign is structurally sound + every asset passes the Donahoe Method.
 
-| Step | Skill | Output |
-|------|-------|--------|
-| 4.1 | `funnels-architecture-audit` | full architecture review of the campaign as built |
-| 4.2 | `convert-audit` (run on each page) | Donahoe Method audit on every page asset |
-| 4.3 | TM grep gate | verify no banned trademark phrases anywhere user-facing |
-| 4.4 | Bullshit Filter pass | every piece of generated copy passes the filter |
+| Step | Skill                              | Output                                                  |
+| ---- | ---------------------------------- | ------------------------------------------------------- |
+| 4.1  | `funnels-architecture-audit`       | full architecture review of the campaign as built       |
+| 4.2  | `convert-audit` (run on each page) | Donahoe Method audit on every page asset                |
+| 4.3  | TM grep gate                       | verify no banned trademark phrases anywhere user-facing |
+| 4.4  | Bullshit Filter pass               | every piece of generated copy passes the filter         |
 
 ## Workflow
 
@@ -156,7 +187,7 @@ Execute steps 1.1 through 1.8. Each step's output feeds the next. Sequential bec
 
 ### Phase 2 - Fan out asset authoring
 
-Issue parallel `delegate_task` calls to 4 convert-* skills at a time. Wait for batch to return; issue next batch. Cap at 9 total assets.
+Issue parallel `delegate_task` calls to 4 convert-\* skills at a time. Wait for batch to return; issue next batch. Cap at 9 total assets.
 
 ### Phase 3 - Fan out sequence authoring (sequential AFTER Phase 2)
 
@@ -187,27 +218,35 @@ Compile all artifacts into the campaign deliverable. Output: a structured direct
 ## Phase 1 - Architecture (complete)
 
 ### 1.1 The Irresistible Stack
+
 <Full output from `funnels-offer`>
 
 ### 1.2 Bonus Stack
+
 <Full output from `funnels-offer-stack`>
 
 ### 1.3 Pricing Architecture
+
 <Full output from `funnels-offer-pricing`>
 
 ### 1.4 Guarantee Architecture
+
 <Full output from `funnels-offer-guarantee`>
 
 ### 1.5 Ascension Ladder
+
 <Full output from `funnels-ascension-ladder`>
 
 ### 1.6 Lead Magnet
+
 <Full output from `funnels-lead-magnet`>
 
 ### 1.7 Tripwire
+
 <Full output from `funnels-tripwire`>
 
 ### 1.8 Conversion Sequence
+
 <Full output from `funnels-conviction-webinar` OR `funnels-cart-cycle-launch`>
 
 ---
@@ -215,18 +254,23 @@ Compile all artifacts into the campaign deliverable. Output: a structured direct
 ## Phase 2 - Asset Library (complete)
 
 ### 2.1 Lead-Magnet Opt-In Page
+
 <Brief + HTML/CSS from `convert-lead-magnet-page`>
 
 ### 2.2 Bridge Page
+
 <Brief + HTML/CSS from `convert-bridge-page`>
 
 ### 2.3 Webinar Registration Page (if webinar-led)
+
 <Brief + HTML/CSS from `convert-webinar-reg-page`>
 
 ### 2.4 Sales Page
+
 <Brief + HTML/CSS from `convert-sales-page`>
 
 ### 2.5 VSL Script + Page
+
 <Script + page from `convert-vsl` + `convert-vsl-page`>
 
 ### 2.6 OTO Page (post-tripwire)
@@ -402,4 +446,4 @@ The composite's value is the orchestration: any single skill produces one piece.
 - **Webinar-led vs launch-led** is the highest-leverage early decision. Webinar-led = single conversion event, fast to deploy, best for $497–$2,997 single offers. Launch-led = 14-21 day event, slower to deploy, best for $497+ offers with engaged list + JV partners.
 - **The composite produces 80-120 pages of artifacts.** That's a real deliverable - not a summary. Plan for it: the user needs a place to put the output (a folder, a Notion DB, a campaign GitHub repo).
 - **TM hygiene at composite scope:** the audit pass (Phase 4) runs the TM grep over EVERY artifact produced. This is the suite-wide gate that catches any sub-skill that slipped a banned phrase through. Composite is the last line of defense for trademark hygiene.
-- **Trademark hygiene reminder:** never use "Perfect Webinar", "Product Launch Formula", "PLF", "Grand Slam Offer", "$100M Offers", "$100M Leads", "Soap Opera Sequence", "Seinfeld Email", "Mass Control", "DotCom Secrets", "Expert Secrets", "Traffic Secrets", "ClickFunnels", "No B.S.", "Magnetic Marketing", "Don't Make Me Think", "One Funnel Away" anywhere in any artifact this composite produces. The Wayland fusion names are used everywhere user-facing. The canonical authors (Brunson, Walker, Hormozi, Kern, Pagan, Stu McLaren, Drayton Bird, Halbert, Schwartz, Cialdini, Sutherland, Kennedy, Settle) are cited by name in the lineage sections of skill bodies - fair use educational citation - but the branded *phrases* never appear in user-facing output.
+- **Trademark hygiene reminder:** never use "Perfect Webinar", "Product Launch Formula", "PLF", "Grand Slam Offer", "$100M Offers", "$100M Leads", "Soap Opera Sequence", "Seinfeld Email", "Mass Control", "DotCom Secrets", "Expert Secrets", "Traffic Secrets", "ClickFunnels", "No B.S.", "Magnetic Marketing", "Don't Make Me Think", "One Funnel Away" anywhere in any artifact this composite produces. The Wayland fusion names are used everywhere user-facing. The canonical authors (Brunson, Walker, Hormozi, Kern, Pagan, Stu McLaren, Drayton Bird, Halbert, Schwartz, Cialdini, Sutherland, Kennedy, Settle) are cited by name in the lineage sections of skill bodies - fair use educational citation - but the branded _phrases_ never appear in user-facing output.

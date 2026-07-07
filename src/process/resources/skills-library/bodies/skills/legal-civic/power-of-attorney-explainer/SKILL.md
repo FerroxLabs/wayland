@@ -11,14 +11,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "estate-planning legal-literacy guide checklist"
-  category: "legal-civic"
-  subcategory: "estate-planning"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'estate-planning legal-literacy guide checklist'
+  category: 'legal-civic'
+  subcategory: 'estate-planning'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
+
 # Power Of Attorney Explainer
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary significantly by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
@@ -28,6 +29,7 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - The user asks what a power of attorney is, how it works, or what happens without one
 - The user wants to understand the differences between general, durable, springing, limited, and healthcare POA types
 - The user is preparing for an estate planning attorney meeting and wants to arrive informed
@@ -40,6 +42,7 @@ metadata:
 - The user asks what happens to a POA when someone dies
 
 **Do NOT use when:**
+
 - The user wants to draft, fill out, or execute an actual POA document -- refer them to a licensed estate planning attorney
 - The user is asking specifically about living wills, advance directives, or DNR orders -- use `healthcare-directive-guide`
 - The user needs guidance on contesting, invalidating, or enforcing an existing POA -- this involves litigation and requires an attorney
@@ -80,6 +83,7 @@ Many users conflate POA with ownership transfer, will provisions, or automatic s
 Walk through the four main types with concrete distinctions. Do not just list them -- explain the "why" behind each one.
 
 **General Power of Attorney:**
+
 - Grants broad authority over financial and legal matters immediately upon signing
 - CRITICAL limitation: automatically terminates if the principal becomes mentally incapacitated
 - This makes a general POA nearly useless for estate planning purposes -- it terminates at the exact moment it is most needed
@@ -87,6 +91,7 @@ Walk through the four main types with concrete distinctions. Do not just list th
 - Example use: authorizing a spouse to close on a home purchase while the other spouse is abroad for 3 months
 
 **Durable Power of Attorney:**
+
 - Includes a "durability clause" (specific statutory language, typically "This power of attorney shall not be terminated by the disability or incapacity of the principal") that keeps the document in effect even if the principal loses capacity
 - Takes effect immediately upon signing -- authority is active from day one
 - Ends only at the principal's death, or if the principal (while still competent) revokes it
@@ -95,6 +100,7 @@ Walk through the four main types with concrete distinctions. Do not just list th
 - Financial institutions and healthcare providers typically have the most familiarity with durable POA
 
 **Springing Power of Attorney:**
+
 - Takes effect only upon a defined triggering event, typically the principal's incapacitation as certified in writing by one or two licensed physicians
 - The theoretical advantage: the principal retains full autonomy until the trigger occurs
 - The practical disadvantage: when immediate action is needed, weeks may pass while physician certifications are obtained, copies of the triggering documentation are gathered, and institutions accept the package
@@ -103,6 +109,7 @@ Walk through the four main types with concrete distinctions. Do not just list th
 - Many estate planning attorneys recommend a durable POA instead, combined with trust in the agent, rather than a springing POA that may cause operational delays
 
 **Limited (Special) Power of Attorney:**
+
 - Grants authority only for a specifically described act, transaction, or time period
 - Examples: authority to execute a deed for a specific property address, to manage a specific brokerage account, to file a specific year's tax return, to represent the principal at a specific real estate closing
 - Terminates automatically when the specified act is complete or the time period expires
@@ -111,6 +118,7 @@ Walk through the four main types with concrete distinctions. Do not just list th
 - Also commonly used in real estate transactions, automobile purchases, and business agreements where one party has scheduling conflicts
 
 **Healthcare Power of Attorney / Healthcare Proxy:**
+
 - A separate legal instrument (not the same document as financial POA in most states) authorizing an agent to make medical treatment decisions when the principal cannot communicate
 - Distinct from a living will or advance directive, which records the principal's own treatment preferences -- the healthcare POA names a person to make real-time decisions when the document cannot anticipate every circumstance
 - Often executed alongside a financial durable POA as part of a complete estate plan
@@ -154,6 +162,7 @@ A well-drafted POA is not unlimited. Understanding what can and should be constr
 ### Step 7: Generate the Consultation Preparation Package
 
 Compile everything into the Output Format below, tailored to the user's specific context. Include:
+
 - The POA type comparison table with the user's likely scenario highlighted
 - The agent selection worksheet populated with relevant considerations from the conversation
 - A context-specific attorney question list (minimum 8 questions, maximum 12)
@@ -298,6 +307,7 @@ Priority 3 (after execution):
 ### Principal Is Already Incapacitated or Competency Is Actively Declining
 
 A POA requires the principal to have legal capacity at the time of signing. This means the principal must understand what they are signing, what authority they are granting, and to whom. A diagnosis of early-stage dementia does not automatically eliminate capacity -- legal capacity is a threshold, not a spectrum, and it must be assessed at the time of signing. However, if capacity is in question:
+
 - The situation is urgent. Every week of delay may be a week closer to losing the window entirely
 - The attorney may want a physician's written capacity certification on the day of signing to preclude later challenges
 - If capacity has already been lost, a POA cannot be created at all. The only path is a court-supervised guardianship (for personal care decisions) or conservatorship (for financial management). These proceedings require filing a petition, providing notice to the incapacitated person and family members, a court hearing, appointment of a guardian ad litem in many jurisdictions, and ongoing court supervision. They are significantly more expensive -- often $3,000 to $10,000+ in attorney fees -- more time-consuming, and more restrictive than a privately executed POA
@@ -306,6 +316,7 @@ A POA requires the principal to have legal capacity at the time of signing. This
 ### POA Abuse -- Agent Acting in Self-Interest or Misusing Authority
 
 POA abuse is one of the most common forms of financial elder abuse. Warning signs include: large cash withdrawals, transfers to the agent's personal accounts, sudden changes in estate plan benefiting the agent, asset sales below market value, and isolation of the principal from other family members.
+
 - Acknowledge that POA abuse is a real and serious problem without implying that the user's chosen agent is untrustworthy
 - Note the preventive safeguards that should be discussed with the attorney: requiring the agent to maintain detailed records and receipts; requiring annual accountings submitted to a named third party (an attorney, a CPA, or another family member); naming a POA monitor with inspection rights; restricting self-dealing explicitly in the document; requiring joint agent approval for transactions above a threshold (e.g., $10,000)
 - If abuse is currently occurring or suspected, this is outside educational scope -- refer the user to Adult Protective Services (APS) in their state, to a local elder law attorney, and (if financial exploitation is occurring) to the local police or state attorney general's office. Most states have financial exploitation of the elderly statutes with criminal penalties
@@ -314,6 +325,7 @@ POA abuse is one of the most common forms of financial elder abuse. Warning sign
 ### Military Deployment or Extended International Travel
 
 Military members and long-term travelers face unique POA considerations:
+
 - Military members often need a durable financial POA that allows a spouse or trusted family member to manage all financial affairs during deployment, including paying bills, managing investment accounts, filing taxes, and potentially selling or purchasing a vehicle or home
 - JAG (Judge Advocate General) offices on military installations provide free POA preparation for service members and their families -- mention this explicitly as a significant cost-saving resource
 - For international contexts, a U.S.-executed POA may not be recognized abroad. Some countries require apostille certification (a form of international authentication under the Hague Convention), local notarization, or translation by a certified translator before the document is accepted. If assets exist in foreign jurisdictions -- bank accounts, real estate, business interests -- the user must ask the attorney about international recognition specifically
@@ -322,6 +334,7 @@ Military members and long-term travelers face unique POA considerations:
 ### Married Couples and the Spousal Authority Misconception
 
 Being married does not grant automatic authority over a spouse's separate property, individual accounts, retirement accounts, or medical decisions in most U.S. jurisdictions:
+
 - Joint bank accounts and jointly titled real estate allow either spouse to act independently in most cases, but individual accounts, IRAs, 401(k)s, brokerage accounts, and investment accounts in one spouse's name require explicit POA authority for the other to act
 - In community property states (Arizona, California, Idaho, Louisiana, Nevada, New Mexico, Texas, Washington, Wisconsin, and optionally Alaska), marital property rules affect ownership but not necessarily management authority -- the distinction is complex and jurisdiction-specific
 - Each spouse in a married couple should execute their own financial and healthcare POA, naming the other as primary agent and naming a successor agent in case both spouses are incapacitated simultaneously. The successor should almost certainly be someone other than the other spouse
@@ -330,6 +343,7 @@ Being married does not grant automatic authority over a spouse's separate proper
 ### User Wants the Same Person as Both Financial and Healthcare Agent
 
 This is common, often reasonable, and worth examining thoughtfully:
+
 - The same person as both financial and healthcare agent is not inherently problematic -- many estate plans are structured this way, and it simplifies coordination between financial decisions (can we afford a care facility?) and healthcare decisions (which care facility is appropriate?)
 - However, the qualities needed for each role are distinct. A financially sophisticated sibling may be the obvious choice for financial POA but may not understand the principal's wishes about aggressive treatment, resuscitation, or quality-of-life priorities
 - Prompt the user to consider: does the proposed agent know the principal's healthcare values -- not just their finances? Have they had explicit conversations about end-of-life preferences, what quality of life means to the principal, and what treatments the principal would want to avoid?
@@ -338,6 +352,7 @@ This is common, often reasonable, and worth examining thoughtfully:
 ### Revoking or Modifying an Existing POA
 
 Users sometimes discover a POA was executed years ago under different circumstances -- a former spouse is still named, a named agent has died, or the scope no longer matches current needs:
+
 - A POA can be revoked at any time while the principal is mentally competent. The process typically requires a written revocation document, proper execution (often with notarization), and -- critically -- actual notice to the agent and to any third parties (banks, healthcare providers) who have received or relied on the original POA. A revocation that is never communicated to the bank is ineffective in practice
 - Some states require filing the revocation with a county recorder if the original POA was recorded (common for POAs used in real estate transactions)
 - If the principal has divorced since executing the POA, some states automatically revoke POA authority granted to a former spouse -- but this is not universal, and relying on an automatic statutory revocation without explicit revocation is risky
@@ -346,6 +361,7 @@ Users sometimes discover a POA was executed years ago under different circumstan
 ### Out-of-State Assets and Multi-State Validity
 
 A POA executed in one state is not guaranteed to be recognized in every other state where assets are held:
+
 - Most states will honor a POA executed in another state if it was validly executed under the laws of the state where it was created (this is the general choice-of-law rule). However, some states impose additional requirements
 - Real estate is particularly complex: some title insurance companies and county recorders require that a POA used in a real estate transaction comply with the law of the state where the property is located, not just the state of execution
 - If the principal owns real property in multiple states, the attorney may recommend executing a separate POA in each state or ensuring the primary POA includes language that makes it effective across state lines
@@ -371,14 +387,14 @@ Given their asset profile (primary residence, rental property, two IRAs, joint b
 
 ### POA Type Comparison
 
-| Feature               | General POA           | Durable POA              | Springing POA             | Limited (Special) POA      |
-|-----------------------|-----------------------|--------------------------|---------------------------|----------------------------|
-| Scope of authority    | Broad                 | Broad                    | Broad                     | Specific act(s) only       |
-| Takes effect          | Upon signing          | Upon signing             | Upon triggering event     | Upon signing               |
-| Survives incapacity   | No -- terminates      | Yes -- key feature       | Yes -- activates on it    | No -- terminates           |
-| Ends when             | Incapacity, revocation, or death | Revocation or death | Revocation or death  | Task complete, expiration, or death |
-| Operational risk      | Fails when needed most | Low                    | Triggering delay risk     | Too narrow for this situation |
-| Estate planning role  | Not recommended here  | Strongly recommended     | Discussable alternative   | Supplement only            |
+| Feature              | General POA                      | Durable POA          | Springing POA           | Limited (Special) POA               |
+| -------------------- | -------------------------------- | -------------------- | ----------------------- | ----------------------------------- |
+| Scope of authority   | Broad                            | Broad                | Broad                   | Specific act(s) only                |
+| Takes effect         | Upon signing                     | Upon signing         | Upon triggering event   | Upon signing                        |
+| Survives incapacity  | No -- terminates                 | Yes -- key feature   | Yes -- activates on it  | No -- terminates                    |
+| Ends when            | Incapacity, revocation, or death | Revocation or death  | Revocation or death     | Task complete, expiration, or death |
+| Operational risk     | Fails when needed most           | Low                  | Triggering delay risk   | Too narrow for this situation       |
+| Estate planning role | Not recommended here             | Strongly recommended | Discussable alternative | Supplement only                     |
 
 **For your parents' situation:** The durable POA is almost certainly what the attorney will recommend for both your father and your mother. A general POA would be dangerous here -- it terminates at incapacity, which is exactly the scenario your family is preparing for. A springing POA might appeal intuitively (authority only activates when needed), but the triggering delay -- collecting physician certifications, assembling documentation, getting institutions to accept the package -- can be significant when action is urgent. Ask the attorney to explain the specific process for establishing a springing POA trigger in your state and how long that process realistically takes.
 
@@ -386,15 +402,15 @@ Given their asset profile (primary residence, rental property, two IRAs, joint b
 
 ### Financial vs. Healthcare POA: Two Separate Documents
 
-| Feature               | Financial (Durable) POA          | Healthcare POA / Proxy            |
-|-----------------------|----------------------------------|-----------------------------------|
-| What it covers        | Bank accounts, IRAs, brokerage,  | Medical decisions, treatment      |
-|                       | primary residence, rental        | consent, provider selection,      |
-|                       | property, tax filings, contracts | HIPAA access, life-sustaining     |
-|                       |                                  | treatment decisions               |
-| For your parents      | Both parents need this           | Both parents need this            |
-| HIPAA note            | Not applicable                   | Must include HIPAA authorization  |
-| Terminates at death   | Yes -- executor takes over       | Yes -- executor takes over        |
+| Feature             | Financial (Durable) POA          | Healthcare POA / Proxy           |
+| ------------------- | -------------------------------- | -------------------------------- |
+| What it covers      | Bank accounts, IRAs, brokerage,  | Medical decisions, treatment     |
+|                     | primary residence, rental        | consent, provider selection,     |
+|                     | property, tax filings, contracts | HIPAA access, life-sustaining    |
+|                     |                                  | treatment decisions              |
+| For your parents    | Both parents need this           | Both parents need this           |
+| HIPAA note          | Not applicable                   | Must include HIPAA authorization |
+| Terminates at death | Yes -- executor takes over       | Yes -- executor takes over       |
 
 Your parents should expect to execute four documents minimum: financial durable POA for your father, financial durable POA for your mother, healthcare POA for your father, healthcare POA for your mother. A fifth and sixth document -- advance directives or living wills -- should be discussed at the same meeting (see `healthcare-directive-guide`). Executing all of these at one attorney appointment ensures consistency and saves time and cost.
 
@@ -404,35 +420,35 @@ Your parents should expect to execute four documents minimum: financial durable 
 
 **Your Father -- Financial Durable POA:**
 
-| Role                     | Candidate Name | Relationship | Location     | Availability | Notes / Concerns                               |
-|--------------------------|---------------|-------------|-------------|--------------|------------------------------------------------|
-| Primary financial agent  | [Your mother] | Spouse      | Same house  | High         | Natural choice; consider her own health trajectory |
-| 1st successor agent      | [You]         | Adult child | [your city] | Moderate     | Consider proximity to rental property and IRAs |
-| 2nd successor agent      | [Sibling]     | Adult child | Out of state| Lower        | Out-of-state location creates response delays  |
+| Role                    | Candidate Name | Relationship | Location     | Availability | Notes / Concerns                                   |
+| ----------------------- | -------------- | ------------ | ------------ | ------------ | -------------------------------------------------- |
+| Primary financial agent | [Your mother]  | Spouse       | Same house   | High         | Natural choice; consider her own health trajectory |
+| 1st successor agent     | [You]          | Adult child  | [your city]  | Moderate     | Consider proximity to rental property and IRAs     |
+| 2nd successor agent     | [Sibling]      | Adult child  | Out of state | Lower        | Out-of-state location creates response delays      |
 
 **Your Father -- Healthcare POA:**
 
-| Role                     | Candidate Name | Relationship | Location     | Availability | Notes / Concerns                                   |
-|--------------------------|---------------|-------------|-------------|--------------|---------------------------------------------------|
-| Primary healthcare agent | [Your mother] | Spouse      | Same house  | High         | Understands his values; discuss end-of-life wishes explicitly |
-| 1st successor agent      | [You or sibling] | Adult child | [city]   | Moderate     | Whoever has discussed his care preferences in depth |
-| 2nd successor agent      | [Other sibling or trusted friend] | | |         | Backup if both primary and first successor unavailable |
+| Role                     | Candidate Name                    | Relationship | Location   | Availability | Notes / Concerns                                              |
+| ------------------------ | --------------------------------- | ------------ | ---------- | ------------ | ------------------------------------------------------------- |
+| Primary healthcare agent | [Your mother]                     | Spouse       | Same house | High         | Understands his values; discuss end-of-life wishes explicitly |
+| 1st successor agent      | [You or sibling]                  | Adult child  | [city]     | Moderate     | Whoever has discussed his care preferences in depth           |
+| 2nd successor agent      | [Other sibling or trusted friend] |              |            |              | Backup if both primary and first successor unavailable        |
 
 **Your Mother -- Financial Durable POA:**
 
-| Role                     | Candidate Name | Relationship | Location     | Availability | Notes / Concerns                               |
-|--------------------------|---------------|-------------|-------------|--------------|------------------------------------------------|
-| Primary financial agent  | [Your father] | Spouse      | Same house  | High         | While he is capable; Parkinson's may limit this over time |
-| 1st successor agent      | [You]         | Adult child | [your city] | Moderate     | Should be willing and able to manage property and investments |
-| 2nd successor agent      | [Sibling]     | Adult child | Out of state| Lower        | Distance is a factor but not disqualifying      |
+| Role                    | Candidate Name | Relationship | Location     | Availability | Notes / Concerns                                              |
+| ----------------------- | -------------- | ------------ | ------------ | ------------ | ------------------------------------------------------------- |
+| Primary financial agent | [Your father]  | Spouse       | Same house   | High         | While he is capable; Parkinson's may limit this over time     |
+| 1st successor agent     | [You]          | Adult child  | [your city]  | Moderate     | Should be willing and able to manage property and investments |
+| 2nd successor agent     | [Sibling]      | Adult child  | Out of state | Lower        | Distance is a factor but not disqualifying                    |
 
 **Your Mother -- Healthcare POA:**
 
-| Role                     | Candidate Name | Relationship | Location     | Availability | Notes / Concerns                                   |
-|--------------------------|---------------|-------------|-------------|--------------|---------------------------------------------------|
-| Primary healthcare agent | [Your father] | Spouse      | Same house  | High         | While he retains decision-making capacity          |
-| 1st successor agent      | [You or sibling] | Adult child | [city]   | Moderate     | Whoever knows her healthcare values best           |
-| 2nd successor agent      | [Other]       |             |             |              |                                                    |
+| Role                     | Candidate Name   | Relationship | Location   | Availability | Notes / Concerns                          |
+| ------------------------ | ---------------- | ------------ | ---------- | ------------ | ----------------------------------------- |
+| Primary healthcare agent | [Your father]    | Spouse       | Same house | High         | While he retains decision-making capacity |
+| 1st successor agent      | [You or sibling] | Adult child  | [city]     | Moderate     | Whoever knows her healthcare values best  |
+| 2nd successor agent      | [Other]          |              |            |              |                                           |
 
 **Critical observation:** Your mother is naming your father as her primary agent. As his Parkinson's progresses, his capacity to serve as her healthcare agent may diminish. The attorney should discuss whether a successor should be elevated to primary agent after a defined condition (such as a physician's written statement that your father lacks capacity to serve), and whether this creates a springing-like mechanism that needs careful drafting.
 
@@ -487,18 +503,21 @@ Your parents should expect to execute four documents minimum: financial durable 
 ### Next Steps
 
 **Before the attorney meeting (this week):**
+
 - [ ] Both parents complete the Agent Selection Worksheet above and discuss it as a family
 - [ ] Confirm that all proposed agents (you, your sibling) are willing to serve and understand the role
 - [ ] Gather a list of all accounts: bank names, IRA custodians, brokerage firm, mortgage lender for rental property, any life insurance policies
 - [ ] Note any digital accounts with significant financial value
 
 **At the attorney meeting:**
+
 - [ ] Bring this completed worksheet and the asset list
 - [ ] Bring any existing estate planning documents (prior will, prior POA if any)
 - [ ] Request that all estate planning documents -- financial POA for both parents, healthcare POA for both parents, advance directives, and updated wills -- be executed at the same appointment
 - [ ] Ask about physician capacity certification given your father's diagnosis
 
 **After execution:**
+
 - [ ] Store originals in a fireproof safe or with the attorney; give certified copies to all named agents
 - [ ] Proactively deliver copies to your parents' primary bank, investment firm, and IRA custodian -- some institutions allow pre-registration
 - [ ] Confirm the healthcare POA is on file with your father's neurologist and primary care physician

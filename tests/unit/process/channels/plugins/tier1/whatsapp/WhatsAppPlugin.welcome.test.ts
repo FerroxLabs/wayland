@@ -137,7 +137,7 @@ describe('WhatsAppPlugin - generalized welcome handshake hooks', () => {
   it('meta-business backend has no self target (no self thread)', async () => {
     const plugin = new WhatsAppPlugin();
     await plugin.initialize(
-      configFor('meta-business', { accessToken: 'EAAG-token', phoneNumberId: '123456789012345' }),
+      configFor('meta-business', { accessToken: 'EAAG-token', phoneNumberId: '123456789012345' })
     );
     expect(plugin.getSelfTarget()).toBeNull();
     // Account identity falls back to the phone number id for marker keying.

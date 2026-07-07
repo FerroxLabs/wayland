@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "time-management frameworks template testing automation running sales video-production"
-  category: "productivity"
-  subcategory: "methodology-frameworks"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'time-management frameworks template testing automation running sales video-production'
+  category: 'productivity'
+  subcategory: 'methodology-frameworks'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Lean Startup Practitioner
 
 ## When to Use
 
 **Use this skill when:**
+
 - A founder, product manager, or team lead asks how to validate a business idea before committing significant resources to full development
 - A user needs to design a Build-Measure-Learn experiment and does not know where to start or what to measure
 - A team is debating whether to pivot or persevere and needs a structured decision framework grounded in data
@@ -30,6 +32,7 @@ metadata:
 - A founder is post-MVP with early users and needs to identify whether low retention is a product problem, an activation problem, or a market problem
 
 **Do NOT use when:**
+
 - The user needs help with an established product's growth strategy with proven product-market fit -- use a growth marketing or product scaling skill instead
 - The user is asking about corporate innovation programs or intrapreneurship governance, which require different organizational change frameworks
 - The user needs financial modeling, cap table structuring, or investor pitch preparation -- those require finance and fundraising skills
@@ -245,24 +248,31 @@ Next Pivot/Persevere Review: [Date -- should be 4-6 weeks out]
 ## Edge Cases
 
 ### The "We Already Have Users But Don't Know Why They Churn" Case
+
 This is a post-MVP retention diagnosis problem, not an MVP design problem. Do not design new experiments -- first analyze the existing cohort data. Segment users into "retained" (active at day 30+) vs. "churned" cohorts and identify behavioral differences in the first 7 days. Retained users almost always complete a specific set of actions (the "aha moment" sequence) that churned users do not. Use product analytics to find that sequence, then redesign onboarding to drive all new users through those specific actions before anything else. If no analytics are instrumented, conduct exit interviews with 5-10 churned users using the question "Walk me through the last time you tried to use the product and what happened."
 
 ### The "B2B Enterprise Product with Long Sales Cycles" Case
+
 Standard 2-week smoke tests and landing page experiments do not apply to enterprise products where a single sale takes 6-18 months. Adjust the validation approach: use a Letter of Intent (LOI) campaign as the smoke test equivalent -- target 5-10 enterprise prospects and ask for a signed non-binding LOI to purchase at a specific price point if the product is built. An LOI signed by a director or above with budget authority is a stronger demand signal than 1,000 landing page signups. For the concierge MVP equivalent, offer a "design partner" program -- 3-5 enterprises get the product manually delivered (often as consulting) in exchange for co-development input and a reference. This validates solution fit while generating revenue.
 
 ### The "Technical Co-founder Wants to Build First" Case
+
 This is the most common team dynamic failure mode in lean startup. The engineer sees the MVP stage as "now I can finally build" and resists customer discovery because it feels like a detour. Reframe the conversation: the Build-Measure-Learn loop does not start with code. Show specifically how a Wizard of Oz test or concierge MVP can answer the same questions 10x faster and cheaper. Use the "10x test" -- if building the full feature takes 10 weeks and a Wizard of Oz test takes 1 week and answers the same question, the Wizard of Oz test has a 10x learning efficiency advantage. Engineers respect efficiency arguments. Also, emphasize that building a product nobody wants is not building -- it is waste.
 
 ### The "We Validated Demand But Cannot Build It" Case
+
 This occurs when customer interviews and smoke tests confirm genuine demand, but the team discovers the solution is technically infeasible at the cost or timeline required. This is a feasibility assumption failure. Do not abandon the validated customer insight -- it is valuable. Instead, run a technology pivot: identify an alternative technical approach (often a lower-tech, more manual, or API-based approach) that can deliver 80% of the value at 20% of the build complexity. The concierge MVP was already validating a workflow -- that workflow can often be productized differently. If the feasibility gap is fundamental (e.g., the technology does not exist), the customer insight can be the foundation of a different business architecture -- selling to customers who need the workflow served, with a different delivery mechanism.
 
 ### The "Market Is Too Small to Get Statistical Significance" Case
+
 Niche B2B markets -- specialty manufacturing, specific medical subspecialties, narrow professional services -- often have a total addressable market of a few thousand people globally. Standard smoke test sample sizes of 200+ may be impossible. Adjust accordingly: in markets under 500 accessible prospects, qualitative validation carries more weight. Run 12-15 deep customer discovery interviews (versus the usual 5-7) across multiple buyer roles (user, buyer, economic decision-maker, influencer). Achieve saturation within each role. Supplement with a competitive analysis of proxy markets -- adjacent solutions that current customers use as workarounds. A market that is small but has customers who spend $50,000/year on workarounds is more validated than a large market with customers who complain but will not pay $50/month.
 
 ### The "Pivot or Persevere Decision with a Divided Team" Case
+
 When co-founders or team members disagree sharply about whether to pivot, the disagreement is almost always about interpretation of data, not the data itself. Run a structured pre-mortem exercise: ask each team member to independently write down (1) what the data shows as observations only, (2) what they believe the data means, and (3) what they recommend doing next. Then compare the interpretations side by side. Divergent recommendations with the same underlying data reveal interpretation bias -- one person is discounting certain data points. The resolution is to design one more targeted experiment that specifically tests the interpretation in dispute, with a threshold agreed upon in advance by all parties. Do not make the pivot/persevere decision until that experiment runs. If resources do not allow another cycle, use the data-richest interpretation -- whichever position has more direct behavioral evidence (what customers did) rather than attitudinal evidence (what customers said).
 
 ### The "Lean Startup Does Not Apply to Hardware or Physical Products" Objection
+
 This is a false objection. The principles apply -- the experiment types differ. For physical products: use a 3D-printed or hand-fabricated prototype for concierge validation instead of code. Use a crowdfunding campaign (Kickstarter-style) as both a smoke test and a pre-order mechanism -- a campaign that reaches 100% of its funding goal within 48 hours is a strong product-market signal. Use a "fake door" test -- show a product page with full specifications and a "Buy Now" button that goes to a waitlist, then measure click-through on purchase intent. For hardware with regulatory requirements (medical devices, food products), the FDA clearance or food safety certification is itself a major assumption -- validate the regulatory pathway with one or two regulatory consultants before investing in prototyping. Regulatory failure is the hardware equivalent of a technology feasibility failure.
 
 ---
@@ -279,6 +289,7 @@ This is a false objection. The principles apply -- the experiment types differ. 
 ## Lean Startup Practitioner Guidance
 
 ### Situation Assessment
+
 Stage: Pre-Customer (Customer Discovery)
 Current Primary Objective: Problem-Solution Fit -- validate that the problem is real, painful, and worth paying to solve before any code is written
 What Has Been Validated: Nothing formally. Conversations with trainer friends are social validation, not market validation (they will not tell you the idea is bad).
@@ -288,13 +299,13 @@ What Remains Unvalidated: Everything that matters -- problem severity, willingne
 
 ### Riskiest Assumption Analysis
 
-| Assumption | Criticality (1-5) | Certainty (1-5) | Priority to Test |
-|------------|-------------------|-----------------|-----------------|
-| Independent trainers have a painful enough scheduling/admin problem to pay for a dedicated tool | 5 | 1 | 1st |
-| Trainers will pay $X/month for this (instead of using free/cheap tools like Google Calendar + WhatsApp) | 5 | 1 | 2nd |
-| Automated check-ins between sessions generate enough client retention value that trainers see it as their core problem | 4 | 1 | 3rd |
-| We can acquire independent trainers affordably (not locked into gym management software) | 4 | 2 | 4th |
-| A developer can build the core loop in a reasonable timeframe at viable cost | 3 | 3 | 5th |
+| Assumption                                                                                                             | Criticality (1-5) | Certainty (1-5) | Priority to Test |
+| ---------------------------------------------------------------------------------------------------------------------- | ----------------- | --------------- | ---------------- |
+| Independent trainers have a painful enough scheduling/admin problem to pay for a dedicated tool                        | 5                 | 1               | 1st              |
+| Trainers will pay $X/month for this (instead of using free/cheap tools like Google Calendar + WhatsApp)                | 5                 | 1               | 2nd              |
+| Automated check-ins between sessions generate enough client retention value that trainers see it as their core problem | 4                 | 1               | 3rd              |
+| We can acquire independent trainers affordably (not locked into gym management software)                               | 4                 | 2               | 4th              |
+| A developer can build the core loop in a reasonable timeframe at viable cost                                           | 3                 | 3               | 5th              |
 
 Top Riskiest Assumption: Independent personal trainers experience their scheduling and client communication workflow as painful enough to pay $30-60/month for a dedicated app, given that free alternatives (Google Calendar, WhatsApp, notes apps, generic scheduling tools like Calendly) already exist and are in use.
 
@@ -316,6 +327,7 @@ Experiment Type: Customer Discovery Interviews (qualitative) followed by a Conci
 Rationale: No code should be written before validating that the problem is severe enough to displace existing tools. Trainer friends are a biased sample. The developer's time is the most expensive resource -- protect it until the problem is confirmed with strangers.
 
 **Phase 1 -- Customer Discovery (this week):**
+
 - What to Build: Nothing. A simple interview script (30-45 minutes per interview, structured around past behavior)
 - Who to Interview: 10-12 independent personal trainers who are NOT friends or family. Recruit through fitness-focused online communities, local gym bulletin boards, or paid screener ads targeting personal trainers with 10+ clients
 - Interview Structure (Mom Test principles):
@@ -332,6 +344,7 @@ Rationale: No code should be written before validating that the problem is sever
 - Time-Box: 7-10 days to complete all interviews and synthesize
 
 **Phase 2 -- Concierge MVP (if Phase 1 validates the problem, weeks 3-4):**
+
 - What to Build: A manual service. Offer 5 real independent trainers (paying customers, not friends) a "personal trainer admin assistant" service at $49/month. You personally handle their scheduling (via a shared Google Calendar), send their clients 48-hour reminder texts (manually from a Google Voice number), and send a 3-question check-in message to clients mid-week (manually via a template in iMessage or WhatsApp).
 - This is not a product. It is a workflow validation. You learn which parts of the manual service they value, which parts they ignore, and what edge cases the software would need to handle.
 - What to Measure: (1) Do 5 trainers agree to pay $49/month for this manual service? (2) After 4 weeks, do they renew or ask to continue? (3) Which specific parts of the service do they reference as valuable in check-in calls?
@@ -345,12 +358,12 @@ Rationale: No code should be written before validating that the problem is sever
 Current Stage: Pre-Stage (problem validation, not yet measuring product metrics)
 One Metric That Matters Right Now: Interview validation rate -- percentage of non-friend-or-family interviews that surface unprompted scheduling/admin pain AND current willingness to pay for tools in this category
 
-| Metric | Current Value | Target | Trend | Action if Below Target |
-|--------|--------------|--------|-------|------------------------|
-| Interview validation rate | 0% (no interviews run yet) | 70% (7 of 10) | -- | Pivot to different customer segment or problem framing |
-| Current tool payment rate (among interviewees) | Unknown | 50% (5 of 10) | -- | If below 30%, problem may not be painful enough to monetize |
-| Concierge paying conversion | 0% (not started) | 60% (3 of 5) | -- | If below this, solution is wrong despite valid problem -- redesign service |
-| Concierge 4-week retention | 0% (not started) | 60% (3 of 5) | -- | If retained but won't pay more, pricing is the issue |
+| Metric                                         | Current Value              | Target        | Trend | Action if Below Target                                                     |
+| ---------------------------------------------- | -------------------------- | ------------- | ----- | -------------------------------------------------------------------------- |
+| Interview validation rate                      | 0% (no interviews run yet) | 70% (7 of 10) | --    | Pivot to different customer segment or problem framing                     |
+| Current tool payment rate (among interviewees) | Unknown                    | 50% (5 of 10) | --    | If below 30%, problem may not be painful enough to monetize                |
+| Concierge paying conversion                    | 0% (not started)           | 60% (3 of 5)  | --    | If below this, solution is wrong despite valid problem -- redesign service |
+| Concierge 4-week retention                     | 0% (not started)           | 60% (3 of 5)  | --    | If retained but won't pay more, pricing is the issue                       |
 
 Vanity Metrics to Ignore Right Now: App store downloads (app doesn't exist yet), waitlist signups from trainer friends, social media engagement on any posts about the idea, compliments received from trainer friends after pitching the concept
 
@@ -365,6 +378,7 @@ Recommendation: Persevere on the hypothesis but do not build any code. Run the c
 Reasoning: The market hypothesis is plausible but entirely unvalidated. The existing competition is real -- Mindbody, Trainerize, TrueCoach, and generic tools like Calendly exist in this space. The reason most new entrants fail against established tools is not product quality -- it is that the pain point they chose to solve is not the most acute pain for the target customer. The interviews will reveal whether scheduling, progress tracking, or between-session communication is the primary driver. That finding will determine the product's entire design and positioning.
 
 If Persevering:
+
 - Specific change in next cycle: Shift from talking to trainer friends to recruiting and interviewing 10 genuine strangers before any design or development begins
 - New experiment: 10 structured customer discovery interviews using Mom Test principles
 - Timeline for next review: 10 days from now (after interview synthesis is complete)
@@ -386,14 +400,14 @@ Open Questions: (1) Is scheduling, progress tracking, or between-session communi
 
 ### Next Actions
 
-| Action | Owner | Due Date | Success Criteria |
-|--------|-------|----------|-----------------|
-| Recruit 10-12 independent trainers for 30-min interviews (use fitness communities, not contacts) | Founder | Day 3 | 10 confirmed interviews scheduled with non-friends |
-| Write interview script using Mom Test principles -- past behavior questions only, no future intent questions | Founder | Day 2 | Script reviewed against Mom Test checklist: no "would you," no "do you think," no leading questions |
-| Run all 10 interviews and record with permission | Founder | Day 10 | 10 completed interview recordings or detailed notes |
-| Synthesize interview findings: pain frequency, tool payment behavior, primary pain category | Founder | Day 12 | One-page learning summary with hire/fire decision on each hypothesis |
-| Hold pivot/persevere review with developer based on interview findings | Both | Day 13 | Clear go/no-go decision on which problem to build for, or decision to redesign hypothesis entirely |
-| If validated: recruit 5 paying trainers for concierge MVP at $49/month | Founder | Day 20 | 3+ paying trainer customers enrolled in manual service |
+| Action                                                                                                       | Owner   | Due Date | Success Criteria                                                                                    |
+| ------------------------------------------------------------------------------------------------------------ | ------- | -------- | --------------------------------------------------------------------------------------------------- |
+| Recruit 10-12 independent trainers for 30-min interviews (use fitness communities, not contacts)             | Founder | Day 3    | 10 confirmed interviews scheduled with non-friends                                                  |
+| Write interview script using Mom Test principles -- past behavior questions only, no future intent questions | Founder | Day 2    | Script reviewed against Mom Test checklist: no "would you," no "do you think," no leading questions |
+| Run all 10 interviews and record with permission                                                             | Founder | Day 10   | 10 completed interview recordings or detailed notes                                                 |
+| Synthesize interview findings: pain frequency, tool payment behavior, primary pain category                  | Founder | Day 12   | One-page learning summary with hire/fire decision on each hypothesis                                |
+| Hold pivot/persevere review with developer based on interview findings                                       | Both    | Day 13   | Clear go/no-go decision on which problem to build for, or decision to redesign hypothesis entirely  |
+| If validated: recruit 5 paying trainers for concierge MVP at $49/month                                       | Founder | Day 20   | 3+ paying trainer customers enrolled in manual service                                              |
 
 Tell the developer: "We are protecting your time by confirming the riskiest assumption first. Two weeks of interviews saves you from building 6 months of the wrong product. If 7 of 10 strangers describe this pain without prompting, we start building immediately. If they don't, we pivot the concept before a single line of code exists."
 

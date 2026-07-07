@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning template checklist"
-  category: "productivity"
-  subcategory: "task-management"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'planning template checklist'
+  category: 'productivity'
+  subcategory: 'task-management'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
+
 # Task Delegation System
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user describes being overloaded and asks which tasks they should hand off to others -- including employees, contractors, virtual assistants, family members, or automated services
 - The user has tried delegating before but the results were poor -- late deliveries, wrong output, or delegates who kept asking for help -- and they want a structured system to fix the process
 - The user wants to write a delegation brief, handoff document, or standard operating procedure (SOP) for work they are passing to someone else
@@ -29,6 +31,7 @@ metadata:
 - The user asks how often to check in on delegated work without micromanaging
 
 **Do NOT use when:**
+
 - The user is coordinating work across a team with shared ownership and dependencies -- use business project-management skills, which cover sprint planning, task boards, and cross-functional workflows
 - The user is deciding whether to hire someone -- use business HR skills, which cover job design, compensation, and interviewing
 - The user wants to sort their own task list by importance and urgency without any delegation intent -- use `task-prioritization`, which applies Eisenhower matrix and effort-impact scoring
@@ -44,6 +47,7 @@ metadata:
 Do not skip this step. A delegation system built on wrong assumptions is worse than none -- it creates bureaucracy without benefit.
 
 Ask the user for:
+
 - **The full task list** they personally handle: every recurring task, every in-flight project, every thing they "just do" without thinking about it. If they cannot produce a list, prompt them by category: communication (email, calls, meetings), creation (writing, design, code), administration (scheduling, data entry, invoicing), and operations (logistics, purchasing, fulfillment).
 - **Who is available to receive delegated work:** employees by role and skill level, contractors or freelancers, virtual assistants, family members in household contexts, and automation or software services. For each, note their approximate weekly capacity, their skill set, and whether the user has delegated to them before.
 - **What has failed before:** ask specifically whether past delegation broke down at the handoff (unclear instructions), at execution (wrong skills or capacity), or at delivery (no follow-up). The failure mode determines which part of the system to reinforce.
@@ -69,10 +73,11 @@ One-time tasks have a high setup-to-execution cost ratio: the briefing almost co
 
 **Dimension 4: Risk Level**
 Categorize risk on three axes:
+
 - **Reversibility:** Can a mistake be corrected cheaply (editable document) or is it permanent (sent email, financial transaction)?
 - **Visibility:** Does failure show to a client or the public, or only internally?
 - **Magnitude:** Is the worst-case outcome a minor inconvenience or a legal or reputational problem?
-Low risk = reversible, internal, low-magnitude. High risk = irreversible, external, high-magnitude.
+  Low risk = reversible, internal, low-magnitude. High risk = irreversible, external, high-magnitude.
 
 **Dimension 5: Process Clarity**
 Can the task be described in a written SOP of five steps or fewer? If yes, it is immediately delegatable with low training cost. If no, the user must invest in documenting the process before delegating -- or the delegate will fail regardless of skill.
@@ -124,6 +129,7 @@ A handoff is not a task description. A task description tells someone what to do
 The Waiting For tracker is the backbone of delegation accountability. Without it, delegated tasks exist only in the delegate's memory -- which is the user's original problem, just relocated.
 
 **Waiting For tracker fields (required):**
+
 - Task name
 - Delegate name
 - Date assigned
@@ -133,6 +139,7 @@ The Waiting For tracker is the backbone of delegation accountability. Without it
 - Notes field for anything that came up during check-in
 
 **Check-in cadence by risk level:**
+
 - **Low risk:** Check in at due date only. Review output against the desired outcome statement. Spot-check one to two deliverables rather than reviewing everything.
 - **Medium risk:** Check in at the 50% mark (halfway between assignment and due date) and at delivery. At midpoint, confirm the delegate is on track and has everything they need. At delivery, review all deliverables against spec.
 - **High risk:** Check in at 25%, 50%, 75%, and 100% of elapsed time. This is not micromanagement -- it is structured risk management. At each checkpoint, review the specific phase deliverable, not the whole project. Confirm that no blockers have developed silently.
@@ -148,11 +155,13 @@ The Waiting For tracker is the backbone of delegation accountability. Without it
 Delegation without quality review creates a system where errors compound invisibly over time. Quality review is not a sign of distrust -- it is the mechanism that makes delegation sustainable.
 
 **Quality review levels:**
+
 - **Spot-check review (low-risk tasks):** Review one in five to one in ten instances of a recurring task. Enough to catch systemic errors without the overhead of reviewing everything.
 - **Full output review (medium-risk tasks):** Review every instance but accept minor imperfections if the outcome statement is met. Focus on whether the result achieves the goal, not whether it was done exactly as you would have done it.
 - **Staged-gate review (high-risk tasks):** Each checkpoint output is a formal gate. Work does not proceed to the next phase until the gate is cleared. This is the model used in regulated industries and client-facing deliverables where errors are expensive.
 
 **Quality review checklist elements:**
+
 - Does the output match the desired outcome statement exactly?
 - Are all specified deliverables present and in the correct format?
 - Were deadlines and checkpoints met? If not, was the delay communicated in advance?
@@ -381,6 +390,7 @@ Delegating undocumented work is the single most common source of delegation fail
 ---
 
 # Delegation System -- Boutique PR Firm
+
 Generated: [current date]
 
 ---
@@ -389,18 +399,18 @@ Generated: [current date]
 
 ### Task Inventory and Scoring
 
-| # | Task | Recurrence | Unique Authority? | 80% Rule? | Risk Level | Process Clarity | Decision |
-|---|------|-----------|-------------------|-----------|-----------|----------------|----------|
-| 1 | Client strategy calls (key accounts) | Weekly | Yes -- clients hired the principal | No | High | No SOP needed | Keep |
-| 2 | Press release drafting | 3-4x/week | No -- style can be trained | Yes | Medium | Needs SOP | Partial (coordinator drafts, principal revises) |
-| 3 | Journalist pitching (Tier 1 media) | Daily | Partial -- relationship matters | Partial | High | Needs SOP | Partial (coordinator researches and drafts, principal sends) |
-| 4 | Journalist pitching (Tier 2/3 media) | Daily | No -- process-driven | Yes | Medium | Needs SOP | Delegate (guided) |
-| 5 | Media coverage tracking and reporting | Weekly | No -- research and compilation | Yes | Low | SOP exists informally | Delegate (full) |
-| 6 | Client invoice generation | Monthly | No -- data entry | Yes | Medium | Needs SOP | Delegate to bookkeeper (guided) |
-| 7 | Invoice follow-up on overdue accounts | Monthly | Partial -- relationship sensitivity | Yes for initial follow-up | Medium | Needs SOP | Partial (bookkeeper follows up; principal on 30+ days overdue) |
-| 8 | Firm social media content | 3x/week | No -- brand voice trainable | Yes | Low | Needs content calendar | Delegate (guided) |
-| 9 | Team workload management and task assignment | Ongoing | Yes -- management authority | No | High | No | Keep (but build a visible system to reduce ad-hoc interruptions) |
-| 10 | New business proposals | As needed | Yes -- requires principal judgment and relationships | No | High | No | Keep |
+| #   | Task                                         | Recurrence | Unique Authority?                                    | 80% Rule?                 | Risk Level | Process Clarity        | Decision                                                         |
+| --- | -------------------------------------------- | ---------- | ---------------------------------------------------- | ------------------------- | ---------- | ---------------------- | ---------------------------------------------------------------- |
+| 1   | Client strategy calls (key accounts)         | Weekly     | Yes -- clients hired the principal                   | No                        | High       | No SOP needed          | Keep                                                             |
+| 2   | Press release drafting                       | 3-4x/week  | No -- style can be trained                           | Yes                       | Medium     | Needs SOP              | Partial (coordinator drafts, principal revises)                  |
+| 3   | Journalist pitching (Tier 1 media)           | Daily      | Partial -- relationship matters                      | Partial                   | High       | Needs SOP              | Partial (coordinator researches and drafts, principal sends)     |
+| 4   | Journalist pitching (Tier 2/3 media)         | Daily      | No -- process-driven                                 | Yes                       | Medium     | Needs SOP              | Delegate (guided)                                                |
+| 5   | Media coverage tracking and reporting        | Weekly     | No -- research and compilation                       | Yes                       | Low        | SOP exists informally  | Delegate (full)                                                  |
+| 6   | Client invoice generation                    | Monthly    | No -- data entry                                     | Yes                       | Medium     | Needs SOP              | Delegate to bookkeeper (guided)                                  |
+| 7   | Invoice follow-up on overdue accounts        | Monthly    | Partial -- relationship sensitivity                  | Yes for initial follow-up | Medium     | Needs SOP              | Partial (bookkeeper follows up; principal on 30+ days overdue)   |
+| 8   | Firm social media content                    | 3x/week    | No -- brand voice trainable                          | Yes                       | Low        | Needs content calendar | Delegate (guided)                                                |
+| 9   | Team workload management and task assignment | Ongoing    | Yes -- management authority                          | No                        | High       | No                     | Keep (but build a visible system to reduce ad-hoc interruptions) |
+| 10  | New business proposals                       | As needed  | Yes -- requires principal judgment and relationships | No                        | High       | No                     | Keep                                                             |
 
 ---
 
@@ -408,27 +418,27 @@ Generated: [current date]
 
 ### Available Delegates
 
-| Delegate | Role / Type | Weekly Capacity | Core Skills | Trust Level |
-|----------|------------|----------------|------------|-------------|
-| Coordinator A | Junior Account Coordinator, FT | 40 hrs/week | Writing, research, organized, detail-oriented | New to formal delegation |
-| Coordinator B | Junior Account Coordinator, FT | 40 hrs/week | Client communication, media list management, social media familiarity | New to formal delegation |
-| Bookkeeper | Part-time bookkeeper | 10 hrs/week | QuickBooks, invoicing, accounts receivable | Established (existing relationship) |
+| Delegate      | Role / Type                    | Weekly Capacity | Core Skills                                                           | Trust Level                         |
+| ------------- | ------------------------------ | --------------- | --------------------------------------------------------------------- | ----------------------------------- |
+| Coordinator A | Junior Account Coordinator, FT | 40 hrs/week     | Writing, research, organized, detail-oriented                         | New to formal delegation            |
+| Coordinator B | Junior Account Coordinator, FT | 40 hrs/week     | Client communication, media list management, social media familiarity | New to formal delegation            |
+| Bookkeeper    | Part-time bookkeeper           | 10 hrs/week     | QuickBooks, invoicing, accounts receivable                            | Established (existing relationship) |
 
 ### Time Budget (Delegated Tasks Only)
 
-| Delegate | Task | Estimated Hours/Week | % of Capacity |
-|----------|------|---------------------|---------------|
-| Coordinator A | Press release first drafts | 6 | 15% |
-| Coordinator A | Tier 2/3 journalist pitching | 8 | 20% |
-| Coordinator A | Media coverage tracking and reporting | 4 | 10% |
-| Coordinator A | TOTAL DELEGATED | 18 | 45% |
-| Coordinator B | Tier 1 pitch research and draft | 5 | 12.5% |
-| Coordinator B | Firm social media content | 4 | 10% |
-| Coordinator B | Media coverage tracking and reporting | 4 | 10% |
-| Coordinator B | TOTAL DELEGATED | 13 | 32.5% |
-| Bookkeeper | Invoice generation | 2 | 20% |
-| Bookkeeper | Invoice follow-up (initial, under 30 days) | 1.5 | 15% |
-| Bookkeeper | TOTAL DELEGATED | 3.5 | 35% |
+| Delegate      | Task                                       | Estimated Hours/Week | % of Capacity |
+| ------------- | ------------------------------------------ | -------------------- | ------------- |
+| Coordinator A | Press release first drafts                 | 6                    | 15%           |
+| Coordinator A | Tier 2/3 journalist pitching               | 8                    | 20%           |
+| Coordinator A | Media coverage tracking and reporting      | 4                    | 10%           |
+| Coordinator A | TOTAL DELEGATED                            | 18                   | 45%           |
+| Coordinator B | Tier 1 pitch research and draft            | 5                    | 12.5%         |
+| Coordinator B | Firm social media content                  | 4                    | 10%           |
+| Coordinator B | Media coverage tracking and reporting      | 4                    | 10%           |
+| Coordinator B | TOTAL DELEGATED                            | 13                   | 32.5%         |
+| Bookkeeper    | Invoice generation                         | 2                    | 20%           |
+| Bookkeeper    | Invoice follow-up (initial, under 30 days) | 1.5                  | 15%           |
+| Bookkeeper    | TOTAL DELEGATED                            | 3.5                  | 35%           |
 
 **Remaining principal time recovered per week: approximately 26 hours (press release revision: 3 hrs, Tier 1 pitch review and send: 3 hrs, invoice follow-up 30+ days: 0.5 hrs) -- actual recovery closer to 20-22 hours after handoff overhead in weeks 1-4.**
 
@@ -436,21 +446,22 @@ Generated: [current date]
 
 ## Part 3: Task-to-Delegate Assignment
 
-| # | Task | Delegate | Autonomy Level | Trust Progression | Reason for Match |
-|---|------|----------|---------------|-------------------|-----------------|
-| 1 | Press release first drafts | Coordinator A | Guided (SOP + principal revision required) | Move to Partial Supervised after 5 clean drafts | Strongest writer; revision gate manages quality risk |
-| 2 | Tier 2/3 journalist pitching | Coordinator A | Guided (approved pitch template + media list) | Move to Full after 10 pitches with tracking | Process-driven; documented SOP makes this teachable |
-| 3 | Tier 1 pitch research and draft | Coordinator B | Supervised (principal reviews draft and sends) | Keep supervised for 60 days -- relationship risk too high | Coordinator B handles client communication well; principal retains send authority |
-| 4 | Media coverage tracking | Both Coordinators | Full (shared tracker, weekly report format) | Already at full -- process is clear | Low risk, completely documentable |
-| 5 | Firm social media content | Coordinator B | Guided (content calendar + brand voice guide) | Move to Full after 30 days of on-brand posts | Social media familiarity; content calendar reduces judgment calls |
-| 6 | Invoice generation | Bookkeeper | Guided (SOP + principal spot-checks monthly) | Already established; move to Full review after 3 clean months | Core bookkeeper competency; already in their workflow |
-| 7 | Invoice follow-up (under 30 days) | Bookkeeper | Guided (approved email templates only) | Keep guided -- payment communications are relationship-sensitive | Clear script removes judgment requirement |
+| #   | Task                              | Delegate          | Autonomy Level                                 | Trust Progression                                                | Reason for Match                                                                  |
+| --- | --------------------------------- | ----------------- | ---------------------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| 1   | Press release first drafts        | Coordinator A     | Guided (SOP + principal revision required)     | Move to Partial Supervised after 5 clean drafts                  | Strongest writer; revision gate manages quality risk                              |
+| 2   | Tier 2/3 journalist pitching      | Coordinator A     | Guided (approved pitch template + media list)  | Move to Full after 10 pitches with tracking                      | Process-driven; documented SOP makes this teachable                               |
+| 3   | Tier 1 pitch research and draft   | Coordinator B     | Supervised (principal reviews draft and sends) | Keep supervised for 60 days -- relationship risk too high        | Coordinator B handles client communication well; principal retains send authority |
+| 4   | Media coverage tracking           | Both Coordinators | Full (shared tracker, weekly report format)    | Already at full -- process is clear                              | Low risk, completely documentable                                                 |
+| 5   | Firm social media content         | Coordinator B     | Guided (content calendar + brand voice guide)  | Move to Full after 30 days of on-brand posts                     | Social media familiarity; content calendar reduces judgment calls                 |
+| 6   | Invoice generation                | Bookkeeper        | Guided (SOP + principal spot-checks monthly)   | Already established; move to Full review after 3 clean months    | Core bookkeeper competency; already in their workflow                             |
+| 7   | Invoice follow-up (under 30 days) | Bookkeeper        | Guided (approved email templates only)         | Keep guided -- payment communications are relationship-sensitive | Clear script removes judgment requirement                                         |
 
 ---
 
 ## Part 4: Handoff Templates
 
 ### Handoff: Press Release First Drafts
+
 **Delegate:** Coordinator A
 **Date Assigned:** [Week 1]
 **Recurrence:** Triggered by client campaign calendar (approx. 3-4 per week)
@@ -458,52 +469,62 @@ Generated: [current date]
 **Autonomy Level:** Guided (SOP + mandatory principal revision before any release leaves the firm)
 
 #### Desired Outcome
+
 A complete first-draft press release for each assigned campaign moment, written in the firm's house style (AP style, inverted pyramid structure), that requires no more than 20 minutes of principal revision to reach final quality. The draft must include all required client information, a working headline and subhead, two client quotes (drafted, not yet approved by client), and a boilerplate.
 
 #### Deliverables
+
 - [ ] Draft press release in Google Docs, shared in the Client Campaign folder, named "[ClientName]\_PR\_[Topic]\_DRAFT\_[date]"
 - [ ] Revision request note at the top of the document: what information is missing or uncertain and needs principal input
 - [ ] Draft submitted minimum 48 hours before any intended distribution date
 
 #### Resources and Access Provided
-| Resource | Where to Find It | Access Method |
-|----------|-----------------|---------------|
-| House style guide and AP style reference | Shared Drive > Templates > Style | Full access |
-| Client campaign briefs and background documents | Shared Drive > Clients > [Client Name] > Campaign Briefs | Full access |
-| Approved client quote library (prior approved quotes) | Shared Drive > Clients > [Client Name] > Approved Assets | Full access |
-| Press release template (structure guide) | Shared Drive > Templates > PR Templates | Full access |
-| Client contact for factual questions | [Client name, email, phone] | Email or Slack only -- do not call without checking with principal first |
+
+| Resource                                              | Where to Find It                                         | Access Method                                                            |
+| ----------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------ |
+| House style guide and AP style reference              | Shared Drive > Templates > Style                         | Full access                                                              |
+| Client campaign briefs and background documents       | Shared Drive > Clients > [Client Name] > Campaign Briefs | Full access                                                              |
+| Approved client quote library (prior approved quotes) | Shared Drive > Clients > [Client Name] > Approved Assets | Full access                                                              |
+| Press release template (structure guide)              | Shared Drive > Templates > PR Templates                  | Full access                                                              |
+| Client contact for factual questions                  | [Client name, email, phone]                              | Email or Slack only -- do not call without checking with principal first |
 
 #### Decision Authority
+
 **Can decide independently:**
+
 - Structure of the release (format, ordering of information)
 - Word choice and tone within the house style guide parameters
 - Which background facts and statistics to include from approved materials
 - Drafting quotes (marked clearly as "DRAFT QUOTE -- client approval needed")
 
 **Must escalate to principal before:**
+
 - Any factual claim not found in the approved client materials
 - Any deviation from the approved campaign messaging (provided in the brief)
 - Contact with the client about the release content (coordinator may contact for scheduling questions only)
 - Any situation where the release cannot be drafted by the 48-hour lead time
 
 #### Checkpoints
-| Checkpoint | Trigger | What to Review |
-|-----------|---------|----------------|
+
+| Checkpoint                     | Trigger               | What to Review                                                                      |
+| ------------------------------ | --------------------- | ----------------------------------------------------------------------------------- |
 | First three drafts (weeks 1-2) | After each submission | Full detailed review; principal marks all revisions with comments, not silent edits |
-| Ongoing after draft 4+ | Each submission | Principal reviews and revises; tracks revision time to measure improvement |
+| Ongoing after draft 4+         | Each submission       | Principal reviews and revises; tracks revision time to measure improvement          |
 
 #### Escalation Criteria
+
 - Escalate immediately if: the client brief contains contradictory information that cannot be resolved using existing materials
 - Escalate immediately if: a draft cannot be completed 48 hours before distribution due to missing information
 - Escalate immediately if: the campaign topic involves any legal, regulatory, or sensitive reputational issue not flagged in the original brief
 
 #### SOP Reference
+
 Coordinator A and principal to co-develop the press release SOP during week 1, using the existing house style guide as the foundation. Coordinator A documents their process after drafts 1 and 2; principal refines it. Final SOP lives in Shared Drive > Templates > SOPs.
 
 ---
 
 ### Handoff: Tier 2/3 Journalist Pitching
+
 **Delegate:** Coordinator A
 **Date Assigned:** [Week 2, after press release handoff is stable]
 **Recurrence:** Daily during active campaigns; 3-5 pitches per day
@@ -511,42 +532,50 @@ Coordinator A and principal to co-develop the press release SOP during week 1, u
 **Autonomy Level:** Guided (approved pitch templates and media list; coordinator sends independently)
 
 #### Desired Outcome
+
 Each relevant Tier 2 and Tier 3 media contact on the approved campaign media list receives a personalized pitch email within the campaign window. Personalization means at least one reference to the journalist's recent work or beat. All pitches use the approved template with permitted variations noted in the SOP. Open rates and response rates are tracked in the campaign tracker.
 
 #### Deliverables
+
 - [ ] Daily pitch log: journalist name, outlet, pitch sent timestamp, and any response received -- entered same day into the Campaign Tracker (Google Sheet)
 - [ ] Weekly pitch summary: total pitches sent, responses received, placements secured, and outstanding follow-ups -- submitted to principal by 4 PM Friday
 - [ ] Pitch drafts for any non-template situation submitted to principal for approval before sending
 
 #### Resources and Access Provided
-| Resource | Where to Find It | Access Method |
-|----------|-----------------|---------------|
-| Approved media list by campaign | Shared Drive > Clients > [Client] > Campaign > Media Lists | Full access |
-| Approved pitch templates (3 variants) | Shared Drive > Templates > Pitch Templates | Full access |
-| Campaign Tracker (Google Sheet) | Shared Drive > Clients > [Client] > Campaign Tracker | Full edit access |
-| Shared email account for outreach | [account credentials in password manager] | Full access |
-| Media database (Muck Rack / Cision) | [login in password manager] | Full access |
+
+| Resource                              | Where to Find It                                           | Access Method    |
+| ------------------------------------- | ---------------------------------------------------------- | ---------------- |
+| Approved media list by campaign       | Shared Drive > Clients > [Client] > Campaign > Media Lists | Full access      |
+| Approved pitch templates (3 variants) | Shared Drive > Templates > Pitch Templates                 | Full access      |
+| Campaign Tracker (Google Sheet)       | Shared Drive > Clients > [Client] > Campaign Tracker       | Full edit access |
+| Shared email account for outreach     | [account credentials in password manager]                  | Full access      |
+| Media database (Muck Rack / Cision)   | [login in password manager]                                | Full access      |
 
 #### Decision Authority
+
 **Can decide independently:**
+
 - Which approved template to use for each journalist
 - Personalization language within the template parameters
 - Follow-up timing (standard is 4 business days after initial pitch)
 - Decision to remove a journalist from outreach if their beat has clearly shifted
 
 **Must escalate to principal before:**
+
 - Pitching any journalist not on the approved list
 - Responding to any journalist who expresses interest in a story (these go immediately to principal)
 - Sending any pitch that does not fit the three approved templates
 - Offering any journalist exclusive story rights or embargo terms
 
 #### Checkpoints
-| Checkpoint | Trigger | What to Review |
-|-----------|---------|----------------|
-| End of Week 2 | First week of pitching | Review 10 sent pitches for personalization quality and template adherence |
-| Every Friday | Weekly summary submission | Review response rates; identify any journalists who responded and need principal follow-up |
+
+| Checkpoint    | Trigger                   | What to Review                                                                             |
+| ------------- | ------------------------- | ------------------------------------------------------------------------------------------ |
+| End of Week 2 | First week of pitching    | Review 10 sent pitches for personalization quality and template adherence                  |
+| Every Friday  | Weekly summary submission | Review response rates; identify any journalists who responded and need principal follow-up |
 
 #### Escalation Criteria
+
 - Escalate immediately if: a journalist responds expressing interest, requests an interview, or asks for additional materials
 - Escalate immediately if: a journalist responds with a complaint or accusation
 - Escalate immediately if: a pitch bounces back with a domain-level block (may indicate a prior relationship issue)
@@ -554,6 +583,7 @@ Each relevant Tier 2 and Tier 3 media contact on the approved campaign media lis
 ---
 
 ### Handoff: Media Coverage Tracking and Weekly Report
+
 **Delegate:** Both Coordinators (alternating weekly lead)
 **Date Assigned:** Week 1
 **Recurrence:** Daily monitoring; weekly report due Monday by 9 AM
@@ -561,35 +591,42 @@ Each relevant Tier 2 and Tier 3 media contact on the approved campaign media lis
 **Autonomy Level:** Full
 
 #### Desired Outcome
+
 Every mention of each active client in online, print, and broadcast media is captured within 24 hours of publication. The weekly coverage report is formatted correctly, accurate, and ready for the principal to send to clients with no more than 5 minutes of review.
 
 #### Deliverables
+
 - [ ] Daily: new coverage entries added to the Coverage Tracker (Google Sheet) same-day -- outlet, journalist, publication date, reach/circulation if available, article link or scan, sentiment (Positive/Neutral/Negative)
 - [ ] Monday by 9 AM: weekly coverage report in the approved template (Google Doc, Client Coverage Report Template), shared in the client folder
 
 #### Resources and Access Provided
-| Resource | Location | Access |
-|----------|----------|--------|
-| Google Alerts (configured per client) | [Google account login] | Full access |
-| Muck Rack monitoring alerts | [login in password manager] | Full access |
-| Coverage Tracker (Google Sheet) | Shared Drive > Clients > [Client] > Coverage | Full edit |
-| Coverage Report Template | Shared Drive > Templates > Coverage Report | Full access |
+
+| Resource                              | Location                                     | Access      |
+| ------------------------------------- | -------------------------------------------- | ----------- |
+| Google Alerts (configured per client) | [Google account login]                       | Full access |
+| Muck Rack monitoring alerts           | [login in password manager]                  | Full access |
+| Coverage Tracker (Google Sheet)       | Shared Drive > Clients > [Client] > Coverage | Full edit   |
+| Coverage Report Template              | Shared Drive > Templates > Coverage Report   | Full access |
 
 #### Decision Authority
+
 - Can decide independently: all -- this is full-autonomy delegation
 - Flag for principal if: any coverage is negative or involves a factual error that may require a response
 
 #### Checkpoints
+
 - Spot-check: principal reviews one weekly report per month in detail to confirm accuracy and format
 - Quarterly: review tool coverage to confirm alerts are not missing significant outlets
 
 #### Escalation Criteria
+
 - Escalate immediately if: coverage contains a factual error, negative portrayal, or potential crisis signal (legal allegation, product recall reference, executive controversy)
 - Escalate if: a significant placement appears (major national outlet, broadcast) -- principal will want to notify the client directly
 
 ---
 
 ### Handoff: Firm Social Media Content (LinkedIn and Instagram)
+
 **Delegate:** Coordinator B
 **Date Assigned:** Week 1
 **Recurrence:** 3 posts per week per platform (Monday, Wednesday, Friday)
@@ -597,47 +634,56 @@ Every mention of each active client in online, print, and broadcast media is cap
 **Autonomy Level:** Guided (content calendar + brand voice guide required)
 
 #### Desired Outcome
+
 All firm social media accounts maintain a consistent posting cadence of 3 times per week. All posts match the brand voice guide (professional but human, thought-leadership focused, no promotional language). Content draws from the approved content category mix: 40% industry insights, 30% case study highlights (anonymized), 20% team culture, 10% direct service promotion.
 
 #### Deliverables
+
 - [ ] Content calendar populated two weeks in advance at all times (Google Sheet: Social Content Calendar)
 - [ ] Draft posts submitted in the content calendar for principal review by Wednesday of the prior week for the following week's content
 - [ ] Posts scheduled in the scheduling tool by Friday afternoon for the following week
 - [ ] Monthly performance summary: engagement rate, follower growth, top-performing post -- submitted last Friday of each month
 
 #### Resources and Access Provided
-| Resource | Location | Access |
-|----------|----------|--------|
-| Brand voice guide | Shared Drive > Marketing > Brand Guide | Full access |
-| Content calendar template | Shared Drive > Marketing > Social | Full edit |
-| Approved case study summaries | Shared Drive > Marketing > Case Studies | Full access |
-| Social media scheduling tool (Buffer or equivalent) | [login in password manager] | Full access |
-| Canva brand account | [login in password manager] | Full access -- firm templates pre-loaded |
+
+| Resource                                            | Location                                | Access                                   |
+| --------------------------------------------------- | --------------------------------------- | ---------------------------------------- |
+| Brand voice guide                                   | Shared Drive > Marketing > Brand Guide  | Full access                              |
+| Content calendar template                           | Shared Drive > Marketing > Social       | Full edit                                |
+| Approved case study summaries                       | Shared Drive > Marketing > Case Studies | Full access                              |
+| Social media scheduling tool (Buffer or equivalent) | [login in password manager]             | Full access                              |
+| Canva brand account                                 | [login in password manager]             | Full access -- firm templates pre-loaded |
 
 #### Decision Authority
+
 **Can decide independently:**
+
 - Post copy within the brand voice guide
 - Visual selection from approved Canva templates
 - Caption length and hashtag selection (approved hashtag list provided)
 
 **Must get principal approval before:**
+
 - Any post mentioning a specific client or campaign (even anonymized -- send to principal first)
 - Any post involving industry news or commentary that could be seen as a firm position statement
 - Any post format not already in the approved Canva templates
 
 #### Checkpoints
-| Checkpoint | Trigger | What to Review |
-|-----------|---------|----------------|
-| Week 1-4 | Each week's draft content | Principal reviews all drafts; approves or revises before scheduling |
-| Week 5+ | Weekly draft review | Move to spot-check -- principal reviews 1-2 posts per week if content calendar is on-brand |
+
+| Checkpoint | Trigger                   | What to Review                                                                             |
+| ---------- | ------------------------- | ------------------------------------------------------------------------------------------ |
+| Week 1-4   | Each week's draft content | Principal reviews all drafts; approves or revises before scheduling                        |
+| Week 5+    | Weekly draft review       | Move to spot-check -- principal reviews 1-2 posts per week if content calendar is on-brand |
 
 #### Escalation Criteria
+
 - Escalate immediately if: a post receives a negative comment, DM complaint, or request for firm contact
 - Escalate if: a trending topic creates a question about whether the firm should respond or comment
 
 ---
 
 ### Handoff: Monthly Invoice Generation
+
 **Delegate:** Bookkeeper
 **Date Assigned:** Ongoing (existing role, now formalized)
 **Recurrence:** 1st-5th of each month
@@ -645,28 +691,35 @@ All firm social media accounts maintain a consistent posting cadence of 3 times 
 **Autonomy Level:** Guided (SOP + principal spot-check on 20% of invoices)
 
 #### Desired Outcome
+
 All client invoices for the prior month are generated accurately in QuickBooks, reflect the correct retainer amount and any approved additional fees, and are emailed to clients by the 5th of each month using the approved invoice email template.
 
 #### Deliverables
+
 - [ ] All invoices generated in QuickBooks by the 3rd of the month
 - [ ] Invoice summary spreadsheet (client name, invoice number, amount, date sent) submitted to principal by the 5th
 - [ ] Any discrepancies or unusual amounts flagged to principal before sending
 
 #### Decision Authority
+
 **Can decide independently:**
+
 - Standard monthly retainer invoices (amounts are pre-agreed in client contracts)
 - Reimbursable expense line items supported by receipts in the approved expense log
 
 **Must escalate to principal before:**
+
 - Any invoice that differs from the prior month's retainer amount
 - Any invoice involving a new project fee not in the standard retainer
 - Any invoice for a client whose contract is up for renewal (principal may want to handle billing conversation directly)
 
 #### Checkpoints
+
 - Monthly: principal spot-checks 2-3 invoices from the summary for accuracy before they are sent
 - Quarterly: principal reviews accounts receivable aging report with bookkeeper
 
 #### Escalation Criteria
+
 - Escalate immediately if: a client disputes an invoice amount
 - Escalate if: a client retainer amount in QuickBooks does not match the signed contract on file
 
@@ -674,14 +727,14 @@ All client invoices for the prior month are generated accurately in QuickBooks, 
 
 ## Part 5: Waiting For Tracker
 
-| # | Task | Delegate | Date Assigned | Due Date | Next Check-In | Status | Notes |
-|---|------|----------|--------------|----------|--------------|--------|-------|
-| 1 | Press release drafts | Coord A | Week 1 Mon | Ongoing, 48-hr lead | Week 1 Thu (first draft review) | Not Started | |
-| 2 | Tier 2/3 pitching | Coord A | Week 2 Mon | Daily | Week 2 Fri (first weekly summary) | Not Started | |
-| 3 | Coverage tracking | Both | Week 1 Mon | Daily entries; Mon report | Week 2 Mon (first report review) | Not Started | |
-| 4 | Firm social media | Coord B | Week 1 Mon | Wed draft submission | Week 1 Wed (first draft batch) | Not Started | |
-| 5 | Invoice generation | Bookkeeper | Month 1, Day 1 | Month 1, Day 5 | Month 1, Day 3 (spot-check before send) | Not Started | |
-| 6 | Tier 1 pitch research and draft | Coord B | Week 2 Mon | Per campaign calendar | Week 2 Thu (first draft review) | Not Started | |
+| #   | Task                            | Delegate   | Date Assigned  | Due Date                  | Next Check-In                           | Status      | Notes |
+| --- | ------------------------------- | ---------- | -------------- | ------------------------- | --------------------------------------- | ----------- | ----- |
+| 1   | Press release drafts            | Coord A    | Week 1 Mon     | Ongoing, 48-hr lead       | Week 1 Thu (first draft review)         | Not Started |       |
+| 2   | Tier 2/3 pitching               | Coord A    | Week 2 Mon     | Daily                     | Week 2 Fri (first weekly summary)       | Not Started |       |
+| 3   | Coverage tracking               | Both       | Week 1 Mon     | Daily entries; Mon report | Week 2 Mon (first report review)        | Not Started |       |
+| 4   | Firm social media               | Coord B    | Week 1 Mon     | Wed draft submission      | Week 1 Wed (first draft batch)          | Not Started |       |
+| 5   | Invoice generation              | Bookkeeper | Month 1, Day 1 | Month 1, Day 5            | Month 1, Day 3 (spot-check before send) | Not Started |       |
+| 6   | Tier 1 pitch research and draft | Coord B    | Week 2 Mon     | Per campaign calendar     | Week 2 Thu (first draft review)         | Not Started |       |
 
 **Recommended tracker location:** Add these as recurring tasks in [whatever task manager the principal currently uses]. Tag all with "Waiting For" label. Set the check-in date as the task due date so the principal's task manager surfaces them at the right time.
 
@@ -689,8 +742,8 @@ All client invoices for the prior month are generated accurately in QuickBooks, 
 
 ## Part 6: Follow-Up Schedule
 
-| Risk Level | Task Examples | Check-In Frequency | Format | Review Depth |
-|-----------|--------------|-------------------|--------|-------------|
-| Low | Coverage tracking, social media | At weekly summary submission | Async email or Slack | Spot-check: 1 in 5 reports in detail; others scanned for format |
-| Medium | Press release drafts, invoicing, Tier 2/3 pitching | Every submission (press releases); weekly (pitching); monthly (invoicing) | Async for routine; sync if revision rate is high | Review all deliverables against the outcome statement |
-| High | Tier 1 pitch drafts, any client-facing communication | Every draft before sending | Principal reviews synchronously or within 4 hours of submission | Full review at every stage gate;
+| Risk Level | Task Examples                                        | Check-In Frequency                                                        | Format                                                          | Review Depth                                                    |
+| ---------- | ---------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Low        | Coverage tracking, social media                      | At weekly summary submission                                              | Async email or Slack                                            | Spot-check: 1 in 5 reports in detail; others scanned for format |
+| Medium     | Press release drafts, invoicing, Tier 2/3 pitching   | Every submission (press releases); weekly (pitching); monthly (invoicing) | Async for routine; sync if revision rate is high                | Review all deliverables against the outcome statement           |
+| High       | Tier 1 pitch drafts, any client-facing communication | Every draft before sending                                                | Principal reviews synchronously or within 4 hours of submission | Full review at every stage gate;                                |

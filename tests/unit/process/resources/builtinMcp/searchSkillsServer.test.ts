@@ -24,10 +24,7 @@ function makeEntry(name: string): SkillIndexEntry {
   };
 }
 
-function makeLibrary(
-  entries: SkillIndexEntry[],
-  bodies: Record<string, string | null>
-): SearchSkillsDeps['library'] {
+function makeLibrary(entries: SkillIndexEntry[], bodies: Record<string, string | null>): SearchSkillsDeps['library'] {
   const listFn = vi.fn(async () => entries);
   const loadBodyFn = vi.fn(async (name: string) => bodies[name] ?? null);
   return { list: listFn, loadBody: loadBodyFn };
@@ -46,10 +43,10 @@ function makeRetriever(
 describe('createSearchSkillsServer', () => {
   describe('call - happy path (metadata-only default)', () => {
     it('returns ranked metadata WITHOUT inline bodies by default (issue #199)', async () => {
-      const library = makeLibrary(
-        [makeEntry('alpha'), makeEntry('beta')],
-        { alpha: '# Alpha skill body', beta: '# Beta skill body' }
-      );
+      const library = makeLibrary([makeEntry('alpha'), makeEntry('beta')], {
+        alpha: '# Alpha skill body',
+        beta: '# Beta skill body',
+      });
       const retriever = makeRetriever([
         { name: 'alpha', description: 'Description for alpha', score: 2.5 },
         { name: 'beta', description: 'Description for beta', score: 1.2 },
@@ -165,10 +162,7 @@ describe('createSearchSkillsServer', () => {
     });
 
     it('returns message when all matched skills have null bodies', async () => {
-      const library = makeLibrary(
-        [makeEntry('blocked-skill')],
-        { 'blocked-skill': null }
-      );
+      const library = makeLibrary([makeEntry('blocked-skill')], { 'blocked-skill': null });
       const retriever = makeRetriever([
         { name: 'blocked-skill', description: 'Description for blocked-skill', score: 1.5 },
       ]);
@@ -183,10 +177,7 @@ describe('createSearchSkillsServer', () => {
 
   describe('call - blocked/disabled skill filtering', () => {
     it('filters out skills whose loadBody returns null', async () => {
-      const library = makeLibrary(
-        [makeEntry('good'), makeEntry('blocked')],
-        { good: '# Good body', blocked: null }
-      );
+      const library = makeLibrary([makeEntry('good'), makeEntry('blocked')], { good: '# Good body', blocked: null });
       const retriever = makeRetriever([
         { name: 'good', description: 'Description for good', score: 3.0 },
         { name: 'blocked', description: 'Description for blocked', score: 2.0 },
@@ -203,13 +194,8 @@ describe('createSearchSkillsServer', () => {
 
   describe('BM25 index is built only once', () => {
     it('calls library.list exactly once across multiple calls', async () => {
-      const library = makeLibrary(
-        [makeEntry('one')],
-        { one: 'body one' }
-      );
-      const retriever = makeRetriever([
-        { name: 'one', description: 'Description for one', score: 1 },
-      ]);
+      const library = makeLibrary([makeEntry('one')], { one: 'body one' });
+      const retriever = makeRetriever([{ name: 'one', description: 'Description for one', score: 1 }]);
 
       const server = createSearchSkillsServer({ library, retriever });
 

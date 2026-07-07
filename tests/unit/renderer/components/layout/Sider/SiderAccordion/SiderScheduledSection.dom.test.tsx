@@ -31,11 +31,7 @@ interface RenderOpts {
 function renderSection(opts: RenderOpts = {}) {
   return render(
     <MemoryRouter>
-      <SiderScheduledSection
-        collapsed={opts.collapsed ?? false}
-        pathname={opts.pathname ?? '/'}
-        onNavigate={vi.fn()}
-      />
+      <SiderScheduledSection collapsed={opts.collapsed ?? false} pathname={opts.pathname ?? '/'} onNavigate={vi.fn()} />
     </MemoryRouter>
   );
 }

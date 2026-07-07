@@ -7,19 +7,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "creative-writing writing proposal"
-  category: "writing"
-  subcategory: "creative-writing"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'creative-writing writing proposal'
+  category: 'writing'
+  subcategory: 'creative-writing'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Story Pitch
 
 ## When to Use
 
 **Use this skill when:**
+
 - A user wants to write a logline, query letter, or synopsis for a novel, screenplay, TV pilot, limited series, or short fiction collection
 - A user needs to prepare a full pitch package for literary agents, acquisition editors, film/TV producers, or development executives
 - A user wants comp titles and market positioning language for a completed or in-progress manuscript or script
@@ -30,6 +32,7 @@ metadata:
 - A user has a story concept they need to pressure-test before drafting -- the pitch itself reveals whether the story has a workable spine
 
 **Do NOT use this skill when:**
+
 - The user wants a detailed beat-by-beat plot outline for their own drafting use -- use `plot-outline`
 - The user wants to write the actual story, scene, or chapter -- use `short-story-writing` or the appropriate fiction writing skill
 - The user is pitching a business, startup, or product to investors -- use the business pitch skill
@@ -85,12 +88,12 @@ The synopsis is the document that agents and producers most misunderstand and wr
 Comp titles are not just a marketing gesture -- they are a signal to the agent about the book's commercial shelf, its reader community, and the writer's awareness of the market.
 
 - **The 3-5 year rule:** Comp titles should be published within the last three to five years. Older titles can be referenced if they are genre-defining classics being used as a third "tone" reference (e.g., "For readers of Shirley Jackson"), but the primary comps should be recent.
-- **The specificity rule:** Do not comp to the bestseller list's top 10 unless the match is precise and the argument is made explicitly. Comping to *The Girl on the Train* signals "psychological thriller" -- but every psychological thriller in 2015-2020 comped to it, which made the comp meaningless. Find the book that is three levels below the mega-hit that hits the same notes.
-- **The dual-axis framework:** The best comp pairings work on two axes -- "the [TITLE A] of [TITLE B]" or "[TITLE A] meets [TITLE B]" -- where one comp signals the plot/genre and the other signals the tone, voice, or thematic territory. Example: "The tension of *Sharp Objects* with the historical world of *The Women* by Kristin Hannah." This communicates more than any two comps from the same genre subtype.
+- **The specificity rule:** Do not comp to the bestseller list's top 10 unless the match is precise and the argument is made explicitly. Comping to _The Girl on the Train_ signals "psychological thriller" -- but every psychological thriller in 2015-2020 comped to it, which made the comp meaningless. Find the book that is three levels below the mega-hit that hits the same notes.
+- **The dual-axis framework:** The best comp pairings work on two axes -- "the [TITLE A] of [TITLE B]" or "[TITLE A] meets [TITLE B]" -- where one comp signals the plot/genre and the other signals the tone, voice, or thematic territory. Example: "The tension of _Sharp Objects_ with the historical world of _The Women_ by Kristin Hannah." This communicates more than any two comps from the same genre subtype.
 - **What comps signal beyond plot:** Voice (spare vs. lush), pacing (propulsive vs. contemplative), darkness level, protagonist type, ending type (triumphant, bittersweet, ambiguous), and even the book's ideal retail price point and format (hardcover lead title vs. paperback original).
 - **Avoid self-sabotaging comps:** Comping to a book that received a one-star review in Publishers Weekly for the same problem your book might have. Comping to a book the target agent rejected or a book from an author the agent publicly disagreed with. Comping to your own favorite book rather than a book that actually resembles yours in market terms.
 - **The "For readers of" construction:** Use for conference pitches and some query letters. "For readers of Emily St. John Mandel and Susanna Clarke" signals: adult speculative literary fiction, high-concept, character-driven, prestige-leaning.
-- **Film and TV comps:** In screenplay and TV pitches, comp to projects rather than source material. A film pitch comps to recent films, not to the novels they adapted. TV comps are often cross-referenced by network/streamer tone: "the ambiguity of *Severance* with the warmth of *Ted Lasso*."
+- **Film and TV comps:** In screenplay and TV pitches, comp to projects rather than source material. A film pitch comps to recent films, not to the novels they adapted. TV comps are often cross-referenced by network/streamer tone: "the ambiguity of _Severance_ with the warmth of _Ted Lasso_."
 
 ---
 
@@ -118,7 +121,7 @@ Screenplays and TV series require different pitch formats from prose fiction. Th
 - **The full treatment (feature, 5-10 pages):** Expand the one-pager with scene-level detail for key sequences, character descriptions (age, defining visual characteristic, one-line psychology), and the emotional arc of the protagonist. This is often required for studio pitches or when a producer has expressed interest in a concept.
 - **TV pilot pitch document structure:**
   - **Series logline (1 sentence):** Captures the premise of the series, not just the pilot.
-  - **Series overview (1 paragraph):** The world, the central tension that will drive multiple seasons, the tone. Reference comparable shows explicitly: "This is the moral ambiguity of *The Americans* set against the corporate dysfunction of *Succession*."
+  - **Series overview (1 paragraph):** The world, the central tension that will drive multiple seasons, the tone. Reference comparable shows explicitly: "This is the moral ambiguity of _The Americans_ set against the corporate dysfunction of _Succession_."
   - **Pilot synopsis (1 page):** Covers the pilot episode only, including its beginning, middle, and end as a standalone hour/half-hour.
   - **Character breakdowns:** Main cast, 3-5 sentences each. Include the character's want, need, flaw, and role in the ensemble.
   - **Season 1 arc:** 5-10 episode loglines or a paragraph describing the season's emotional and plot progression, including the season finale reveal or cliffhanger.
@@ -258,7 +261,7 @@ Contact: [Name / Email]
 
 4. **Never comp to titles older than five years as primary comps.** The market changes every 18-24 months. An agent using a 2015 comp as a primary market signal will question the writer's current market awareness. Older titles can appear as a third "classic touchstone" reference only.
 
-5. **Never comp to mega-bestsellers as primary market indicators.** *Harry Potter*, *Gone Girl*, *The Hunger Games*, and *Twilight* have been so overused as comps that they communicate nothing. They also suggest the writer is reaching for aspirational sales figures rather than demonstrating genre literacy.
+5. **Never comp to mega-bestsellers as primary market indicators.** _Harry Potter_, _Gone Girl_, _The Hunger Games_, and _Twilight_ have been so overused as comps that they communicate nothing. They also suggest the writer is reaching for aspirational sales figures rather than demonstrating genre literacy.
 
 6. **Always write synopses in present tense, third person, active voice.** No exceptions. "Elena discovers the letter" not "Elena discovered" or "Elena will discover" or "Elena finds herself discovering." Past tense in a synopsis reads as a book report, not a professional document.
 
@@ -279,27 +282,35 @@ Contact: [Name / Email]
 ## Edge Cases
 
 ### The Writer Who Cannot Summarize Their Own Manuscript
+
 This is the most common pitch problem and not a sign that the book is unpitchable. Ask three diagnostic questions in sequence: "Who is your protagonist, and what is one specific thing that makes them distinct from others in this genre?" "What happens at the end of chapter one or act one that changes everything for them?" "What does your protagonist have to do or decide in the final chapter?" Build the logline from the answers to these three questions. Often the writer's concept of their book's "real" subject (theme, feeling, or character interiority) conflicts with the story's actual spine (event, choice, consequence). Pitch the spine. The theme emerges from the pitch naturally if it is embedded in the story.
 
 ### The Literary or Upmarket Fiction Pitch
+
 Literary fiction agents are highly skeptical of plot-heavy loglines that read like thriller pitches. For literary fiction, the logline can foreground voice and character transformation over external event. "A grieving cartographer retraces her late wife's last journey through Iceland, drawing the maps of a country that no longer matches the landscape she remembers" is a literary logline. The stakes are internal: the protagonist must decide whether to remain in the past or map a new future. Comp titles for literary fiction should lean on voice and thematic reputation: "the emotional precision of Marilynne Robinson with the structural experimentation of Jenny Offill." The query letter for literary fiction should also include a sentence or two that conveys the prose voice -- sometimes an agent will accept a brief excerpted sentence as a voice indicator.
 
 ### The Series Pitch (Books or TV)
+
 For prose fiction, pitch Book 1 as a standalone with series potential unless the story is genuinely impossible to resolve in one volume (epic fantasy is the primary exception). The query should close the protagonist's primary arc in Book 1, even if larger world conflicts remain unresolved. Add a single line: "This is the first book in a planned trilogy, though it is designed to stand alone." For TV pitches, the series potential is not optional -- it is the pitch's primary sell. A network or streamer is not buying one episode; they are buying a world that can sustain 3-5 seasons. The series bible component of the TV pitch should demonstrate that the premise has genuine long-form narrative sustainability, not just one good season.
 
 ### The "Concept Novel" or High-Concept Pitch
+
 Some novels are built on a premise so striking that the concept itself sells the story before character work is established. High-concept pitches lead with the premise. "Jurors in a murder trial discover the defendant is from the future" is a high-concept hook -- the premise creates instant narrative questions. For these pitches, the logline can lead with the concept before introducing the protagonist. However, the query synopsis must quickly establish that the writer can execute character alongside concept -- agents have seen too many high-concept novels that are brilliant premises poorly realized.
 
 ### The Pitch After Rejections
+
 If a user has already sent out a query letter and received form rejections from 20+ agents, do not just rewrite the same pitch in different words. Diagnose first: Were the rejections all form rejections? That suggests the query letter is not getting past the first read. Were any rejections personalized? That suggests the query was engaging but the manuscript had issues. Does the manuscript need revision before the pitch goes back out? Re-querying with only a restyled letter on an unchanged manuscript rarely changes outcomes. The comp titles may have aged out in the time since first submission -- update them. Check whether the genre's market has shifted (certain genres go from hot to oversaturated in 18 months). Consider targeting a different tier of agents (not lower quality, but different taste profiles).
 
 ### The Pitch for a Story with Multiple POVs or an Unconventional Structure
+
 Multiple POV novels are common in commercial fiction, but pitching them requires designating a primary protagonist for the logline even if the novel does not have one. Identify the character whose transformation anchors the emotional core of the book, then use that character as the logline's protagonist. In the synopsis, introduce secondary POV characters by name when they first become relevant to the plot. Unconventional structures (non-linear narrative, epistolary, second-person) should be mentioned briefly in the positioning notes ("told in alternating timelines" or "structured as a series of found documents"). Do not bury the structural experiment -- agents find out in the first pages anyway, and knowing in advance frames it as an intentional choice rather than a structural problem.
 
 ### The Non-English or Non-Western Story Pitched to English-Language Markets
+
 Stories set in non-Western cultures, written by authors from those cultures, often get misread by Western agents when comp titles are poorly chosen. Avoid comping to the single "breakout book" from that culture that Western markets have heard of -- it narrows the perceived market. Instead, comp to books with a comparable emotional register written from any cultural perspective that Western agents have sold. Frame the cultural specificity as the unique hook, not as a market limitation. "Set in contemporary Lagos, this novel explores..." positions the cultural context as the story's engine, not its obstacle.
 
 ### The Pitch for a Memoir or Narrative Nonfiction (Adjacent but Different)
+
 A user may describe their project as a "story pitch" but actually be pitching a memoir, narrative nonfiction, or personal essay collection. These require different handling. Memoir and narrative nonfiction are pitched on proposal even from unknown authors -- unlike fiction, these do not need to be completed before querying. The pitch includes a "platform" section (the author's credentials, audience, and authority on the subject), a chapter outline, and 2-3 sample chapters. If the user's project is memoir or narrative nonfiction, flag that the pitch format required is a book proposal (a 50-100 page document) and that the story pitch skill covers only the logline and positioning components of that larger document.
 
 ---
@@ -313,14 +324,16 @@ A user may describe their project as a "story pitch" but actually be pitching a 
 **Output:**
 
 ## Pitch Package: We Who Remain
+
 Psychological Thriller | 95,000 words | Novel (Completed)
 
 ---
 
 ### Logline
+
 When three women vanish from a Vermont commune, state investigator Della Cross goes undercover as a new recruit -- only to find herself believing what she was sent to disprove, and unable to tell whether she is hunting a predator or becoming one.
 
-*(Word count: 43 words -- trim to: "When three women vanish from a remote Vermont commune, state investigator Della Cross goes undercover to expose the group's leader -- but the deeper she embeds, the less certain she is whether she is hunting a predator or becoming a convert." -- 43 words. Further trim: cut "remote" and compress: "When three women vanish from a Vermont commune, undercover state investigator Della Cross must expose the group's leader before she stops believing he needs exposing." -- 29 words. Use this version for the query.)*
+_(Word count: 43 words -- trim to: "When three women vanish from a remote Vermont commune, state investigator Della Cross goes undercover to expose the group's leader -- but the deeper she embeds, the less certain she is whether she is hunting a predator or becoming a convert." -- 43 words. Further trim: cut "remote" and compress: "When three women vanish from a Vermont commune, undercover state investigator Della Cross must expose the group's leader before she stops believing he needs exposing." -- 29 words. Use this version for the query.)_
 
 **Final Logline (29 words):**
 When three women vanish from a Vermont commune, undercover state investigator Della Cross must expose the group's leader before she stops believing he needs exposing.
@@ -328,6 +341,7 @@ When three women vanish from a Vermont commune, undercover state investigator De
 ---
 
 ### One-Paragraph Synopsis (65 words)
+
 Vermont state investigator Della Cross has spent a decade tracking high-control groups, always certain who the victims are. When three women disappear from the Remnant, a commune in the Northeast Kingdom led by charismatic founder Elias Crane, Della goes undercover as a new recruit. But Crane's teachings about belonging and self-dissolution target something Della did not know she was missing -- and the longer she stays, the less clearly she sees the missing women's faces.
 
 ---
@@ -350,13 +364,13 @@ She files. Crane is arrested. Three days later, she requests a transfer out of t
 
 ### Comp Titles
 
-*We Who Remain* is *The Girls* by Emma Cline meets *Trust Exercise* by Susan Choi -- the psychological immersion of a woman inside a high-control group, written with the formal instability of a narrator who cannot be trusted to tell her own story accurately.
+_We Who Remain_ is _The Girls_ by Emma Cline meets _Trust Exercise_ by Susan Choi -- the psychological immersion of a woman inside a high-control group, written with the formal instability of a narrator who cannot be trusted to tell her own story accurately.
 
--- *The Girls* signals: female protagonist, 1970s commune, predatory charismatic leader, literary prose, cult subgenre.
--- *Trust Exercise* signals: narrative unreliability, literary fiction bending genre, institutional systems warping individual perception.
+-- _The Girls_ signals: female protagonist, 1970s commune, predatory charismatic leader, literary prose, cult subgenre.
+-- _Trust Exercise_ signals: narrative unreliability, literary fiction bending genre, institutional systems warping individual perception.
 -- Combined signal: upmarket psychological thriller with strong literary fiction crossover appeal, female-centered, 1970s setting, interior-driven.
 
-Secondary framing for agents with a genre-first taste profile: *We Who Remain* will appeal to readers of Ivy Pochoda's *These Women* and Laura Lippman's *Sunburn* -- character-driven crime fiction where the mystery is also a character study.
+Secondary framing for agents with a genre-first taste profile: _We Who Remain_ will appeal to readers of Ivy Pochoda's _These Women_ and Laura Lippman's _Sunburn_ -- character-driven crime fiction where the mystery is also a character study.
 
 ---
 
@@ -364,13 +378,13 @@ Secondary framing for agents with a genre-first taste profile: *We Who Remain* w
 
 Dear [AGENT NAME],
 
-*We Who Remain* is a 95,000-word psychological thriller complete and available for your review.
+_We Who Remain_ is a 95,000-word psychological thriller complete and available for your review.
 
 When three women vanish from a Vermont commune in 1973, undercover state investigator Della Cross must expose the group's charismatic founder before she stops believing he needs exposing. Della has spent a decade studying high-control groups from the outside. The Remnant places her inside one -- and Elias Crane's doctrine of "dissolution of the false self" turns out to address a void in Della that her professional detachment never covered for. The longer she stays to gather evidence, the more she begins to disappear into the work -- and into the group she came to dismantle.
 
-*We Who Remain* is *The Girls* by Emma Cline meets *Trust Exercise* by Susan Choi. It will appeal to readers drawn to psychologically complex female protagonists navigating institutions -- both cults and state bureaucracies -- that are built to dissolve individual identity.
+_We Who Remain_ is _The Girls_ by Emma Cline meets _Trust Exercise_ by Susan Choi. It will appeal to readers drawn to psychologically complex female protagonists navigating institutions -- both cults and state bureaucracies -- that are built to dissolve individual identity.
 
-I am a former social worker who spent six years in family services case investigation, which informs Della's professional methodology and her particular vulnerability to the commune's appeal. My short fiction has appeared in *One Story* and *Ploughshares*.
+I am a former social worker who spent six years in family services case investigation, which informs Della's professional methodology and her particular vulnerability to the commune's appeal. My short fiction has appeared in _One Story_ and _Ploughshares_.
 
 Thank you for your time and consideration.
 
@@ -381,11 +395,13 @@ Thank you for your time and consideration.
 ---
 
 ### Series Potential Note
-*We Who Remain* is a standalone novel. Della Cross's methodology and her unresolved relationship to the systems she investigates -- both state apparatus and high-control groups -- could support a series following her work with the Vermont division, but the novel resolves completely without requiring continuation.
+
+_We Who Remain_ is a standalone novel. Della Cross's methodology and her unresolved relationship to the systems she investigates -- both state apparatus and high-control groups -- could support a series following her work with the Vermont division, but the novel resolves completely without requiring continuation.
 
 ---
 
 ### Positioning Notes
+
 - **Primary genre:** Psychological thriller
 - **Subgenre / cross-genre:** Literary thriller; cult fiction; upmarket women's fiction; historical (1970s)
 - **Target audience:** Adult readers of literary-leaning psychological thrillers; women's fiction readers interested in institutional critique; true crime readers who prefer novelistic depth to procedural pace
@@ -397,8 +413,9 @@ Thank you for your time and consideration.
 ### Pitch Checklist for This Package
 
 Before querying:
-- [ ] Verify that both comp titles (*The Girls*, *Trust Exercise*) were published within the last 10 years -- both qualify; *The Girls* (2016) is at the edge of the 5-year preference but remains genre-defining enough to use as the primary cult fiction signal
-- [ ] Research agents who represented *The Girls*, *Trust Exercise*, and Laura Lippman's recent work -- those agents have demonstrated taste alignment
+
+- [ ] Verify that both comp titles (_The Girls_, _Trust Exercise_) were published within the last 10 years -- both qualify; _The Girls_ (2016) is at the edge of the 5-year preference but remains genre-defining enough to use as the primary cult fiction signal
+- [ ] Research agents who represented _The Girls_, _Trust Exercise_, and Laura Lippman's recent work -- those agents have demonstrated taste alignment
 - [ ] Confirm the 95,000-word count is accurate (psychological literary thrillers can run to 95,000 without issue; anything over 100,000 would require justification)
 - [ ] Update the dead drop mechanism to confirm historical accuracy for 1973 Vermont (state agency protocol detail)
 - [ ] Prepare a 250-word verbal pitch for conference use derived from the logline and one-paragraph synopsis above

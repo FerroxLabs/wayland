@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "personal-finance entrepreneurship guide"
-  category: "personal-finance"
-  subcategory: "budgeting"
-  depends: ""
-  disclaimer: "educational-finance"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'personal-finance entrepreneurship guide'
+  category: 'personal-finance'
+  subcategory: 'budgeting'
+  depends: ''
+  disclaimer: 'educational-finance'
+  difficulty: 'intermediate'
 ---
 
 # Side Hustle Advisor
@@ -23,12 +23,14 @@ metadata:
 ## When to Use
 
 **Use this skill when:**
+
 - User wants to start earning extra income through a side hustle
 - User needs help identifying side hustle options based on their skills and time
 - User wants to evaluate the financial viability of a side hustle idea
 - User needs a plan to launch and grow a part-time income stream
 
 **Do NOT use this skill when:**
+
 - User wants to start a full-time business -- use business planning skills
 - User needs tax help for side income -- use tax-assistant
 - User wants passive investment income -- use investment-advisor
@@ -454,23 +456,28 @@ When advising on side hustles, provide:
 **Available time:** 10 hrs/week | **Income target:** $1,000-$2,000/mo | **Core skill:** Graphic design
 
 ### Top 3 Options Ranked
-| Option | Startup Cost | Time to First $ | Monthly Potential | Effort |
-|--------|-------------|-----------------|-------------------|--------|
-| Freelance design (Upwork/Fiverr) | $0 | 2-4 weeks | $1,500-$3,000 | High client management |
-| Template/asset shop (Etsy/Gumroad) | $50 | 1-3 months | $500-$2,000 | Front-loaded, then passive |
-| Social media design packages | $0 | 1-2 weeks | $1,000-$2,500 | Recurring revenue |
+
+| Option                             | Startup Cost | Time to First $ | Monthly Potential | Effort                     |
+| ---------------------------------- | ------------ | --------------- | ----------------- | -------------------------- |
+| Freelance design (Upwork/Fiverr)   | $0           | 2-4 weeks       | $1,500-$3,000     | High client management     |
+| Template/asset shop (Etsy/Gumroad) | $50          | 1-3 months      | $500-$2,000       | Front-loaded, then passive |
+| Social media design packages       | $0           | 1-2 weeks       | $1,000-$2,500     | Recurring revenue          |
 
 ### Recommended: Social Media Design Packages
+
 Why: Recurring clients, predictable income, leverages your existing skill, and 10 hrs/week is enough for 3-4 clients.
 
 ### 30-Day Launch Plan
+
 - Week 1: Create 3 sample social media packages (5 posts, 10 posts, 15 posts/month at $250, $400, $600)
 - Week 2: Build simple portfolio page (Carrd.co, $19/year) with samples
 - Week 3: Reach out to 20 small businesses in your network or local area
 - Week 4: Onboard first 1-2 clients, refine workflow with templates
 
 ### Financial Tracking
+
 Track separately from personal finances:
+
 - Income per client per month
 - Hours per client (target: 2-3 hrs per client)
 - Effective hourly rate (target: $50-$75/hr)

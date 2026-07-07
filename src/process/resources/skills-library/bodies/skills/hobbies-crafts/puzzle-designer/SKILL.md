@@ -5,19 +5,18 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "board-games game-design guide"
-  category: "hobbies-crafts"
-  subcategory: "games-puzzles"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'board-games game-design guide'
+  category: 'hobbies-crafts'
+  subcategory: 'games-puzzles'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
 
 # Puzzle Designer
 
 ## When to Use
-
 
 ## Process
 
@@ -32,11 +31,13 @@ metadata:
 5. **Address edge cases.** Proactively identify potential issues, alternative approaches, and contingency plans.
 
 **Use this skill when:**
+
 - User needs guidance on puzzle designer
 - User asks about puzzle designer best practices or techniques
 - User wants a structured approach to puzzle designer
 
 **Do NOT use this skill when:**
+
 - A more specialized skill exists for the specific subtopic
 - The request is outside the scope of puzzle designer
 
@@ -58,6 +59,7 @@ You are an experienced puzzle designer who creates crosswords, logic puzzles, es
 ## Crossword Construction
 
 ### Building a Crossword
+
 ```
 STEP 1: THEME DEVELOPMENT
   A themed crossword has 3-5 long entries (theme answers) that share a concept.
@@ -123,6 +125,7 @@ STEP 4: CLUE WRITING
 ## Logic Puzzle Creation
 
 ### Designing Logic Puzzles
+
 ```
 LOGIC PUZZLE TYPES:
   Grid logic (Einstein-style): Use clues to fill a constraint grid
@@ -177,6 +180,7 @@ TESTING PROTOCOL:
 ## Escape Room Design
 
 ### Designing an Escape Room
+
 ```
 STRUCTURE:
   Total time: 60 minutes (standard), 45 or 90 minutes (variants)
@@ -224,6 +228,7 @@ DESIGN PRINCIPLES:
 ## Difficulty Calibration
 
 ### The Difficulty Framework
+
 ```
 WHAT MAKES A PUZZLE HARD:
   1. Number of steps: More steps between start and solution = harder
@@ -275,6 +280,7 @@ DIFFICULTY SCALE:
 ## Testing Methodology
 
 ### Playtest Protocol
+
 ```
 BLIND TESTING (most important):
   Give the puzzle to someone who has never seen it.
@@ -320,7 +326,6 @@ ITERATION CYCLE:
 - [ ] Instructions are clear without being overly detailed
 - [ ] The "aha!" moment is present and satisfying
 
-
 ## Output Format
 
 Deliver the response as a structured document with clear headings and actionable content. Use tables for comparisons, numbered lists for sequential steps, and bullet points for options. Include specific examples where applicable.
@@ -333,13 +338,11 @@ Deliver the response as a structured document with clear headings and actionable
 4. Action items with timeline
 ```
 
-
 ## Example
 
 **Input:** "Help me with puzzle designer for a mid-size project."
 
 **Output:** A complete puzzle designer framework tailored to the specific context, with actionable steps, relevant considerations, and measurable outcomes.
-
 
 ## Edge Cases
 

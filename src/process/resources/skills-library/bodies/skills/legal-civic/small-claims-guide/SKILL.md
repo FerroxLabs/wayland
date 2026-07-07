@@ -7,26 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "legal-literacy contracts step-by-step"
-  category: "legal-civic"
-  subcategory: "personal-legal"
-  depends: ""
-  disclaimer: "not-legal-advice"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'legal-literacy contracts step-by-step'
+  category: 'legal-civic'
+  subcategory: 'personal-legal'
+  depends: ''
+  disclaimer: 'not-legal-advice'
+  difficulty: 'beginner'
 ---
 
 # Small Claims Court Guide
 
 > **Disclaimer:** This skill provides general legal literacy and educational information to help you understand legal concepts and processes. It does NOT constitute legal advice, represent you in any legal matter, or create an attorney-client relationship. Laws vary by jurisdiction and change over time. Always consult a qualified attorney licensed in your jurisdiction for advice on specific legal matters affecting you.
+
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about small claims guide
 - User needs guidance on small claims guide topics
 - User wants a structured approach to small claims guide
 
 **Do NOT use when:**
+
 - Request requires professional consultation beyond educational guidance
 - User needs emergency assistance
 
@@ -41,10 +44,13 @@ metadata:
 7. **Have you sent a demand letter?**
 8. **What evidence do you have?** (contracts, receipts, photos, texts, witnesses)
 9. **Do you know the defendant's correct legal name and address?**
+
 ---
+
 ## Step 1: Should You File in Small Claims Court?
 
 ### Eligibility Checklist
+
 ```
 SMALL CLAIMS ELIGIBILITY:
 
@@ -61,52 +67,55 @@ SMALL CLAIMS ELIGIBILITY:
 
 ### Small Claims Court Limits by State (Verify Current Limits)
 
-| State | Limit | State | Limit |
-|---|---|---|---|
-| Alabama | $6,000 | Montana | $7,000 |
-| Alaska | $10,000 | Nebraska | $3,600 |
-| Arizona | $3,500 | Nevada | $10,000 |
-| Arkansas | $5,000 | New Hampshire | $10,000 |
-| California | $10,000 | New Jersey | $3,000 |
-| Colorado | $7,500 | New Mexico | $10,000 |
-| Connecticut | $5,000 | New York | $10,000 |
-| Delaware | $25,000 | North Carolina | $10,000 |
-| Florida | $8,000 | North Dakota | $15,000 |
-| Georgia | $15,000 | Ohio | $6,000 |
-| Hawaii | $5,000 | Oklahoma | $10,000 |
-| Idaho | $5,000 | Oregon | $10,000 |
-| Illinois | $10,000 | Pennsylvania | $12,000 |
-| Indiana | $8,000 | Rhode Island | $2,500 |
-| Iowa | $6,500 | South Carolina | $7,500 |
-| Kansas | $4,000 | South Dakota | $12,000 |
-| Kentucky | $2,500 | Tennessee | $25,000 |
-| Louisiana | $5,000 | Texas | $20,000 |
-| Maine | $6,000 | Utah | $11,000 |
-| Maryland | $5,000 | Vermont | $5,000 |
-| Massachusetts | $7,000 | Virginia | $5,000 |
-| Michigan | $6,500 | Washington | $10,000 |
-| Minnesota | $15,000 | West Virginia | $10,000 |
-| Mississippi | $3,500 | Wisconsin | $10,000 |
-| Missouri | $5,000 | Wyoming | $6,000 |
+| State         | Limit   | State          | Limit   |
+| ------------- | ------- | -------------- | ------- |
+| Alabama       | $6,000  | Montana        | $7,000  |
+| Alaska        | $10,000 | Nebraska       | $3,600  |
+| Arizona       | $3,500  | Nevada         | $10,000 |
+| Arkansas      | $5,000  | New Hampshire  | $10,000 |
+| California    | $10,000 | New Jersey     | $3,000  |
+| Colorado      | $7,500  | New Mexico     | $10,000 |
+| Connecticut   | $5,000  | New York       | $10,000 |
+| Delaware      | $25,000 | North Carolina | $10,000 |
+| Florida       | $8,000  | North Dakota   | $15,000 |
+| Georgia       | $15,000 | Ohio           | $6,000  |
+| Hawaii        | $5,000  | Oklahoma       | $10,000 |
+| Idaho         | $5,000  | Oregon         | $10,000 |
+| Illinois      | $10,000 | Pennsylvania   | $12,000 |
+| Indiana       | $8,000  | Rhode Island   | $2,500  |
+| Iowa          | $6,500  | South Carolina | $7,500  |
+| Kansas        | $4,000  | South Dakota   | $12,000 |
+| Kentucky      | $2,500  | Tennessee      | $25,000 |
+| Louisiana     | $5,000  | Texas          | $20,000 |
+| Maine         | $6,000  | Utah           | $11,000 |
+| Maryland      | $5,000  | Vermont        | $5,000  |
+| Massachusetts | $7,000  | Virginia       | $5,000  |
+| Michigan      | $6,500  | Washington     | $10,000 |
+| Minnesota     | $15,000 | West Virginia  | $10,000 |
+| Mississippi   | $3,500  | Wisconsin      | $10,000 |
+| Missouri      | $5,000  | Wyoming        | $6,000  |
 
-*Note: These limits change. Verify with your local court clerk.*
+_Note: These limits change. Verify with your local court clerk._
 
 ### Statute of Limitations (General Ranges -- Verify in Your State)
 
-| Claim Type | Typical Range |
-|---|---|
-| Written contract | 4-6 years |
-| Oral contract | 2-4 years |
-| Property damage | 2-6 years |
-| Personal injury | 1-3 years |
-| Fraud | 2-6 years |
+| Claim Type       | Typical Range                       |
+| ---------------- | ----------------------------------- |
+| Written contract | 4-6 years                           |
+| Oral contract    | 2-4 years                           |
+| Property damage  | 2-6 years                           |
+| Personal injury  | 1-3 years                           |
+| Fraud            | 2-6 years                           |
 | Security deposit | Check state landlord-tenant statute |
+
 ---
+
 ## Step 2: Send a Demand Letter First
 
 A demand letter is often required before filing and demonstrates to the judge that you tried to resolve the matter. Even when not required, it frequently resolves disputes without court.
 
 ### Demand Letter Template
+
 ```
 DEMAND LETTER
 {{YOUR_NAME}}
@@ -161,10 +170,13 @@ Sincerely,
 
 Enclosures: [List any supporting documents you are including copies of]
 ```
+
 ---
+
 ## Step 3: Filing Your Claim
 
 ### Filing Process (General)
+
 ```
 FILING CHECKLIST:
 
@@ -202,11 +214,13 @@ AT THE COURTHOUSE:
 ```
 
 ### Filing Fee Recovery
-In most jurisdictions, if you win, you can recover your filing fee and service costs from the defendant as part of your judgment.
----
+
+## In most jurisdictions, if you win, you can recover your filing fee and service costs from the defendant as part of your judgment.
+
 ## Step 4: Preparing Your Evidence
 
 ### Evidence Organization System
+
 ```
 EVIDENCE BINDER ORGANIZATION:
 
@@ -259,21 +273,24 @@ COPIES:
 
 ### Types of Evidence and Their Strength
 
-| Evidence Type | Strength | Tips |
-|---|---|---|
-| Written contract | Very strong | Bring the original |
-| Receipts/invoices | Strong | Must be legible and dated |
-| Photographs | Strong | Include timestamps and context |
-| Text messages | Moderate-Strong | Screenshot with visible phone number and dates |
-| Emails | Moderate-Strong | Print full headers showing sender/date |
-| Witness testimony | Moderate | Live witnesses are better than written statements |
-| Estimates/quotes | Moderate | Get multiple from reputable sources |
-| Your own testimony | Moderate | Must be credible and consistent |
-| Verbal agreements | Weak alone | Corroborate with any other evidence |
+| Evidence Type      | Strength        | Tips                                              |
+| ------------------ | --------------- | ------------------------------------------------- |
+| Written contract   | Very strong     | Bring the original                                |
+| Receipts/invoices  | Strong          | Must be legible and dated                         |
+| Photographs        | Strong          | Include timestamps and context                    |
+| Text messages      | Moderate-Strong | Screenshot with visible phone number and dates    |
+| Emails             | Moderate-Strong | Print full headers showing sender/date            |
+| Witness testimony  | Moderate        | Live witnesses are better than written statements |
+| Estimates/quotes   | Moderate        | Get multiple from reputable sources               |
+| Your own testimony | Moderate        | Must be credible and consistent                   |
+| Verbal agreements  | Weak alone      | Corroborate with any other evidence               |
+
 ---
+
 ## Step 5: Court Day Preparation
 
 ### Court Etiquette
+
 ```
 COURT DAY RULES:
 
@@ -305,6 +322,7 @@ DO NOT:
 ```
 
 ### Presenting Your Case
+
 ```
 CASE PRESENTATION OUTLINE:
 
@@ -346,10 +364,13 @@ ask the court to enter judgment in my favor for ${{AMOUNT}}. Thank you."
 5. "How did you calculate your damages?"
 6. "Do you have any witnesses?"
 7. "What do you say in response to the defendant's position?"
+
 ---
+
 ## Step 6: If You Are the Defendant
 
 ### Defendant Response Checklist
+
 ```
 DEFENDANT RESPONSE PLAN:
 
@@ -373,10 +394,13 @@ Prepare your defense:
     - You performed as agreed
     - The damage amount is inflated
 ```
+
 ---
+
 ## Step 7: After the Hearing
 
 ### If You Win
+
 ```
 POST-JUDGMENT (WINNER):
 
@@ -407,6 +431,7 @@ Step 6: File satisfaction of judgment when fully paid
 ```
 
 ### If You Lose
+
 ```
 POST-JUDGMENT (LOSER):
 
@@ -420,10 +445,13 @@ POST-JUDGMENT (LOSER):
 [ ] If not appealing, arrange to pay the judgment
 [ ] Request a payment plan if you cannot pay in full
 ```
+
 ---
+
 ## Step 8: Case Preparation by Dispute Type
 
 ### Security Deposit Dispute
+
 ```
 SECURITY DEPOSIT CASE PREP:
 
@@ -447,6 +475,7 @@ Key arguments:
 ```
 
 ### Contractor/Service Dispute
+
 ```
 CONTRACTOR DISPUTE CASE PREP:
 
@@ -467,6 +496,7 @@ Key arguments:
 ```
 
 ### Unpaid Debt / Loan
+
 ```
 UNPAID DEBT CASE PREP:
 
@@ -483,8 +513,11 @@ Key arguments:
 - Defendant has paid $A, leaving $B outstanding
 - Defendant has been given adequate notice and time to pay
 ```
+
 ---
+
 ## Step 9: Cost-Benefit Analysis Template
+
 ```
 SHOULD I FILE? -- COST-BENEFIT ANALYSIS
 
@@ -517,9 +550,10 @@ DECISION:
 [ ] Do not file -- Costs exceed likely recovery or judgment uncollectible
 [ ] Seek alternative resolution (mediation, demand letter only)
 ```
----
-*This skill provides general small claims court guidance. Court procedures vary by jurisdiction. Contact your local small claims court clerk for specific filing requirements, forms, and hearing procedures.*
 
+---
+
+_This skill provides general small claims court guidance. Court procedures vary by jurisdiction. Contact your local small claims court clerk for specific filing requirements, forms, and hearing procedures._
 
 ## Output Format
 

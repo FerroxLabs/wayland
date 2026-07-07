@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "sustainability checklist guide analysis research performing-arts energy-efficiency waste-reduction"
-  category: "sustainability"
-  subcategory: "sustainable-living"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'sustainability checklist guide analysis research performing-arts energy-efficiency waste-reduction'
+  category: 'sustainability'
+  subcategory: 'sustainable-living'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # Sustainable Investing Guide
@@ -22,15 +22,16 @@ You are an expert sustainable investing advisor who helps investors align their 
 
 > **DISCLAIMER:** This skill provides educational guidance on sustainable investing concepts, not personalized financial advice. Consult a qualified financial advisor for investment decisions. Past performance does not guarantee future results.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about sustainable investing guide techniques or best practices
 - User needs guidance on sustainable investing guide concepts
 - User wants to implement or improve their approach to sustainable investing guide
 
 **Do NOT use when:**
+
 - The request falls outside the scope of sustainable investing guide
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -80,15 +81,15 @@ Governance (G):
 
 ### Sustainable Investing Strategies
 
-| Strategy | Description | Impact Level | Returns Impact |
-|----------|-------------|-------------|---------------|
-| Negative screening | Exclude harmful industries (fossil fuels, weapons) | Low-Medium | Minimal |
-| Positive screening | Include ESG leaders in each sector | Medium | Minimal |
-| Best-in-class | Pick the top ESG performer within each industry | Medium | Often positive |
-| Thematic | Focus on specific themes (clean energy, water) | High | Varies (concentrated) |
-| Impact investing | Target measurable social/environmental outcomes | Highest | Varies widely |
-| Active ownership | Use shareholder votes to push for change | Medium-High | Neutral |
-| ESG integration | Use ESG data as additional risk/return factor | Medium | Often positive |
+| Strategy           | Description                                        | Impact Level | Returns Impact        |
+| ------------------ | -------------------------------------------------- | ------------ | --------------------- |
+| Negative screening | Exclude harmful industries (fossil fuels, weapons) | Low-Medium   | Minimal               |
+| Positive screening | Include ESG leaders in each sector                 | Medium       | Minimal               |
+| Best-in-class      | Pick the top ESG performer within each industry    | Medium       | Often positive        |
+| Thematic           | Focus on specific themes (clean energy, water)     | High         | Varies (concentrated) |
+| Impact investing   | Target measurable social/environmental outcomes    | Highest      | Varies widely         |
+| Active ownership   | Use shareholder votes to push for change           | Medium-High  | Neutral               |
+| ESG integration    | Use ESG data as additional risk/return factor      | Medium       | Often positive        |
 
 ---
 
@@ -160,13 +161,13 @@ Before investing in an ESG fund:
 
 ### Major Providers Comparison
 
-| Provider | Coverage | Methodology | Controversy Tracking | Access |
-|----------|----------|-------------|---------------------|--------|
-| MSCI ESG | 14,000+ companies | Industry-adjusted, issue-weighted | Yes | Paid |
-| Sustainalytics | 13,000+ companies | Risk-based (ESG Risk Rating) | Yes | Paid (via Morningstar) |
-| S&P Global CSA | 10,000+ companies | Survey-based (company participation) | Yes | Paid |
-| CDP | 18,000+ companies | Climate/water/forest only | Limited | Free data |
-| ISS ESG | 10,000+ companies | Broad ESG assessment | Yes | Paid |
+| Provider       | Coverage          | Methodology                          | Controversy Tracking | Access                 |
+| -------------- | ----------------- | ------------------------------------ | -------------------- | ---------------------- |
+| MSCI ESG       | 14,000+ companies | Industry-adjusted, issue-weighted    | Yes                  | Paid                   |
+| Sustainalytics | 13,000+ companies | Risk-based (ESG Risk Rating)         | Yes                  | Paid (via Morningstar) |
+| S&P Global CSA | 10,000+ companies | Survey-based (company participation) | Yes                  | Paid                   |
+| CDP            | 18,000+ companies | Climate/water/forest only            | Limited              | Free data              |
+| ISS ESG        | 10,000+ companies | Broad ESG assessment                 | Yes                  | Paid                   |
 
 ### Why Ratings Disagree
 
@@ -345,7 +346,6 @@ The key is choosing well-constructed strategies, not blindly
 selecting anything labeled "ESG."
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -353,7 +353,6 @@ selecting anything labeled "ESG."
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -374,14 +373,12 @@ selecting anything labeled "ESG."
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

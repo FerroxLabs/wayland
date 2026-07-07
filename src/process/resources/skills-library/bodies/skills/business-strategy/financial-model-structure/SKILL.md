@@ -6,19 +6,21 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "planning analysis strategy spreadsheets report"
-  category: "business-strategy"
-  subcategory: "finance-accounting"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'planning analysis strategy spreadsheets report'
+  category: 'business-strategy'
+  subcategory: 'finance-accounting'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
+
 # Financial Model Structure
 
 ## When to Use
 
 **Use this skill when:**
+
 - The user explicitly asks to build a three-statement financial model -- income statement, balance sheet, and cash flow statement -- linked through shared assumptions
 - The user needs startup financial projections for fundraising (seed, Series A/B, venture debt), board reporting, or a lender package (SBA, bank covenant compliance)
 - The user wants to model a specific business type (SaaS, e-commerce, marketplace, services, manufacturing, hardware, media/content) with drivers specific to that vertical
@@ -28,6 +30,7 @@ metadata:
 - The user is building a financial model for a capital allocation decision -- hiring plan, geographic expansion, product line extension -- and needs to see the full cash impact
 
 **Do NOT use this skill when:**
+
 - The user needs personal budgeting, household cash flow, or debt paydown planning -- use `budget-planning` instead
 - The user needs tax return preparation, tax optimization strategies, or entity structure advice for tax purposes -- use `tax-preparation` instead
 - The user is asking for investment portfolio analysis, stock valuation, or DCF analysis for an acquisition target -- use `investment-analysis` or `dcf-valuation` instead
@@ -75,22 +78,26 @@ Every hardcoded number in the model lives here and only here. Every formula in e
 Revenue is the most consequential and most scrutinized part of any model. It must be built from first principles, not from a growth rate.
 
 **For SaaS / Subscription businesses:**
+
 - Build a cohort waterfall. Each month's new customers form a cohort. Apply monthly churn to the beginning cohort balance. Add expansion revenue as a percentage of cohort MRR (net revenue retention > 100% means expansion exceeds churn -- the benchmark for strong SaaS is NRR above 110-120%). This produces a monthly customer count and MRR by cohort.
 - The summary formula is: Ending Customers = Beginning Customers + New Customers -- Churned Customers. Ending MRR = Beginning MRR + New MRR + Expansion MRR -- Churned MRR. These are two separate calculations and they diverge when customers downgrade without leaving.
 - Show ARR as a point-in-time metric (MRR x 12 at end of period), not as a sum of monthly revenues. This is a common model error -- ARR is a run-rate, not a cumulative.
 - Separate new logo revenue from expansion revenue from reactivation revenue. Investors want to see these independently because they have different cost of acquisition.
 
 **For E-commerce / Transactional businesses:**
+
 - Build the funnel: Total website sessions → conversion rate → orders → average order value → gross revenue → return rate → net revenue. Apply this to paid and organic channels separately because they have different CAC, conversion rates, and customer lifetime value profiles.
 - Repeat purchase modeling: Apply a repeat purchase rate (e.g., 35% of Month 1 buyers make a second purchase within 90 days) to create a returning customer revenue stream that compounds over time. This is often the difference between a model that shows breakeven and one that doesn't.
 - Show gross merchandise value (GMV) vs. net revenue explicitly if there are marketplace-like elements (third-party sellers, affiliate fees).
 
 **For Marketplace businesses:**
+
 - Model supply and demand acquisition separately with separate CAC assumptions for each side.
 - Revenue = GMV x blended take rate. Show GMV prominently -- it is the primary valuation metric for marketplaces. Break take rate into buyer-side fees, seller-side fees, and payment processing revenue if applicable.
 - Model liquidity metrics: listings per market, fill rate, time-to-match. These operationally drive GMV and must be translated into assumptions.
 
 **For Services / Professional Services:**
+
 - Revenue formula: Billable Headcount x Utilization Rate x Average Billing Rate. Utilization benchmark: 65-75% for boutique consulting, 75-85% for staffing/outsourcing. Below 60% utilization is a loss.
 - Model the bench cost explicitly -- staff who are hired but not yet billable are a real cost and a common model omission. Bench time is especially high in the first 90 days after hiring.
 - Show revenue per employee (RPE) as a sanity check. A well-run services firm typically generates $150K-$300K RPE. If the model shows $500K+ RPE, the utilization or billing rate assumptions are probably wrong.
@@ -484,21 +491,22 @@ Sometimes the model honestly assembled from the user's assumptions shows that th
 **Output:**
 
 ## Financial Model: [Marketing Agency SaaS] -- Seed Round
+
 ### Built For: $1.5M Seed Round | Business Model: B2B SaaS | Stage: Early Revenue
 
 ---
 
 ### Model Configuration
 
-| Parameter | Value |
-|-----------|-------|
-| Purpose | Fundraising -- Seed Round ($1.5M target) |
-| Time Horizon | 36 months monthly + Year 3 annual summary |
-| Business Model | B2B SaaS, subscription (monthly billing assumed) |
-| Stage | Early Revenue -- 42 customers, ~$14K MRR at launch |
-| Primary Audience | Seed investors (VCs, angels, pre-seed funds) |
-| Primary Metrics | ARR, MRR growth, Net Revenue Retention, Gross Margin, Runway |
-| Scenario Active | Base Case |
+| Parameter        | Value                                                        |
+| ---------------- | ------------------------------------------------------------ |
+| Purpose          | Fundraising -- Seed Round ($1.5M target)                     |
+| Time Horizon     | 36 months monthly + Year 3 annual summary                    |
+| Business Model   | B2B SaaS, subscription (monthly billing assumed)             |
+| Stage            | Early Revenue -- 42 customers, ~$14K MRR at launch           |
+| Primary Audience | Seed investors (VCs, angels, pre-seed funds)                 |
+| Primary Metrics  | ARR, MRR growth, Net Revenue Retention, Gross Margin, Runway |
+| Scenario Active  | Base Case                                                    |
 
 ---
 
@@ -506,15 +514,15 @@ Sometimes the model honestly assembled from the user's assumptions shows that th
 
 #### Current State (Month 0 -- Model Anchor)
 
-| Metric | Value |
-|--------|-------|
-| Total customers | 42 |
-| Basic plan customers (70%) | 29 |
-| Pro plan customers (30%) | 13 |
-| Current MRR | $29 x $299 + $13 x $599 = $8,671 + $7,787 = **$16,458** |
-| Current ARR (run rate) | **$197,500** |
-| Cash on hand | $180,000 |
-| Monthly burn (current) | $12,000 |
-| Months of runway (pre-raise) | **15 months** |
+| Metric                       | Value                                                   |
+| ---------------------------- | ------------------------------------------------------- |
+| Total customers              | 42                                                      |
+| Basic plan customers (70%)   | 29                                                      |
+| Pro plan customers (30%)     | 13                                                      |
+| Current MRR                  | $29 x $299 + $13 x $599 = $8,671 + $7,787 = **$16,458** |
+| Current ARR (run rate)       | **$197,500**                                            |
+| Cash on hand                 | $180,000                                                |
+| Monthly burn (current)       | $12,000                                                 |
+| Months of runway (pre-raise) | **15 months**                                           |
 
-*Note: Founders
+\*Note: Founders

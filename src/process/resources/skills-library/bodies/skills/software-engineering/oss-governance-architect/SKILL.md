@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "best-practices budgeting template api-design planning game-design performing-arts video-production"
-  category: "software-engineering"
-  subcategory: "developer-tools"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "intermediate"
+  version: '1.0.0'
+  tags: 'best-practices budgeting template api-design planning game-design performing-arts video-production'
+  category: 'software-engineering'
+  subcategory: 'developer-tools'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'intermediate'
 ---
 
 # OSS Governance Architect
 
 You are an open source governance architect who designs decision-making frameworks, RFC processes, and organizational structures that enable transparent, scalable project management. You help projects move from informal leadership to structured governance.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about oss governance architect techniques or best practices
 - User needs guidance on oss governance architect concepts
 - User wants to implement or improve their approach to oss governance architect
 
 **Do NOT use when:**
+
 - The request falls outside the scope of oss governance architect
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -72,6 +73,7 @@ does it support? What is the expected outcome?
 ## Detailed Design
 
 Technical details of the proposal. Include:
+
 - API changes or new APIs
 - Data model changes
 - Behavioral changes
@@ -82,10 +84,10 @@ Technical details of the proposal. Include:
 
 What other approaches were considered and why were they not chosen?
 
-| Alternative | Pros | Cons | Why Not |
-|-------------|------|------|---------|
-| Alternative A | ... | ... | ... |
-| Alternative B | ... | ... | ... |
+| Alternative   | Pros | Cons | Why Not |
+| ------------- | ---- | ---- | ------- |
+| Alternative A | ...  | ...  | ...     |
+| Alternative B | ...  | ...  | ...     |
 
 ## Backward Compatibility
 
@@ -130,24 +132,28 @@ rfcs/
 ## Decision Criteria (weighted)
 
 ### Must Have
+
 - [ ] Solves a real, documented problem
 - [ ] Technically feasible within current architecture
 - [ ] Does not introduce unacceptable security risks
 - [ ] Backward compatibility addressed
 
 ### Should Have
+
 - [ ] Aligns with project roadmap and vision
 - [ ] Has community support (discussion engagement)
 - [ ] Author willing to implement or champion
 - [ ] Reasonable implementation complexity
 
 ### Nice to Have
+
 - [ ] Performance improvement
 - [ ] Reduces maintenance burden
 - [ ] Enables future capabilities
 - [ ] Improves developer experience
 
 ### Scoring
+
 - Each criterion: 0 (not met), 1 (partially), 2 (fully met)
 - All "Must Have" must score >= 1
 - Total "Should Have" score >= 4 recommended
@@ -157,13 +163,13 @@ rfcs/
 
 ### Decision Types and Processes
 
-| Decision Type | Examples | Process | Timeframe |
-|--------------|----------|---------|-----------|
-| Trivial | Typo fixes, minor docs | Single maintainer | Immediate |
-| Standard | Bug fixes, small features | 2 reviewer approvals | 1-3 days |
-| Significant | New APIs, dependencies | Team discussion + RFC | 2-4 weeks |
-| Strategic | Major versions, deprecations | Full RFC + community input | 4-8 weeks |
-| Governance | Process changes, new roles | Supermajority vote | 4-8 weeks |
+| Decision Type | Examples                     | Process                    | Timeframe |
+| ------------- | ---------------------------- | -------------------------- | --------- |
+| Trivial       | Typo fixes, minor docs       | Single maintainer          | Immediate |
+| Standard      | Bug fixes, small features    | 2 reviewer approvals       | 1-3 days  |
+| Significant   | New APIs, dependencies       | Team discussion + RFC      | 2-4 weeks |
+| Strategic     | Major versions, deprecations | Full RFC + community input | 4-8 weeks |
+| Governance    | Process changes, new roles   | Supermajority vote         | 4-8 weeks |
 
 ### Lazy Consensus Model
 
@@ -219,14 +225,17 @@ Why this option was chosen over alternatives.
 ## Consequences
 
 ### Positive
+
 - Expected benefit 1
 - Expected benefit 2
 
 ### Negative
+
 - Known tradeoff 1
 - Known tradeoff 2
 
 ### Risks
+
 - Risk 1 and mitigation strategy
 - Risk 2 and mitigation strategy
 
@@ -246,25 +255,29 @@ This decision will be reviewed on YYYY-MM-DD or when
 Last updated: YYYY-MM-DD
 
 ## Vision
+
 One-sentence description of where the project is heading.
 
 ## Now (Current Quarter)
+
 Active work with assigned owners and target dates.
 
-| Initiative | Owner | Status | Target |
-|-----------|-------|--------|--------|
-| Feature A | @user1 | In Progress | Q1 2025 |
+| Initiative       | Owner  | Status      | Target  |
+| ---------------- | ------ | ----------- | ------- |
+| Feature A        | @user1 | In Progress | Q1 2025 |
 | Performance work | @user2 | In Progress | Q1 2025 |
 
 ## Next (Next Quarter)
+
 Planned work, may shift based on current quarter outcomes.
 
-| Initiative | Champion | RFC |
-|-----------|----------|-----|
-| Plugin system | @user3 | RFC-0012 |
-| New CLI experience | TBD | RFC-0015 |
+| Initiative         | Champion | RFC      |
+| ------------------ | -------- | -------- |
+| Plugin system      | @user3   | RFC-0012 |
+| New CLI experience | TBD      | RFC-0015 |
 
 ## Later (6-12 Months)
+
 Directional, subject to change based on community input.
 
 - Internationalization support
@@ -272,6 +285,7 @@ Directional, subject to change based on community input.
 - Mobile platform support
 
 ## Not Planned
+
 Things we have explicitly decided not to do (and why).
 
 - Feature X: Does not align with project scope because...
@@ -284,35 +298,43 @@ Things we have explicitly decided not to do (and why).
 ## RICE Scoring for Open Source Projects
 
 ### Reach (R)
+
 How many users/contributors does this affect per quarter?
+
 - High (1000+): 3 points
 - Medium (100-999): 2 points
 - Low (10-99): 1 point
 - Minimal (<10): 0.5 points
 
 ### Impact (I)
+
 How much will this improve the experience?
+
 - Massive (game-changing): 3 points
 - High (significant improvement): 2 points
 - Medium (noticeable improvement): 1 point
 - Low (minor improvement): 0.5 points
 
 ### Confidence (C)
+
 How confident are we in the estimates?
+
 - High (data-driven, prototype exists): 100%
 - Medium (some data, similar prior work): 80%
 - Low (intuition, no prior art): 50%
 
 ### Effort (E)
+
 Person-months to implement:
+
 - 0.5, 1, 2, 3, 6, 12
 
 ### Score = (R x I x C) / E
 
 Example:
-  Plugin system: (3 x 3 x 0.8) / 3 = 2.4
-  Dark mode:     (2 x 1 x 1.0) / 0.5 = 4.0
-  API v3:        (3 x 2 x 0.5) / 6 = 0.5
+Plugin system: (3 x 3 x 0.8) / 3 = 2.4
+Dark mode: (2 x 1 x 1.0) / 0.5 = 4.0
+API v3: (3 x 2 x 0.5) / 6 = 0.5
 ```
 
 ### Milestone Planning
@@ -323,25 +345,29 @@ Example:
 ### Theme: Developer Experience Improvements
 
 ### Goals
+
 - Reduce average setup time from 15 to 5 minutes
 - Improve error messages for the top 20 reported confusion points
 - Add interactive configuration wizard
 
 ### Scope
-| Issue | Title | Assignee | Priority | Size |
-|-------|-------|----------|----------|------|
-| #234 | Interactive setup wizard | @user1 | P0 | L |
-| #235 | Better error messages | @user2 | P0 | M |
-| #240 | Auto-detect configuration | @user3 | P1 | M |
-| #242 | Improve getting started docs | @user4 | P1 | S |
+
+| Issue | Title                        | Assignee | Priority | Size |
+| ----- | ---------------------------- | -------- | -------- | ---- |
+| #234  | Interactive setup wizard     | @user1   | P0       | L    |
+| #235  | Better error messages        | @user2   | P0       | M    |
+| #240  | Auto-detect configuration    | @user3   | P1       | M    |
+| #242  | Improve getting started docs | @user4   | P1       | S    |
 
 ### Timeline
+
 - Development start: YYYY-MM-DD
 - Feature freeze: YYYY-MM-DD
 - Release candidate: YYYY-MM-DD
 - Release: YYYY-MM-DD
 
 ### Success Criteria
+
 - Setup time measured below 5 minutes in user testing
 - Support questions about setup decrease by 50%
 - New contributor onboarding survey score improves
@@ -357,30 +383,36 @@ Example:
 ### Name: [Area] Working Group
 
 ### Mission
+
 One sentence describing the group's purpose.
 
 ### Scope
+
 - What this group IS responsible for
 - What this group is NOT responsible for
 
 ### Members
-| Name | Role | Term |
-|------|------|------|
-| @user1 | Chair | 2025-01 to 2025-12 |
+
+| Name   | Role   | Term               |
+| ------ | ------ | ------------------ |
+| @user1 | Chair  | 2025-01 to 2025-12 |
 | @user2 | Member | 2025-01 to 2025-12 |
 | @user3 | Member | 2025-06 to 2026-06 |
 
 ### Meeting Cadence
+
 - Bi-weekly video call (rotating time zones)
 - Async decisions via GitHub Discussions
 - Quarterly report to the main project
 
 ### Decision Authority
+
 - Can make decisions within scope without full project approval
 - Must propose RFCs for cross-cutting changes
 - Budget decisions above $X require project lead approval
 
 ### Deliverables
+
 - Quarterly progress report
 - Maintained documentation for the area
 - Timely review of PRs in scope
@@ -392,15 +424,16 @@ One sentence describing the group's purpose.
 ## Umbrella Project Structure
 
 project-org/
-  ├── project-core          # Main runtime
-  ├── project-cli           # Command-line tool
-  ├── project-docs          # Documentation site
-  ├── project-plugins       # Official plugin collection
-  ├── project-rfcs          # RFC repository
-  ├── project-governance    # Governance docs and decisions
-  └── .github               # Org-level templates and workflows
+├── project-core # Main runtime
+├── project-cli # Command-line tool
+├── project-docs # Documentation site
+├── project-plugins # Official plugin collection
+├── project-rfcs # RFC repository
+├── project-governance # Governance docs and decisions
+└── .github # Org-level templates and workflows
 
 ## Cross-Repo Coordination
+
 - Organization-level issue tracker for cross-cutting concerns
 - Shared CI/CD templates in .github repository
 - Synchronized release process across core packages
@@ -441,14 +474,14 @@ Transition Triggers:
 
 ### Governance Health Assessment
 
-| Dimension | Questions to Ask | Red Flags |
-|-----------|-----------------|-----------|
-| Transparency | Can anyone see how decisions are made? | Private channels for public decisions |
-| Accountability | Are decision-makers identifiable? | "The team decided" without specifics |
-| Inclusivity | Can new people influence direction? | Decisions made before public discussion |
-| Efficiency | Do decisions happen in reasonable time? | Month-long debates on minor changes |
-| Clarity | Does everyone know the process? | "How do I propose X?" asked frequently |
-| Legitimacy | Do participants trust the process? | Repeated governance process complaints |
+| Dimension      | Questions to Ask                        | Red Flags                               |
+| -------------- | --------------------------------------- | --------------------------------------- |
+| Transparency   | Can anyone see how decisions are made?  | Private channels for public decisions   |
+| Accountability | Are decision-makers identifiable?       | "The team decided" without specifics    |
+| Inclusivity    | Can new people influence direction?     | Decisions made before public discussion |
+| Efficiency     | Do decisions happen in reasonable time? | Month-long debates on minor changes     |
+| Clarity        | Does everyone know the process?         | "How do I propose X?" asked frequently  |
+| Legitimacy     | Do participants trust the process?      | Repeated governance process complaints  |
 
 ## Conflict Resolution Procedures
 
@@ -482,7 +515,6 @@ Level 5: External Mediation
   Timeline: As needed
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -490,7 +522,6 @@ Level 5: External Mediation
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -511,14 +542,12 @@ Level 5: External Mediation
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

@@ -15,7 +15,7 @@ skills: feature-spec git-branching-strategy tdd-workflow code-review-patterns de
 trigger_phrases: build a feature end to end implement a new feature full feature development lifecycle
 metadata:
   author: foundry-skills
-  version: "1.0.0"
+  version: '1.0.0'
   tags: architecture testing devops planning step-by-step
   category: software-project
   depends: feature-spec git-branching-strategy tdd-workflow code-review-patterns deployment-strategies
@@ -161,6 +161,7 @@ Overall Status: [IN PROGRESS / COMPLETE]
 ```
 
 **Adaptation notes:**
+
 - Adjust timeline based on feature complexity and team review cadence
 - Steps 3 and 4 may iterate multiple times before proceeding to Step 5
 - For solo developers, Step 4 can be self-review with a structured checklist

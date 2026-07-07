@@ -57,16 +57,7 @@ describe('wcoreToolKeys IPC handlers', () => {
   it('list reports every supported backend, hasKey:false when unset', async () => {
     const list = await h.list();
     const ids = list.map((p) => p.id).toSorted();
-    expect(ids).toEqual([
-      'brave',
-      'elevenlabs',
-      'exa',
-      'fal',
-      'firecrawl',
-      'groq',
-      'huggingface',
-      'tavily',
-    ]);
+    expect(ids).toEqual(['brave', 'elevenlabs', 'exa', 'fal', 'firecrawl', 'groq', 'huggingface', 'tavily']);
     expect(list.every((p) => p.hasKey === false)).toBe(true);
   });
 

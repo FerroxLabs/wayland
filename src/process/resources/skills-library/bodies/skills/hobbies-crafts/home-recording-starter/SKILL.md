@@ -12,14 +12,15 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "beginner-friendly step-by-step guide checklist"
-  category: "hobbies-crafts"
-  subcategory: "performing-arts"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "beginner"
+  version: '1.0.0'
+  tags: 'beginner-friendly step-by-step guide checklist'
+  category: 'hobbies-crafts'
+  subcategory: 'performing-arts'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'beginner'
 ---
+
 # Home Recording Starter
 
 ## When to Use
@@ -96,6 +97,7 @@ This order is deliberate. Room problems cannot be fixed with better equipment --
 5. **Corner bass traps:** Stacking 4 inches or more of absorption material (or commercial bass trap panels) in floor-to-ceiling corners reduces low-frequency buildup. This is less critical for home recording tracks (which will be EQ'd in mixing) than for mixing rooms, but it reduces the boxy coloration in recordings.
 
 **What to tell the user NOT to do:**
+
 - Egg cartons absorb almost nothing -- their surface area creates diffusion at very high frequencies but provides zero meaningful absorption in the 200-2000 Hz range where most coloration problems live
 - Foam "soundproofing" sold cheaply online (1-inch pyramid foam) adds minimal absorption and zero sound isolation (mass and decoupling reduce sound transmission, not foam)
 - Do not over-deaden a room -- when every surface is absorbed, the recording sounds unnaturally dry and may require heavy reverb in mix to sound listenable; aim for controlled reflections, not a dead room
@@ -141,6 +143,7 @@ This budget enables a proper audio interface plus dedicated microphone, which un
 DAW configuration for recording is not about learning every feature -- it is about setting four parameters correctly before the first recording session. Wrong settings cause problems that beginners misdiagnose as hardware failures.
 
 **Driver selection (Windows-specific):**
+
 - Windows requires ASIO (Audio Stream Input/Output) drivers for low-latency recording -- Windows' built-in audio drivers (WDM/WASAPI) introduce 30-100 ms of latency, which is perceivable as a distracting echo in headphones while performing
 - Install the manufacturer's ASIO driver from the interface manufacturer's website before opening the DAW
 - In the DAW audio preferences, select the interface's ASIO driver, not "Generic ASIO" and not the Windows audio device
@@ -149,6 +152,7 @@ DAW configuration for recording is not about learning every feature -- it is abo
 **Sample rate:** Set to 44100 Hz for music intended for streaming or CD distribution (44.1 kHz is the standard for these formats and avoids sample rate conversion artifacts). Set to 48000 Hz if the recorded music will be used in video production (48 kHz is the broadcast and video standard). Do not set to 96000 Hz for beginner recording -- it doubles the file size, increases CPU load, and provides no perceptible quality benefit for tracking vocals and acoustic guitar; 24-bit depth at 44100 Hz captures more dynamic range (144 dB theoretical) than any acoustic space or microphone can produce.
 
 **Buffer size:**
+
 - Buffer size controls how many audio samples the computer collects before processing them and sending them to the output. Small buffers = fast processing = low latency (the delay you hear in headphones). Large buffers = slower processing = higher latency but less CPU strain.
 - For tracking (recording): set buffer to 64 or 128 samples. At 44100 Hz, 128 samples = approximately 2.9 ms latency, which is imperceptible. Most modern computers handle 128 samples without dropouts.
 - For mixing (no live recording): increase to 512 or 1024 samples to allow more plugins to run simultaneously without audio dropouts (crackling, skipping).
@@ -157,6 +161,7 @@ DAW configuration for recording is not about learning every feature -- it is abo
 **Bit depth:** Always record at 24-bit, not 16-bit. 24-bit provides 144 dB of theoretical dynamic range versus 96 dB for 16-bit. This extra headroom means that even if the recorded signal is lower than optimal, it can be boosted in the DAW without audible noise floor problems. Export the final mix at 16-bit/44100 Hz for distribution (streaming platforms accept 16-bit; the bit depth reduction from 24 to 16 should use dithering, but this is a mixing concern for later).
 
 **Creating the first recording session:**
+
 1. Open DAW, create a new empty project. Set project sample rate to match the interface setting (they must be identical -- a mismatch causes pitch-shifted, distorted audio).
 2. Create a mono audio track (one microphone = one channel = mono track; a stereo track wastes a channel for single microphone recording).
 3. Assign the track input to Interface Input 1 (or whichever physical input has the microphone connected).
@@ -173,23 +178,27 @@ DAW configuration for recording is not about learning every feature -- it is abo
 Placement determines the sound before any processing. Moving a microphone 2 inches changes the recording more than switching between two midrange condenser microphones.
 
 **Vocals:**
+
 - Distance: 6 to 8 inches from the capsule. Closer than 4 inches exaggerates bass frequencies due to the proximity effect (a physical characteristic of cardioid and directional mics -- the low-frequency response rises as the mic approaches the source). This can be used creatively for a warm, intimate sound on male vocals, or avoided for bright female vocals. Further than 12 inches picks up excessive room reflections.
 - Angle: microphone capsule aimed directly at the mouth (on-axis) for maximum clarity. Aiming the capsule at the forehead or chin (slightly off-axis) can reduce sibilance (harsh "s" and "sh" sounds) if they are a problem.
 - Pop filter: positioned 2 to 3 inches in front of the capsule between the capsule and the singer's mouth.
 - Singer position: singer stands or sits, does not lean into or away from the microphone while singing -- consistent distance is more important than perfect distance.
 
 **Acoustic guitar:**
+
 - Single microphone placement (standard starting point): aim the capsule at the point where the neck meets the body (12th fret area), 6 to 10 inches away. This balances the low-end warmth from the body with the clarity and string attack from the neck. Avoid aiming directly at the soundhole -- the soundhole produces a boomy, uneven low-frequency response.
 - Alternative for more brightness: move toward the headstock end of the neck, 8 to 12 inches away. Captures string detail and attack.
 - Alternative for more warmth and body: aim toward the lower bout (the larger rounded area of the body, opposite the waist) from 6 to 10 inches away.
 - Stereo placement (requires two microphones and two interface inputs): XY configuration (two cardioid mics crossed at 90 degrees, capsules co-incident at a single point) placed 8 to 12 inches from the guitar provides a natural stereo image without phase problems. ORTF (microphones angled at 110 degrees apart, capsules spaced 17 cm) provides a wider stereo field.
 
 **Electric guitar (amplifier):**
+
 - Dynamic microphone on the speaker cone: place the microphone 1 to 3 inches from the speaker grille, aimed at the edge of the dust cap (the center dome of the speaker cone) rather than the center. The center of the cone produces a harsher, brighter sound; the edge produces a fuller, more balanced tone. This single-mic technique requires no room treatment.
 - Blended approach (requires two inputs): combine the close dynamic microphone with a condenser placed 3 to 6 feet back to capture room ambience. These two signals are mixed to taste in the DAW.
 - Direct injection (DI): plug the guitar directly into a DI (direct injection) box or into the instrument input of the audio interface, and use an amplifier simulation plugin in the DAW. Eliminates room acoustic problems entirely and allows re-amping later. Suitable for apartments where amp volume is a problem.
 
 **Bass guitar:**
+
 - DI is the standard home recording approach for bass: plug the bass directly into the instrument input on the interface. The low frequencies of a bass (40-200 Hz) require long wavelengths to develop -- a microphone placed near a bass cabinet in a small room captures a boom-heavy, uneven signal that is difficult to mix.
 - If miking a bass cabinet: use a dynamic microphone 1 to 2 inches from the speaker cone, same placement principles as electric guitar.
 
@@ -198,17 +207,20 @@ Placement determines the sound before any processing. Moving a microphone 2 inch
 Walk the user through their complete first session from silence to saved file.
 
 Pre-session checklist:
+
 - Instrument is in tune (use a clip-on tuner or tuner plugin in the DAW)
 - Room is set up: microphone positioned, pop filter attached, blankets hung, rug in place
 - Interface connected and powered (bus-powered USB interfaces draw power from the USB port; some larger interfaces require a separate power adapter)
 - DAW open with project created, track armed, input assigned
 
 During recording:
+
 - Perform 30 to 60 seconds of the song while watching the meter. Identify the loudest moment and ensure it does not reach 0 dBFS. Adjust gain. This is called a "sound check pass" and prevents discovering a level problem after the best take.
 - Record multiple takes -- at least 3 complete takes of each part. Track one take per pass (do not stack multiple passes in one recording arm). The best take is selected in editing.
 - For each take, announce the take number out loud into the microphone at the start ("Take 1"), then wait 3 seconds before playing. This creates an audible cue in the DAW timeline for finding take boundaries.
 
 Post-recording:
+
 - Save the project immediately with a descriptive name including the date (e.g., "vocal_demo_acoustic_2024-03-15_take3").
 - Export the raw recorded audio file as a WAV (uncompressed, 24-bit, 44100 Hz) to a separate backup folder. Do not rely solely on the DAW project file -- a WAV backup is readable in any audio software.
 - Listen through headphones and identify any takes with clipping (a clip indicator light on the track header in the DAW turns red), excessive noise (interface gain too high introducing hiss), or technical problems (microphone rubs against stand, cable bumps), and flag those takes for re-recording.
@@ -421,6 +433,7 @@ This is a ground loop, not a room acoustic problem and not a microphone sensitiv
 ## Home Recording Setup Plan
 
 ### Recording Goal Summary
+
 - **Primary sources:** Acoustic guitar and lead vocals, recorded as separate overdubbed tracks (guitar first, vocals second)
 - **Recording objective:** Demo quality for personal listening and sharing with collaborators
 - **Budget:** $300 (Home Studio Tier)
@@ -461,6 +474,6 @@ Pass 2 (Vocals):
 
 ### Gear Checklist
 
-| Item                   | Role in Signal Chain             | Minimum Specification                                            | Est. Cost |
-|------------------------|----------------------------------|------------------------------------------------------------------|-----------|
-| USB audio interface    | Preamp, ADC, phantom power, USB  | 2 combo XLR/TRS inputs, 48V phantom power, direct monitoring mix knob, USB-A, bundled DAW
+| Item                | Role in Signal Chain            | Minimum Specification                                                                     | Est. Cost |
+| ------------------- | ------------------------------- | ----------------------------------------------------------------------------------------- | --------- |
+| USB audio interface | Preamp, ADC, phantom power, USB | 2 combo XLR/TRS inputs, 48V phantom power, direct monitoring mix knob, USB-A, bundled DAW |

@@ -7,28 +7,29 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "strategy entrepreneurship template planning neurodiversity performing-arts competitive-programming time-management"
-  category: "business-strategy"
-  subcategory: "entrepreneurship"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'strategy entrepreneurship template planning neurodiversity performing-arts competitive-programming time-management'
+  category: 'business-strategy'
+  subcategory: 'entrepreneurship'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Content Monetization Strategist
 
 You are an expert content monetization strategist who helps creators build sustainable businesses from their content. You advise on revenue diversification, audience growth, pricing, sponsorships, and building multiple income streams that don't depend on any single platform's algorithm.
 
-
 ## When to Use
 
 **Use this skill when:**
+
 - User asks about content monetization strategist techniques or best practices
 - User needs guidance on content monetization strategist concepts
 - User wants to implement or improve their approach to content monetization strategist
 
 **Do NOT use when:**
+
 - The request falls outside the scope of content monetization strategist
 - User needs a different specialized skill for their specific situation
 - The topic requires professional consultation beyond general guidance
@@ -85,18 +86,18 @@ Stage 4: MATURE CREATOR BUSINESS (25,000+ followers)
 
 ### Revenue Stream Comparison
 
-| Stream | Scalability | Effort to Start | Recurring? | Control |
-|--------|-----------|----------------|-----------|---------|
-| Ad revenue (YouTube, blog) | High | Low (just create) | Yes (variable) | Low (algorithm) |
-| Sponsorships | Medium | Medium | Per deal | Medium |
-| Digital products | Very high | High (creation) | No (per sale) | High |
-| Online courses | Very high | Very high | No (per sale) | High |
-| Membership/subscription | High | Medium | Yes (monthly) | High |
-| Coaching/consulting | Low | Low | Per session | High |
-| Affiliate marketing | Medium | Low | Per sale | Low |
-| Books (self-published) | Medium | High | No (per sale) | High |
-| Speaking/events | Low | Medium | Per event | High |
-| Software/SaaS | Very high | Very high | Yes | Very high |
+| Stream                     | Scalability | Effort to Start   | Recurring?     | Control         |
+| -------------------------- | ----------- | ----------------- | -------------- | --------------- |
+| Ad revenue (YouTube, blog) | High        | Low (just create) | Yes (variable) | Low (algorithm) |
+| Sponsorships               | Medium      | Medium            | Per deal       | Medium          |
+| Digital products           | Very high   | High (creation)   | No (per sale)  | High            |
+| Online courses             | Very high   | Very high         | No (per sale)  | High            |
+| Membership/subscription    | High        | Medium            | Yes (monthly)  | High            |
+| Coaching/consulting        | Low         | Low               | Per session    | High            |
+| Affiliate marketing        | Medium      | Low               | Per sale       | Low             |
+| Books (self-published)     | Medium      | High              | No (per sale)  | High            |
+| Speaking/events            | Low         | Medium            | Per event      | High            |
+| Software/SaaS              | Very high   | Very high         | Yes            | Very high       |
 
 ---
 
@@ -312,7 +313,6 @@ Track monthly:
   - Churn on recurring revenue
 ```
 
-
 ## Process
 
 1. **Gather information.** Ask the user clarifying questions to understand their specific situation, goals, and constraints
@@ -320,7 +320,6 @@ Track monthly:
 3. **Develop recommendations.** Apply domain expertise to create actionable guidance tailored to the user's needs
 4. **Present structured output.** Deliver findings in the output format below with clear next steps
 5. **Address follow-ups.** Answer additional questions and refine recommendations based on feedback
-
 
 ## Output Format
 
@@ -341,14 +340,12 @@ Track monthly:
 - [ ] [Follow-up task]
 ```
 
-
 ## Edge Cases
 
 - **Incomplete information:** Ask clarifying questions before proceeding with recommendations
 - **Conflicting requirements:** Prioritize the most critical constraint and note trade-offs
 - **Out of scope requests:** Redirect to appropriate specialized skill or professional resource
 - **Beginner vs advanced:** Adjust depth and terminology based on user's experience level
-
 
 ## Example
 

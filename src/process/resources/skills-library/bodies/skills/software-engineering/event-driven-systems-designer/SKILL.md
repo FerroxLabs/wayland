@@ -7,13 +7,13 @@ description: |
 license: Apache-2.0
 metadata:
   author: foundry-skills
-  version: "1.0.0"
-  tags: "architecture design-patterns backend"
-  category: "software-engineering"
-  subcategory: "architecture-design"
-  depends: ""
-  disclaimer: "none"
-  difficulty: "advanced"
+  version: '1.0.0'
+  tags: 'architecture design-patterns backend'
+  category: 'software-engineering'
+  subcategory: 'architecture-design'
+  depends: ''
+  disclaimer: 'none'
+  difficulty: 'advanced'
 ---
 
 # Event-Driven Systems Designer
@@ -23,6 +23,7 @@ You are an expert Event-Driven Architect who designs systems around events as fi
 ## Event-Driven Architecture Fundamentals
 
 ### What is an Event?
+
 ```
 An event is a record of something that happened in the past.
 Events are immutable facts. They cannot be changed or deleted.
@@ -47,6 +48,7 @@ Event Structure:
 ```
 
 ### Event Types
+
 ```
 1. Domain Events: Business-meaningful occurrences
    - OrderPlaced, PaymentProcessed, UserRegistered
@@ -64,6 +66,7 @@ Event Structure:
 ```
 
 ### When to Use Event-Driven Architecture
+
 ```
 Good Fit:
 - Multiple consumers need to react to the same event
@@ -84,6 +87,7 @@ Poor Fit:
 ## Event Sourcing
 
 ### Concept
+
 ```
 Instead of storing current state, store the sequence of events that led to the state.
 
@@ -109,6 +113,7 @@ Current state = replay all events from the beginning
 ```
 
 ### Event Store Design
+
 ```
 Schema:
 ┌──────────────┬──────────────┬──────────────┬────────────┬──────────┐
@@ -133,6 +138,7 @@ Read Path:
 ```
 
 ### Snapshots
+
 ```
 Problem: Replaying thousands of events to build state is slow.
 
@@ -155,9 +161,11 @@ Store snapshots separately from events (events are the source of truth).
 ## Event Storming
 
 ### What is Event Storming?
+
 A workshop technique for discovering domain events and modeling business processes.
 
 ### Event Storming Workshop Format
+
 ```
 Duration: 2-4 hours
 Participants: Domain experts + developers (5-12 people)
@@ -184,6 +192,7 @@ Workshop Steps:
 ## Event Schema Design
 
 ### Schema Best Practices
+
 ```
 1. Include everything the consumer needs (avoid needing to call back to producer)
 2. Use past tense for event names (OrderPlaced, not PlaceOrder)
@@ -208,6 +217,7 @@ Good Event Schema:
 ```
 
 ### Event Schema Registry
+
 ```
 Purpose: Centralized management of event schemas
 
@@ -227,6 +237,7 @@ Tools:
 ## Event Versioning
 
 ### Versioning Strategies
+
 ```
 1. Schema Versioning (Recommended):
    Include version in the event, use schema registry for compatibility.
@@ -253,6 +264,7 @@ Breaking Changes (Require Migration):
 ## Idempotency
 
 ### Why Idempotency Matters
+
 ```
 In event-driven systems, messages may be delivered more than once:
 - Network retries
@@ -263,6 +275,7 @@ Every consumer must handle duplicate messages safely.
 ```
 
 ### Idempotency Implementation Patterns
+
 ```
 1. Idempotency Key (Deduplication):
    - Store processed event IDs
@@ -289,6 +302,7 @@ Every consumer must handle duplicate messages safely.
 ## Ordering Guarantees
 
 ### Ordering Levels
+
 ```
 1. Total Order:
    - All consumers see events in exactly the same order
@@ -313,6 +327,7 @@ Every consumer must handle duplicate messages safely.
 ```
 
 ### Ensuring Per-Entity Ordering
+
 ```
 Kafka Example:
 - Use entity ID as the partition key
@@ -335,6 +350,7 @@ Consumer:
 ## Event Replay
 
 ### Replay Use Cases
+
 ```
 1. Rebuilding read models: Create a new projection from event history
 2. Bug fixing: Replay events through fixed consumer logic
@@ -344,6 +360,7 @@ Consumer:
 ```
 
 ### Replay Strategy
+
 ```
 Full Replay:
 - Process ALL events from the beginning
@@ -371,6 +388,7 @@ Replay Safety:
 ## Dead Letter Handling
 
 ### Dead Letter Queue (DLQ) Design
+
 ```
 Main Queue → Consumer → Process
                   ↓ (on failure after N retries)
@@ -389,6 +407,7 @@ DLQ Event:
 ```
 
 ### DLQ Processing Strategy
+
 ```
 1. Automated Retry:
    - Wait for a configurable delay
@@ -415,6 +434,7 @@ DLQ Event:
 ## Choreography vs. Orchestration
 
 ### Choreography (Decentralized)
+
 ```
 Each service listens for events and decides how to react.
 No central coordinator.
@@ -437,6 +457,7 @@ Cons:
 ```
 
 ### Orchestration (Centralized)
+
 ```
 A central orchestrator manages the workflow.
 
@@ -463,6 +484,7 @@ Cons:
 ```
 
 ### Decision Framework
+
 ```
 Use Choreography when:
 - Simple flows (3-4 steps)
@@ -500,6 +522,7 @@ Hybrid Approach (Common in Practice):
 ## Quick Decision Guide
 
 When asked about event-driven architecture:
+
 - **"Should I use events or REST?"** → Events for async/decoupled, REST for sync/simple
 - **"How to handle failures?"** → DLQ + retry with backoff + circuit breaker
 - **"How to ensure ordering?"** → Partition by entity ID, process partitions sequentially
@@ -510,6 +533,7 @@ When asked about event-driven architecture:
 ## When to Use
 
 **Use this skill when:**
+
 - Designing or implementing event driven systems designer solutions
 - Reviewing or improving existing event driven systems designer approaches
 - Making architectural or implementation decisions about event driven systems designer
@@ -517,6 +541,7 @@ When asked about event-driven architecture:
 - Troubleshooting event driven systems designer-related issues
 
 **Do NOT use this skill when:**
+
 - The question is about a fundamentally different technology domain
 - A more specific sibling skill covers the exact topic needed
 - The user needs a complete hands-on tutorial rather than expert guidance
@@ -527,21 +552,26 @@ When asked about event-driven architecture:
 # Event Driven Systems Designer Analysis
 
 ## Context Assessment
+
 [Situation summary and constraints]
 
 ## Recommended Approach
+
 [Primary recommendation with rationale]
 
 ## Implementation Steps
+
 1. [Step with specific details]
 2. [Step with specific details]
 3. [Step with specific details]
 
 ## Trade-offs and Considerations
+
 - [Key trade-off 1]
 - [Key trade-off 2]
 
 ## Next Steps
+
 - [Immediate action item]
 - [Follow-up action item]
 ```

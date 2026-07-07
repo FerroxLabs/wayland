@@ -47,13 +47,10 @@ vi.mock('react-i18next', () => ({
 // noise we don't need. We only care about the Switch toggle and the Message
 // singleton here. Defined inside the factory because vi.mock is hoisted.
 vi.mock('@arco-design/web-react', () => {
-  const Form = Object.assign(
-    ({ children }: { children?: React.ReactNode }) => <form>{children}</form>,
-    {
-      useForm: () => [{ getFieldsValue: () => ({}), resetFields: vi.fn(), validate: vi.fn() }],
-      Item: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
-    }
-  );
+  const Form = Object.assign(({ children }: { children?: React.ReactNode }) => <form>{children}</form>, {
+    useForm: () => [{ getFieldsValue: () => ({}), resetFields: vi.fn(), validate: vi.fn() }],
+    Item: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+  });
   return {
     Message: { success: vi.fn(), error: vi.fn(), loading: vi.fn(() => vi.fn()) },
     Form,
