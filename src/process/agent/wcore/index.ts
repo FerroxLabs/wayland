@@ -8,10 +8,19 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
+import type { Writable } from 'node:stream';
 import { parse, stringify } from 'smol-toml';
 import type { TProviderWithModel } from '@/common/config/storage';
+import { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from '@process/secrets';
 import { resolveWCoreBinary } from './binaryResolver';
-import { buildEngineSpawnEnv, buildSpawnConfig, engineInheritsShellKey, MissingApiKeyError } from './envBuilder';
+import {
+  buildEngineSpawnEnv,
+  buildSpawnConfig,
+  engineInheritsShellKey,
+  MissingApiKeyError,
+  planVaultPassphraseDelivery,
+  type VaultPassphraseDelivery,
+} from './envBuilder';
 import { resolveActiveConfigDir } from './profilePaths';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn } from '@process/providers/ipc/modelRegistryIpc';
@@ -306,11 +315,37 @@ export class WCoreAgent {
     } catch (err) {
       console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
     }
+    // #710: hand the engine the profile's vault passphrase so it encrypts its
+    // credential store (WAYLAND_HOME spawns otherwise fall back to a warned
+    // plaintext credentials.toml). Delivery is fd-based on Unix (an extra pipe
+    // at stdio index 3, invisible in /proc environ) and env-based on Windows.
+    // Best-effort by design: `resolveSpawnVaultPassphrase` returns null on any
+    // keychain/provisioning failure - and when the profile already holds
+    // plaintext secrets the engine cannot migrate (no plaintext→vault import
+    // exists engine-side) - in which case the spawn proceeds exactly as before.
+    let vaultDelivery: VaultPassphraseDelivery | undefined;
+    if (waylandHome) {
+      const vaultPassphrase = await resolveSpawnVaultPassphrase(waylandHome);
+      if (vaultPassphrase !== null) {
+        vaultDelivery = planVaultPassphraseDelivery(vaultPassphrase);
+      }
+    }
     this.childProcess = spawn(binaryPath, args, {
-      env: buildEngineSpawnEnv({ providerEnv: env, toolKeys, waylandHome }),
-      stdio: ['pipe', 'pipe', 'pipe'],
+      env: buildEngineSpawnEnv({ providerEnv: env, toolKeys, waylandHome, vaultPassphraseEnv: vaultDelivery?.env }),
+      stdio: vaultDelivery?.stdio ?? ['pipe', 'pipe', 'pipe'],
       cwd: this.options.workspace,
     });
+    if (vaultDelivery?.mode === 'fd') {
+      // Write the passphrase into the extra pipe and close our end so the
+      // engine's read-to-EOF completes. The engine reads it lazily (first
+      // credential access); the pipe buffers the short payload until then.
+      // Swallow EPIPE - an engine that dies before reading must not crash us.
+      const fdStream = this.childProcess.stdio[VAULT_PASSPHRASE_CHILD_FD] as Writable | null;
+      if (fdStream) {
+        fdStream.on('error', () => {});
+        fdStream.end(vaultDelivery.fdPayload);
+      }
+    }
     // #443: register with the last-resort reaper so a quit that truncates the
     // graceful per-agent kill still force-kills this engine child (auto-removed
     // on exit / graceful kill).

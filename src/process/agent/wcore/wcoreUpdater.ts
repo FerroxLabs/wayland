@@ -21,7 +21,7 @@
  */
 
 import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream, mkdirSync, renameSync, rmSync } from 'node:fs';
+import { chmodSync, createReadStream, createWriteStream, existsSync, mkdirSync, renameSync, rmSync } from 'node:fs';
 import { chmod, copyFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -291,7 +291,43 @@ export async function installWCoreUpdate(
     const stagePath = join(destDir, `.${binaryName}.staging`);
     await copyFile(extracted, stagePath);
     if (process.platform !== 'win32') await chmod(stagePath, 0o755);
-    renameSync(stagePath, finalPath);
+    try {
+      renameSync(stagePath, finalPath);
+    } catch (err) {
+      // On Windows a currently-running wayland-core.exe is locked, so replacing
+      // it in place fails (EBUSY/EPERM/EACCES). Surface an actionable message
+      // instead of the raw errno, and drop the orphaned staging copy.
+      const code = (err as NodeJS.ErrnoException).code;
+      if (process.platform === 'win32' && (code === 'EBUSY' || code === 'EPERM' || code === 'EACCES')) {
+        // The live engine binary is locked while the embedded engine runs, so it
+        // cannot be replaced in place. Stage it as `<binary>.pending` and swap it
+        // in at the next app startup (applyPendingWCoreUpdate), before any engine
+        // spawns and re-locks it. A retry-after-restart of the in-place path can
+        // never succeed on Windows because the engine respawns on boot and
+        // re-locks the binary first — which is exactly why the old "restart, then
+        // update" flow looped forever.
+        const pendingPath = `${finalPath}.pending`;
+        try {
+          rmSync(pendingPath, { force: true });
+          renameSync(stagePath, pendingPath);
+        } catch (stageErr) {
+          try {
+            rmSync(stagePath, { force: true });
+          } catch {
+            // best-effort staging cleanup
+          }
+          const message = `Could not stage the engine update: ${
+            stageErr instanceof Error ? stageErr.message : String(stageErr)
+          }`;
+          onProgress?.({ phase: 'error', message });
+          return { ok: false, error: message };
+        }
+        const installed = normalizeVersion(tag) ?? tag;
+        onProgress?.({ phase: 'done', message: installed });
+        return { ok: true, version: installed, staged: true };
+      }
+      throw err;
+    }
 
     const installed = normalizeVersion(tag) ?? tag;
     onProgress?.({ phase: 'done', message: installed });
@@ -306,5 +342,66 @@ export async function installWCoreUpdate(
     } catch {
       // best-effort temp cleanup
     }
+  }
+}
+
+/**
+ * Activate a staged engine update from a previous session. On Windows the live
+ * engine binary is locked while the embedded engine runs, so an in-app update is
+ * staged as `<binary>.pending` (see installWCoreUpdate) rather than replacing the
+ * running binary. This swaps the staged binary into place at app startup — which
+ * MUST run before any engine is spawned (and would re-lock the binary). Called
+ * from the main-process bootstrap ahead of `initializeProcess()`.
+ *
+ * Synchronous + best-effort: no pending file is a no-op; a failed swap leaves the
+ * pending file for the next boot and never blocks startup.
+ */
+export function applyPendingWCoreUpdate(): { applied: boolean } {
+  let finalPath: string;
+  try {
+    const binaryName = process.platform === 'win32' ? `${PRIMARY_BINARY}.exe` : PRIMARY_BINARY;
+    finalPath = join(overrideDir(), runtimeKey(), binaryName);
+  } catch {
+    // Electron/userData unavailable this early or off — best-effort no-op.
+    return { applied: false };
+  }
+  return applyPendingSwap(finalPath);
+}
+
+/**
+ * Swap `<finalPath>.pending` into `finalPath`, keeping a `.prev` rollback anchor.
+ * Extracted from applyPendingWCoreUpdate so the swap/backup logic is unit-testable
+ * without resolving the Electron userData path. Best-effort: a missing pending
+ * file is a no-op; any failure returns `{ applied: false }` and leaves the pending
+ * file for the next boot.
+ */
+export function applyPendingSwap(finalPath: string): { applied: boolean } {
+  const pendingPath = `${finalPath}.pending`;
+  if (!existsSync(pendingPath)) return { applied: false };
+  try {
+    // Windows rename() will not overwrite an existing target, so clear the live
+    // binary first. Safe when called before any engine spawn — nothing holds the
+    // file open. Keep a `.prev` copy as a best-effort rollback anchor.
+    if (existsSync(finalPath)) {
+      const prevPath = `${finalPath}.prev`;
+      try {
+        rmSync(prevPath, { force: true });
+        renameSync(finalPath, prevPath);
+      } catch {
+        rmSync(finalPath, { force: true });
+      }
+    }
+    renameSync(pendingPath, finalPath);
+    if (process.platform !== 'win32') {
+      try {
+        chmodSync(finalPath, 0o755);
+      } catch {
+        // best-effort; non-fatal
+      }
+    }
+    return { applied: true };
+  } catch {
+    // Leave the pending file for the next boot; never brick startup.
+    return { applied: false };
   }
 }

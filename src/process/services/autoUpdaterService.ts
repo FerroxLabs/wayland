@@ -551,6 +551,11 @@ class AutoUpdaterService extends EventEmitter {
     // caller is already quitting. isSilent follows the platform: win32 needs
     // the UAC prompt (#492), macOS/Linux keep the existing silent apply.
     autoUpdater.quitAndInstall(AutoUpdaterService.isSilentApplySupported(), false);
+    // isSilent=true, isForceRunAfter=true: install on quit AND relaunch, matching
+    // the "Install and restart" button's promise and the pre-#651 behavior. We
+    // omit the force-exit timer (unlike the manual quitAndInstall) because the
+    // caller is already inside the quit sequence.
+    autoUpdater.quitAndInstall(true, true);
     return true;
   }
 

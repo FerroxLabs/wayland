@@ -5,19 +5,24 @@
 // `event_type='token_usage'` every 30 seconds and aggregates the totals
 // the sidebar Active section needs.
 //
-// === Two upstream conventions to know about ===
+// === Upstream row shapes to know about (DESK-1) ===
 //
-// 1. Total-tokens shape. W1e currently writes
-//      `{ prompt_tokens: usage.used, completion_tokens: 0,
-//         cost_estimate_usd: number, ... }`
-//    where `usage.used` is actually the *total* (prompt + completion) from
-//    the source `acp_context_usage` event, not a prompt-only count.
-//    For W2d we treat `prompt_tokens + completion_tokens` as the total
-//    tokens, which works under both the current convention (total + 0)
-//    and any future fix that splits them honestly. Only the aggregation
-//    below needs to change if the upstream shape ever changes.
+// The source `acp_context_usage` event is a CUMULATIVE session gauge -
+// `used` is "total tokens currently in context", re-sent on every update,
+// and `cost` is the cumulative session cost. Summing those snapshots
+// grossly inflates the meter, so:
 //
-// 2. `WHERE created_at > ?` strict inequality. The W1e listEvents reader
+// 1. New rows (delta-aware writer in TeammateManager) carry per-event
+//    spend deltas as `tokens_delta` / `cost_delta` alongside the raw
+//    snapshot fields. Deltas are safe to SUM - that is all we sum.
+//
+// 2. Legacy rows without the delta fields hold a cumulative snapshot in
+//    `prompt_tokens`/`completion_tokens`/`cost_estimate_usd`. A snapshot
+//    IS that actor's session total, so we keep only the NEWEST such row
+//    per actor (actor_slot_id) as an approximation of that actor's total.
+//    Snapshots are never summed across events.
+//
+// 3. `WHERE created_at > ?` strict inequality. The W1e listEvents reader
 //    excludes rows tied to the cursor timestamp. At a 30s polling cadence
 //    on a cost-meter (rough-estimate, not penny-accurate) this is fine;
 //    we lose at most sibling same-millisecond events on a hot burst,
@@ -49,6 +54,8 @@ type Options = {
   pollIntervalMs?: number;
 };
 
+type LegacySnapshot = { tokens: number; usd: number; createdAt: number };
+
 /**
  * Polls `team_event_log` `token_usage` rows for `teamId` and returns the
  * accumulated `totalTokens` + `totalUsd` over the sliding window.
@@ -61,6 +68,11 @@ export function useTeamCostMeter(teamId: string, opts: Options = {}): TeamCostMe
   const [totalUsd, setTotalUsd] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const cursorRef = useRef<number>(0);
+  /** Running sum of the delta-aware rows' `tokens_delta` / `cost_delta`. */
+  const deltaTokensRef = useRef(0);
+  const deltaUsdRef = useRef(0);
+  /** Newest legacy (snapshot-only) row per actor - never summed per-event. */
+  const legacySnapshotsRef = useRef<Map<string, LegacySnapshot>>(new Map());
 
   useEffect(() => {
     if (!teamId) return;
@@ -69,6 +81,9 @@ export function useTeamCostMeter(teamId: string, opts: Options = {}): TeamCostMe
     // bleed one team's totals into another.
     let cancelled = false;
     cursorRef.current = Date.now() - windowMs;
+    deltaTokensRef.current = 0;
+    deltaUsdRef.current = 0;
+    legacySnapshotsRef.current = new Map();
     setTotalTokens(0);
     setTotalUsd(0);
     setIsLoading(true);
@@ -88,21 +103,40 @@ export function useTeamCostMeter(teamId: string, opts: Options = {}): TeamCostMe
           return;
         }
 
-        let tokensDelta = 0;
-        let usdDelta = 0;
         let maxCreatedAt = since;
         for (const e of events) {
           const p = (e.payload ?? {}) as Record<string, unknown>;
-          const prompt = typeof p.prompt_tokens === 'number' ? p.prompt_tokens : 0;
-          const completion = typeof p.completion_tokens === 'number' ? p.completion_tokens : 0;
-          const cost = typeof p.cost_estimate_usd === 'number' ? p.cost_estimate_usd : 0;
-          tokensDelta += prompt + completion;
-          usdDelta += cost;
+          const tokensDelta = typeof p.tokens_delta === 'number' ? p.tokens_delta : undefined;
+          const costDelta = typeof p.cost_delta === 'number' ? p.cost_delta : undefined;
+          if (tokensDelta !== undefined || costDelta !== undefined) {
+            // Delta-aware row: per-event spend, safe to sum.
+            deltaTokensRef.current += tokensDelta ?? 0;
+            deltaUsdRef.current += costDelta ?? 0;
+          } else {
+            // Legacy row: fields are a CUMULATIVE session snapshot. The
+            // newest snapshot per actor approximates that actor's session
+            // total - never sum snapshots across events.
+            const prompt = typeof p.prompt_tokens === 'number' ? p.prompt_tokens : 0;
+            const completion = typeof p.completion_tokens === 'number' ? p.completion_tokens : 0;
+            const usd = typeof p.cost_estimate_usd === 'number' ? p.cost_estimate_usd : 0;
+            const actor = typeof p.slot_id === 'string' && p.slot_id ? p.slot_id : (e.actorSlotId ?? 'unknown');
+            const existing = legacySnapshotsRef.current.get(actor);
+            if (!existing || e.createdAt >= existing.createdAt) {
+              legacySnapshotsRef.current.set(actor, { tokens: prompt + completion, usd, createdAt: e.createdAt });
+            }
+          }
           if (e.createdAt > maxCreatedAt) maxCreatedAt = e.createdAt;
         }
         cursorRef.current = maxCreatedAt;
-        setTotalTokens((prev) => prev + tokensDelta);
-        setTotalUsd((prev) => prev + usdDelta);
+
+        let tokens = deltaTokensRef.current;
+        let usd = deltaUsdRef.current;
+        for (const snap of legacySnapshotsRef.current.values()) {
+          tokens += snap.tokens;
+          usd += snap.usd;
+        }
+        setTotalTokens(tokens);
+        setTotalUsd(usd);
         setIsLoading(false);
       } catch (error) {
         // Cost meter is best-effort - a single failed poll shouldn't tear

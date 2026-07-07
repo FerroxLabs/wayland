@@ -34,8 +34,13 @@ export type WCoreUpdateProgress = {
   message?: string;
 };
 
-/** Result of an install attempt. */
-export type WCoreInstallResult = { ok: true; version: string } | { ok: false; error: string };
+/** Result of an install attempt. `staged` is set when the new binary could not
+ *  replace the running engine in place (Windows lock) and was staged to apply on
+ *  the next app restart instead. The renderer shows the same "restart to apply"
+ *  message either way. */
+export type WCoreInstallResult =
+  | { ok: true; version: string; staged?: boolean }
+  | { ok: false; error: string };
 
 /** Request payload for `wcoreUpdate.install`. */
 export type WCoreInstallRequest = { tag: string };

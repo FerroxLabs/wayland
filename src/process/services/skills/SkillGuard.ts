@@ -25,14 +25,27 @@ import { skillContentHash } from './skillContentHash';
 export class SkillGuard {
   static async scan(
     skills: SkillScanInput[],
-    opts: { llm?: boolean; llmCall?: LlmScanCall } = {}
+    opts: { llm?: boolean; llmCall?: LlmScanCall; llmTimeoutMs?: number } = {}
   ): Promise<SkillSecurityReport[]> {
+    // Imported frontmatter can carry `tags` as a bare string (e.g. YAML
+    // `tags: foo bar`) despite the declared type. Normalize once here so the
+    // regex rules can rely on an array (fixes "input.tags.join is not a
+    // function", #712).
+    skills = skills.map((s) => ({
+      ...s,
+      tags: Array.isArray(s.tags)
+        ? s.tags
+        : String((s.tags as unknown) ?? '')
+            .split(/\s+/)
+            .filter(Boolean),
+    }));
+
     // `llmScanned` on the report must reflect whether the LLM layer ACTUALLY
     // ran for each skill - not whether the caller merely requested it. If
     // `opts.llm` is true but no `llmCall` is wired, the seam returns
     // `ran: false` per skill and the report stays honest. (C2 fix.)
     const llmResults = opts.llm
-      ? await skillGuardLlmScan(skills, opts.llmCall)
+      ? await skillGuardLlmScan(skills, opts.llmCall, opts.llmTimeoutMs)
       : skills.map(() => ({ findings: [] as SkillFinding[], ran: false }));
 
     const scannedAt = Date.now();

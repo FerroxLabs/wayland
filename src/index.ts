@@ -829,6 +829,20 @@ const handleAppReady = async (): Promise<void> => {
 
   _sentry?.setUser({ id: getOrCreateAnalyticsId() });
 
+  // Activate a staged engine update from a previous session BEFORE the engine
+  // subsystem initializes and can spawn (and re-lock) the binary. The in-app
+  // engine update stages to `<binary>.pending` when the live binary is locked
+  // (Windows, where the running engine holds an exclusive handle); this swaps it
+  // into place while no engine is running yet.
+  try {
+    const { applyPendingWCoreUpdate } = await import('./process/agent/wcore/wcoreUpdater');
+    if (applyPendingWCoreUpdate().applied) {
+      console.log('[Wayland] applied staged engine update on startup');
+    }
+  } catch (err) {
+    console.error('[Wayland] applyPendingWCoreUpdate failed:', err);
+  }
+
   try {
     await initializeProcess();
     mark('initializeProcess');

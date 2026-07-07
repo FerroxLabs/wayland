@@ -209,6 +209,7 @@
   },
   "scanLibrary": {
     "done": "Scanned {{count}} skills",
+    "progress": "Scanning {{done}} / {{total}}",
     "failed": "Library scan failed"
   }
 }

@@ -87,6 +87,13 @@ export type SkillStats = {
   verified: number;
 };
 
+/** One progress tick of a full-library skill scan (see `skills.scanProgress`). */
+export type SkillScanProgress = {
+  done: number;
+  total: number;
+  currentName: string;
+};
+
 /**
  * Result of a shell open/reveal operation. The IPC bridge's `invoke` has no
  * rejection channel (a throwing provider leaves the caller's promise pending
@@ -506,6 +513,13 @@ export const skills = {
    * entries were (re)scanned. Never spends a model call — first-party content.
    */
   scanLibrary: buildProvider<{ rescanned: number }, void>('skills.scan-library'),
+  /**
+   * Library-sweep progress (main → renderer). Emitted from the `rescanAll` /
+   * `scanLibrary` / app-start sweep every few skills, plus a final
+   * `done === total` tick, so the Skills page can show "Scanning 640 / 1,900"
+   * instead of an indeterminate spinner.
+   */
+  scanProgress: buildEmitter<SkillScanProgress>('skills.scan-progress'),
   import: {
     /** Import a skill from a local folder path. */
     folder: buildProvider<ImportResult, { srcPath: string }>('skills.import.folder'),

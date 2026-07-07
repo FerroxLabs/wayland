@@ -2,7 +2,8 @@
 
 /**
  * #118 - the sider top-zone nav entries come from a config-driven registry.
- * These tests lock the ORDER (Mission Control first), the id set, and that each
+ * These tests lock the ORDER (Mission Control last, below Memory — 0.11.15),
+ * the id set, and that each
  * entry's `render` still threads the bespoke `isActive` / click wiring through
  * to its live component.
  */
@@ -33,13 +34,12 @@ const propsOf = (id: string, ctx: SiderNavContext): Record<string, unknown> => {
 };
 
 describe('SIDER_NAV_ITEMS registry (#118)', () => {
-  it('lists Mission Control first', () => {
-    expect(SIDER_NAV_ITEMS[0].id).toBe('mission-control');
+  it('lists Mission Control last (below Memory, 0.11.15)', () => {
+    expect(SIDER_NAV_ITEMS[SIDER_NAV_ITEMS.length - 1].id).toBe('mission-control');
   });
 
   it('has the expected entries in order', () => {
     expect(SIDER_NAV_ITEMS.map((i) => i.id)).toEqual([
-      'mission-control',
       'sessions',
       'search',
       'projects',
@@ -48,6 +48,7 @@ describe('SIDER_NAV_ITEMS registry (#118)', () => {
       'scheduled',
       'teams',
       'memory',
+      'mission-control',
     ]);
   });
 

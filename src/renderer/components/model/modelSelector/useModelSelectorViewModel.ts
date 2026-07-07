@@ -144,13 +144,31 @@ export function useModelSelectorViewModel(backend: string, activeModelKey?: stri
     // de-duped against pinned, capped. Usage carries a bare modelId, so match
     // on both `id` and `providerId:id`.
     const idMap = new Map<string, CuratedModel>();
+    // Which connected providers expose each bare model id. When two connected
+    // providers share a bare id (e.g. `gpt-5.5` under both `openai` and
+    // `chatgpt-subscription`), the bare-id `idMap` entry is overwritten by
+    // whichever provider is iterated last, so a recently-used lookup binds the
+    // model to an arbitrary (often wrong) provider - it then renders under the
+    // wrong vendor, routes chat-start to that provider (a ChatGPT-subscription
+    // pick falling back to the disabled OpenAI API), and gets pulled out of its
+    // correct provider group by the recent/recommended de-dup below. Usage
+    // records no providerId, so an ambiguous id cannot be attributed correctly.
+    const providersByBareId = new Map<string, Set<string>>();
     for (const m of base) {
       idMap.set(m.id, m);
       idMap.set(modelKey(m), m);
+      const owners = providersByBareId.get(m.id) ?? new Set<string>();
+      owners.add(m.providerId);
+      providersByBareId.set(m.id, owners);
     }
     const recentRows: ModelRow[] = [];
     const seenRecent = new Set<string>();
     for (const usage of recentlyUsed) {
+      // Skip a bare id shared by 2+ connected providers: it cannot be attributed
+      // to the one the user actually used, so keep it out of the Recently-used
+      // zone rather than binding it to the wrong vendor. It still shows in each
+      // owning provider's group, correctly attributed.
+      if ((providersByBareId.get(usage.modelId)?.size ?? 0) > 1) continue;
       const m = idMap.get(usage.modelId);
       if (!m) continue;
       const key = modelKey(m);

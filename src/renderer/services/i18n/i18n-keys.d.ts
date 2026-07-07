@@ -4655,6 +4655,7 @@ export type I18nKey =
   | 'skills.import.zip.placeholder'
   | 'skills.scanLibrary.done'
   | 'skills.scanLibrary.failed'
+  | 'skills.scanLibrary.progress'
   | 'skills.search.empty'
   | 'skills.search.emptyLibrary'
   | 'skills.search.placeholder'

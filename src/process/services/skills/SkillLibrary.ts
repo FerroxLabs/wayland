@@ -23,6 +23,8 @@ import {
   type SkillSource,
 } from '@/common/types/skillTypes';
 import { SkillGuard } from './SkillGuard';
+import type { LlmScanCall } from './skillGuardLlmScan';
+import type { SkillScanInput } from './skillGuardRules';
 import { openSkillPack, type SkillPackReader } from './SkillPack';
 
 // ProcessConfig and mainLogger are intentionally NOT imported at the module
@@ -32,6 +34,20 @@ import { openSkillPack, type SkillPackReader } from './SkillPack';
 // plain `console.warn` here instead.
 
 const TAG = '[SkillLibrary]';
+
+/** Skills per SkillGuard.scan call during a library sweep. The LLM seam
+ *  already takes a batch array, so a wired model call covers a whole chunk
+ *  instead of one request per skill. */
+const RESCAN_CHUNK_SIZE = 25;
+/** Chunks in flight at once during a sweep - bounded so a 2,000-entry
+ *  library doesn't saturate I/O (or a wired model endpoint). */
+const RESCAN_CONCURRENCY = 4;
+/** Per-chunk LLM-call budget. One stalled model call must never hang the
+ *  whole sweep - on timeout the chunk falls back to its regex verdicts. */
+const RESCAN_LLM_TIMEOUT_MS = 30_000;
+
+/** One progress tick of a full-library sweep. */
+export type SkillRescanProgress = { done: number; total: number; currentName: string };
 
 /**
  * Build the ordered list of candidate directories for a bundled resource dir
@@ -483,18 +499,8 @@ export class SkillLibrary {
     if (!entry) return null;
     const stored = entry.security?.scannerVersion ?? 0;
     if (stored >= SKILL_SCANNER_VERSION) return entry.security ?? null;
-    let body: string | null = null;
-    // #309: prefer the packed body store; fall back to loose files (dev tree).
-    if (this.skillPack?.has(entry.path)) {
-      body = await this.skillPack.read(entry.path);
-    }
-    if (body === null) {
-      try {
-        body = await this.readFileFn(path.join(this.resourceDir, entry.path));
-      } catch {
-        return entry.security ?? null;
-      }
-    }
+    const body = await this.readScanBody(entry);
+    if (body === null) return entry.security ?? null;
     const [report] = await SkillGuard.scan(
       [{ name: entry.name, body, description: entry.description, tags: entry.metadata.tags ?? [] }],
       opts
@@ -504,35 +510,105 @@ export class SkillLibrary {
   }
 
   /**
-   * One-time, regex-only sweep of the vendored library (C4).
-   *
-   * Flips every entry whose stored `scannerVersion` is behind the current
-   * `SKILL_SCANNER_VERSION` from `unscanned` to its real `clean`/`review`
-   * verdict, fixing the "verified safe" counter. First-party content, so it is
-   * ALWAYS `{ llm: false }` — never a model call. The `scannerVersion` gate
-   * makes it idempotent: a second call after a full sweep re-scans nothing.
-   *
-   * Batched with an `await` yield between chunks so a 2,000-entry sweep does
-   * not monopolize the event loop on the boot path.
-   *
-   * @returns the number of entries that were (re)scanned.
+   * Read a skill body for scanning. #309: prefer the packed body store; fall
+   * back to loose files (dev tree). Returns null when the body is unreadable
+   * so scan callers can fail soft (keep the entry's existing report).
    */
-  async rescanStale(opts?: { batchSize?: number }): Promise<{ rescanned: number }> {
-    await this.ensureLoaded();
-    const batchSize = opts?.batchSize ?? 100;
-    const stale = this.entries.filter((e) => (e.security?.scannerVersion ?? 0) < SKILL_SCANNER_VERSION);
-    let rescanned = 0;
-    for (let i = 0; i < stale.length; i++) {
-      // eslint-disable-next-line no-await-in-loop
-      await this.rescanIfStale(stale[i].name, { llm: false });
-      rescanned += 1;
-      // Yield to the event loop between batches so the sweep stays off the UI
-      // thread's critical path.
-      if (i > 0 && i % batchSize === 0) {
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setImmediate(resolve));
-      }
+  private async readScanBody(entry: SkillIndexEntry): Promise<string | null> {
+    if (this.skillPack?.has(entry.path)) {
+      const body = await this.skillPack.read(entry.path);
+      if (body !== null) return body;
     }
-    return { rescanned };
+    try {
+      return await this.readFileFn(path.join(this.resourceDir, entry.path));
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Library sweep (C4): flips every entry whose stored `scannerVersion` is
+   * behind the current `SKILL_SCANNER_VERSION` from `unscanned` to its real
+   * `clean`/`review` verdict, fixing the "verified safe" counter. The
+   * `scannerVersion` gate makes it idempotent: a second call after a full
+   * sweep re-scans nothing.
+   *
+   * First-party content defaults to `{ llm: false }` — never a model call
+   * unless the caller explicitly wires `llm: true` + an `llmCall` seam, in
+   * which case each chunk's model call is bounded by
+   * {@link RESCAN_LLM_TIMEOUT_MS} so one stalled request can't hang the sweep.
+   *
+   * Entries are scanned in chunks of {@link RESCAN_CHUNK_SIZE} (one
+   * `SkillGuard.scan` — and thus one LLM batch call — per chunk) with
+   * {@link RESCAN_CONCURRENCY} chunks in flight. A chunk that fails keeps its
+   * entries' existing reports and the sweep continues. `onProgress` fires once
+   * per entry so callers can surface "Scanning 640 / 1,900" to the user.
+   *
+   * @returns the number of stale entries the sweep processed.
+   */
+  async rescanStale(opts?: {
+    llm?: boolean;
+    llmCall?: LlmScanCall;
+    onProgress?: (progress: SkillRescanProgress) => void;
+  }): Promise<{ rescanned: number }> {
+    await this.ensureLoaded();
+    const stale = this.entries.filter((e) => (e.security?.scannerVersion ?? 0) < SKILL_SCANNER_VERSION);
+    const total = stale.length;
+    let done = 0;
+
+    const chunks: SkillIndexEntry[][] = [];
+    for (let i = 0; i < stale.length; i += RESCAN_CHUNK_SIZE) {
+      chunks.push(stale.slice(i, i + RESCAN_CHUNK_SIZE));
+    }
+
+    const scanChunk = async (chunk: SkillIndexEntry[]): Promise<void> => {
+      // Read bodies first; unreadable entries keep their existing report
+      // (mirrors rescanIfStale's fail-soft read).
+      const scannable: Array<{ entry: SkillIndexEntry; input: SkillScanInput }> = [];
+      for (const entry of chunk) {
+        // eslint-disable-next-line no-await-in-loop
+        const body = await this.readScanBody(entry);
+        if (body !== null) {
+          scannable.push({
+            entry,
+            input: { name: entry.name, body, description: entry.description, tags: entry.metadata.tags ?? [] },
+          });
+        }
+      }
+      if (scannable.length > 0) {
+        try {
+          const reports = await SkillGuard.scan(
+            scannable.map((s) => s.input),
+            { llm: opts?.llm ?? false, llmCall: opts?.llmCall, llmTimeoutMs: RESCAN_LLM_TIMEOUT_MS }
+          );
+          scannable.forEach((s, i) => {
+            const report = reports[i];
+            if (report) s.entry.security = report;
+          });
+        } catch (err) {
+          // A failed chunk keeps its existing reports; the sweep continues.
+          console.warn(`${TAG} rescan chunk failed`, err);
+        }
+      }
+      for (const entry of chunk) {
+        done += 1;
+        opts?.onProgress?.({ done, total, currentName: entry.name });
+      }
+    };
+
+    // Bounded worker pool: chunks run RESCAN_CONCURRENCY at a time so a big
+    // library sweeps in parallel without monopolizing the event loop.
+    let next = 0;
+    const workers = Array.from({ length: Math.min(RESCAN_CONCURRENCY, chunks.length) }, async () => {
+      while (next < chunks.length) {
+        const chunk = chunks[next];
+        next += 1;
+        // eslint-disable-next-line no-await-in-loop
+        await scanChunk(chunk);
+      }
+    });
+    await Promise.all(workers);
+
+    return { rescanned: total };
   }
 }
