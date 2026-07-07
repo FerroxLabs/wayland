@@ -172,13 +172,15 @@ win:
   # release-tag guard fails the build if AZURE_CLIENT_SECRET is empty so we never
   # silently ship unsigned again. electron-builder installs the TrustedSigning
   # PowerShell module itself on the windows-2022 runner.
-  azureSignOptions:
-    publisherName: 'Ferrox Labs, LLC'
-    endpoint: https://eus.codesigning.azure.net/
-    codeSigningAccountName: ferrox-labs-signing
-    certificateProfileName: ferroxlabs
-  # Signed builds now satisfy the Windows auto-update Authenticode check.
-  verifyUpdateCodeSignature: true
+  # azureSignOptions disabled — building UNSIGNED (no Azure creds on this fork).
+  # Re-enable by uncommenting and setting AZURE_* repo secrets.
+  # azureSignOptions:
+  #   publisherName: 'Ferrox Labs, LLC'
+  #   endpoint: https://eus.codesigning.azure.net/
+  #   codeSigningAccountName: ferrox-labs-signing
+  #   certificateProfileName: ferroxlabs
+  # Unsigned build: don't require an Authenticode signature for auto-update.
+  verifyUpdateCodeSignature: false
 
 nsis:
   oneClick: false
