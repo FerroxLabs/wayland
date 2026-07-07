@@ -6,6 +6,7 @@ import { uuid } from '@/common/utils';
 import AcpConfigSelector from '@/renderer/components/agent/AcpConfigSelector';
 import AgentModeSelector from '@/renderer/components/agent/AgentModeSelector';
 import ContextUsageIndicator from '@/renderer/components/agent/ContextUsageIndicator';
+import AutopilotButton from './AutopilotButton';
 import CommandQueuePanel from '@/renderer/components/chat/CommandQueuePanel';
 import SendBox from '@/renderer/components/chat/sendbox';
 import ThoughtDisplay from '@/renderer/components/chat/ThoughtDisplay';
@@ -488,13 +489,16 @@ Please check your local CLI tool authentication status`,
         allowSendWhileLoading
         compactActions={!!teamId}
         sendButtonPrefix={
-          tokenUsage ? (
-            <ContextUsageIndicator
-              tokenUsage={tokenUsage}
-              contextLimit={contextLimit > 0 ? contextLimit : undefined}
-              size={24}
-            />
-          ) : undefined
+          <>
+            <AutopilotButton content={content} workspacePath={workspacePath} />
+            {tokenUsage ? (
+              <ContextUsageIndicator
+                tokenUsage={tokenUsage}
+                contextLimit={contextLimit > 0 ? contextLimit : undefined}
+                size={24}
+              />
+            ) : null}
+          </>
         }
       ></SendBox>
     </div>

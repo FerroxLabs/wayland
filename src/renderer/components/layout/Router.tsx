@@ -8,6 +8,7 @@ import { ToastProvider } from '@renderer/components/settings/shared/feedback/Toa
 import OnboardingOverlay from '@renderer/components/onboarding/OnboardingOverlay';
 const Conversation = React.lazy(() => import('@renderer/pages/conversation'));
 const Guid = React.lazy(() => import('@renderer/pages/guid'));
+const TankPanel = React.lazy(() => import('@renderer/pages/tank'));
 const AssistantsLibraryPage = React.lazy(() => import('@renderer/pages/assistants/AssistantsLibraryPage'));
 const WorkflowsLibraryPage = React.lazy(() => import('@renderer/pages/workflows/WorkflowsLibraryPage'));
 const AgentSettings = React.lazy(() => import('@renderer/pages/settings/AgentSettings'));
@@ -104,6 +105,7 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
           <Route element={<ProtectedLayout layout={layout} />}>
             <Route index element={<Navigate to='/guid' replace />} />
             <Route path='/guid' element={withRouteFallback(Guid)} />
+            <Route path='/tank' element={withRouteFallback(TankPanel)} />
             <Route
               path='/conversation/:id'
               element={<ErrorBoundary>{withRouteFallback(Conversation)}</ErrorBoundary>}
