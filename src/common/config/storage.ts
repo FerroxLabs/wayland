@@ -122,6 +122,11 @@ export interface IConfigStorageRefer {
       promptTimeout?: number;
     };
   };
+  /**
+   * Tank (autopilot) connection, a persisted alternative to the WAYLAND_TANK_URL /
+   * WAYLAND_TANK_TOKEN env vars. The env vars, when set, still take precedence.
+   */
+  'autopilot.tank'?: { url?: string; token?: string };
   /** Global LLM prompt timeout in seconds (default: 300). Per-backend promptTimeout overrides this. */
   'acp.promptTimeout'?: number;
   /** Idle timeout in minutes before an ACP agent process is killed to reclaim memory (default: 5). */

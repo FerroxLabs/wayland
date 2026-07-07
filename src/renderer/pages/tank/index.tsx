@@ -9,33 +9,44 @@
  * without leaving Wayland. The main process sets the `tank_token` cookie on the
  * dedicated partition first (autopilot.tankUi), then we load the URL.
  *
- * ponytail: English strings inline for this flag-gated embed; move to i18n keys
- * before it becomes a shipped, non-gated feature.
+ * When Tank isn't configured yet, we render the shared connection form
+ * (Settings > Tank uses the same one) instead of a dead-end warning — saving
+ * persists the connection and loads the dashboard without a restart.
  */
 
 import React, { useEffect, useState } from 'react';
 import { Result } from '@arco-design/web-react';
 import { ipcBridge } from '@/common';
 import WebviewHost from '@/renderer/components/media/WebviewHost';
+import TankConnectionForm from '@/renderer/components/tank/TankConnectionForm';
 
 const TankPanel = () => {
   const [state, setState] = useState<{ url?: string; error?: string } | null>(null);
 
-  useEffect(() => {
+  const checkTank = () =>
     ipcBridge.autopilot.tankUi
       .invoke()
       .then((r) => setState({ url: r.ok ? r.url : undefined, error: r.ok ? undefined : r.error }))
       .catch((e) => setState({ error: e instanceof Error ? e.message : String(e) }));
+
+  useEffect(() => {
+    checkTank();
   }, []);
 
   if (!state) return null;
+
   if (!state.url) {
     return (
-      <Result
-        status='warning'
-        title='Tank is not available'
-        subTitle={state.error || 'Set WAYLAND_TANK_URL and WAYLAND_TANK_TOKEN to embed the Tank dashboard.'}
-      />
+      <div className='w-full h-full flex items-center justify-center p-24px'>
+        <div className='w-full max-w-420px'>
+          <Result
+            status='warning'
+            title='Tank is not available'
+            subTitle={state.error || 'Enter your Tank server URL and token to connect.'}
+          />
+          <TankConnectionForm saveLabel='Save & connect' onSaved={checkTank} />
+        </div>
+      </div>
     );
   }
 

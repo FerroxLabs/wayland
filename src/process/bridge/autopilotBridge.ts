@@ -12,15 +12,34 @@
  */
 
 import { ipcBridge } from '@/common';
-import { tankEnabled } from '@process/services/autopilot/tankClient';
+import { ProcessConfig } from '@process/utils/initStorage';
+import { tankEnabled, getTankConfigOverride, setTankConfigOverride } from '@process/services/autopilot/tankClient';
 import { runAutopilot } from '@process/services/autopilot/AutopilotService';
 import { prepareTankUi } from '@process/services/autopilot/tankUi';
 
 export function initAutopilotBridge(): void {
+  // Hydrate the in-memory overlay from the persisted setting at startup.
+  ProcessConfig.get('autopilot.tank')
+    .then((saved) => setTankConfigOverride(saved))
+    .catch(() => {});
+
   ipcBridge.autopilot.available.provider(async () => ({ available: tankEnabled() }));
 
   // Embedded Tank dashboard: set the auth cookie, hand back the URL for a webview.
   ipcBridge.autopilot.tankUi.provider(async () => prepareTankUi());
+
+  // Persisted Tank connection (Tank page form).
+  ipcBridge.autopilot.getTankConfig.provider(async () => {
+    const { url = '', token = '' } = getTankConfigOverride();
+    return { url, token };
+  });
+
+  ipcBridge.autopilot.setTankConfig.provider(async ({ url, token }) => {
+    const cleaned = { url: url.trim(), token: token.trim() };
+    await ProcessConfig.set('autopilot.tank', cleaned);
+    setTankConfigOverride(cleaned); // apply immediately, no restart
+    return { success: true };
+  });
 
   ipcBridge.autopilot.run.provider(async (params) => {
     if (!tankEnabled()) {

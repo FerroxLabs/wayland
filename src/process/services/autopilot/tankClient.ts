@@ -50,10 +50,30 @@ export type TankQueueSnapshot = {
 
 type TankConfig = { baseUrl: string; token: string };
 
-/** Read config from the environment. Defaults to the standard local Tank port. */
+/**
+ * Persisted config overlay (set in Settings/the Tank page). Kept in memory so
+ * {@link tankConfig} stays synchronous; hydrated at startup and refreshed on
+ * save by {@link setTankConfigOverride}. Env vars still win over this.
+ */
+let _override: { url?: string; token?: string } = {};
+
+/** Apply the persisted Tank connection so the sync readers below pick it up. */
+export function setTankConfigOverride(value: { url?: string; token?: string } | undefined): void {
+  _override = value ?? {};
+}
+
+/** The current persisted overlay (what the settings form should display). */
+export function getTankConfigOverride(): { url?: string; token?: string } {
+  return { ..._override };
+}
+
+/**
+ * Effective config: env var → persisted setting → default. Env wins so an
+ * explicitly-launched WAYLAND_TANK_* still overrides whatever's saved in-app.
+ */
 export function tankConfig(): TankConfig {
-  const baseUrl = (process.env.WAYLAND_TANK_URL || 'http://127.0.0.1:7879').replace(/\/+$/, '');
-  const token = process.env.WAYLAND_TANK_TOKEN || '';
+  const baseUrl = (process.env.WAYLAND_TANK_URL || _override.url || 'http://127.0.0.1:7879').replace(/\/+$/, '');
+  const token = process.env.WAYLAND_TANK_TOKEN || _override.token || '';
   return { baseUrl, token };
 }
 

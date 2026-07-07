@@ -1243,13 +1243,16 @@ export const task = {
 export const autopilot = {
   available: buildProvider<{ available: boolean }, void>('autopilot.available'),
   tankUi: buildProvider<import('@process/services/autopilot/tankUi').TankUiResult, void>('autopilot.tank-ui'),
+  /** Read the persisted Tank connection to populate the settings form. */
+  getTankConfig: buildProvider<{ url: string; token: string }, void>('autopilot.get-tank-config'),
+  /** Persist the Tank connection and apply it immediately (no restart needed). */
+  setTankConfig: buildProvider<IBridgeResponse<{}>, { url: string; token: string }>('autopilot.set-tank-config'),
   run: buildProvider<
     import('@process/services/autopilot/AutopilotService').AutopilotRunResult,
     import('@process/services/autopilot/AutopilotService').AutopilotRunParams
   >('autopilot.run'),
-  finished: buildEmitter<import('@process/services/autopilot/AutopilotService').AutopilotFinished>(
-    'autopilot.finished',
-  ),
+  finished:
+    buildEmitter<import('@process/services/autopilot/AutopilotService').AutopilotFinished>('autopilot.finished'),
 };
 
 // WebUI service management API
